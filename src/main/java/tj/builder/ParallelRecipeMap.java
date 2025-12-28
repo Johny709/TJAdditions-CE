@@ -224,7 +224,7 @@ public final class ParallelRecipeMap {
                 boolean isMatch = recipe.matches(false, inputs, fluidInputs, matchingMode);
                 if (isMatch) {
                     if (distinct) {
-                        if (Arrays.asList(occupiedRecipes).contains(recipe))
+                        if (occupiedRecipes.contains(recipe))
                             continue;
                     }
                     return recipe;

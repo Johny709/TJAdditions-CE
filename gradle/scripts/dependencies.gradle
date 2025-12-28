@@ -77,6 +77,6 @@ dependencies {
     implementation("curse.maven:ae2-extended-life-570458:5411078")
     implementation("curse.maven:gregicprobe-592190:3686839")
     api("curse.maven:chisel-235279:2915375")
-    implementation(rfg.deobf(project.files("libs/gregtech_tj_fork-1.18.1-dev.jar")))
-    implementation(rfg.deobf(project.files("libs/gregicality_tj_fork-0.26.1-dev.jar")))
+    implementation(rfg.deobf(project.files("libs/gregtech_tj_fork-1.18.1B-dev.jar")))
+    implementation(rfg.deobf(project.files("libs/gregicality_tj_fork-0.26.1B-dev.jar")))
 }
