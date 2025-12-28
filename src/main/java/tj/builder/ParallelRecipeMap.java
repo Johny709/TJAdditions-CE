@@ -129,7 +129,7 @@ public final class ParallelRecipeMap {
             Collection<Recipe> recipes = recipeFluidMap.get(new MapFluidIngredient(fluid));
             if (recipes == null) continue;
             for (Recipe tmpRecipe : recipes) {
-                if (tmpRecipe.matches(false, inputs, fluidInputs, matchingMode)) {
+                if (tmpRecipe.matchesFound(false, inputs, fluidInputs)) {
                     if (distinct) {
                         if (occupiedRecipes.contains(tmpRecipe))
                             continue;
@@ -144,7 +144,7 @@ public final class ParallelRecipeMap {
     @Nullable
     private Recipe findByInputs(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, MatchingMode matchingMode, List<Recipe> occupiedRecipes, boolean distinct) {
         for (Recipe recipe : recipeList) {
-            if (recipe.matches(false, inputs, fluidInputs, matchingMode)) {
+            if (recipe.matchesFound(false, inputs, fluidInputs)) {
                 if (distinct) {
                     if (occupiedRecipes.contains(recipe))
                         continue;
@@ -184,8 +184,7 @@ public final class ParallelRecipeMap {
             if (!hasRecipes) continue;
             Collection<Recipe> recipes = recipeItemMap.get(item);
             for (Recipe recipe : recipes) {
-                Byte leftOverIngredients = recipeLeftoverIngredients.getOrDefault(recipe,
-                        recipeIngredientCountMap.getOrDefault(recipe, (byte) 0));
+                byte leftOverIngredients = recipeLeftoverIngredients.getOrDefault(recipe, recipeIngredientCountMap.getOrDefault(recipe, (byte) 0));
                 leftOverIngredients--;
                 recipeLeftoverIngredients.put(recipe, leftOverIngredients);
                 if (leftOverIngredients > 0) {
@@ -195,7 +194,7 @@ public final class ParallelRecipeMap {
                 if (voltage < v) {
                     continue;
                 }
-                boolean isMatch = recipe.matches(false, inputs, fluidInputs, matchingMode);
+                boolean isMatch = recipe.matchesFound(false, inputs, fluidInputs);
                 if (isMatch) {
                     if (distinct) {
                         if (occupiedRecipes.contains(recipe))
@@ -210,8 +209,7 @@ public final class ParallelRecipeMap {
             if (!hasRecipes) continue;
             Collection<Recipe> recipes = recipeFluidMap.get(fluid);
             for (Recipe recipe : recipes) {
-                Byte leftOverIngredients = recipeLeftoverIngredients.getOrDefault(recipe,
-                        recipeIngredientCountMap.getOrDefault(recipe, (byte) 0));
+                byte leftOverIngredients = recipeLeftoverIngredients.getOrDefault(recipe, recipeIngredientCountMap.getOrDefault(recipe, (byte) 0));
                 leftOverIngredients--;
                 recipeLeftoverIngredients.put(recipe, leftOverIngredients);
                 if (leftOverIngredients > 0) {
@@ -221,7 +219,7 @@ public final class ParallelRecipeMap {
                 if (voltage < v) {
                     continue;
                 }
-                boolean isMatch = recipe.matches(false, inputs, fluidInputs, matchingMode);
+                boolean isMatch = recipe.matchesFound(false, inputs, fluidInputs);
                 if (isMatch) {
                     if (distinct) {
                         if (occupiedRecipes.contains(recipe))

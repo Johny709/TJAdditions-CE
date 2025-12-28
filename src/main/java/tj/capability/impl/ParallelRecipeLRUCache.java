@@ -47,7 +47,7 @@ public class ParallelRecipeLRUCache {
         for (Recipe recipe : this.recipeList) {
             if (recipe == null)
                 continue;
-            if (recipe.matches(false, importInventory, importFluids)) {
+            if (recipe.matchesFound(false, importInventory, importFluids)) {
                 this.recipeList.remove(recipe);
                 this.recipeList.addFirst(recipe);
                 this.cacheHit++;
@@ -62,7 +62,7 @@ public class ParallelRecipeLRUCache {
         for (Recipe recipe : recipeList) {
             if (recipe == null)
                 continue;
-            if (recipe.matches(false, importInventory, importFluids)) {
+            if (recipe.matchesFound(false, importInventory, importFluids)) {
                 if (occupiedRecipes.contains(recipe) && recipe != occupiedRecipes.get(i))
                     continue;
                 this.recipeList.remove(recipe);

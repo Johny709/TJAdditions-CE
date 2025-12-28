@@ -392,7 +392,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         IMultipleTankHandler importFluids = this.getInputTank();
         return (totalEUt >= 0 ? this.getEnergyStored() >= (totalEUt > this.getEnergyCapacity() / 2 ? resultEU : totalEUt) :
                 (this.getEnergyStored() - resultEU <= this.getEnergyCapacity())) &&
-                recipe.matches(true, importInventory, importFluids);
+                recipe.matchesFound(true, importInventory, importFluids);
     }
 
     public double getDurationOverclock() {
