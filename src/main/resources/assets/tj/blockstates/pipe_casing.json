@@ -1,0 +1,15 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "minecraft:cube_all"
+  },
+  "variants": {
+    "variant": {
+      "stainless_pipe": {
+        "textures": {
+          "all": "tj:blocks/casings/pipe/machine_casing_pipe_stainless"
+        }
+      }
+    }
+  }
+}

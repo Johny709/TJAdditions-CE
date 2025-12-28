@@ -1,0 +1,43 @@
+{
+  "package": "tj.mixin",
+  "required": true,
+  "refmap": "mixins.tj.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "gregic_probe.ElectricContainerInfoProviderMixin",
+    "gregic_probe.RecipeInfoProviderMixin",
+    "gregic_probe.WorkableInfoProviderMixin",
+    "gregicality.GATransformerProviderMixin",
+    "gregicality.IGAMetaTileEntityEnergyHatchMixin",
+    "gregicality.IMetaTileEntityAdvFusionReactorMixin",
+    "gregicality.IMetaTileEntityHyperReactorIIIMixin",
+    "gregicality.IMetaTileEntityHyperReactorIIMixin",
+    "gregicality.IMetaTileEntityHyperReactorIMixin",
+    "gregicality.IMetaTileEntityRotorHolderForNuclearCoolantMixin",
+    "gregicality.ITileEntityFusionReactorMixin",
+    "gregicality.MetaTileEntityAdvFusionReactorMixin",
+    "gregicality.MetaTileEntityExtremeDieselEngineMixin",
+    "gregicality.MetaTileEntityHyperReactorIIIMixin",
+    "gregicality.MetaTileEntityHyperReactorIIMixin",
+    "gregicality.MetaTileEntityHyperReactorIMixin",
+    "gregicality.MetaTileEntityLargeNaquadahReactorMixin",
+    "gregicality.MetaTileEntityLargeRocketEngineMixin",
+    "gregicality.MetaTileEntityMufflerHatchMixin",
+    "gregicality.QubitContainerInfoProviderMixin",
+    "gregicality.TileEntityFusionReactorMixin",
+    "gregtech.FuelableInfoProviderMixin",
+    "gregtech.IAbstractWidgetGroupMixin",
+    "gregtech.IFueledMultiblockControllerMixin",
+    "gregtech.IMetaTileEntityEnergyHatchMixin",
+    "gregtech.MetaTileEntityDieselEngineMixin",
+    "gregtech.MultiblockWithDisplayBaseMixin",
+    "gregtech.TransformerInfoProviderMixin"
+  ],
+  "server": [],
+  "client": [
+    "gregtech.IMultiblockInfoRecipeWrapperMixin",
+    "gregtech.MultiblockInfoRecipeWrapperMixin"
+  ]
+}

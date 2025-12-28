@@ -1,0 +1,30 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "minecraft:cube_all"
+  },
+  "variants": {
+    "variant": {
+      "fusion_casing_uhv": {
+        "textures": {
+          "all": "tj:blocks/casings/fusion/fusion_casing_fusion_4_uhv"
+        }
+      },
+      "fusion_coil_uhv": {
+        "textures": {
+          "all": "tj:blocks/casings/fusion/fusion_coil_4_uhv"
+        }
+      },
+      "fusion_casing_uev": {
+        "textures": {
+          "all": "tj:blocks/casings/fusion/machine_casing_fusion_5_uev"
+        }
+      },
+      "fusion_coil_uev": {
+        "textures": {
+          "all": "tj:blocks/casings/fusion/fusion_coil_uev"
+        }
+      }
+    }
+  }
+}

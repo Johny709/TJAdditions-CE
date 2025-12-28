@@ -1,0 +1,60 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "minecraft:cube_all"
+  },
+  "variants": {
+    "variant": {
+      "draconium": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/draconiccasing"
+        }
+      },
+      "awakened": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/awakenedcasing"
+        }
+      },
+      "chaotic": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/chaoticcasing"
+        }
+      },
+      "eternity": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/eternityblock"
+        }
+      },
+      "soul": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/soulcasing"
+        }
+      },
+      "duranium": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/duranium"
+        }
+      },
+      "seaborgium": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/seaborgium"
+        }
+      },
+      "tungsten_titanium_carbide": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/tungsten_titanium_carbide"
+        }
+      },
+      "heavy_quark_degenerate_matter": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/heavy_quark_degenerate_matter"
+        }
+      },
+      "periodicium": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/periodicium"
+        }
+      }
+    }
+  }
+}

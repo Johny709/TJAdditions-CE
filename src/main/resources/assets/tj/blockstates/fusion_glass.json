@@ -1,0 +1,35 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "minecraft:cube_all"
+  },
+  "variants": {
+    "variant": {
+      "fusion_glass_luv": {
+        "textures": {
+          "all": "tj:blocks/casings/glass/fusion_glass_luv"
+        }
+      },
+      "fusion_glass_zpm": {
+        "textures": {
+          "all": "tj:blocks/casings/glass/fusion_glass_zpm"
+        }
+      },
+      "fusion_glass_uv": {
+        "textures": {
+          "all": "tj:blocks/casings/glass/fusion_glass_uv"
+        }
+      },
+      "fusion_glass_uhv": {
+        "textures": {
+          "all": "tj:blocks/casings/glass/fusion_glass_uhv"
+        }
+      },
+      "fusion_glass_uev": {
+        "textures": {
+          "all": "tj:blocks/casings/glass/fusion_glass_uev"
+        }
+      }
+    }
+  }
+}

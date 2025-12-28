@@ -1,0 +1,173 @@
+package tj.machines.multi.parallel;
+
+import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
+import gregicadditions.client.ClientHandler;
+import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.metal.MetalCasing1;
+import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.metatileentity.multiblock.IMultiblockPart;
+import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.multiblock.BlockPattern;
+import gregtech.api.multiblock.FactoryBlockPattern;
+import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.RecipeMap;
+import gregtech.api.render.ICubeRenderer;
+import gregtech.api.render.OrientedOverlayRenderer;
+import gregtech.common.blocks.BlockBoilerCasing;
+import gregtech.common.blocks.MetaBlocks;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.TJConfig;
+import tj.builder.ParallelRecipeMap;
+import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
+import tj.util.TooltipHelper;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+
+import static gregicadditions.GAMaterials.Cryotheum;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static gregtech.api.recipes.RecipeMaps.VACUUM_RECIPES;
+import static tj.TJRecipeMaps.PARALLEL_VACUUM_RECIPES;
+import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
+
+
+public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMultiblockController {
+
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
+    private FluidStack cryotheum;
+
+    public MetaTileEntityParallelCryogenicFreezer(ResourceLocation metaTileEntityId) {
+        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_VACUUM_RECIPES});
+        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack) {
+
+            @Override
+            protected boolean drawEnergy(long recipeEUt) {
+                FluidStack drained = this.getInputTank().drain(cryotheum, true);
+                if (drained == null || drained.amount != cryotheum.amount)
+                    return false;
+                return super.drawEnergy(recipeEUt);
+            }
+        };
+        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
+    }
+
+    @Override
+    public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
+        return new MetaTileEntityParallelCryogenicFreezer(this.metaTileEntityId);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("tj.multiblock.parallel_cryogenic_freezer.description"));
+        tooltip.add(I18n.format("tj.multiblock.parallel.description"));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+            tip.add(I18n.format("gregtech.multiblock.vol_cryo.description"));
+            super.addInformation(stack, player, tip, advanced);
+        });
+    }
+
+    @Override
+    protected void addDisplayText(List<ITextComponent> textList) {
+        super.addDisplayText(textList);
+        if (!this.isStructureFormed()) return;
+        FluidStack drained = this.inputFluidInventory.drain(this.cryotheum, false);
+        textList.add(drained != null && drained.amount == this.cryotheum.amount ? new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.fluid.input.tick", this.cryotheum.getLocalizedName(), this.cryotheum.amount))
+                : new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid", this.cryotheum.getLocalizedName(), this.cryotheum.amount)));
+    }
+
+    @Override
+    protected BlockPattern createStructurePattern() {
+        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        for (int layer = 0; layer < this.parallelLayer; layer++) {
+            String entityP = layer == 0 ? "XXXXX" : "XXPXX";
+            if (layer % 4 == 0) {
+                String entityS = layer >= this.parallelLayer - 4 ? "~XSX~" : "~XXX~";
+                factoryPattern.aisle("~XXX~", "XXXXX", entityP, "XXXXX", "~XXX~");
+                factoryPattern.aisle(entityS, "X#P#X", "XPPPX", "X#P#X", "~XXX~");
+            }
+        }
+        return factoryPattern.aisle("~XXX~", "XXXXX", "XXXXX", "XXXXX", "~XXX~")
+                .setAmountAtLeast('L', 16)
+                .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
+                .where('#', isAirPredicate())
+                .where('~', tile -> true)
+                .build();
+    }
+
+    private IBlockState getCasingState() {
+        return GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.INCOLOY_MA956);
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
+                .mapToLong(IEnergyContainer::getInputVoltage)
+                .filter(voltage -> voltage <= GAValues.V[7])
+                .max()
+                .orElse(GAValues.V[7]);
+        this.cryotheum = Cryotheum.getFluid((int) Math.pow(2, GAUtility.getTierByVoltage(this.maxVoltage)));
+    }
+
+    @Override
+    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
+        return ClientHandler.INCOLOY_MA956_CASING;
+    }
+
+    @Nonnull
+    @Override
+    protected OrientedOverlayRenderer getFrontOverlay() {
+        return ClientHandler.FREEZER_OVERLAY;
+    }
+
+    @Override
+    public int getEUPercentage() {
+        return TJConfig.parallelCryogenicFreezer.eutPercentage;
+    }
+
+    @Override
+    public int getDurationPercentage() {
+        return TJConfig.parallelCryogenicFreezer.durationPercentage;
+    }
+
+    @Override
+    public int getChancePercentage() {
+        return TJConfig.parallelCryogenicFreezer.chancePercentage;
+    }
+
+    @Override
+    public int getStack() {
+        return TJConfig.parallelCryogenicFreezer.stack;
+    }
+
+    @Override
+    public int getMaxParallel() {
+        return TJConfig.parallelCryogenicFreezer.maximumParallel;
+    }
+
+    @Override
+    public RecipeMap<?>[] getRecipeMaps() {
+        return new RecipeMap[]{VACUUM_RECIPES};
+    }
+}

@@ -1,0 +1,95 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "minecraft:cube_all",
+    "textures": {
+      "all": "gregtech:blocks/rendering_error"
+    }
+  },
+  "variants": {
+    "active=false,variant=energy_port_uhv": [
+      {
+        "textures": {
+          "all": "tj:blocks/casings/ability/adv_fusion_energy_port_uhv"
+        }
+      }
+    ],
+    "active=true,variant=energy_port_uhv": [
+      {
+        "textures": {
+          "all": "tj:blocks/casings/ability/adv_fusion_energy_port_uhv_active"
+        }
+      }
+    ],
+    "active=false,variant=energy_port_uev": [
+      {
+        "textures": {
+          "all": "tj:blocks/casings/ability/adv_fusion_energy_port_uev"
+        }
+      }
+    ],
+    "active=true,variant=energy_port_uev": [
+      {
+        "textures": {
+          "all": "tj:blocks/casings/ability/adv_fusion_energy_port_uev_active"
+        }
+      }
+    ],
+    "active=false,variant=energy_port_uiv": [
+      {
+        "textures": {
+          "all": "tj:blocks/casings/ability/adv_fusion_energy_port_uiv"
+        }
+      }
+    ],
+    "active=true,variant=energy_port_uiv": [
+      {
+        "textures": {
+          "all": "tj:blocks/casings/ability/adv_fusion_energy_port_uiv_active"
+        }
+      }
+    ],
+    "active=false,variant=energy_port_umv": [
+      {
+        "textures": {
+          "all": "tj:blocks/casings/ability/adv_fusion_energy_port_umv"
+        }
+      }
+    ],
+    "active=true,variant=energy_port_umv": [
+      {
+        "textures": {
+          "all": "tj:blocks/casings/ability/adv_fusion_energy_port_umv_active"
+        }
+      }
+    ],
+    "active=false,variant=energy_port_uxv": [
+      {
+        "textures": {
+          "all": "tj:blocks/casings/ability/adv_fusion_energy_port_uxv"
+        }
+      }
+    ],
+    "active=true,variant=energy_port_uxv": [
+      {
+        "textures": {
+          "all": "tj:blocks/casings/ability/adv_fusion_energy_port_uxv_active"
+        }
+      }
+    ],
+    "active=false,variant=energy_port_max": [
+      {
+        "textures": {
+          "all": "gregtech:blocks/rendering_error"
+        }
+      }
+    ],
+    "active=true,variant=energy_port_max": [
+      {
+        "textures": {
+          "all": "gregtech:blocks/rendering_error"
+        }
+      }
+    ]
+  }
+}
