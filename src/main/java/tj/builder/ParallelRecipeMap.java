@@ -70,6 +70,7 @@ public final class ParallelRecipeMap {
             }
             byte uniqueIngredients = 0;
             uniqueIngredients += (byte) (uniqueFluidIngredients.size() + uniqueItemIngredients.size());
+            this.recipeIngredientCountMap.defaultReturnValue((byte) -127);
             this.recipeIngredientCountMap.put(recipe, uniqueIngredients);
         });
     }
@@ -179,12 +180,16 @@ public final class ParallelRecipeMap {
         }
 
         Object2ByteMap<Recipe> recipeLeftoverIngredients = new Object2ByteOpenHashMap<>();
+        recipeLeftoverIngredients.defaultReturnValue((byte) -127);
         for (MapItemStackIngredient item : uniqueItems) {
             boolean hasRecipes = recipeItemMap.containsKey(item);
             if (!hasRecipes) continue;
             Collection<Recipe> recipes = recipeItemMap.get(item);
             for (Recipe recipe : recipes) {
-                byte leftOverIngredients = recipeLeftoverIngredients.getOrDefault(recipe, recipeIngredientCountMap.getOrDefault(recipe, (byte) 0));
+                byte leftOverIngredients;
+                if ((leftOverIngredients = recipeLeftoverIngredients.getByte(recipe)) == -127)
+                    if ((leftOverIngredients = this.recipeIngredientCountMap.getByte(recipe)) == -127)
+                        leftOverIngredients = 0;
                 leftOverIngredients--;
                 recipeLeftoverIngredients.put(recipe, leftOverIngredients);
                 if (leftOverIngredients > 0) {
@@ -209,7 +214,10 @@ public final class ParallelRecipeMap {
             if (!hasRecipes) continue;
             Collection<Recipe> recipes = recipeFluidMap.get(fluid);
             for (Recipe recipe : recipes) {
-                byte leftOverIngredients = recipeLeftoverIngredients.getOrDefault(recipe, recipeIngredientCountMap.getOrDefault(recipe, (byte) 0));
+                byte leftOverIngredients;
+                if ((leftOverIngredients = recipeLeftoverIngredients.getByte(recipe)) == -127)
+                    if ((leftOverIngredients = this.recipeIngredientCountMap.getByte(recipe)) == -127)
+                        leftOverIngredients = 0;
                 leftOverIngredients--;
                 recipeLeftoverIngredients.put(recipe, leftOverIngredients);
                 if (leftOverIngredients > 0) {
