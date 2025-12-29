@@ -5,6 +5,8 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregtech.api.GTValues;
+import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.capability.impl.ItemHandlerList;
@@ -74,7 +76,8 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
 
     @Override
     protected FuelRecipeLogic createWorkable(long maxVoltage) {
-        this.airCollectorHandler = new LargeAtmosphereCollectorWorkableHandler(this, this.recipeMap, () -> this.energyContainer, () -> this.importFluidHandler);
+        this.airCollectorHandler = new LargeAtmosphereCollectorWorkableHandler(this, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler);
+        this.airCollectorHandler.setExportFluidsSupplier(this::getExportFluidHandler);
         this.fastModeConsumer = this.airCollectorHandler::setFastMode;
         return this.airCollectorHandler;
     }
@@ -260,5 +263,17 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     @Override
     public int getRotorSpeedDecrement() {
         return 1;
+    }
+
+    private IEnergyContainer getEnergyContainer() {
+        return this.energyContainer;
+    }
+
+    private IMultipleTankHandler getImportFluidHandler() {
+        return this.importFluidHandler;
+    }
+
+    private IFluidHandler getExportFluidHandler() {
+        return this.exportFluidHandler;
     }
 }
