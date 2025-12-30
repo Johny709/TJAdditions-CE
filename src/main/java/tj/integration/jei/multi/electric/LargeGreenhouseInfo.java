@@ -5,7 +5,6 @@ import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
-import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.util.BlockInfo;
 import gregtech.common.blocks.BlockMetalCasing;
@@ -21,9 +20,9 @@ import net.minecraft.util.text.TextFormatting;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
@@ -35,8 +34,8 @@ public class LargeGreenhouseInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        GATransparentCasing.CasingType[] glassType = GATransparentCasing.CasingType.values();
-        GAMultiblockShapeInfo.Builder shapeInfo = GAMultiblockShapeInfo.builder(RIGHT, UP, BACK)
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(RIGHT, UP, BACK)
                 .aisle("~CCCCC~", "~CCCCC~", "~CCCCC~", "~GGGGG~", "~GGGGG~", "~GGGGG~", "~GGGGG~", "~~~~~~~")
                 .aisle("CCCCCCC", "CDDDDDC", "C#####C", "G#####G", "G#####G", "G#####G", "G#####G", "~GGGGG~")
                 .aisle("iCCCCCC", "IDDDDDC", "C#####C", "G#####G", "G#####G", "G#####G", "G#####G", "~GGGGG~")
@@ -44,19 +43,20 @@ public class LargeGreenhouseInfo extends TJMultiblockInfoPage {
                 .aisle("CCCCCCC", "ODDDDDC", "C#####C", "G#####G", "G#####G", "G#####G", "G#####G", "~GGGGG~")
                 .aisle("CCCCCCC", "CDDDDDC", "C#####C", "G#####G", "G#####G", "G#####G", "G#####G", "~GGGGG~")
                 .aisle("~CCCCC~", "~CCCCC~", "~CCCCC~", "~GGGGG~", "~GGGGG~", "~GGGGG~", "~GGGGG~", "~~~~~~~")
-                .where('S', TJMetaTileEntities.LARGE_GREENHOUSE, EnumFacing.WEST)
+                .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STAINLESS_CLEAN))
                 .where('D', new BlockInfo(Block.getBlockFromName("randomthings:fertilizeddirt")))
-                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
-                .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], EnumFacing.WEST)
-                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST);
-        return Arrays.stream(PumpCasing.CasingType.values())
-                .map(casingType -> shapeInfo.where('P', GAMetaBlocks.PUMP_CASING.getState(casingType))
-                        .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(glassType[Math.min(glassType.length - 1, casingType.ordinal())]))
-                        .where('E', this.getEnergyHatch(casingType.getTier(), false), EnumFacing.EAST)
-                        .build())
-                .collect(Collectors.toList());
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
+        for (int tier = 0; tier < 15; tier++) {
+            shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
+                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('P', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier -1)]))
+                    .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.values()[Math.min(6, tier)]))
+                    .build());
+        }
+        return shapeInfos;
     }
 
     @Override

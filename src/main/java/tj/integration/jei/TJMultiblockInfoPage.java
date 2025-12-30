@@ -1,10 +1,13 @@
 package tj.integration.jei;
 
+import gregicadditions.item.GAHeatingCoil;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.common.blocks.BlockWireCoil;
+import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
@@ -63,6 +66,26 @@ public abstract class TJMultiblockInfoPage extends MultiblockInfoPage {
             case 13: return isOutput ? GATileEntities.ENERGY_OUTPUT[tier - 9] : GATileEntities.ENERGY_INPUT[tier - 9];
             case 14: return isOutput ? MetaTileEntities.ENERGY_OUTPUT_HATCH[9] : MetaTileEntities.ENERGY_INPUT_HATCH[9];
             default: return isOutput ? MetaTileEntities.ENERGY_OUTPUT_HATCH[0] : MetaTileEntities.ENERGY_INPUT_HATCH[0];
+        }
+    }
+
+    public IBlockState getCoils(int tier) {
+        switch (tier) {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7: return MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.values()[tier - 1]);
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+            case 13:
+            case 14: return GAMetaBlocks.HEATING_COIL.getState(GAHeatingCoil.CoilType.values()[tier - 8]);
+            default: return MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL);
         }
     }
 

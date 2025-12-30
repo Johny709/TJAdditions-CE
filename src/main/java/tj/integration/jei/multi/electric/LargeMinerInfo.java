@@ -14,6 +14,7 @@ import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMiner;
 import tj.machines.multi.electric.MetaTileEntityEliteLargeMiner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,8 +34,9 @@ public class LargeMinerInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         if (this.largeMiner.getType() == TJMiner.Type.DESTROYER) {
-            MultiblockShapeInfo.Builder shapeInfo = MultiblockShapeInfo.builder()
+            MultiblockShapeInfo.Builder builder = MultiblockShapeInfo.builder()
                     .aisle("F###F", "F###F", "PPPPP", "#####", "#####", "#####", "#####", "#####", "#####", "#####")
                     .aisle("#####", "#####", "PPPPP", "#MPO#", "##F##", "##F##", "##F##", "#####", "#####", "#####")
                     .aisle("#####", "#####", "PPmPP", "#SPE#", "##F##", "##F##", "##F##", "##F##", "##F##", "##F##")
@@ -43,17 +45,17 @@ public class LargeMinerInfo extends TJMultiblockInfoPage {
                     .where('S', this.getController(), EnumFacing.WEST)
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                     .where('P', this.largeMiner.getCasingState())
-                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.EAST)
-                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
-                    .where('F', this.largeMiner.getFrameState())
-                    .where('#', Blocks.AIR.getDefaultState());
-            return Arrays.stream(MotorCasing.CasingType.values())
-                    .map(casingType -> shapeInfo.where('m', GAMetaBlocks.MOTOR_CASING.getState(casingType))
-                            .where('E', this.getEnergyHatch(casingType.getTier(), false), EnumFacing.EAST)
-                            .build())
-                    .collect(Collectors.toList());
+                    .where('F', this.largeMiner.getFrameState());
+            for (int tier = 0; tier < 15; tier++) {
+                shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
+                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], EnumFacing.EAST)
+                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.EAST)
+                        .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                        .build());
+            }
+            return shapeInfos;
         }
-        MultiblockShapeInfo shapeInfo = MultiblockShapeInfo.builder()
+        MultiblockShapeInfo.Builder builder = MultiblockShapeInfo.builder()
                 .aisle("F###F", "F###F", "PPPPP", "#####", "#####", "#####", "#####", "#####", "#####", "#####")
                 .aisle("#####", "#####", "PPPPP", "#MPO#", "##F##", "##F##", "##F##", "#####", "#####", "#####")
                 .aisle("#####", "#####", "PPPPP", "#SPE#", "##F##", "##F##", "##F##", "##F##", "##F##", "##F##")
@@ -62,13 +64,14 @@ public class LargeMinerInfo extends TJMultiblockInfoPage {
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('P', this.largeMiner.getCasingState())
-                .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[4], EnumFacing.EAST)
-                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.EAST)
-                .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
-                .where('F', this.largeMiner.getFrameState())
-                .where('#', Blocks.AIR.getDefaultState())
-                .build();
-        return Lists.newArrayList(shapeInfo);
+                .where('F', this.largeMiner.getFrameState());
+        for (int tier = 0; tier < 15; tier++) {
+            shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
+                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], EnumFacing.EAST)
+                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
+                    .build());
+        }
+        return shapeInfos;
     }
 
     @Override

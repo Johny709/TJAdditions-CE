@@ -4,7 +4,6 @@ import gregicadditions.item.CellCasing;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
-import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
@@ -14,9 +13,9 @@ import net.minecraft.util.EnumFacing;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static gregicadditions.GAMaterials.Talonite;
 
@@ -29,7 +28,8 @@ public class LargeBatteryChargerInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        MultiblockShapeInfo.Builder shapeInfo = MultiblockShapeInfo.builder()
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        MultiblockShapeInfo.Builder builder = MultiblockShapeInfo.builder()
                 .aisle("CCCCC", "~CCC~", "~C~C~", "~C~C~", "~C~C~", "~C~C~", "~C~C~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("iCCCC", "ICCCC", "CFBFC", "CFBFC", "CFBFC", "CFBFC", "CFBFC", "~CCC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("MCCCE", "SCCCe", "~BFB~", "~BFB~", "~BFB~", "~BFB~", "~BFB~", "~CFC~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~")
@@ -38,16 +38,17 @@ public class LargeBatteryChargerInfo extends TJMultiblockInfoPage {
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.TALONITE))
                 .where('F', MetaBlocks.FRAMES.get(Talonite).getDefaultState())
-                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.UV], EnumFacing.WEST)
-                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.UV], EnumFacing.WEST)
-                .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.UV], EnumFacing.WEST);
-        return Arrays.stream(CellCasing.CellType.values())
-                .map(cellType -> shapeInfo.where('B', GAMetaBlocks.CELL_CASING.getState(cellType))
-                        .where('e', this.getEnergyHatch(cellType.getTier(), true), EnumFacing.EAST)
-                        .where('E', this.getEnergyHatch(cellType.getTier(), false), EnumFacing.EAST)
-                        .build())
-                .collect(Collectors.toList());
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
+        for (int tier = 0; tier < 15; tier++) {
+            shapeInfos.add(builder.where('e', this.getEnergyHatch(tier, true), EnumFacing.EAST)
+                    .where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
+                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('B', GAMetaBlocks.CELL_CASING.getState(CellCasing.CellType.values()[Math.max(0, tier - 3)]))
+                    .build());
+        }
+        return shapeInfos;
     }
 
     @Override

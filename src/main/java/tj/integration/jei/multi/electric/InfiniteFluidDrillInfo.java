@@ -17,9 +17,9 @@ import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static gregicadditions.GAMaterials.Seaborgium;
 
@@ -32,7 +32,8 @@ public class InfiniteFluidDrillInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        MultiblockShapeInfo.Builder shapeInfo = MultiblockShapeInfo.builder()
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        MultiblockShapeInfo.Builder builder = MultiblockShapeInfo.builder()
                 .aisle("CF~FC", "CF~FC", "CCCCC", "~CCC~", "~~C~~", "~~C~~", "~~C~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("F~~~F", "F~~~F", "CCmCC", "I###O", "~C#C~", "~C#C~", "~C#C~", "~FCF~", "~FFF~", "~FFF~", "~~F~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("~~~~~", "~~~~~", "CmPmC", "S#T#E", "C#T#C", "C#T#C", "C#T#C", "~CCC~", "~FCF~", "~FFF~", "~FFF~", "~~F~~", "~~F~~", "~~F~~")
@@ -42,15 +43,15 @@ public class InfiniteFluidDrillInfo extends TJMultiblockInfoPage {
                 .where('C', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SEABORGIUM_CASING))
                 .where('F', MetaBlocks.FRAMES.get(Seaborgium).getDefaultState())
                 .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
-                .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.MAX], EnumFacing.WEST)
-                .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MAX], EnumFacing.WEST)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[2], EnumFacing.WEST);
-        return Arrays.stream(MotorCasing.CasingType.values())
-                .map(casingType -> shapeInfo.where('m', GAMetaBlocks.MOTOR_CASING.getState(casingType))
-                        .where('P', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[casingType.ordinal()]))
-                        .where('E', this.getEnergyHatch(casingType.getTier(), false), EnumFacing.EAST)
-                        .build())
-                .collect(Collectors.toList());
+        for (int tier = 0; tier < 15; tier++) {
+            shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
+                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier -1)]))
+                    .build());
+        }
+        return shapeInfos;
     }
 
     @Override

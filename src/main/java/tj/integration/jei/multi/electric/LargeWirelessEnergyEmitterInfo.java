@@ -4,7 +4,6 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.machines.GATileEntities;
-import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
@@ -13,10 +12,9 @@ import net.minecraft.util.EnumFacing;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.INPUT;
 
@@ -37,7 +35,8 @@ public class LargeWirelessEnergyEmitterInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        MultiblockShapeInfo.Builder shapeInfo = MultiblockShapeInfo.builder()
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        MultiblockShapeInfo.Builder builder = MultiblockShapeInfo.builder()
                 .aisle("~CCC~", "~CCC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("CCCCC", "CCFCC", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("iCCCE", "SFIFM", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~")
@@ -46,13 +45,14 @@ public class LargeWirelessEnergyEmitterInfo extends TJMultiblockInfoPage {
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', this.tileEntity.getCasingState(transferType))
                 .where('F', this.tileEntity.getFrameState(transferType))
-                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST)
-                .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.UV], EnumFacing.WEST);
-        return IntStream.range(1, 15)
-                .mapToObj(tier -> shapeInfo.where('I', this.getVoltageCasing(tier))
-                        .where('E', this.transferType == INPUT ? this.getEnergyHatch(tier, false) : this.getEnergyHatch(tier, true), EnumFacing.EAST)
-                        .build())
-                .collect(Collectors.toList());
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST);
+        for (int tier = 0; tier < 15; tier++) {
+            shapeInfos.add(builder.where('E', this.transferType == INPUT ? this.getEnergyHatch(tier, false) : this.getEnergyHatch(tier, true), EnumFacing.EAST)
+                    .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('I', this.getVoltageCasing(tier))
+                    .build());
+        }
+        return shapeInfos;
     }
 
     @Override

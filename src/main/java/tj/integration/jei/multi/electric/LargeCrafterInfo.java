@@ -23,9 +23,9 @@ import tj.machines.TJMetaTileEntities;
 import tj.util.Color;
 import tj.util.TooltipHelper;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Osmiridium;
@@ -39,8 +39,8 @@ public class LargeCrafterInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        GATransparentCasing.CasingType[] glasses = GATransparentCasing.CasingType.values();
-        GAMultiblockShapeInfo.Builder shapeInfo = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("CCCCC", "FCCCF", "FCECF", "FCCCF", "~CCC~")
                 .aisle("CCCCC", "G#c#G", "GR#RG", "F#c#F", "~CCC~")
                 .aisle("CCCCC", "G#c#G", "GR#RG", "F#c#F", "~CCC~")
@@ -49,17 +49,18 @@ public class LargeCrafterInfo extends TJMultiblockInfoPage {
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.LARGE_ASSEMBLER))
                 .where('F', MetaBlocks.FRAMES.get(Osmiridium).getDefaultState())
-                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[1], EnumFacing.WEST)
-                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[1], EnumFacing.WEST)
-                .where('H', TJMetaTileEntities.CRAFTER_HATCHES[0], EnumFacing.WEST);
-        return Arrays.stream(ConveyorCasing.CasingType.values())
-                .map(casingType -> shapeInfo.where('c', GAMetaBlocks.CONVEYOR_CASING.getState(casingType))
-                        .where('R', GAMetaBlocks.ROBOT_ARM_CASING.getState(RobotArmCasing.CasingType.values()[casingType.ordinal()]))
-                        .where('E', this.getEnergyHatch(casingType.getTier(), false), EnumFacing.EAST)
-                        .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(glasses[Math.min(glasses.length - 1, casingType.ordinal())]))
-                        .build())
-                .collect(Collectors.toList());
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
+        for (int tier = 0; tier < 15; tier++) {
+            shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
+                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('H', TJMetaTileEntities.CRAFTER_HATCHES[Math.max(0, tier -1)], EnumFacing.WEST)
+                    .where('c', GAMetaBlocks.CONVEYOR_CASING.getState(ConveyorCasing.CasingType.values()[Math.max(0, tier -1)]))
+                    .where('R', GAMetaBlocks.ROBOT_ARM_CASING.getState(RobotArmCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                    .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.values()[Math.min(6, tier)]))
+                    .build());
+        }
+        return shapeInfos;
     }
 
     @Override

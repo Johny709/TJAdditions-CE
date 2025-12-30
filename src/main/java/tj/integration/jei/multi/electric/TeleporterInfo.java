@@ -5,7 +5,6 @@ import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.machines.GATileEntities;
-import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
@@ -15,9 +14,9 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import tj.integration.jei.TJMultiblockInfoPage;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static tj.machines.TJMetaTileEntities.TELEPORTER;
 
@@ -30,7 +29,8 @@ public class TeleporterInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        MultiblockShapeInfo.Builder shapeInfo = MultiblockShapeInfo.builder()
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        MultiblockShapeInfo.Builder builder = MultiblockShapeInfo.builder()
                 .aisle("~CFC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("CCCCC", "~CCC~", "~C#C~", "~C#C~", "~C#C~", "~CCC~", "~~C~~")
                 .aisle("FCfCF", "~ISE~", "~###~", "~###~", "~###~", "~MFC~", "~CfC~")
@@ -38,14 +38,15 @@ public class TeleporterInfo extends TJMultiblockInfoPage {
                 .aisle("~CFC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING_MK2))
-                .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.LV], EnumFacing.WEST)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
-        return Arrays.stream(FieldGenCasing.CasingType.values())
-                .map(casingType -> shapeInfo.where('f', GAMetaBlocks.FIELD_GEN_CASING.getState(casingType))
-                        .where('E', this.getEnergyHatch(casingType.getTier(), false), EnumFacing.EAST)
-                        .where('F', this.getVoltageCasing(casingType.getTier()))
-                        .build())
-                .collect(Collectors.toList());
+        for (int tier = 0; tier < 15; tier++) {
+            shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
+                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('F', this.getVoltageCasing(tier))
+                    .where('f', GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.values()[Math.max(0, tier -1)]))
+                    .build());
+        }
+        return shapeInfos;
     }
 
     @Override
