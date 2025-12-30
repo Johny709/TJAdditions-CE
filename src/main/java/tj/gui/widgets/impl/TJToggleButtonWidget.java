@@ -13,10 +13,12 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.gui.widgets.ButtonWidget;
+import tj.util.consumers.QuadConsumer;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 
 public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
 
@@ -32,6 +34,24 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
 
     public TJToggleButtonWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
+    }
+
+    public TJToggleButtonWidget(int x, int y, int width, int height, BooleanSupplier isPressedCondition, Consumer<String> buttonResponder) {
+        this(x, y, width, height);
+        this.isPressedCondition = isPressedCondition;
+        this.buttonResponder = buttonResponder;
+    }
+
+    public TJToggleButtonWidget(int x, int y, int width, int height, BooleanSupplier isPressedCondition, BiConsumer<Boolean, String> toggleButtonResponder) {
+        this(x, y, width, height);
+        this.isPressedCondition = isPressedCondition;
+        this.toggleButtonResponder = toggleButtonResponder;
+    }
+
+    public TJToggleButtonWidget(int x, int y, int width, int height, BooleanSupplier isPressedCondition, QuadConsumer<String, Integer, Integer, Integer> textResponderWithMouse) {
+        this(x, y, width, height);
+        this.isPressedCondition = isPressedCondition;
+        this.textResponderWithMouse = textResponderWithMouse;
     }
 
     /**
