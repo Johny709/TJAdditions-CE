@@ -37,10 +37,8 @@ public class SlotScrollableWidgetGroup extends AbstractWidgetGroup implements IS
     protected boolean draggedOnScrollBar;
     protected IItemHandler itemHandler;
 
-    @SideOnly(Side.CLIENT)
     private final Map<ISlotHandler, ItemStack> dragWidgets = new HashMap<>();
 
-    @SideOnly(Side.CLIENT)
     private boolean canAddWidgets = true;
 
     @SideOnly(Side.CLIENT)
