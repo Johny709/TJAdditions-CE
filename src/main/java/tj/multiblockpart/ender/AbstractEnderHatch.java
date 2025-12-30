@@ -136,7 +136,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                             .setBackgroundText("machine.universal.toggle.rename.channel")
                             .setTooltipText("machine.universal.toggle.rename.channel")
-                            .setTextResponder(this.getEnderProfile()::editChannel)
+                            .setTextResponder(this::editChannel)
                             .setMaxStringLength(256);
                     NewTextFieldWidget<?> textFieldWidgetEntry = new NewTextFieldWidget<>(12, 20, 159, 13)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
@@ -180,18 +180,14 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                         .setTextSupplier(() -> search[0])
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
-                                widgetGroup.addWidget(new TJToggleButtonWidget(151, 15, 18, 18)
+                                widgetGroup.addWidget(new TJToggleButtonWidget(151, 15, 18, 18, TJValues::isFalse, this::onIncrement)
                                         .setTooltipText("machine.universal.toggle.increment.disabled")
-                                        .setButtonResponder(this::onIncrement)
                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                        .setButtonSupplier(() -> false)
                                         .useToggleTexture(true)
                                         .setDisplayText("+"));
-                                widgetGroup.addWidget(new TJToggleButtonWidget(7, 15, 18, 18)
+                                widgetGroup.addWidget(new TJToggleButtonWidget(7, 15, 18, 18, TJValues::isFalse, this::onDecrement)
                                         .setTooltipText("machine.universal.toggle.decrement.disabled")
-                                        .setButtonResponder(this::onDecrement)
                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                        .setButtonSupplier(() -> false)
                                         .useToggleTexture(true)
                                         .setDisplayText("-"));
                                 widgetGroup.addWidget(new TJToggleButtonWidget(-20, 38, 18, 18)
@@ -214,13 +210,13 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                             .addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setButtonSupplier(() -> false)
+                                    .setButtonSupplier(TJValues::isFalse)
                                     .useToggleTexture(true))
                             .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
                                     .setButtonResponderWithMouse(textFieldWidgetRename::triggerResponse)
                                     .setDisplayText("machine.universal.ok")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setButtonSupplier(() -> false)
+                                    .setButtonSupplier(TJValues::isFalse)
                                     .useToggleTexture(true))
                             .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
@@ -242,13 +238,13 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                             }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setButtonSupplier(() -> false)
+                                    .setButtonSupplier(TJValues::isFalse)
                                     .useToggleTexture(true))
                             .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
                                     .setButtonResponderWithMouse(textFieldWidgetEntry::triggerResponse)
                                     .setDisplayText("machine.universal.ok")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setButtonSupplier(() -> false)
+                                    .setButtonSupplier(TJValues::isFalse)
                                     .useToggleTexture(true))
                             .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(151, 38, 18, 18)
                                     .setTooltipText("machine.universal.toggle.add.channel")
@@ -302,7 +298,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
                                 widgetGroup.addWidget(new TJToggleButtonWidget(7, 15, 18, 18)
-                                        .setButtonSupplier(() -> this.getEnderProfile().isPublic())
+                                        .setButtonSupplier(this::isPublic)
                                         .setButtonId(player.getUniqueID().toString())
                                         .setToggleButtonResponder(this::setPublic)
                                         .setToggleTexture(UNLOCK_LOCK)
@@ -314,18 +310,18 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                         .setTextSupplier(() -> search[1])
                                         .setMaxStringLength(256)
                                         .setUpdateOnTyping(true));
-                                widgetGroup.addWidget(new LabelWidget(3, 170, "machine.universal.owner", this.displayName));
+                                widgetGroup.addWidget(new AdvancedTextWidget(3, 170, textList -> textList.add(new TextComponentTranslation("machine.universal.owner", this.displayName)), 0x404040));
                                 return true;
                             }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setButtonSupplier(() -> false)
+                                    .setButtonSupplier(TJValues::isFalse)
                                     .useToggleTexture(true))
                             .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
                                     .setButtonResponderWithMouse(textFieldWidgetRename::triggerResponse)
                                     .setDisplayText("machine.universal.ok")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setButtonSupplier(() -> false)
+                                    .setButtonSupplier(TJValues::isFalse)
                                     .useToggleTexture(true))
                             .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
@@ -347,13 +343,13 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                             }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                                     .setDisplayText("machine.universal.cancel")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setButtonSupplier(() -> false)
+                                    .setButtonSupplier(TJValues::isFalse)
                                     .useToggleTexture(true))
                             .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
                                     .setButtonResponderWithMouse(textFieldWidgetChannel::triggerResponse)
                                     .setDisplayText("machine.universal.ok")
                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .setButtonSupplier(() -> false)
+                                    .setButtonSupplier(TJValues::isFalse)
                                     .useToggleTexture(true))
                             .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(151, 15, 18, 18)
                                     .setTooltipText("machine.universal.toggle.add.frequency")
@@ -691,6 +687,10 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
         this.markDirty();
     }
 
+    private boolean isPublic() {
+        return this.getEnderProfile().isPublic();
+    }
+
     private void setPublic(boolean isPublic, String uuid) {
         if (this.getEnderProfile().getOwner() != null && this.getEnderProfile().getOwner().equals(UUID.fromString(uuid))) {
             this.getEnderProfile().setPublic(isPublic);
@@ -749,6 +749,10 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                 this.controller.invalidateStructure();
             return true;
         } else return false;
+    }
+
+    private void editChannel(String newKey, String id) {
+        this.getEnderProfile().editChannel(newKey, id);
     }
 
     private void addChannel(String key, String uuid) {

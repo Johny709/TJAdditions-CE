@@ -27,4 +27,8 @@ public class TJValues {
     public static final DecimalFormat thousandFormat = new DecimalFormat(",###");
 
     public static final DecimalFormat thousandTwoPlaceFormat = new DecimalFormat(",##0.00");
+
+    public static boolean isFalse() {
+        return false;
+    }
 }
