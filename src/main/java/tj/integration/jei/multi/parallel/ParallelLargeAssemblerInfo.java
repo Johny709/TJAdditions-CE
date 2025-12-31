@@ -73,9 +73,9 @@ public class ParallelLargeAssemblerInfo extends TJMultiblockInfoPage implements 
                         .where('R', GAMetaBlocks.ROBOT_ARM_CASING.getState(RobotArmCasing.CasingType.values()[Math.max(0, tier - 1)]))
                         .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
                         .where('E', this.getEnergyHatch(tier, false), EAST)
-                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
-                        .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], WEST)
+                        .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], WEST)
+                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], WEST)
                         .build();
             }
             shapeInfos.add(infos);

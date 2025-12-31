@@ -51,15 +51,15 @@ public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage imple
             for (int tier = 0; tier < infos.length; tier++) {
                 infos[tier] = builder.where('S', this.getController(), EnumFacing.WEST)
                         .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
-                        .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
+                        .where('c', this.getCoils(tier))
                         .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))
                         .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
                         .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                         .where('E', this.getEnergyHatch(tier, false), EnumFacing.WEST)
-                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], EnumFacing.WEST)
-                        .where('i', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], EnumFacing.WEST)
-                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], EnumFacing.WEST)
-                        .where('o', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], EnumFacing.WEST)
+                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
+                        .where('i', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
+                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
+                        .where('o', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
                         .build();
             }
             shapeInfos.add(infos);

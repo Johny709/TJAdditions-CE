@@ -60,10 +60,10 @@ public class ParallelLargeLaserEngraverInfo extends TJMultiblockInfoPage impleme
                         .where('P', GAMetaBlocks.PISTON_CASING.getState(PistonCasing.CasingType.values()[Math.max(0, tier - 1)]))
                         .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
                         .where('E', this.getEnergyHatch(tier, false), EAST)
-                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[1], WEST)
-                        .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
-                        .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], WEST)
+                        .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], WEST)
+                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], WEST)
+                        .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], WEST)
                         .build();
             }
             shapeInfos.add(infos);
