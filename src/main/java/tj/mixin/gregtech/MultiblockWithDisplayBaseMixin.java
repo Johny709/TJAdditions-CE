@@ -57,13 +57,19 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     @Inject(method = "createUITemplate", at = @At("HEAD"), cancellable = true)
     private void injectCreateUITemplate(EntityPlayer entityPlayer, CallbackInfoReturnable<ModularUI.Builder> cir) {
         if (TJConfig.machines.multiblockUIOverrides) {
+            int height = 20;
             ModularUI.Builder builder = ModularUI.extendedBuilder();
             WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                     .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
-                    .setPosition(-10, 1);
+                    .setPosition(-10, 1)
+                    .offsetPosition(0, height)
+                    .offsetY(132);
+            if (height > 0)
+                builder.image(-10, 132, 195, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
+            builder.image(-10, -20, 195, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN);
+            builder.image(-10, 132 + height, 195, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
             this.addNewTabs(tabBuilder);
-            builder.image(-10, -20, 195, 237, TJGuiTextures.NEW_MULTIBLOCK_DISPLAY);
-            builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134);
+            builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height);
             builder.widget(new LabelWidget(0, -13, this.getMetaFullName(), 0xFFFFFF));
             builder.widget(tabBuilder.build());
             cir.setReturnValue(builder);

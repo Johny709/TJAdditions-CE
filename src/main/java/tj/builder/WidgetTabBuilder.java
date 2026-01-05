@@ -33,6 +33,14 @@ public class WidgetTabBuilder {
     }
 
     /**
+     * Offset from the last set position. Offsets from x:0, y:0 if no prior position has been set.
+     */
+    public WidgetTabBuilder offsetPosition(int x, int y) {
+        this.position = new Position(this.position.getX() + x, this.position.getY() + y);
+        return this;
+    }
+
+    /**
      * These widgets affect all tabs. Added widgets are used for building widget group.
      */
     public WidgetTabBuilder addWidget(Widget widget) {
