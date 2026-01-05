@@ -4,12 +4,14 @@ import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.GAFueledMultiblockController;
 import gregicadditions.machines.multi.IMaintenance;
 import gregtech.api.capability.impl.FuelRecipeLogic;
+import gregtech.api.capability.impl.MultiblockRecipeLogic;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
+import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
 import gregtech.common.metatileentities.multi.electric.generator.FueledMultiblockController;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
@@ -73,7 +75,7 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::addMainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
                 maintenanceTab.addWidget(new AdvancedTextWidget(10, -2, textList -> {
-                    if (this.getHolder().getMetaTileEntity() instanceof GAFueledMultiblockController && !(this.getHolder().getMetaTileEntity() instanceof TJFueledMultiblockControllerBase)) {
+                    if (this.getHolder().getMetaTileEntity() instanceof GAFueledMultiblockController) {
                         GAFueledMultiblockController controller = (GAFueledMultiblockController) this.getHolder().getMetaTileEntity();
                         MultiblockDisplaysUtility.mufflerDisplay(textList, !controller.hasMufflerHatch() || controller.isMufflerFaceFree());
                     }
@@ -89,12 +91,16 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
         widgetGroup.addWidget(new AdvancedTextWidget(10, -2, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleDisplayClick));
-        if (this.getHolder().getMetaTileEntity() instanceof FueledMultiblockController) {
+        widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
+                .setTooltipText("machine.universal.toggle.check.mode"));
+        if (this.getHolder().getMetaTileEntity() instanceof RecipeMapMultiblockController) {
+            MultiblockRecipeLogic recipeLogic = ((IRecipeMapMultiblockControllerMixin) this.getHolder().getMetaTileEntity()).getRecipeLogic();
+            widgetGroup.addWidget(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
+                    .setTooltipText("machine.universal.toggle.run.mode"));
+        } else if (this.getHolder().getMetaTileEntity() instanceof FueledMultiblockController) {
             FuelRecipeLogic recipeLogic = ((IFueledMultiblockControllerMixin) this.getHolder().getMetaTileEntity()).getFuelRecipeLogic();
             widgetGroup.addWidget(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
                     .setTooltipText("machine.universal.toggle.run.mode"));
-            widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
-                    .setTooltipText("machine.universal.toggle.check.mode"));
             if (recipeLogic instanceof TJFuelRecipeLogic) {
                 widgetGroup.addWidget(new TJToggleButtonWidget(172, 151, 18, 18)
                         .setToggleButtonResponder(((TJFuelRecipeLogic) recipeLogic)::setVoidEnergy)
