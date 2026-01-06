@@ -348,8 +348,12 @@ tj.multiblock.temperature=Temperature: §c%,d§7 / §c%,d§7 °C
 tj.multiblock.not_enough_energy=§cWARNING: Machine needs more energy.
 tj.multiblock.max_energy_per_tick=Max EU/t:
 tj.multiblock.fuel_amount=Fuel Amount: §b%,dL §7(§b%s§7)
-tj.multiblock.fuel=§7Fuel: (§6%s§7) §6%s / %s L §7(%s§7)
 tj.multiblock.component_casing.any.tooltip=Any tier can be used.
+
+tj.multiblock.bars.fuel=§7Fuel: (§6%s§7) §6%s / %s L §7(§6%s%%§7)
+tj.multiblock.bars.energy=§7Energy: §e%s / %s EU §7(§e%s%%§7)
+tj.multiblock.bars.fluid=§7Fluid: (§b%s§7) §b%s / %s L §7(§b%s%%§7)
+tj.multiblock.bars.booster=§7Booster: (§a%s§7) §a%s / %s L §7(§a%s%%§7)
 
 tj.multiblock.recipe.transfer.success=Recipe lock to Handler [§a%d§r]: §aSuccessful§r
 tj.multiblock.recipe.transfer.fail=Recipe lock §cFailed§r %n-All recipe handlers are occupied

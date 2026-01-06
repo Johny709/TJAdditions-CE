@@ -1,6 +1,7 @@
 package tj.mixin.gregicality;
 
 import gregicadditions.machines.multi.GAFueledMultiblockController;
+import gregicadditions.machines.multi.advance.MetaTileEntityLargeRocketEngine;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -21,6 +22,7 @@ import tj.capability.ProgressBar;
 import tj.capability.impl.TJBoostableFuelRecipeLogic;
 import tj.capability.IProgressBar;
 import tj.gui.TJGuiTextures;
+import tj.util.TJFluidUtils;
 
 import javax.annotation.Nonnull;
 
@@ -30,41 +32,57 @@ import java.util.Queue;
 import static gregicadditions.GAMaterials.LiquidOxygen;
 import static gregtech.api.unification.material.Materials.Air;
 
-@Mixin(value = gregicadditions.machines.multi.advance.MetaTileEntityLargeRocketEngine.class, remap = false)
-public abstract class MetaTileEntityLargeRocketEngine extends GAFueledMultiblockController implements IProgressBar {
+@Mixin(value = MetaTileEntityLargeRocketEngine.class, remap = false)
+public abstract class MetaTileEntityLargeRocketEngineMixin extends GAFueledMultiblockController implements IProgressBar {
+
+    @Unique
+    private FluidStack air;
 
     @Unique
     private FluidStack booster;
 
-    public MetaTileEntityLargeRocketEngine(ResourceLocation metaTileEntityId, long maxVoltage) {
+    public MetaTileEntityLargeRocketEngineMixin(ResourceLocation metaTileEntityId, long maxVoltage) {
         super(metaTileEntityId, GARecipeMaps.ROCKET_FUEL_RECIPES, maxVoltage);
     }
 
     @Override
     public int[][] getBarMatrix() {
-        return new int[][]{{1, 1}, {1}, {1}};
+        return new int[][]{{0}, {0, 0, 0}};
     }
 
     @Override
-    public void getProgressBars(Queue<ProgressBar> bars) {
+    public void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder) {
         TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
-        bars.add(new ProgressBar(workableHandler::getProgress, workableHandler::getMaxProgress, TJGuiTextures.BAR_RED, "tj.multiblock.fuel"));
-        bars.add(new ProgressBar(workableHandler::getEnergyStored, workableHandler::getEnergyCapacity, TJGuiTextures.BAR_YELLOW, "tj.multiblock.fuel"));
-        bars.add(new ProgressBar(workableHandler::getProgress, workableHandler::getMaxProgress, TJGuiTextures.BAR_RED, "tj.multiblock.fuel"));
-        bars.add(new ProgressBar(workableHandler::getEnergyStored, workableHandler::getEnergyCapacity, TJGuiTextures.BAR_YELLOW, "tj.multiblock.fuel"));
+        bars.add(barBuilder.setProgress(workableHandler::getEnergyStored).setMaxProgress(workableHandler::getEnergyCapacity)
+                .setLocale("tj.multiblock.bars.energy")
+                .setBarTexture(TJGuiTextures.BAR_YELLOW)
+                .build());
+        bars.add(barBuilder.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
+                .setLocale("tj.multiblock.bars.fuel").setParams(this::getFuelName)
+                .setFluidStackSupplier(workableHandler::getFuelStack)
+                .build());
+        bars.add(barBuilder.setProgress(this::getAirAmount).setMaxProgress(this::getAirCapacity)
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{this.getAir() != null ? this.getAir().getLocalizedName() : ""})
+                .setFluidStackSupplier(this::getAir)
+                .build());
+        bars.add(barBuilder.setProgress(this::getBoosterAmount).setMaxProgress(this::getBoosterCapacity)
+                .setLocale("tj.multiblock.bars.booster").setParams(() -> new Object[]{this.getBooster() != null ? this.getBooster().getLocalizedName() : ""})
+                .setFluidStackSupplier(this::getBooster)
+                .build());
     }
 
     @Inject(method = "createWorkable", at = @At("HEAD"), cancellable = true)
     private void injectCreateWorkable(long maxVoltage, CallbackInfoReturnable<FuelRecipeLogic> cir) {
         if (TJConfig.machines.generatorWorkableHandlerOverrides) {
-            gregicadditions.machines.multi.advance.MetaTileEntityLargeRocketEngine tileEntity = (gregicadditions.machines.multi.advance.MetaTileEntityLargeRocketEngine) (Object) this;
+            this.air = Air.getFluid(37500);
+            MetaTileEntityLargeRocketEngine tileEntity = (MetaTileEntityLargeRocketEngine) (Object) this;
             cir.setReturnValue(new TJBoostableFuelRecipeLogic(tileEntity, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getBooster, this::getFuelMultiplier, this::getEUMultiplier, 655360) {
                 @Override
                 protected boolean checkRecipe(FuelRecipe recipe) {
                     int amount = recipe.getRecipeFluid().amount * getVoltageMultiplier(this.getMaxVoltage(), recipe.getMinVoltage());
                     booster = LiquidOxygen.getFluid(4 * (int) Math.ceil(amount / 10.0));
-                    FluidStack airStack = this.fluidTank.get().drain(Air.getFluid(37500), true);
-                    return airStack != null && airStack.amount == 37500;
+                    FluidStack airStack = this.fluidTank.get().drain(air, true);
+                    return airStack != null && airStack.amount == air.amount;
                 }
             });
         }
@@ -104,6 +122,49 @@ public abstract class MetaTileEntityLargeRocketEngine extends GAFueledMultiblock
                     }).isWorking(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress());
             ci.cancel();
         }
+    }
+
+    @Unique
+    private Object[] getFuelName() {
+        TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
+        return new Object[]{workableHandler.getFuelName() != null ? workableHandler.getFuelName() : ""};
+    }
+
+    @Unique
+    private long getFuelAmount() {
+        TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
+        return TJFluidUtils.getFluidAmountFromTanks(workableHandler.getFuelStack(), this.getImportFluidHandler());
+    }
+
+    @Unique
+    private long getFuelCapacity() {
+        TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
+        return TJFluidUtils.getFluidCapacityFromTanks(workableHandler.getFuelStack(), this.getImportFluidHandler());
+    }
+
+    @Unique
+    private long getBoosterAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(this.getBooster(), this.getImportFluidHandler());
+    }
+
+    @Unique
+    private long getBoosterCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(this.getBooster(), this.getImportFluidHandler());
+    }
+
+    @Unique
+    private long getAirAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(this.air, this.getImportFluidHandler());
+    }
+
+    @Unique
+    private long getAirCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(this.air, this.getImportFluidHandler());
+    }
+
+    @Unique
+    private FluidStack getAir() {
+        return this.air;
     }
 
     @Unique

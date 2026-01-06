@@ -3,15 +3,22 @@ package tj.gui.widgets;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.resources.TextureArea;
+import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.TJValues;
+import tj.gui.GuiUtils;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.DoubleSupplier;
@@ -27,15 +34,28 @@ public class TJProgressBarWidget extends Widget {
     private TextureArea endTexture;
     private String locale;
     private Supplier<Object[]> paramSupplier;
+    private Supplier<FluidStack> fluidStackSupplier;
     private Object[] params;
+    private FluidStack fluid;
 
     private final DoubleSupplier progressSupplier;
     private final DoubleSupplier maxProgressSupplier;
+    private final boolean isFluid;
 
     public TJProgressBarWidget(int x, int y, int width, int height, DoubleSupplier progressSupplier, DoubleSupplier maxProgressSupplier) {
+        this(x, y, width, height, progressSupplier, maxProgressSupplier, false);
+    }
+
+    public TJProgressBarWidget(int x, int y, int width, int height, DoubleSupplier progressSupplier, DoubleSupplier maxProgressSupplier, boolean isFluid) {
         super(new Position(x, y), new Size(width, height));
         this.progressSupplier = progressSupplier;
         this.maxProgressSupplier = maxProgressSupplier;
+        this.isFluid = isFluid;
+    }
+
+    public TJProgressBarWidget setFluid(Supplier<FluidStack> fluidStackSupplier) {
+        this.fluidStackSupplier = fluidStackSupplier;
+        return this;
     }
 
     public TJProgressBarWidget setLocale(String locale, Supplier<Object[]> paramSupplier) {
@@ -67,9 +87,12 @@ public class TJProgressBarWidget extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        if (this.isMouseOverElement(mouseX, mouseY)) {
-            Object[] format = this.params != null ? this.params : ArrayUtils.toArray("");
-            List<String> hoverList = Arrays.asList(I18n.format(locale, format).split("/n"));
+        if (this.isMouseOverElement(mouseX, mouseY) && this.locale != null) {
+            Object[] format;
+            if (this.isFluid && this.params.length > 0)
+                format = ArrayUtils.addAll(this.params, TJValues.thousandFormat.format(this.progress), TJValues.thousandFormat.format(this.maxProgress), (int) (100 * (this.progress / this.maxProgress)));
+            else format = ArrayUtils.toArray(TJValues.thousandFormat.format(this.progress), TJValues.thousandFormat.format(this.maxProgress), (int) (100 * (this.progress / this.maxProgress)));
+            List<String> hoverList = Arrays.asList(I18n.format(this.locale, format).split("/n"));
             this.drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
         }
     }
@@ -81,7 +104,14 @@ public class TJProgressBarWidget extends Widget {
         Position pos = this.getPosition();
         int width = (int) ((size.getWidth() - 2) * (this.progress / this.maxProgress));
         this.backgroundTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
-        this.barTexture.draw(pos.getX() + 1, pos.getY() + 1, width, 8);
+        if (!this.isFluid)
+            this.barTexture.draw(pos.getX() + 1, pos.getY() + 1, width, 8);
+        else if (this.fluid != null) {
+            GlStateManager.disableBlend();
+            GuiUtils.drawFluidForGui(this.fluid, (long) this.progress, (long) this.maxProgress, pos.getX() + 1, pos.getY() + 1, size.getWidth(), 8);
+            GlStateManager.enableBlend();
+            GlStateManager.color(1.0f, 1.0f, 1.0f);
+        }
         this.startTexture.draw(pos.getX(), pos.getY(), (int) this.startTexture.imageWidth, size.getHeight());
         this.endTexture.draw(pos.getX() + size.getWidth() - 1, pos.getY(), (int) this.endTexture.imageWidth, size.getHeight());
     }
@@ -99,22 +129,33 @@ public class TJProgressBarWidget extends Widget {
                 Object[] params = this.paramSupplier.get();
                 buffer.writeInt(params.length);
                 for (Object param : params)
-                    if (param instanceof String)
-                        buffer.writeString((String) param);
+                    buffer.writeString((String) param);
             });
+        FluidStack fluidStack;
+        if (this.fluidStackSupplier != null && (fluidStack = this.fluidStackSupplier.get()) != null)
+            this.writeUpdateInfo(3, buffer -> buffer.writeCompoundTag(fluidStack.writeToNBT(new NBTTagCompound())));
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
-        if (id == 1) {
-            this.progress = buffer.readDouble();
-            this.maxProgress = buffer.readDouble();
-        } else if (id == 2) {
-            this.params = new Object[buffer.readInt()];
-            for (int i = 0; i < this.params.length; i++) {
-                this.params[i] = buffer.readString(Short.MAX_VALUE);
-            }
+        switch (id) {
+            case 1:
+                this.progress = buffer.readDouble();
+                this.maxProgress = buffer.readDouble();
+                break;
+            case 2:
+                this.params = new Object[buffer.readInt()];
+                for (int i = 0; i < this.params.length; i++) {
+                    this.params[i] = I18n.format(buffer.readString(Short.MAX_VALUE));
+                }
+                break;
+            case 3:
+                try {
+                    this.fluid = FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag());
+                } catch (IOException e) {
+                    GTLog.logger.info(e.getMessage());
+                }
         }
     }
 }

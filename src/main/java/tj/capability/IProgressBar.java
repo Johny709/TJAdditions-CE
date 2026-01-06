@@ -10,5 +10,5 @@ public interface IProgressBar {
      */
     int[][] getBarMatrix();
 
-    void getProgressBars(Queue<ProgressBar> bars);
+    void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder);
 }

@@ -87,16 +87,17 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     @Unique
     private void addBars(int[][] barMatrix, ModularUI.Builder builder) {
         Queue<ProgressBar> bars = new ArrayDeque<>();
-        ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars);
+        ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars, new ProgressBar.ProgressBarBuilder());
         for (int i = 0; i < barMatrix.length; i++) {
             int[] column = barMatrix[i];
             for (int j = 0; j < column.length; j++) {
                 ProgressBar bar = bars.poll();
                 int height = 183 / column.length;
-                builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress())
+                builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
                         .setStartTexture(TJGuiTextures.FLUID_BAR_START).setEndTexture(TJGuiTextures.FLUID_BAR_END)
                         .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
-                        .setLocale(bar.getLocale(), bar.getParams()));
+                        .setLocale(bar.getLocale(), bar.getParams())
+                        .setFluid(bar.getFluidStackSupplier()));
             }
         }
     }
