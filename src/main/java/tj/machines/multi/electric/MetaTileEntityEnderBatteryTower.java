@@ -147,9 +147,9 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     }
 
     @Override
-    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.addWidget(new CycleButtonWidget(7, 113, 162, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
+        widgetGroup.add(new CycleButtonWidget(7, 113, 162, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
     }
 
     @Override
@@ -176,7 +176,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                     .setMaxStringLength(256);
             TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
             textWidget.setMaxWidthLimit(1000);
-            tab.addWidget(new ClickPopUpWidget(0, -30, 0, 0)
+            tab.add(new ClickPopUpWidget(0, -30, 0, 0)
                     .addPopup(widgetGroup -> {
                         widgetGroup.addWidget(new ImageWidget(35, 17, 130, 18, DISPLAY));
                         widgetGroup.addWidget(new ImageWidget(35, 40, 130, 18, DISPLAY));
@@ -307,7 +307,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                     .setMaxStringLength(256);
             TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addFrequencyDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
             textWidget.setMaxWidthLimit(1000);
-            tab.addWidget(new ClickPopUpWidget(0, -30, 0, 0)
+            tab.add(new ClickPopUpWidget(0, -30, 0, 0)
                     .addPopup(widgetGroup -> {
                         widgetGroup.addWidget(new ImageWidget(35, 17, 130, 18, DISPLAY));
                         widgetGroup.addWidget(new ImageWidget(30, 142, 139, 18, DISPLAY));

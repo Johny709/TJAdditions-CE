@@ -5,6 +5,7 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
@@ -89,15 +90,15 @@ public abstract class TJRecipeMapMultiblockControllerBase extends RecipeMapMulti
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
     }
 
-    protected void mainDisplayTab(WidgetGroup widgetGroup) {
-        widgetGroup.addWidget(new AdvancedTextWidget(10, -2, this::addDisplayText, 0xFFFFFF)
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        widgetGroup.add(new AdvancedTextWidget(10, -2, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleDisplayClick));
-        widgetGroup.addWidget(new GhostCircuitWidget(this.importItems, 172, 191));
-        widgetGroup.addWidget(new ImageWidget(171, 190, 20, 20, GuiTextures.INT_CIRCUIT_OVERLAY));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::getToggleMode, this::setToggleRunning)
+        widgetGroup.add(new GhostCircuitWidget(this.importItems, 172, 191));
+        widgetGroup.add(new ImageWidget(171, 190, 20, 20, GuiTextures.INT_CIRCUIT_OVERLAY));
+        widgetGroup.add(new ToggleButtonWidget(172, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::getToggleMode, this::setToggleRunning)
                 .setTooltipText("machine.universal.toggle.run.mode"));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+        widgetGroup.add(new ToggleButtonWidget(172, 133, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 

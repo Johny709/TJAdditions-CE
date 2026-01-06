@@ -10,6 +10,7 @@ import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IControllable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
@@ -198,18 +199,18 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.addWidget(new AdvancedTextWidget(10, -2 - this.getExtended(), textList -> {
+                maintenanceTab.add(new AdvancedTextWidget(10, -2 - this.getExtended(), textList -> {
             MultiblockDisplaysUtility.mufflerDisplay(textList, !this.hasMufflerHatch() || this.isMufflerFaceFree());
             MultiblockDisplaysUtility.maintenanceDisplay(textList, this.maintenance_problems, this.hasProblems());
             }, 0xFFFFFF).setMaxWidthLimit(180)));
     }
 
-    protected void mainDisplayTab(WidgetGroup widgetGroup) {
-        widgetGroup.addWidget(new AdvancedTextWidget(10, -2 - this.getExtended(), this::addDisplayText, 0xFFFFFF)
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        widgetGroup.add(new AdvancedTextWidget(10, -2 - this.getExtended(), this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+        widgetGroup.add(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+        widgetGroup.add(new ToggleButtonWidget(172, 133, 18, 18, CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 

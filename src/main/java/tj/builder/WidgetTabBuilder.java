@@ -17,10 +17,11 @@ import java.util.function.Supplier;
 
 public class WidgetTabBuilder {
 
-    private Position position = Position.ORIGIN;
-    private Supplier<TabListRenderer> tabListRenderer;
     private final LinkedHashMap<ItemTabInfo, AbstractWidgetGroup> tabs = new LinkedHashMap<>();
     private final List<Widget> widgetGroup = new ArrayList<>();
+    private Position position = Position.ORIGIN;
+    private Supplier<TabListRenderer> tabListRenderer;
+    private int offsetY;
 
     public WidgetTabBuilder setTabListRenderer(Supplier<TabListRenderer> tabListRenderer) {
         this.tabListRenderer = tabListRenderer;
@@ -29,6 +30,11 @@ public class WidgetTabBuilder {
 
     public WidgetTabBuilder setPosition(int x, int y) {
         this.position = new Position(x, y);
+        return this;
+    }
+
+    public WidgetTabBuilder offsetY(int offsetY) {
+        this.offsetY = offsetY;
         return this;
     }
 
@@ -48,10 +54,17 @@ public class WidgetTabBuilder {
         return this;
     }
 
-    public WidgetTabBuilder addTab(String name, ItemStack itemDisplay, Consumer<WidgetGroup> widgetGroupConsumer) {
-        WidgetGroup widgets = new WidgetGroup();
+    public WidgetTabBuilder addTab(String name, ItemStack itemDisplay, Consumer<List<Widget>> widgetGroupConsumer) {
+        WidgetGroup widgetGroup = new WidgetGroup(), offsetWidgetGroup = new WidgetGroup(new Position(0, -this.position.getY()));
+        List<Widget> widgets = new ArrayList<>();
         widgetGroupConsumer.accept(widgets);
-        this.tabs.put(new ItemTabInfo(name, itemDisplay), widgets);
+        widgets.forEach(widget -> {
+            if (widget.getPosition().getY() < this.offsetY)
+                offsetWidgetGroup.addWidget(widget);
+            else widgetGroup.addWidget(widget);
+        });
+        widgetGroup.addWidget(offsetWidgetGroup);
+        this.tabs.put(new ItemTabInfo(name, itemDisplay), widgetGroup);
         return this;
     }
 

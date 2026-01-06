@@ -342,25 +342,25 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
             this.oreDictFilter.initUI(oreDictPopUp::addWidget);
             this.enableOreDictPopUp = oreDictPopUp::setEnabled;
             this.enableOreDictPopUp.apply(this.oreDict);
-            filterTab.addWidget(new ToggleButtonWidget(172, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
+            filterTab.add(new ToggleButtonWidget(172, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
                     .setTooltipText("machine.universal.toggle.filter"));
-            filterTab.addWidget(new ImageWidget(172, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
-            filterTab.addWidget(new ToggleButtonWidget(172, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
+            filterTab.add(new ImageWidget(172, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
+            filterTab.add(new ToggleButtonWidget(172, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
                     .setTooltipText("cover.filter.blacklist"));
-            filterTab.addWidget(new ToggleButtonWidget(172, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, this::isOreDict, this::setOreDict)
+            filterTab.add(new ToggleButtonWidget(172, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, this::isOreDict, this::setOreDict)
                     .setTooltipText("cover.filter.ore_dictionary.open"));
-            filterTab.addWidget(slotsPopUp);
-            filterTab.addWidget(oreDictPopUp);
+            filterTab.add(slotsPopUp);
+            filterTab.add(oreDictPopUp);
         });
-        tabBuilder.addTab("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab -> settingsTab.addWidget(new AdvancedTextWidget(10,-2, this::addSettingsDisplayText, 0xFFFFFF)
+        tabBuilder.addTab("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab -> settingsTab.add(new AdvancedTextWidget(10,-2, this::addSettingsDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleSettingDisplayText)));
     }
 
     @Override
-    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::setDone)
+        widgetGroup.add(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::setDone)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 

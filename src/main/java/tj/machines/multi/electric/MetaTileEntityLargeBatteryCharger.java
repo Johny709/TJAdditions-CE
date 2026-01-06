@@ -169,7 +169,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
             TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(0, 0, this.addDisplayLinkedPlayersText(searchResults, patternFlags, search), 0xFFFFFF)
                     .addClickHandler(this.handleLinkedPlayersClick(textFieldWidgetRename));
             textWidget.setMaxWidthLimit(1024);
-            tab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
+            tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                     .addPopup(widgetGroup -> {
                         widgetGroup.addWidget(new AdvancedTextWidget(10, -20, (textList) -> textList.add(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("machine.universal.linked.players") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getEntityLinkName().length + "§r)")), 0xFFFFFF));
                         widgetGroup.addWidget(new ScrollableTextWidget(10, -8, 178, 117)
@@ -213,16 +213,16 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     @Override
-    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.addWidget(new ImageWidget(28, 112, 141, 18, DISPLAY));
-        widgetGroup.addWidget(new TJTextFieldWidget(33, 117, 136, 18, false, () -> String.valueOf(this.workableHandler.getMaxProgress()), maxProgress -> this.workableHandler.setMaxProgress(maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress)))
+        widgetGroup.add(new ImageWidget(28, 112, 141, 18, DISPLAY));
+        widgetGroup.add(new TJTextFieldWidget(33, 117, 136, 18, false, () -> String.valueOf(this.workableHandler.getMaxProgress()), maxProgress -> this.workableHandler.setMaxProgress(maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress)))
                 .setTooltipText("machine.universal.tick.speed")
                 .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.workableHandler.getMaxProgress())))
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new ClickButtonWidget(7, 112, 18, 18, "+", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))));
-        widgetGroup.addWidget(new ClickButtonWidget(172, 112, 18, 18, "-", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setReset)
+        widgetGroup.add(new ClickButtonWidget(7, 112, 18, 18, "+", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))));
+        widgetGroup.add(new ClickButtonWidget(172, 112, 18, 18, "-", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))));
+        widgetGroup.add(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setReset)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 

@@ -103,7 +103,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
     @Override
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         super.addTabs(tabBuilder, player);
-        tabBuilder.addTab("tj.multiblock.tab.fluid", new ItemStack(Items.WATER_BUCKET), fluidsTab -> fluidsTab.addWidget(new AdvancedTextWidget(10, -2, this::addFluidDisplayText, 0xFFFFFF)
+        tabBuilder.addTab("tj.multiblock.tab.fluid", new ItemStack(Items.WATER_BUCKET), fluidsTab -> fluidsTab.add(new AdvancedTextWidget(10, -2, this::addFluidDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)));
     }
 

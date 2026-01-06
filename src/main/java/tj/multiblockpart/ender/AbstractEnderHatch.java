@@ -147,7 +147,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                             .setMaxStringLength(256);
                     TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
                     textWidget.setMaxWidthLimit(1000);
-                    tab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
+                    tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                             .addPopup(widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
@@ -281,7 +281,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                             .setMaxStringLength(256);
                     TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addFrequencyDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
                     textWidget.setMaxWidthLimit(1000);
-                    tab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
+                    tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                             .addPopup(widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(3, 38, 170, 103, DISPLAY));

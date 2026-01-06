@@ -25,7 +25,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.MultiblockDisplaysUtility;
-import tj.builder.multicontrollers.TJFueledMultiblockControllerBase;
 import tj.capability.impl.TJFuelRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
@@ -80,7 +79,7 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     private void addNewTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::addMainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.addWidget(new AdvancedTextWidget(10, -2, textList -> {
+                maintenanceTab.add(new AdvancedTextWidget(10, -2, textList -> {
                     if (this.getHolder().getMetaTileEntity() instanceof GAFueledMultiblockController) {
                         GAFueledMultiblockController controller = (GAFueledMultiblockController) this.getHolder().getMetaTileEntity();
                         MultiblockDisplaysUtility.mufflerDisplay(textList, !controller.hasMufflerHatch() || controller.isMufflerFaceFree());
@@ -93,22 +92,22 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     }
 
     @Unique
-    private void addMainDisplayTab(WidgetGroup widgetGroup) {
-        widgetGroup.addWidget(new AdvancedTextWidget(10, -2, this::addDisplayText, 0xFFFFFF)
+    private void addMainDisplayTab(List<Widget> widgetGroup) {
+        widgetGroup.add(new AdvancedTextWidget(10, -2, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleDisplayClick));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
+        widgetGroup.add(new ToggleButtonWidget(172, 133, 18, 18, CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
         if (this.getHolder().getMetaTileEntity() instanceof RecipeMapMultiblockController) {
             MultiblockRecipeLogic recipeLogic = ((IRecipeMapMultiblockControllerMixin) this.getHolder().getMetaTileEntity()).getRecipeLogic();
-            widgetGroup.addWidget(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
+            widgetGroup.add(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
                     .setTooltipText("machine.universal.toggle.run.mode"));
         } else if (this.getHolder().getMetaTileEntity() instanceof FueledMultiblockController) {
             FuelRecipeLogic recipeLogic = ((IFueledMultiblockControllerMixin) this.getHolder().getMetaTileEntity()).getFuelRecipeLogic();
-            widgetGroup.addWidget(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
+            widgetGroup.add(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
                     .setTooltipText("machine.universal.toggle.run.mode"));
             if (recipeLogic instanceof TJFuelRecipeLogic) {
-                widgetGroup.addWidget(new TJToggleButtonWidget(172, 151, 18, 18)
+                widgetGroup.add(new TJToggleButtonWidget(172, 151, 18, 18)
                         .setToggleButtonResponder(((TJFuelRecipeLogic) recipeLogic)::setVoidEnergy)
                         .setButtonSupplier(((TJFuelRecipeLogic) recipeLogic)::isVoidEnergy)
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)

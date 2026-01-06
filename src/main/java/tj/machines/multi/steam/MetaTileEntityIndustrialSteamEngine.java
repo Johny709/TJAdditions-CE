@@ -9,6 +9,7 @@ import gregtech.api.capability.*;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidFuelInfo;
 import gregtech.api.gui.GuiTextures;
+import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.recipes.machines.FuelRecipeMap;
@@ -125,9 +126,9 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
     }
 
     @Override
-    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.addWidget(new TJToggleButtonWidget(172, 151, 18, 18)
+        widgetGroup.add(new TJToggleButtonWidget(172, 151, 18, 18)
                 .setToggleButtonResponder(this.workableHandler::setVoidEnergy)
                 .setButtonSupplier(this.workableHandler::isVoidEnergy)
                 .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)

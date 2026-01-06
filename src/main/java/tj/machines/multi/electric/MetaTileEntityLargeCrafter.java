@@ -134,9 +134,9 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     }
 
     @Override
-    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
+        widgetGroup.add(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
                 .setTooltipText("machine.universal.toggle.item_voiding"));
     }
 
@@ -144,7 +144,7 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         super.addTabs(tabBuilder, player);
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
-            debugTab.addWidget(new AdvancedTextWidget(10, -2, this::addDebugDisplayText, 0xFFFFFF)
+            debugTab.add(new AdvancedTextWidget(10, -2, this::addDebugDisplayText, 0xFFFFFF)
                     .setMaxWidthLimit(180));
         });
     }
