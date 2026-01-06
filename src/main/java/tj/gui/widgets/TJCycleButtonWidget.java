@@ -87,7 +87,7 @@ public class TJCycleButtonWidget extends CycleButtonWidget {
             this.hoverStartTime = 0L;
         } else if (isHovered) {
             if (this.tooltipHoverString != null) {
-                String[] format = this.format != null ? this.format : ArrayUtils.toArray("");
+                Object[] format = this.format != null ? this.format : ArrayUtils.toArray("");
                 List<String> hoverList = Arrays.asList(I18n.format(this.tooltipHoverString, format).split("/n"));
                 drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
             }

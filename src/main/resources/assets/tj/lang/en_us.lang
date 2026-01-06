@@ -348,6 +348,7 @@ tj.multiblock.temperature=Temperature: §c%,d§7 / §c%,d§7 °C
 tj.multiblock.not_enough_energy=§cWARNING: Machine needs more energy.
 tj.multiblock.max_energy_per_tick=Max EU/t:
 tj.multiblock.fuel_amount=Fuel Amount: §b%,dL §7(§b%s§7)
+tj.multiblock.fuel=§7Fuel: (§6%s§7) §6%s / %s L §7(%s§7)
 tj.multiblock.component_casing.any.tooltip=Any tier can be used.
 
 tj.multiblock.recipe.transfer.success=Recipe lock to Handler [§a%d§r]: §aSuccessful§r

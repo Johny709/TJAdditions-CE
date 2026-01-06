@@ -325,7 +325,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                 return;
             }
         }
-        player.sendMessage(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.recipe.transfer.fail")));
+        player.sendMessage(new TextComponentString(I18n.translateToLocal("tj.multiblock.recipe.transfer.fail")));
     }
 
     @Override

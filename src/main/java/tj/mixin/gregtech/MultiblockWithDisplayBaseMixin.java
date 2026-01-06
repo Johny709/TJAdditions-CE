@@ -95,7 +95,8 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
                 int height = 183 / column.length;
                 builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress())
                         .setStartTexture(TJGuiTextures.FLUID_BAR_START).setEndTexture(TJGuiTextures.FLUID_BAR_END)
-                        .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture()));
+                        .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
+                        .setLocale(bar.getLocale(), bar.getParams()));
             }
         }
     }

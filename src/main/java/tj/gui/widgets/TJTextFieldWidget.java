@@ -94,7 +94,7 @@ public class TJTextFieldWidget extends TextFieldWidget {
     public void drawInForeground(int mouseX, int mouseY) {
         if (isMouseOverElement(mouseX, mouseY) && this.tooltipText != null) {
             String tooltipHoverString = this.tooltipText;
-            String[] format = this.format != null ? this.format : ArrayUtils.toArray("");
+            Object[] format = this.format != null ? this.format : ArrayUtils.toArray("");
             List<String> hoverList = Arrays.asList(I18n.format(tooltipHoverString, format).split("/n"));
             this.drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
         }

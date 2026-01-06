@@ -48,10 +48,10 @@ public abstract class MetaTileEntityLargeRocketEngine extends GAFueledMultiblock
     @Override
     public void getProgressBars(Queue<ProgressBar> bars) {
         TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
-        bars.add(new ProgressBar(workableHandler::getProgress, workableHandler::getMaxProgress, TJGuiTextures.BAR_RED));
-        bars.add(new ProgressBar(workableHandler::getEnergyStored, workableHandler::getEnergyCapacity, TJGuiTextures.BAR_YELLOW));
-        bars.add(new ProgressBar(workableHandler::getProgress, workableHandler::getMaxProgress, TJGuiTextures.BAR_RED));
-        bars.add(new ProgressBar(workableHandler::getEnergyStored, workableHandler::getEnergyCapacity, TJGuiTextures.BAR_YELLOW));
+        bars.add(new ProgressBar(workableHandler::getProgress, workableHandler::getMaxProgress, TJGuiTextures.BAR_RED, "tj.multiblock.fuel"));
+        bars.add(new ProgressBar(workableHandler::getEnergyStored, workableHandler::getEnergyCapacity, TJGuiTextures.BAR_YELLOW, "tj.multiblock.fuel"));
+        bars.add(new ProgressBar(workableHandler::getProgress, workableHandler::getMaxProgress, TJGuiTextures.BAR_RED, "tj.multiblock.fuel"));
+        bars.add(new ProgressBar(workableHandler::getEnergyStored, workableHandler::getEnergyCapacity, TJGuiTextures.BAR_YELLOW, "tj.multiblock.fuel"));
     }
 
     @Inject(method = "createWorkable", at = @At("HEAD"), cancellable = true)
