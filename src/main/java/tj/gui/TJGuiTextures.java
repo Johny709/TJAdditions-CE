@@ -13,6 +13,13 @@ public class TJGuiTextures {
     public static final TextureArea MULTIBLOCK_DISPLAY_SLOTS = TextureArea.fullImage("textures/gui/base/multiblock_display_slots.png");
     public static final TextureArea MULTIBLOCK_DISPLAY_SLICE = AdoptableTextureArea.fullImage("textures/gui/base/multiblock_display_slice.png");
 
+    public static final TextureArea FLUID_BAR = AdoptableTextureArea.fullImage("textures/gui/base/fluid_bar.png");
+    public static final TextureArea FLUID_BAR_START = TextureArea.fullImage("textures/gui/base/fluid_bar_start.png");
+    public static final TextureArea FLUID_BAR_END = TextureArea.fullImage("textures/gui/base/fluid_bar_end.png");
+
+    public static final TextureArea BAR_RED = AdoptableTextureArea.fullImage("textures/gui/bar/bar_red.png");
+    public static final TextureArea BAR_YELLOW = AdoptableTextureArea.fullImage("textures/gui/bar/bar_yellow.png");
+
     public static final TextureArea POWER_BUTTON = TextureArea.fullImage("textures/gui/widget/power_button_toggle.png");
     public static final TextureArea CAUTION_BUTTON = TextureArea.fullImage("textures/gui/widget/caution_button_toggle.png");
     public static final TextureArea DISTINCT_BUTTON = TextureArea.fullImage("textures/gui/widget/distinct_button_toggle.png");

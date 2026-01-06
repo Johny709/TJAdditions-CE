@@ -1,7 +1,6 @@
 package tj.mixin.gregicality;
 
 import gregicadditions.machines.multi.GAFueledMultiblockController;
-import gregicadditions.machines.multi.advance.MetaTileEntityLargeRocketEngine;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -18,29 +17,47 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
+import tj.capability.ProgressBar;
 import tj.capability.impl.TJBoostableFuelRecipeLogic;
+import tj.capability.IProgressBar;
+import tj.gui.TJGuiTextures;
 
 import javax.annotation.Nonnull;
 
 import java.util.List;
+import java.util.Queue;
 
 import static gregicadditions.GAMaterials.LiquidOxygen;
 import static gregtech.api.unification.material.Materials.Air;
 
-@Mixin(value = MetaTileEntityLargeRocketEngine.class, remap = false)
-public abstract class MetaTileEntityLargeRocketEngineMixin extends GAFueledMultiblockController {
+@Mixin(value = gregicadditions.machines.multi.advance.MetaTileEntityLargeRocketEngine.class, remap = false)
+public abstract class MetaTileEntityLargeRocketEngine extends GAFueledMultiblockController implements IProgressBar {
 
     @Unique
     private FluidStack booster;
 
-    public MetaTileEntityLargeRocketEngineMixin(ResourceLocation metaTileEntityId, long maxVoltage) {
+    public MetaTileEntityLargeRocketEngine(ResourceLocation metaTileEntityId, long maxVoltage) {
         super(metaTileEntityId, GARecipeMaps.ROCKET_FUEL_RECIPES, maxVoltage);
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[][]{{1, 1}, {1}, {1}};
+    }
+
+    @Override
+    public void getProgressBars(Queue<ProgressBar> bars) {
+        TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
+        bars.add(new ProgressBar(workableHandler::getProgress, workableHandler::getMaxProgress, TJGuiTextures.BAR_RED));
+        bars.add(new ProgressBar(workableHandler::getEnergyStored, workableHandler::getEnergyCapacity, TJGuiTextures.BAR_YELLOW));
+        bars.add(new ProgressBar(workableHandler::getProgress, workableHandler::getMaxProgress, TJGuiTextures.BAR_RED));
+        bars.add(new ProgressBar(workableHandler::getEnergyStored, workableHandler::getEnergyCapacity, TJGuiTextures.BAR_YELLOW));
     }
 
     @Inject(method = "createWorkable", at = @At("HEAD"), cancellable = true)
     private void injectCreateWorkable(long maxVoltage, CallbackInfoReturnable<FuelRecipeLogic> cir) {
         if (TJConfig.machines.generatorWorkableHandlerOverrides) {
-            MetaTileEntityLargeRocketEngine tileEntity = (MetaTileEntityLargeRocketEngine) (Object) this;
+            gregicadditions.machines.multi.advance.MetaTileEntityLargeRocketEngine tileEntity = (gregicadditions.machines.multi.advance.MetaTileEntityLargeRocketEngine) (Object) this;
             cir.setReturnValue(new TJBoostableFuelRecipeLogic(tileEntity, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getBooster, this::getFuelMultiplier, this::getEUMultiplier, 655360) {
                 @Override
                 protected boolean checkRecipe(FuelRecipe recipe) {

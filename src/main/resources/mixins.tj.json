@@ -23,7 +23,7 @@
     "gregicality.MetaTileEntityHyperReactorIIMixin",
     "gregicality.MetaTileEntityHyperReactorIMixin",
     "gregicality.MetaTileEntityLargeNaquadahReactorMixin",
-    "gregicality.MetaTileEntityLargeRocketEngineMixin",
+    "gregicality.MetaTileEntityLargeRocketEngine",
     "gregicality.MetaTileEntityMufflerHatchMixin",
     "gregicality.QubitContainerInfoProviderMixin",
     "gregicality.TileEntityFusionReactorMixin",

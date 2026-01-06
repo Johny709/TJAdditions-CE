@@ -25,12 +25,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.MultiblockDisplaysUtility;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
 import tj.capability.impl.TJFuelRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
+import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 
+import java.util.ArrayDeque;
 import java.util.List;
+import java.util.Queue;
 
 import static tj.gui.TJGuiTextures.CAUTION_BUTTON;
 import static tj.gui.TJGuiTextures.POWER_BUTTON;
@@ -56,7 +61,9 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     @Inject(method = "createUITemplate", at = @At("HEAD"), cancellable = true)
     private void injectCreateUITemplate(EntityPlayer entityPlayer, CallbackInfoReturnable<ModularUI.Builder> cir) {
         if (TJConfig.machines.multiblockUIOverrides) {
-            int height = 20;
+            int height = 0;
+            int[][] barMatrix = null;
+            height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
             ModularUI.Builder builder = ModularUI.extendedBuilder();
             WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                     .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
@@ -68,10 +75,28 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
             builder.image(-10, -20, 195, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN);
             builder.image(-10, 132 + height, 195, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
             this.addNewTabs(tabBuilder);
+            if (barMatrix != null)
+                this.addBars(barMatrix, builder);
             builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height);
             builder.widget(new LabelWidget(0, -13, this.getMetaFullName(), 0xFFFFFF));
             builder.widget(tabBuilder.build());
             cir.setReturnValue(builder);
+        }
+    }
+
+    @Unique
+    private void addBars(int[][] barMatrix, ModularUI.Builder builder) {
+        Queue<ProgressBar> bars = new ArrayDeque<>();
+        ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars);
+        for (int i = 0; i < barMatrix.length; i++) {
+            int[] column = barMatrix[i];
+            for (int j = 0; j < column.length; j++) {
+                ProgressBar bar = bars.poll();
+                int height = 183 / column.length;
+                builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress())
+                        .setStartTexture(TJGuiTextures.FLUID_BAR_START).setEndTexture(TJGuiTextures.FLUID_BAR_END)
+                        .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture()));
+            }
         }
     }
 
