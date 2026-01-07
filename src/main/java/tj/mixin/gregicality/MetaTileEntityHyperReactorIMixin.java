@@ -18,14 +18,19 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
 import tj.capability.impl.TJBoostableFuelRecipeLogic;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
+import tj.gui.TJGuiTextures;
+import tj.util.TJFluidUtils;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Queue;
 
 @Mixin(value = MetaTileEntityHyperReactorI.class, remap = false)
-public abstract class MetaTileEntityHyperReactorIMixin extends GAFueledMultiblockController implements IMetaTileEntityHyperReactorIMixin {
+public abstract class MetaTileEntityHyperReactorIMixin extends GAFueledMultiblockController implements IMetaTileEntityHyperReactorIMixin, IProgressBar {
 
     @Shadow
     @Nonnull
@@ -77,6 +82,56 @@ public abstract class MetaTileEntityHyperReactorIMixin extends GAFueledMultibloc
                     }).isWorking(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress());
             ci.cancel();
         }
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[][]{{0}, {0, 0}};
+    }
+
+    @Override
+    public void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder) {
+        TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
+        bars.add(barBuilder.setProgress(workableHandler::getEnergyStored).setMaxProgress(workableHandler::getEnergyCapacity)
+                .setLocale("tj.multiblock.bars.energy")
+                .setBarTexture(TJGuiTextures.BAR_YELLOW)
+                .build());
+        bars.add(barBuilder.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
+                .setLocale("tj.multiblock.bars.fuel").setParams(this::getFuelName)
+                .setFluidStackSupplier(workableHandler::getFuelStack)
+                .build());
+        bars.add(barBuilder.setProgress(this::getBoosterAmount).setMaxProgress(this::getBoosterCapacity)
+                .setLocale("tj.multiblock.bars.booster").setParams(() -> new Object[]{this.getBooster() != null ? this.getBooster().getLocalizedName() : ""})
+                .setFluidStackSupplier(this::getBooster)
+                .build());
+    }
+
+    @Unique
+    private Object[] getFuelName() {
+        TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
+        return new Object[]{workableHandler.getFuelName()};
+    }
+
+    @Unique
+    private long getFuelAmount() {
+        TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
+        return TJFluidUtils.getFluidAmountFromTanks(workableHandler.getFuelStack(), this.getImportFluidHandler());
+    }
+
+    @Unique
+    private long getFuelCapacity() {
+        TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
+        return TJFluidUtils.getFluidCapacityFromTanks(workableHandler.getFuelStack(), this.getImportFluidHandler());
+    }
+
+    @Unique
+    private long getBoosterAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(this.getBoosterFluid(), this.getImportFluidHandler());
+    }
+
+    @Unique
+    private long getBoosterCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(this.getBoosterFluid(), this.getImportFluidHandler());
     }
 
     @Unique

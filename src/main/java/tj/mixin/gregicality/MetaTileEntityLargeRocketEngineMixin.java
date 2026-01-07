@@ -45,32 +45,6 @@ public abstract class MetaTileEntityLargeRocketEngineMixin extends GAFueledMulti
         super(metaTileEntityId, GARecipeMaps.ROCKET_FUEL_RECIPES, maxVoltage);
     }
 
-    @Override
-    public int[][] getBarMatrix() {
-        return new int[][]{{0}, {0, 0, 0}};
-    }
-
-    @Override
-    public void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder) {
-        TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
-        bars.add(barBuilder.setProgress(workableHandler::getEnergyStored).setMaxProgress(workableHandler::getEnergyCapacity)
-                .setLocale("tj.multiblock.bars.energy")
-                .setBarTexture(TJGuiTextures.BAR_YELLOW)
-                .build());
-        bars.add(barBuilder.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
-                .setLocale("tj.multiblock.bars.fuel").setParams(this::getFuelName)
-                .setFluidStackSupplier(workableHandler::getFuelStack)
-                .build());
-        bars.add(barBuilder.setProgress(this::getAirAmount).setMaxProgress(this::getAirCapacity)
-                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{this.getAir() != null ? this.getAir().getLocalizedName() : ""})
-                .setFluidStackSupplier(this::getAir)
-                .build());
-        bars.add(barBuilder.setProgress(this::getBoosterAmount).setMaxProgress(this::getBoosterCapacity)
-                .setLocale("tj.multiblock.bars.booster").setParams(() -> new Object[]{this.getBooster() != null ? this.getBooster().getLocalizedName() : ""})
-                .setFluidStackSupplier(this::getBooster)
-                .build());
-    }
-
     @Inject(method = "createWorkable", at = @At("HEAD"), cancellable = true)
     private void injectCreateWorkable(long maxVoltage, CallbackInfoReturnable<FuelRecipeLogic> cir) {
         if (TJConfig.machines.generatorWorkableHandlerOverrides) {
@@ -124,10 +98,36 @@ public abstract class MetaTileEntityLargeRocketEngineMixin extends GAFueledMulti
         }
     }
 
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[][]{{0}, {0, 0, 0}};
+    }
+
+    @Override
+    public void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder) {
+        TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
+        bars.add(barBuilder.setProgress(workableHandler::getEnergyStored).setMaxProgress(workableHandler::getEnergyCapacity)
+                .setLocale("tj.multiblock.bars.energy")
+                .setBarTexture(TJGuiTextures.BAR_YELLOW)
+                .build());
+        bars.add(barBuilder.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
+                .setLocale("tj.multiblock.bars.fuel").setParams(this::getFuelName)
+                .setFluidStackSupplier(workableHandler::getFuelStack)
+                .build());
+        bars.add(barBuilder.setProgress(this::getAirAmount).setMaxProgress(this::getAirCapacity)
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{this.getAir() != null ? this.getAir().getLocalizedName() : ""})
+                .setFluidStackSupplier(this::getAir)
+                .build());
+        bars.add(barBuilder.setProgress(this::getBoosterAmount).setMaxProgress(this::getBoosterCapacity)
+                .setLocale("tj.multiblock.bars.booster").setParams(() -> new Object[]{this.getBooster() != null ? this.getBooster().getLocalizedName() : ""})
+                .setFluidStackSupplier(this::getBooster)
+                .build());
+    }
+
     @Unique
     private Object[] getFuelName() {
         TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
-        return new Object[]{workableHandler.getFuelName() != null ? workableHandler.getFuelName() : ""};
+        return new Object[]{workableHandler.getFuelName()};
     }
 
     @Unique
