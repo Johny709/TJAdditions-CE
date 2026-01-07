@@ -76,7 +76,7 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
             builder.image(-10, 132 + height, 195, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
             this.addNewTabs(tabBuilder);
             if (barMatrix != null)
-                this.addBars(barMatrix, builder);
+                this.addNewBars(barMatrix, builder);
             builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height);
             builder.widget(new LabelWidget(0, -13, this.getMetaFullName(), 0xFFFFFF));
             builder.widget(tabBuilder.build());
@@ -85,7 +85,7 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     }
 
     @Unique
-    private void addBars(int[][] barMatrix, ModularUI.Builder builder) {
+    private void addNewBars(int[][] barMatrix, ModularUI.Builder builder) {
         Queue<ProgressBar> bars = new ArrayDeque<>();
         ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars, new ProgressBar.ProgressBarBuilder());
         for (int i = 0; i < barMatrix.length; i++) {

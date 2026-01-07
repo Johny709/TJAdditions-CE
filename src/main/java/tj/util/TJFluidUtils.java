@@ -21,7 +21,7 @@ public class TJFluidUtils {
         for (int i = 0; i < tanks.getTanks(); i++) {
             IFluidTank tank = tanks.getTankAt(i);
             FluidStack stack = tank.getFluid();
-            if (stack != null && stack.isFluidEqual(fluidStack))
+            if (stack == null || stack.isFluidEqual(fluidStack))
                 capacity += tank.getCapacity();
         }
         return capacity;

@@ -21,14 +21,19 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.WidgetTabBuilder;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
+import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.impl.GhostCircuitWidget;
 import tj.multiblockpart.TJMultiblockAbility;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate;
@@ -81,16 +86,43 @@ public abstract class TJGARecipeMapMultiblockControllerBase extends GARecipeMapM
 
     @Override
     protected ModularUI.Builder createUITemplate(EntityPlayer entityPlayer) {
+        int height = 0;
+        int[][] barMatrix = null;
+        height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
         ModularUI.Builder builder = ModularUI.extendedBuilder();
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
-                .setPosition(-10, 1);
+                .setPosition(-10, 1)
+                .offsetPosition(0, height)
+                .offsetY(132);
+        if (height > 0)
+            builder.image(-10, 132, 195, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
+        builder.image(-10, -20, 195, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN);
+        builder.image(-10, 132 + height, 195, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
         this.addTabs(tabBuilder);
-        builder.image(-10, -20, 195, 237, TJGuiTextures.NEW_MULTIBLOCK_DISPLAY);
-        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134);
-        builder.widget(new LabelWidget(0, -13, getMetaFullName(), 0xFFFFFF));
+        if (barMatrix != null)
+            this.addBars(barMatrix, builder);
+        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height);
+        builder.widget(new LabelWidget(0, -13, this.getMetaFullName(), 0xFFFFFF));
         builder.widget(tabBuilder.build());
         return builder;
+    }
+
+    private void addBars(int[][] barMatrix, ModularUI.Builder builder) {
+        Queue<ProgressBar> bars = new ArrayDeque<>();
+        ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars, new ProgressBar.ProgressBarBuilder());
+        for (int i = 0; i < barMatrix.length; i++) {
+            int[] column = barMatrix[i];
+            for (int j = 0; j < column.length; j++) {
+                ProgressBar bar = bars.poll();
+                int height = 183 / column.length;
+                builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
+                        .setStartTexture(TJGuiTextures.FLUID_BAR_START).setEndTexture(TJGuiTextures.FLUID_BAR_END)
+                        .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
+                        .setLocale(bar.getLocale(), bar.getParams())
+                        .setFluid(bar.getFluidStackSupplier()));
+            }
+        }
     }
 
     @OverridingMethodsMustInvokeSuper
