@@ -23,7 +23,6 @@ import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.TJBoostableFuelRecipeLogic;
 import tj.capability.impl.TJCycleFuelRecipeLogic;
-import tj.gui.TJGuiTextures;
 import tj.util.TJFluidUtils;
 
 import javax.annotation.Nonnull;
@@ -100,7 +99,7 @@ public abstract class MetaTileEntityDieselEngineMixin extends FueledMultiblockCo
         TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
         bars.add(barBuilder.setProgress(workableHandler::getEnergyStored).setMaxProgress(workableHandler::getEnergyCapacity)
                 .setLocale("tj.multiblock.bars.energy")
-                .setBarTexture(TJGuiTextures.BAR_YELLOW)
+                .setColor(0xFFF6FF00)
                 .build());
         bars.add(barBuilder.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
                 .setLocale("tj.multiblock.bars.fuel").setParams(this::getFuelName)

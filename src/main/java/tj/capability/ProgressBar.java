@@ -15,8 +15,9 @@ public final class ProgressBar {
     private final TextureArea barTexture;
     private final String locale;
     private final boolean isFluid;
+    private final int color;
 
-    public ProgressBar(DoubleSupplier progress, DoubleSupplier maxProgress, TextureArea barTexture, String locale, Supplier<Object[]> params, Supplier<FluidStack> fluidStackSupplier, boolean isFluid) {
+    public ProgressBar(DoubleSupplier progress, DoubleSupplier maxProgress, TextureArea barTexture, String locale, Supplier<Object[]> params, Supplier<FluidStack> fluidStackSupplier, boolean isFluid, int color) {
         this.progress = progress;
         this.maxProgress = maxProgress;
         this.barTexture = barTexture;
@@ -24,6 +25,7 @@ public final class ProgressBar {
         this.params = params;
         this.fluidStackSupplier = fluidStackSupplier;
         this.isFluid = isFluid;
+        this.color = color;
     }
 
     public DoubleSupplier getProgress() {
@@ -54,6 +56,10 @@ public final class ProgressBar {
         return this.isFluid;
     }
 
+    public int getColor() {
+        return this.color;
+    }
+
     public static class ProgressBarBuilder {
         private DoubleSupplier progress;
         private DoubleSupplier maxProgress;
@@ -62,6 +68,7 @@ public final class ProgressBar {
         private TextureArea barTexture;
         private String locale;
         private boolean isFluid;
+        private int color;
 
         public ProgressBarBuilder setProgress(DoubleSupplier progress) {
             this.progress = progress;
@@ -73,6 +80,10 @@ public final class ProgressBar {
             return this;
         }
 
+        /**
+         * If this is null or not set, then it will use the built-in default bar texture with color.
+         * Supports adoptable textures.
+         */
         public ProgressBarBuilder setBarTexture(TextureArea barTexture) {
             this.barTexture = barTexture;
             this.isFluid = false;
@@ -89,14 +100,23 @@ public final class ProgressBar {
             return this;
         }
 
+        /**
+         * This will replace bar texture with the fluid's texture.
+         * @param fluidStackSupplier FluidStack
+         */
         public ProgressBarBuilder setFluidStackSupplier(Supplier<FluidStack> fluidStackSupplier) {
             this.fluidStackSupplier = fluidStackSupplier;
             this.isFluid = true;
             return this;
         }
 
+        public ProgressBarBuilder setColor(int color) {
+            this.color = color;
+            return this;
+        }
+
         public ProgressBar build() {
-            return new ProgressBar(this.progress, this.maxProgress, this.barTexture, this.locale, this.params, this.fluidStackSupplier, this.isFluid);
+            return new ProgressBar(this.progress, this.maxProgress, this.barTexture, this.locale, this.params, this.fluidStackSupplier, this.isFluid, this.color);
         }
     }
 }

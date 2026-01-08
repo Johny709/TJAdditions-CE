@@ -28,6 +28,7 @@ public class TJProgressBarWidget extends Widget {
 
     private double progress;
     private double maxProgress;
+    private int color;
     private TextureArea backgroundTexture;
     private TextureArea barTexture;
     private TextureArea startTexture;
@@ -84,6 +85,11 @@ public class TJProgressBarWidget extends Widget {
         return this;
     }
 
+    public TJProgressBarWidget setColor(int color) {
+        this.color = color;
+        return this;
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
@@ -104,9 +110,11 @@ public class TJProgressBarWidget extends Widget {
         Position pos = this.getPosition();
         int width = (int) ((size.getWidth() - 2) * (this.progress / this.maxProgress));
         this.backgroundTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
-        if (!this.isFluid)
-            this.barTexture.draw(pos.getX() + 1, pos.getY() + 1, width, 8);
-        else if (this.fluid != null) {
+        if (!this.isFluid) {
+            if (this.barTexture != null)
+                this.barTexture.draw(pos.getX() + 1, pos.getY() + 1, width, 8);
+            else Widget.drawSolidRect(pos.getX() + 1, pos.getY() + 1, width, 8, this.color);
+        } else if (this.fluid != null) {
             GlStateManager.disableBlend();
             GuiUtils.drawFluidForGui(this.fluid, (long) this.progress, (long) this.maxProgress, pos.getX() + 1, pos.getY() + 1, size.getWidth(), 8);
             GlStateManager.enableBlend();
@@ -118,22 +126,29 @@ public class TJProgressBarWidget extends Widget {
 
     @Override
     public void detectAndSendChanges() {
-        this.progress = this.progressSupplier.getAsDouble();
-        this.maxProgress = this.maxProgressSupplier.getAsDouble();
-        this.writeUpdateInfo(1, buffer -> {
-            buffer.writeDouble(this.progress);
-            buffer.writeDouble(this.maxProgress);
-        });
+        double progress = 0, maxProgress = 0;
+        if (this.progressSupplier != null && (progress = this.progressSupplier.getAsDouble()) != this.progress) {
+            this.progress = progress;
+            this.writeUpdateInfo(1, buffer -> buffer.writeDouble(this.progress));
+        }
+        if (this.maxProgressSupplier != null && (maxProgress = this.maxProgressSupplier.getAsDouble()) != this.maxProgress) {
+            this.maxProgress = maxProgress;
+            this.writeUpdateInfo(2, buffer -> buffer.writeDouble(this.maxProgress));
+        }
         Object[] params;
-        if (this.paramSupplier != null && (params = this.paramSupplier.get()) != null && params.length > 0)
-            this.writeUpdateInfo(2, buffer -> {
-                buffer.writeInt(params.length);
-                for (Object param : params)
-                    buffer.writeString((String) param);
+        if (this.paramSupplier != null && (params = this.paramSupplier.get()) != null && params.length > 0 && (this.params == null || !Arrays.equals(this.params, params))) {
+            this.params = params;
+            this.writeUpdateInfo(3, buffer -> {
+                buffer.writeInt(this.params.length);
+                for (Object param : this.params)
+                    buffer.writeString(param != null ? (String) param : "");
             });
+        }
         FluidStack fluidStack;
-        if (this.fluidStackSupplier != null && (fluidStack = this.fluidStackSupplier.get()) != null)
-            this.writeUpdateInfo(3, buffer -> buffer.writeCompoundTag(fluidStack.writeToNBT(new NBTTagCompound())));
+        if (this.fluidStackSupplier != null && (fluidStack = this.fluidStackSupplier.get()) != null && (this.fluid == null || !this.fluid.isFluidStackIdentical(fluidStack))) {
+            this.fluid = fluidStack;
+            this.writeUpdateInfo(4, buffer -> buffer.writeCompoundTag(this.fluid.writeToNBT(new NBTTagCompound())));
+        }
     }
 
     @Override
@@ -144,13 +159,13 @@ public class TJProgressBarWidget extends Widget {
                 this.progress = buffer.readDouble();
                 this.maxProgress = buffer.readDouble();
                 break;
-            case 2:
+            case 3:
                 this.params = new Object[buffer.readInt()];
                 for (int i = 0; i < this.params.length; i++) {
                     this.params[i] = I18n.format(buffer.readString(Short.MAX_VALUE));
                 }
                 break;
-            case 3:
+            case 4:
                 try {
                     this.fluid = FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag());
                 } catch (IOException e) {

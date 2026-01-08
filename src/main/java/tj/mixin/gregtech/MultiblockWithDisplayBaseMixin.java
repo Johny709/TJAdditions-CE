@@ -97,7 +97,8 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
                         .setStartTexture(TJGuiTextures.FLUID_BAR_START).setEndTexture(TJGuiTextures.FLUID_BAR_END)
                         .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
                         .setLocale(bar.getLocale(), bar.getParams())
-                        .setFluid(bar.getFluidStackSupplier()));
+                        .setFluid(bar.getFluidStackSupplier())
+                        .setColor(bar.getColor()));
             }
         }
     }
