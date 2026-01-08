@@ -196,11 +196,11 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
     }
 
     public long getEnergyStored() {
-        return this.energyContainer.get().getEnergyStored();
+        return this.energyContainer.get() != null ? this.energyContainer.get().getEnergyStored() : 0;
     }
 
     public long getEnergyCapacity() {
-        return this.energyContainer.get().getEnergyCapacity();
+        return this.energyContainer.get() != null ? this.energyContainer.get().getEnergyCapacity() : 0;
     }
 
     @Override

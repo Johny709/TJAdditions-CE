@@ -157,6 +157,8 @@ public class TJProgressBarWidget extends Widget {
         switch (id) {
             case 1:
                 this.progress = buffer.readDouble();
+                break;
+            case 2:
                 this.maxProgress = buffer.readDouble();
                 break;
             case 3:
