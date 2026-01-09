@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentBase;
@@ -177,14 +178,25 @@ public class AdvancedDisplayWidget extends Widget {
     @SideOnly(Side.CLIENT)
     private void updateComponentTextSize() {
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        int maxStringWidth = 0;
+        int slot = 0;
         int totalHeight = 0;
-        for (TextComponentWrapper<?> textComponent : this.displayText) {
-            if (textComponent.getValue() instanceof ItemStack || textComponent.getValue() instanceof FluidStack) {
-                totalHeight += 20;
-            } else if (textComponent.getValue() instanceof ITextComponent) {
-                maxStringWidth = Math.max(maxStringWidth, fontRenderer.getStringWidth(((ITextComponent) textComponent.getValue()).getFormattedText()));
-                totalHeight += fontRenderer.FONT_HEIGHT + 2;
+        int maxStringWidth = 0;
+        boolean stackApplied = false;
+        for (TextComponentWrapper<?> component : this.displayText) {
+            if (component.getValue() instanceof ITextComponent) {
+                if (stackApplied) {
+                    stackApplied = false;
+                    totalHeight += 20;
+                }
+                maxStringWidth = Math.max(maxStringWidth, fontRenderer.getStringWidth(((ITextComponent) component.getValue()).getFormattedText()));
+                totalHeight += 11;
+            } else {
+                if (slot++ > 8 || !stackApplied) {
+                    slot = 0;
+                    if (stackApplied)
+                        totalHeight += 18;
+                } else maxStringWidth = MathHelper.clamp(maxStringWidth + 3, 0, 30);
+                stackApplied = true;
             }
         }
         totalHeight -= 2;
@@ -240,49 +252,42 @@ public class AdvancedDisplayWidget extends Widget {
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         Position position = this.getPosition();
+        int slot = 0;
         int widthApplied = 0, heightApplied = 0;
         boolean stackApplied = false;
-        for (int i = 0; i < displayText.size(); i++) {
-            TextComponentWrapper<?> component = this.displayText.get(i);
-            if (component.getValue() instanceof ItemStack) {
-                if (i > 0 && this.displayText.get(i - 1).getValue() instanceof ItemStack) {
-                    widthApplied += 18;
-                } else {
-                    widthApplied = 0;
-                    if (stackApplied)
-                        heightApplied += 20;
-                }
-                stackApplied = true;
-                GuiTextures.SLOT.draw(position.getX() + widthApplied, position.getY() + heightApplied, 18, 18);
-                Widget.drawItemStack((ItemStack) component.getValue(), position.getX() + widthApplied + 1, position.getY() + heightApplied + 1, null);
-            } else if (component.getValue() instanceof FluidStack) {
-                if (i > 0 && this.displayText.get(i - 1).getValue() instanceof FluidStack) {
-                    widthApplied += 18;
-                } else {
-                    widthApplied = 0;
-                    if (stackApplied)
-                        heightApplied += 20;
-                }
-                stackApplied = true;
-                FluidStack fluidStack = (FluidStack) component.getValue();
-                GuiTextures.FLUID_SLOT.draw(position.getX() + widthApplied, position.getY() + heightApplied, 18, 18);
-                GlStateManager.disableBlend();
-                TJGuiUtils.drawFluidForGui(fluidStack, fluidStack.amount, fluidStack.amount, position.getX() + widthApplied + 1, position.getY() + heightApplied + 1, 17, 17);
-                GlStateManager.pushMatrix();
-                GlStateManager.scale(0.5, 0.5, 1);
-                String s = TextFormattingUtil.formatLongToCompactString(fluidStack.amount, 4) + "L";
-                fontRenderer.drawStringWithShadow(s, (position.getX() + widthApplied + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (position.getY() + heightApplied + 14) * 2, 0xFFFFFF);
-                GlStateManager.popMatrix();
-                GlStateManager.enableBlend();
-                GlStateManager.color(1.0f, 1.0f, 1.0f);
-            } else if (component.getValue() instanceof ITextComponent) {
+        for (TextComponentWrapper<?> component : displayText) {
+            if (component.getValue() instanceof ITextComponent) {
                 if (stackApplied) {
+                    stackApplied = false;
                     widthApplied = 0;
                     heightApplied += 20;
-                    stackApplied = false;
                 }
-                fontRenderer.drawString(((ITextComponent) this.displayText.get(i).getValue()).getFormattedText(), position.getX() + widthApplied, position.getY() + heightApplied, color);
+                fontRenderer.drawString(((ITextComponent) component.getValue()).getFormattedText(), position.getX() + widthApplied, position.getY() + heightApplied, color);
                 heightApplied += 11;
+            } else {
+                if (slot++ > 8 || !stackApplied) {
+                    slot = 0;
+                    widthApplied = 0;
+                    if (stackApplied)
+                        heightApplied += 18;
+                } else widthApplied += 18;
+                stackApplied = true;
+                if (component.getValue() instanceof ItemStack) {
+                    GuiTextures.SLOT.draw(position.getX() + widthApplied, position.getY() + heightApplied, 18, 18);
+                    Widget.drawItemStack((ItemStack) component.getValue(), position.getX() + widthApplied + 1, position.getY() + heightApplied + 1, null);
+                } else {
+                    FluidStack fluidStack = (FluidStack) component.getValue();
+                    GuiTextures.FLUID_SLOT.draw(position.getX() + widthApplied, position.getY() + heightApplied, 18, 18);
+                    GlStateManager.disableBlend();
+                    TJGuiUtils.drawFluidForGui(fluidStack, fluidStack.amount, fluidStack.amount, position.getX() + widthApplied + 1, position.getY() + heightApplied + 1, 17, 17);
+                    GlStateManager.pushMatrix();
+                    GlStateManager.scale(0.5, 0.5, 1);
+                    String s = TextFormattingUtil.formatLongToCompactString(fluidStack.amount, 4) + "L";
+                    fontRenderer.drawStringWithShadow(s, (position.getX() + widthApplied + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (position.getY() + heightApplied + 14) * 2, 0xFFFFFF);
+                    GlStateManager.popMatrix();
+                    GlStateManager.enableBlend();
+                    GlStateManager.color(1.0f, 1.0f, 1.0f);
+                }
             }
         }
     }
@@ -300,49 +305,18 @@ public class AdvancedDisplayWidget extends Widget {
     protected ITextComponent getTextUnderMouse(int mouseX, int mouseY) {
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         Position position = this.getPosition();
+        int slot = 0;
         int lastHeight = 0, lastWidth = 0;
         int heightApplied = 0, widthApplied = 0;
-        for (int i = 0; i < this.displayText.size(); i++) {
-            TextComponentWrapper<?> component = this.displayText.get(i);
-            if (component.getValue() instanceof ItemStack) {
-                if (!(i > 0 && this.displayText.get(i - 1).getValue() instanceof ItemStack)) {
-                    lastWidth = 0;
-                    widthApplied = 0;
-                    heightApplied += 20;
-                } else lastHeight -= 20;
-                widthApplied += 18;
-                if (mouseX >= position.getX() + lastWidth && mouseX <= position.getX() + widthApplied && mouseY >= position.getY() + lastHeight && mouseY <= position.getY() + heightApplied) {
-                    ItemStack itemStack = (ItemStack) component.getValue();
-                    List<String> tooltip = getItemToolTip(itemStack);
-                    String name = itemStack.getDisplayName();
-                    ITextComponent hoverComponent = new TextComponentString("");
-                    if (tooltip != null && !tooltip.isEmpty()) {
-                        name = tooltip.get(0);
-                        for (int j = 1; j < tooltip.size(); j++)
-                            hoverComponent.appendText("\n" + tooltip.get(j));
-                    }
-                    return new TextComponentString("")
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
-                                    .appendSibling(hoverComponent))));
-                }
-            } else if (component.getValue() instanceof FluidStack) {
-                if (!(i > 0 && this.displayText.get(i - 1).getValue() instanceof FluidStack)) {
-                    lastWidth = 0;
-                    widthApplied = 0;
-                    heightApplied += 20;
-                } else lastHeight -= 20;
-                widthApplied += 18;
-                if (mouseX >= position.getX() + lastWidth && mouseX <= position.getX() + widthApplied && mouseY >= position.getY() + lastHeight && mouseY <= position.getY() + heightApplied) {
-                    FluidStack fluidStack = (FluidStack) component.getValue();
-                    // Add chemical formula tooltip
-                    String formula = FluidTooltipUtil.getFluidTooltip(fluidStack);
-                    formula = formula == null || formula.isEmpty() ? "" : "\n" + formula;
-                    return new TextComponentString("")
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(fluidStack.getLocalizedName())
-                                    .appendText(ChatFormatting.GRAY + formula))));
-                }
-            } else if (component.getValue() instanceof ITextComponent) {
+        boolean stackApplied = false;
+        for (TextComponentWrapper<?> component : this.displayText) {
+            if (component.getValue() instanceof ITextComponent) {
+                slot = 0;
                 heightApplied += 11;
+                if (stackApplied) {
+                    stackApplied = false;
+                    heightApplied += 2;
+                }
                 if (mouseY >= position.getY() + lastHeight && mouseY <= position.getY() + heightApplied) {
                     int currentOffset = 0;
                     int mouseOffset = mouseX - position.getX();
@@ -351,6 +325,39 @@ public class AdvancedDisplayWidget extends Widget {
                         if (currentOffset >= mouseOffset) {
                             return lineComponent;
                         }
+                    }
+                }
+            } else {
+                if (slot++ > 8 || !stackApplied) {
+                    slot = 0;
+                    lastWidth = 0;
+                    widthApplied = 0;
+                    heightApplied += 18;
+                } else lastHeight -= 18;
+                stackApplied = true;
+                widthApplied += 18;
+                if (mouseX >= position.getX() + lastWidth && mouseX <= position.getX() + widthApplied && mouseY >= position.getY() + lastHeight && mouseY <= position.getY() + heightApplied) {
+                    if (component.getValue() instanceof ItemStack) {
+                        ItemStack itemStack = (ItemStack) component.getValue();
+                        List<String> tooltip = getItemToolTip(itemStack);
+                        String name = itemStack.getDisplayName();
+                        ITextComponent hoverComponent = new TextComponentString("");
+                        if (tooltip != null && !tooltip.isEmpty()) {
+                            name = tooltip.get(0);
+                            for (int j = 1; j < tooltip.size(); j++)
+                                hoverComponent.appendText("\n" + tooltip.get(j));
+                        }
+                        return new TextComponentString("")
+                                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
+                                        .appendSibling(hoverComponent))));
+                    } else {
+                        FluidStack fluidStack = (FluidStack) component.getValue();
+                        // Add chemical formula tooltip
+                        String formula = FluidTooltipUtil.getFluidTooltip(fluidStack);
+                        formula = formula == null || formula.isEmpty() ? "" : "\n" + formula;
+                        return new TextComponentString("")
+                                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(fluidStack.getLocalizedName())
+                                        .appendText(ChatFormatting.GRAY + formula))));
                     }
                 }
             }
