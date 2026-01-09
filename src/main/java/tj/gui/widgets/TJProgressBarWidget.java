@@ -16,7 +16,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
-import tj.gui.GuiUtils;
+import tj.gui.TJGuiUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -116,7 +116,7 @@ public class TJProgressBarWidget extends Widget {
             else Widget.drawSolidRect(pos.getX() + 1, pos.getY() + 1, width, 8, this.color);
         } else if (this.fluid != null) {
             GlStateManager.disableBlend();
-            GuiUtils.drawFluidForGui(this.fluid, (long) this.progress, (long) this.maxProgress, pos.getX() + 1, pos.getY() + 1, size.getWidth(), 8);
+            TJGuiUtils.drawFluidForGui(this.fluid, (long) this.progress, (long) this.maxProgress, pos.getX() + 1, pos.getY() + 1, size.getWidth(), 8);
             GlStateManager.enableBlend();
             GlStateManager.color(1.0f, 1.0f, 1.0f);
         }

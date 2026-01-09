@@ -25,11 +25,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.MultiblockDisplaysUtility;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.TJFuelRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
+import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 
@@ -121,7 +123,7 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
 
     @Unique
     private void addMainDisplayTab(List<Widget> widgetGroup) {
-        widgetGroup.add(new AdvancedTextWidget(10, -2, this::addDisplayText, 0xFFFFFF)
+        widgetGroup.add(new AdvancedDisplayWidget(10, -2, this::configureDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleDisplayClick));
         widgetGroup.add(new ToggleButtonWidget(172, 133, 18, 18, CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
@@ -144,6 +146,9 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
             }
         }
     }
+
+    @Unique
+    protected void configureDisplayText(UIDisplayBuilder builder) {}
 
     @Unique
     private boolean isStructureCheck() {

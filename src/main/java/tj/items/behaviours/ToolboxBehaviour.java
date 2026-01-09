@@ -28,7 +28,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.items.ItemStackHandler;
-import tj.gui.GuiUtils;
+import tj.gui.TJGuiUtils;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.FilteredItemStackHandler;
 
@@ -150,7 +150,7 @@ public class ToolboxBehaviour implements IItemBehaviour, ItemUIFactory {
                 .bindOpenListener(() -> toolboxInventory.deserializeNBT(compound.getCompoundTag("inventory")))
                 .bindCloseListener(() -> compound.setTag("inventory", toolboxInventory.serializeNBT()))
                 .widget(widgetGroup)
-                .widget(GuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 84, playerStack))
+                .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 84, playerStack))
                 .label(7, 5, "metaitem.toolbox.name")
                 .build(holder, player);
     }

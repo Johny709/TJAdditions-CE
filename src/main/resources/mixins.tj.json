@@ -34,6 +34,7 @@
     "gregtech.IRecipeMapMultiblockControllerMixin",
     "gregtech.MetaTileEntityDieselEngineMixin",
     "gregtech.MultiblockWithDisplayBaseMixin",
+    "gregtech.RecipeMapMultiblockControllerMixin",
     "gregtech.TransformerInfoProviderMixin"
   ],
   "server": [],
