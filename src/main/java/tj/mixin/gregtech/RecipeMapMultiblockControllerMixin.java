@@ -2,11 +2,22 @@ package tj.mixin.gregtech;
 
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.impl.MultiblockRecipeLogic;
+import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
+import gregtech.common.ConfigHolder;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import tj.builder.multicontrollers.UIDisplayBuilder;
+
+import java.util.List;
+
+import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
 @Mixin(value = RecipeMapMultiblockController.class, remap = false)
 public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithDisplayBaseMixin {
@@ -22,8 +33,26 @@ public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithD
     }
 
     @Override
+    protected void addMainDisplayTab(List<Widget> widgetGroup) {
+        super.addMainDisplayTab(widgetGroup);
+        widgetGroup.add(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, this.recipeMapWorkable::isWorkingEnabled, this.recipeMapWorkable::setWorkingEnabled)
+                .setTooltipText("machine.universal.toggle.run.mode"));
+    }
+
+    @Override
     protected void configureDisplayText(UIDisplayBuilder builder) {
+        super.configureDisplayText(builder);
+        if (!this.isStructureFormed()) return;
         builder.voltageInLine(this.energyContainer)
-                .isWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress());
+                .customLine(text -> {
+                    if (this.recipeMapWorkable.isHasNotEnoughEnergy()) {
+                        text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.not_enough_energy").setStyle(new Style().setColor(TextFormatting.RED)));
+                    }
+                    if (ConfigHolder.debug_options_for_caching) {
+                        text.addTextComponent(new TextComponentString(String.format("Cache size (%s) hit (%s) miss (%s)", this.recipeMapWorkable.previousRecipe.getCachedRecipeCount(), this.recipeMapWorkable.previousRecipe.getCacheHit(), this.recipeMapWorkable.previousRecipe.getCacheMiss()))
+                                .setStyle(new Style().setColor(TextFormatting.WHITE)));
+                    }
+                }).isWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress())
+                .addRecipeOutputLine(this.recipeMapWorkable);
     }
 }

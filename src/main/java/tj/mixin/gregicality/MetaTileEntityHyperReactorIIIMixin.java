@@ -1,9 +1,7 @@
 package tj.mixin.gregicality;
 
 import gregicadditions.GAConfig;
-import gregicadditions.machines.multi.GAFueledMultiblockController;
 import gregicadditions.machines.multi.advance.hyper.MetaTileEntityHyperReactorIII;
-import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.FuelRecipeLogic;
@@ -18,6 +16,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
+import tj.builder.multicontrollers.MultiblockDisplaysUtility;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.TJBoostableFuelRecipeLogic;
@@ -29,15 +29,15 @@ import java.util.List;
 import java.util.Queue;
 
 @Mixin(value = MetaTileEntityHyperReactorIII.class, remap = false)
-public abstract class MetaTileEntityHyperReactorIIIMixin extends GAFueledMultiblockController implements IMetaTileEntityHyperReactorIIIMixin, IProgressBar {
+public abstract class MetaTileEntityHyperReactorIIIMixin extends GAFueledMultiblockControllerMixin implements IMetaTileEntityHyperReactorIIIMixin, IProgressBar {
+
+    public MetaTileEntityHyperReactorIIIMixin(ResourceLocation metaTileEntityId) {
+        super(metaTileEntityId);
+    }
 
     @Shadow
     @Nonnull
     protected abstract FluidStack getBooster();
-
-    public MetaTileEntityHyperReactorIIIMixin(ResourceLocation metaTileEntityId, long maxVoltage) {
-        super(metaTileEntityId, GARecipeMaps.HYPER_REACTOR_FUELS, maxVoltage);
-    }
 
     @Inject(method = "createWorkable", at = @At("HEAD"), cancellable = true)
     private void injectCreateWorkable(long maxVoltage, CallbackInfoReturnable<FuelRecipeLogic> cir) {
@@ -51,7 +51,7 @@ public abstract class MetaTileEntityHyperReactorIIIMixin extends GAFueledMultibl
     private void injectAddDisplayText(List<ITextComponent> textList, CallbackInfo ci) {
         if (TJConfig.machines.generatorWorkableHandlerOverrides) {
             if (!this.isStructureFormed()) {
-                super.addDisplayText(textList);
+                MultiblockDisplaysUtility.isInvalid(textList, this.isStructureFormed());
                 ci.cancel();
                 return;
             }
@@ -81,6 +81,34 @@ public abstract class MetaTileEntityHyperReactorIIIMixin extends GAFueledMultibl
                     }).isWorking(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress());
             ci.cancel();
         }
+    }
+
+    @Override
+    protected void configureDisplayText(UIDisplayBuilder builder) {
+        super.configureDisplayText(builder);
+        TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
+        FluidStack fuelStack = workableHandler.getFuelStack();
+        FluidStack booster = importFluidHandler.drain(this.getBoosterFluid(), false);
+        FluidStack fuelConsumed = fuelStack == null ? null : fuelStack.copy();
+        if (fuelConsumed != null)
+            fuelConsumed.amount = (int) workableHandler.getConsumption();
+        fuelConsumed = importFluidHandler.drain(fuelConsumed, false);
+        boolean isBoosted = workableHandler.isBoosted();
+        int boosterAmount = booster == null ? 0 : booster.amount;
+        int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
+        builder.fluidInputLine(fuelConsumed != null && fuelConsumed.amount == workableHandler.getConsumption(), fuelConsumed, workableHandler.getMaxProgress())
+                .customLine(text -> {
+                    if (fuelStack == null)
+                        text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_rocket_engine.no_fuel").setStyle(new Style().setColor(TextFormatting.RED)));
+                    else text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelStack.getLocalizedName())));
+
+                    if (isBoosted) {
+                        text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_rocket_engine.boost").setStyle(new Style().setColor(TextFormatting.GREEN)));
+                        if (booster != null)
+                            text.addTextComponent(new TextComponentString(String.format("%s: %dmb", booster.getLocalizedName(), boosterAmount)).setStyle(new Style().setColor(TextFormatting.AQUA)));
+                    }
+                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", workableHandler.getProduction())));
+                }).isWorkingLine(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress());
     }
 
     @Override

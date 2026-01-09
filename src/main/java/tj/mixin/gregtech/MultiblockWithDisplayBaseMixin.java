@@ -16,6 +16,10 @@ import gregtech.common.metatileentities.multi.electric.generator.FueledMultibloc
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.HoverEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -122,17 +126,13 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     }
 
     @Unique
-    private void addMainDisplayTab(List<Widget> widgetGroup) {
+    protected void addMainDisplayTab(List<Widget> widgetGroup) {
         widgetGroup.add(new AdvancedDisplayWidget(10, -2, this::configureDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleDisplayClick));
         widgetGroup.add(new ToggleButtonWidget(172, 133, 18, 18, CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
-        if (this.getHolder().getMetaTileEntity() instanceof RecipeMapMultiblockController) {
-            MultiblockRecipeLogic recipeLogic = ((IRecipeMapMultiblockControllerMixin) this.getHolder().getMetaTileEntity()).getRecipeLogic();
-            widgetGroup.add(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
-                    .setTooltipText("machine.universal.toggle.run.mode"));
-        } else if (this.getHolder().getMetaTileEntity() instanceof FueledMultiblockController) {
+        if (this.getHolder().getMetaTileEntity() instanceof FueledMultiblockController) {
             FuelRecipeLogic recipeLogic = ((IFueledMultiblockControllerMixin) this.getHolder().getMetaTileEntity()).getFuelRecipeLogic();
             widgetGroup.add(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
                     .setTooltipText("machine.universal.toggle.run.mode"));
@@ -148,7 +148,15 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     }
 
     @Unique
-    protected void configureDisplayText(UIDisplayBuilder builder) {}
+    protected void configureDisplayText(UIDisplayBuilder builder) {
+        if (!isStructureFormed()) {
+            ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
+            tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
+            builder.customLine(text -> text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
+                    .setStyle(new Style().setColor(TextFormatting.RED)
+                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
+        }
+    }
 
     @Unique
     private boolean isStructureCheck() {

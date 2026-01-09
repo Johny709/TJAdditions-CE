@@ -3,19 +3,23 @@ package tj.builder.multicontrollers;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.capability.impl.AbstractRecipeLogic;
 import gregtech.api.recipes.RecipeMap;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.FluidStack;
 import tj.TJValues;
 import tj.gui.widgets.AdvancedDisplayWidget;
+import tj.mixin.gregtech.IAbstractRecipeLogicMixin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
-public class UIDisplayBuilder {
+public final class UIDisplayBuilder {
 
     private final List<AdvancedDisplayWidget.TextComponentWrapper<?>> textComponentWrappers = new ArrayList<>();
 
@@ -23,14 +27,34 @@ public class UIDisplayBuilder {
 
     }
 
+    public UIDisplayBuilder customLine(Consumer<CustomBuilder> textList) {
+        textList.accept(new CustomBuilder(this.textComponentWrappers));
+        return this;
+    }
+
+    public UIDisplayBuilder addTextComponent(ITextComponent component) {
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(component));
+        return this;
+    }
+
+    public UIDisplayBuilder addItemStack(ItemStack itemStack) {
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(itemStack));
+        return this;
+    }
+
+    public UIDisplayBuilder addFluidStack(FluidStack fluidStack) {
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(fluidStack));
+        return this;
+    }
+
     public UIDisplayBuilder addTranslationLine(String locale, Object... format) {
-        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(new TextComponentString(I18n.translateToLocalFormatted(locale, format))));
+        this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted(locale, format)));
         return this;
     }
 
 
     public UIDisplayBuilder energyStoredLine(long energyStored, long energyCapacity) {
-        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.energy.stored", energyStored, energyCapacity))));
+        this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.energy.stored", energyStored, energyCapacity)));
         return this;
     }
 
@@ -42,17 +66,17 @@ public class UIDisplayBuilder {
         ITextComponent textComponent = container.getEnergyStored() < amount ? new TextComponentString(I18n.translateToLocal("tj.multiblock.not_enough_energy"))
                 : maxProgress > 1 ? new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.sum.2", amount, maxProgress))
                 : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.sum", amount)) ;
-        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(textComponent));
+        this.addTextComponent(textComponent);
         return this;
     }
 
     public UIDisplayBuilder voltageTierLine(int tier) {
         if (tier > 0) {
             String color = TJValues.VCC[tier];
-            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
+            this.addTextComponent(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
                     .appendText(" §7(")
                     .appendSibling(new TextComponentString(color + GAValues.VN[tier] + "§r"))
-                    .appendText("§7)")));
+                    .appendText("§7)"));
         }
         return this;
     }
@@ -62,20 +86,20 @@ public class UIDisplayBuilder {
             long maxVoltage = energyContainer.getInputVoltage();
             int tier = GAUtility.getTierByVoltage(maxVoltage);
             String color = TJValues.VCC[tier];
-            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(new TextComponentTranslation("tj.multiblock.max_energy_per_tick")
+            this.addTextComponent(new TextComponentTranslation("tj.multiblock.max_energy_per_tick")
                     .appendText(" ")
                     .appendSibling(new TextComponentString("§e" + TJValues.thousandFormat.format(maxVoltage) + "§r"))
                     .appendText(" §7(")
                     .appendSibling(new TextComponentString(color + GAValues.VN[tier] + "§r"))
-                    .appendText("§7)")));
+                    .appendText("§7)"));
         }
         return this;
     }
 
     public UIDisplayBuilder energyBonusLine(int energyBonus, boolean enabled) {
         if (enabled)
-            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(new TextComponentTranslation("gregtech.multiblock.universal.energy_usage", 100 - energyBonus)
-                    .setStyle(new Style().setColor(TextFormatting.AQUA))));
+            this.addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.energy_usage", 100 - energyBonus)
+                    .setStyle(new Style().setColor(TextFormatting.AQUA)));
         return this;
     }
 
@@ -94,7 +118,7 @@ public class UIDisplayBuilder {
                 : ticks % 20 != 0 ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.ticks", amount, fluidName, ticks))
                 : ticks == 20 ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.input.sec", fluidName, amount))
                 : new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.secs", amount, fluidName, ticks / 20));
-        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(fluidInputText));
+        this.addTextComponent(fluidInputText);
         return this;
     }
 
@@ -104,7 +128,7 @@ public class UIDisplayBuilder {
         boolean hasEnoughFluid = hasEnoughSpace || amount == 0;
         ITextComponent fluidInputText = hasEnoughFluid ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.output.sec", fluidName, amount))
                 : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid.space", fluidName, amount));
-        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(fluidInputText));
+        this.addTextComponent(fluidInputText);
         return this;
     }
 
@@ -113,24 +137,61 @@ public class UIDisplayBuilder {
         ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentString(I18n.translateToLocal("machine.universal.work_paused"))
                 : !isActive ? new TextComponentString(I18n.translateToLocal("machine.universal.idling"))
                 : new TextComponentString(I18n.translateToLocal("machine.universal.running"));
-        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(isWorkingText));
+        this.addTextComponent(isWorkingText);
         if (isActive)
-            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress))));
+            this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)));
+        return this;
+    }
+
+    public UIDisplayBuilder addRecipeOutputLine(AbstractRecipeLogic recipeLogic) {
+        if (!recipeLogic.isActive())
+            return this;
+        this.addTranslationLine("machine.universal.producing");
+        if (((IAbstractRecipeLogicMixin) recipeLogic).getItemOutputs() != null)
+            for (ItemStack stack : ((IAbstractRecipeLogicMixin) recipeLogic).getItemOutputs())
+                this.addItemStack(stack);
+        if (((IAbstractRecipeLogicMixin) recipeLogic).getFluidOutputs() != null)
+            for (FluidStack stack : ((IAbstractRecipeLogicMixin) recipeLogic).getFluidOutputs())
+                this.addFluidStack(stack);
         return this;
     }
 
     public UIDisplayBuilder recipeMapLine(RecipeMap<?> recipeMap) {
-        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
-                .appendSibling(withButton(new TextComponentString("[" + I18n.translateToLocal("recipemap." + recipeMap.getUnlocalizedName() + ".name") + "]"), recipeMap.getUnlocalizedName()))));
+        this.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
+                .appendSibling(withButton(new TextComponentString("[" + I18n.translateToLocal("recipemap." + recipeMap.getUnlocalizedName() + ".name") + "]"), recipeMap.getUnlocalizedName())));
         return this;
     }
 
     public UIDisplayBuilder temperatureLine(long current, long max) {
-        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.temperature", current, max))));
+        this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.temperature", current, max)));
         return this;
     }
 
     public List<AdvancedDisplayWidget.TextComponentWrapper<?>> getTextComponentWrappers() {
         return this.textComponentWrappers;
+    }
+
+    public final static class CustomBuilder {
+
+        private final List<AdvancedDisplayWidget.TextComponentWrapper<?>> textComponentWrappers;
+
+        public CustomBuilder(List<AdvancedDisplayWidget.TextComponentWrapper<?>> textComponentWrappers) {
+            this.textComponentWrappers = textComponentWrappers;
+        }
+
+        public CustomBuilder addTextComponent(ITextComponent component) {
+            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(component));
+            return this;
+        }
+
+        public CustomBuilder addItemStack(ItemStack itemStack) {
+            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(itemStack));
+            return this;
+        }
+
+        public CustomBuilder addFluidStack(FluidStack fluidStack) {
+            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(fluidStack));
+            return this;
+        }
     }
 }

@@ -1,9 +1,7 @@
 package tj.mixin.gregicality;
 
 import gregicadditions.GAValues;
-import gregicadditions.machines.multi.GAFueledMultiblockController;
 import gregicadditions.machines.multi.advance.MetaTileEntityLargeNaquadahReactor;
-import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.FuelRecipeLogic;
@@ -20,6 +18,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
+import tj.builder.multicontrollers.MultiblockDisplaysUtility;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.TJBoostableFuelRecipeLogic;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Queue;
 
 @Mixin(value = MetaTileEntityLargeNaquadahReactor.class, remap = false)
-public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMultiblockController implements IProgressBar {
+public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMultiblockControllerMixin implements IProgressBar {
 
     @Unique
     private FluidStack booster;
@@ -39,8 +39,8 @@ public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMu
     @Unique
     private FluidStack reagent;
 
-    public MetaTileEntityLargeNaquadahReactorMixin(ResourceLocation metaTileEntityId, long maxVoltage) {
-        super(metaTileEntityId, GARecipeMaps.NAQUADAH_REACTOR_FUELS, maxVoltage);
+    public MetaTileEntityLargeNaquadahReactorMixin(ResourceLocation metaTileEntityId) {
+        super(metaTileEntityId);
     }
 
     @Inject(method = "createWorkable", at = @At("HEAD"), cancellable = true)
@@ -57,7 +57,7 @@ public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMu
     private void injectAddDisplayText(List<ITextComponent> textList, CallbackInfo ci) {
         if (TJConfig.machines.generatorWorkableHandlerOverrides) {
             if (!this.isStructureFormed()) {
-                super.addDisplayText(textList);
+                MultiblockDisplaysUtility.isInvalid(textList, this.isStructureFormed());
                 ci.cancel();
                 return;
             }
@@ -88,6 +88,35 @@ public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMu
                     }).isWorking(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress());
             ci.cancel();
         }
+    }
+
+    @Override
+    protected void configureDisplayText(UIDisplayBuilder builder) {
+        super.configureDisplayText(builder);
+        TJCycleFuelRecipeLogic workableHandler = (TJCycleFuelRecipeLogic) this.workableHandler;
+        FluidStack fuelStack = workableHandler.getFuelStack();
+        FluidStack booster = importFluidHandler.drain(this.booster, false);
+        FluidStack fuelConsumed = fuelStack == null ? null : fuelStack.copy();
+        if (fuelConsumed != null)
+            fuelConsumed.amount = (int) workableHandler.getConsumption();
+        fuelConsumed = importFluidHandler.drain(fuelConsumed, false);
+        boolean isBoosted = workableHandler.isBoosted();
+        int boosterAmount = booster == null ? 0 : booster.amount;
+        int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
+        builder.fluidInputLine(fuelConsumed != null && fuelConsumed.amount == workableHandler.getConsumption(), fuelConsumed, workableHandler.getMaxProgress())
+                .customLine(text -> {
+                    if (fuelStack == null)
+                        text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_rocket_engine.no_fuel").setStyle(new Style().setColor(TextFormatting.RED)));
+                    else text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelStack.getLocalizedName())));
+
+                    if (isBoosted) {
+                        text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_rocket_engine.boost").setStyle(new Style().setColor(TextFormatting.GREEN)));
+                        if (booster != null)
+                            text.addTextComponent(new TextComponentString(String.format("%s: %dmb", booster.getLocalizedName(), boosterAmount)).setStyle(new Style().setColor(TextFormatting.AQUA)));
+                    }
+                    text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", workableHandler.getProduction())));
+                    text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.large_combustion_engine.cycles", 20 - workableHandler.getCurrentCycle())));
+                }).isWorkingLine(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress());
     }
 
     @Override
