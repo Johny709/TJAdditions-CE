@@ -3,16 +3,12 @@ package tj.mixin.gregtech;
 import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.GAFueledMultiblockController;
 import gregicadditions.machines.multi.IMaintenance;
-import gregtech.api.capability.impl.FuelRecipeLogic;
-import gregtech.api.capability.impl.MultiblockRecipeLogic;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
-import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
-import gregtech.common.metatileentities.multi.electric.generator.FueledMultiblockController;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -32,19 +28,16 @@ import tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.capability.impl.TJFuelRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.TJProgressBarWidget;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
 
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 
 import static tj.gui.TJGuiTextures.CAUTION_BUTTON;
-import static tj.gui.TJGuiTextures.POWER_BUTTON;
 import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
@@ -77,9 +70,9 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
                     .offsetPosition(0, height)
                     .offsetY(132);
             if (height > 0)
-                builder.image(-10, 132, 195, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
-            builder.image(-10, -20, 195, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN);
-            builder.image(-10, 132 + height, 195, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
+                builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
+            builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN);
+            builder.image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
             this.addNewTabs(tabBuilder);
             if (barMatrix != null)
                 this.addNewBars(barMatrix, builder);
@@ -98,7 +91,7 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
             int[] column = barMatrix[i];
             for (int j = 0; j < column.length; j++) {
                 ProgressBar bar = bars.poll();
-                int height = 183 / column.length;
+                int height = 188 / column.length;
                 builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
                         .setStartTexture(TJGuiTextures.FLUID_BAR_START).setEndTexture(TJGuiTextures.FLUID_BAR_END)
                         .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
@@ -130,21 +123,8 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
         widgetGroup.add(new AdvancedDisplayWidget(10, -2, this::configureDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleDisplayClick));
-        widgetGroup.add(new ToggleButtonWidget(172, 133, 18, 18, CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
+        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
-        if (this.getHolder().getMetaTileEntity() instanceof FueledMultiblockController) {
-            FuelRecipeLogic recipeLogic = ((IFueledMultiblockControllerMixin) this.getHolder().getMetaTileEntity()).getFuelRecipeLogic();
-            widgetGroup.add(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
-                    .setTooltipText("machine.universal.toggle.run.mode"));
-            if (recipeLogic instanceof TJFuelRecipeLogic) {
-                widgetGroup.add(new TJToggleButtonWidget(172, 151, 18, 18)
-                        .setToggleButtonResponder(((TJFuelRecipeLogic) recipeLogic)::setVoidEnergy)
-                        .setButtonSupplier(((TJFuelRecipeLogic) recipeLogic)::isVoidEnergy)
-                        .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
-                        .setBackgroundTextures(TJGuiTextures.ENERGY_VOID)
-                        .useToggleTexture(true));
-            }
-        }
     }
 
     @Unique

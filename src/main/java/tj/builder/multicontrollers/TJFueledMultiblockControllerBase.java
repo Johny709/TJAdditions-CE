@@ -52,9 +52,9 @@ public abstract class TJFueledMultiblockControllerBase extends GAFueledMultibloc
                 .offsetPosition(0, height)
                 .offsetY(132);
         if (height > 0)
-            builder.image(-10, 132, 195, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
-        builder.image(-10, -20, 195, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN);
-        builder.image(-10, 132 + height, 195, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
+            builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
+        builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN);
+        builder.image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
         this.addTabs(tabBuilder);
         if (barMatrix != null)
             this.addBars(barMatrix, builder);
@@ -71,7 +71,7 @@ public abstract class TJFueledMultiblockControllerBase extends GAFueledMultibloc
             int[] column = barMatrix[i];
             for (int j = 0; j < column.length; j++) {
                 ProgressBar bar = bars.poll();
-                int height = 183 / column.length;
+                int height = 188 / column.length;
                 builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
                         .setStartTexture(TJGuiTextures.FLUID_BAR_START).setEndTexture(TJGuiTextures.FLUID_BAR_END)
                         .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
@@ -94,9 +94,9 @@ public abstract class TJFueledMultiblockControllerBase extends GAFueledMultibloc
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         widgetGroup.add(new AdvancedTextWidget(10, -2, this::addDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
-        widgetGroup.add(new ToggleButtonWidget(172, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
-        widgetGroup.add(new ToggleButtonWidget(172, 133, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 

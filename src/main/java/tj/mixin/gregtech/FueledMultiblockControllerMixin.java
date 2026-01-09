@@ -48,10 +48,10 @@ public abstract class FueledMultiblockControllerMixin extends MultiblockWithDisp
     protected void addMainDisplayTab(List<Widget> widgetGroup) {
         super.addMainDisplayTab(widgetGroup);
         FuelRecipeLogic recipeLogic = this.getFuelRecipeLogic();
-        widgetGroup.add(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
+        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
         if (recipeLogic instanceof TJFuelRecipeLogic) {
-            widgetGroup.add(new TJToggleButtonWidget(172, 151, 18, 18)
+            widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18)
                     .setToggleButtonResponder(((TJFuelRecipeLogic) recipeLogic)::setVoidEnergy)
                     .setButtonSupplier(((TJFuelRecipeLogic) recipeLogic)::isVoidEnergy)
                     .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)

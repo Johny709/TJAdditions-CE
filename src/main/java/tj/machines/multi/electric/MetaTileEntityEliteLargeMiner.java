@@ -342,12 +342,12 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
             this.oreDictFilter.initUI(oreDictPopUp::addWidget);
             this.enableOreDictPopUp = oreDictPopUp::setEnabled;
             this.enableOreDictPopUp.apply(this.oreDict);
-            filterTab.add(new ToggleButtonWidget(172, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
+            filterTab.add(new ToggleButtonWidget(175, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
                     .setTooltipText("machine.universal.toggle.filter"));
-            filterTab.add(new ImageWidget(172, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
-            filterTab.add(new ToggleButtonWidget(172, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
+            filterTab.add(new ImageWidget(175, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
+            filterTab.add(new ToggleButtonWidget(175, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
                     .setTooltipText("cover.filter.blacklist"));
-            filterTab.add(new ToggleButtonWidget(172, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, this::isOreDict, this::setOreDict)
+            filterTab.add(new ToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, this::isOreDict, this::setOreDict)
                     .setTooltipText("cover.filter.ore_dictionary.open"));
             filterTab.add(slotsPopUp);
             filterTab.add(oreDictPopUp);
@@ -360,7 +360,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::setDone)
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::setDone)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 

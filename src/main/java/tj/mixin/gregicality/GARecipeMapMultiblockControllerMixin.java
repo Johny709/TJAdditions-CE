@@ -37,7 +37,7 @@ public abstract class GARecipeMapMultiblockControllerMixin extends RecipeMapMult
     protected void addMainDisplayTab(List<Widget> widgetGroup) {
         super.addMainDisplayTab(widgetGroup);
         if (this.canDistinct)
-            widgetGroup.add(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, () -> this.isDistinct, this::setDistinctMode)
+            widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, () -> this.isDistinct, this::setDistinctMode)
                     .setTooltipText("machine.universal.toggle.distinct.mode"));
     }
 
