@@ -199,10 +199,16 @@ public class AdvancedDisplayWidget extends Widget {
                 stackApplied = true;
             }
         }
-        totalHeight -= 2;
-        setSize(new Size(maxStringWidth, totalHeight));
+        if (stackApplied)
+            totalHeight += 20;
+        if (this.getSize().getWidth() != maxStringWidth || this.getSize().getHeight() != totalHeight)
+            this.setSize(new Size(maxStringWidth, totalHeight));
+    }
+
+    @Override
+    protected void onSizeUpdate() {
         if (this.uiAccess != null) {
-            this.uiAccess.notifySizeChange();
+            this.uiAccess.notifySizeChange();;
         }
     }
 

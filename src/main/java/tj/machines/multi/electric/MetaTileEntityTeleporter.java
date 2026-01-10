@@ -66,7 +66,7 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import tj.gui.widgets.impl.ClickPopUpWidget;
-import tj.gui.widgets.impl.ScrollableTextWidget;
+import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.util.consumers.QuadConsumer;
 
@@ -270,7 +270,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(new AdvancedTextWidget(10, -20, displayText, 0xFFFFFF));
-                    widgetGroup.addWidget(new ScrollableTextWidget(10, -8, 178, 117)
+                    widgetGroup.addWidget(new ScrollableDisplayWidget(10, -8, 178, 117)
                             .addTextWidget(textWidget));
                     widgetGroup.addWidget(new ImageWidget(7, 112, 162, 18, DISPLAY));
                     widgetGroup.addWidget(new NewTextFieldWidget<>(12, 117, 157, 18)

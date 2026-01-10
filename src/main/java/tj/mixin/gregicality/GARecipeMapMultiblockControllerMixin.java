@@ -3,9 +3,11 @@ package tj.mixin.gregicality;
 import gregicadditions.capabilities.impl.GARecipeMapMultiblockController;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
+import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -44,21 +46,22 @@ public abstract class GARecipeMapMultiblockControllerMixin extends RecipeMapMult
     @Override
     protected void configureDisplayText(UIDisplayBuilder builder) {
         super.configureDisplayText(builder);
-        if (this.canDistinct) {
-            ITextComponent buttonText = new TextComponentTranslation("gtadditions.multiblock.universal.distinct");
-            buttonText.appendText(" ");
-            ITextComponent button = withButton((this.isDistinct ?
-                    new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes") :
-                    new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no")), "distinct");
-            withHoverTextTranslate(button, "gtadditions.multiblock.universal.distinct.info");
-            buttonText.appendSibling(button);
-            builder.addTextComponent(buttonText);
-        }
+        if (!this.isStructureFormed() || !this.canDistinct) return;
+        ITextComponent buttonText = new TextComponentTranslation("gtadditions.multiblock.universal.distinct");
+        buttonText.appendText(" ");
+        ITextComponent button = withButton((this.isDistinct ? new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes")
+                : new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no")), "distinct");
+        withHoverTextTranslate(button, "gtadditions.multiblock.universal.distinct.info");
+        buttonText.appendSibling(button);
+        builder.addTextComponent(buttonText);
     }
 
     @Unique
     protected void setDistinctMode(boolean distinct) {
-        this.isDistinct = distinct;
-        this.markDirty();
+        List<IItemHandlerModifiable> itemInputs = this.getAbilities(MultiblockAbility.IMPORT_ITEMS);
+        if (itemInputs != null && !itemInputs.isEmpty()) {
+            this.isDistinct = distinct;
+            this.markDirty();
+        }
     }
 }

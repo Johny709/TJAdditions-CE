@@ -21,7 +21,7 @@ import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJAdvancedTextWidget;
 import tj.gui.widgets.TJTextFieldWidget;
 import tj.gui.widgets.impl.ClickPopUpWidget;
-import tj.gui.widgets.impl.ScrollableTextWidget;
+import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.items.TJMetaItems;
 import gregicadditions.GAValues;
@@ -167,7 +167,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
             tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                     .addPopup(widgetGroup -> {
                         widgetGroup.addWidget(new AdvancedTextWidget(10, -20, (textList) -> textList.add(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("tj.multiblock.large_world_accelerator.linked") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getEntityLinkName().length + "§r)")), 0xFFFFFF));
-                        widgetGroup.addWidget(new ScrollableTextWidget(10, -8, 178, 117)
+                        widgetGroup.addWidget(new ScrollableDisplayWidget(10, -8, 178, 117)
                                 .addTextWidget(textWidget));
                         widgetGroup.addWidget(new ImageWidget(7, 112, 162, 18, DISPLAY));
                         widgetGroup.addWidget(new NewTextFieldWidget<>(12, 117, 157, 18)

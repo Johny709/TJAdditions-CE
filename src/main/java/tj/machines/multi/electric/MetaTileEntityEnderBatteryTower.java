@@ -58,7 +58,7 @@ import tj.capability.impl.AbstractWorkableHandler;
 import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJAdvancedTextWidget;
 import tj.gui.widgets.impl.ClickPopUpWidget;
-import tj.gui.widgets.impl.ScrollableTextWidget;
+import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.items.covers.EnderCoverProfile;
 import tj.util.EnderWorldData;
@@ -181,7 +181,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                         widgetGroup.addWidget(new ImageWidget(35, 17, 130, 18, DISPLAY));
                         widgetGroup.addWidget(new ImageWidget(35, 40, 130, 18, DISPLAY));
                         widgetGroup.addWidget(new ImageWidget(30, 142, 139, 18, DISPLAY));
-                        widgetGroup.addWidget(new ScrollableTextWidget(8, 58, 199, 80)
+                        widgetGroup.addWidget(new ScrollableDisplayWidget(8, 58, 199, 80)
                                 .addTextWidget(textWidget));
                         widgetGroup.addWidget(new NewTextFieldWidget<>(38, 45, 112, 13, false)
                                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
@@ -311,7 +311,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                     .addPopup(widgetGroup -> {
                         widgetGroup.addWidget(new ImageWidget(35, 17, 130, 18, DISPLAY));
                         widgetGroup.addWidget(new ImageWidget(30, 142, 139, 18, DISPLAY));
-                        widgetGroup.addWidget(new ScrollableTextWidget(8, 35, 199, 103)
+                        widgetGroup.addWidget(new ScrollableDisplayWidget(8, 35, 199, 103)
                                 .addTextWidget(textWidget));
                         widgetGroup.addWidget(new NewTextFieldWidget<>(32, 22, 136, 18)
                                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
@@ -397,7 +397,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                                 widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 130, BORDERED_BACKGROUND));
                                                 widgetGroup2.addWidget(new ImageWidget(3, 25, 176, 80, DISPLAY));
                                                 widgetGroup2.addWidget(new ImageWidget(30, 106, 115, 18, DISPLAY));
-                                                widgetGroup2.addWidget(new ScrollableTextWidget(3, 25, 185, 80)
+                                                widgetGroup2.addWidget(new ScrollableDisplayWidget(3, 25, 185, 80)
                                                         .addTextWidget(playerTextWidget));
                                                 widgetGroup2.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.ender_cover.allowed_players", this.frequency))), 0x404040));
                                                 widgetGroup2.addWidget(new NewTextFieldWidget<>(32, 110, 112, 13, false)

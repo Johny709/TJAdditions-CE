@@ -11,10 +11,7 @@ import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,6 +29,7 @@ import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.TJProgressBarWidget;
+import tj.gui.widgets.impl.ScrollableDisplayWidget;
 
 import java.util.ArrayDeque;
 import java.util.List;
@@ -77,7 +75,6 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
             if (barMatrix != null)
                 this.addNewBars(barMatrix, builder);
             builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height);
-            builder.widget(new LabelWidget(0, -13, this.getMetaFullName(), 0xFFFFFF));
             builder.widget(tabBuilder.build());
             cir.setReturnValue(builder);
         }
@@ -106,7 +103,8 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     private void addNewTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::addMainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.add(new AdvancedTextWidget(10, -2, textList -> {
+                maintenanceTab.add(new AdvancedTextWidget(10, -13, textList -> {
+                    textList.add(new TextComponentTranslation(this.getMetaFullName()));
                     if (this.getHolder().getMetaTileEntity() instanceof GAFueledMultiblockController) {
                         GAFueledMultiblockController controller = (GAFueledMultiblockController) this.getHolder().getMetaTileEntity();
                         MultiblockDisplaysUtility.mufflerDisplay(textList, !controller.hasMufflerHatch() || controller.isMufflerFaceFree());
@@ -120,15 +118,18 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
 
     @Unique
     protected void addMainDisplayTab(List<Widget> widgetGroup) {
-        widgetGroup.add(new AdvancedDisplayWidget(10, -2, this::configureDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180)
-                .setClickHandler(this::handleDisplayClick));
+        widgetGroup.add(new ScrollableDisplayWidget(10, -15, 183, 142)
+                .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::configureDisplayText, 0xFFFFFF)
+                        .setClickHandler(this::handleDisplayClick)
+                        .setMaxWidthLimit(180))
+                .setScrollPanelWidth(3));
         widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 
     @Unique
     protected void configureDisplayText(UIDisplayBuilder builder) {
+        builder.addTextComponent(new TextComponentTranslation(this.getMetaFullName()));
         if (!isStructureFormed()) {
             ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
             tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));

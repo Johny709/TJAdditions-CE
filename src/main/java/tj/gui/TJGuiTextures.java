@@ -17,6 +17,10 @@ public class TJGuiTextures {
     public static final TextureArea FLUID_BAR_START = TextureArea.fullImage("textures/gui/base/fluid_bar_start.png");
     public static final TextureArea FLUID_BAR_END = TextureArea.fullImage("textures/gui/base/fluid_bar_end.png");
 
+    public static final TextureArea AUTOSCROLL = TextureArea.fullImage("textures/gui/base/auto_scroll.png");
+    public static final TextureArea AUTOSCROLL_UP = TextureArea.fullImage("textures/gui/base/auto_scroll_up.png");
+    public static final TextureArea AUTOSCROLL_DOWN = TextureArea.fullImage("textures/gui/base/auto_scroll_down.png");
+
     public static final TextureArea BAR_RED = AdoptableTextureArea.fullImage("textures/gui/bar/bar_red.png");
     public static final TextureArea BAR_YELLOW = AdoptableTextureArea.fullImage("textures/gui/bar/bar_yellow.png");
 
