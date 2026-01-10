@@ -4,6 +4,7 @@ import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.Position;
+import gregtech.api.util.RenderUtil;
 import gregtech.api.util.Size;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -18,6 +19,7 @@ public class TJLabelWidget extends Widget {
 
     private final TextureArea labelTexture;
     private int color = 0x404040;
+    private int offsetX;
     private String locale;
     private ItemStack itemLabel;
     private FluidStack fluidLabel;
@@ -50,7 +52,7 @@ public class TJLabelWidget extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        int widthApplied = 6;
+        int widthApplied = 5;
         Size size = this.getSize();
         Position pos = this.getPosition();
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
@@ -63,7 +65,18 @@ public class TJLabelWidget extends Widget {
             TJGuiUtils.drawFluidForGui(this.fluidLabel, this.fluidLabel.amount, this.fluidLabel.amount, pos.getX(), pos.getY(), 18, 18);
             widthApplied += 18;
         }
-        if (this.locale != null)
-            fontRenderer.drawString(I18n.format(this.locale), pos.getX() + widthApplied, pos.getY() + 6, this.color);
+        if (this.locale != null) {
+            int finalX = pos.getX() + widthApplied - this.offsetX;
+            String locale = I18n.format(this.locale);
+            RenderUtil.useScissor(pos.getX() + widthApplied, pos.getY(), 159, size.getHeight(), () -> fontRenderer.drawString(locale, finalX, pos.getY() + 6, this.color));
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void drawInForeground(int mouseX, int mouseY) {
+        if (this.isMouseOverElement(mouseX, mouseY)) {
+            this.offsetX++;
+        } else this.offsetX = 0;
     }
 }
