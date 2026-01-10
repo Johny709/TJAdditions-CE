@@ -42,8 +42,8 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.blocks.BlockPipeCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.handlers.LargeAtmosphereCollectorWorkableHandler;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJRotorHolderMultiblockControllerBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -103,42 +103,39 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        if (this.isStructureFormed()) {
-            MetaTileEntityRotorHolder rotorHolder = this.getRotorHolder();
-            MultiblockDisplayBuilder.start(textList)
-                    .custom(text -> {
-                        text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.airCollectorHandler.getConsumption(),
-                                net.minecraft.util.text.translation.I18n.translateToLocal(this.airCollectorHandler.getFuelName()),
-                                this.airCollectorHandler.getMaxProgress() / 20)));
-                        FluidStack fuelStack = this.airCollectorHandler.getFuelStack();
-                        int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        MetaTileEntityRotorHolder rotorHolder = this.getRotorHolder();
+        builder.customLine(text -> {
+            text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.airCollectorHandler.getConsumption(),
+                    net.minecraft.util.text.translation.I18n.translateToLocal(this.airCollectorHandler.getFuelName()),
+                    this.airCollectorHandler.getMaxProgress() / 20)));
+            FluidStack fuelStack = this.airCollectorHandler.getFuelStack();
+            int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
-                        ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
-                        text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelName.getUnformattedText())));
+            ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
+            text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelName.getUnformattedText())));
 
-                        text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.large_atmosphere_collector.air", this.airCollectorHandler.getProduction())));
+            text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.large_atmosphere_collector.air", this.airCollectorHandler.getProduction())));
 
-                        text.add(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode").appendText(" ")
-                                .appendSibling(this.airCollectorHandler.isFastMode() ? withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true")
-                                        : withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false")));
-                        if (rotorHolder.getRotorEfficiency() > 0.0) {
-                            text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.speed", rotorHolder.getCurrentRotorSpeed(), rotorHolder.getMaxRotorSpeed())));
-                            text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.efficiency", (int) (rotorHolder.getRotorEfficiency() * 100))));
-                            int rotorDurability = (int) (rotorHolder.getRotorDurability() * 100);
+            text.addTextComponent(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode").appendText(" ")
+                    .appendSibling(this.airCollectorHandler.isFastMode() ? withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true")
+                            : withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false")));
+            if (rotorHolder.getRotorEfficiency() > 0.0) {
+                text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.speed", rotorHolder.getCurrentRotorSpeed(), rotorHolder.getMaxRotorSpeed())));
+                text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.efficiency", (int) (rotorHolder.getRotorEfficiency() * 100))));
+                int rotorDurability = (int) (rotorHolder.getRotorDurability() * 100);
 
-                            text.add(rotorDurability > 10 ? new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.durability", rotorDurability))
-                                    : new TextComponentTranslation("gregtech.multiblock.turbine.low_rotor_durability",
-                                    10, rotorDurability).setStyle(new Style().setColor(TextFormatting.RED)));
-                        }
-                        if (!isRotorFaceFree()) {
-                            text.add(new TextComponentTranslation("gregtech.multiblock.turbine.obstructed")
-                                    .setStyle(new Style().setColor(TextFormatting.RED)));
-                        }
-                    })
-                    .isWorking(this.airCollectorHandler.isWorkingEnabled(), this.airCollectorHandler.isActive(), this.airCollectorHandler.getProgress(), this.airCollectorHandler.getMaxProgress());
-        }
+                text.addTextComponent(rotorDurability > 10 ? new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.durability", rotorDurability))
+                        : new TextComponentTranslation("gregtech.multiblock.turbine.low_rotor_durability",
+                        10, rotorDurability).setStyle(new Style().setColor(TextFormatting.RED)));
+            }
+            if (!isRotorFaceFree()) {
+                text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.turbine.obstructed")
+                        .setStyle(new Style().setColor(TextFormatting.RED)));
+                   }
+        }).isWorkingLine(this.airCollectorHandler.isWorkingEnabled(), this.airCollectorHandler.isActive(), this.airCollectorHandler.getProgress(), this.airCollectorHandler.getMaxProgress());
     }
 
     @Override

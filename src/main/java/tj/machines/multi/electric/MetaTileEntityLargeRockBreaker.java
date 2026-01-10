@@ -46,6 +46,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -78,10 +79,10 @@ public class MetaTileEntityLargeRockBreaker extends TJLargeSimpleRecipeMapMultib
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         if (this.isStructureFormed())
-            textList.add(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.4", this.stack * this.slices));
+            builder.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.4", this.stack * this.slices));
     }
 
     @Override

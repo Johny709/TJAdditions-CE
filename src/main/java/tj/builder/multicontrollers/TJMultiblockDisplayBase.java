@@ -29,6 +29,10 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -38,7 +42,10 @@ import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
+import tj.gui.widgets.AdvancedDisplayWidget;
+import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
+import tj.gui.widgets.impl.ScrollableDisplayWidget;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.*;
@@ -193,13 +200,15 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
                 .offsetY(132);
         if (height > 0)
             builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
+        builder.widget(new TJLabelWidget(-1, -38, 184, 18, TJGuiTextures.MULTIBLOCK_DISPLAY_LABEL)
+                .setItemLabel(this.getStackForm())
+                .setLocale(this.getMetaFullName()));
         builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN);
         builder.image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
         this.addTabs(tabBuilder, entityPlayer);
         if (barMatrix != null)
             this.addBars(barMatrix, builder);
         builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height);
-        builder.widget(new LabelWidget(0, -13, this.getMetaFullName(), 0xFFFFFF));
         builder.widget(tabBuilder.build());
         return builder;
     }
@@ -236,12 +245,25 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
     }
 
     protected void mainDisplayTab(List<Widget> widgetGroup) {
-        widgetGroup.add(new AdvancedTextWidget(10, -2, this::addDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
+        widgetGroup.add(new ScrollableDisplayWidget(10, -15, 183, 142)
+                .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addDisplayText, 0xFFFFFF)
+                        .setClickHandler(this::handleDisplayClick)
+                        .setMaxWidthLimit(180))
+                .setScrollPanelWidth(3));
         widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
         widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
+    }
+
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        if (!this.isStructureFormed()) {
+            ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
+            tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
+            builder.customLine(text -> text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
+                    .setStyle(new Style().setColor(TextFormatting.RED)
+                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
+        }
     }
 
     @Override

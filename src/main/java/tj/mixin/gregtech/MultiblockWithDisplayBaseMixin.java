@@ -28,6 +28,7 @@ import tj.capability.ProgressBar;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
 import tj.gui.widgets.AdvancedDisplayWidget;
+import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 
@@ -69,6 +70,9 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
                     .offsetY(132);
             if (height > 0)
                 builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
+            builder.widget(new TJLabelWidget(-1, -38, 184, 18, TJGuiTextures.MULTIBLOCK_DISPLAY_LABEL)
+                    .setItemLabel(this.getStackForm())
+                    .setLocale(this.getMetaFullName()));
             builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN);
             builder.image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
             this.addNewTabs(tabBuilder);
@@ -104,7 +108,6 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::addMainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
                 maintenanceTab.add(new AdvancedTextWidget(10, -13, textList -> {
-                    textList.add(new TextComponentTranslation(this.getMetaFullName()));
                     if (this.getHolder().getMetaTileEntity() instanceof GAFueledMultiblockController) {
                         GAFueledMultiblockController controller = (GAFueledMultiblockController) this.getHolder().getMetaTileEntity();
                         MultiblockDisplaysUtility.mufflerDisplay(textList, !controller.hasMufflerHatch() || controller.isMufflerFaceFree());
@@ -129,8 +132,7 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
 
     @Unique
     protected void configureDisplayText(UIDisplayBuilder builder) {
-        builder.addTextComponent(new TextComponentTranslation(this.getMetaFullName()));
-        if (!isStructureFormed()) {
+        if (!this.isStructureFormed()) {
             ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
             tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
             builder.customLine(text -> text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.invalid_structure")

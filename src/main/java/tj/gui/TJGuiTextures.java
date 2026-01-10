@@ -12,6 +12,7 @@ public class TJGuiTextures {
     public static final TextureArea MULTIBLOCK_DISPLAY_SCREEN = TextureArea.fullImage("textures/gui/base/multiblock_display_screen.png");
     public static final TextureArea MULTIBLOCK_DISPLAY_SLOTS = TextureArea.fullImage("textures/gui/base/multiblock_display_slots.png");
     public static final TextureArea MULTIBLOCK_DISPLAY_SLICE = AdoptableTextureArea.fullImage("textures/gui/base/multiblock_display_slice.png");
+    public static final TextureArea MULTIBLOCK_DISPLAY_LABEL = TextureArea.fullImage("textures/gui/base/multiblock_display_label.png");
 
     public static final TextureArea FLUID_BAR = AdoptableTextureArea.fullImage("textures/gui/base/fluid_bar.png");
     public static final TextureArea FLUID_BAR_START = TextureArea.fullImage("textures/gui/base/fluid_bar_start.png");

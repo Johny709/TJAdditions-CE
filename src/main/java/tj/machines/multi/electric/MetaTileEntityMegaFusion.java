@@ -51,8 +51,8 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.blocks.AdvEnergyPortCasings;
 import tj.builder.handlers.IFusionProvider;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IHeatInfo;
 import tj.capability.TJCapabilities;
 import tj.textures.TJTextures;
@@ -142,25 +142,22 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        if (this.isStructureFormed()) {
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.energyContainer)
-                    .energyStored(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
-                    .custom(text -> {
-                        text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.getParallels())));
-                        text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.heat", this.heat)));
-                        if (this.recipe != null) {
-                            long energyToStart = this.recipe.getProperty("eu_to_start");
-                            text.add(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart))
-                                    .setStyle(new Style().setColor(this.heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
-                        }
-                        if (this.recipeMapWorkable.isHasNotEnoughEnergy()) {
-                            text.add(new TextComponentTranslation("gregtech.multiblock.not_enough_energy").setStyle(new Style().setColor(TextFormatting.RED)));
-                        }
-                    })
-                    .isWorking(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress());
-        }
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        if (!this.isStructureFormed()) return;
+        builder.voltageInLine(this.energyContainer)
+                .energyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
+                .customLine(text -> {
+                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.getParallels())));
+                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.heat", this.heat)));
+                    if (this.recipe != null) {
+                        long energyToStart = this.recipe.getProperty("eu_to_start");
+                        text.addTextComponent(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart))
+                                .setStyle(new Style().setColor(this.heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
+                    }
+                    if (this.recipeMapWorkable.isHasNotEnoughEnergy()) {
+                        text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.not_enough_energy").setStyle(new Style().setColor(TextFormatting.RED)));
+                    }
+                }).isWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress());
     }
 
     @Override

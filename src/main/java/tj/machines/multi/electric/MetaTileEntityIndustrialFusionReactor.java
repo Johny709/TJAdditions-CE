@@ -58,8 +58,8 @@ import tj.blocks.BlockFusionCasings;
 import tj.blocks.BlockFusionGlass;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.handlers.IFusionProvider;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockControllerBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IHeatInfo;
 import tj.capability.TJCapabilities;
 import tj.gui.widgets.TJCycleButtonWidget;
@@ -344,26 +344,22 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer)));
-        if (this.isStructureFormed()) {
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.energyContainer)
-                    .energyStored(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
-                    .custom(text -> {
-                        text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.heat", this.heat)));
-                        if (this.recipe != null) {
-                            long energyToStart = recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * this.parallelLayer;
-                            text.add(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart))
-                                    .setStyle(new Style().setColor(heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
-                        }
-                        if (this.recipeMapWorkable.isHasNotEnoughEnergy()) {
-                            text.add(new TextComponentTranslation("gregtech.multiblock.not_enough_energy").setStyle(new Style().setColor(TextFormatting.RED)));
-                        }
-                    })
-                    .isWorking(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress());
-        }
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        builder.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer)));
+        if (!this.isStructureFormed()) return;
+        builder.voltageInLine(this.energyContainer)
+                .energyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
+                .customLine(text -> {
+                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.heat", this.heat)));
+                    if (this.recipe != null) {
+                        long energyToStart = recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * this.parallelLayer;
+                        text.addTextComponent(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart))
+                                .setStyle(new Style().setColor(heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
+                    }
+                    if (this.recipeMapWorkable.isHasNotEnoughEnergy()) {
+                        text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.not_enough_energy").setStyle(new Style().setColor(TextFormatting.RED)));
+                    }
+                }).isWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress());
     }
 
     @Override

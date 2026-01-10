@@ -46,10 +46,12 @@ public class ScrollableDisplayWidget extends ScrollableListWidget {
 
     @Override
     protected boolean recomputeSize() {
-        this.scrollOffset = Math.min(this.scrollOffset, Math.max(0, this.totalListHeight - this.getSize().getHeight()));
         this.canScroll = this.checkContainedWidgetSize();
-        if (!this.canScroll)
+        if (!this.canScroll) {
             this.autoScroll = false;
+            this.setScrollOffset(Integer.MIN_VALUE);
+            return false;
+        }
         return super.recomputeSize();
     }
 
