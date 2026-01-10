@@ -42,6 +42,7 @@ import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.InfiniteFluidDrillWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
@@ -107,22 +108,20 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        if (!this.isStructureFormed())
-            return;
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
 
         if (this.workableHandler.getVeinFluid() == null) {
-            textList.add(new TextComponentTranslation("gtadditions.multiblock.drilling_rig.no_fluid").setStyle(new Style().setColor(RED)));
+            builder.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.drilling_rig.no_fluid").setStyle(new Style().setColor(RED)));
             return;
         }
 
-        MultiblockDisplayBuilder.start(textList)
-                .voltageIn(this.energyContainer)
-                .voltageTier(this.tier)
-                .energyInput(!this.workableHandler.hasNotEnoughEnergy(), this.maxVoltage)
-                .addTranslation("gtadditions.multiblock.drilling_rig.fluid", this.workableHandler.getVeinFluid().getName())
-                .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+        builder.voltageInLine(this.energyContainer)
+                .voltageTierLine(this.tier)
+                .energyInputLine(this.energyContainer, this.maxVoltage)
+                .addTranslationLine("gtadditions.multiblock.drilling_rig.fluid", this.workableHandler.getVeinFluid().getName())
+                .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     private void addFluidDisplayText(List<ITextComponent> textList) {

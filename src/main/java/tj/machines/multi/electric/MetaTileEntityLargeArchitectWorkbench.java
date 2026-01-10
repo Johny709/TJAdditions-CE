@@ -26,7 +26,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -35,7 +34,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
 import tj.builder.handlers.ArchitectWorkbenchWorkableHandler;
 import tj.builder.multicontrollers.ExtendableMultiblockController;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -89,20 +88,19 @@ public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockC
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         if (this.isStructureFormed())
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.energyInput)
-                    .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInput(!this.workableHandler.hasNotEnoughEnergy(), this.workableHandler.getEnergyPerTick())
-                    .addTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
-                    .custom(text -> text.add(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
+            builder.voltageInLine(this.energyInput)
+                    .voltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
+                    .energyInputLine(this.energyInput, this.workableHandler.getEnergyPerTick())
+                    .addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
+                    .customLine(text -> text.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")
                             .appendSibling(this.workableHandler.isDistinct()
                                     ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
                                     : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
-                    .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                    .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override

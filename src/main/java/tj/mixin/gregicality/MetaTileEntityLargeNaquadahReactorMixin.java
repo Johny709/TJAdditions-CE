@@ -95,15 +95,14 @@ public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMu
         super.configureDisplayText(builder);
         TJCycleFuelRecipeLogic workableHandler = (TJCycleFuelRecipeLogic) this.workableHandler;
         FluidStack fuelStack = workableHandler.getFuelStack();
-        FluidStack booster = importFluidHandler.drain(this.booster, false);
+        FluidStack booster = this.importFluidHandler.drain(this.booster, false);
         FluidStack fuelConsumed = fuelStack == null ? null : fuelStack.copy();
         if (fuelConsumed != null)
             fuelConsumed.amount = (int) workableHandler.getConsumption();
-        fuelConsumed = importFluidHandler.drain(fuelConsumed, false);
         boolean isBoosted = workableHandler.isBoosted();
         int boosterAmount = booster == null ? 0 : booster.amount;
         int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
-        builder.fluidInputLine(fuelConsumed != null && fuelConsumed.amount == workableHandler.getConsumption(), fuelConsumed, workableHandler.getMaxProgress())
+        builder.fluidInputLine(this.importFluidHandler, fuelConsumed, workableHandler.getMaxProgress())
                 .customLine(text -> {
                     if (fuelStack == null)
                         text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_rocket_engine.no_fuel").setStyle(new Style().setColor(TextFormatting.RED)));

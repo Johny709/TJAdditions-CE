@@ -101,11 +101,10 @@ public abstract class MetaTileEntityExtremeDieselEngineMixin extends FueledMulti
         FluidStack fuelConsumed = fuelStack == null ? null : fuelStack.copy();
         if (fuelConsumed != null)
             fuelConsumed.amount = (int) workableHandler.getConsumption();
-        fuelConsumed = this.importFluidHandler.drain(fuelConsumed, false);
         boolean isBoosted = workableHandler.isBoosted();
         int boosterAmount = booster == null ? 0 : booster.amount;
         int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
-        builder.fluidInputLine(fuelConsumed != null && fuelConsumed.amount == workableHandler.getConsumption(), fuelConsumed, workableHandler.getMaxProgress())
+        builder.fluidInputLine(this.importFluidHandler, fuelConsumed, workableHandler.getMaxProgress())
                 .customLine(text -> {
                     if (fuelStack == null)
                         text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_rocket_engine.no_fuel").setStyle(new Style().setColor(TextFormatting.RED)));

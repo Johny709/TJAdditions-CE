@@ -23,7 +23,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -32,6 +31,7 @@ import tj.TJConfig;
 import tj.builder.ParallelRecipeMap;
 import tj.builder.handlers.ParallelElectricBlastFurnaceRecipeLogic;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
@@ -81,12 +81,12 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        if (this.isStructureFormed()) {
-            textList.add(new TextComponentTranslation("gregtech.multiblock.blast_furnace.max_temperature", this.blastFurnaceTemperature));
-            textList.add(new TextComponentTranslation("gtadditions.multiblock.blast_furnace.additional_temperature", this.bonusTemperature));
-        }
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.blast_furnace.max_temperature", this.blastFurnaceTemperature))
+                .addTextComponent(new TextComponentTranslation("gtadditions.multiblock.blast_furnace.additional_temperature", this.bonusTemperature));
+
     }
 
     @Override

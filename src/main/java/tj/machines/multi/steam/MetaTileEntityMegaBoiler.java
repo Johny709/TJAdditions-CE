@@ -9,8 +9,8 @@ import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.multiblock.BlockWorldState;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.builder.handlers.MegaBoilerRecipeLogic;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.multiblockpart.TJMultiblockAbility;
 import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.impl.*;
@@ -158,33 +158,31 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        if (this.isStructureFormed()) {
-            int amount = (int) this.boilerRecipeLogic.getConsumption();
-            FluidStack water = Water.getFluid(amount);
-            MultiblockDisplayBuilder.start(textList)
-                    .temperature(this.boilerRecipeLogic.heat(), this.boilerType.maxTemperature)
-                    .fluidInput(this.boilerRecipeLogic.hasEnoughFluid(water, amount), water)
-                    .custom(text -> {
-                        text.add(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.boilerRecipeLogic.getProduction(), this.boilerType.baseSteamOutput));
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        int amount = (int) this.boilerRecipeLogic.getConsumption();
+        FluidStack water = Water.getFluid(amount);
+        builder.temperatureLine(this.boilerRecipeLogic.heat(), this.boilerType.maxTemperature)
+                .fluidInputLine(this.fluidImportInventory, water)
+                .customLine(text -> {
+                    text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.boilerRecipeLogic.getProduction(), this.boilerType.baseSteamOutput));
 
-                        ITextComponent heatEffText = new TextComponentTranslation("gregtech.multiblock.large_boiler.heat_efficiency", (int) (this.getHeatEfficiencyMultiplier() * 100));
-                        withHoverTextTranslate(heatEffText, "gregtech.multiblock.large_boiler.heat_efficiency.tooltip");
-                        text.add(heatEffText);
+                    ITextComponent heatEffText = new TextComponentTranslation("gregtech.multiblock.large_boiler.heat_efficiency", (int) (this.getHeatEfficiencyMultiplier() * 100));
+                    withHoverTextTranslate(heatEffText, "gregtech.multiblock.large_boiler.heat_efficiency.tooltip");
+                    text.addTextComponent(heatEffText);
 
-                        ITextComponent throttleText = new TextComponentTranslation("gregtech.multiblock.large_boiler.throttle", this.boilerRecipeLogic.getThrottlePercentage(), (int) (this.boilerRecipeLogic.getThrottleEfficiency() * 100));
-                        withHoverTextTranslate(throttleText, "gregtech.multiblock.large_boiler.throttle.tooltip");
-                        text.add(throttleText);
+                    ITextComponent throttleText = new TextComponentTranslation("gregtech.multiblock.large_boiler.throttle", this.boilerRecipeLogic.getThrottlePercentage(), (int) (this.boilerRecipeLogic.getThrottleEfficiency() * 100));
+                    withHoverTextTranslate(throttleText, "gregtech.multiblock.large_boiler.throttle.tooltip");
+                    text.addTextComponent(throttleText);
 
-                        ITextComponent buttonText = new TextComponentTranslation("gregtech.multiblock.large_boiler.throttle_modify");
-                        buttonText.appendText(" ");
-                        buttonText.appendSibling(withButton(new TextComponentString("[-]"), "sub"));
-                        buttonText.appendText(" ");
-                        buttonText.appendSibling(withButton(new TextComponentString("[+]"), "add"));
-                        text.add(buttonText);
-                    }).isWorking(this.boilerRecipeLogic.isWorkingEnabled(), this.boilerRecipeLogic.isActive(), this.boilerRecipeLogic.getProgress(), this.boilerRecipeLogic.getMaxProgress());
-        }
+                    ITextComponent buttonText = new TextComponentTranslation("gregtech.multiblock.large_boiler.throttle_modify");
+                    buttonText.appendText(" ");
+                    buttonText.appendSibling(withButton(new TextComponentString("[-]"), "sub"));
+                    buttonText.appendText(" ");
+                    buttonText.appendSibling(withButton(new TextComponentString("[+]"), "add"));
+                    text.addTextComponent(buttonText);
+                }).isWorkingLine(this.boilerRecipeLogic.isWorkingEnabled(), this.boilerRecipeLogic.isActive(), this.boilerRecipeLogic.getProgress(), this.boilerRecipeLogic.getMaxProgress());
     }
 
     @Override

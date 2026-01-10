@@ -10,8 +10,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.LargeWirelessEnergyWorkableHandler;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IParallelController;
 import tj.capability.LinkEvent;
 import tj.capability.LinkPos;
@@ -130,16 +130,15 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         if (isStructureFormed())
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.inputEnergyContainer)
-                    .voltageTier(this.tier)
-                    .energyStored(this.getEnergyStored(), this.getEnergyCapacity())
-                    .energyInput(hasEnoughEnergy(this.workableHandler.getEnergyPerTick()), this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
-                    .fluidInput(hasEnoughFluid(this.workableHandler.getFluidConsumption()), Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
-                    .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+           builder.voltageInLine(this.inputEnergyContainer)
+                    .voltageTierLine(this.tier)
+                    .energyStoredLine(this.getEnergyStored(), this.getEnergyCapacity())
+                    .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
+                    .fluidInputLine(this.importFluidHandler, Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
+                    .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
 
     }
 

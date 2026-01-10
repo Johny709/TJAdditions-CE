@@ -64,7 +64,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.LongStream;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
 import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
@@ -158,9 +157,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     @Override
     public long getTotalEnergyConsumption() {
-        return LongStream.range(0, this.recipeMapWorkable.getSize())
-                .map(i -> this.recipeMapWorkable.getRecipeEUt((int) i))
-                .sum();
+        long amount = 0;
+        for (int i = 0; i < this.recipeMapWorkable.getSize(); i++)
+            amount += this.recipeMapWorkable.getRecipe(i).getEUt();
+        return amount;
     }
 
     @Override
@@ -329,17 +329,15 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        long totalEnergyConsumption = this.getTotalEnergyConsumption();
-        if (this.isStructureFormed()) {
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.energyContainer)
-                    .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInput(this.energyContainer.getEnergyStored() >= totalEnergyConsumption, totalEnergyConsumption)
-                    .energyBonus(this.energyBonus, this.isStructureFormed() && this.energyBonus >= 0)
-                    .recipeMap(this.getMultiblockRecipe());
-        }
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        builder.voltageInLine(this.energyContainer)
+                    .voltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
+                    .energyInputLine(this.energyContainer, this.getTotalEnergyConsumption())
+                    .energyBonusLine(this.energyBonus, this.isStructureFormed() && this.energyBonus >= 0)
+                    .recipeMapLine(this.getMultiblockRecipe());
+
     }
 
     @Override

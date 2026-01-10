@@ -57,6 +57,7 @@ import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.PopUpWidgetGroup;
 import tj.machines.ExtendedItemFilter;
@@ -443,24 +444,24 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         if (this.isStructureFormed()) {
             if(this.x.get() == Long.MAX_VALUE) {
-                textList.add(new TextComponentString("X: Not Active"));
-                textList.add(new TextComponentString("Y: Not Active"));
-                textList.add(new TextComponentString("Z: Not Active"));
+                builder.addTextComponent(new TextComponentString("X: Not Active"));
+                builder.addTextComponent(new TextComponentString("Y: Not Active"));
+                builder.addTextComponent(new TextComponentString("Z: Not Active"));
             } else {
-                textList.add(new TextComponentString(String.format("X: %d", this.x.get())));
-                textList.add(new TextComponentString(String.format("Y: %d", this.y.get())));
-                textList.add(new TextComponentString(String.format("Z: %d", this.z.get())));
+                builder.addTextComponent(new TextComponentString(String.format("X: %d", this.x.get())));
+                builder.addTextComponent(new TextComponentString(String.format("Y: %d", this.y.get())));
+                builder.addTextComponent(new TextComponentString(String.format("Z: %d", this.z.get())));
             }
-            textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.chunk", this.currentChunk.get()));
-            textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.nb_chunk", this.chunks.size()));
-            textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.block_per_tick", getNbBlock()));
+            builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.chunk", this.currentChunk.get()));
+            builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.nb_chunk", this.chunks.size()));
+            builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.block_per_tick", getNbBlock()));
             if (this.type != Type.CREATIVE) {
-                textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.silktouch", this.silktouch));
-                textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.mode"));
+                builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.silktouch", this.silktouch));
+                builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.mode"));
             }
             ITextComponent toggleContinous = new TextComponentTranslation("tj.multiblock.elite_large_miner.restart");
             toggleContinous.appendText(" ");
@@ -469,10 +470,10 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                 toggleContinous.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.restart.true"), "true"));
             else toggleContinous.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.restart.false"), "false"));
 
-            textList.add(toggleContinous);
+            builder.addTextComponent(toggleContinous);
 
             if (this.done)
-                textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.done", getNbBlock()).setStyle(new Style().setColor(TextFormatting.GREEN)));
+                builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.done", getNbBlock()).setStyle(new Style().setColor(TextFormatting.GREEN)));
         }
     }
 

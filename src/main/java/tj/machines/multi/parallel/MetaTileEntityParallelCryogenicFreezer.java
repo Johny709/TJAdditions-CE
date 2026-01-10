@@ -22,8 +22,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -31,6 +29,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
 import tj.builder.ParallelRecipeMap;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 import tj.util.TooltipHelper;
 
@@ -85,12 +84,10 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        FluidStack drained = this.inputFluidInventory.drain(this.cryotheum, false);
-        textList.add(drained != null && drained.amount == this.cryotheum.amount ? new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.fluid.input.tick", this.cryotheum.getLocalizedName(), this.cryotheum.amount))
-                : new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid", this.cryotheum.getLocalizedName(), this.cryotheum.amount)));
+        builder.fluidInputLine(this.inputFluidInventory, this.cryotheum);
     }
 
     @Override

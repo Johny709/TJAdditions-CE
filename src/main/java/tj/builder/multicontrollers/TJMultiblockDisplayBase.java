@@ -267,11 +267,6 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        MultiblockDisplaysUtility.isInvalid(textList, isStructureFormed());
-    }
-
-    @Override
     public boolean isWorkingEnabled() {
         return this.isWorkingEnabled;
     }

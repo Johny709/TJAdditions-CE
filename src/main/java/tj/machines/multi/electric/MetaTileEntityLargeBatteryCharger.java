@@ -51,8 +51,8 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.BatteryChargerWorkableHandler;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IParallelController;
 import tj.capability.LinkEntity;
 import tj.capability.LinkEvent;
@@ -127,25 +127,24 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         if (this.isStructureFormed())
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.inputEnergyContainer)
-                    .voltageTier(this.tier)
-                    .energyStored(this.getEnergyStored(), this.getEnergyCapacity())
-                    .energyInput(this.inputEnergyContainer.getEnergyStored() >= this.workableHandler.getEnergyPerTick(), this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
-                    .fluidInput(this.hasEnoughFluid(this.workableHandler.getFluidConsumption()), Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
-                    .custom(text -> {
-                        text.add(new TextComponentTranslation("machine.universal.item.output.transfer")
+            builder.voltageInLine(this.inputEnergyContainer)
+                    .voltageTierLine(this.tier)
+                    .energyStoredLine(this.getEnergyStored(), this.getEnergyCapacity())
+                    .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
+                    .fluidInputLine(this.importFluidHandler, Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
+                    .customLine(text -> {
+                        text.addTextComponent(new TextComponentTranslation("machine.universal.item.output.transfer")
                                 .appendText(" ")
                                 .appendSibling(this.workableHandler.isTransferToOutput() ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "transferEnabled")
                                         : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "transferDisabled")));
-                        text.add(new TextComponentTranslation("machine.universal.mode.transfer")
+                        text.addTextComponent(new TextComponentTranslation("machine.universal.mode.transfer")
                                 .appendText(" ")
                                 .appendSibling(this.workableHandler.getTransferMode() == INPUT ? withButton(new TextComponentTranslation("machine.universal.mode.transfer.input"), "input")
                                         : withButton(new TextComponentTranslation("machine.universal.mode.transfer.output"), "output")));
-                    }).isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                    }).isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override

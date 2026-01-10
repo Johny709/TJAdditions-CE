@@ -49,8 +49,8 @@ import tj.TJConfig;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.CrafterRecipeLogic;
 import tj.builder.handlers.IRecipeMapProvider;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
 import tj.util.Color;
@@ -111,20 +111,19 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         if (this.isStructureFormed())
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.energyContainer)
-                    .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInput(!this.recipeLogic.hasNotEnoughEnergy(), this.recipeLogic.getEnergyPerTick())
-                    .addTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
-                    .custom(text -> text.add(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
+            builder.voltageInLine(this.energyContainer)
+                    .voltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
+                    .energyInputLine(this.energyContainer, this.recipeLogic.getEnergyPerTick())
+                    .addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
+                    .customLine(text -> text.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")
                             .appendSibling(this.recipeLogic.isDistinct()
                                     ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
                                     : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
-                    .isWorking(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress());
+                    .isWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress());
     }
 
     @Override

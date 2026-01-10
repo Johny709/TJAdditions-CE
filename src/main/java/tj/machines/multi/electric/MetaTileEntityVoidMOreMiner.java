@@ -45,6 +45,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
@@ -108,18 +109,16 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        if (this.isStructureFormed()) {
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.energyContainer)
-                    .voltageTier(this.tier)
-                    .energyInput(!this.workableHandler.hasNotEnoughEnergy(), this.workableHandler.getEnergyPerTick())
-                    .temperature(this.workableHandler.heat(), this.workableHandler.maxHeat())
-                    .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
-            if (this.workableHandler.isOverheat())
-                textList.add(new TextComponentTranslation("gregtech.multiblock.universal.overheat").setStyle(new Style().setColor(TextFormatting.RED)));
-        }
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        builder.voltageInLine(this.energyContainer)
+                .voltageTierLine(this.tier)
+                .energyInputLine(this.energyContainer, this.workableHandler.getEnergyPerTick())
+                .temperatureLine(this.workableHandler.heat(), this.workableHandler.maxHeat())
+                .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+        if (this.workableHandler.isOverheat())
+            builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.overheat").setStyle(new Style().setColor(TextFormatting.RED)));
     }
 
     private void addFluidDisplayText(List<ITextComponent> textList) {

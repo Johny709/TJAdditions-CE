@@ -44,8 +44,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.blocks.AbilityBlocks;
 import tj.blocks.TJMetaBlocks;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IHeatInfo;
 import tj.capability.TJCapabilities;
 import tj.multiblockpart.TJMultiblockAbility;
@@ -148,34 +148,29 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        if (this.isStructureFormed()) {
-            boolean hasEnoughWater = false;
-            FluidStack water = Water.getFluid(this.waterConsumption), distilledWater = DistilledWater.getFluid(this.waterConsumption);
-            if (this.hasEnoughWater(water, this.waterConsumption)) {
-                hasEnoughWater = true;
-            } else if (this.hasEnoughWater(distilledWater, this.waterConsumption)) {
-                hasEnoughWater = true;
-                water = distilledWater;
-            }
-            MultiblockDisplayBuilder.start(textList)
-                    .temperature(this.heat(), this.maxHeat())
-                    .fluidInput(hasEnoughWater, water)
-                    .custom(text -> {
-                        text.add(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.steamProduction, 900));
-
-                        ITextComponent heatEffText = new TextComponentTranslation("gregtech.multiblock.large_boiler.heat_efficiency",100);
-                        withHoverTextTranslate(heatEffText, "gregtech.multiblock.large_boiler.heat_efficiency.tooltip");
-                        text.add(heatEffText);
-                        if (this.calcification > 0)
-                            text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.large_solar_boiler.calcification", (this.calcification == 240000 ? Color.RED : Color.DARK_AQUA) + TJValues.thousandTwoPlaceFormat.format(this.getCalcificationPercent() * 100))));
-                        if (!this.canBurn())
-                            text.add(new TextComponentTranslation("tj.multiblock.large_solar_boiler.obstructed").setStyle(new Style().setColor(TextFormatting.RED)));
-                        if (!this.areSolarCollectorsValid())
-                            text.add(new TextComponentTranslation("tj.multiblock.large_solar_boiler.invalid").setStyle(new Style().setColor(TextFormatting.RED)));
-                    }).isWorking(this.isWorkingEnabled(), this.isActive(), this.getProgress(), this.getMaxProgress());
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        FluidStack water = Water.getFluid(this.waterConsumption), distilledWater = DistilledWater.getFluid(this.waterConsumption);
+        if (this.hasEnoughWater(water, this.waterConsumption)) {
+        } else if (this.hasEnoughWater(distilledWater, this.waterConsumption)) {
+            water = distilledWater;
         }
+        builder.temperatureLine(this.heat(), this.maxHeat())
+                .fluidInputLine(this.waterTank, water)
+                .customLine(text -> {
+                    text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.steamProduction, 900));
+
+                    ITextComponent heatEffText = new TextComponentTranslation("gregtech.multiblock.large_boiler.heat_efficiency",100);
+                    withHoverTextTranslate(heatEffText, "gregtech.multiblock.large_boiler.heat_efficiency.tooltip");
+                    text.addTextComponent(heatEffText);
+                    if (this.calcification > 0)
+                        text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.large_solar_boiler.calcification", (this.calcification == 240000 ? Color.RED : Color.DARK_AQUA) + TJValues.thousandTwoPlaceFormat.format(this.getCalcificationPercent() * 100))));
+                    if (!this.canBurn())
+                        text.addTextComponent(new TextComponentTranslation("tj.multiblock.large_solar_boiler.obstructed").setStyle(new Style().setColor(TextFormatting.RED)));
+                    if (!this.areSolarCollectorsValid())
+                        text.addTextComponent(new TextComponentTranslation("tj.multiblock.large_solar_boiler.invalid").setStyle(new Style().setColor(TextFormatting.RED)));
+                }).isWorkingLine(this.isWorkingEnabled(), this.isActive(), this.getProgress(), this.getMaxProgress());
     }
 
     @Override

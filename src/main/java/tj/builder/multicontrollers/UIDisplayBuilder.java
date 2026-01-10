@@ -3,15 +3,18 @@ package tj.builder.multicontrollers;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.AbstractRecipeLogic;
 import gregtech.api.recipes.RecipeMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.TJValues;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.mixin.gregtech.IAbstractRecipeLogicMixin;
+import tj.util.TJFluidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,16 +106,16 @@ public final class UIDisplayBuilder {
         return this;
     }
 
-    public UIDisplayBuilder fluidInputLine(boolean hasEnoughAmount, FluidStack fluidStack) {
-        return this.fluidInputLine(hasEnoughAmount, fluidStack, 1);
+    public UIDisplayBuilder fluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack) {
+        return this.fluidInputLine(tanks, fluidStack, 1);
     }
 
-    public UIDisplayBuilder fluidInputLine(boolean hasEnoughAmount, FluidStack fluidStack, int ticks) {
+    public UIDisplayBuilder fluidInputLine(IFluidHandler tanks, FluidStack fluidStack, int ticks) {
         if (fluidStack == null)
             return this;
         String fluidName = fluidStack.getLocalizedName();
         int amount = fluidStack.amount;
-        boolean hasEnoughFluid = hasEnoughAmount || amount == 0;
+        boolean hasEnoughFluid = fluidStack.isFluidStackIdentical(tanks.drain(fluidStack, false)) || amount == 0;
         ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid", fluidName, amount))
                 : ticks == 1 ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.tick", fluidName, amount))
                 : ticks % 20 != 0 ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.ticks", amount, fluidName, ticks))
@@ -122,10 +125,12 @@ public final class UIDisplayBuilder {
         return this;
     }
 
-    public UIDisplayBuilder fluidOutputLine(boolean hasEnoughSpace, FluidStack fluidStack) {
+    public UIDisplayBuilder fluidOutputLine(IFluidHandler tanks, FluidStack fluidStack) {
+        if (fluidStack == null)
+            return this;
         String fluidName = fluidStack.getLocalizedName();
         int amount = fluidStack.amount;
-        boolean hasEnoughFluid = hasEnoughSpace || amount == 0;
+        boolean hasEnoughFluid = tanks.fill(fluidStack, false) == amount || amount == 0;
         ITextComponent fluidInputText = hasEnoughFluid ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.output.sec", fluidName, amount))
                 : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid.space", fluidName, amount));
         this.addTextComponent(fluidInputText);

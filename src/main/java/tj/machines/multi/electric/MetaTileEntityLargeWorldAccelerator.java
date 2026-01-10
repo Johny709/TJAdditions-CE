@@ -14,8 +14,8 @@ import tj.TJConfig;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.AcceleratorWorkableHandler;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IParallelController;
 import tj.capability.LinkEvent;
 import tj.capability.LinkPos;
@@ -126,21 +126,19 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        if (isStructureFormed()) {
-            boolean randomTick = this.workableHandler.getAcceleratorMode() == AcceleratorWorkableHandler.AcceleratorMode.RANDOM_TICK;
-            boolean tileEntity = this.workableHandler.getAcceleratorMode() == TILE_ENTITY;
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.energyContainer)
-                    .voltageTier(this.tier)
-                    .energyInput(this.energyContainer.getEnergyStored() >= this.workableHandler.getEnergyPerTick(), this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
-                    .fluidInput(hasEnoughFluid(this.workableHandler.getFluidConsumption()), UUMatter.getFluid(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
-                    .custom(text -> text.add(randomTick ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.entity")
-                            : tileEntity ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.tile")
-                            : new TextComponentTranslation("tj.multiblock.large_world_accelerator.mode.GT")))
-                    .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
-        }
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        boolean randomTick = this.workableHandler.getAcceleratorMode() == AcceleratorWorkableHandler.AcceleratorMode.RANDOM_TICK;
+        boolean tileEntity = this.workableHandler.getAcceleratorMode() == TILE_ENTITY;
+        builder.voltageInLine(this.energyContainer)
+                .voltageTierLine(this.tier)
+                .energyInputLine(this.energyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
+                .fluidInputLine(this.importFluidHandler, UUMatter.getFluid(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
+                .customLine(text -> text.addTextComponent(randomTick ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.entity")
+                        : tileEntity ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.tile")
+                        : new TextComponentTranslation("tj.multiblock.large_world_accelerator.mode.GT")))
+                .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override

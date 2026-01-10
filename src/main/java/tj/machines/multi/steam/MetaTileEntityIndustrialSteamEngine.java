@@ -19,7 +19,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -51,6 +50,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IGeneratorInfo;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.AbstractWorkableHandler;
@@ -101,27 +101,26 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         if (!isStructureFormed()) return;
-        MultiblockDisplayBuilder.start(textList)
-                .custom(text -> {
-                    text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.workableHandler.getConsumption(),
+        builder.customLine(text -> {
+                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.workableHandler.getConsumption(),
                             net.minecraft.util.text.translation.I18n.translateToLocal(this.workableHandler.getFuelName()),
                             this.workableHandler.getMaxProgress() / 20)));
                     FluidStack fuelStack = this.workableHandler.getFuelStack();
                     int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
                     ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
-                    text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelName.getUnformattedText())));
+                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelName.getUnformattedText())));
 
-                    text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", this.workableHandler.getProduction())));
+                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", this.workableHandler.getProduction())));
 
-                    text.add(new TextComponentTranslation("gregtech.universal.tooltip.efficiency", TJValues.thousandFormat.format(this.efficiency * 100)).setStyle(new Style().setColor(AQUA)));
+                    text.addTextComponent(new TextComponentTranslation("gregtech.universal.tooltip.efficiency", TJValues.thousandFormat.format(this.efficiency * 100)).setStyle(new Style().setColor(AQUA)));
 
                     if (!this.workableHandler.isVoidEnergy() && this.energyContainer.getEnergyCanBeInserted() < this.workableHandler.getProduction())
-                        text.add(new TextComponentTranslation("machine.universal.output.full").setStyle(new Style().setColor(RED)));
-                }).isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                        text.addTextComponent(new TextComponentTranslation("machine.universal.output.full").setStyle(new Style().setColor(RED)));
+                }).isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override

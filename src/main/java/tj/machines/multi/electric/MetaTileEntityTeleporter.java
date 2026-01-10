@@ -8,8 +8,8 @@ import net.minecraft.item.Item;
 import net.minecraft.util.text.Style;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.TeleporterWorkableHandler;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IParallelController;
 import tj.capability.LinkPos;
 import tj.capability.TJCapabilities;
@@ -188,44 +188,42 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        if (this.isStructureFormed()) {
-            Pair<Integer, BlockPos> selectedPos = this.workableHandler.getPosMap().get(this.workableHandler.getSelectedPosName());
-            World world;
-            int worldID;
-            BlockPos pos;
-            long distance;
-            long distanceEU;
-            if (selectedPos != null) {
-                worldID = selectedPos.getLeft();
-                pos = selectedPos.getRight();
-                world = DimensionManager.getWorld(worldID);
-                boolean interdimensional = worldID != this.getWorld().provider.getDimension();
-                int x = Math.abs(interdimensional ? pos.getX() : pos.getX() - this.getPos().getX());
-                int y = Math.abs(interdimensional ? pos.getY() : pos.getY() - this.getPos().getY());
-                int z = Math.abs(interdimensional ? pos.getZ() : pos.getZ() - this.getPos().getZ());
-                distance = x + y + z;
-                distanceEU = 1000000 + distance * 1000L;
-            } else {
-                world = null;
-                worldID = Integer.MIN_VALUE;
-                pos = null;
-                distance = 0;
-                distanceEU = 0;
-            }
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.energyContainer)
-                    .voltageTier(this.tier)
-                    .custom(text -> {
-                        if (selectedPos != null) {
-                            text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.world", world != null ? world.provider.getDimensionType().getName() : "Null", worldID)));
-                            text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
-                            text.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.linking.device.range", distance)));
-                        }
-                    }).energyInput(this.energyContainer.getEnergyStored() >= distanceEU, distanceEU, this.workableHandler.getMaxProgress())
-                    .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        Pair<Integer, BlockPos> selectedPos = this.workableHandler.getPosMap().get(this.workableHandler.getSelectedPosName());
+        World world;
+        int worldID;
+        BlockPos pos;
+        long distance;
+        long distanceEU;
+        if (selectedPos != null) {
+            worldID = selectedPos.getLeft();
+            pos = selectedPos.getRight();
+            world = DimensionManager.getWorld(worldID);
+            boolean interdimensional = worldID != this.getWorld().provider.getDimension();
+            int x = Math.abs(interdimensional ? pos.getX() : pos.getX() - this.getPos().getX());
+            int y = Math.abs(interdimensional ? pos.getY() : pos.getY() - this.getPos().getY());
+            int z = Math.abs(interdimensional ? pos.getZ() : pos.getZ() - this.getPos().getZ());
+            distance = x + y + z;
+            distanceEU = 1000000 + distance * 1000L;
+        } else {
+            world = null;
+            worldID = Integer.MIN_VALUE;
+            pos = null;
+            distance = 0;
+            distanceEU = 0;
         }
+        builder.voltageInLine(this.energyContainer)
+                .voltageTierLine(this.tier)
+                .customLine(text -> {
+                    if (selectedPos != null) {
+                        text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.world", world != null ? world.provider.getDimensionType().getName() : "Null", worldID)));
+                        text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
+                        text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("metaitem.linking.device.range", distance)));
+                    }
+                }).energyInputLine(this.energyContainer, distanceEU, this.workableHandler.getMaxProgress())
+                .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override
