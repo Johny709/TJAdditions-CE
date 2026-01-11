@@ -20,6 +20,7 @@ public class TJLabelWidget extends Widget {
     private final TextureArea labelTexture;
     private int color = 0x404040;
     private int offsetX;
+    private boolean slideAtEnd;
     private String locale;
     private ItemStack itemLabel;
     private FluidStack fluidLabel;
@@ -68,6 +69,10 @@ public class TJLabelWidget extends Widget {
         if (this.locale != null) {
             int finalX = pos.getX() + widthApplied - this.offsetX;
             String locale = I18n.format(this.locale);
+            int length = fontRenderer.getStringWidth(locale);
+            length -= this.offsetX;
+            if (length < 0)
+                this.slideAtEnd = true;
             RenderUtil.useScissor(pos.getX() + widthApplied, pos.getY(), 159, size.getHeight(), () -> fontRenderer.drawString(locale, finalX, pos.getY() + 6, this.color));
         }
     }
@@ -76,7 +81,10 @@ public class TJLabelWidget extends Widget {
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         if (this.isMouseOverElement(mouseX, mouseY)) {
-            this.offsetX++;
+            if (this.slideAtEnd) {
+                this.slideAtEnd = false;
+                this.offsetX = -160;
+            } else this.offsetX++;
         } else this.offsetX = 0;
     }
 }
