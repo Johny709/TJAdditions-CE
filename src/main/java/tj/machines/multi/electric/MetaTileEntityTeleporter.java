@@ -6,17 +6,16 @@ import codechicken.lib.vec.Matrix4;
 import gregtech.api.metatileentity.MTETrait;
 import net.minecraft.item.Item;
 import net.minecraft.util.text.Style;
+import net.minecraftforge.fluids.FluidStack;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.TeleporterWorkableHandler;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
-import tj.capability.IParallelController;
-import tj.capability.LinkPos;
-import tj.capability.TJCapabilities;
+import tj.capability.*;
 import tj.gui.TJGuiTextures;
+import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJAdvancedTextWidget;
-import tj.gui.widgets.TJTextFieldWidget;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregicadditions.item.GAMultiblockCasing;
@@ -68,6 +67,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import tj.gui.widgets.impl.ClickPopUpWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.util.TJFluidUtils;
 import tj.util.consumers.QuadConsumer;
 
 import javax.annotation.Nullable;
@@ -75,6 +75,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import static gregtech.api.unification.material.Materials.EnderPearl;
 import static net.minecraft.util.text.TextFormatting.GRAY;
 import static net.minecraft.util.text.TextFormatting.YELLOW;
 import static tj.textures.TJTextures.FUSION_MK2;
@@ -88,9 +89,10 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FL
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 
 
-public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements IParallelController, LinkPos {
+public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements IParallelController, LinkPos, IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
+    private static final FluidStack ENDER_PEARL = EnderPearl.getFluid(1);
     private final TeleporterWorkableHandler workableHandler = new TeleporterWorkableHandler(this);
     private IEnergyContainer energyContainer;
     private IMultipleTankHandler inputFluidHandler;
@@ -237,41 +239,41 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         int[][] searchResults = new int[2][1];
         int[][] patternFlags = new int[2][9];
         String[][] search = {{""}, {""}};
-        tabBuilder.addTab("tj.multiblock.tab.pos", new ItemStack(Items.COMPASS), blockPosTab -> this.addScrollWidgets(blockPosTab, textList -> textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.pos") + "§r(§e" + searchResults[0][0] + "§r/§e" + this.workableHandler.getPosMap().size() + "§r)")), this.addPosDisplayText(searchResults[0], patternFlags[0], search[0]), patternFlags[0], search[0]));
-        tabBuilder.addTab("tj.multiblock.tab.queue", MetaItems.CONVEYOR_MODULE_ZPM.getStackForm(), queueTab -> this.addScrollWidgets(queueTab, textList -> textList.add(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.queue") + "§r(§e" + searchResults[1][0] + "§r/§e" + this.workableHandler.getQueueTeleport().size() + "§r)")), this.addQueueDisplayText(searchResults[1], patternFlags[1], search[1]), patternFlags[1], search[1]));
+        tabBuilder.addTab("tj.multiblock.tab.pos", new ItemStack(Items.COMPASS), blockPosTab -> this.addScrollWidgets(blockPosTab, this.addPosDisplayText(searchResults[0], patternFlags[0], search[0]), patternFlags[0], search[0]));
+        tabBuilder.addTab("tj.multiblock.tab.queue", MetaItems.CONVEYOR_MODULE_ZPM.getStackForm(), queueTab -> this.addScrollWidgets(queueTab, this.addQueueDisplayText(searchResults[1], patternFlags[1], search[1]), patternFlags[1], search[1]));
     }
 
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ImageWidget(28, 112, 141, 18, DISPLAY));
-        widgetGroup.add(new TJTextFieldWidget(33, 117, 136, 18, false, () -> String.valueOf(this.workableHandler.getMaxProgress()), maxProgress -> this.workableHandler.setMaxProgress(maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress)))
-                .setTooltipText("machine.universal.tick.speed")
+        widgetGroup.add(new ImageWidget(28, 114, 141, 18, DISPLAY));
+        widgetGroup.add(new NewTextFieldWidget<>(33, 119, 136, 18, () -> String.valueOf(this.workableHandler.getMaxProgress()), (maxProgress, id) -> this.workableHandler.setMaxProgress(maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress)))
                 .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.workableHandler.getMaxProgress())))
-                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.add(new ClickButtonWidget(7, 112, 18, 18, "+", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))));
-        widgetGroup.add(new ClickButtonWidget(175, 112, 18, 18, "-", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))));
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setTooltipText("machine.universal.tick.speed"));
+        widgetGroup.add(new ClickButtonWidget(7, 114, 18, 18, "+", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))));
+        widgetGroup.add(new ClickButtonWidget(175, 114, 18, 18, "-", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))));
         widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setReset)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 
-    private void addScrollWidgets(List<Widget> tab, Consumer<List<ITextComponent>> displayText, Consumer<List<ITextComponent>> displayText2, int[] patternFlags, String[] search) {
+    private void addScrollWidgets(List<Widget> tab, Consumer<UIDisplayBuilder> displayText2, int[] patternFlags, String[] search) {
         NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setBackgroundText("machine.universal.toggle.rename.entry")
                 .setTooltipText("machine.universal.toggle.rename.entry")
                 .setTextResponder(this.workableHandler::renameLink)
                 .setMaxStringLength(256);
-        TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(0, 0, displayText2, 0xFFFFFF)
+        AdvancedDisplayWidget displayWidget = new AdvancedDisplayWidget(0, 2, displayText2, 0xFFFFFF)
                 .addClickHandler(this.handlePosDisplayClick(textFieldWidgetRename));
-        textWidget.setMaxWidthLimit(1024);
+        displayWidget.setMaxWidthLimit(1024);
         tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                 .addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(new AdvancedTextWidget(10, -20, displayText, 0xFFFFFF));
-                    widgetGroup.addWidget(new ScrollableDisplayWidget(10, -8, 178, 117)
-                            .addTextWidget(textWidget));
-                    widgetGroup.addWidget(new ImageWidget(7, 112, 162, 18, DISPLAY));
-                    widgetGroup.addWidget(new NewTextFieldWidget<>(12, 117, 157, 18)
+                    widgetGroup.addWidget(new ScrollableDisplayWidget(10, -15, 183, 142)
+                            .addDisplayWidget(displayWidget)
+                            .setScrollPanelWidth(3));
+                    widgetGroup.addWidget(new ImageWidget(7, this.getOffsetY(114), 162, 18, DISPLAY));
+                    widgetGroup.addWidget(new NewTextFieldWidget<>(12, this.getOffsetY(119), 157, 18)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                             .setBackgroundText("machine.universal.search")
                             .setTextResponder((s, id) -> search[0] = s)
@@ -290,13 +292,13 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                         .setButtonSupplier(() -> false)
                         .useToggleTexture(true))
-                .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
+                .addPopup(0, 61, 182, 60, displayWidget, false, widgetGroup -> {
                     widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                     widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                     widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> textList.add(new TextComponentTranslation("machine.universal.renaming", textFieldWidgetRename.getTextId())), 0x404040));
                     widgetGroup.addWidget(textFieldWidgetRename);
                     return false;
-                }).addPopup(118, 31, 60, 78, new TJToggleButtonWidget(172, 112, 18, 18)
+                }).addPopup(118, 31, 60, 78, new TJToggleButtonWidget(175, this.getOffsetY(114), 18, 18)
                         .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                         .setTooltipText("machine.universal.search.settings")
                         .setToggleTexture(TOGGLE_BUTTON_BACK)
@@ -373,8 +375,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         return false;
     }
 
-    private Consumer<List<ITextComponent>> addPosDisplayText(int[] searchResults, int[] flags, String[] search) {
-        return (textList) -> {
+    private Consumer<UIDisplayBuilder> addPosDisplayText(int[] searchResults, int[] flags, String[] search) {
+        return (builder) -> {
+            builder.addTextComponent(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.pos") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getPosMap().size() + "§r)"));
             int results = 0;
             for (Map.Entry<String, Pair<Integer, BlockPos>> posEntry : this.workableHandler.getPosMap().entrySet()) {
                 String key = posEntry.getKey();
@@ -409,14 +412,15 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                         .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.pos", pos.getX(), pos.getY(), pos.getZ())));
 
                 keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
-                textList.add(keyPos);
+                builder.addTextComponent(keyPos);
             }
             searchResults[0] = results;
         };
     }
 
-    private Consumer<List<ITextComponent>> addQueueDisplayText(int[] searchResults, int[] flags, String[] search) {
-        return (textList) -> {
+    private Consumer<UIDisplayBuilder> addQueueDisplayText(int[] searchResults, int[] flags, String[] search) {
+        return (builder) -> {
+            builder.addTextComponent(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.queue") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getQueueTeleport().size() + "§r)"));
             int results = 0;
             for (Triple<Entity, Integer, BlockPos> queueEntry : this.workableHandler.getQueueTeleport()) {
                 String key = queueEntry.getLeft().getName();
@@ -439,7 +443,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                         .appendSibling(new TextComponentString(position));
 
                 keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
-                textList.add(keyPos);
+                builder.addTextComponent(keyPos);
             }
             searchResults[0] = results;
         };
@@ -489,6 +493,27 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         if (capability == TJCapabilities.CAPABILITY_LINK_POS)
             return TJCapabilities.CAPABILITY_LINK_POS.cast(this);
         return super.getCapability(capability, side);
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[1][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder) {
+        bars.add(barBuilder.setProgress(this::getEnderPearlAmount).setMaxProgress(this::getEnderPearlCapacity)
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{ENDER_PEARL.getLocalizedName()})
+                .setFluidStackSupplier(() -> ENDER_PEARL)
+                .build());
+    }
+
+    private long getEnderPearlAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(ENDER_PEARL, this.getInputFluidHandler());
+    }
+
+    private long getEnderPearlCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(ENDER_PEARL, this.getInputFluidHandler());
     }
 
     @Override
