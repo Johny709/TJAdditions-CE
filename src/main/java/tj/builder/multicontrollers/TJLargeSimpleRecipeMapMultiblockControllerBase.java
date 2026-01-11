@@ -135,7 +135,7 @@ public abstract class TJLargeSimpleRecipeMapMultiblockControllerBase extends Lar
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.add(new AdvancedTextWidget(10, -2, textList -> {
+                maintenanceTab.add(new AdvancedTextWidget(10, -13, textList -> {
                     MultiblockDisplaysUtility.mufflerDisplay(textList, !this.hasMufflerHatch() || this.isMufflerFaceFree());
                     MultiblockDisplaysUtility.maintenanceDisplay(textList, this.maintenance_problems, this.hasProblems());
                 }, 0xFFFFFF).setMaxWidthLimit(180)));

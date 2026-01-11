@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
@@ -26,6 +27,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.gui.TJGuiUtils;
+import tj.util.consumers.QuadConsumer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,11 +45,13 @@ public class AdvancedDisplayWidget extends Widget {
     @SideOnly(Side.CLIENT)
     private WrapScreen wrapScreen;
 
-    protected final Consumer<UIDisplayBuilder> textSupplier;
-    private List<TextComponentWrapper<?>> displayText = new ArrayList<>();
-
-    protected BiConsumer<String, ClickData> clickHandler;
+    private final List<QuadConsumer<String, String, ClickData, EntityPlayer>> clickhandlers = new ArrayList<>();
+    private final Consumer<UIDisplayBuilder> textSupplier;
     private final int color;
+
+    private List<TextComponentWrapper<?>> displayText = new ArrayList<>();
+    private BiConsumer<String, ClickData> clickHandler;
+    private String textId;
 
     public AdvancedDisplayWidget(int x, int y, Consumer<UIDisplayBuilder> textSupplier, int color) {
         super(new Position(x, y), Size.ZERO);
@@ -63,9 +67,23 @@ public class AdvancedDisplayWidget extends Widget {
         return this;
     }
 
+    public AdvancedDisplayWidget addClickHandler(QuadConsumer<String, String, ClickData, EntityPlayer> clickHandler) {
+        this.clickhandlers.add(clickHandler);
+        return this;
+    }
+
     public AdvancedDisplayWidget setClickHandler(BiConsumer<String, ClickData> clickHandler) {
         this.clickHandler = clickHandler;
         return this;
+    }
+
+    public AdvancedDisplayWidget setTextId(String textId) {
+        this.textId = textId;
+        return this;
+    }
+
+    public String getTextId() {
+        return this.textId;
     }
 
     @SideOnly(Side.CLIENT)
@@ -167,10 +185,14 @@ public class AdvancedDisplayWidget extends Widget {
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
         if (id == 1) {
+            EntityPlayer player = this.gui.entityPlayer;
             ClickData clickData = ClickData.readFromBuf(buffer);
+            String textId = buffer.readString(Short.MAX_VALUE);
             String componentData = buffer.readString(128);
-            if (clickHandler != null) {
-                clickHandler.accept(componentData, clickData);
+            if (this.clickHandler != null)
+                this.clickHandler.accept(componentData, clickData);
+            for (QuadConsumer<String, String, ClickData, EntityPlayer> clickHandler : this.clickhandlers) {
+                clickHandler.accept(componentData, textId, clickData, player);
             }
         }
     }
@@ -208,7 +230,7 @@ public class AdvancedDisplayWidget extends Widget {
     @Override
     protected void onSizeUpdate() {
         if (this.uiAccess != null) {
-            this.uiAccess.notifySizeChange();;
+            this.uiAccess.notifySizeChange();
         }
     }
 
@@ -232,6 +254,7 @@ public class AdvancedDisplayWidget extends Widget {
                 ClickData clickData = new ClickData(Mouse.getEventButton(), isShiftDown(), isCtrlDown());
                 writeClientAction(1, buf -> {
                     clickData.writeToBuf(buf);
+                    buf.writeString(this.textId != null ? this.textId : "");
                     buf.writeString(rawText);
                 });
                 return true;

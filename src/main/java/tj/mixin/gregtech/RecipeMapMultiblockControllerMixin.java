@@ -28,6 +28,8 @@ public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithD
     @Shadow
     protected MultiblockRecipeLogic recipeMapWorkable;
 
+    @Shadow public abstract IEnergyContainer getEnergyContainer();
+
     public RecipeMapMultiblockControllerMixin(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
     }
@@ -44,6 +46,7 @@ public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithD
         super.configureDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.voltageInLine(this.energyContainer)
+                .energyInputLine(this.getEnergyContainer(), this.recipeMapWorkable.getRecipeEUt())
                 .customLine(text -> {
                     if (this.recipeMapWorkable.isHasNotEnoughEnergy()) {
                         text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.not_enough_energy").setStyle(new Style().setColor(TextFormatting.RED)));

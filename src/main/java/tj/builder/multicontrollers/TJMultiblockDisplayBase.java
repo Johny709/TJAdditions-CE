@@ -187,6 +187,17 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
         }
     }
 
+    protected int getOffsetY(int y) {
+        int height = this.getExtended();
+        int[][] barMatrix;
+        height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
+        return y + height;
+    }
+
+    protected int getExtended() {
+        return 0;
+    }
+
     @Override
     protected ModularUI.Builder createUITemplate(EntityPlayer entityPlayer) {
         int height = this.getExtended();
@@ -197,7 +208,7 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
                 .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
                 .setPosition(-10, 1)
                 .offsetPosition(0, height)
-                .offsetY(132);
+                .offsetY(132 - this.getExtended());
         if (height > 0)
             builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
         builder.widget(new TJLabelWidget(-1, -38, 184, 18, TJGuiTextures.MULTIBLOCK_DISPLAY_LABEL)
@@ -230,15 +241,11 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
         }
     }
 
-    protected int getExtended() {
-        return 0;
-    }
-
     @OverridingMethodsMustInvokeSuper
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.add(new AdvancedTextWidget(10, -2, textList -> {
+                maintenanceTab.add(new AdvancedTextWidget(10, -13, textList -> {
             MultiblockDisplaysUtility.mufflerDisplay(textList, !this.hasMufflerHatch() || this.isMufflerFaceFree());
             MultiblockDisplaysUtility.maintenanceDisplay(textList, this.maintenance_problems, this.hasProblems());
             }, 0xFFFFFF).setMaxWidthLimit(180)));

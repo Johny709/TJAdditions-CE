@@ -45,6 +45,12 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
         this(x, y, width, height, false);
     }
 
+    public NewTextFieldWidget(int x, int y, int width, int height, Supplier<String> textSupplier, BiConsumer<String, String> textResponder) {
+        this(x, y, width, height, false);
+        this.textSupplier = textSupplier;
+        this.textResponder = textResponder;
+    }
+
     public NewTextFieldWidget(int x, int y, int width, int height, boolean enableBackground) {
         super(new Position(x, y), new Size(width, height));
         if (isClientSide()) {
