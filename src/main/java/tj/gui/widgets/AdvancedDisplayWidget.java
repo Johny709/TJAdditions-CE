@@ -8,6 +8,7 @@ import gregtech.api.util.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiUtilRenderComponents;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -31,9 +32,12 @@ import tj.util.consumers.QuadConsumer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * More advanced form of {@link gregtech.api.gui.widgets.AdvancedTextWidget} that can also display items {@link net.minecraft.item.ItemStack} and fluids {@link net.minecraftforge.fluids.FluidStack}
@@ -45,7 +49,7 @@ public class AdvancedDisplayWidget extends Widget {
     @SideOnly(Side.CLIENT)
     private WrapScreen wrapScreen;
 
-    private final List<QuadConsumer<String, String, ClickData, EntityPlayer>> clickhandlers = new ArrayList<>();
+    private final List<QuadConsumer<String, String, ClickData, EntityPlayer>> clickHandlers = new ArrayList<>();
     private final Consumer<UIDisplayBuilder> textSupplier;
     private final int color;
 
@@ -68,7 +72,7 @@ public class AdvancedDisplayWidget extends Widget {
     }
 
     public AdvancedDisplayWidget addClickHandler(QuadConsumer<String, String, ClickData, EntityPlayer> clickHandler) {
-        this.clickhandlers.add(clickHandler);
+        this.clickHandlers.add(clickHandler);
         return this;
     }
 
@@ -146,6 +150,7 @@ public class AdvancedDisplayWidget extends Widget {
                     buffer.writeInt(3);
                     buffer.writeString(ITextComponent.Serializer.componentToJson((ITextComponent) textComponentWrapper.getValue()));
                 }
+                buffer.writeInt(textComponentWrapper.getPriority());
             }
         });
     }
@@ -160,24 +165,27 @@ public class AdvancedDisplayWidget extends Widget {
                 switch (buffer.readInt()) {
                     case 1:
                         try {
-                            this.displayText.add(new TextComponentWrapper<>(buffer.readItemStack()));
+                            this.displayText.add(new TextComponentWrapper<>(buffer.readItemStack())
+                                    .setPriority(buffer.readInt()));
                         } catch (IOException e) {
                             GTLog.logger.info(e.getMessage());
                         }
                         break;
                     case 2:
                         try {
-                            this.displayText.add(new TextComponentWrapper<>(FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag())));
+                            this.displayText.add(new TextComponentWrapper<>(FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag()))
+                                    .setPriority(buffer.readInt()));
                         } catch (IOException e) {
                             GTLog.logger.info(e.getMessage());
                         }
                         break;
                     case 3:
-                        this.displayText.add(new TextComponentWrapper<>(ITextComponent.Serializer.jsonToComponent(buffer.readString(Short.MAX_VALUE))));
+                        this.displayText.add(new TextComponentWrapper<>(ITextComponent.Serializer.jsonToComponent(buffer.readString(Short.MAX_VALUE)))
+                                .setPriority(buffer.readInt()));
                 }
             }
-            formatDisplayText();
-            updateComponentTextSize();
+            this.formatDisplayText();
+            this.updateComponentTextSize();
         }
     }
 
@@ -191,7 +199,7 @@ public class AdvancedDisplayWidget extends Widget {
             String componentData = buffer.readString(128);
             if (this.clickHandler != null)
                 this.clickHandler.accept(componentData, clickData);
-            for (QuadConsumer<String, String, ClickData, EntityPlayer> clickHandler : this.clickhandlers) {
+            for (QuadConsumer<String, String, ClickData, EntityPlayer> clickHandler : this.clickHandlers) {
                 clickHandler.accept(componentData, textId, clickData, player);
             }
         }
@@ -236,11 +244,14 @@ public class AdvancedDisplayWidget extends Widget {
 
     @SideOnly(Side.CLIENT)
     private void formatDisplayText() {
-//        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-//        int maxTextWidthResult = maxWidthLimit == 0 ? Integer.MAX_VALUE : maxWidthLimit;
-//        this.displayText = displayText.stream()
-//                .flatMap(c -> GuiUtilRenderComponents.splitText(c, maxTextWidthResult, fontRenderer, true, true).stream())
-//                .collect(Collectors.toList());
+        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        int maxTextWidthResult = this.maxWidthLimit == 0 ? Integer.MAX_VALUE : this.maxWidthLimit;
+        this.displayText = this.displayText.stream()
+                .flatMap(component -> component.getValue() instanceof ITextComponent ? GuiUtilRenderComponents.splitText((ITextComponent) component.getValue(), maxTextWidthResult, fontRenderer, true, true).stream()
+                        .map(component2 -> new TextComponentWrapper<>(component2).setPriority(component.getPriority()))
+                        : Stream.of(component))
+                .sorted(Comparator.comparingInt(TextComponentWrapper::getPriority))
+                .collect(Collectors.toList());
     }
 
     @SideOnly(Side.CLIENT)
@@ -420,23 +431,33 @@ public class AdvancedDisplayWidget extends Widget {
 
     public static class TextComponentWrapper<T> {
 
-        T value;
+        private final T value;
+        private int priority;
 
         public TextComponentWrapper(T value) {
             this.value = value;
+        }
+
+        public TextComponentWrapper<?> setPriority(int priority) {
+            this.priority = priority;
+            return this;
         }
 
         public T getValue() {
             return this.value;
         }
 
+        public int getPriority() {
+            return this.priority;
+        }
+
         @Override
         public boolean equals(Object obj) {
             if (this.getValue() instanceof ItemStack && obj instanceof ItemStack)
                 return ItemStack.areItemStacksEqual((ItemStack) this.getValue(), (ItemStack) obj);
-            if (this.getValue() instanceof TextComponentBase && obj instanceof TextComponentBase)
-                return this.getValue().equals(obj);
-            if (this.getValue() instanceof FluidStack && obj instanceof FluidStack)
+            else if (this.getValue() instanceof FluidStack && obj instanceof FluidStack)
+                return ((FluidStack) this.getValue()).isFluidStackIdentical((FluidStack) obj);
+            else if (this.getValue() instanceof TextComponentBase && obj instanceof TextComponentBase)
                 return this.getValue().equals(obj);
             return super.equals(obj);
         }

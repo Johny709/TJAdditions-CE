@@ -14,40 +14,60 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.TJValues;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.mixin.gregtech.IAbstractRecipeLogicMixin;
-import tj.util.TJFluidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.IntSupplier;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
 public final class UIDisplayBuilder {
 
     private final List<AdvancedDisplayWidget.TextComponentWrapper<?>> textComponentWrappers = new ArrayList<>();
+    private int count;
 
     public UIDisplayBuilder() {
 
     }
 
+    public int increment() {
+        return this.count++;
+    }
+
     public UIDisplayBuilder customLine(Consumer<CustomBuilder> textList) {
-        textList.accept(new CustomBuilder(this.textComponentWrappers));
+        textList.accept(new CustomBuilder(this));
+        return this;
+    }
+
+    public UIDisplayBuilder addTextComponent(ITextComponent component, int priority) {
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(component)
+                .setPriority(priority));
+        return this;
+    }
+
+    public UIDisplayBuilder addItemStack(ItemStack itemStack, int priority) {
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(itemStack)
+                .setPriority(priority));
+        return this;
+    }
+
+    public UIDisplayBuilder addFluidStack(FluidStack fluidStack, int priority) {
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(fluidStack)
+                .setPriority(priority));
         return this;
     }
 
     public UIDisplayBuilder addTextComponent(ITextComponent component) {
-        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(component));
-        return this;
+        return this.addTextComponent(component, this.count++);
     }
 
     public UIDisplayBuilder addItemStack(ItemStack itemStack) {
-        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(itemStack));
-        return this;
+        return this.addItemStack(itemStack, this.count++);
     }
 
     public UIDisplayBuilder addFluidStack(FluidStack fluidStack) {
-        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(fluidStack));
-        return this;
+        return this.addFluidStack(fluidStack, this.count++);
     }
 
     public UIDisplayBuilder addTranslationLine(String locale, Object... format) {
@@ -55,23 +75,35 @@ public final class UIDisplayBuilder {
         return this;
     }
 
-
     public UIDisplayBuilder energyStoredLine(long energyStored, long energyCapacity) {
-        this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.energy.stored", energyStored, energyCapacity)));
+        return this.energyStoredLine(energyStored, energyCapacity, 0);
+    }
+
+    public UIDisplayBuilder energyStoredLine(long energyStored, long energyCapacity, int priority) {
+        if (priority != 0)
+            this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.energy.stored", energyStored, energyCapacity)), priority);
+        else this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.energy.stored", energyStored, energyCapacity)));
         return this;
     }
 
     public UIDisplayBuilder energyInputLine(IEnergyContainer container, long amount) {
-        return this.energyInputLine(container, amount, 1);
+        return this.energyInputLine(container, amount, 1, 0);
     }
 
+
     public UIDisplayBuilder energyInputLine(IEnergyContainer container, long amount, int maxProgress) {
+        return this.energyInputLine(container, amount, maxProgress, 0);
+    }
+
+    public UIDisplayBuilder energyInputLine(IEnergyContainer container, long amount, int maxProgress, int priority) {
         if (amount == 0)
             return this;
         ITextComponent textComponent = container.getEnergyStored() < amount ? new TextComponentString(I18n.translateToLocal("tj.multiblock.not_enough_energy"))
                 : maxProgress > 1 ? new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.sum.2", amount, maxProgress))
                 : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.sum", amount)) ;
-        this.addTextComponent(textComponent);
+        if (priority != 0)
+            this.addTextComponent(textComponent, priority);
+        else this.addTextComponent(textComponent);
         return this;
     }
 
@@ -102,17 +134,28 @@ public final class UIDisplayBuilder {
     }
 
     public UIDisplayBuilder energyBonusLine(int energyBonus, boolean enabled) {
-        if (enabled)
-            this.addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.energy_usage", 100 - energyBonus)
+        return this.energyBonusLine(energyBonus, enabled, 0);
+    }
+
+    public UIDisplayBuilder energyBonusLine(int energyBonus, boolean enabled, int priority) {
+        if (enabled) {
+            if (priority != 0)
+                this.addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.energy_usage", 100 - energyBonus)
+                        .setStyle(new Style().setColor(TextFormatting.AQUA)), priority);
+            else this.addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.energy_usage", 100 - energyBonus)
                     .setStyle(new Style().setColor(TextFormatting.AQUA)));
+        }
         return this;
     }
 
     public UIDisplayBuilder fluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack) {
         return this.fluidInputLine(tanks, fluidStack, 1);
     }
+    public UIDisplayBuilder fluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack, int ticks) {
+        return this.fluidInputLine(tanks, fluidStack, ticks, 0);
+    }
 
-    public UIDisplayBuilder fluidInputLine(IFluidHandler tanks, FluidStack fluidStack, int ticks) {
+    public UIDisplayBuilder fluidInputLine(IFluidHandler tanks, FluidStack fluidStack, int ticks, int priority) {
         if (fluidStack == null)
             return this;
         String fluidName = fluidStack.getLocalizedName();
@@ -123,11 +166,17 @@ public final class UIDisplayBuilder {
                 : ticks % 20 != 0 ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.ticks", amount, fluidName, ticks))
                 : ticks == 20 ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.input.sec", fluidName, amount))
                 : new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.secs", amount, fluidName, ticks / 20));
-        this.addTextComponent(fluidInputText);
+        if (priority != 0)
+            this.addTextComponent(fluidInputText, priority);
+        else this.addTextComponent(fluidInputText);
         return this;
     }
 
     public UIDisplayBuilder fluidOutputLine(IFluidHandler tanks, FluidStack fluidStack) {
+        return this.fluidOutputLine(tanks, fluidStack, 0);
+    }
+
+    public UIDisplayBuilder fluidOutputLine(IFluidHandler tanks, FluidStack fluidStack, int priority) {
         if (fluidStack == null)
             return this;
         String fluidName = fluidStack.getLocalizedName();
@@ -135,31 +184,52 @@ public final class UIDisplayBuilder {
         boolean hasEnoughFluid = tanks.fill(fluidStack, false) == amount || amount == 0;
         ITextComponent fluidInputText = hasEnoughFluid ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.output.sec", fluidName, amount))
                 : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid.space", fluidName, amount));
-        this.addTextComponent(fluidInputText);
+        if (priority != 0)
+            this.addTextComponent(fluidInputText, priority);
+        else this.addTextComponent(fluidInputText);
         return this;
     }
 
     public UIDisplayBuilder isWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress) {
+        return this.isWorkingLine(isWorkingEnabled, isActive, progress, maxProgress, 0);
+    }
+
+    public UIDisplayBuilder isWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, int priority) {
         int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
         ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentString(I18n.translateToLocal("machine.universal.work_paused"))
                 : !isActive ? new TextComponentString(I18n.translateToLocal("machine.universal.idling"))
                 : new TextComponentString(I18n.translateToLocal("machine.universal.running"));
-        this.addTextComponent(isWorkingText);
-        if (isActive)
-            this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)));
+        if (priority != 0)
+            this.addTextComponent(isWorkingText, priority);
+        else this.addTextComponent(isWorkingText);
+        if (isActive) {
+            if (priority != 0)
+                this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)), priority);
+            else this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)));
+        }
         return this;
     }
 
     public UIDisplayBuilder addRecipeOutputLine(AbstractRecipeLogic recipeLogic) {
+        return this.addRecipeOutputLine(recipeLogic, 0);
+    }
+
+    public UIDisplayBuilder addRecipeOutputLine(AbstractRecipeLogic recipeLogic, int priority) {
         if (!recipeLogic.isActive())
             return this;
         this.addTranslationLine("machine.universal.producing");
         if (((IAbstractRecipeLogicMixin) recipeLogic).getItemOutputs() != null)
-            for (ItemStack stack : ((IAbstractRecipeLogicMixin) recipeLogic).getItemOutputs())
-                this.addItemStack(stack);
+            for (ItemStack stack : ((IAbstractRecipeLogicMixin) recipeLogic).getItemOutputs()) {
+                if (priority != 0)
+                    this.addItemStack(stack, priority);
+                else this.addItemStack(stack);
+            }
         if (((IAbstractRecipeLogicMixin) recipeLogic).getFluidOutputs() != null)
-            for (FluidStack stack : ((IAbstractRecipeLogicMixin) recipeLogic).getFluidOutputs())
-                this.addFluidStack(stack);
+            for (FluidStack stack : ((IAbstractRecipeLogicMixin) recipeLogic).getFluidOutputs()) {
+                if (priority != 0)
+                    this.addFluidStack(stack, priority);
+                else this.addFluidStack(stack);
+            }
         return this;
     }
 
@@ -170,7 +240,13 @@ public final class UIDisplayBuilder {
     }
 
     public UIDisplayBuilder temperatureLine(long current, long max) {
-        this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.temperature", current, max)));
+        return this.temperatureLine(current, max, 0);
+    }
+
+    public UIDisplayBuilder temperatureLine(long current, long max, int priority) {
+        if (priority != 0)
+            this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.temperature", current, max)), priority);
+        else this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.temperature", current, max)));
         return this;
     }
 
@@ -181,24 +257,41 @@ public final class UIDisplayBuilder {
     public final static class CustomBuilder {
 
         private final List<AdvancedDisplayWidget.TextComponentWrapper<?>> textComponentWrappers;
+        private final IntSupplier count;
 
-        public CustomBuilder(List<AdvancedDisplayWidget.TextComponentWrapper<?>> textComponentWrappers) {
-            this.textComponentWrappers = textComponentWrappers;
+        public CustomBuilder(UIDisplayBuilder builder) {
+            this.textComponentWrappers = builder.getTextComponentWrappers();
+            this.count = builder::increment;
+        }
+
+        public CustomBuilder addTextComponent(ITextComponent component, int priority) {
+            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(component)
+                    .setPriority(priority));
+            return this;
+        }
+
+        public CustomBuilder addItemStack(ItemStack itemStack, int priority) {
+            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(itemStack)
+                    .setPriority(priority));
+            return this;
+        }
+
+        public CustomBuilder addFluidStack(FluidStack fluidStack, int priority) {
+            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(fluidStack)
+                    .setPriority(priority));
+            return this;
         }
 
         public CustomBuilder addTextComponent(ITextComponent component) {
-            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(component));
-            return this;
+            return this.addTextComponent(component, this.count.getAsInt());
         }
 
         public CustomBuilder addItemStack(ItemStack itemStack) {
-            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(itemStack));
-            return this;
+            return this.addItemStack(itemStack, this.count.getAsInt());
         }
 
         public CustomBuilder addFluidStack(FluidStack fluidStack) {
-            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(fluidStack));
-            return this;
+            return this.addFluidStack(fluidStack, this.count.getAsInt());
         }
     }
 }

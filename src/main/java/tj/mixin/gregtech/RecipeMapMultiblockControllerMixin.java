@@ -55,7 +55,7 @@ public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithD
                         text.addTextComponent(new TextComponentString(String.format("Cache size (%s) hit (%s) miss (%s)", this.recipeMapWorkable.previousRecipe.getCachedRecipeCount(), this.recipeMapWorkable.previousRecipe.getCacheHit(), this.recipeMapWorkable.previousRecipe.getCacheMiss()))
                                 .setStyle(new Style().setColor(TextFormatting.WHITE)));
                     }
-                }).isWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress())
-                .addRecipeOutputLine(this.recipeMapWorkable);
+                }).isWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), 999)
+                .addRecipeOutputLine(this.recipeMapWorkable, 1000);
     }
 }
