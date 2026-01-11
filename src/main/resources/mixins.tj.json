@@ -34,6 +34,7 @@
     "gregicality.MetaTileEntityLargeRocketEngineMixin",
     "gregicality.MetaTileEntityMufflerHatchMixin",
     "gregicality.MetaTileEntityMultiFurnaceMixin",
+    "gregicality.MetaTileEntityVoidMinerMixin",
     "gregicality.MultiRecipeMapMultiblockControllerMixin",
     "gregicality.QubitContainerInfoProviderMixin",
     "gregicality.TileEntityFusionReactorMixin",

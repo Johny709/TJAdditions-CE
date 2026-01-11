@@ -150,10 +150,21 @@ public class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<R>> exten
             this.stopRecipe();
             return;
         }
-
         if (this.wasActiveAndNeedsUpdate && this.isActive)
             this.setActive(false);
-
+        if (this.progress > this.maxProgress) {
+            if (this.completeRecipe()) {
+                this.progress = 0;
+                if (this.resetEnergy)
+                    this.energyPerTick = 0;
+                if (this.hasProblem)
+                    this.setProblem(false);
+            } else {
+                this.progress--;
+                if (!this.hasProblem)
+                    this.setProblem(true);
+            }
+        }
         if (this.progress < 1) {
             if (this.sleepTimer > 1) {
                 this.sleepRecipe();
@@ -169,20 +180,6 @@ public class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<R>> exten
             } else this.failRecipe();
             this.wasActiveAndNeedsUpdate = !canStart;
         } else this.progressRecipe(this.progress);
-
-        if (this.progress > this.maxProgress) {
-            if (this.completeRecipe()) {
-                this.progress = 0;
-                if (this.resetEnergy)
-                    this.energyPerTick = 0;
-                if (this.hasProblem)
-                    this.setProblem(false);
-            } else {
-                this.progress--;
-                if (!this.hasProblem)
-                    this.setProblem(true);
-            }
-        }
     }
 
     /**
