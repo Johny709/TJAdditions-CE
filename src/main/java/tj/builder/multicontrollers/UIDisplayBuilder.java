@@ -66,6 +66,8 @@ public final class UIDisplayBuilder {
     }
 
     public UIDisplayBuilder energyInputLine(IEnergyContainer container, long amount, int maxProgress) {
+        if (amount == 0)
+            return this;
         ITextComponent textComponent = container.getEnergyStored() < amount ? new TextComponentString(I18n.translateToLocal("tj.multiblock.not_enough_energy"))
                 : maxProgress > 1 ? new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.sum.2", amount, maxProgress))
                 : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.sum", amount)) ;

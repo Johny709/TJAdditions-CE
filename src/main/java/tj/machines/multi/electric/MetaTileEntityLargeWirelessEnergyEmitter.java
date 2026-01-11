@@ -16,7 +16,6 @@ import tj.capability.*;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.TJTextFieldWidget;
 import tj.gui.widgets.impl.ClickPopUpWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
@@ -209,10 +208,10 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
         widgetGroup.add(new ImageWidget(28, 114, 141, 18, DISPLAY));
-        widgetGroup.add(new TJTextFieldWidget(33, 119, 136, 18, false, () -> String.valueOf(this.workableHandler.getMaxProgress()), maxProgress -> this.workableHandler.setMaxProgress(maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress)))
-                .setTooltipText("machine.universal.tick.speed")
+        widgetGroup.add(new NewTextFieldWidget<>(33, 119, 136, 18, () -> String.valueOf(this.workableHandler.getMaxProgress()), (maxProgress, id) -> this.workableHandler.setMaxProgress(maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress)))
                 .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.workableHandler.getMaxProgress())))
-                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setTooltipText("machine.universal.tick.speed"));
         widgetGroup.add(new ClickButtonWidget(7, 114, 18, 18, "+", click -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))));
         widgetGroup.add(new ClickButtonWidget(175, 114, 18, 18, "-", click -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))));
         widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setReset)
