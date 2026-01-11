@@ -58,14 +58,16 @@ import static gregicadditions.GAMaterials.*;
 
 public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
 
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
+            MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    public static final FluidStack DRILLING_MUD = DrillingMud.getFluid(1);
+    private final VoidMOreMinerWorkableHandler workableHandler = new VoidMOreMinerWorkableHandler(this);
     private IMultipleTankHandler importFluidHandler;
     private IMultipleTankHandler exportFluidHandler;
     private ItemHandlerList outputInventory;
     private IEnergyContainer energyContainer;
     private long maxVoltage;
     private int tier;
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final VoidMOreMinerWorkableHandler workableHandler = new VoidMOreMinerWorkableHandler(this);
 
     public MetaTileEntityVoidMOreMiner(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -119,6 +121,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
                 .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
         if (this.workableHandler.isOverheat())
             builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.overheat").setStyle(new Style().setColor(TextFormatting.RED)));
+
     }
 
     private void addFluidDisplayText(List<ITextComponent> textList) {

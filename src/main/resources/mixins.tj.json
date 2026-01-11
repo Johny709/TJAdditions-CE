@@ -26,6 +26,7 @@
     "gregicality.MetaTileEntityBatteryTowerMixin",
     "gregicality.MetaTileEntityElectricBlastFurnaceMixin",
     "gregicality.MetaTileEntityExtremeDieselEngineMixin",
+    "gregicality.MetaTileEntityFluidDrillingPlantMixin",
     "gregicality.MetaTileEntityHyperReactorIIIMixin",
     "gregicality.MetaTileEntityHyperReactorIIMixin",
     "gregicality.MetaTileEntityHyperReactorIMixin",

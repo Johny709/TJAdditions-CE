@@ -7,6 +7,8 @@ import net.minecraftforge.fluids.IFluidTank;
 public class TJFluidUtils {
 
     public static long getFluidAmountFromTanks(FluidStack fluidStack, IMultipleTankHandler tanks) {
+        if (fluidStack == null || tanks == null)
+            return 0;
         long amount = 0;
         for (int i = 0; i < tanks.getTanks(); i++) {
             FluidStack stack = tanks.getTankAt(i).getFluid();
@@ -17,6 +19,8 @@ public class TJFluidUtils {
     }
 
     public static long getFluidCapacityFromTanks(FluidStack fluidStack, IMultipleTankHandler tanks) {
+        if (fluidStack == null || tanks == null)
+            return 0;
         long capacity = 0;
         for (int i = 0; i < tanks.getTanks(); i++) {
             IFluidTank tank = tanks.getTankAt(i);

@@ -4,7 +4,6 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.GATileEntities;
-import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.MetaBlocks;
@@ -49,6 +48,7 @@ public class InfiniteFluidDrillInfo extends TJMultiblockInfoPage {
                     .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
                     .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
                     .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier -1)]))
+                    .where('P', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
                     .build());
         }
         return shapeInfos;

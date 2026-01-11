@@ -12,6 +12,7 @@ import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.TJValues;
+import tj.capability.IItemFluidHandlerInfo;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.mixin.gregtech.IAbstractRecipeLogicMixin;
 
@@ -71,7 +72,13 @@ public final class UIDisplayBuilder {
     }
 
     public UIDisplayBuilder addTranslationLine(String locale, Object... format) {
-        this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted(locale, format)));
+        return this.addTranslationLine(0, locale, format);
+    }
+
+    public UIDisplayBuilder addTranslationLine(int priority, String locale, Object... format) {
+        if (priority != 0)
+            this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted(locale, format)), priority);
+        else this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted(locale, format)));
         return this;
     }
 
@@ -210,6 +217,56 @@ public final class UIDisplayBuilder {
         return this;
     }
 
+    public UIDisplayBuilder addRecipeInputLine(IItemFluidHandlerInfo handlerInfo) {
+        return this.addRecipeInputLine(handlerInfo, 0);
+    }
+
+    public UIDisplayBuilder addRecipeInputLine(IItemFluidHandlerInfo handlerInfo, int priority) {
+        if ((handlerInfo.getItemInputs() != null && !handlerInfo.getItemInputs().isEmpty()) || (handlerInfo.getFluidInputs() != null && !handlerInfo.getFluidInputs().isEmpty())) {
+            if (priority != 0)
+                this.addTranslationLine(priority, "machine.universal.consumption");
+            else this.addTranslationLine("machine.universal.consumption");
+            if (handlerInfo.getItemInputs() != null)
+                for (ItemStack stack : handlerInfo.getItemInputs()) {
+                    if (priority != 0)
+                        this.addItemStack(stack, priority);
+                    else this.addItemStack(stack);
+                }
+            if (handlerInfo.getFluidInputs() != null)
+                for (FluidStack stack : handlerInfo.getFluidInputs()) {
+                    if (priority != 0)
+                        this.addFluidStack(stack, priority);
+                    else this.addFluidStack(stack);
+                }
+        }
+        return this;
+    }
+
+    public UIDisplayBuilder addRecipeOutputLine(IItemFluidHandlerInfo handlerInfo) {
+        return this.addRecipeOutputLine(handlerInfo, 0);
+    }
+
+    public UIDisplayBuilder addRecipeOutputLine(IItemFluidHandlerInfo handlerInfo, int priority) {
+        if ((handlerInfo.getItemOutputs() != null && !handlerInfo.getItemOutputs().isEmpty()) || (handlerInfo.getFluidOutputs() != null && !handlerInfo.getFluidOutputs().isEmpty())) {
+            if (priority != 0)
+                this.addTranslationLine(priority, "machine.universal.producing");
+            else this.addTranslationLine("machine.universal.producing");
+            if (handlerInfo.getItemOutputs() != null)
+                for (ItemStack stack : handlerInfo.getItemOutputs()) {
+                    if (priority != 0)
+                        this.addItemStack(stack, priority);
+                    else this.addItemStack(stack);
+                }
+            if (handlerInfo.getFluidOutputs() != null)
+                for (FluidStack stack : handlerInfo.getFluidOutputs()) {
+                    if (priority != 0)
+                        this.addFluidStack(stack, priority);
+                    else this.addFluidStack(stack);
+                }
+        }
+        return this;
+    }
+
     public UIDisplayBuilder addRecipeOutputLine(AbstractRecipeLogic recipeLogic) {
         return this.addRecipeOutputLine(recipeLogic, 0);
     }
@@ -217,7 +274,9 @@ public final class UIDisplayBuilder {
     public UIDisplayBuilder addRecipeOutputLine(AbstractRecipeLogic recipeLogic, int priority) {
         if (!recipeLogic.isActive())
             return this;
-        this.addTranslationLine("machine.universal.producing");
+        if (priority != 0)
+            this.addTranslationLine(priority, "machine.universal.producing");
+        else this.addTranslationLine("machine.universal.producing");
         if (((IAbstractRecipeLogicMixin) recipeLogic).getItemOutputs() != null)
             for (ItemStack stack : ((IAbstractRecipeLogicMixin) recipeLogic).getItemOutputs()) {
                 if (priority != 0)
