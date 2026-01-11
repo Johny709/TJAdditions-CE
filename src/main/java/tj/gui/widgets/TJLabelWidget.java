@@ -20,6 +20,7 @@ public class TJLabelWidget extends Widget {
     private final TextureArea labelTexture;
     private int color = 0x404040;
     private int offsetX;
+    private int tickCounter;
     private boolean slideAtEnd;
     private String locale;
     private ItemStack itemLabel;
@@ -48,6 +49,12 @@ public class TJLabelWidget extends Widget {
     public TJLabelWidget setColor(int color) {
         this.color = color;
         return this;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void updateScreen() {
+        this.tickCounter++;
     }
 
     @Override
@@ -84,7 +91,8 @@ public class TJLabelWidget extends Widget {
             if (this.slideAtEnd) {
                 this.slideAtEnd = false;
                 this.offsetX = -160;
-            } else this.offsetX++;
+            } else if (this.tickCounter % 2 == 0 || this.tickCounter % 3 == 0)
+                this.offsetX++;
         } else this.offsetX = 0;
     }
 }
