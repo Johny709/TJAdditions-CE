@@ -22,6 +22,7 @@ import tj.capability.ProgressBar;
 import tj.mixin.gregtech.MultiblockWithDisplayBaseMixin;
 
 import java.util.Queue;
+import java.util.function.UnaryOperator;
 
 @Mixin(value = MetaTileEntityFluidDrillingPlant.class, remap = false)
 public abstract class MetaTileEntityFluidDrillingPlantMixin extends MultiblockWithDisplayBaseMixin implements IProgressBar {
@@ -92,11 +93,10 @@ public abstract class MetaTileEntityFluidDrillingPlantMixin extends MultiblockWi
     }
 
     @Override
-    public void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder) {
-        bars.add(barBuilder.setProgress(this::getVeinStackAmount).setMaxProgress(this::getVeinStackCapacity)
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getVeinStackAmount).setMaxProgress(this::getVeinStackCapacity)
                 .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{this.veinFluid != null ? this.veinFluid.getUnlocalizedName() : ""})
-                .setFluidStackSupplier(() -> this.veinFluid != null ? new FluidStack(this.veinFluid, 1) : null)
-                .build());
+                .setFluidStackSupplier(() -> this.veinFluid != null ? new FluidStack(this.veinFluid, 1) : null));
     }
 
     @Unique

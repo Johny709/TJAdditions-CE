@@ -69,6 +69,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 import static gregicadditions.GAMaterials.Talonite;
@@ -633,15 +634,13 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     @Override
-    public void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder) {
-        bars.add(barBuilder.setProgress(this::getEnergyStored).setMaxProgress(this::getEnergyCapacity)
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getEnergyStored).setMaxProgress(this::getEnergyCapacity)
                 .setLocale("tj.multiblock.bars.energy")
-                .setColor(0xFFF6FF00)
-                .build());
-        bars.add(barBuilder.setProgress(this::getNitrogenAmount).setMaxProgress(this::getNitrogenCapacity)
+                .setColor(0xFFF6FF00));
+        bars.add(bar -> bar.setProgress(this::getNitrogenAmount).setMaxProgress(this::getNitrogenCapacity)
                 .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{MetaTileEntityLargeWirelessEnergyEmitter.NITROGEN_PLASMA.getLocalizedName()})
-                .setFluidStackSupplier(() -> MetaTileEntityLargeWirelessEnergyEmitter.NITROGEN_PLASMA)
-                .build());
+                .setFluidStackSupplier(() -> MetaTileEntityLargeWirelessEnergyEmitter.NITROGEN_PLASMA));
     }
 
     private long getNitrogenAmount() {

@@ -11,6 +11,7 @@ import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 
 import java.util.Queue;
+import java.util.function.UnaryOperator;
 
 @Mixin(value = MetaTileEntityBatteryTower.class, remap = false)
 public abstract class MetaTileEntityBatteryTowerMixin extends GAMultiblockWithDisplayBaseMixin implements IProgressBar {
@@ -51,10 +52,9 @@ public abstract class MetaTileEntityBatteryTowerMixin extends GAMultiblockWithDi
     }
 
     @Override
-    public void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder) {
-        bars.add(barBuilder.setProgress(this::getEnergyStored).setMaxProgress(this::getEnergyCapacity)
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getEnergyStored).setMaxProgress(this::getEnergyCapacity)
                 .setLocale("tj.multiblock.bars.energy")
-                .setColor(0xFFF6FF00)
-                .build());
+                .setColor(0xFFF6FF00));
     }
 }

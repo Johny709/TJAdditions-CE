@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.function.UnaryOperator;
 
 import static gregicadditions.GAMaterials.*;
 import static net.minecraft.util.text.TextFormatting.RED;
@@ -182,11 +183,10 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
     }
 
     @Override
-    public void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder) {
-        bars.add(barBuilder.setProgress(this::getDrillingMudAmount).setMaxProgress(this::getDrillingMudCapacity)
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getDrillingMudAmount).setMaxProgress(this::getDrillingMudCapacity)
                 .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{MetaTileEntityVoidMOreMiner.DRILLING_MUD.getLocalizedName()})
-                .setFluidStackSupplier(() -> MetaTileEntityVoidMOreMiner.DRILLING_MUD)
-                .build());
+                .setFluidStackSupplier(() -> MetaTileEntityVoidMOreMiner.DRILLING_MUD));
     }
 
     private long getDrillingMudAmount() {

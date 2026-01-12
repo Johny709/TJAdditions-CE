@@ -51,6 +51,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.function.UnaryOperator;
 
 import static tj.textures.TJTextures.HEAVY_QUARK_DEGENERATE_MATTER;
 import static gregicadditions.GAMaterials.*;
@@ -207,23 +208,19 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
     }
 
     @Override
-    public void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder) {
-        bars.add(barBuilder.setProgress(this.workableHandler::heat).setMaxProgress(this.workableHandler::maxHeat)
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this.workableHandler::heat).setMaxProgress(this.workableHandler::maxHeat)
                 .setLocale("tj.multiblock.bars.heat")
-                .setBarTexture(TJGuiTextures.BAR_RED)
-                .build());
-        bars.add(barBuilder.setProgress(this::getDrillingMudAmount).setMaxProgress(this::getDrillingMudCapacity)
+                .setBarTexture(TJGuiTextures.BAR_RED));
+        bars.add(bar -> bar.setProgress(this::getDrillingMudAmount).setMaxProgress(this::getDrillingMudCapacity)
                 .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{DRILLING_MUD.getLocalizedName()})
-                .setFluidStackSupplier(() -> DRILLING_MUD)
-                .build());
-        bars.add(barBuilder.setProgress(this::getPyrotheumAmount).setMaxProgress(this::getPyrotheumCapacity)
+                .setFluidStackSupplier(() -> DRILLING_MUD));
+        bars.add(bar -> bar.setProgress(this::getPyrotheumAmount).setMaxProgress(this::getPyrotheumCapacity)
                 .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{PYROTHEUM.getLocalizedName()})
-                .setFluidStackSupplier(() -> PYROTHEUM)
-                .build());
-        bars.add(barBuilder.setProgress(this::getCryotheumAmount).setMaxProgress(this::getCryotheumCapacity)
+                .setFluidStackSupplier(() -> PYROTHEUM));
+        bars.add(bar -> bar.setProgress(this::getCryotheumAmount).setMaxProgress(this::getCryotheumCapacity)
                 .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{CRYOTHEUM.getLocalizedName()})
-                .setFluidStackSupplier(() -> CRYOTHEUM)
-                .build());
+                .setFluidStackSupplier(() -> CRYOTHEUM));
     }
 
     private long getDrillingMudAmount() {

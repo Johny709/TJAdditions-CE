@@ -1,6 +1,7 @@
 package tj.capability;
 
 import java.util.Queue;
+import java.util.function.UnaryOperator;
 
 public interface IProgressBar {
 
@@ -10,5 +11,5 @@ public interface IProgressBar {
      */
     int[][] getBarMatrix();
 
-    void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder);
+    void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars);
 }

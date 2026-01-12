@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
@@ -522,11 +523,10 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     @Override
-    public void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder) {
-        bars.add(barBuilder.setProgress(this::getUUMatterAmount).setMaxProgress(this::getUUMatterCapacity)
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getUUMatterAmount).setMaxProgress(this::getUUMatterCapacity)
                 .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{UUMATTER.getLocalizedName()})
-                .setFluidStackSupplier(() -> UUMATTER)
-                .build());
+                .setFluidStackSupplier(() -> UUMATTER));
     }
 
     private double getUUMatterAmount() {

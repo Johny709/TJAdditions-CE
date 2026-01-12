@@ -73,6 +73,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.GuiTextures.*;
@@ -993,11 +994,10 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     }
 
     @Override
-    public void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder) {
-        bars.add(barBuilder.setProgress(this.workableHandler::getEnergyStored).setMaxProgress(this.workableHandler::getEnergyCapacity)
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this.workableHandler::getEnergyStored).setMaxProgress(this.workableHandler::getEnergyCapacity)
                 .setLocale("tj.multiblock.bars.energy")
-                .setColor(0xFFF6FF00)
-                .build());
+                .setColor(0xFFF6FF00));
     }
 
     @Override

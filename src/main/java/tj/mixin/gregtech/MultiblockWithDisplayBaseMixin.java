@@ -35,6 +35,7 @@ import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
+import java.util.function.UnaryOperator;
 
 import static tj.gui.TJGuiTextures.CAUTION_BUTTON;
 import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
@@ -86,12 +87,12 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
 
     @Unique
     private void addNewBars(int[][] barMatrix, ModularUI.Builder builder) {
-        Queue<ProgressBar> bars = new ArrayDeque<>();
-        ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars, new ProgressBar.ProgressBarBuilder());
+        Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars = new ArrayDeque<>();
+        ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars);
         for (int i = 0; i < barMatrix.length; i++) {
             int[] column = barMatrix[i];
             for (int j = 0; j < column.length; j++) {
-                ProgressBar bar = bars.poll();
+                ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
                 int height = 188 / column.length;
                 builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
                         .setStartTexture(TJGuiTextures.FLUID_BAR_START).setEndTexture(TJGuiTextures.FLUID_BAR_END)

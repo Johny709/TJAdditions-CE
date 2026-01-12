@@ -73,6 +73,7 @@ import tj.util.consumers.QuadConsumer;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 import static gregtech.api.unification.material.Materials.EnderPearl;
@@ -501,11 +502,10 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     @Override
-    public void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder) {
-        bars.add(barBuilder.setProgress(this::getEnderPearlAmount).setMaxProgress(this::getEnderPearlCapacity)
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getEnderPearlAmount).setMaxProgress(this::getEnderPearlCapacity)
                 .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{ENDER_PEARL.getLocalizedName()})
-                .setFluidStackSupplier(() -> ENDER_PEARL)
-                .build());
+                .setFluidStackSupplier(() -> ENDER_PEARL));
     }
 
     private long getEnderPearlAmount() {

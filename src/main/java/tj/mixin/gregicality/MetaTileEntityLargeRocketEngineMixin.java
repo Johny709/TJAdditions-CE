@@ -27,6 +27,7 @@ import javax.annotation.Nonnull;
 
 import java.util.List;
 import java.util.Queue;
+import java.util.function.UnaryOperator;
 
 import static gregicadditions.GAMaterials.LiquidOxygen;
 import static gregtech.api.unification.material.Materials.Air;
@@ -130,24 +131,20 @@ public abstract class MetaTileEntityLargeRocketEngineMixin extends GAFueledMulti
     }
 
     @Override
-    public void getProgressBars(Queue<ProgressBar> bars, ProgressBar.ProgressBarBuilder barBuilder) {
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
         TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
-        bars.add(barBuilder.setProgress(workableHandler::getEnergyStored).setMaxProgress(workableHandler::getEnergyCapacity)
+        bars.add(bar -> bar.setProgress(workableHandler::getEnergyStored).setMaxProgress(workableHandler::getEnergyCapacity)
                 .setLocale("tj.multiblock.bars.energy")
-                .setColor(0xFFF6FF00)
-                .build());
-        bars.add(barBuilder.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
+                .setColor(0xFFF6FF00));
+        bars.add(bar -> bar.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
                 .setLocale("tj.multiblock.bars.fuel").setParams(this::getFuelName)
-                .setFluidStackSupplier(workableHandler::getFuelStack)
-                .build());
-        bars.add(barBuilder.setProgress(this::getAirAmount).setMaxProgress(this::getAirCapacity)
+                .setFluidStackSupplier(workableHandler::getFuelStack));
+        bars.add(bar -> bar.setProgress(this::getAirAmount).setMaxProgress(this::getAirCapacity)
                 .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{this.getAir() != null ? this.getAir().getLocalizedName() : ""})
-                .setFluidStackSupplier(this::getAir)
-                .build());
-        bars.add(barBuilder.setProgress(this::getBoosterAmount).setMaxProgress(this::getBoosterCapacity)
+                .setFluidStackSupplier(this::getAir));
+        bars.add(bar -> bar.setProgress(this::getBoosterAmount).setMaxProgress(this::getBoosterCapacity)
                 .setLocale("tj.multiblock.bars.booster").setParams(() -> new Object[]{this.getBooster() != null ? this.getBooster().getLocalizedName() : ""})
-                .setFluidStackSupplier(this::getBooster)
-                .build());
+                .setFluidStackSupplier(this::getBooster));
     }
 
     @Unique
