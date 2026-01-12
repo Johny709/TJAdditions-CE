@@ -14,6 +14,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
 import tj.capability.impl.XLTurbineWorkableHandler;
 import tj.builder.multicontrollers.TJRotorHolderMultiblockControllerBase;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
@@ -51,17 +53,19 @@ import net.minecraftforge.fluids.IFluidTank;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
 import tj.items.handlers.FilteredItemStackHandler;
+import tj.util.TJFluidUtils;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.UnaryOperator;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 
-public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBase {
+public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBase implements IProgressBar {
 
     public final MetaTileEntityLargeTurbine.TurbineType turbineType;
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH, GregicAdditionsCapabilities.STEAM};
@@ -401,6 +405,26 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
             this.structurePattern = this.createStructurePattern();
             this.scheduleRenderUpdate();
         }
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[1][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
+                .setLocale("tj.multiblock.bars.fuel").setParams(() -> new Object[]{this.xlTurbineWorkableHandler.getFuelName()})
+                .setFluidStackSupplier(this.xlTurbineWorkableHandler::getFuelStack));
+    }
+
+    private long getFuelAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(this.xlTurbineWorkableHandler.getFuelStack(), this.getImportFluidHandler());
+    }
+
+    private long getFuelCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(this.xlTurbineWorkableHandler.getFuelStack(), this.getImportFluidHandler());
     }
 
     @SideOnly(Side.CLIENT)

@@ -62,6 +62,7 @@ import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
 import tj.items.handlers.FilteredItemStackHandler;
+import tj.util.TJFluidUtils;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
@@ -76,7 +77,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
-public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantTurbine implements IMaintenance {
+public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantTurbine implements IMaintenance, IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     public static final int BASE_PARALLEL = 12;
@@ -569,6 +570,26 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     public void storeTaped(boolean isTaped) {
         this.storedTaped = isTaped;
         this.writeCustomData(STORE_TAPED, buf -> buf.writeBoolean(isTaped));
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[1][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
+                .setLocale("tj.multiblock.bars.fuel").setParams(() -> new Object[]{this.xlHotCoolantTurbineWorkableHandler.getFuelName()})
+                .setFluidStackSupplier(this.xlHotCoolantTurbineWorkableHandler::getFuelStack));
+    }
+
+    private long getFuelAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(this.xlHotCoolantTurbineWorkableHandler.getFuelStack(), this.getImportFluidHandler());
+    }
+
+    private long getFuelCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(this.xlHotCoolantTurbineWorkableHandler.getFuelStack(), this.getImportFluidHandler());
     }
 
     private IEnergyContainer getEnergyContainer() {

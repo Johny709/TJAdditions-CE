@@ -52,14 +52,18 @@ import net.minecraftforge.fluids.IFluidTank;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IGeneratorInfo;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.AbstractWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.util.TJFluidUtils;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.DoubleSupplier;
+import java.util.function.UnaryOperator;
 
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
@@ -67,7 +71,7 @@ import static gregtech.api.unification.material.Materials.DistilledWater;
 import static net.minecraft.util.text.TextFormatting.AQUA;
 import static net.minecraft.util.text.TextFormatting.RED;
 
-public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase {
+public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase implements IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
             GregicAdditionsCapabilities.STEAM, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
@@ -221,6 +225,26 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive());
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[1][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
+                .setLocale("tj.multiblock.bars.fuel").setParams(() -> new Object[]{this.workableHandler.getFuelName()})
+                .setFluidStackSupplier(this.workableHandler::getFuelStack));
+    }
+
+    private long getFuelAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(this.workableHandler.getFuelStack(), this.getImportFluidHandler());
+    }
+
+    private long getFuelCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(this.workableHandler.getFuelStack(), this.getImportFluidHandler());
     }
 
     private IMultipleTankHandler getImportFluidHandler() {
