@@ -10,6 +10,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiUtilRenderComponents;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -389,7 +390,8 @@ public class AdvancedDisplayWidget extends Widget {
                         }
                         return new TextComponentString("")
                                 .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
-                                        .appendSibling(hoverComponent))));
+                                        .appendSibling(hoverComponent)
+                                        .appendText("\n" + I18n.format("tj.machine.universal.item_amount", itemStack.getCount())))));
                     } else {
                         FluidStack fluidStack = (FluidStack) component.getValue();
                         // Add chemical formula tooltip
@@ -397,7 +399,8 @@ public class AdvancedDisplayWidget extends Widget {
                         formula = formula == null || formula.isEmpty() ? "" : "\n" + formula;
                         return new TextComponentString("")
                                 .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(fluidStack.getLocalizedName())
-                                        .appendText(ChatFormatting.GRAY + formula))));
+                                        .appendText(ChatFormatting.GRAY + formula)
+                                        .appendText("\n" + I18n.format("tj.machine.universal.fluid_amount", fluidStack.amount)))));
                     }
                 }
             }

@@ -47,7 +47,10 @@ import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IHeatInfo;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
 import tj.capability.TJCapabilities;
+import tj.gui.TJGuiTextures;
 import tj.multiblockpart.TJMultiblockAbility;
 import tj.util.Color;
 import tj.util.TooltipHelper;
@@ -55,13 +58,14 @@ import tj.util.TooltipHelper;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
 import static gregtech.api.unification.material.Materials.*;
 
-public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase implements IWorkable, IHeatInfo {
+public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase implements IWorkable, IHeatInfo, IProgressBar {
 
     private static final FluidStack WATER = Water.getFluid(1);
     private static final FluidStack DISTILLED_WATER = DistilledWater.getFluid(1);
@@ -354,6 +358,18 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
         if (capability == TJCapabilities.CAPABILITY_HEAT)
             return TJCapabilities.CAPABILITY_HEAT.cast(this);
         return super.getCapability(capability, side);
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[1][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::heat).setMaxProgress(this::maxHeat)
+                .setBarTexture(TJGuiTextures.BAR_RED)
+                .setLocale("tj.multiblock.bars.heat"));
     }
 
     public boolean hasEnoughWater(FluidStack fluid, int amount) {
