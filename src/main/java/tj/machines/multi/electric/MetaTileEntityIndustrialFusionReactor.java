@@ -61,7 +61,10 @@ import tj.builder.handlers.IFusionProvider;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IHeatInfo;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
 import tj.capability.TJCapabilities;
+import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJCycleButtonWidget;
 import tj.machines.multi.BatchMode;
 import tj.textures.TJTextures;
@@ -73,6 +76,7 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
@@ -80,7 +84,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.gui.TJGuiTextures.*;
 
-public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockControllerBase implements IHeatInfo, IFusionProvider {
+public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockControllerBase implements IHeatInfo, IFusionProvider, IProgressBar {
 
     private int parallelLayer;
     private long energyToStart;
@@ -345,6 +349,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     @Override
     protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         builder.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer)));
         if (!this.isStructureFormed()) return;
         builder.voltageInLine(this.energyContainer)
@@ -352,14 +357,11 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 .customLine(text -> {
                     text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.heat", this.heat)));
                     if (this.recipe != null) {
-                        long energyToStart = recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * this.parallelLayer;
+                        long energyToStart = this.recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * this.parallelLayer;
                         text.addTextComponent(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart))
-                                .setStyle(new Style().setColor(heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
+                                .setStyle(new Style().setColor(this.heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
                     }
-                    if (this.recipeMapWorkable.isHasNotEnoughEnergy()) {
-                        text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.not_enough_energy").setStyle(new Style().setColor(TextFormatting.RED)));
-                    }
-                }).isWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress());
+                });
     }
 
     @Override
@@ -445,6 +447,25 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing side) {
+        if (capability == TJCapabilities.CAPABILITY_HEAT)
+            return TJCapabilities.CAPABILITY_HEAT.cast(this);
+        return super.getCapability(capability, side);
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[1][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::heat).setMaxProgress(this::maxHeat)
+                .setLocale("tj.multiblock.bars.heat")
+                .setBarTexture(BAR_RED));
+    }
+
+    @Override
     public int getParallels() {
         return this.parallelLayer;
     }
@@ -470,13 +491,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         long heatCapacity = heat * this.getParallels();
         this.recipe = recipe;
         this.maxHeat = Math.min(energyCapacity, heatCapacity);
-    }
-
-    @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing side) {
-        if (capability == TJCapabilities.CAPABILITY_HEAT)
-            return TJCapabilities.CAPABILITY_HEAT.cast(this);
-        return super.getCapability(capability, side);
     }
 
     private static class IndustrialFusionRecipeLogic extends LargeSimpleRecipeMapMultiblockController.LargeSimpleMultiblockRecipeLogic {

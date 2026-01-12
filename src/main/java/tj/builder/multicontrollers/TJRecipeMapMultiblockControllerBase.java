@@ -151,9 +151,7 @@ public abstract class TJRecipeMapMultiblockControllerBase extends RecipeMapMulti
             builder.customLine(text -> text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
                     .setStyle(new Style().setColor(TextFormatting.RED)
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
-            return;
-        }
-        builder.voltageInLine(this.energyContainer)
+        } else builder.voltageInLine(this.energyContainer)
                 .customLine(text -> {
                     if (this.recipeMapWorkable.isHasNotEnoughEnergy()) {
                         text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.not_enough_energy").setStyle(new Style().setColor(TextFormatting.RED)));

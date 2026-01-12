@@ -1,6 +1,7 @@
 package tj.mixin.gregtech;
 
 import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.MultiblockRecipeLogic;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
@@ -11,6 +12,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import tj.builder.multicontrollers.UIDisplayBuilder;
@@ -28,7 +30,20 @@ public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithD
     @Shadow
     protected MultiblockRecipeLogic recipeMapWorkable;
 
-    @Shadow public abstract IEnergyContainer getEnergyContainer();
+    @Shadow
+    public abstract IEnergyContainer getEnergyContainer();
+
+    @Shadow
+    protected IItemHandlerModifiable inputInventory;
+
+    @Shadow
+    protected IMultipleTankHandler inputFluidInventory;
+
+    @Shadow
+    protected IItemHandlerModifiable outputInventory;
+
+    @Shadow
+    protected IMultipleTankHandler outputFluidInventory;
 
     public RecipeMapMultiblockControllerMixin(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
