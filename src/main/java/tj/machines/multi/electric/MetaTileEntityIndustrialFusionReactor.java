@@ -352,8 +352,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         super.addDisplayText(builder);
         builder.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer)));
         if (!this.isStructureFormed()) return;
-        builder.voltageInLine(this.energyContainer)
-                .energyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
+        builder.energyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
                 .customLine(text -> {
                     text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.heat", this.heat)));
                     if (this.recipe != null) {

@@ -152,10 +152,8 @@ public abstract class TJRecipeMapMultiblockControllerBase extends RecipeMapMulti
                     .setStyle(new Style().setColor(TextFormatting.RED)
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
         } else builder.voltageInLine(this.energyContainer)
+                .energyInputLine(this.energyContainer, this.recipeMapWorkable.getRecipeEUt())
                 .customLine(text -> {
-                    if (this.recipeMapWorkable.isHasNotEnoughEnergy()) {
-                        text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.not_enough_energy").setStyle(new Style().setColor(TextFormatting.RED)));
-                    }
                     if (ConfigHolder.debug_options_for_caching) {
                         text.addTextComponent(new TextComponentString(String.format("Cache size (%s) hit (%s) miss (%s)", this.recipeMapWorkable.previousRecipe.getCachedRecipeCount(), this.recipeMapWorkable.previousRecipe.getCacheHit(), this.recipeMapWorkable.previousRecipe.getCacheMiss()))
                                 .setStyle(new Style().setColor(TextFormatting.WHITE)));
