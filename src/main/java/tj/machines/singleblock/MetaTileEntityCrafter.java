@@ -34,7 +34,9 @@ import org.apache.commons.lang3.tuple.Triple;
 import tj.builder.handlers.CrafterRecipeLogic;
 import tj.builder.handlers.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
+import tj.gui.TJGuiTextures;
 import tj.gui.widgets.SlotScrollableWidgetGroup;
+import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.CraftingRecipeTransferWidget;
 import tj.gui.widgets.impl.SlotDisplayWidget;
 import tj.textures.TJTextures;
@@ -136,7 +138,6 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
         }
         return ModularUI.builder(BACKGROUND, 176, 216)
                 .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 55, 111, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
-                .widget(new LabelWidget(7, 5, this.getMetaFullName()))
                 .widget(new ImageWidget(72, 28, 26, 26, SLOT))
                 .widget(new ImageWidget(109, 14, 54, 54, DARKENED_SLOT))
                 .widget(new SlotDisplayWidget(this.resultInventory, 0, 76, 32)
@@ -161,6 +162,8 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                 .widget(craftingSlotGroup)
                 .widget(inventorySlotGroup)
                 .widget(scrollableWidgetGroup)
+                .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL)
+                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .bindPlayerInventory(player.inventory, 134)
                 .build(this.getHolder(), player);
     }

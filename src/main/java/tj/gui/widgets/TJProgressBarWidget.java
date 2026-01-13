@@ -3,8 +3,10 @@ package tj.gui.widgets;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.resources.TextureArea;
+import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
+import gregtech.api.util.PositionedRect;
 import gregtech.api.util.Size;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -26,6 +28,11 @@ import java.util.function.Supplier;
 
 public class TJProgressBarWidget extends Widget {
 
+    private final DoubleSupplier progressSupplier;
+    private final DoubleSupplier maxProgressSupplier;
+    private final boolean isFluid;
+    private final ProgressWidget.MoveType moveType;
+
     private double progress;
     private double maxProgress;
     private int color;
@@ -39,19 +46,20 @@ public class TJProgressBarWidget extends Widget {
     private Object[] params;
     private FluidStack fluid;
 
-    private final DoubleSupplier progressSupplier;
-    private final DoubleSupplier maxProgressSupplier;
-    private final boolean isFluid;
-
-    public TJProgressBarWidget(int x, int y, int width, int height, DoubleSupplier progressSupplier, DoubleSupplier maxProgressSupplier) {
-        this(x, y, width, height, progressSupplier, maxProgressSupplier, false);
+    public TJProgressBarWidget(int x, int y, int width, int height, DoubleSupplier progressSupplier, DoubleSupplier maxProgressSupplier, ProgressWidget.MoveType moveType) {
+        this(x, y, width, height, progressSupplier, maxProgressSupplier, false, moveType);
     }
 
     public TJProgressBarWidget(int x, int y, int width, int height, DoubleSupplier progressSupplier, DoubleSupplier maxProgressSupplier, boolean isFluid) {
+        this(x, y, width, height, progressSupplier, maxProgressSupplier, false, ProgressWidget.MoveType.HORIZONTAL);
+    }
+
+    public TJProgressBarWidget(int x, int y, int width, int height, DoubleSupplier progressSupplier, DoubleSupplier maxProgressSupplier, boolean isFluid, ProgressWidget.MoveType moveType) {
         super(new Position(x, y), new Size(width, height));
         this.progressSupplier = progressSupplier;
         this.maxProgressSupplier = maxProgressSupplier;
         this.isFluid = isFluid;
+        this.moveType = moveType;
     }
 
     public TJProgressBarWidget setFluid(Supplier<FluidStack> fluidStackSupplier) {
@@ -108,20 +116,28 @@ public class TJProgressBarWidget extends Widget {
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         Size size = this.getSize();
         Position pos = this.getPosition();
-        int width = (int) ((size.getWidth() - 2) * (this.progress / this.maxProgress));
-        this.backgroundTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
+        int width = this.moveType == ProgressWidget.MoveType.HORIZONTAL ? (int) ((size.getWidth() - 2) * (this.progress / this.maxProgress)) : size.getWidth() - 2;
+        int height = this.moveType == ProgressWidget.MoveType.VERTICAL ? (int) ((size.getHeight() - 2) * (this.progress / this.maxProgress)) : size.getHeight() - 2;
+        if (this.moveType == ProgressWidget.MoveType.HORIZONTAL)
+            this.backgroundTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
+        else this.backgroundTexture.drawRotated(pos.getX(), pos.getY(), size, new PositionedRect(pos.getX(), pos.getY(), size.getHeight(), size.getWidth()), 1);
         if (!this.isFluid) {
             if (this.barTexture != null)
-                this.barTexture.draw(pos.getX() + 1, pos.getY() + 1, width, 8);
-            else Widget.drawSolidRect(pos.getX() + 1, pos.getY() + 1, width, 8, this.color);
+                this.barTexture.draw(pos.getX() + 1, pos.getY() + 1, width, height);
+            else Widget.drawSolidRect(pos.getX() + 1, pos.getY() + 1, width, height, this.color);
         } else if (this.fluid != null) {
             GlStateManager.disableBlend();
             TJGuiUtils.drawFluidForGui(this.fluid, (long) this.progress, (long) this.maxProgress, pos.getX() + 1, pos.getY() + 1, size.getWidth(), 8);
             GlStateManager.enableBlend();
             GlStateManager.color(1.0f, 1.0f, 1.0f);
         }
-        this.startTexture.draw(pos.getX(), pos.getY(), (int) this.startTexture.imageWidth, size.getHeight());
-        this.endTexture.draw(pos.getX() + size.getWidth() - 1, pos.getY(), (int) this.endTexture.imageWidth, size.getHeight());
+        if (this.moveType == ProgressWidget.MoveType.HORIZONTAL) {
+            this.startTexture.draw(pos.getX(), pos.getY(), (int) this.startTexture.imageWidth, size.getHeight());
+            this.endTexture.draw(pos.getX() + size.getWidth() - 1, pos.getY(), (int) this.endTexture.imageWidth, size.getHeight());
+        } else {
+            this.startTexture.drawRotated(pos.getX(), pos.getY(), new Size((int) this.startTexture.imageWidth, size.getHeight()), new PositionedRect(pos.getX(), pos.getY(), size.getHeight(), (int) this.startTexture.imageWidth), 1);
+            this.endTexture.drawRotated(pos.getX(), pos.getY() + size.getHeight() - 1, new Size((int) this.endTexture.imageWidth, size.getHeight()), new PositionedRect(pos.getX(), pos.getY(), size.getHeight(), (int) this.endTexture.imageWidth), 1);
+        }
     }
 
     @Override

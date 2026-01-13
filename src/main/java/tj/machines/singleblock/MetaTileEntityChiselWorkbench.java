@@ -14,6 +14,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.handlers.ChiselWorkbenchWorkableHandler;
+import tj.gui.TJGuiTextures;
+import tj.gui.widgets.TJLabelWidget;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -70,7 +72,6 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
                         .setBackgroundTexture(SLOT, MOLD_OVERLAY))
                 .widget(new SlotWidget(this.exportItems, 0, 105, 22, true, false)
                         .setBackgroundTexture(SLOT))
-                .widget(new LabelWidget(7, 5, getMetaFullName()))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new ToggleButtonWidget(151, 62, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
@@ -80,6 +81,8 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
                 .widget(new ToggleButtonWidget(25, 62, 18, 18, BUTTON_FLUID_OUTPUT, this::isAutoOutputFluids, this::setFluidAutoOutput))
                 .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
+                .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL)
+                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .bindPlayerInventory(player.inventory)
                 .build(this.getHolder(), player);
     }

@@ -5,6 +5,8 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import tj.TJValues;
 import tj.capability.LinkEvent;
+import tj.gui.TJGuiTextures;
+import tj.gui.widgets.TJLabelWidget;
 import tj.machines.multi.electric.MetaTileEntityLargeWorldAccelerator;
 import tj.textures.TJTextures;
 import gregicadditions.GAUtility;
@@ -117,7 +119,8 @@ public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity impleme
                 "cover.machine_controller.normal", "cover.machine_controller.inverted"));
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
                 .widget(widgetGroup)
-                .label(10, 5, "tj.machine.accelerator_anchor_point.name")
+                .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL)
+                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
                 .build(getHolder(), player);
     }

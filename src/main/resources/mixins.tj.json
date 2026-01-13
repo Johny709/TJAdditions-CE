@@ -45,7 +45,10 @@
     "gregtech.MultiblockWithDisplayBaseMixin",
     "gregtech.RecipeMapMultiblockControllerMixin",
     "gregtech.RotorHolderMultiblockControllerMixin",
-    "gregtech.TransformerInfoProviderMixin"
+    "gregtech.SimpleMachineMetaTileEntityMixin",
+    "gregtech.TieredMetaTileEntityMixin",
+    "gregtech.TransformerInfoProviderMixin",
+    "gregtech.WorkableTieredMetaTileEntityMixin"
   ],
   "server": [],
   "client": [

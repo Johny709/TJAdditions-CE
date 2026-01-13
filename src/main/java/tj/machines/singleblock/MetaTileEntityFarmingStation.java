@@ -33,7 +33,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.handlers.FarmingStationWorkableHandler;
+import tj.gui.TJGuiTextures;
 import tj.gui.widgets.SlotScrollableWidgetGroup;
+import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.handlers.LargeItemStackHandler;
@@ -63,23 +65,15 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                     case 0: return stack.getItem() instanceof ItemHoe || (stack.getItem() instanceof ToolMetaItem<?> && ((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolHoe);
                     case 1: return stack.getItem().getToolClasses(stack).contains("axe") || (stack.getItem() instanceof ToolMetaItem<?> && (((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolAxe || ((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolSaw));
                     case 2: return stack.getItem() instanceof ItemShears;
+                    default: return false;
                 }
-                return false;
             });
     private final IFluidTank waterTank = new FilteredFluidHandler(this.getTier() >= GTValues.ZPM ? 256000 : this.getTier() >= GTValues.EV ? 128000 : 64000).setFillPredicate(ModHandler::isWater);
 
     public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         int range = (9 + (2 * tier)) * (9 + (2 * tier));
-        this.workableHandler.setImportItemsSupplier(this::getImportItems)
-                .setExportItemsSupplier(this::getExportItems)
-                .setImportFluidsSupplier(this::getImportFluids)
-                .setToolInventory(this::getToolInventory)
-                .setFertilizerInventory(this::getFertilizerInventory)
-                .setImportEnergySupplier(this::getEnergyContainer)
-                .setMaxVoltageSupplier(this::getMaxVoltage)
-                .setTierSupplier(this::getTier)
-                .initialize(range);
+        this.workableHandler.initialize(range);
         this.initializeInventory();
     }
 
@@ -159,7 +153,8 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
                 .widget(widgetGroup)
                 .widget(scrollableWidgetGroup)
-                .label(7, 5, this.getMetaFullName())
+                .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL)
+                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .bindPlayerInventory(player.inventory, 100)
                 .build(this.getHolder(), player);
     }
