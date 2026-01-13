@@ -30,7 +30,10 @@ import java.util.Queue;
 import java.util.function.UnaryOperator;
 
 @Mixin(value = MetaTileEntityHyperReactorII.class, remap = false)
-public abstract class MetaTileEntityHyperReactorIIMixin extends GAFueledMultiblockControllerMixin implements IMetaTileEntityHyperReactorIIMixin, IProgressBar {
+public abstract class MetaTileEntityHyperReactorIIMixin extends GAFueledMultiblockControllerMixin implements IProgressBar {
+
+    @Shadow
+    private FluidStack booster;
 
     public MetaTileEntityHyperReactorIIMixin(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -58,7 +61,7 @@ public abstract class MetaTileEntityHyperReactorIIMixin extends GAFueledMultiblo
             }
             TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
             FluidStack fuelStack = workableHandler.getFuelStack();
-            FluidStack booster = importFluidHandler.drain(this.getBoosterFluid(), false);
+            FluidStack booster = importFluidHandler.drain(this.booster, false);
             FluidStack fuelConsumed = fuelStack == null ? null : fuelStack.copy();
             if (fuelConsumed != null)
                 fuelConsumed.amount = (int) workableHandler.getConsumption();
@@ -89,7 +92,7 @@ public abstract class MetaTileEntityHyperReactorIIMixin extends GAFueledMultiblo
         super.configureDisplayText(builder);
         TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
         FluidStack fuelStack = workableHandler.getFuelStack();
-        FluidStack booster = this.importFluidHandler.drain(this.getBoosterFluid(), false);
+        FluidStack booster = this.importFluidHandler.drain(this.booster, false);
         FluidStack fuelConsumed = fuelStack == null ? null : fuelStack.copy();
         if (fuelConsumed != null)
             fuelConsumed.amount = (int) workableHandler.getConsumption();
@@ -150,12 +153,12 @@ public abstract class MetaTileEntityHyperReactorIIMixin extends GAFueledMultiblo
 
     @Unique
     private long getBoosterAmount() {
-        return TJFluidUtils.getFluidAmountFromTanks(this.getBoosterFluid(), this.getImportFluidHandler());
+        return TJFluidUtils.getFluidAmountFromTanks(this.booster, this.getImportFluidHandler());
     }
 
     @Unique
     private long getBoosterCapacity() {
-        return TJFluidUtils.getFluidCapacityFromTanks(this.getBoosterFluid(), this.getImportFluidHandler());
+        return TJFluidUtils.getFluidCapacityFromTanks(this.booster, this.getImportFluidHandler());
     }
 
     @Unique

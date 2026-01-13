@@ -13,7 +13,6 @@ import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -51,9 +50,11 @@ import tj.capability.IParallelController;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.ParallelMultiblockRecipeLogic;
 import tj.gui.TJGuiTextures;
+import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.impl.GhostCircuitWidget;
 import tj.gui.widgets.impl.JEIRecipeTransferWidget;
 import tj.gui.widgets.TJCycleButtonWidget;
+import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.machines.multi.BatchMode;
 import tj.multiblockpart.TJMultiblockAbility;
 import tj.multiblockpart.utility.MetaTileEntityMachineController;
@@ -64,6 +65,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.LongStream;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
 import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
@@ -157,10 +159,9 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     @Override
     public long getTotalEnergyConsumption() {
-        long amount = 0;
-        for (int i = 0; i < this.recipeMapWorkable.getSize(); i++)
-            amount += this.recipeMapWorkable.getRecipe(i).getEUt();
-        return amount;
+        return LongStream.range(0, this.recipeMapWorkable.getSize())
+                .map(i -> this.recipeMapWorkable.getRecipeEUt((int) i))
+                .sum();
     }
 
     @Override
@@ -291,9 +292,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     .setTooltipText("machine.universal.toggle.item_voiding"));
             workableTab.add(new ToggleButtonWidget(175, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeMapWorkable::isVoidingFluids, this.recipeMapWorkable::setVoidFluids)
                     .setTooltipText("machine.universal.toggle.fluid_voiding"));
-            workableTab.add(new AdvancedTextWidget(10, -2, this::addWorkableDisplayText, 0xFFFFFF)
-                    .setMaxWidthLimit(180)
-                    .setClickHandler(this::handleWorkableDisplayClick));
+            workableTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
+                    .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addWorkableDisplayText, 0xFFFFFF)
+                            .setClickHandler(this::handleWorkableDisplayClick)
+                            .setMaxWidthLimit(180))
+                    .setScrollPanelWidth(3));
         });
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
             debugTab.add(new ToggleButtonWidget(175, 133, 18, 18, RESET_BUTTON, () -> false, this::resetRecipeCache)
@@ -302,8 +305,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     .setTooltipText("machine.universal.toggle.item_voiding"));
             debugTab.add(new ToggleButtonWidget(175, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeMapWorkable::isVoidingFluids, this.recipeMapWorkable::setVoidFluids)
                     .setTooltipText("machine.universal.toggle.fluid_voiding"));
-            debugTab.add(new AdvancedTextWidget(10, -2, this::addDebugDisplayText, 0xFFFFFF)
-                    .setMaxWidthLimit(180));
+            debugTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
+                    .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addDebugDisplayText, 0xFFFFFF)
+                            .setMaxWidthLimit(180))
+                    .setScrollPanelWidth(3));
         });
     }
 
@@ -337,7 +342,6 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     .energyInputLine(this.energyContainer, this.getTotalEnergyConsumption())
                     .energyBonusLine(this.energyBonus, this.isStructureFormed() && this.energyBonus >= 0)
                     .recipeMapLine(this.getMultiblockRecipe());
-
     }
 
     @Override
@@ -404,68 +408,67 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                 .appendSibling(this.displayFluids(recipe.getFluidOutputs(), "tj.multiblock.parallel.advanced.fluidOutput", parallel));
     }
 
-    private void addWorkableDisplayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer)));
-        textList.add(new TextComponentTranslation("tj.multiblock.parallel.distinct")
-                .appendText(" ")
-                .appendSibling(this.recipeMapWorkable.isDistinct() ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "isDistinct")
-                        : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "notDistinct")));
-        textList.add(new TextComponentTranslation("tj.multiblock.parallel.advanced")
-                .appendText(" ")
-                .appendSibling(this.advancedText ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "advanced")
-                        : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "basic")));
-        textList.add(new TextComponentString(":")
-                .appendText(" ")
-                .appendSibling(withButton(new TextComponentString("[<]"), "leftPage"))
-                .appendText(" ")
-                .appendSibling(withButton(new TextComponentString("[>]"), "rightPage")));
-        if (this.isStructureFormed()) {
-            for (int i = this.pageIndex, recipeHandlerInstance = i + 1; i < this.pageIndex + this.pageSize; i++, recipeHandlerInstance++) {
-                if (i < this.parallelLayer) {
+    private void addWorkableDisplayText(UIDisplayBuilder builder) {
+        builder.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer)))
+                .addTextComponent(new TextComponentTranslation("tj.multiblock.parallel.distinct")
+                        .appendText(" ")
+                        .appendSibling(this.recipeMapWorkable.isDistinct() ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "isDistinct")
+                                : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "notDistinct")))
+                .addTextComponent(new TextComponentTranslation("tj.multiblock.parallel.advanced")
+                        .appendText(" ")
+                        .appendSibling(this.advancedText ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "advanced")
+                                : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "basic")))
+                .addTextComponent(new TextComponentString(":")
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentString("[<]"), "leftPage"))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentString("[>]"), "rightPage")));
+        if (!this.isStructureFormed()) return;
+        for (int i = this.pageIndex, recipeHandlerInstance = i + 1; i < this.pageIndex + this.pageSize; i++, recipeHandlerInstance++) {
+            if (i < this.parallelLayer) {
 
-                    int parallel = this.recipeMapWorkable.getParallel(i);
-                    double progressPercent = this.recipeMapWorkable.getProgressPercent(i) * 100;
-                    ITextComponent advancedTooltip = this.advancedText ? new TextComponentTranslation("tj.multiblock.parallel.advanced.on")
-                            : new TextComponentTranslation("tj.multiblock.parallel.advanced.off").setStyle(new Style().setColor(TextFormatting.GRAY));
-                    if (this.advancedText) {
-                        Recipe recipe = this.recipeMapWorkable.getRecipe(i);
-                        if (recipe != null) {
-                            this.displayRecipe(advancedTooltip, recipe, parallel);
-                        }
+                int parallel = this.recipeMapWorkable.getParallel(i);
+                double progressPercent = this.recipeMapWorkable.getProgressPercent(i) * 100;
+                ITextComponent advancedTooltip = this.advancedText ? new TextComponentTranslation("tj.multiblock.parallel.advanced.on")
+                        : new TextComponentTranslation("tj.multiblock.parallel.advanced.off").setStyle(new Style().setColor(TextFormatting.GRAY));
+                if (this.advancedText) {
+                    Recipe recipe = this.recipeMapWorkable.getRecipe(i);
+                    if (recipe != null) {
+                        this.displayRecipe(advancedTooltip, recipe, parallel);
                     }
-                    String isRunning = !this.recipeMapWorkable.isWorkingEnabled(i) ? I18n.translateToLocal("machine.universal.work_paused")
-                            : this.recipeMapWorkable.hasProblems(i) ? I18n.translateToLocal("machine.universal.has_problems")
-                            : !this.recipeMapWorkable.isInstanceActive(i) ? I18n.translateToLocal("machine.universal.idling")
-                            : I18n.translateToLocal("machine.universal.running");
-
-                    textList.add(new TextComponentString(": [§a" + recipeHandlerInstance + "§r] " + isRunning)
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.status", isRunning))
-                                    .appendText("\n")
-                                    .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.handler", recipeHandlerInstance)))
-                                    .appendText("\n")
-                                    .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.eu", this.recipeMapWorkable.getRecipeEUt(i))))
-                                    .appendText("\n")
-                                    .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) this.recipeMapWorkable.getProgress(i) / 20), TJValues.thousandTwoPlaceFormat.format((double) this.recipeMapWorkable.getMaxProgress(i) / 20), (int) progressPercent)))
-                                    .appendText("\n")
-                                    .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel", parallel)))
-                                    .appendText("\n\n")
-                                    .appendSibling(advancedTooltip))))
-                            .appendText(" ")
-                            .appendSibling(this.recipeMapWorkable.getLockingMode(i) ? withButton(new TextComponentTranslation("tj.multiblock.parallel.lock"), "lock:" + i)
-                                    : withButton(new TextComponentTranslation("tj.multiblock.parallel.unlock"), "unlock:" + i))
-                            .appendText(" ")
-                            .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i)));
                 }
+                String isRunning = !this.recipeMapWorkable.isWorkingEnabled(i) ? I18n.translateToLocal("machine.universal.work_paused")
+                        : this.recipeMapWorkable.hasProblems(i) ? I18n.translateToLocal("machine.universal.has_problems")
+                        : !this.recipeMapWorkable.isInstanceActive(i) ? I18n.translateToLocal("machine.universal.idling")
+                        : I18n.translateToLocal("machine.universal.running");
+
+                builder.addTextComponent(new TextComponentString(": [§a" + recipeHandlerInstance + "§r] " + isRunning)
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.status", isRunning))
+                                .appendText("\n")
+                                .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.handler", recipeHandlerInstance)))
+                                .appendText("\n")
+                                .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.eu", this.recipeMapWorkable.getRecipeEUt(i))))
+                                .appendText("\n")
+                                .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) this.recipeMapWorkable.getProgress(i) / 20), TJValues.thousandTwoPlaceFormat.format((double) this.recipeMapWorkable.getMaxProgress(i) / 20), (int) progressPercent)))
+                                .appendText("\n")
+                                .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel", parallel)))
+                                .appendText("\n\n")
+                                .appendSibling(advancedTooltip))))
+                        .appendText(" ")
+                        .appendSibling(this.recipeMapWorkable.getLockingMode(i) ? withButton(new TextComponentTranslation("tj.multiblock.parallel.lock"), "lock:" + i)
+                                : withButton(new TextComponentTranslation("tj.multiblock.parallel.unlock"), "unlock:" + i))
+                        .appendText(" ")
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i)));
             }
         }
     }
 
-    private void addDebugDisplayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.capacity", this.recipeMapWorkable.previousRecipe.getCapacity())));
-        textList.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.hit", this.recipeMapWorkable.previousRecipe.getCacheHit()))
-                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))));
-        textList.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.miss", this.recipeMapWorkable.previousRecipe.getCacheMiss()))
-                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))));
+    private void addDebugDisplayText(UIDisplayBuilder builder) {
+        builder.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.capacity", this.recipeMapWorkable.previousRecipe.getCapacity())))
+                .addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.hit", this.recipeMapWorkable.previousRecipe.getCacheHit()))
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))))
+                .addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.miss", this.recipeMapWorkable.previousRecipe.getCacheMiss()))
+                    .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))));
     }
 
     private void handleWorkableDisplayClick(String componentData, Widget.ClickData clickData) {
