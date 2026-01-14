@@ -244,13 +244,13 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected void updateRecipeProgress(int i) {
-        if ((this.recipeEUt[i] < 0) || this.drawEnergy(this.recipeEUt[i])) {
+        if (this.recipeEUt[i] < 1 || this.drawEnergy(this.recipeEUt[i])) {
             //as recipe starts with progress on 1 this has to be > only not => to compensate for it
             if (++this.progressTime[i] > this.maxProgressTime[i]) {
                 if (!this.completeRecipe(i)) {
                     this.progressTime[i] = 1;
                     this.setMaxProgress(TJConfig.machines.recipeCooldown, i);
-                    this.recipeEUt[i] = -1;
+                    this.recipeEUt[i] = 0;
                     this.hasProblems[i] = true;
                 } else this.hasProblems[i] = false;
             }
