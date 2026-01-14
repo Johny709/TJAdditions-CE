@@ -720,8 +720,8 @@ item.unbreakable_hoe.name=Unbreakable Hoe
 item.unbreakable_axe.name=Unbreakable Axe
 item.unbreakable_shears.name=Unbreakable Shears
 
-tj.machine.universal.item_amount=§7Item Amount: §6%,d
-tj.machine.universal.fluid_amount=§7Fluid Amount: §3%,d L
+tj.machine.universal.item_amount=§7Amount: §6%,d
+tj.machine.universal.fluid_amount=§7Amount: §3%,d L
 
 machine.universal.tooltip.voltage_tier=Voltage Tier:
 machine.universal.toggle.run.mode.disabled=OFF
