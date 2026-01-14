@@ -124,7 +124,6 @@ public abstract class TJMultiRecipeMapMultiblockControllerBase extends MultiReci
                 ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
                 int height = 188 / column.length;
                 builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
-                        .setStartTexture(TJGuiTextures.FLUID_BAR_START).setEndTexture(TJGuiTextures.FLUID_BAR_END)
                         .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
                         .setLocale(bar.getLocale(), bar.getParams())
                         .setFluid(bar.getFluidStackSupplier()));

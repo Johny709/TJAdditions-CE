@@ -1,6 +1,5 @@
 package tj.mixin.gregtech;
 
-import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.api.metatileentity.SimpleMachineMetaTileEntity;
@@ -30,9 +29,8 @@ public abstract class SimpleMachineMetaTileEntityMixin extends WorkableTieredMet
         builder.image(7, 5, 162, 18, TJGuiTextures.UI_COVER)
                 .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
-                .image(7, 4, 18, 60, GuiTextures.SLOT)
-                .widget(new TJProgressBarWidget(8, 5, 16, 58, () -> this.energyContainer.getEnergyStored(), () -> this.energyContainer.getEnergyCapacity(), ProgressWidget.MoveType.VERTICAL)
-                        .setStartTexture(TJGuiTextures.FLUID_BAR_START).setTexture(TJGuiTextures.FLUID_BAR).setEndTexture(TJGuiTextures.FLUID_BAR_END)
+                .widget(new TJProgressBarWidget(7, 5, 18, 56, () -> this.energyContainer.getEnergyStored(), () -> this.energyContainer.getEnergyCapacity(), ProgressWidget.MoveType.VERTICAL)
+                        .setTexture(TJGuiTextures.FLUID_BAR)
                         .setLocale("tj.multiblock.bars.energy", null)
                         .setBarTexture(TJGuiTextures.BAR_YELLOW));
     }

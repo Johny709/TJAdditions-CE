@@ -38,8 +38,6 @@ public class TJProgressBarWidget extends Widget {
     private int color;
     private TextureArea backgroundTexture;
     private TextureArea barTexture;
-    private TextureArea startTexture;
-    private TextureArea endTexture;
     private String locale;
     private Supplier<Object[]> paramSupplier;
     private Supplier<FluidStack> fluidStackSupplier;
@@ -83,16 +81,6 @@ public class TJProgressBarWidget extends Widget {
         return this;
     }
 
-    public TJProgressBarWidget setStartTexture(TextureArea startTexture) {
-        this.startTexture = startTexture;
-        return this;
-    }
-
-    public TJProgressBarWidget setEndTexture(TextureArea endTexture) {
-        this.endTexture = endTexture;
-        return this;
-    }
-
     public TJProgressBarWidget setColor(int color) {
         this.color = color;
         return this;
@@ -118,25 +106,17 @@ public class TJProgressBarWidget extends Widget {
         Position pos = this.getPosition();
         int width = this.moveType == ProgressWidget.MoveType.HORIZONTAL ? (int) ((size.getWidth() - 2) * (this.progress / this.maxProgress)) : size.getWidth() - 2;
         int height = this.moveType == ProgressWidget.MoveType.VERTICAL ? (int) ((size.getHeight() - 2) * (this.progress / this.maxProgress)) : size.getHeight() - 2;
-        if (this.moveType == ProgressWidget.MoveType.HORIZONTAL)
+        if (this.backgroundTexture != null)
             this.backgroundTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
-        else this.backgroundTexture.drawRotated(pos.getX(), pos.getY(), size, new PositionedRect(pos.getX(), pos.getY(), size.getHeight(), size.getWidth()), 1);
         if (!this.isFluid) {
             if (this.barTexture != null)
                 this.barTexture.draw(pos.getX() + 1, pos.getY() + 1, width, height);
             else Widget.drawSolidRect(pos.getX() + 1, pos.getY() + 1, width, height, this.color);
         } else if (this.fluid != null) {
             GlStateManager.disableBlend();
-            TJGuiUtils.drawFluidForGui(this.fluid, (long) this.progress, (long) this.maxProgress, pos.getX() + 1, pos.getY() + 1, size.getWidth(), 8);
+            TJGuiUtils.drawFluidForGui(this.fluid, (long) this.progress, (long) this.maxProgress, pos.getX() + 1, pos.getY() + 1, width + 1, height);
             GlStateManager.enableBlend();
             GlStateManager.color(1.0f, 1.0f, 1.0f);
-        }
-        if (this.moveType == ProgressWidget.MoveType.HORIZONTAL) {
-            this.startTexture.draw(pos.getX(), pos.getY(), (int) this.startTexture.imageWidth, size.getHeight());
-            this.endTexture.draw(pos.getX() + size.getWidth() - 1, pos.getY(), (int) this.endTexture.imageWidth, size.getHeight());
-        } else {
-            this.startTexture.drawRotated(pos.getX(), pos.getY(), new Size((int) this.startTexture.imageWidth, size.getHeight()), new PositionedRect(pos.getX(), pos.getY(), size.getHeight(), (int) this.startTexture.imageWidth), 1);
-            this.endTexture.drawRotated(pos.getX(), pos.getY() + size.getHeight() - 1, new Size((int) this.endTexture.imageWidth, size.getHeight()), new PositionedRect(pos.getX(), pos.getY(), size.getHeight(), (int) this.endTexture.imageWidth), 1);
         }
     }
 

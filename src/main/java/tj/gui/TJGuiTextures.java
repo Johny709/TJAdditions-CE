@@ -18,9 +18,7 @@ public class TJGuiTextures {
     public static final TextureArea MACHINE_LABEL_STEEL = AdoptableTextureArea.fullImage("textures/gui/base/machine_label_steel.png", 20, 20, 2, 2);
     public static final TextureArea UI_COVER = AdoptableTextureArea.fullImage("textures/gui/base/ui_cover.png");
 
-    public static final TextureArea FLUID_BAR = AdoptableTextureArea.fullImage("textures/gui/base/fluid_bar.png");
-    public static final TextureArea FLUID_BAR_START = TextureArea.fullImage("textures/gui/base/fluid_bar_start.png");
-    public static final TextureArea FLUID_BAR_END = TextureArea.fullImage("textures/gui/base/fluid_bar_end.png");
+    public static final TextureArea FLUID_BAR = AdoptableTextureArea.fullImage("textures/gui/bar/fluid_bar.png", 10, 10, 1, 1);
 
     public static final TextureArea AUTOSCROLL = TextureArea.fullImage("textures/gui/base/auto_scroll.png");
     public static final TextureArea AUTOSCROLL_UP = TextureArea.fullImage("textures/gui/base/auto_scroll_up.png");
