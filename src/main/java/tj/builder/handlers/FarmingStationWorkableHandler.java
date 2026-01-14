@@ -1,8 +1,7 @@
 package tj.builder.handlers;
 
 import gregtech.api.GTValues;
-import gregtech.api.capability.GregtechCapabilities;
-import gregtech.api.capability.IElectricItem;
+import gregtech.api.items.IToolItem;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.common.blocks.wood.BlockGregLog;
 import gregtech.common.items.MetaItems;
@@ -237,7 +236,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
                     stack = input.getStackInSlot(i);
                     Block itemBlock = Block.getBlockFromItem(stack.getItem());
                     if (itemBlock instanceof IGrowable) {
-                        if (!this.canPlantSaplings(this.posHarvester))
+                        if (!this.canPlantSaplings(this.posHarvester, world))
                             return;
                         itemState = itemBlock.getStateFromMeta(stack.getMetadata());
                         break;
@@ -271,12 +270,16 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             }
         }
 
-        private boolean canPlantSaplings(BlockPos.MutableBlockPos pos) {
+        private boolean canPlantSaplings(BlockPos.MutableBlockPos pos, World world) {
             pos.setPos(pos.getX(), pos.getY() - 1, pos.getZ());
             IBlockState state = metaTileEntity.getWorld().getBlockState(pos);
             Block block = state.getBlock();
             pos.setPos(pos.getX(), pos.getY() + 1, pos.getZ());
-            return block instanceof BlockDirt || block instanceof BlockGrass;
+            ItemStack hoeStack;
+            if ((block instanceof BlockDirt || block instanceof BlockGrass) && !(hoeStack = toolInventory.get().getStackInSlot(0)).isEmpty()) {
+                return this.damageTool(hoeStack, (WorldServer) world);
+            }
+            return false;
         }
 
         private boolean canPlantSeeds(BlockPos.MutableBlockPos pos, IPlantable plantable) {
@@ -284,9 +287,9 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             World world = metaTileEntity.getWorld();
             IBlockState state = world.getBlockState(pos);
             Block block = state.getBlock();
-            ItemStack toolStack;
-            if ((block instanceof BlockDirt || block instanceof BlockGrass) && !(toolStack = toolInventory.get().getStackInSlot(0)).isEmpty()) {
-                toolStack.damageItem(1, FakePlayerFactory.getMinecraft((WorldServer) world));
+            ItemStack hoeStack;
+            if ((block instanceof BlockDirt || block instanceof BlockGrass) && !(hoeStack = toolInventory.get().getStackInSlot(0)).isEmpty()) {
+                this.damageTool(hoeStack, (WorldServer) world);
                 world.setBlockState(pos, Blocks.FARMLAND.getDefaultState().withProperty(BlockFarmland.MOISTURE, 7));
                 state = world.getBlockState(pos);
             }
@@ -372,33 +375,25 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
         }
 
         private boolean damageTool(ItemStack stack, WorldServer world) {
-            if (stack.getItem().getMaxDamage() > 0) {
+            if (stack.getItem() instanceof IToolItem) {
+                return ((IToolItem) stack.getItem()).damageItem(stack, 1, false) || (outputTools && this.outputTool(stack));
+            } else if (stack.getItem().getMaxDamage() > 0) {
                 stack.damageItem(1, FakePlayerFactory.getMinecraft(world));
                 return true;
             }
-            IElectricItem eu = stack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
-            if (eu != null) {
-                boolean success = eu.discharge(32, Integer.MAX_VALUE, true, false, false) == 32;
-                if ((!success || eu.getCharge() == 0) && outputTools && this.outputTool(stack.copy())) {
-                    stack.shrink(1);
-                }
-                return success;
-            }
             IEnergyStorage rf = stack.getCapability(CapabilityEnergy.ENERGY, null);
             if (rf != null) {
-                boolean success = rf.extractEnergy(128, false) == 128;
-                if (!success && outputTools && this.outputTool(stack.copy())) {
-                    stack.shrink(1);
-                }
-                return success;
+                return rf.extractEnergy(128, false) == 128 || (outputTools && this.outputTool(stack));
             }
-            return false;
+            return outputTools && this.outputTool(stack);
         }
 
         private boolean outputTool(ItemStack stack) {
+            ItemStack exportStack = stack.copy();
             IItemHandlerModifiable output = exportItemsSupplier.get();
-            if (ItemStackHelper.insertIntoItemHandler(output, stack, true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(output, stack, false);
+            if (ItemStackHelper.insertIntoItemHandler(output, exportStack, true).isEmpty()) {
+                ItemStackHelper.insertIntoItemHandler(output, exportStack, false);
+                stack.shrink(1);
                 return true;
             } else return false;
         }
