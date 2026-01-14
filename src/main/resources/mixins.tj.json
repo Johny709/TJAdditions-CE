@@ -49,6 +49,7 @@
     "gregtech.RecipeMapMultiblockControllerMixin",
     "gregtech.RotorHolderMultiblockControllerMixin",
     "gregtech.SimpleMachineMetaTileEntityMixin",
+    "gregtech.SteamMetaTileEntityMixin",
     "gregtech.TieredMetaTileEntityMixin",
     "gregtech.TransformerInfoProviderMixin",
     "gregtech.WorkableTieredMetaTileEntityMixin"

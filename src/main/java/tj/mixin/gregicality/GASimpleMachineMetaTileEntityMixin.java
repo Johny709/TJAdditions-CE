@@ -29,8 +29,8 @@ public abstract class GASimpleMachineMetaTileEntityMixin extends GAWorkableTiere
                 .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(7, 5, 18, 56, () -> this.energyContainer.getEnergyStored(), () -> this.energyContainer.getEnergyCapacity(), ProgressWidget.MoveType.VERTICAL)
-                        .setTexture(TJGuiTextures.FLUID_BAR)
                         .setLocale("tj.multiblock.bars.energy", null)
-                        .setBarTexture(TJGuiTextures.BAR_YELLOW));
+                        .setBarTexture(TJGuiTextures.BAR_YELLOW)
+                        .setTexture(TJGuiTextures.FLUID_BAR));
     }
 }

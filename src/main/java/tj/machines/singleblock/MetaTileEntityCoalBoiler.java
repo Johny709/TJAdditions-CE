@@ -61,6 +61,10 @@ import static gregtech.api.unification.material.Materials.Steam;
 
 public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkable, IFuelInfo, IFuelable, IHeatInfo {
 
+    private static final EnumFacing[] STEAM_PUSH_DIRECTIONS = ArrayUtils.add(EnumFacing.HORIZONTALS, EnumFacing.UP);
+    public static final int BASE_MODIFIER = 12;
+    public static final FluidStack STEAM = Steam.getFluid(1);
+
     protected float temp;
     private boolean isActive;
     private boolean hadWater;
@@ -71,8 +75,6 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkabl
     protected final IFluidTank waterTank;
     protected final IFluidTank steamTank;
     protected final BoilerType boilerType;
-    private static final EnumFacing[] STEAM_PUSH_DIRECTIONS = ArrayUtils.add(EnumFacing.HORIZONTALS, EnumFacing.UP);
-    public static final int BASE_MODIFIER = 12;
 
     public MetaTileEntityCoalBoiler(ResourceLocation metaTileEntityId, BoilerType boilerType) {
         super(metaTileEntityId);
