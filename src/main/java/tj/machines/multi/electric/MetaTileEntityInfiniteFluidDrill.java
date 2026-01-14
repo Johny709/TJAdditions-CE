@@ -56,7 +56,11 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
             MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final InfiniteFluidDrillWorkableHandler workableHandler = new InfiniteFluidDrillWorkableHandler(this);
+    private final InfiniteFluidDrillWorkableHandler workableHandler = new InfiniteFluidDrillWorkableHandler(this)
+            .setImportEnergySupplier(this::getEnergyContainer)
+            .setExportFluidsSupplier(this::getOutputFluid)
+            .setImportFluidsSupplier(this::getInputFluid)
+            .setMaxVoltageSupplier(this::getMaxVoltage);
     private long maxVoltage;
     private int tier;
     private IMultipleTankHandler outputFluid;
@@ -65,10 +69,6 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
 
     public MetaTileEntityInfiniteFluidDrill(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportFluidsSupplier(this::getInputFluid)
-                .setExportFluidsSupplier(this::getOutputFluid)
-                .setImportEnergySupplier(this::getEnergyContainer)
-                .setMaxVoltageSupplier(this::getMaxVoltage);
     }
 
     @Override

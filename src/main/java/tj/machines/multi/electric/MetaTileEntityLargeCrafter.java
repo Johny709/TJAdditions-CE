@@ -74,7 +74,13 @@ import static tj.multiblockpart.TJMultiblockAbility.CRAFTER;
 public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implements IRecipeMapProvider {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH, CRAFTER};
-    private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this);
+    private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this)
+            .setImportItemsSupplier(this::getImportItemInventory)
+            .setExportItemsSupplier(this::getExportItemInventory)
+            .setImportEnergySupplier(this::getEnergyContainer)
+            .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setParallelSupplier(this::getParallel)
+            .setInputBus(this::getInputBus);
     private IItemHandlerModifiable importItemInventory;
     private IItemHandlerModifiable exportItemInventory;
     private IEnergyContainer energyContainer;
@@ -83,12 +89,6 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
 
     public MetaTileEntityLargeCrafter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.recipeLogic.setImportItemsSupplier(() -> this.importItemInventory)
-                .setExportItemsSupplier(() -> this.exportItemInventory)
-                .setImportEnergySupplier(() -> this.energyContainer)
-                .setInputBus((index) -> this.getAbilities(IMPORT_ITEMS).get(index))
-                .setMaxVoltageSupplier(() -> this.maxVoltage)
-                .setParallelSupplier(() -> this.parallel);
     }
 
     @Override
@@ -123,7 +123,9 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
                             .appendSibling(this.recipeLogic.isDistinct()
                                     ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
                                     : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
-                    .isWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress());
+                    .isWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress())
+                    .addRecipeInputLine(this.recipeLogic)
+                    .addRecipeOutputLine(this.recipeLogic);
     }
 
     @Override
@@ -226,5 +228,29 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     @Override
     public void clearRecipeCache() {
         this.recipeLogic.clearCache();
+    }
+
+    private IItemHandlerModifiable getImportItemInventory() {
+        return this.importItemInventory;
+    }
+
+    private IItemHandlerModifiable getExportItemInventory() {
+        return this.exportItemInventory;
+    }
+
+    private IEnergyContainer getEnergyContainer() {
+        return this.energyContainer;
+    }
+
+    private IItemHandlerModifiable getInputBus(int index) {
+        return this.getAbilities(IMPORT_ITEMS).get(index);
+    }
+
+    private long getMaxVoltage() {
+        return this.maxVoltage;
+    }
+
+    private int getParallel() {
+        return this.parallel;
     }
 }

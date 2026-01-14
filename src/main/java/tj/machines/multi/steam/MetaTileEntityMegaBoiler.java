@@ -68,8 +68,14 @@ import static gregtech.api.unification.material.Materials.Water;
 public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements IProgressBar {
 
     private static final MultiblockAbility<?>[] OUTPUT_ABILITIES = {MultiblockAbility.EXPORT_FLUIDS, TJMultiblockAbility.STEAM_OUTPUT};
+    private final MegaBoilerRecipeLogic boilerRecipeLogic = new MegaBoilerRecipeLogic(this, this::getHeatEfficiencyMultiplier, this::getFuelConsumedMultiplier, this::getBaseSteamOutput, this::getMaxTemperature)
+            .setImportFluidsSupplier(this::getFluidImportInventory)
+            .setImportItemsSupplier(this::getItemImportInventory)
+            .setExportItemsSupplier(this::getItemExportInventory)
+            .setExportFluidsSupplier(this::getSteamOutputTank)
+            .setActive(this::replaceFireboxAsActive)
+            .setParallelSupplier(this::getParallel);
     private final Set<BlockPos> activeStates = new HashSet<>();
-    private final MegaBoilerRecipeLogic boilerRecipeLogic = new MegaBoilerRecipeLogic(this, this::getHeatEfficiencyMultiplier, this::getFuelConsumedMultiplier, this::getBaseSteamOutput, this::getMaxTemperature);
     private final int parallel;
     private final MetaTileEntityLargeBoiler.BoilerType boilerType;
 
@@ -82,12 +88,6 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
         super(metaTileEntityId);
         this.boilerType = boilerType;
         this.parallel = parallel;
-        this.boilerRecipeLogic.setImportItemsSupplier(this::getItemImportInventory)
-                .setExportItemsSupplier(this::getItemExportInventory)
-                .setImportFluidsSupplier(this::getFluidImportInventory)
-                .setExportFluidsSupplier(this::getSteamOutputTank)
-                .setParallelSupplier(this::getParallel)
-                .setActive(this::replaceFireboxAsActive);
         this.reinitializeStructurePattern();
     }
 

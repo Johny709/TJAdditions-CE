@@ -59,7 +59,15 @@ import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPred
 public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
-    private final EnchanterWorkableHandler workableHandler = new EnchanterWorkableHandler(this);
+    private final EnchanterWorkableHandler workableHandler = new EnchanterWorkableHandler(this)
+            .setImportFluidsSupplier(this::getFluidInputs)
+            .setImportEnergySupplier(this::getEnergyInput)
+            .setExportItemsSupplier(this::getItemOutputs)
+            .setImportItemsSupplier(this::getItemInputs)
+            .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setParallelSupplier(this::getParallel)
+            .setTierSupplier(this::getTier)
+            .setInputBus(this::getInputBus);
     private IItemHandlerModifiable itemInputs;
     private IItemHandlerModifiable itemOutputs;
     private IMultipleTankHandler fluidInputs;
@@ -70,14 +78,6 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
 
     public MetaTileEntityLargeEnchanter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportItemsSupplier(() -> this.itemInputs)
-                .setExportItemsSupplier(() -> this.itemOutputs)
-                .setImportFluidsSupplier(() -> this.fluidInputs)
-                .setImportEnergySupplier(() -> this.energyInput)
-                .setInputBus(this::getInputBus)
-                .setMaxVoltageSupplier(() -> this.maxVoltage)
-                .setTierSupplier(() -> this.tier)
-                .setParallelSupplier(() -> parallel);
     }
 
     @Override
@@ -111,7 +111,9 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
                             .appendSibling(this.workableHandler.isDistinct()
                                     ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
                                     : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
-                    .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                    .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+                    .addRecipeInputLine(this.workableHandler)
+                    .addRecipeOutputLine(this.workableHandler);
     }
 
     @Override
@@ -199,5 +201,33 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
 
     private IItemHandlerModifiable getInputBus(int index) {
         return this.getAbilities(IMPORT_ITEMS).get(index);
+    }
+
+    private IItemHandlerModifiable getItemInputs() {
+        return this.itemInputs;
+    }
+
+    private IItemHandlerModifiable getItemOutputs() {
+        return this.itemOutputs;
+    }
+
+    private IMultipleTankHandler getFluidInputs() {
+        return this.fluidInputs;
+    }
+
+    private IEnergyContainer getEnergyInput() {
+        return this.energyInput;
+    }
+
+    private long getMaxVoltage() {
+        return this.maxVoltage;
+    }
+
+    private int getTier() {
+        return this.tier;
+    }
+
+    private int getParallel() {
+        return this.parallel;
     }
 }

@@ -52,7 +52,13 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
-    private final ArchitectWorkbenchWorkableHandler workableHandler = new ArchitectWorkbenchWorkableHandler(this);
+    private final ArchitectWorkbenchWorkableHandler workableHandler = new ArchitectWorkbenchWorkableHandler(this)
+            .setImportEnergySupplier(this::getEnergyInput)
+            .setExportItemsSupplier(this::getItemOutputs)
+            .setImportItemsSupplier(this::getItemInputs)
+            .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setParallelSupplier(this::getParallel)
+            .setInputBus(this::getInputBus);
     private ItemHandlerList itemInputs;
     private ItemHandlerList itemOutputs;
     private IEnergyContainer energyInput;
@@ -61,12 +67,6 @@ public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockC
 
     public MetaTileEntityLargeArchitectWorkbench(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportItemsSupplier(() -> this.itemInputs)
-                .setExportItemsSupplier(() -> this.itemOutputs)
-                .setImportEnergySupplier(() -> this.energyInput)
-                .setInputBus(this::getInputBus)
-                .setMaxVoltageSupplier(() -> this.maxVoltage)
-                .setParallelSupplier(() -> this.parallel);
     }
 
     @Override
@@ -100,7 +100,9 @@ public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockC
                             .appendSibling(this.workableHandler.isDistinct()
                                     ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
                                     : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
-                    .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                    .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+                    .addRecipeInputLine(this.workableHandler)
+                    .addRecipeOutputLine(this.workableHandler);
     }
 
     @Override
@@ -190,5 +192,25 @@ public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockC
     @Override
     public int getMaxParallel() {
         return TJConfig.largeArchitectWorkbench.maximumSlices;
+    }
+
+    private ItemHandlerList getItemInputs() {
+        return this.itemInputs;
+    }
+
+    private ItemHandlerList getItemOutputs() {
+        return this.itemOutputs;
+    }
+
+    private IEnergyContainer getEnergyInput() {
+        return this.energyInput;
+    }
+
+    private long getMaxVoltage() {
+        return this.maxVoltage;
+    }
+
+    private int getParallel() {
+        return this.parallel;
     }
 }

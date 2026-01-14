@@ -94,16 +94,16 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private static final FluidStack ENDER_PEARL = EnderPearl.getFluid(1);
-    private final TeleporterWorkableHandler workableHandler = new TeleporterWorkableHandler(this);
+    private final TeleporterWorkableHandler workableHandler = new TeleporterWorkableHandler(this)
+            .setImportFluidsSupplier(this::getInputFluidHandler)
+            .setImportEnergySupplier(this::getEnergyContainer)
+            .setTierSupplier(this::getTier);
     private IEnergyContainer energyContainer;
     private IMultipleTankHandler inputFluidHandler;
     private int tier;
 
     public MetaTileEntityTeleporter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportEnergySupplier(this::getEnergyContainer)
-                .setImportFluidsSupplier(this::getInputFluidHandler)
-                .setTierSupplier(this::getTier);
     }
 
     @Override

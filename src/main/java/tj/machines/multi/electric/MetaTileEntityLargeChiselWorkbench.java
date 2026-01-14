@@ -52,7 +52,13 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
-    private final ChiselWorkbenchWorkableHandler workableHandler = new ChiselWorkbenchWorkableHandler(this);
+    private final ChiselWorkbenchWorkableHandler workableHandler = new ChiselWorkbenchWorkableHandler(this)
+            .setImportEnergySupplier(this::getEnergyInput)
+            .setExportItemsSupplier(this::getItemOutputs)
+            .setImportItemsSupplier(this::getItemInputs)
+            .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setParallelSupplier(this::getParallel)
+            .setInputBus(this::getInputBus);
     private IItemHandlerModifiable itemInputs;
     private IItemHandlerModifiable itemOutputs;
     private IEnergyContainer energyInput;
@@ -61,12 +67,6 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
 
     public MetaTileEntityLargeChiselWorkbench(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportItemsSupplier(() -> this.itemInputs)
-                .setExportItemsSupplier(() -> this.itemOutputs)
-                .setImportEnergySupplier(() -> this.energyInput)
-                .setInputBus(this::getInputBus)
-                .setMaxVoltageSupplier(() -> this.maxVoltage)
-                .setParallelSupplier(() -> this.parallel);
     }
 
     @Override
@@ -100,7 +100,9 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
                             .appendSibling(this.workableHandler.isDistinct()
                                     ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
                                     : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
-                    .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                    .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+                    .addRecipeInputLine(this.workableHandler)
+                    .addRecipeOutputLine(this.workableHandler);
     }
 
     @Override
@@ -188,5 +190,25 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
     @Override
     public int getMaxParallel() {
         return TJConfig.largeChiselWorkbench.maximumSlices;
+    }
+
+    private IItemHandlerModifiable getItemInputs() {
+        return itemInputs;
+    }
+
+    private IItemHandlerModifiable getItemOutputs() {
+        return itemOutputs;
+    }
+
+    private IEnergyContainer getEnergyInput() {
+        return energyInput;
+    }
+
+    private long getMaxVoltage() {
+        return maxVoltage;
+    }
+
+    private int getParallel() {
+        return parallel;
     }
 }

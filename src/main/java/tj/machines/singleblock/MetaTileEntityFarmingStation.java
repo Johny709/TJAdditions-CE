@@ -55,13 +55,13 @@ import static tj.gui.TJGuiTextures.*;
 public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity {
 
     private final FarmingStationWorkableHandler workableHandler = new FarmingStationWorkableHandler(this)
-            .setImportItemsSupplier(this::getImportItems)
-            .setExportItemsSupplier(this::getExportItems)
-            .setImportFluidsSupplier(this::getImportFluids)
-            .setToolInventory(this::getToolInventory)
             .setFertilizerInventory(this::getFertilizerInventory)
             .setImportEnergySupplier(this::getEnergyContainer)
+            .setImportFluidsSupplier(this::getImportFluids)
+            .setImportItemsSupplier(this::getImportItems)
+            .setExportItemsSupplier(this::getExportItems)
             .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setToolInventory(this::getToolInventory)
             .setTierSupplier(this::getTier);
 
     private final IItemHandlerModifiable seedInventory = new FilteredItemStackHandler(this, 6, this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64)

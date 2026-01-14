@@ -35,20 +35,20 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
 public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
 
-    private final EnchanterWorkableHandler workableHandler = new EnchanterWorkableHandler(this);
+    private final EnchanterWorkableHandler workableHandler = new EnchanterWorkableHandler(this)
+            .setImportEnergySupplier(this::getEnergyContainer)
+            .setImportFluidsSupplier(this::getImportFluids)
+            .setImportItemsSupplier(this::getImportItems)
+            .setExportItemsSupplier(this::getExportItems)
+            .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setTierSupplier(this::getTier)
+            .setParallelSupplier(() -> 1);
     private final IFluidTank tank;
 
     public MetaTileEntityEnchanter(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.tank = new FluidTank(64000);
-        this.workableHandler.initialize(1)
-                .setImportItemsSupplier(this::getImportItems)
-                .setExportItemsSupplier(this::getExportItems)
-                .setImportFluidsSupplier(this::getImportFluids)
-                .setImportEnergySupplier(this::getEnergyContainer)
-                .setMaxVoltageSupplier(this::getMaxVoltage)
-                .setTierSupplier(this::getTier)
-                .setParallelSupplier(() -> 1);
+        this.workableHandler.initialize(1);
         this.initializeInventory();
     }
 

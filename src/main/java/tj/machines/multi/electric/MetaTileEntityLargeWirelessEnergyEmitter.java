@@ -93,7 +93,11 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, OUTPUT_ENERGY, MAINTENANCE_HATCH};
     public static final FluidStack NITROGEN_PLASMA = Nitrogen.getPlasma(1);
-    protected final LargeWirelessEnergyWorkableHandler workableHandler = new LargeWirelessEnergyWorkableHandler(this);
+    protected final LargeWirelessEnergyWorkableHandler workableHandler = new LargeWirelessEnergyWorkableHandler(this)
+            .setImportEnergySupplier(this::getInputEnergyContainer)
+            .setImportFluidsSupplier(this::getImportFluidHandler)
+            .setTierSupplier(this::getTier)
+            .setResetEnergy(false);
     private final int pageSize = 4;
 
     protected TransferType transferType;
@@ -105,10 +109,6 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     public MetaTileEntityLargeWirelessEnergyEmitter(ResourceLocation metaTileEntityId, TransferType transferType) {
         super(metaTileEntityId);
         this.transferType = transferType;
-        this.workableHandler.setImportFluidsSupplier(this::getImportFluidHandler)
-                .setImportEnergySupplier(this::getInputEnergyContainer)
-                .setTierSupplier(this::getTier)
-                .setResetEnergy(false);
         this.reinitializeStructurePattern();
     }
 

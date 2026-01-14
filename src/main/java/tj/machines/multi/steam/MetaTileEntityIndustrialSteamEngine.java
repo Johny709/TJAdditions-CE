@@ -75,7 +75,12 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
             GregicAdditionsCapabilities.STEAM, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final SteamEngineWorkableHandler workableHandler = new SteamEngineWorkableHandler(this, RecipeMaps.STEAM_TURBINE_FUELS, this::getEfficiency);
+    private final SteamEngineWorkableHandler workableHandler = new SteamEngineWorkableHandler(this, RecipeMaps.STEAM_TURBINE_FUELS, this::getEfficiency)
+            .setImportFluidsSupplier(this::getImportFluidHandler)
+            .setExportFluidsSupplier(this::getExportFluidHandler)
+            .setExportEnergySupplier(this::getEnergyContainer)
+            .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setTierSupplier(this::getTier);
     private IMultipleTankHandler importFluidHandler;
     private IMultipleTankHandler exportFluidHandler;
     private IEnergyContainer energyContainer;
@@ -85,11 +90,6 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
 
     public MetaTileEntityIndustrialSteamEngine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportFluidsSupplier(this::getImportFluidHandler)
-                .setExportFluidsSupplier(this::getExportFluidHandler)
-                .setExportEnergySupplier(this::getEnergyContainer)
-                .setMaxVoltageSupplier(this::getMaxVoltage)
-                .setTierSupplier(this::getTier);
     }
 
     @Override

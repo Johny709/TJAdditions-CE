@@ -88,8 +88,11 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     private static final FluidStack UUMATTER = UUMatter.getFluid(1);
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final AcceleratorWorkableHandler workableHandler = new AcceleratorWorkableHandler(this);
-
+    private final AcceleratorWorkableHandler workableHandler = new AcceleratorWorkableHandler(this)
+            .setImportFluidsSupplier(this::getImportFluidHandler)
+            .setImportEnergySupplier(this::getEnergyContainer)
+            .setTierSupplier(this::getTier)
+            .setResetEnergy(false);
     private IMultipleTankHandler importFluidHandler;
     private IEnergyContainer energyContainer;
     private int tier;
@@ -98,10 +101,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     public MetaTileEntityLargeWorldAccelerator(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportFluidsSupplier(this::getImportFluidHandler)
-                .setImportEnergySupplier(this::getEnergyContainer)
-                .setTierSupplier(this::getTier)
-                .setResetEnergy(false);
     }
 
     @Override

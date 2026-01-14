@@ -55,7 +55,13 @@ import static tj.gui.TJGuiTextures.*;
 
 public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implements IRecipeMapProvider {
 
-    private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this);
+    private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this)
+            .setImportEnergySupplier(this::getEnergyContainer)
+            .setImportItemsSupplier(this::getImportItems)
+            .setExportItemsSupplier(this::getExportItems)
+            .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setParallelSupplier(() -> 1)
+            .initialize(1);
     private final InventoryCrafting inventoryCrafting = new InventoryCrafting(new DummyContainer(), 3, 3);
     private final ItemStackHandler craftingInventory = new ItemStackHandler(9);
     private final ItemStackHandler encodingInventory;
@@ -68,12 +74,6 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
         super(metaTileEntityId, tier);
         this.encodingSlots = 6 + (tier * 3);
         this.encodingInventory = new ItemStackHandler(this.encodingSlots);
-        this.recipeLogic.initialize(1)
-                .setImportItemsSupplier(this::getImportItems)
-                .setExportItemsSupplier(this::getExportItems)
-                .setImportEnergySupplier(this::getEnergyContainer)
-                .setMaxVoltageSupplier(this::getMaxVoltage)
-                .setParallelSupplier(() -> 1);
     }
 
     @Override

@@ -26,17 +26,17 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
 public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEntity {
 
-    private final ArchitectWorkbenchWorkableHandler workableHandler = new ArchitectWorkbenchWorkableHandler(this);
+    private final ArchitectWorkbenchWorkableHandler workableHandler = new ArchitectWorkbenchWorkableHandler(this)
+            .setImportEnergySupplier(this::getEnergyContainer)
+            .setImportItemsSupplier(this::getImportItems)
+            .setExportItemsSupplier(this::getExportItems)
+            .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setParallelSupplier(() -> 1)
+            .initialize(1);
 
     public MetaTileEntityArchitectWorkbench(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.initializeInventory();
-        this.workableHandler.initialize(1)
-                .setImportItemsSupplier(this::getImportItems)
-                .setExportItemsSupplier(this::getExportItems)
-                .setImportEnergySupplier(this::getEnergyContainer)
-                .setMaxVoltageSupplier(this::getMaxVoltage)
-                .setParallelSupplier(() -> 1);
     }
 
     @Override

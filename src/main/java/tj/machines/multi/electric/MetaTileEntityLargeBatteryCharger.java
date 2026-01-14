@@ -87,7 +87,14 @@ import static tj.builder.handlers.BatteryChargerWorkableHandler.TransferMode.OUT
 public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase implements LinkEntity, LinkEvent, IParallelController, IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, OUTPUT_ENERGY, IMPORT_FLUIDS, MAINTENANCE_HATCH};
-    private final BatteryChargerWorkableHandler workableHandler = new BatteryChargerWorkableHandler(this);
+    private final BatteryChargerWorkableHandler workableHandler = new BatteryChargerWorkableHandler(this)
+            .setExportEnergySupplier(this::getOutputEnergyContainer)
+            .setImportEnergySupplier(this::getInputEnergyContainer)
+            .setImportFluidsSupplier(this::getImportFluidHandler)
+            .setImportItemsSupplier(this::getImportItemHandler)
+            .setExportItemsSupplier(this::getExportItemHandler)
+            .setTierSupplier(this::getTier)
+            .setResetEnergy(false);
     private int tier;
     private final int pageSize = 4;
     private int pageIndex;
@@ -99,13 +106,6 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
 
     public MetaTileEntityLargeBatteryCharger(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportItemsSupplier(this::getImportItemHandler)
-                .setExportItemsSupplier(this::getExportItemHandler)
-                .setImportFluidsSupplier(this::getImportFluidHandler)
-                .setImportEnergySupplier(this::getInputEnergyContainer)
-                .setExportEnergySupplier(this::getOutputEnergyContainer)
-                .setTierSupplier(this::getTier)
-                .setResetEnergy(false);
     }
 
     @Override

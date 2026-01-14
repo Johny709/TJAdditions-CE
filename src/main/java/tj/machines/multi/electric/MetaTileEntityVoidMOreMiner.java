@@ -64,7 +64,12 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
     public static final FluidStack PYROTHEUM = Pyrotheum.getFluid(1);
     public static final FluidStack CRYOTHEUM = Cryotheum.getFluid(1);
 
-    private final VoidMOreMinerWorkableHandler workableHandler = new VoidMOreMinerWorkableHandler(this);
+    private final VoidMOreMinerWorkableHandler workableHandler = new VoidMOreMinerWorkableHandler(this)
+            .setImportFluidsSupplier(this::getImportFluidHandler)
+            .setExportFluidsSupplier(this::getExportFluidHandler)
+            .setImportEnergySupplier(this::getEnergyContainer)
+            .setExportItemsSupplier(this::getOutputInventory)
+            .setMaxVoltageSupplier(this::getMaxVoltage);
     private IMultipleTankHandler importFluidHandler;
     private IMultipleTankHandler exportFluidHandler;
     private ItemHandlerList outputInventory;
@@ -74,11 +79,6 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase impleme
 
     public MetaTileEntityVoidMOreMiner(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setExportItemsSupplier(this::getOutputInventory)
-                .setImportFluidsSupplier(this::getImportFluidHandler)
-                .setExportFluidsSupplier(this::getExportFluidHandler)
-                .setImportEnergySupplier(this::getEnergyContainer)
-                .setMaxVoltageSupplier(this::getMaxVoltage);
     }
 
     @Override
