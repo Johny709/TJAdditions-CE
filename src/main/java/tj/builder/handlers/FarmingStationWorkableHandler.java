@@ -96,21 +96,20 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
     @Override
     protected void progressRecipe(int progress) {
         super.progressRecipe(progress);
-        if (this.progress > progress) {
-            progress--;
+        if (!this.initialized) {
+            this.initialized = true;
+            BlockPos pos = this.metaTileEntity.getPos();
+            this.posCorner[0] = new BlockPos(pos.getX() - (this.radius / 2), pos.getY(), pos.getZ() - (this.radius / 2));
+            if (this.harvesters.length > 1)
+                this.posCorner[1] = new BlockPos(pos.getX() + (this.radius / 2), pos.getY(), pos.getZ() + (this.radius / 2));
+            if (this.harvesters.length > 2)
+                this.posCorner[2] = new BlockPos(pos.getX() + (this.radius / 2), pos.getY(), pos.getZ() - (this.radius / 2));
+            if (this.harvesters.length > 3)
+                this.posCorner[3] = new BlockPos(pos.getX() - (this.radius / 2), pos.getY(), pos.getZ() + (this.radius / 2));
             if (RUBBER_REFERENCE == null)
                 RUBBER_REFERENCE = MetaItems.RUBBER_DROP.getStackForm();
-            if (!this.initialized) {
-                this.initialized = true;
-                BlockPos pos = this.metaTileEntity.getPos();
-                this.posCorner[0] = new BlockPos(pos.getX() - (this.radius / 2), pos.getY(), pos.getZ() - (this.radius / 2));
-                if (this.harvesters.length > 1)
-                    this.posCorner[1] = new BlockPos(pos.getX() + (this.radius / 2), pos.getY(), pos.getZ() + (this.radius / 2));
-                if (this.harvesters.length > 2)
-                    this.posCorner[2] = new BlockPos(pos.getX() + (this.radius / 2), pos.getY(), pos.getZ() - (this.radius / 2));
-                if (this.harvesters.length > 3)
-                    this.posCorner[3] = new BlockPos(pos.getX() - (this.radius / 2), pos.getY(), pos.getZ() + (this.radius / 2));
-            }
+        }
+        if (this.progress > progress) {
             this.harvesters[0].onProgress(this.posCorner[0].getX() + (progress % this.radius), this.posCorner[0].getY(), this.posCorner[0].getZ() + (progress / this.radius));
             if (this.harvesters.length > 1)
                 this.harvesters[1].onProgress(this.posCorner[1].getX() - (progress % this.radius), this.posCorner[1].getY(), this.posCorner[1].getZ() - (progress / this.radius));

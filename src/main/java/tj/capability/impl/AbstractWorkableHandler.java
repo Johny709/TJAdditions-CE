@@ -167,7 +167,7 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
         }
         if (this.wasActiveAndNeedsUpdate && this.isActive)
             this.setActive(false);
-        if (this.progress > this.maxProgress) {
+        if (this.progress >= this.maxProgress) {
             if (this.completeRecipe()) {
                 this.progress = 0;
                 if (this.resetEnergy)
@@ -187,7 +187,6 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
             }
             boolean canStart = this.startRecipe();
             if (canStart) {
-                this.progress = 1;
                 this.sleepTime = 1;
                 this.progressRecipe(this.progress);
                 if (!this.isActive)
@@ -232,7 +231,7 @@ public abstract class AbstractWorkableHandler<R extends AbstractWorkableHandler<
     protected void progressRecipe(int progress) {
         if (this.importEnergySupplier.get().removeEnergy(this.energyPerTick) == -this.energyPerTick) {
             this.progress++;
-        } else if (this.progress > 1)
+        } else if (this.progress > 0)
             this.progress--;
     }
 

@@ -90,7 +90,7 @@ public class TJLabelWidget extends Widget {
         if (this.isMouseOverElement(mouseX, mouseY)) {
             if (this.slideAtEnd) {
                 this.slideAtEnd = false;
-                this.offsetX = -160;
+                this.offsetX = -(this.getSize().getWidth() - 24);
             } else if (this.tickCounter % 2 == 0 || this.tickCounter % 3 == 0)
                 this.offsetX++;
         } else this.offsetX = 0;
