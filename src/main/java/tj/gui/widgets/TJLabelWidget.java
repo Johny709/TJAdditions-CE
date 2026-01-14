@@ -80,7 +80,7 @@ public class TJLabelWidget extends Widget {
             length -= this.offsetX;
             if (length < 0)
                 this.slideAtEnd = true;
-            RenderUtil.useScissor(pos.getX() + widthApplied, pos.getY(), size.getWidth(), size.getHeight(), () -> fontRenderer.drawString(locale, finalX, pos.getY() + 6, this.color));
+            RenderUtil.useScissor(pos.getX() + widthApplied, pos.getY(), size.getWidth() - 25, size.getHeight(), () -> fontRenderer.drawString(locale, finalX, pos.getY() + 6, this.color));
         }
     }
 

@@ -118,9 +118,9 @@ public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity impleme
         widgetGroup.addWidget(new CycleButtonWidget(10, 60, 150, 20, this::isInverted, this::setInverted,
                 "cover.machine_controller.normal", "cover.machine_controller.inverted"));
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
-                .widget(widgetGroup)
-                .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL)
+                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
+                .widget(widgetGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
                 .build(getHolder(), player);
     }

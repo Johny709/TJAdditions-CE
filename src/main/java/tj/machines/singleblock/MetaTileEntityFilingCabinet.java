@@ -139,6 +139,8 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
         return ModularUI.builder(GuiTextures.BACKGROUND, 176, 197)
+                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
+                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .bindOpenListener(() -> this.guiUsers.put(player, slotScrollableWidgetGroup))
                 .bindCloseListener(() -> this.guiUsers.remove(player))
                 .widget(new ImageWidget(7, 15, 126, 18, GuiTextures.DISPLAY))
@@ -149,8 +151,6 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
                         .setTooltipText("tj.machine.filing_cabinet.toggle"))
                 .widget(new SortingButtonWidget(109, 4, 60, 10, "gregtech.gui.sort", (info) -> MetaTileEntityCompressedChest.sortInventorySlotContents(this.importItems)))
                 .widget(slotScrollableWidgetGroup)
-                .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL)
-                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .bindPlayerInventory(player.inventory, 115)
                 .build(this.getHolder(), player);
     }

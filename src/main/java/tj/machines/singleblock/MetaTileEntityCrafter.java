@@ -137,6 +137,8 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                     }));
         }
         return ModularUI.builder(BACKGROUND, 176, 216)
+                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
+                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 55, 111, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new ImageWidget(72, 28, 26, 26, SLOT))
                 .widget(new ImageWidget(109, 14, 54, 54, DARKENED_SLOT))
@@ -162,8 +164,6 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                 .widget(craftingSlotGroup)
                 .widget(inventorySlotGroup)
                 .widget(scrollableWidgetGroup)
-                .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL)
-                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .bindPlayerInventory(player.inventory, 134)
                 .build(this.getHolder(), player);
     }

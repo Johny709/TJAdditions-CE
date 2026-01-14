@@ -65,6 +65,8 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         return ModularUI.defaultBuilder()
+                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
+                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 21, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new SlotWidget(this.importItems, 0, 34, 22, true, true)
                         .setBackgroundTexture(SLOT, BOXED_OVERLAY))
@@ -81,8 +83,6 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
                 .widget(new ToggleButtonWidget(25, 62, 18, 18, BUTTON_FLUID_OUTPUT, this::isAutoOutputFluids, this::setFluidAutoOutput))
                 .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
-                .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL)
-                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .bindPlayerInventory(player.inventory)
                 .build(this.getHolder(), player);
     }

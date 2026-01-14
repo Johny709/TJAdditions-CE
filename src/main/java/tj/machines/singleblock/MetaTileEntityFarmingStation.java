@@ -54,11 +54,22 @@ import static tj.gui.TJGuiTextures.*;
 
 public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity {
 
-    private final FarmingStationWorkableHandler workableHandler = new FarmingStationWorkableHandler(this);
+    private final FarmingStationWorkableHandler workableHandler = new FarmingStationWorkableHandler(this)
+            .setImportItemsSupplier(this::getImportItems)
+            .setExportItemsSupplier(this::getExportItems)
+            .setImportFluidsSupplier(this::getImportFluids)
+            .setToolInventory(this::getToolInventory)
+            .setFertilizerInventory(this::getFertilizerInventory)
+            .setImportEnergySupplier(this::getEnergyContainer)
+            .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setTierSupplier(this::getTier);
+
     private final IItemHandlerModifiable seedInventory = new FilteredItemStackHandler(this, 6, this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64)
             .setItemStackPredicate((slot, stack) -> stack.getItem() instanceof IPlantable || Block.getBlockFromItem(stack.getItem()) instanceof IPlantable);
+
     private final IItemHandlerModifiable fertilizerInventory = new FilteredItemStackHandler(this, 2, this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64)
             .setItemStackPredicate((slot, stack) -> (stack.getItem() instanceof ItemDye && stack.getItem().getMetadata(stack) == 15) || stack.isItemEqual(OreDictUnifier.get(OrePrefix.dust, OrganicFertilizer)));
+
     private final IItemHandlerModifiable toolInventory = new FilteredItemStackHandler(this, 3, 1)
             .setItemStackPredicate((slot, stack) -> {
                 switch (slot) {
@@ -68,6 +79,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                     default: return false;
                 }
             });
+
     private final IFluidTank waterTank = new FilteredFluidHandler(this.getTier() >= GTValues.ZPM ? 256000 : this.getTier() >= GTValues.EV ? 128000 : 64000).setFillPredicate(ModHandler::isWater);
 
     public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
@@ -126,6 +138,8 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                     .setBackgroundTexture(SLOT));
         }
         return ModularUI.builder(GuiTextures.BACKGROUND, 176, 182)
+                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
+                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 21, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new TJSlotWidget<>(this.toolInventory, 0, 52, 22)
                         .setBackgroundTexture(SLOT, HOE_OVERLAY))
@@ -153,8 +167,6 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
                 .widget(widgetGroup)
                 .widget(scrollableWidgetGroup)
-                .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL)
-                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .bindPlayerInventory(player.inventory, 100)
                 .build(this.getHolder(), player);
     }
