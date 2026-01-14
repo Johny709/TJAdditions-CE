@@ -51,7 +51,7 @@ public class TJProgressBarWidget extends Widget {
     }
 
     public TJProgressBarWidget(int x, int y, int width, int height, DoubleSupplier progressSupplier, DoubleSupplier maxProgressSupplier, boolean isFluid) {
-        this(x, y, width, height, progressSupplier, maxProgressSupplier, false, ProgressWidget.MoveType.HORIZONTAL);
+        this(x, y, width, height, progressSupplier, maxProgressSupplier, isFluid, ProgressWidget.MoveType.HORIZONTAL);
     }
 
     public TJProgressBarWidget(int x, int y, int width, int height, DoubleSupplier progressSupplier, DoubleSupplier maxProgressSupplier, boolean isFluid, ProgressWidget.MoveType moveType) {
@@ -142,7 +142,7 @@ public class TJProgressBarWidget extends Widget {
 
     @Override
     public void detectAndSendChanges() {
-        double progress = 0, maxProgress = 0;
+        double progress, maxProgress;
         if (this.progressSupplier != null && (progress = this.progressSupplier.getAsDouble()) != this.progress) {
             this.progress = progress;
             this.writeUpdateInfo(1, buffer -> buffer.writeDouble(this.progress));
