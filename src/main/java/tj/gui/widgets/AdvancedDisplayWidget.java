@@ -56,6 +56,9 @@ public class AdvancedDisplayWidget extends Widget {
     private final int color;
 
     private List<TextComponentWrapper<?>> displayText = new ArrayList<>();
+    private List<TextComponentWrapper<?>> hoverDisplayText;
+    private int lastHoverX;
+    private int lastHoverY;
     private BiConsumer<String, ClickData> clickHandler;
     private String textId;
 
@@ -206,6 +209,16 @@ public class AdvancedDisplayWidget extends Widget {
                 if (componentWrapper != null)
                     componentWrapper.setAdvancedHoverComponent(componentWrappers);
             }
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void updateScreen() {
+        if (!this.isShiftDown() && this.hoverDisplayText != null) {
+            this.hoverDisplayText = null;
+            this.lastHoverX = 0;
+            this.lastHoverY = 0;
         }
     }
 
@@ -372,12 +385,21 @@ public class AdvancedDisplayWidget extends Widget {
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         TextComponentWrapper<?> component = this.getTextUnderMouse(mouseX, mouseY);
-        if (component == null) return;
-        if (component.getAdvancedHoverComponent() != null && !component.getAdvancedHoverComponent().isEmpty()) {
-            Size size = this.updateComponentTextSize(component.getAdvancedHoverComponent());
-            TJGuiTextures.TOOLTIP_BOX.draw(mouseX, mouseY, size.getWidth() * 6 + 4, size.getHeight() + 3);
-            this.drawDisplayText(mouseX + 4, mouseY + 3, component.getAdvancedHoverComponent());
-        } else if (component.getValue() instanceof ITextComponent) {
+        if (this.hoverDisplayText == null) {
+            this.lastHoverX = mouseX;
+            this.lastHoverY = mouseY;
+            if (this.isShiftDown() && component != null)
+                this.hoverDisplayText = component.getAdvancedHoverComponent();
+        }
+        List<TextComponentWrapper<?>> displayText = this.hoverDisplayText != null ? this.hoverDisplayText
+                : component != null && component.getAdvancedHoverComponent() != null && !component.getAdvancedHoverComponent().isEmpty() ? component.getAdvancedHoverComponent()
+                : null;
+        if (displayText != null) {
+            Size size = this.updateComponentTextSize(displayText);
+            TJGuiTextures.TOOLTIP_BOX.draw(this.lastHoverX, this.lastHoverY, size.getWidth() * 6 + 4, size.getHeight() + 3);
+            this.drawDisplayText(this.lastHoverX + 4, this.lastHoverY + 3, displayText);
+        }
+        if (component != null && component.getValue() instanceof ITextComponent) {
             this.getWrapScreen().handleComponentHover((ITextComponent) component.getValue(), mouseX, mouseY);
         }
     }
@@ -385,12 +407,19 @@ public class AdvancedDisplayWidget extends Widget {
     @SideOnly(Side.CLIENT)
     protected TextComponentWrapper<?> getTextUnderMouse(int mouseX, int mouseY) {
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        Position position = this.getPosition();
         int slot = 0;
         int lastHeight = 0, lastWidth = 0;
         int heightApplied = 0, widthApplied = 0;
         boolean stackApplied = false;
-        for (TextComponentWrapper<?> component : this.displayText) {
+        List<TextComponentWrapper<?>> displayText = this.displayText;
+        int x = this.getPosition().getX();
+        int y = this.getPosition().getY();
+        if (this.hoverDisplayText != null) {
+            displayText = this.hoverDisplayText;
+            x += this.lastHoverX - x;
+            y += this.lastHoverY - y;
+        }
+        for (TextComponentWrapper<?> component : displayText) {
             if (component.getValue() instanceof ITextComponent) {
                 slot = 0;
                 heightApplied += 11;
@@ -398,14 +427,13 @@ public class AdvancedDisplayWidget extends Widget {
                     stackApplied = false;
                     heightApplied += 2;
                 }
-                if (mouseY >= position.getY() + lastHeight && mouseY <= position.getY() + heightApplied) {
+                if (mouseY >= y + lastHeight && mouseY <= y + heightApplied) {
                     int currentOffset = 0;
-                    int mouseOffset = mouseX - position.getX();
+                    int mouseOffset = mouseX - x;
                     for (ITextComponent lineComponent : (ITextComponent) component.getValue()) {
                         currentOffset += fontRenderer.getStringWidth(lineComponent.getUnformattedComponentText());
                         if (currentOffset >= mouseOffset) {
-                            return new TextComponentWrapper<>(lineComponent)
-                                    .setAdvancedHoverComponent(component.getAdvancedHoverComponent());
+                            return new TextComponentWrapper<>(lineComponent).setAdvancedHoverComponent(component.getAdvancedHoverComponent());
                         }
                     }
                 }
@@ -418,7 +446,7 @@ public class AdvancedDisplayWidget extends Widget {
                 } else lastHeight -= 18;
                 stackApplied = true;
                 widthApplied += 18;
-                if (mouseX >= position.getX() + lastWidth && mouseX <= position.getX() + widthApplied && mouseY >= position.getY() + lastHeight && mouseY <= position.getY() + heightApplied) {
+                if (mouseX >= x + lastWidth && mouseX <= x + widthApplied && mouseY >= y + lastHeight && mouseY <= y + heightApplied) {
                     if (component.getValue() instanceof ItemStack) {
                         ItemStack itemStack = (ItemStack) component.getValue();
                         List<String> tooltip = getItemToolTip(itemStack);

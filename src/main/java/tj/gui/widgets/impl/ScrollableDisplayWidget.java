@@ -66,7 +66,13 @@ public class ScrollableDisplayWidget extends ScrollableListWidget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        super.drawInForeground(mouseX, mouseY);
+        if (!this.isShiftDown()) {
+            super.drawInForeground(mouseX, mouseY);
+        } else for (Widget widget : this.widgets) {
+            if (this.isWidgetVisible(widget)) {
+                widget.drawInForeground(mouseX, mouseY);
+            }
+        }
         int scroll = mouseY - this.autoScrollY;
         if (this.autoScroll) {
             if (scroll > 5 || scroll < -5) {

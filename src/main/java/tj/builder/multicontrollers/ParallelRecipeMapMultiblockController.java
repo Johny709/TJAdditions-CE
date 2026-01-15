@@ -83,7 +83,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected int energyBonus = -1;
     protected long maxVoltage = 0;
     protected int pageIndex = 0;
-    protected final int pageSize = 6;
+    protected final int pageSize = 8;
     protected boolean advancedText;
     protected boolean isDistinctBus;
     protected int recipeMapIndex;
