@@ -1,11 +1,13 @@
 package tj.mixin.gregtech;
 
+import gregicadditions.Gregicality;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.MultiblockRecipeLogic;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
+import gregtech.api.recipes.RecipeMap;
 import gregtech.common.ConfigHolder;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Style;
@@ -13,6 +15,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import tj.builder.multicontrollers.UIDisplayBuilder;
@@ -45,6 +48,10 @@ public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithD
     @Shadow
     protected IMultipleTankHandler outputFluidInventory;
 
+    @Shadow
+    @Final
+    public RecipeMap<?> recipeMap;
+
     public RecipeMapMultiblockControllerMixin(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
     }
@@ -72,5 +79,10 @@ public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithD
                     }
                 }).isWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), 999)
                 .addRecipeOutputLine(this.recipeMapWorkable, 1000);
+    }
+
+    @Override
+    public String getRecipeUid() {
+        return Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName();
     }
 }

@@ -10,25 +10,38 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.gui.TJGuiUtils;
 
-public class TJLabelWidget extends Widget {
+import java.util.Collections;
+import java.util.function.Supplier;
+
+public class TJLabelWidget extends Widget implements IRecipeClickArea {
 
     private final TextureArea labelTexture;
+    private final Supplier<String> recipeUid;
     private int color = 0x404040;
     private int offsetX;
     private int tickCounter;
+    private int hoverTicks;
     private boolean slideAtEnd;
     private String locale;
+    private String uid;
     private ItemStack itemLabel;
     private FluidStack fluidLabel;
 
     public TJLabelWidget(int x, int y, int width, int height, TextureArea labelTexture) {
+        this(x, y, width, height, labelTexture, null);
+    }
+
+    public TJLabelWidget(int x, int y, int width, int height, TextureArea labelTexture, Supplier<String> recipeUid) {
         super(new Position(x, y), new Size(width, height));
         this.labelTexture = labelTexture;
+        this.recipeUid = recipeUid;
     }
 
     public TJLabelWidget setItemLabel(ItemStack itemLabel) {
@@ -85,6 +98,22 @@ public class TJLabelWidget extends Widget {
     }
 
     @Override
+    public void detectAndSendChanges() {
+        String uid;
+        if (this.recipeUid != null && !(uid = this.recipeUid.get()).equals(this.uid)) {
+            this.uid = uid;
+            this.writeUpdateInfo(1, buffer -> buffer.writeString(this.uid));
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void readUpdateInfo(int id, PacketBuffer buffer) {
+        if (id == 1)
+            this.uid = buffer.readString(Short.MAX_VALUE);
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         if (this.isMouseOverElement(mouseX, mouseY)) {
@@ -93,6 +122,20 @@ public class TJLabelWidget extends Widget {
                 this.offsetX = -(this.getSize().getWidth() - 24);
             } else if (this.tickCounter % 2 == 0 || this.tickCounter % 3 == 0)
                 this.offsetX++;
-        } else this.offsetX = 0;
+            if (++this.hoverTicks > 20 && this.uid != null) {
+                FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+                String format = I18n.format("jei.tooltip.show.recipes");
+                GuiUtils.drawHoveringText(Collections.singletonList(format), mouseX, mouseY, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight, 256, fontRenderer);
+            }
+        } else {
+            this.hoverTicks = 0;
+            this.offsetX = 0;
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public String getRecipeUid(int mouseX, int mouseY, int mouseButton) {
+        return mouseButton == 0 && this.isMouseOverElement(mouseX, mouseY) ? this.uid : null;
     }
 }

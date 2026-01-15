@@ -6,6 +6,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import com.google.common.collect.Lists;
 import gregicadditions.GAUtility;
+import gregicadditions.Gregicality;
 import gregicadditions.capabilities.IMultiRecipe;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -733,4 +734,9 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     @Override
     public void removeFromMultiBlock(MultiblockControllerBase multiblockControllerBase) {}
+
+    @Override
+    public String getRecipeUid() {
+        return Gregicality.MODID + ":" + this.getMultiblockRecipe().getUnlocalizedName();
+    }
 }

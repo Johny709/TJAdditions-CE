@@ -1,5 +1,6 @@
 package tj.machines.multi.electric;
 
+import gregicadditions.Gregicality;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.items.metaitem.MetaItem;
@@ -58,6 +59,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
+import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
@@ -424,13 +426,15 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                 .offsetY(132);
         if (height > 0)
             builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
+        builder.widget(new TJLabelWidget(-1, -38, 184, 20, TJGuiTextures.MACHINE_LABEL, () -> Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName())
+                .setItemLabel(this.getStackForm())
+                .setLocale(this.getMetaFullName()));
         builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN);
         builder.image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
         this.addTabs(tabBuilder);
         if (barMatrix != null)
             this.addBars(barMatrix, builder);
         builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height);
-        builder.widget(new LabelWidget(0, -13, this.getMetaFullName(), 0xFFFFFF));
         builder.widget(tabBuilder.build());
         return builder;
     }

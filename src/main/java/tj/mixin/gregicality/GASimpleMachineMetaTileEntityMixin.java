@@ -1,5 +1,6 @@
 package tj.mixin.gregicality;
 
+import gregicadditions.Gregicality;
 import gregicadditions.machines.overrides.GASimpleMachineMetaTileEntity;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.ProgressWidget;
@@ -26,7 +27,7 @@ public abstract class GASimpleMachineMetaTileEntityMixin extends GAWorkableTiere
                                          ModularUI.Builder builder, int leftButtonStartX, int rightButtonStartX) {
         if (!TJConfig.machines.multiblockUIOverrides) return;
         builder.image(3, 5, 170, 18, TJGuiTextures.UI_COVER)
-                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
+                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL, () -> Gregicality.MODID + ":" + this.workable.recipeMap.getUnlocalizedName())
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(7, 5, 18, 56, () -> this.energyContainer.getEnergyStored(), () -> this.energyContainer.getEnergyCapacity(), ProgressWidget.MoveType.VERTICAL)
                         .setLocale("tj.multiblock.bars.energy", null)

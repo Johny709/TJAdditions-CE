@@ -1,5 +1,6 @@
 package tj.mixin.gregtech;
 
+import gregicadditions.Gregicality;
 import gregtech.api.capability.impl.RecipeLogicSteam;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.resources.TextureArea;
@@ -52,7 +53,7 @@ public abstract class SteamMetaTileEntityMixin extends MetaTileEntity {
     private void injectCreateUITemplate(EntityPlayer player, CallbackInfoReturnable<ModularUI.Builder> cir) {
         if (!TJConfig.machines.multiblockUIOverrides) return;
         cir.setReturnValue(ModularUI.builder(BRONZE_BACKGROUND_TEXTURE, 176, 166)
-                .widget(new TJLabelWidget(7, -18, 166, 20, this.isHighPressure ? TJGuiTextures.MACHINE_LABEL_STEEL : TJGuiTextures.MACHINE_LABEL_BRONZE)
+                .widget(new TJLabelWidget(7, -18, 166, 20, this.isHighPressure ? TJGuiTextures.MACHINE_LABEL_STEEL : TJGuiTextures.MACHINE_LABEL_BRONZE, () -> Gregicality.MODID + ":" + this.workableHandler.recipeMap.getUnlocalizedName())
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(7, 5, 18, 74, this::getSteamAmount, this::getSteamCapacity, true, ProgressWidget.MoveType.VERTICAL)
                         .setLocale("tj.multiblock.bars.fluid", () -> new Object[]{MetaTileEntityCoalBoiler.STEAM.getLocalizedName()})

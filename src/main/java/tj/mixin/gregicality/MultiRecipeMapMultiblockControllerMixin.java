@@ -1,5 +1,6 @@
 package tj.mixin.gregicality;
 
+import gregicadditions.Gregicality;
 import gregicadditions.machines.multi.simple.MultiRecipeMapMultiblockController;
 import gregtech.api.recipes.RecipeMap;
 import net.minecraft.util.ResourceLocation;
@@ -21,10 +22,18 @@ public abstract class MultiRecipeMapMultiblockControllerMixin extends LargeSimpl
     @Shadow
     public abstract int getRecipeMapIndex();
 
+    @Shadow
+    public abstract RecipeMap<?>[] getRecipeMaps();
+
     @Override
     protected void configureDisplayText(UIDisplayBuilder builder) {
         super.configureDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.recipe", new TextComponentTranslation("recipemap." + this.recipeMaps[this.getRecipeMapIndex()].getUnlocalizedName() + ".name")));
+    }
+
+    @Override
+    public String getRecipeUid() {
+        return Gregicality.MODID + ":" + this.getRecipeMaps()[this.getRecipeMapIndex()].getUnlocalizedName();
     }
 }

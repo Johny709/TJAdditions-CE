@@ -1,5 +1,6 @@
 package tj.mixin.gregicality;
 
+import gregicadditions.Gregicality;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
