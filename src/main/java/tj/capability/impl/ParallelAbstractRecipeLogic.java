@@ -155,6 +155,14 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         return this.metaTileEntity.getExportFluids();
     }
 
+    public List<FluidStack> getFluidOutputs(int i) {
+        return this.fluidOutputs.get(i);
+    }
+
+    public NonNullList<ItemStack> getItemOutputs(int i) {
+        return this.itemOutputs.get(i);
+    }
+
     @Override
     public int getSize() {
         return this.size;

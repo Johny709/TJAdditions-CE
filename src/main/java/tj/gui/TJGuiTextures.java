@@ -5,8 +5,6 @@ import gregtech.api.gui.resources.TextureArea;
 
 public class TJGuiTextures {
 
-    public static final TextureArea NEW_MULTIBLOCK_DISPLAY = TextureArea.fullImage("textures/gui/base/multiblock_display_2.png");
-    public static final TextureArea NEW_MULTIBLOCK_DISPLAY_EXTENDED = TextureArea.fullImage("textures/gui/base/multiblock_display_2_extended.png");
     public static final TextureArea BORDERED_BACKGROUND_RIGHT = TextureArea.fullImage("textures/gui/base/bordered_background_right_tab.png");
     public static final TextureArea DARKENED_SLOT = TextureArea.fullImage("textures/gui/base/darkened_slot.png");
     public static final TextureArea MULTIBLOCK_DISPLAY_SCREEN = TextureArea.fullImage("textures/gui/base/multiblock_display_screen.png");
@@ -20,6 +18,7 @@ public class TJGuiTextures {
     public static final TextureArea UI_COVER_BRONZE = AdoptableTextureArea.fullImage("textures/gui/base/ui_cover_bronze.png");
     public static final TextureArea UI_COVER_STEEL = AdoptableTextureArea.fullImage("textures/gui/base/ui_cover_steel.png");
 
+    public static final TextureArea TOOLTIP_BOX = AdoptableTextureArea.fullImage("textures/gui/base/tooltip_box.png", 18, 18, 2, 2);
     public static final TextureArea FLUID_BAR = AdoptableTextureArea.fullImage("textures/gui/bar/fluid_bar.png", 10, 10, 1, 1);
 
     public static final TextureArea AUTOSCROLL = TextureArea.fullImage("textures/gui/base/auto_scroll.png");

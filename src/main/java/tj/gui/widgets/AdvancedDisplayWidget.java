@@ -28,6 +28,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
 import tj.util.consumers.QuadConsumer;
 
@@ -67,7 +68,9 @@ public class AdvancedDisplayWidget extends Widget {
     public AdvancedDisplayWidget setMaxWidthLimit(int maxWidthLimit) {
         this.maxWidthLimit = maxWidthLimit;
         if (isClientSide()) {
-            updateComponentTextSize();
+            Size size = this.updateComponentTextSize(this.displayText);
+            if (this.getSize().getWidth() != size.getWidth() || this.getSize().getHeight() != size.getHeight())
+                this.setSize(size);
         }
         return this;
     }
@@ -124,7 +127,7 @@ public class AdvancedDisplayWidget extends Widget {
     @Override
     public void detectAndSendChanges() {
         boolean areEqual = true;
-        UIDisplayBuilder displayBuilder = new UIDisplayBuilder();
+        UIDisplayBuilder displayBuilder = new UIDisplayBuilder(false);
         this.textSupplier.accept(displayBuilder);
         List<TextComponentWrapper<?>> displayText = displayBuilder.getTextComponentWrappers();
         if (this.displayText != null && this.displayText.size() == displayText.size()) {
@@ -134,26 +137,76 @@ public class AdvancedDisplayWidget extends Widget {
                     areEqual = false;
                     break;
                 }
+                List<TextComponentWrapper<?>> hoverDisplayText = this.displayText.get(i).getAdvancedHoverComponent();
+                List<TextComponentWrapper<?>> innerDisplayText = textComponentWrapper.getAdvancedHoverComponent();
+                if (hoverDisplayText != null && hoverDisplayText.size() == innerDisplayText.size()) {
+                    for (int j = 0; j < innerDisplayText.size(); j++) {
+                        TextComponentWrapper<?> innerTextComponentWrapper = innerDisplayText.get(j);
+                        if (!innerTextComponentWrapper.equals(hoverDisplayText.get(j).getValue())) {
+                            areEqual = false;
+                            break;
+                        }
+                    }
+                }
             }
         } else areEqual = false;
         if (areEqual) return;
         this.displayText = displayText;
-        this.writeUpdateInfo(1, buffer -> {
-            buffer.writeInt(this.displayText.size());
-            for (TextComponentWrapper<?> textComponentWrapper : this.displayText) {
-                if (textComponentWrapper.getValue() instanceof ItemStack) {
-                    buffer.writeInt(1);
-                    buffer.writeItemStack((ItemStack) textComponentWrapper.getValue());
-                } else if (textComponentWrapper.getValue() instanceof FluidStack) {
-                    buffer.writeInt(2);
-                    buffer.writeCompoundTag(((FluidStack) textComponentWrapper.getValue()).writeToNBT(new NBTTagCompound()));
-                } else if (textComponentWrapper.getValue() instanceof ITextComponent) {
-                    buffer.writeInt(3);
-                    buffer.writeString(ITextComponent.Serializer.componentToJson((ITextComponent) textComponentWrapper.getValue()));
-                }
-                buffer.writeInt(textComponentWrapper.getPriority());
+        this.writeUpdateInfo(1, buffer -> this.writeToBuffer(this.displayText, buffer));
+    }
+
+    private void writeToBuffer(List<TextComponentWrapper<?>> displayText, PacketBuffer buffer) {
+        buffer.writeInt(displayText.size());
+        for (TextComponentWrapper<?> textComponentWrapper : displayText) {
+            if (textComponentWrapper.getValue() instanceof ItemStack) {
+                buffer.writeByte(1);
+                buffer.writeItemStack((ItemStack) textComponentWrapper.getValue());
+            } else if (textComponentWrapper.getValue() instanceof FluidStack) {
+                buffer.writeByte(2);
+                buffer.writeCompoundTag(((FluidStack) textComponentWrapper.getValue()).writeToNBT(new NBTTagCompound()));
+            } else if (textComponentWrapper.getValue() instanceof ITextComponent) {
+                buffer.writeByte(3);
+                buffer.writeString(ITextComponent.Serializer.componentToJson((ITextComponent) textComponentWrapper.getValue()));
             }
-        });
+            buffer.writeInt(textComponentWrapper.getPriority());
+            buffer.writeBoolean(textComponentWrapper.getAdvancedHoverComponent() != null);
+            if (textComponentWrapper.getAdvancedHoverComponent() != null) {
+                this.writeToBuffer(textComponentWrapper.getAdvancedHoverComponent(), buffer);
+            }
+        }
+    }
+
+    private void readFromBuffer(List<TextComponentWrapper<?>> displayText, PacketBuffer buffer) {
+        int count = buffer.readInt();
+        for (int i = 0; i < count; i++) {
+            TextComponentWrapper<?> componentWrapper = null;
+            switch (buffer.readByte()) {
+                case 1:
+                    try {
+                        displayText.add(componentWrapper = new TextComponentWrapper<>(buffer.readItemStack()).setPriority(buffer.readInt()));
+                    } catch (IOException e) {
+                        GTLog.logger.info(e.getMessage());
+                    }
+                    break;
+                case 2:
+                    try {
+                        displayText.add(componentWrapper = new TextComponentWrapper<>(FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag())).setPriority(buffer.readInt()));
+                    } catch (IOException e) {
+                        GTLog.logger.info(e.getMessage());
+                    }
+                    break;
+                case 3:
+                    displayText.add(componentWrapper = new TextComponentWrapper<>(ITextComponent.Serializer.jsonToComponent(buffer.readString(Short.MAX_VALUE))).setPriority(buffer.readInt()));
+                    break;
+            }
+            if (buffer.readBoolean()) {
+                List<TextComponentWrapper<?>> componentWrappers = new ArrayList<>();
+                this.readFromBuffer(componentWrappers, buffer);
+                componentWrappers = this.formatDisplayText(componentWrappers);
+                if (componentWrapper != null)
+                    componentWrapper.setAdvancedHoverComponent(componentWrappers);
+            }
+        }
     }
 
     @Override
@@ -161,32 +214,11 @@ public class AdvancedDisplayWidget extends Widget {
     public void readUpdateInfo(int id, PacketBuffer buffer) {
         if (id == 1) {
             this.displayText.clear();
-            int count = buffer.readInt();
-            for (int i = 0; i < count; i++) {
-                switch (buffer.readInt()) {
-                    case 1:
-                        try {
-                            this.displayText.add(new TextComponentWrapper<>(buffer.readItemStack())
-                                    .setPriority(buffer.readInt()));
-                        } catch (IOException e) {
-                            GTLog.logger.info(e.getMessage());
-                        }
-                        break;
-                    case 2:
-                        try {
-                            this.displayText.add(new TextComponentWrapper<>(FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag()))
-                                    .setPriority(buffer.readInt()));
-                        } catch (IOException e) {
-                            GTLog.logger.info(e.getMessage());
-                        }
-                        break;
-                    case 3:
-                        this.displayText.add(new TextComponentWrapper<>(ITextComponent.Serializer.jsonToComponent(buffer.readString(Short.MAX_VALUE)))
-                                .setPriority(buffer.readInt()));
-                }
-            }
-            this.formatDisplayText();
-            this.updateComponentTextSize();
+            this.readFromBuffer(this.displayText, buffer);
+            this.displayText = this.formatDisplayText(this.displayText);
+            Size size = this.updateComponentTextSize(this.displayText);
+            if (this.getSize().getWidth() != size.getWidth() || this.getSize().getHeight() != size.getHeight())
+                this.setSize(size);
         }
     }
 
@@ -207,13 +239,13 @@ public class AdvancedDisplayWidget extends Widget {
     }
 
     @SideOnly(Side.CLIENT)
-    private void updateComponentTextSize() {
+    private Size updateComponentTextSize(List<TextComponentWrapper<?>> displayText) {
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         int slot = 0;
         int totalHeight = 0;
         int maxStringWidth = 0;
         boolean stackApplied = false;
-        for (TextComponentWrapper<?> component : this.displayText) {
+        for (TextComponentWrapper<?> component : displayText) {
             if (component.getValue() instanceof ITextComponent) {
                 if (stackApplied) {
                     stackApplied = false;
@@ -232,8 +264,7 @@ public class AdvancedDisplayWidget extends Widget {
         }
         if (stackApplied)
             totalHeight += 20;
-        if (this.getSize().getWidth() != maxStringWidth || this.getSize().getHeight() != totalHeight)
-            this.setSize(new Size(maxStringWidth, totalHeight));
+        return new Size(maxStringWidth, totalHeight);
     }
 
     @Override
@@ -244,12 +275,12 @@ public class AdvancedDisplayWidget extends Widget {
     }
 
     @SideOnly(Side.CLIENT)
-    private void formatDisplayText() {
+    private List<TextComponentWrapper<?>> formatDisplayText(List<TextComponentWrapper<?>> displayText) {
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         int maxTextWidthResult = this.maxWidthLimit == 0 ? Integer.MAX_VALUE : this.maxWidthLimit;
-        this.displayText = this.displayText.stream()
+        return displayText.stream()
                 .flatMap(component -> component.getValue() instanceof ITextComponent ? GuiUtilRenderComponents.splitText((ITextComponent) component.getValue(), maxTextWidthResult, fontRenderer, true, true).stream()
-                        .map(component2 -> new TextComponentWrapper<>(component2).setPriority(component.getPriority()))
+                        .map(component2 -> new TextComponentWrapper<>(component2).setPriority(component.getPriority()).setAdvancedHoverComponent(component.getAdvancedHoverComponent()))
                         : Stream.of(component))
                 .sorted(Comparator.comparingInt(TextComponentWrapper::getPriority))
                 .collect(Collectors.toList());
@@ -278,9 +309,9 @@ public class AdvancedDisplayWidget extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        ITextComponent textComponent = this.getTextUnderMouse(mouseX, mouseY);
-        if (textComponent != null) {
-            if (this.handleCustomComponentClick(textComponent) || this.getWrapScreen().handleComponentClick(textComponent)) {
+        TextComponentWrapper<?> textComponent = this.getTextUnderMouse(mouseX, mouseY);
+        if (textComponent != null && textComponent.getValue() instanceof ITextComponent) {
+            if (this.handleCustomComponentClick((ITextComponent) textComponent.getValue()) || this.getWrapScreen().handleComponentClick((ITextComponent) textComponent.getValue())) {
                 this.playButtonClickSound();
                 return true;
             }
@@ -291,8 +322,12 @@ public class AdvancedDisplayWidget extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+        this.drawDisplayText(this.getPosition().getX(), this.getPosition().getY(), this.displayText);
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void drawDisplayText(int x, int y, List<TextComponentWrapper<?>> displayText) {
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        Position position = this.getPosition();
         int slot = 0;
         int widthApplied = 0, heightApplied = 0;
         boolean stackApplied = false;
@@ -303,7 +338,7 @@ public class AdvancedDisplayWidget extends Widget {
                     widthApplied = 0;
                     heightApplied += 20;
                 }
-                fontRenderer.drawString(((ITextComponent) component.getValue()).getFormattedText(), position.getX() + widthApplied, position.getY() + heightApplied, color);
+                fontRenderer.drawString(((ITextComponent) component.getValue()).getFormattedText(), x + widthApplied, y + heightApplied, color);
                 heightApplied += 11;
             } else {
                 if (slot++ > 8 || !stackApplied) {
@@ -314,17 +349,17 @@ public class AdvancedDisplayWidget extends Widget {
                 } else widthApplied += 18;
                 stackApplied = true;
                 if (component.getValue() instanceof ItemStack) {
-                    GuiTextures.SLOT.draw(position.getX() + widthApplied, position.getY() + heightApplied, 18, 18);
-                    Widget.drawItemStack((ItemStack) component.getValue(), position.getX() + widthApplied + 1, position.getY() + heightApplied + 1, null);
+                    GuiTextures.SLOT.draw(x + widthApplied, y + heightApplied, 18, 18);
+                    Widget.drawItemStack((ItemStack) component.getValue(), x + widthApplied + 1, y + heightApplied + 1, null);
                 } else {
                     FluidStack fluidStack = (FluidStack) component.getValue();
-                    GuiTextures.FLUID_SLOT.draw(position.getX() + widthApplied, position.getY() + heightApplied, 18, 18);
+                    GuiTextures.FLUID_SLOT.draw(x + widthApplied, y + heightApplied, 18, 18);
                     GlStateManager.disableBlend();
-                    TJGuiUtils.drawFluidForGui(fluidStack, fluidStack.amount, fluidStack.amount, position.getX() + widthApplied + 1, position.getY() + heightApplied + 1, 17, 17);
+                    TJGuiUtils.drawFluidForGui(fluidStack, fluidStack.amount, fluidStack.amount, x + widthApplied + 1, y + heightApplied + 1, 17, 17);
                     GlStateManager.pushMatrix();
                     GlStateManager.scale(0.5, 0.5, 1);
                     String s = TextFormattingUtil.formatLongToCompactString(fluidStack.amount, 4) + "L";
-                    fontRenderer.drawStringWithShadow(s, (position.getX() + widthApplied + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (position.getY() + heightApplied + 14) * 2, 0xFFFFFF);
+                    fontRenderer.drawStringWithShadow(s, (x + widthApplied + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + heightApplied + 14) * 2, 0xFFFFFF);
                     GlStateManager.popMatrix();
                     GlStateManager.enableBlend();
                     GlStateManager.color(1.0f, 1.0f, 1.0f);
@@ -336,14 +371,19 @@ public class AdvancedDisplayWidget extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        ITextComponent component = this.getTextUnderMouse(mouseX, mouseY);
-        if (component != null) {
-            this.getWrapScreen().handleComponentHover(component, mouseX, mouseY);
+        TextComponentWrapper<?> component = this.getTextUnderMouse(mouseX, mouseY);
+        if (component == null) return;
+        if (component.getAdvancedHoverComponent() != null && !component.getAdvancedHoverComponent().isEmpty()) {
+            Size size = this.updateComponentTextSize(component.getAdvancedHoverComponent());
+            TJGuiTextures.TOOLTIP_BOX.draw(mouseX, mouseY, size.getWidth() * 6 + 4, size.getHeight() + 3);
+            this.drawDisplayText(mouseX + 4, mouseY + 3, component.getAdvancedHoverComponent());
+        } else if (component.getValue() instanceof ITextComponent) {
+            this.getWrapScreen().handleComponentHover((ITextComponent) component.getValue(), mouseX, mouseY);
         }
     }
 
     @SideOnly(Side.CLIENT)
-    protected ITextComponent getTextUnderMouse(int mouseX, int mouseY) {
+    protected TextComponentWrapper<?> getTextUnderMouse(int mouseX, int mouseY) {
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         Position position = this.getPosition();
         int slot = 0;
@@ -364,7 +404,8 @@ public class AdvancedDisplayWidget extends Widget {
                     for (ITextComponent lineComponent : (ITextComponent) component.getValue()) {
                         currentOffset += fontRenderer.getStringWidth(lineComponent.getUnformattedComponentText());
                         if (currentOffset >= mouseOffset) {
-                            return lineComponent;
+                            return new TextComponentWrapper<>(lineComponent)
+                                    .setAdvancedHoverComponent(component.getAdvancedHoverComponent());
                         }
                     }
                 }
@@ -388,19 +429,21 @@ public class AdvancedDisplayWidget extends Widget {
                             for (int j = 1; j < tooltip.size(); j++)
                                 hoverComponent.appendText("\n" + tooltip.get(j));
                         }
-                        return new TextComponentString("")
+                        return new TextComponentWrapper<>(new TextComponentString("")
                                 .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
                                         .appendSibling(hoverComponent)
-                                        .appendText("\n" + I18n.format("tj.machine.universal.item_amount", itemStack.getCount())))));
+                                        .appendText("\n" + I18n.format("tj.machine.universal.item_amount", itemStack.getCount()))))))
+                                .setAdvancedHoverComponent(component.getAdvancedHoverComponent());
                     } else {
                         FluidStack fluidStack = (FluidStack) component.getValue();
                         // Add chemical formula tooltip
                         String formula = FluidTooltipUtil.getFluidTooltip(fluidStack);
                         formula = formula == null || formula.isEmpty() ? "" : "\n" + formula;
-                        return new TextComponentString("")
+                        return new TextComponentWrapper<>(new TextComponentString("")
                                 .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(fluidStack.getLocalizedName())
                                         .appendText(ChatFormatting.GRAY + formula)
-                                        .appendText("\n" + I18n.format("tj.machine.universal.fluid_amount", fluidStack.amount)))));
+                                        .appendText("\n" + I18n.format("tj.machine.universal.fluid_amount", fluidStack.amount))))))
+                                .setAdvancedHoverComponent(component.getAdvancedHoverComponent());
                     }
                 }
             }
@@ -436,6 +479,7 @@ public class AdvancedDisplayWidget extends Widget {
 
         private final T value;
         private int priority;
+        private List<TextComponentWrapper<?>> advancedHoverComponent;
 
         public TextComponentWrapper(T value) {
             this.value = value;
@@ -446,12 +490,21 @@ public class AdvancedDisplayWidget extends Widget {
             return this;
         }
 
+        public TextComponentWrapper<?> setAdvancedHoverComponent(List<TextComponentWrapper<?>> advancedHoverComponent) {
+            this.advancedHoverComponent = advancedHoverComponent;
+            return this;
+        }
+
         public T getValue() {
             return this.value;
         }
 
         public int getPriority() {
             return this.priority;
+        }
+
+        public List<TextComponentWrapper<?>> getAdvancedHoverComponent() {
+            return this.advancedHoverComponent;
         }
 
         @Override

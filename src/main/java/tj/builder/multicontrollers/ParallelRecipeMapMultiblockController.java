@@ -30,6 +30,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
@@ -431,34 +432,46 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                 double progressPercent = this.recipeMapWorkable.getProgressPercent(i) * 100;
                 ITextComponent advancedTooltip = this.advancedText ? new TextComponentTranslation("tj.multiblock.parallel.advanced.on")
                         : new TextComponentTranslation("tj.multiblock.parallel.advanced.off").setStyle(new Style().setColor(TextFormatting.GRAY));
-                if (this.advancedText) {
-                    Recipe recipe = this.recipeMapWorkable.getRecipe(i);
-                    if (recipe != null) {
-                        this.displayRecipe(advancedTooltip, recipe, parallel);
-                    }
-                }
                 String isRunning = !this.recipeMapWorkable.isWorkingEnabled(i) ? I18n.translateToLocal("machine.universal.work_paused")
                         : this.recipeMapWorkable.hasProblems(i) ? I18n.translateToLocal("machine.universal.has_problems")
                         : !this.recipeMapWorkable.isInstanceActive(i) ? I18n.translateToLocal("machine.universal.idling")
                         : I18n.translateToLocal("machine.universal.running");
 
-                builder.addTextComponent(new TextComponentString(": [§a" + recipeHandlerInstance + "§r] " + isRunning)
-                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.status", isRunning))
-                                .appendText("\n")
-                                .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.handler", recipeHandlerInstance)))
-                                .appendText("\n")
-                                .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.eu", this.recipeMapWorkable.getRecipeEUt(i))))
-                                .appendText("\n")
-                                .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) this.recipeMapWorkable.getProgress(i) / 20), TJValues.thousandTwoPlaceFormat.format((double) this.recipeMapWorkable.getMaxProgress(i) / 20), (int) progressPercent)))
-                                .appendText("\n")
-                                .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel", parallel)))
-                                .appendText("\n\n")
-                                .appendSibling(advancedTooltip))))
+                int finalI = i;
+                int finalRecipeHandlerInstance = recipeHandlerInstance;
+                builder.addTextComponentWithHover(new TextComponentString(": [§a" + recipeHandlerInstance + "§r] " + isRunning)
                         .appendText(" ")
                         .appendSibling(this.recipeMapWorkable.getLockingMode(i) ? withButton(new TextComponentTranslation("tj.multiblock.parallel.lock"), "lock:" + i)
-                                : withButton(new TextComponentTranslation("tj.multiblock.parallel.unlock"), "unlock:" + i))
+                                : withButton(new TextComponentTranslation("tj.multiblock.parallel.unlock"), "unlock:" + finalI))
                         .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i)));
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + finalI)), hoverBuilder -> {
+                    hoverBuilder.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.status", isRunning))
+                            .appendText("\n")
+                            .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.handler", finalRecipeHandlerInstance)))
+                            .appendText("\n")
+                            .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.eu", this.recipeMapWorkable.getRecipeEUt(finalI))))
+                            .appendText("\n")
+                            .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) this.recipeMapWorkable.getProgress(finalI) / 20), TJValues.thousandTwoPlaceFormat.format((double) this.recipeMapWorkable.getMaxProgress(finalI) / 20), (int) progressPercent)))
+                            .appendText("\n")
+                            .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel", parallel)))
+                            .appendText("\n\n")
+                            .appendSibling(advancedTooltip));
+                    if (this.advancedText) {
+                        hoverBuilder.addTextComponent(new TextComponentTranslation("machine.universal.producing"));
+                        NonNullList<ItemStack> itemOutputs = this.recipeMapWorkable.getItemOutputs(finalI);
+                        if (itemOutputs != null) {
+                            for (ItemStack stack : itemOutputs) {
+                                hoverBuilder.addItemStack(stack);
+                            }
+                        }
+                        List<FluidStack> fluidOutputs = this.recipeMapWorkable.getFluidOutputs(finalI);
+                        if (fluidOutputs != null) {
+                            for (FluidStack stack : fluidOutputs) {
+                                hoverBuilder.addFluidStack(stack);
+                            }
+                        }
+                    }
+                });
             }
         }
     }

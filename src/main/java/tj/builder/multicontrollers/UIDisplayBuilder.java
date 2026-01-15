@@ -19,43 +19,70 @@ import tj.mixin.gregtech.IAbstractRecipeLogicMixin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.IntSupplier;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
 public final class UIDisplayBuilder {
 
     private final List<AdvancedDisplayWidget.TextComponentWrapper<?>> textComponentWrappers = new ArrayList<>();
+    private final boolean nested;
     private int count;
 
-    public UIDisplayBuilder() {
-
+    public UIDisplayBuilder(boolean nested) {
+        this.nested = nested;
     }
 
     public int increment() {
         return this.count++;
     }
 
-    public UIDisplayBuilder customLine(Consumer<CustomBuilder> textList) {
-        textList.accept(new CustomBuilder(this));
+    public UIDisplayBuilder customLine(Consumer<UIDisplayBuilder> textList) {
+        textList.accept(this);
         return this;
     }
 
     public UIDisplayBuilder addTextComponent(ITextComponent component, int priority) {
-        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(component)
-                .setPriority(priority));
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(component).setPriority(priority));
+        return this;
+    }
+
+    public UIDisplayBuilder addTextComponentWithHover(ITextComponent component, int priority, Consumer<UIDisplayBuilder> uiBuilder) {
+        if (this.nested)
+            throw new IllegalArgumentException("Cannot set hover text on hover text");
+        UIDisplayBuilder builder = new UIDisplayBuilder(true);
+        uiBuilder.accept(builder);
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(component).setPriority(priority)
+                .setAdvancedHoverComponent(builder.getTextComponentWrappers()));
         return this;
     }
 
     public UIDisplayBuilder addItemStack(ItemStack itemStack, int priority) {
-        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(itemStack)
-                .setPriority(priority));
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(itemStack).setPriority(priority));
+        return this;
+    }
+
+    public UIDisplayBuilder addItemStackWithHover(ItemStack itemStack, int priority, Consumer<UIDisplayBuilder> uiBuilder) {
+        if (this.nested)
+            throw new IllegalArgumentException("Cannot set hover text on hover text");
+        UIDisplayBuilder builder = new UIDisplayBuilder(true);
+        uiBuilder.accept(builder);
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(itemStack).setPriority(priority)
+                .setAdvancedHoverComponent(builder.getTextComponentWrappers()));
         return this;
     }
 
     public UIDisplayBuilder addFluidStack(FluidStack fluidStack, int priority) {
-        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(fluidStack)
-                .setPriority(priority));
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(fluidStack).setPriority(priority));
+        return this;
+    }
+
+    public UIDisplayBuilder addFluidStackWithHover(FluidStack fluidStack, int priority, Consumer<UIDisplayBuilder> uiBuilder) {
+        if (this.nested)
+            throw new IllegalArgumentException("Cannot set hover text on hover text");
+        UIDisplayBuilder builder = new UIDisplayBuilder(true);
+        uiBuilder.accept(builder);
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(fluidStack).setPriority(priority)
+                .setAdvancedHoverComponent(builder.getTextComponentWrappers()));
         return this;
     }
 
@@ -63,12 +90,24 @@ public final class UIDisplayBuilder {
         return this.addTextComponent(component, this.count++);
     }
 
+    public UIDisplayBuilder addTextComponentWithHover(ITextComponent component, Consumer<UIDisplayBuilder> uiBuilder) {
+        return this.addTextComponentWithHover(component, this.count++, uiBuilder);
+    }
+
     public UIDisplayBuilder addItemStack(ItemStack itemStack) {
         return this.addItemStack(itemStack, this.count++);
     }
 
+    public UIDisplayBuilder addItemStackWithHover(ItemStack itemStack, Consumer<UIDisplayBuilder> uiBuilder) {
+        return this.addItemStackWithHover(itemStack, this.count++, uiBuilder);
+    }
+
     public UIDisplayBuilder addFluidStack(FluidStack fluidStack) {
         return this.addFluidStack(fluidStack, this.count++);
+    }
+
+    public UIDisplayBuilder addFluidStackWithHover(FluidStack fluidStack, Consumer<UIDisplayBuilder> uiBuilder) {
+        return this.addFluidStackWithHover(fluidStack, this.count++, uiBuilder);
     }
 
     public UIDisplayBuilder addTranslationLine(String locale, Object... format) {
@@ -311,46 +350,5 @@ public final class UIDisplayBuilder {
 
     public List<AdvancedDisplayWidget.TextComponentWrapper<?>> getTextComponentWrappers() {
         return this.textComponentWrappers;
-    }
-
-    public final static class CustomBuilder {
-
-        private final List<AdvancedDisplayWidget.TextComponentWrapper<?>> textComponentWrappers;
-        private final IntSupplier count;
-
-        public CustomBuilder(UIDisplayBuilder builder) {
-            this.textComponentWrappers = builder.getTextComponentWrappers();
-            this.count = builder::increment;
-        }
-
-        public CustomBuilder addTextComponent(ITextComponent component, int priority) {
-            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(component)
-                    .setPriority(priority));
-            return this;
-        }
-
-        public CustomBuilder addItemStack(ItemStack itemStack, int priority) {
-            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(itemStack)
-                    .setPriority(priority));
-            return this;
-        }
-
-        public CustomBuilder addFluidStack(FluidStack fluidStack, int priority) {
-            this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(fluidStack)
-                    .setPriority(priority));
-            return this;
-        }
-
-        public CustomBuilder addTextComponent(ITextComponent component) {
-            return this.addTextComponent(component, this.count.getAsInt());
-        }
-
-        public CustomBuilder addItemStack(ItemStack itemStack) {
-            return this.addItemStack(itemStack, this.count.getAsInt());
-        }
-
-        public CustomBuilder addFluidStack(FluidStack fluidStack) {
-            return this.addFluidStack(fluidStack, this.count.getAsInt());
-        }
     }
 }
