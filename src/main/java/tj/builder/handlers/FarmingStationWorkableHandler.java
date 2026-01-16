@@ -307,20 +307,18 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             IBlockState state = world.getBlockState(pos);
             Block block = state.getBlock();
             boolean harvestable = false;
-            boolean harvested = false;
             double chance = 100;
             int count = 1;
             if (block instanceof BlockGregLog && !(toolStack = toolInventory.get().getStackInSlot(1)).isEmpty()) {
                 harvestable = this.damageTool(toolStack, (WorldServer) world);
                 if (harvestable && state.getValue(BlockGregLog.NATURAL))
-                    harvested = this.addItemDrop(RUBBER_REFERENCE.getItem(), 1 + world.rand.nextInt(2), RUBBER_REFERENCE.getMetadata());
+                    harvestable = this.addItemDrop(RUBBER_REFERENCE.getItem(), 1 + world.rand.nextInt(2), RUBBER_REFERENCE.getMetadata());
             } else if (block instanceof BlockLog && !(toolStack = toolInventory.get().getStackInSlot(1)).isEmpty()) {
                 harvestable = this.damageTool(toolStack, (WorldServer) world);
             } else if (block instanceof IShearable) {
                 IItemHandlerModifiable tool = toolInventory.get();
                 if (!(toolStack = tool.getStackInSlot(2)).isEmpty() && this.damageTool(toolStack, (WorldServer) world)) {
-                    harvested = this.addItemDrop(block, 1, block.damageDropped(state));
-                    harvestable = true;
+                    harvestable = this.addItemDrop(block, 1, block.damageDropped(state));
                     chance = 0;
                 } else if (!(toolStack = tool.getStackInSlot(1)).isEmpty() && this.damageTool(toolStack, (WorldServer) world)) {
                     harvestable = true;
@@ -332,19 +330,17 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
                     toolStack.damageItem(1, FakePlayerFactory.getMinecraft((WorldServer) world));
                     int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, toolStack);
                     IBlockState state1 = crops.withAge(0);
-                    harvested = this.addItemDrop(crops.getItemDropped(state1, world.rand, 0), 1 + world.rand.nextInt(2 + fortune), crops.getMetaFromState(state1));
                     count += world.rand.nextInt(3 + fortune);
-                    harvestable = true;
+                    harvestable = this.addItemDrop(crops.getItemDropped(state1, world.rand, 0), 1 + world.rand.nextInt(2 + fortune), crops.getMetaFromState(state1));
                 }
             }
             if (harvestable) {
                 if (chance >= Math.random() * 100) {
                     Item item = block.getItemDropped(state, world.rand, 0);
-                    harvested = this.addItemDrop(item, count, block.damageDropped(state));
+                    this.addItemDrop(item, count, block.damageDropped(state));
                 }
-                if (harvested)
-                    world.destroyBlock(pos, false);
-                if (!harvested || !this.inRange(pos))
+                world.destroyBlock(pos, false);
+                if (!this.inRange(pos))
                     return;
                 BlockPos.MutableBlockPos harvester = new BlockPos.MutableBlockPos(pos);
                 for (int x = -1; x < 2; x++) {
