@@ -271,7 +271,7 @@ public class AdvancedDisplayWidget extends Widget {
                     slot = 0;
                     if (stackApplied)
                         totalHeight += 18;
-                } else maxStringWidth = MathHelper.clamp(maxStringWidth + 3, 0, 30);
+                } else maxStringWidth = MathHelper.clamp(maxStringWidth + 3, 0, Integer.MAX_VALUE);
                 stackApplied = true;
             }
         }
@@ -322,7 +322,7 @@ public class AdvancedDisplayWidget extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        TextComponentWrapper<?> textComponent = this.getTextUnderMouse(mouseX, mouseY);
+        TextComponentWrapper<?> textComponent = this.getTextUnderMouse(mouseX, mouseY, this.hoverDisplayText != null ? this.hoverDisplayText : this.displayText, this.hoverDisplayText != null);
         if (textComponent != null && textComponent.getValue() instanceof ITextComponent) {
             if (this.handleCustomComponentClick((ITextComponent) textComponent.getValue()) || this.getWrapScreen().handleComponentClick((ITextComponent) textComponent.getValue())) {
                 this.playButtonClickSound();
@@ -384,19 +384,20 @@ public class AdvancedDisplayWidget extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        TextComponentWrapper<?> component = this.getTextUnderMouse(mouseX, mouseY);
+        boolean hovering = this.hoverDisplayText != null;
+        TextComponentWrapper<?> component = this.getTextUnderMouse(mouseX, mouseY, hovering ? this.hoverDisplayText : this.displayText, hovering);
         if (this.hoverDisplayText == null) {
             this.lastHoverX = mouseX;
             this.lastHoverY = mouseY;
             if (this.isShiftDown() && component != null)
                 this.hoverDisplayText = component.getAdvancedHoverComponent();
-        }
-        List<TextComponentWrapper<?>> displayText = this.hoverDisplayText != null ? this.hoverDisplayText
+        } else this.hoverDisplayText = this.getTextUnderMouse(this.lastHoverX, this.lastHoverY, this.displayText, false).getAdvancedHoverComponent();
+        List<TextComponentWrapper<?>> displayText = hovering ? this.hoverDisplayText
                 : component != null && component.getAdvancedHoverComponent() != null && !component.getAdvancedHoverComponent().isEmpty() ? component.getAdvancedHoverComponent()
                 : null;
         if (displayText != null) {
             Size size = this.updateComponentTextSize(displayText);
-            TJGuiTextures.TOOLTIP_BOX.draw(this.lastHoverX, this.lastHoverY, size.getWidth() * 6 + 4, size.getHeight() + 3);
+            TJGuiTextures.TOOLTIP_BOX.draw(this.lastHoverX, this.lastHoverY, size.getWidth() + 4, size.getHeight() + 3);
             this.drawDisplayText(this.lastHoverX + 4, this.lastHoverY + 3, displayText);
         }
         if (component != null && component.getValue() instanceof ITextComponent) {
@@ -405,17 +406,15 @@ public class AdvancedDisplayWidget extends Widget {
     }
 
     @SideOnly(Side.CLIENT)
-    protected TextComponentWrapper<?> getTextUnderMouse(int mouseX, int mouseY) {
+    protected TextComponentWrapper<?> getTextUnderMouse(int mouseX, int mouseY, List<TextComponentWrapper<?>> displayText, boolean hover) {
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         int slot = 0;
         int lastHeight = 0, lastWidth = 0;
         int heightApplied = 0, widthApplied = 0;
         boolean stackApplied = false;
-        List<TextComponentWrapper<?>> displayText = this.displayText;
         int x = this.getPosition().getX();
         int y = this.getPosition().getY();
-        if (this.hoverDisplayText != null) {
-            displayText = this.hoverDisplayText;
+        if (hover) {
             x += this.lastHoverX - x;
             y += this.lastHoverY - y;
         }
