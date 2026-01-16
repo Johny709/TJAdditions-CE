@@ -62,7 +62,7 @@ public abstract class FueledMultiblockControllerMixin extends MultiblockWithDisp
     }
 
     @Override
-    public String getRecipeUid() {
+    public String getJEIRecipeUid() {
         return Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName();
     }
 }

@@ -82,7 +82,7 @@ public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithD
     }
 
     @Override
-    public String getRecipeUid() {
+    public String getJEIRecipeUid() {
         return Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName();
     }
 }

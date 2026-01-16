@@ -215,13 +215,14 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
         builder.widget(new TJLabelWidget(-1, -38, 184, 20, MACHINE_LABEL, this::getRecipeUid)
                 .setItemLabel(this.getStackForm())
                 .setLocale(this.getMetaFullName()));
-        builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN);
-        builder.image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
+        builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN)
+                .image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
         this.addTabs(tabBuilder, entityPlayer);
         if (barMatrix != null)
             this.addBars(barMatrix, builder);
-        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height);
-        builder.widget(tabBuilder.build());
+        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
+                .widget(tabBuilder.build())
+                .widget(tabBuilder.buildWidgetGroup());
         return builder;
     }
 
@@ -377,6 +378,9 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
         this.isWorkingEnabled = data.getBoolean("IsWorking");
     }
 
+    /**
+     * Recipe Uid for JEI recipe click area.
+     */
     public String getRecipeUid() {
         return "";
     }

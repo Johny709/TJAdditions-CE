@@ -33,7 +33,7 @@ public abstract class MultiRecipeMapMultiblockControllerMixin extends LargeSimpl
     }
 
     @Override
-    public String getRecipeUid() {
+    public String getJEIRecipeUid() {
         return Gregicality.MODID + ":" + this.getRecipeMaps()[this.getRecipeMapIndex()].getUnlocalizedName();
     }
 }

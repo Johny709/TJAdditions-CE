@@ -32,6 +32,7 @@ import tj.capability.ProgressBar;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
 import tj.gui.widgets.AdvancedDisplayWidget;
+import tj.gui.widgets.IRecipeClickArea;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
@@ -101,16 +102,17 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
                 .offsetY(132);
         if (height > 0)
             builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
-        builder.widget(new TJLabelWidget(-1, -38, 184, 20, TJGuiTextures.MACHINE_LABEL, () -> Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName())
+        builder.widget(new TJLabelWidget(-1, -38, 184, 20, TJGuiTextures.MACHINE_LABEL, this::getRecipeUid)
                 .setItemLabel(this.getStackForm())
                 .setLocale(this.getMetaFullName()));
-        builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN);
-        builder.image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
+        builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN)
+                .image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
         this.addTabs(tabBuilder);
         if (barMatrix != null)
             this.addBars(barMatrix, builder);
-        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height);
-        builder.widget(tabBuilder.build());
+        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
+                .widget(tabBuilder.build())
+                .widget(tabBuilder.buildWidgetGroup());
         return builder;
     }
 
@@ -286,5 +288,12 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
     public void storeTaped(boolean isTaped) {
         this.storedTaped = isTaped;
         writeCustomData(STORE_TAPED, buf -> buf.writeBoolean(isTaped));
+    }
+
+    /**
+     * Recipe Uid for JEI recipe click area.
+     */
+    public String getRecipeUid() {
+        return Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName();
     }
 }

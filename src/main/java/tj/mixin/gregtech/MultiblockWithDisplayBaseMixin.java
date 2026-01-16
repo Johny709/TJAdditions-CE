@@ -71,16 +71,17 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
                     .offsetY(132);
             if (height > 0)
                 builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
-            builder.widget(new TJLabelWidget(-1, -38, 184, 20, TJGuiTextures.MACHINE_LABEL, this::getRecipeUid)
+            builder.widget(new TJLabelWidget(-1, -38, 184, 20, TJGuiTextures.MACHINE_LABEL, this::getJEIRecipeUid)
                     .setItemLabel(this.getStackForm())
                     .setLocale(this.getMetaFullName()));
-            builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN);
-            builder.image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
+            builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN)
+                    .image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
             this.addNewTabs(tabBuilder);
             if (barMatrix != null)
                 this.addNewBars(barMatrix, builder);
-            builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height);
-            builder.widget(tabBuilder.build());
+            builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
+                    .widget(tabBuilder.build())
+                    .widget(tabBuilder.buildWidgetGroup());
             cir.setReturnValue(builder);
         }
     }
@@ -158,7 +159,7 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     }
 
     @Unique
-    public String getRecipeUid() {
+    public String getJEIRecipeUid() {
         return "";
     }
 }
