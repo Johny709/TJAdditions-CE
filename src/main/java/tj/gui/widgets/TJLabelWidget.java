@@ -100,7 +100,7 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
     @Override
     public void detectAndSendChanges() {
         String uid;
-        if (this.recipeUid != null && !(uid = this.recipeUid.get()).equals(this.uid)) {
+        if (this.recipeUid != null && (uid = this.recipeUid.get()) != null && !uid.equals(this.uid))  {
             this.uid = uid;
             this.writeUpdateInfo(1, buffer -> buffer.writeString(this.uid));
         }

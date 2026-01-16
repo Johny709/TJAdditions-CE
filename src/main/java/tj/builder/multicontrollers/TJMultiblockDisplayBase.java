@@ -382,6 +382,6 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
      * Recipe Uid for JEI recipe click area.
      */
     public String getRecipeUid() {
-        return "";
+        return null;
     }
 }

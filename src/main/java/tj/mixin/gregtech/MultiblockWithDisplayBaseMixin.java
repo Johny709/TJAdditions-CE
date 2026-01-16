@@ -160,6 +160,6 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
 
     @Unique
     public String getJEIRecipeUid() {
-        return "";
+        return null;
     }
 }

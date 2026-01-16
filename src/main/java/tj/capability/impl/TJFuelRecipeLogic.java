@@ -179,6 +179,8 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
         if (previousRecipe == null)
             return null;
         FluidStack fuelStack = previousRecipe.getRecipeFluid();
+        if (fuelStack == null)
+            return null;
         return fluidTank.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
     }
 
