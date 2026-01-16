@@ -397,8 +397,8 @@ public class AdvancedDisplayWidget extends Widget {
                 : null;
         if (displayText != null) {
             Size size = this.updateComponentTextSize(displayText);
-            TJGuiTextures.TOOLTIP_BOX.draw(this.lastHoverX, this.lastHoverY, size.getWidth() + 4, size.getHeight() + 3);
-            this.drawDisplayText(this.lastHoverX + 4, this.lastHoverY + 3, displayText);
+            TJGuiTextures.TOOLTIP_BOX.draw(this.lastHoverX, this.lastHoverY, size.getWidth() + 7, size.getHeight() + 5);
+            this.drawDisplayText(this.lastHoverX + 4, this.lastHoverY + 4, displayText);
         }
         if (component != null && component.getValue() instanceof ITextComponent) {
             this.getWrapScreen().handleComponentHover((ITextComponent) component.getValue(), mouseX, mouseY);

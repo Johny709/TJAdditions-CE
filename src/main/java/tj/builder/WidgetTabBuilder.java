@@ -69,7 +69,7 @@ public class WidgetTabBuilder {
     }
 
     public WidgetGroup buildWidgetGroup() {
-        WidgetGroup widgetGroup = new WidgetGroup(), offsetWidgetGroup = new WidgetGroup(new Position(0, -this.position.getY()));
+        WidgetGroup widgetGroup = new WidgetGroup(this.position), offsetWidgetGroup = new WidgetGroup(new Position(0, -this.position.getY()));
         this.widgetGroup.forEach(widget -> {
             if (widget.getPosition().getY() < this.offsetY)
                 offsetWidgetGroup.addWidget(widget);
