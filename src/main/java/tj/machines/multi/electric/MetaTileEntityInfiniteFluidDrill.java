@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
+import gregicadditions.Gregicality;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
@@ -175,6 +176,11 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase im
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
+    }
+
+    @Override
+    public String getRecipeUid() {
+        return Gregicality.MODID + ":drilling_rig";
     }
 
     @Override

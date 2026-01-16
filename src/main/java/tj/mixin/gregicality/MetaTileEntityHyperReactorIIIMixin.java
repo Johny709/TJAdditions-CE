@@ -90,6 +90,7 @@ public abstract class MetaTileEntityHyperReactorIIIMixin extends GAFueledMultibl
     @Override
     protected void configureDisplayText(UIDisplayBuilder builder) {
         super.configureDisplayText(builder);
+        if (!this.isStructureFormed()) return;
         TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
         FluidStack fuelStack = workableHandler.getFuelStack();
         FluidStack booster = this.importFluidHandler.drain(this.booster, false);

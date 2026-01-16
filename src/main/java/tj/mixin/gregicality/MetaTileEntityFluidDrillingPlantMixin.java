@@ -2,6 +2,7 @@ package tj.mixin.gregicality;
 
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
+import gregicadditions.Gregicality;
 import gregicadditions.machines.multi.drill.MetaTileEntityFluidDrillingPlant;
 import gregicadditions.worldgen.PumpjackHandler;
 import gregtech.api.capability.IEnergyContainer;
@@ -88,6 +89,11 @@ public abstract class MetaTileEntityFluidDrillingPlantMixin extends MultiblockWi
     }
 
     @Override
+    public String getJEIRecipeUid() {
+        return Gregicality.MODID + ":drilling_rig";
+    }
+
+    @Override
     public int[][] getBarMatrix() {
         return new int[1][1];
     }
@@ -101,12 +107,16 @@ public abstract class MetaTileEntityFluidDrillingPlantMixin extends MultiblockWi
 
     @Unique
     private long getVeinStackAmount() {
+        if (this.currentLocation == null)
+            return 0;
         PumpjackHandler.OilWorldInfo oilWorldInfo = PumpjackHandler.getOilWorldInfo(getWorld(), this.currentLocation[0], this.currentLocation[1]);
         return oilWorldInfo != null ? oilWorldInfo.current : 0;
     }
 
     @Unique
     private long getVeinStackCapacity() {
+        if (this.currentLocation == null)
+            return 0;
         PumpjackHandler.OilWorldInfo oilWorldInfo = PumpjackHandler.getOilWorldInfo(getWorld(), this.currentLocation[0], this.currentLocation[1]);
         return oilWorldInfo != null ? oilWorldInfo.capacity : 0;
     }

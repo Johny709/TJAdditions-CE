@@ -94,6 +94,7 @@ public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMu
     @Override
     protected void configureDisplayText(UIDisplayBuilder builder) {
         super.configureDisplayText(builder);
+        if (!this.isStructureFormed()) return;
         TJCycleFuelRecipeLogic workableHandler = (TJCycleFuelRecipeLogic) this.workableHandler;
         FluidStack fuelStack = workableHandler.getFuelStack();
         FluidStack booster = this.importFluidHandler.drain(this.booster, false);

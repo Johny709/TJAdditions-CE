@@ -4,6 +4,7 @@ import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.multiblock.BlockWorldState;
@@ -329,6 +330,11 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
     @Override
     public boolean isWorkingEnabled() {
         return this.boilerRecipeLogic.isWorkingEnabled();
+    }
+
+    @Override
+    public String getRecipeUid() {
+        return GTValues.MODID + ":" + RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.getUnlocalizedName();
     }
 
     private ItemHandlerList getItemImportInventory() {

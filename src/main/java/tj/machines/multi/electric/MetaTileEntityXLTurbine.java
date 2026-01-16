@@ -409,6 +409,11 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     }
 
     @Override
+    public String getRecipeUid() {
+        return GTValues.MODID + ":" + this.recipeMap.getUnlocalizedName();
+    }
+
+    @Override
     public int[][] getBarMatrix() {
         return new int[1][1];
     }

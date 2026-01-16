@@ -1,6 +1,6 @@
 package tj.mixin.gregtech;
 
-import gregicadditions.Gregicality;
+import gregtech.api.GTValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.FuelRecipeLogic;
@@ -63,6 +63,6 @@ public abstract class FueledMultiblockControllerMixin extends MultiblockWithDisp
 
     @Override
     public String getJEIRecipeUid() {
-        return Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName();
+        return GTValues.MODID + ":" + this.recipeMap.getUnlocalizedName();
     }
 }

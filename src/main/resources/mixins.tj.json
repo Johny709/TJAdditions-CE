@@ -44,6 +44,7 @@
     "gregtech.IMetaTileEntityEnergyHatchMixin",
     "gregtech.IRecipeMapMultiblockControllerMixin",
     "gregtech.MetaTileEntityDieselEngineMixin",
+    "gregtech.MetaTileEntityLargeBoilerMixin",
     "gregtech.MetaTileEntityLargeTurbineMixin",
     "gregtech.MultiblockWithDisplayBaseMixin",
     "gregtech.RecipeMapMultiblockControllerMixin",

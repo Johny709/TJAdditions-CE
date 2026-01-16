@@ -5,6 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
+import gregtech.api.GTValues;
 import gregtech.api.capability.*;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidFuelInfo;
@@ -269,6 +270,11 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
 
     public long getMaxVoltage() {
         return this.maxVoltage;
+    }
+
+    @Override
+    public String getRecipeUid() {
+        return GTValues.MODID + ":" + RecipeMaps.STEAM_TURBINE_FUELS.getUnlocalizedName();
     }
 
     private static class SteamEngineWorkableHandler extends AbstractWorkableHandler<SteamEngineWorkableHandler> implements IGeneratorInfo, IFuelable {

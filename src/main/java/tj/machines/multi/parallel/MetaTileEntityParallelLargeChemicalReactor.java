@@ -42,7 +42,6 @@ import static tj.TJRecipeMaps.PARALLEL_CHEMICAL_REACTOR_RECIPES;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.recipes.GARecipeMaps.LARGE_CHEMICAL_RECIPES;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.CHEMICAL_RECIPES;
 import static gregtech.api.unification.material.Materials.Steel;
 
 
@@ -186,6 +185,6 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
 
     @Override
     public RecipeMap<?>[] getRecipeMaps() {
-        return new RecipeMap[]{CHEMICAL_RECIPES, LARGE_CHEMICAL_RECIPES};
+        return new RecipeMap[]{LARGE_CHEMICAL_RECIPES};
     }
 }
