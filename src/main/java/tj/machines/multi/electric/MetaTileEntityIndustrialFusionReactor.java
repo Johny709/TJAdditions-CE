@@ -33,6 +33,8 @@ import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityMultiblockPart;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -64,7 +66,6 @@ import tj.capability.IHeatInfo;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.TJCapabilities;
-import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJCycleButtonWidget;
 import tj.machines.multi.BatchMode;
 import tj.textures.TJTextures;
@@ -521,7 +522,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             long recipeEnergy = Math.max(160_000_000, matchingRecipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L));
 
             this.fusionReactor.setRecipe(recipeEnergy, matchingRecipe);
-            Map<String, Integer> countFluid = new HashMap<>();
+            Object2IntMap<String> countFluid = new Object2IntOpenHashMap<>();
             if (!matchingRecipe.getFluidInputs().isEmpty()) {
 
                 this.findFluid(countFluid, fluidInputs);

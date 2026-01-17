@@ -32,6 +32,8 @@ import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -408,7 +410,7 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
                 newRecipe.fluidOutputs(newOutput);
             }
             Recipe modifiedRecipe = newRecipe.build().getResult();
-            Map<String, Integer> countFluid = new HashMap<>();
+            Object2IntMap<String> countFluid = new Object2IntOpenHashMap<>();
             if (!modifiedRecipe.getFluidInputs().isEmpty()) {
 
                 this.findFluid(countFluid, fluidInputs);
