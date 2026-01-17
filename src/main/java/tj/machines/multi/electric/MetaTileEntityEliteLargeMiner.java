@@ -57,6 +57,7 @@ import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.PopUpWidgetGroup;
 import tj.machines.ExtendedItemFilter;
@@ -342,25 +343,25 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
             this.oreDictFilter.initUI(oreDictPopUp::addWidget);
             this.enableOreDictPopUp = oreDictPopUp::setEnabled;
             this.enableOreDictPopUp.apply(this.oreDict);
-            filterTab.addWidget(new ToggleButtonWidget(172, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
+            filterTab.add(new ToggleButtonWidget(175, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
                     .setTooltipText("machine.universal.toggle.filter"));
-            filterTab.addWidget(new ImageWidget(172, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
-            filterTab.addWidget(new ToggleButtonWidget(172, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
+            filterTab.add(new ImageWidget(175, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
+            filterTab.add(new ToggleButtonWidget(175, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
                     .setTooltipText("cover.filter.blacklist"));
-            filterTab.addWidget(new ToggleButtonWidget(172, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, this::isOreDict, this::setOreDict)
+            filterTab.add(new ToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, this::isOreDict, this::setOreDict)
                     .setTooltipText("cover.filter.ore_dictionary.open"));
-            filterTab.addWidget(slotsPopUp);
-            filterTab.addWidget(oreDictPopUp);
+            filterTab.add(slotsPopUp);
+            filterTab.add(oreDictPopUp);
         });
-        tabBuilder.addTab("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab -> settingsTab.addWidget(new AdvancedTextWidget(10,-2, this::addSettingsDisplayText, 0xFFFFFF)
+        tabBuilder.addTab("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab -> settingsTab.add(new AdvancedTextWidget(10,-2, this::addSettingsDisplayText, 0xFFFFFF)
                 .setMaxWidthLimit(180)
                 .setClickHandler(this::handleSettingDisplayText)));
     }
 
     @Override
-    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::setDone)
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::setDone)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 
@@ -443,24 +444,24 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         if (this.isStructureFormed()) {
             if(this.x.get() == Long.MAX_VALUE) {
-                textList.add(new TextComponentString("X: Not Active"));
-                textList.add(new TextComponentString("Y: Not Active"));
-                textList.add(new TextComponentString("Z: Not Active"));
+                builder.addTextComponent(new TextComponentString("X: Not Active"));
+                builder.addTextComponent(new TextComponentString("Y: Not Active"));
+                builder.addTextComponent(new TextComponentString("Z: Not Active"));
             } else {
-                textList.add(new TextComponentString(String.format("X: %d", this.x.get())));
-                textList.add(new TextComponentString(String.format("Y: %d", this.y.get())));
-                textList.add(new TextComponentString(String.format("Z: %d", this.z.get())));
+                builder.addTextComponent(new TextComponentString(String.format("X: %d", this.x.get())));
+                builder.addTextComponent(new TextComponentString(String.format("Y: %d", this.y.get())));
+                builder.addTextComponent(new TextComponentString(String.format("Z: %d", this.z.get())));
             }
-            textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.chunk", this.currentChunk.get()));
-            textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.nb_chunk", this.chunks.size()));
-            textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.block_per_tick", getNbBlock()));
+            builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.chunk", this.currentChunk.get()));
+            builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.nb_chunk", this.chunks.size()));
+            builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.block_per_tick", getNbBlock()));
             if (this.type != Type.CREATIVE) {
-                textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.silktouch", this.silktouch));
-                textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.mode"));
+                builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.silktouch", this.silktouch));
+                builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.mode"));
             }
             ITextComponent toggleContinous = new TextComponentTranslation("tj.multiblock.elite_large_miner.restart");
             toggleContinous.appendText(" ");
@@ -469,10 +470,10 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase imple
                 toggleContinous.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.restart.true"), "true"));
             else toggleContinous.appendSibling(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.restart.false"), "false"));
 
-            textList.add(toggleContinous);
+            builder.addTextComponent(toggleContinous);
 
             if (this.done)
-                textList.add(new TextComponentTranslation("gregtech.multiblock.large_miner.done", getNbBlock()).setStyle(new Style().setColor(TextFormatting.GREEN)));
+                builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.done", getNbBlock()).setStyle(new Style().setColor(TextFormatting.GREEN)));
         }
     }
 

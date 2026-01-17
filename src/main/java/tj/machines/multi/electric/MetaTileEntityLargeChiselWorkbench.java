@@ -26,7 +26,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -35,7 +34,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
 import tj.builder.handlers.ChiselWorkbenchWorkableHandler;
 import tj.builder.multicontrollers.ExtendableMultiblockController;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -53,7 +52,13 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
-    private final ChiselWorkbenchWorkableHandler workableHandler = new ChiselWorkbenchWorkableHandler(this);
+    private final ChiselWorkbenchWorkableHandler workableHandler = new ChiselWorkbenchWorkableHandler(this)
+            .setImportEnergySupplier(this::getEnergyInput)
+            .setExportItemsSupplier(this::getItemOutputs)
+            .setImportItemsSupplier(this::getItemInputs)
+            .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setParallelSupplier(this::getParallel)
+            .setInputBus(this::getInputBus);
     private IItemHandlerModifiable itemInputs;
     private IItemHandlerModifiable itemOutputs;
     private IEnergyContainer energyInput;
@@ -62,12 +67,6 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
 
     public MetaTileEntityLargeChiselWorkbench(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportItemsSupplier(() -> this.itemInputs)
-                .setExportItemsSupplier(() -> this.itemOutputs)
-                .setImportEnergySupplier(() -> this.energyInput)
-                .setInputBus(this::getInputBus)
-                .setMaxVoltageSupplier(() -> this.maxVoltage)
-                .setParallelSupplier(() -> this.parallel);
     }
 
     @Override
@@ -89,20 +88,21 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         if (this.isStructureFormed())
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.energyInput)
-                    .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInput(!this.workableHandler.hasNotEnoughEnergy(), this.workableHandler.getEnergyPerTick())
-                    .addTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
-                    .custom(text -> text.add(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
+            builder.voltageInLine(this.energyInput)
+                    .voltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
+                    .energyInputLine(this.energyInput, this.workableHandler.getEnergyPerTick())
+                    .addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
+                    .customLine(text -> text.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")
                             .appendSibling(this.workableHandler.isDistinct()
                                     ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
                                     : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
-                    .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                    .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+                    .addRecipeInputLine(this.workableHandler)
+                    .addRecipeOutputLine(this.workableHandler);
     }
 
     @Override
@@ -190,5 +190,25 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
     @Override
     public int getMaxParallel() {
         return TJConfig.largeChiselWorkbench.maximumSlices;
+    }
+
+    private IItemHandlerModifiable getItemInputs() {
+        return itemInputs;
+    }
+
+    private IItemHandlerModifiable getItemOutputs() {
+        return itemOutputs;
+    }
+
+    private IEnergyContainer getEnergyInput() {
+        return energyInput;
+    }
+
+    private long getMaxVoltage() {
+        return maxVoltage;
+    }
+
+    private int getParallel() {
+        return parallel;
     }
 }

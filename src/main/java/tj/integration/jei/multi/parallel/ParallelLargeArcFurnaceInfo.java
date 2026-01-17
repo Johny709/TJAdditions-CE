@@ -56,10 +56,10 @@ public class ParallelLargeArcFurnaceInfo extends TJMultiblockInfoPage implements
                         .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE))
                         .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
                         .where('E', this.getEnergyHatch(tier, false), EAST)
-                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
-                        .where('i', MetaTileEntities.ITEM_EXPORT_BUS[0], EAST)
-                        .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                        .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], EAST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], WEST)
+                        .where('i', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], EAST)
+                        .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], WEST)
+                        .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], EAST)
                         .build();
             }
             shapeInfos.add(infos);

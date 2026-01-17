@@ -44,10 +44,13 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.blocks.AbilityBlocks;
 import tj.blocks.TJMetaBlocks;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IHeatInfo;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
 import tj.capability.TJCapabilities;
+import tj.gui.TJGuiTextures;
 import tj.multiblockpart.TJMultiblockAbility;
 import tj.util.Color;
 import tj.util.TooltipHelper;
@@ -55,13 +58,14 @@ import tj.util.TooltipHelper;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
 import static gregtech.api.unification.material.Materials.*;
 
-public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase implements IWorkable, IHeatInfo {
+public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase implements IWorkable, IHeatInfo, IProgressBar {
 
     private static final FluidStack WATER = Water.getFluid(1);
     private static final FluidStack DISTILLED_WATER = DistilledWater.getFluid(1);
@@ -148,34 +152,29 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        if (this.isStructureFormed()) {
-            boolean hasEnoughWater = false;
-            FluidStack water = Water.getFluid(this.waterConsumption), distilledWater = DistilledWater.getFluid(this.waterConsumption);
-            if (this.hasEnoughWater(water, this.waterConsumption)) {
-                hasEnoughWater = true;
-            } else if (this.hasEnoughWater(distilledWater, this.waterConsumption)) {
-                hasEnoughWater = true;
-                water = distilledWater;
-            }
-            MultiblockDisplayBuilder.start(textList)
-                    .temperature(this.heat(), this.maxHeat())
-                    .fluidInput(hasEnoughWater, water)
-                    .custom(text -> {
-                        text.add(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.steamProduction, 900));
-
-                        ITextComponent heatEffText = new TextComponentTranslation("gregtech.multiblock.large_boiler.heat_efficiency",100);
-                        withHoverTextTranslate(heatEffText, "gregtech.multiblock.large_boiler.heat_efficiency.tooltip");
-                        text.add(heatEffText);
-                        if (this.calcification > 0)
-                            text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.large_solar_boiler.calcification", (this.calcification == 240000 ? Color.RED : Color.DARK_AQUA) + TJValues.thousandTwoPlaceFormat.format(this.getCalcificationPercent() * 100))));
-                        if (!this.canBurn())
-                            text.add(new TextComponentTranslation("tj.multiblock.large_solar_boiler.obstructed").setStyle(new Style().setColor(TextFormatting.RED)));
-                        if (!this.areSolarCollectorsValid())
-                            text.add(new TextComponentTranslation("tj.multiblock.large_solar_boiler.invalid").setStyle(new Style().setColor(TextFormatting.RED)));
-                    }).isWorking(this.isWorkingEnabled(), this.isActive(), this.getProgress(), this.getMaxProgress());
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        FluidStack water = Water.getFluid(this.waterConsumption), distilledWater = DistilledWater.getFluid(this.waterConsumption);
+        if (this.hasEnoughWater(water, this.waterConsumption)) {
+        } else if (this.hasEnoughWater(distilledWater, this.waterConsumption)) {
+            water = distilledWater;
         }
+        builder.temperatureLine(this.heat(), this.maxHeat())
+                .fluidInputLine(this.waterTank, water)
+                .customLine(text -> {
+                    text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.steamProduction, 900));
+
+                    ITextComponent heatEffText = new TextComponentTranslation("gregtech.multiblock.large_boiler.heat_efficiency",100);
+                    withHoverTextTranslate(heatEffText, "gregtech.multiblock.large_boiler.heat_efficiency.tooltip");
+                    text.addTextComponent(heatEffText);
+                    if (this.calcification > 0)
+                        text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.large_solar_boiler.calcification", (this.calcification == 240000 ? Color.RED : Color.DARK_AQUA) + TJValues.thousandTwoPlaceFormat.format(this.getCalcificationPercent() * 100))));
+                    if (!this.canBurn())
+                        text.addTextComponent(new TextComponentTranslation("tj.multiblock.large_solar_boiler.obstructed").setStyle(new Style().setColor(TextFormatting.RED)));
+                    if (!this.areSolarCollectorsValid())
+                        text.addTextComponent(new TextComponentTranslation("tj.multiblock.large_solar_boiler.invalid").setStyle(new Style().setColor(TextFormatting.RED)));
+                }).isWorkingLine(this.isWorkingEnabled(), this.isActive(), this.getProgress(), this.getMaxProgress());
     }
 
     @Override
@@ -359,6 +358,18 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
         if (capability == TJCapabilities.CAPABILITY_HEAT)
             return TJCapabilities.CAPABILITY_HEAT.cast(this);
         return super.getCapability(capability, side);
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[1][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::heat).setMaxProgress(this::maxHeat)
+                .setBarTexture(TJGuiTextures.BAR_RED)
+                .setLocale("tj.multiblock.bars.heat"));
     }
 
     public boolean hasEnoughWater(FluidStack fluid, int amount) {

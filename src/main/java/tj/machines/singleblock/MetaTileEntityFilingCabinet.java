@@ -36,6 +36,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.SlotScrollableWidgetGroup;
+import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.CabinetItemStackHandler;
 
@@ -138,9 +139,10 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
         return ModularUI.builder(GuiTextures.BACKGROUND, 176, 197)
+                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
+                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .bindOpenListener(() -> this.guiUsers.put(player, slotScrollableWidgetGroup))
                 .bindCloseListener(() -> this.guiUsers.remove(player))
-                .widget(new LabelWidget(7, 5, this.getMetaFullName()))
                 .widget(new ImageWidget(7, 15, 126, 18, GuiTextures.DISPLAY))
                 .widget(new AdvancedTextWidget(10, 20, this::addDisplayText, 0xFFFFFF))
                 .widget(new ToggleButtonWidget(133, 15, 18, 18, TJGuiTextures.CLEAR_GRID_BUTTON, () -> false, this::onClear)

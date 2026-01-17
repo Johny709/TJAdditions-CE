@@ -8,13 +8,10 @@ import gregicadditions.GAValues;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MTETrait;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fluids.FluidStack;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
-import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.VoidMOreMinerWorkableHandler;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.components.MotorCasing;
@@ -24,7 +21,6 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
-import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -35,44 +31,54 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
+import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
+import tj.util.TJFluidUtils;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.function.UnaryOperator;
 
 import static tj.textures.TJTextures.HEAVY_QUARK_DEGENERATE_MATTER;
 import static gregicadditions.GAMaterials.*;
 
-public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
+public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase implements IProgressBar {
 
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
+            MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    public static final FluidStack DRILLING_MUD = DrillingMud.getFluid(1);
+    public static final FluidStack PYROTHEUM = Pyrotheum.getFluid(1);
+    public static final FluidStack CRYOTHEUM = Cryotheum.getFluid(1);
+
+    private final VoidMOreMinerWorkableHandler workableHandler = new VoidMOreMinerWorkableHandler(this)
+            .setImportFluidsSupplier(this::getImportFluidHandler)
+            .setExportFluidsSupplier(this::getExportFluidHandler)
+            .setImportEnergySupplier(this::getEnergyContainer)
+            .setExportItemsSupplier(this::getOutputInventory)
+            .setMaxVoltageSupplier(this::getMaxVoltage);
     private IMultipleTankHandler importFluidHandler;
     private IMultipleTankHandler exportFluidHandler;
     private ItemHandlerList outputInventory;
     private IEnergyContainer energyContainer;
     private long maxVoltage;
     private int tier;
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final VoidMOreMinerWorkableHandler workableHandler = new VoidMOreMinerWorkableHandler(this);
 
     public MetaTileEntityVoidMOreMiner(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setExportItemsSupplier(() -> this.outputInventory)
-                .setImportFluidsSupplier(() -> this.importFluidHandler)
-                .setExportFluidsSupplier(() -> this.exportFluidHandler)
-                .setImportEnergySupplier(() -> this.energyContainer)
-                .setMaxVoltageSupplier(() -> this.maxVoltage);
     }
 
     @Override
@@ -101,38 +107,19 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
     }
 
     @Override
-    protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
-        super.addTabs(tabBuilder, player);
-        tabBuilder.addTab("tj.multiblock.tab.fluid", new ItemStack(Items.WATER_BUCKET), fluidsTab -> fluidsTab.addWidget(new AdvancedTextWidget(10, -2, this::addFluidDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180)));
-    }
-
-    @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        if (this.isStructureFormed()) {
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.energyContainer)
-                    .voltageTier(this.tier)
-                    .energyInput(!this.workableHandler.hasNotEnoughEnergy(), this.workableHandler.getEnergyPerTick())
-                    .temperature(this.workableHandler.heat(), this.workableHandler.maxHeat())
-                    .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
-            if (this.workableHandler.isOverheat())
-                textList.add(new TextComponentTranslation("gregtech.multiblock.universal.overheat").setStyle(new Style().setColor(TextFormatting.RED)));
-        }
-    }
-
-    private void addFluidDisplayText(List<ITextComponent> textList) {
-        int amount = this.workableHandler.getCurrentDrillingFluid();
-        FluidStack pyrotheum = Pyrotheum.getFluid(this.workableHandler.getCurrentDrillingFluid());
-        FluidStack cryotheum = Cryotheum.getFluid(this.workableHandler.getCurrentDrillingFluid());
-        FluidStack drillingMud = DrillingMud.getFluid(this.workableHandler.getCurrentDrillingFluid());
-        FluidStack usedDrillingMud = UsedDrillingMud.getFluid(this.workableHandler.getCurrentDrillingFluid());
-        MultiblockDisplayBuilder.start(textList)
-                .fluidInput(this.workableHandler.hasEnoughFluid(pyrotheum, amount), pyrotheum, this.workableHandler.getMaxProgress())
-                .fluidInput(this.workableHandler.hasEnoughFluid(cryotheum, amount), cryotheum, this.workableHandler.getMaxProgress())
-                .fluidInput(this.workableHandler.hasEnoughFluid(drillingMud, amount), drillingMud, this.workableHandler.getMaxProgress())
-                .fluidOutput(this.workableHandler.canOutputFluid(usedDrillingMud, amount), usedDrillingMud);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        builder.voltageInLine(this.energyContainer)
+                .voltageTierLine(this.tier)
+                .energyInputLine(this.energyContainer, this.workableHandler.getEnergyPerTick())
+                .temperatureLine(this.workableHandler.heat(), this.workableHandler.maxHeat())
+                .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+                .customLine(text -> {
+                    if (this.workableHandler.isOverheat())
+                        text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.overheat").setStyle(new Style().setColor(TextFormatting.RED)));
+                }).addRecipeInputLine(this.workableHandler)
+                .addRecipeOutputLine(this.workableHandler);
     }
 
     @Override
@@ -213,5 +200,70 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockDisplayBase {
     @Override
     public boolean isWorkingEnabled() {
         return this.workableHandler.isWorkingEnabled();
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[][]{{0}, {0, 0, 0}};
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this.workableHandler::heat).setMaxProgress(this.workableHandler::maxHeat)
+                .setLocale("tj.multiblock.bars.heat")
+                .setBarTexture(TJGuiTextures.BAR_RED));
+        bars.add(bar -> bar.setProgress(this::getDrillingMudAmount).setMaxProgress(this::getDrillingMudCapacity)
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{DRILLING_MUD.getLocalizedName()})
+                .setFluidStackSupplier(() -> DRILLING_MUD));
+        bars.add(bar -> bar.setProgress(this::getPyrotheumAmount).setMaxProgress(this::getPyrotheumCapacity)
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{PYROTHEUM.getLocalizedName()})
+                .setFluidStackSupplier(() -> PYROTHEUM));
+        bars.add(bar -> bar.setProgress(this::getCryotheumAmount).setMaxProgress(this::getCryotheumCapacity)
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{CRYOTHEUM.getLocalizedName()})
+                .setFluidStackSupplier(() -> CRYOTHEUM));
+    }
+
+    private long getDrillingMudAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(DRILLING_MUD, this.getImportFluidHandler());
+    }
+
+    private long getDrillingMudCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(DRILLING_MUD, this.getImportFluidHandler());
+    }
+
+    private long getPyrotheumAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(PYROTHEUM, this.getImportFluidHandler());
+    }
+
+    private long getPyrotheumCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(PYROTHEUM, this.getImportFluidHandler());
+    }
+
+    private long getCryotheumAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(CRYOTHEUM, this.getImportFluidHandler());
+    }
+
+    private long getCryotheumCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(CRYOTHEUM, this.getImportFluidHandler());
+    }
+
+    private ItemHandlerList getOutputInventory() {
+        return this.outputInventory;
+    }
+
+    private IMultipleTankHandler getImportFluidHandler() {
+        return this.importFluidHandler;
+    }
+
+    private IMultipleTankHandler getExportFluidHandler() {
+        return this.exportFluidHandler;
+    }
+
+    private IEnergyContainer getEnergyContainer() {
+        return this.energyContainer;
+    }
+
+    private long getMaxVoltage() {
+        return this.maxVoltage;
     }
 }

@@ -176,10 +176,10 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
     }
 
     public FluidStack getFuelStack() {
-        if (previousRecipe == null)
+        if (this.previousRecipe == null)
             return null;
-        FluidStack fuelStack = previousRecipe.getRecipeFluid();
-        return fluidTank.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
+        FluidStack fuelStack = this.previousRecipe.getRecipeFluid();
+        return this.fluidTank.get() != null ? this.fluidTank.get().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false) : null;
     }
 
     public void setVoidEnergy(boolean voidEnergy, String id) {
@@ -193,6 +193,14 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
 
     public String getFuelName() {
         return this.fuelName;
+    }
+
+    public long getEnergyStored() {
+        return this.energyContainer.get() != null ? this.energyContainer.get().getEnergyStored() : 0;
+    }
+
+    public long getEnergyCapacity() {
+        return this.energyContainer.get() != null ? this.energyContainer.get().getEnergyCapacity() : 0;
     }
 
     @Override

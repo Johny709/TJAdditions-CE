@@ -15,7 +15,6 @@ import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
-import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -50,8 +49,8 @@ import tj.TJConfig;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.CrafterRecipeLogic;
 import tj.builder.handlers.IRecipeMapProvider;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
 import tj.util.Color;
@@ -75,7 +74,13 @@ import static tj.multiblockpart.TJMultiblockAbility.CRAFTER;
 public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implements IRecipeMapProvider {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH, CRAFTER};
-    private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this);
+    private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this)
+            .setImportItemsSupplier(this::getImportItemInventory)
+            .setExportItemsSupplier(this::getExportItemInventory)
+            .setImportEnergySupplier(this::getEnergyContainer)
+            .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setParallelSupplier(this::getParallel)
+            .setInputBus(this::getInputBus);
     private IItemHandlerModifiable importItemInventory;
     private IItemHandlerModifiable exportItemInventory;
     private IEnergyContainer energyContainer;
@@ -84,12 +89,6 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
 
     public MetaTileEntityLargeCrafter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.recipeLogic.setImportItemsSupplier(() -> this.importItemInventory)
-                .setExportItemsSupplier(() -> this.exportItemInventory)
-                .setImportEnergySupplier(() -> this.energyContainer)
-                .setInputBus((index) -> this.getAbilities(IMPORT_ITEMS).get(index))
-                .setMaxVoltageSupplier(() -> this.maxVoltage)
-                .setParallelSupplier(() -> this.parallel);
     }
 
     @Override
@@ -112,20 +111,21 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         if (this.isStructureFormed())
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.energyContainer)
-                    .voltageTier(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInput(!this.recipeLogic.hasNotEnoughEnergy(), this.recipeLogic.getEnergyPerTick())
-                    .addTranslation("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
-                    .custom(text -> text.add(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
+            builder.voltageInLine(this.energyContainer)
+                    .voltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
+                    .energyInputLine(this.energyContainer, this.recipeLogic.getEnergyPerTick())
+                    .addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
+                    .customLine(text -> text.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")
                             .appendSibling(this.recipeLogic.isDistinct()
                                     ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
                                     : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
-                    .isWorking(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress());
+                    .isWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress())
+                    .addRecipeInputLine(this.recipeLogic)
+                    .addRecipeOutputLine(this.recipeLogic);
     }
 
     @Override
@@ -134,9 +134,9 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     }
 
     @Override
-    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
+        widgetGroup.add(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
                 .setTooltipText("machine.universal.toggle.item_voiding"));
     }
 
@@ -144,7 +144,7 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         super.addTabs(tabBuilder, player);
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
-            debugTab.addWidget(new AdvancedTextWidget(10, -2, this::addDebugDisplayText, 0xFFFFFF)
+            debugTab.add(new AdvancedTextWidget(10, -2, this::addDebugDisplayText, 0xFFFFFF)
                     .setMaxWidthLimit(180));
         });
     }
@@ -228,5 +228,29 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     @Override
     public void clearRecipeCache() {
         this.recipeLogic.clearCache();
+    }
+
+    private IItemHandlerModifiable getImportItemInventory() {
+        return this.importItemInventory;
+    }
+
+    private IItemHandlerModifiable getExportItemInventory() {
+        return this.exportItemInventory;
+    }
+
+    private IEnergyContainer getEnergyContainer() {
+        return this.energyContainer;
+    }
+
+    private IItemHandlerModifiable getInputBus(int index) {
+        return this.getAbilities(IMPORT_ITEMS).get(index);
+    }
+
+    private long getMaxVoltage() {
+        return this.maxVoltage;
+    }
+
+    private int getParallel() {
+        return this.parallel;
     }
 }

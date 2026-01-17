@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumActionResult;
 import org.apache.commons.lang3.tuple.Pair;
+import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.ButtonWidget;
 import tj.gui.widgets.TJAdvancedTextWidget;
 import tj.util.predicates.QuadActionResultPredicate;
@@ -22,6 +23,32 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
 
     public ClickPopUpWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
+    }
+
+    /**
+     * return true in the predicate for non-selected widgets to be visible but still can not be interacted. Adds a new popup every time this method is called.
+     * call {@link #addClosingButton(ButtonWidget)} before this to add closing buttons to close this popup.
+     * @param x X offset of widget group.
+     * @param y Y offset of widget group.
+     * @param width width of widget group.
+     * @param height height of widget group.
+     * @param textWidget text widget to activate this popup upon certain click conditions.
+     * @param add set to add this text widget to this widget group
+     * @param widgets widgets to add.
+     */
+    public ClickPopUpWidget addPopup(int x, int y, int width, int height, AdvancedDisplayWidget textWidget, boolean add, Predicate<WidgetGroup> widgets) {
+        WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
+        boolean visible = widgets.test(widgetGroup);
+        textWidget.setTextId(String.valueOf(this.selectedIndex))
+                .addClickHandler(this::handleDisplayClick);
+        if (add)
+            widgetGroup.addWidget(textWidget);
+        for (Widget widget : this.pendingWidgets)
+            widgetGroup.addWidget(widget);
+        this.addWidget(widgetGroup);
+        this.pendingWidgets.clear();
+        this.widgetMap.put(this.selectedIndex++, Pair.of(visible, widgetGroup));
+        return this;
     }
 
     /**

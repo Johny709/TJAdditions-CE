@@ -6,7 +6,6 @@ import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
-import gregtech.api.GTValues;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
@@ -69,17 +68,17 @@ public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage im
             for (int tier = 0; tier < infos.length; tier++) {
                 infos[tier] = builder.where('S', this.getController(), WEST)
                         .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
-                        .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
+                        .where('c', this.getCoils(tier))
                         .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))
                         .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
                         .where('p', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
                         .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
                         .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
                         .where('E', this.getEnergyHatch(tier, false), EAST)
-                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], WEST)
-                        .where('i', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], WEST)
-                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], WEST)
-                        .where('o', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], WEST)
+                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], WEST)
+                        .where('i', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], WEST)
+                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], WEST)
+                        .where('o', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], WEST)
                         .build();
             }
             shapeInfos.add(infos);

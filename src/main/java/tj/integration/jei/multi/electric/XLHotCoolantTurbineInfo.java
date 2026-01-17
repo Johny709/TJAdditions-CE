@@ -4,7 +4,6 @@ import gregicadditions.item.GAMetaItems;
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.impl.MetaTileEntityRotorHolderForNuclearCoolant;
-import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.unification.material.Materials;
@@ -70,10 +69,10 @@ public class XLHotCoolantTurbineInfo extends TJMultiblockInfoPage implements IPa
                         .where('R', holderNorth.getMetaTileEntity(), EnumFacing.NORTH)
                         .where('T', holderSouth.getMetaTileEntity(), EnumFacing.SOUTH)
                         .where('E', this.getEnergyHatch(tier, true), EnumFacing.EAST)
-                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.MAX], EnumFacing.WEST)
-                        .where('J', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.MAX], EnumFacing.WEST)
+                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
+                        .where('J', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
                         .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MAX], EnumFacing.WEST)
+                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
                         .where(!this.turbine.turbineType.hasOutputHatch ? 'O' : '#', !this.turbine.turbineType.hasOutputHatch ? this.turbine.turbineType.casingState : Blocks.AIR.getDefaultState())
                         .build();
             }

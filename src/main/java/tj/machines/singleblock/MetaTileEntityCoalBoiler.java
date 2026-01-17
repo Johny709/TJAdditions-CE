@@ -4,6 +4,8 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import tj.capability.IHeatInfo;
+import tj.gui.TJGuiTextures;
+import tj.gui.widgets.TJLabelWidget;
 import tj.textures.TJTextures;
 import gregtech.api.capability.IFuelInfo;
 import gregtech.api.capability.IFuelable;
@@ -59,6 +61,10 @@ import static gregtech.api.unification.material.Materials.Steam;
 
 public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkable, IFuelInfo, IFuelable, IHeatInfo {
 
+    private static final EnumFacing[] STEAM_PUSH_DIRECTIONS = ArrayUtils.add(EnumFacing.HORIZONTALS, EnumFacing.UP);
+    public static final int BASE_MODIFIER = 12;
+    public static final FluidStack STEAM = Steam.getFluid(1);
+
     protected float temp;
     private boolean isActive;
     private boolean hadWater;
@@ -69,8 +75,6 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkabl
     protected final IFluidTank waterTank;
     protected final IFluidTank steamTank;
     protected final BoilerType boilerType;
-    private static final EnumFacing[] STEAM_PUSH_DIRECTIONS = ArrayUtils.add(EnumFacing.HORIZONTALS, EnumFacing.UP);
-    public static final int BASE_MODIFIER = 12;
 
     public MetaTileEntityCoalBoiler(ResourceLocation metaTileEntityId, BoilerType boilerType) {
         super(metaTileEntityId);
@@ -202,7 +206,8 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkabl
                 .setBackgroundTexture(boilerType.getSlot(), boilerType.getOut()));
         widgetGroup.addWidget(new ImageWidget(38, 35, 18, 18, boilerType.getCanister()));
         return ModularUI.builder(boilerType.getBackground(), 176, 167)
-                .label(10, 5, getMetaFullName())
+                .widget(new TJLabelWidget(7, -18, 166, 20, this.boilerType == BRONZE ? TJGuiTextures.MACHINE_LABEL_BRONZE : this.boilerType == STEEL ? TJGuiTextures.MACHINE_LABEL_STEEL : TJGuiTextures.MACHINE_LABEL)
+                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(widgetGroup)
                 .bindPlayerInventory(player.inventory, boilerType.getSlot(), 7, 85)
                 .build(getHolder(), player);

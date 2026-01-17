@@ -20,6 +20,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.handlers.EnchanterWorkableHandler;
+import tj.gui.TJGuiTextures;
+import tj.gui.widgets.TJLabelWidget;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -33,20 +35,20 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
 public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
 
-    private final EnchanterWorkableHandler workableHandler = new EnchanterWorkableHandler(this);
+    private final EnchanterWorkableHandler workableHandler = new EnchanterWorkableHandler(this)
+            .setImportEnergySupplier(this::getEnergyContainer)
+            .setImportFluidsSupplier(this::getImportFluids)
+            .setImportItemsSupplier(this::getImportItems)
+            .setExportItemsSupplier(this::getExportItems)
+            .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setTierSupplier(this::getTier)
+            .setParallelSupplier(() -> 1);
     private final IFluidTank tank;
 
     public MetaTileEntityEnchanter(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.tank = new FluidTank(64000);
-        this.workableHandler.initialize(1)
-                .setImportItemsSupplier(this::getImportItems)
-                .setExportItemsSupplier(this::getExportItems)
-                .setImportFluidsSupplier(this::getImportFluids)
-                .setImportEnergySupplier(this::getEnergyContainer)
-                .setMaxVoltageSupplier(this::getMaxVoltage)
-                .setTierSupplier(this::getTier)
-                .setParallelSupplier(() -> 1);
+        this.workableHandler.initialize(1);
         this.initializeInventory();
     }
 
@@ -86,6 +88,8 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         return ModularUI.defaultBuilder()
+                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
+                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 21, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new SlotWidget(this.importItems, 0, 34, 22, true, true)
                         .setBackgroundTexture(SLOT, BOXED_OVERLAY))
@@ -97,7 +101,6 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                         .setBackgroundTexture(SLOT))
                 .widget(new TankWidget(this.tank, 16, 22, 18, 18)
                         .setBackgroundTexture(FLUID_SLOT))
-                .widget(new LabelWidget(7, 5, getMetaFullName()))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new ToggleButtonWidget(151, 62, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)

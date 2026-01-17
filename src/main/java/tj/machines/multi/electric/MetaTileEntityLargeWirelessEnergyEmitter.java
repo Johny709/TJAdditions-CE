@@ -10,18 +10,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.LargeWirelessEnergyWorkableHandler;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
-import tj.capability.IParallelController;
-import tj.capability.LinkEvent;
-import tj.capability.LinkPos;
-import tj.capability.TJCapabilities;
+import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.capability.*;
 import tj.gui.TJGuiTextures;
+import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.TJAdvancedTextWidget;
-import tj.gui.widgets.TJTextFieldWidget;
 import tj.gui.widgets.impl.ClickPopUpWidget;
-import tj.gui.widgets.impl.ScrollableTextWidget;
+import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.items.TJMetaItems;
 import gregicadditions.GAValues;
@@ -58,7 +54,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -70,13 +65,16 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.util.TJFluidUtils;
 import tj.util.consumers.QuadConsumer;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 import static gregicadditions.GAMaterials.Talonite;
@@ -91,10 +89,15 @@ import static gregtech.api.unification.material.Materials.Nitrogen;
 import static gregtech.api.unification.material.Materials.RedSteel;
 import static net.minecraftforge.energy.CapabilityEnergy.ENERGY;
 
-public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDisplayBase implements LinkPos, LinkEvent, IParallelController {
+public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDisplayBase implements LinkPos, LinkEvent, IParallelController, IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, OUTPUT_ENERGY, MAINTENANCE_HATCH};
-    protected final LargeWirelessEnergyWorkableHandler workableHandler = new LargeWirelessEnergyWorkableHandler(this);
+    public static final FluidStack NITROGEN_PLASMA = Nitrogen.getPlasma(1);
+    protected final LargeWirelessEnergyWorkableHandler workableHandler = new LargeWirelessEnergyWorkableHandler(this)
+            .setImportEnergySupplier(this::getInputEnergyContainer)
+            .setImportFluidsSupplier(this::getImportFluidHandler)
+            .setTierSupplier(this::getTier)
+            .setResetEnergy(false);
     private final int pageSize = 4;
 
     protected TransferType transferType;
@@ -106,10 +109,6 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     public MetaTileEntityLargeWirelessEnergyEmitter(ResourceLocation metaTileEntityId, TransferType transferType) {
         super(metaTileEntityId);
         this.transferType = transferType;
-        this.workableHandler.setImportFluidsSupplier(this::getImportFluidHandler)
-                .setImportEnergySupplier(this::getInputEnergyContainer)
-                .setTierSupplier(this::getTier)
-                .setResetEnergy(false);
         this.reinitializeStructurePattern();
     }
 
@@ -130,16 +129,15 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         if (isStructureFormed())
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.inputEnergyContainer)
-                    .voltageTier(this.tier)
-                    .energyStored(this.getEnergyStored(), this.getEnergyCapacity())
-                    .energyInput(hasEnoughEnergy(this.workableHandler.getEnergyPerTick()), this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
-                    .fluidInput(hasEnoughFluid(this.workableHandler.getFluidConsumption()), Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
-                    .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+           builder.voltageInLine(this.inputEnergyContainer)
+                    .voltageTierLine(this.tier)
+                    .energyStoredLine(this.getEnergyStored(), this.getEnergyCapacity())
+                    .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
+                    .fluidInputLine(this.importFluidHandler, Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
+                    .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
 
     }
 
@@ -161,16 +159,16 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                     .setTooltipText("machine.universal.toggle.rename.entry")
                     .setTextResponder(this.workableHandler::renameLink)
                     .setMaxStringLength(256);
-            TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(0, 0, this.addDisplayLinkedEntitiesText(searchResults, patternFlags, search), 0xFFFFFF)
+            AdvancedDisplayWidget displayWidget = new AdvancedDisplayWidget(0, 2, this.addDisplayLinkedEntitiesText(searchResults, patternFlags, search), 0xFFFFFF)
                     .addClickHandler(this.handleLinkedDisplayClick(textFieldWidgetRename));
-            textWidget.setMaxWidthLimit(1024);
-            tab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
+            displayWidget.setMaxWidthLimit(1024);
+            tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                     .addPopup(widgetGroup -> {
-                        widgetGroup.addWidget(new AdvancedTextWidget(10, -20, (textList) -> textList.add(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("tj.multiblock.large_world_accelerator.linked") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getEntityLinkName().length + "§r)")), 0xFFFFFF));
-                        widgetGroup.addWidget(new ScrollableTextWidget(10, -8, 178, 117)
-                                .addTextWidget(textWidget));
-                        widgetGroup.addWidget(new ImageWidget(7, 112, 162, 18, DISPLAY));
-                        widgetGroup.addWidget(new NewTextFieldWidget<>(12, 117, 157, 18)
+                        widgetGroup.addWidget(new ScrollableDisplayWidget(10, -15, 183, 142)
+                                .addDisplayWidget(displayWidget)
+                                .setScrollPanelWidth(3));
+                        widgetGroup.addWidget(new ImageWidget(7, this.getOffsetY(114), 162, 18, DISPLAY));
+                        widgetGroup.addWidget(new NewTextFieldWidget<>(12, this.getOffsetY(119), 157, 18)
                                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                 .setBackgroundText("machine.universal.search")
                                 .setTextResponder((s, id) -> search[0] = s)
@@ -189,7 +187,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
                             .setButtonSupplier(() -> false)
                             .useToggleTexture(true))
-                    .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
+                    .addPopup(0, 61, 182, 60, displayWidget, false, widgetGroup -> {
                         widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                         widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                         widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
@@ -199,7 +197,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                         }, 0x404040));
                         widgetGroup.addWidget(textFieldWidgetRename);
                         return false;
-                    }).addPopup(118, 31, 60, 78, new TJToggleButtonWidget(172, 112, 18, 18)
+                    }).addPopup(118, 31, 60, 78, new TJToggleButtonWidget(175, this.getOffsetY(114), 18, 18)
                             .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                             .setTooltipText("machine.universal.search.settings")
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
@@ -208,16 +206,16 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     @Override
-    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.addWidget(new ImageWidget(28, 112, 141, 18, DISPLAY));
-        widgetGroup.addWidget(new TJTextFieldWidget(33, 117, 136, 18, false, () -> String.valueOf(this.workableHandler.getMaxProgress()), maxProgress -> this.workableHandler.setMaxProgress(maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress)))
-                .setTooltipText("machine.universal.tick.speed")
+        widgetGroup.add(new ImageWidget(28, 114, 141, 18, DISPLAY));
+        widgetGroup.add(new NewTextFieldWidget<>(33, 119, 136, 18, () -> String.valueOf(this.workableHandler.getMaxProgress()), (maxProgress, id) -> this.workableHandler.setMaxProgress(maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress)))
                 .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.workableHandler.getMaxProgress())))
-                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new ClickButtonWidget(7, 112, 18, 18, "+", click -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))));
-        widgetGroup.addWidget(new ClickButtonWidget(172, 112, 18, 18, "-", click -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setReset)
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setTooltipText("machine.universal.tick.speed"));
+        widgetGroup.add(new ClickButtonWidget(7, 114, 18, 18, "+", click -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))));
+        widgetGroup.add(new ClickButtonWidget(175, 114, 18, 18, "-", click -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))));
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setReset)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 
@@ -299,8 +297,9 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         return flag;
     }
 
-    private Consumer<List<ITextComponent>> addDisplayLinkedEntitiesText(int[] searchResults, int[] flags, String[] search) {
-        return (textList) -> {
+    private Consumer<UIDisplayBuilder> addDisplayLinkedEntitiesText(int[] searchResults, int[] flags, String[] search) {
+        return (builder) -> {
+            builder.addTextComponent(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("tj.multiblock.large_world_accelerator.linked") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getEntityLinkName().length + "§r)"));
             int results = 0;
             for (int i = 0; i < this.workableHandler.getEntityLinkName().length; i++) {
                 String name = this.workableHandler.getEntityLinkName()[i] != null ? this.workableHandler.getEntityLinkName()[i] : net.minecraft.util.text.translation.I18n.translateToLocal("machine.universal.empty");
@@ -321,7 +320,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                 long EUStored = EUContainer != null ? EUContainer.getEnergyStored() : 0;
                 long EUCapacity = EUContainer != null ? EUContainer.getEnergyCapacity() : 0;
 
-                textList.add(new TextComponentString(": [§a" + (++searchResults[0]) + "§r] ")
+                builder.addTextComponent(new TextComponentString(": [§a" + (++searchResults[0]) + "§r] ")
                         .appendSibling(new TextComponentString(name)).setStyle(new Style()
                                 .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
                                         .appendText("\n")
@@ -586,6 +585,29 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER)
             return TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER.cast(this);
         return super.getCapability(capability, side);
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[2][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getEnergyStored).setMaxProgress(this::getEnergyCapacity)
+                .setLocale("tj.multiblock.bars.energy")
+                .setColor(0xFFF6FF00));
+        bars.add(bar -> bar.setProgress(this::getNitrogenAmount).setMaxProgress(this::getNitrogenCapacity)
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{NITROGEN_PLASMA.getLocalizedName()})
+                .setFluidStackSupplier(() -> NITROGEN_PLASMA));
+    }
+
+    private long getNitrogenAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(NITROGEN_PLASMA, this.getImportFluidHandler());
+    }
+
+    private long getNitrogenCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(NITROGEN_PLASMA, this.getImportFluidHandler());
     }
 
     @Override

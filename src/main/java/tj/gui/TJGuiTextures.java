@@ -1,13 +1,32 @@
 package tj.gui;
 
+import gregtech.api.gui.resources.AdoptableTextureArea;
 import gregtech.api.gui.resources.TextureArea;
 
 public class TJGuiTextures {
 
-    public static final TextureArea NEW_MULTIBLOCK_DISPLAY = TextureArea.fullImage("textures/gui/base/multiblock_display_2.png");
-    public static final TextureArea NEW_MULTIBLOCK_DISPLAY_EXTENDED = TextureArea.fullImage("textures/gui/base/multiblock_display_2_extended.png");
     public static final TextureArea BORDERED_BACKGROUND_RIGHT = TextureArea.fullImage("textures/gui/base/bordered_background_right_tab.png");
     public static final TextureArea DARKENED_SLOT = TextureArea.fullImage("textures/gui/base/darkened_slot.png");
+    public static final TextureArea MULTIBLOCK_DISPLAY_SCREEN = TextureArea.fullImage("textures/gui/base/multiblock_display_screen.png");
+    public static final TextureArea MULTIBLOCK_DISPLAY_SLOTS = TextureArea.fullImage("textures/gui/base/multiblock_display_slots.png");
+    public static final TextureArea MULTIBLOCK_DISPLAY_SLICE = AdoptableTextureArea.fullImage("textures/gui/base/multiblock_display_slice.png");
+
+    public static final TextureArea MACHINE_LABEL = AdoptableTextureArea.fullImage("textures/gui/base/machine_label.png", 20, 20, 2, 2);
+    public static final TextureArea MACHINE_LABEL_BRONZE = AdoptableTextureArea.fullImage("textures/gui/base/machine_label_bronze.png", 20, 20, 2, 2);
+    public static final TextureArea MACHINE_LABEL_STEEL = AdoptableTextureArea.fullImage("textures/gui/base/machine_label_steel.png", 20, 20, 2, 2);
+    public static final TextureArea UI_COVER = AdoptableTextureArea.fullImage("textures/gui/base/ui_cover.png");
+    public static final TextureArea UI_COVER_BRONZE = AdoptableTextureArea.fullImage("textures/gui/base/ui_cover_bronze.png");
+    public static final TextureArea UI_COVER_STEEL = AdoptableTextureArea.fullImage("textures/gui/base/ui_cover_steel.png");
+
+    public static final TextureArea TOOLTIP_BOX = AdoptableTextureArea.fullImage("textures/gui/base/tooltip_box.png", 18, 18, 2, 2);
+    public static final TextureArea FLUID_BAR = AdoptableTextureArea.fullImage("textures/gui/bar/fluid_bar.png", 10, 10, 1, 1);
+
+    public static final TextureArea AUTOSCROLL = TextureArea.fullImage("textures/gui/base/auto_scroll.png");
+    public static final TextureArea AUTOSCROLL_UP = TextureArea.fullImage("textures/gui/base/auto_scroll_up.png");
+    public static final TextureArea AUTOSCROLL_DOWN = TextureArea.fullImage("textures/gui/base/auto_scroll_down.png");
+
+    public static final TextureArea BAR_RED = AdoptableTextureArea.fullImage("textures/gui/bar/bar_red.png");
+    public static final TextureArea BAR_YELLOW = AdoptableTextureArea.fullImage("textures/gui/bar/bar_yellow.png");
 
     public static final TextureArea POWER_BUTTON = TextureArea.fullImage("textures/gui/widget/power_button_toggle.png");
     public static final TextureArea CAUTION_BUTTON = TextureArea.fullImage("textures/gui/widget/caution_button_toggle.png");

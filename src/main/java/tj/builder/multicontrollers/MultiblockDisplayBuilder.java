@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 
-
+@Deprecated
 public class MultiblockDisplayBuilder {
 
     private final List<ITextComponent> textList;

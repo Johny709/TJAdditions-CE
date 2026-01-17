@@ -1,5 +1,6 @@
 package tj.items;
 
+import gregtech.api.items.armor.ArmorMetaItem;
 import gregtech.api.items.metaitem.MetaItem;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
@@ -10,6 +11,11 @@ import java.util.List;
 public class TJMetaItems {
 
     public static List<MetaItem<?>> ITEMS = MetaItem.getMetaItems();
+
+    public static ArmorMetaItem<?>.ArmorMetaValueItem MODULAR_ARMOR_HEAD;
+    public static ArmorMetaItem<?>.ArmorMetaValueItem MODULAR_ARMOR_CHEST;
+    public static ArmorMetaItem<?>.ArmorMetaValueItem MODULAR_ARMOR_LEGS;
+    public static ArmorMetaItem<?>.ArmorMetaValueItem MODULAR_ARMOR_BOOTS;
 
     public static MetaItem<?>.MetaValueItem TOOLBOX;
     public static MetaItem<?>.MetaValueItem CREATIVE_FLUID_COVER;
@@ -32,6 +38,8 @@ public class TJMetaItems {
     public static void init() {
         TJMetaItem1 item = new TJMetaItem1();
         item.setRegistryName("meta_item");
+        TJArmorMetaItem1 item1 = new TJArmorMetaItem1();
+        item1.setRegistryName("armor_meta_item");
     }
 
     public static void registerOreDict() {

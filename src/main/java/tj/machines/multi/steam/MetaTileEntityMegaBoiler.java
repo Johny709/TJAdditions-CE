@@ -4,13 +4,17 @@ import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.multiblock.BlockWorldState;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.builder.handlers.MegaBoilerRecipeLogic;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
+import tj.gui.TJGuiTextures;
 import tj.multiblockpart.TJMultiblockAbility;
 import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.impl.*;
@@ -53,6 +57,7 @@ import tj.util.TooltipHelper;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
@@ -61,13 +66,19 @@ import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.unification.material.Materials.Water;
 
-public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
+public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements IProgressBar {
 
-    private final int parallel;
-    private MetaTileEntityLargeBoiler.BoilerType boilerType;
     private static final MultiblockAbility<?>[] OUTPUT_ABILITIES = {MultiblockAbility.EXPORT_FLUIDS, TJMultiblockAbility.STEAM_OUTPUT};
+    private final MegaBoilerRecipeLogic boilerRecipeLogic = new MegaBoilerRecipeLogic(this, this::getHeatEfficiencyMultiplier, this::getFuelConsumedMultiplier, this::getBaseSteamOutput, this::getMaxTemperature)
+            .setImportFluidsSupplier(this::getFluidImportInventory)
+            .setImportItemsSupplier(this::getItemImportInventory)
+            .setExportItemsSupplier(this::getItemExportInventory)
+            .setExportFluidsSupplier(this::getSteamOutputTank)
+            .setActive(this::replaceFireboxAsActive)
+            .setParallelSupplier(this::getParallel);
     private final Set<BlockPos> activeStates = new HashSet<>();
-    private final MegaBoilerRecipeLogic boilerRecipeLogic = new MegaBoilerRecipeLogic(this, this::getHeatEfficiencyMultiplier, () -> boilerType.fuelConsumptionMultiplier, () -> boilerType.baseSteamOutput, () -> this.boilerType.maxTemperature);
+    private final int parallel;
+    private final MetaTileEntityLargeBoiler.BoilerType boilerType;
 
     private FluidTankList fluidImportInventory;
     private FluidTankList steamOutputTank;
@@ -78,12 +89,6 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
         super(metaTileEntityId);
         this.boilerType = boilerType;
         this.parallel = parallel;
-        this.boilerRecipeLogic.setImportItemsSupplier(this::getItemImportInventory)
-                .setExportItemsSupplier(this::getItemExportInventory)
-                .setImportFluidsSupplier(this::getFluidImportInventory)
-                .setExportFluidsSupplier(this::getSteamOutputTank)
-                .setParallelSupplier(this::getParallel)
-                .setActive(this::replaceFireboxAsActive);
         this.reinitializeStructurePattern();
     }
 
@@ -158,33 +163,33 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        if (this.isStructureFormed()) {
-            int amount = (int) this.boilerRecipeLogic.getConsumption();
-            FluidStack water = Water.getFluid(amount);
-            MultiblockDisplayBuilder.start(textList)
-                    .temperature(this.boilerRecipeLogic.heat(), this.boilerType.maxTemperature)
-                    .fluidInput(this.boilerRecipeLogic.hasEnoughFluid(water, amount), water)
-                    .custom(text -> {
-                        text.add(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.boilerRecipeLogic.getProduction(), this.boilerType.baseSteamOutput));
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        int amount = (int) this.boilerRecipeLogic.getConsumption();
+        FluidStack water = Water.getFluid(amount);
+        builder.temperatureLine(this.boilerRecipeLogic.heat(), this.boilerType.maxTemperature)
+                .fluidInputLine(this.fluidImportInventory, water)
+                .customLine(text -> {
+                    text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.boilerRecipeLogic.getProduction(), this.boilerType.baseSteamOutput));
 
-                        ITextComponent heatEffText = new TextComponentTranslation("gregtech.multiblock.large_boiler.heat_efficiency", (int) (this.getHeatEfficiencyMultiplier() * 100));
-                        withHoverTextTranslate(heatEffText, "gregtech.multiblock.large_boiler.heat_efficiency.tooltip");
-                        text.add(heatEffText);
+                    ITextComponent heatEffText = new TextComponentTranslation("gregtech.multiblock.large_boiler.heat_efficiency", (int) (this.getHeatEfficiencyMultiplier() * 100));
+                    withHoverTextTranslate(heatEffText, "gregtech.multiblock.large_boiler.heat_efficiency.tooltip");
+                    text.addTextComponent(heatEffText);
 
-                        ITextComponent throttleText = new TextComponentTranslation("gregtech.multiblock.large_boiler.throttle", this.boilerRecipeLogic.getThrottlePercentage(), (int) (this.boilerRecipeLogic.getThrottleEfficiency() * 100));
-                        withHoverTextTranslate(throttleText, "gregtech.multiblock.large_boiler.throttle.tooltip");
-                        text.add(throttleText);
+                    ITextComponent throttleText = new TextComponentTranslation("gregtech.multiblock.large_boiler.throttle", this.boilerRecipeLogic.getThrottlePercentage(), (int) (this.boilerRecipeLogic.getThrottleEfficiency() * 100));
+                    withHoverTextTranslate(throttleText, "gregtech.multiblock.large_boiler.throttle.tooltip");
+                    text.addTextComponent(throttleText);
 
-                        ITextComponent buttonText = new TextComponentTranslation("gregtech.multiblock.large_boiler.throttle_modify");
-                        buttonText.appendText(" ");
-                        buttonText.appendSibling(withButton(new TextComponentString("[-]"), "sub"));
-                        buttonText.appendText(" ");
-                        buttonText.appendSibling(withButton(new TextComponentString("[+]"), "add"));
-                        text.add(buttonText);
-                    }).isWorking(this.boilerRecipeLogic.isWorkingEnabled(), this.boilerRecipeLogic.isActive(), this.boilerRecipeLogic.getProgress(), this.boilerRecipeLogic.getMaxProgress());
-        }
+                    ITextComponent buttonText = new TextComponentTranslation("gregtech.multiblock.large_boiler.throttle_modify");
+                    buttonText.appendText(" ");
+                    buttonText.appendSibling(withButton(new TextComponentString("[-]"), "sub"));
+                    buttonText.appendText(" ");
+                    buttonText.appendSibling(withButton(new TextComponentString("[+]"), "add"));
+                    text.addTextComponent(buttonText);
+                }).isWorkingLine(this.boilerRecipeLogic.isWorkingEnabled(), this.boilerRecipeLogic.isActive(), this.boilerRecipeLogic.getProgress(), this.boilerRecipeLogic.getMaxProgress())
+                .addRecipeInputLine(this.boilerRecipeLogic)
+                .addRecipeOutputLine(this.boilerRecipeLogic);
     }
 
     @Override
@@ -296,6 +301,18 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
         return super.onRightClick(playerIn, hand, facing, hitResult);
     }
 
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[1][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this.boilerRecipeLogic::heat).setMaxProgress(this.boilerRecipeLogic::maxHeat)
+                .setBarTexture(TJGuiTextures.BAR_RED)
+                .setLocale("tj.multiblock.bars.heat"));
+    }
+
     public int getParallel() {
         return this.parallel;
     }
@@ -315,6 +332,11 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
         return this.boilerRecipeLogic.isWorkingEnabled();
     }
 
+    @Override
+    public String getRecipeUid() {
+        return GTValues.MODID + ":" + RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.getUnlocalizedName();
+    }
+
     private ItemHandlerList getItemImportInventory() {
         return this.itemImportInventory;
     }
@@ -329,5 +351,17 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase {
 
     private FluidTankList getSteamOutputTank() {
         return this.steamOutputTank;
+    }
+
+    private float getFuelConsumedMultiplier() {
+        return this.boilerType.fuelConsumptionMultiplier;
+    }
+
+    private int getBaseSteamOutput() {
+        return this.boilerType.baseSteamOutput;
+    }
+
+    private int getMaxTemperature() {
+        return this.boilerType.maxTemperature;
     }
 }

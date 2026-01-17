@@ -39,6 +39,10 @@ public class TJAdvancedTextWidget extends AdvancedTextWidget {
         return this;
     }
 
+    public String getTextId() {
+        return this.textId;
+    }
+
     public static ITextComponent withButton(ITextComponent textComponent, String componentData) {
         Style style = textComponent.getStyle();
         style.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "@!" + componentData));

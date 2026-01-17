@@ -1,8 +1,7 @@
 package tj.builder.handlers;
 
 import gregtech.api.GTValues;
-import gregtech.api.capability.GregtechCapabilities;
-import gregtech.api.capability.IElectricItem;
+import gregtech.api.items.IToolItem;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.common.blocks.wood.BlockGregLog;
 import gregtech.common.items.MetaItems;
@@ -97,21 +96,20 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
     @Override
     protected void progressRecipe(int progress) {
         super.progressRecipe(progress);
-        if (this.progress > progress) {
-            progress--;
+        if (!this.initialized) {
+            this.initialized = true;
+            BlockPos pos = this.metaTileEntity.getPos();
+            this.posCorner[0] = new BlockPos(pos.getX() - (this.radius / 2), pos.getY(), pos.getZ() - (this.radius / 2));
+            if (this.harvesters.length > 1)
+                this.posCorner[1] = new BlockPos(pos.getX() + (this.radius / 2), pos.getY(), pos.getZ() + (this.radius / 2));
+            if (this.harvesters.length > 2)
+                this.posCorner[2] = new BlockPos(pos.getX() + (this.radius / 2), pos.getY(), pos.getZ() - (this.radius / 2));
+            if (this.harvesters.length > 3)
+                this.posCorner[3] = new BlockPos(pos.getX() - (this.radius / 2), pos.getY(), pos.getZ() + (this.radius / 2));
             if (RUBBER_REFERENCE == null)
                 RUBBER_REFERENCE = MetaItems.RUBBER_DROP.getStackForm();
-            if (!this.initialized) {
-                this.initialized = true;
-                BlockPos pos = this.metaTileEntity.getPos();
-                this.posCorner[0] = new BlockPos(pos.getX() - (this.radius / 2), pos.getY(), pos.getZ() - (this.radius / 2));
-                if (this.harvesters.length > 1)
-                    this.posCorner[1] = new BlockPos(pos.getX() + (this.radius / 2), pos.getY(), pos.getZ() + (this.radius / 2));
-                if (this.harvesters.length > 2)
-                    this.posCorner[2] = new BlockPos(pos.getX() + (this.radius / 2), pos.getY(), pos.getZ() - (this.radius / 2));
-                if (this.harvesters.length > 3)
-                    this.posCorner[3] = new BlockPos(pos.getX() - (this.radius / 2), pos.getY(), pos.getZ() + (this.radius / 2));
-            }
+        }
+        if (this.progress > progress) {
             this.harvesters[0].onProgress(this.posCorner[0].getX() + (progress % this.radius), this.posCorner[0].getY(), this.posCorner[0].getZ() + (progress / this.radius));
             if (this.harvesters.length > 1)
                 this.harvesters[1].onProgress(this.posCorner[1].getX() - (progress % this.radius), this.posCorner[1].getY(), this.posCorner[1].getZ() - (progress / this.radius));
@@ -237,7 +235,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
                     stack = input.getStackInSlot(i);
                     Block itemBlock = Block.getBlockFromItem(stack.getItem());
                     if (itemBlock instanceof IGrowable) {
-                        if (!this.canPlantSaplings(this.posHarvester))
+                        if (!this.canPlantSaplings(this.posHarvester, world))
                             return;
                         itemState = itemBlock.getStateFromMeta(stack.getMetadata());
                         break;
@@ -271,12 +269,16 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             }
         }
 
-        private boolean canPlantSaplings(BlockPos.MutableBlockPos pos) {
+        private boolean canPlantSaplings(BlockPos.MutableBlockPos pos, World world) {
             pos.setPos(pos.getX(), pos.getY() - 1, pos.getZ());
             IBlockState state = metaTileEntity.getWorld().getBlockState(pos);
             Block block = state.getBlock();
             pos.setPos(pos.getX(), pos.getY() + 1, pos.getZ());
-            return block instanceof BlockDirt || block instanceof BlockGrass;
+            ItemStack hoeStack;
+            if ((block instanceof BlockDirt || block instanceof BlockGrass) && !(hoeStack = toolInventory.get().getStackInSlot(0)).isEmpty()) {
+                return this.damageTool(hoeStack, (WorldServer) world);
+            }
+            return false;
         }
 
         private boolean canPlantSeeds(BlockPos.MutableBlockPos pos, IPlantable plantable) {
@@ -284,9 +286,9 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             World world = metaTileEntity.getWorld();
             IBlockState state = world.getBlockState(pos);
             Block block = state.getBlock();
-            ItemStack toolStack;
-            if ((block instanceof BlockDirt || block instanceof BlockGrass) && !(toolStack = toolInventory.get().getStackInSlot(0)).isEmpty()) {
-                toolStack.damageItem(1, FakePlayerFactory.getMinecraft((WorldServer) world));
+            ItemStack hoeStack;
+            if ((block instanceof BlockDirt || block instanceof BlockGrass) && !(hoeStack = toolInventory.get().getStackInSlot(0)).isEmpty()) {
+                this.damageTool(hoeStack, (WorldServer) world);
                 world.setBlockState(pos, Blocks.FARMLAND.getDefaultState().withProperty(BlockFarmland.MOISTURE, 7));
                 state = world.getBlockState(pos);
             }
@@ -310,14 +312,13 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             if (block instanceof BlockGregLog && !(toolStack = toolInventory.get().getStackInSlot(1)).isEmpty()) {
                 harvestable = this.damageTool(toolStack, (WorldServer) world);
                 if (harvestable && state.getValue(BlockGregLog.NATURAL))
-                    this.addItemDrop(RUBBER_REFERENCE.getItem(), 1 + world.rand.nextInt(2), RUBBER_REFERENCE.getMetadata());
+                    harvestable = this.addItemDrop(RUBBER_REFERENCE.getItem(), 1 + world.rand.nextInt(2), RUBBER_REFERENCE.getMetadata());
             } else if (block instanceof BlockLog && !(toolStack = toolInventory.get().getStackInSlot(1)).isEmpty()) {
                 harvestable = this.damageTool(toolStack, (WorldServer) world);
             } else if (block instanceof IShearable) {
                 IItemHandlerModifiable tool = toolInventory.get();
                 if (!(toolStack = tool.getStackInSlot(2)).isEmpty() && this.damageTool(toolStack, (WorldServer) world)) {
-                    this.addItemDrop(block, 1, block.damageDropped(state));
-                    harvestable = true;
+                    harvestable = this.addItemDrop(block, 1, block.damageDropped(state));
                     chance = 0;
                 } else if (!(toolStack = tool.getStackInSlot(1)).isEmpty() && this.damageTool(toolStack, (WorldServer) world)) {
                     harvestable = true;
@@ -329,9 +330,8 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
                     toolStack.damageItem(1, FakePlayerFactory.getMinecraft((WorldServer) world));
                     int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, toolStack);
                     IBlockState state1 = crops.withAge(0);
-                    this.addItemDrop(crops.getItemDropped(state1, world.rand, 0), 1 + world.rand.nextInt(2 + fortune), crops.getMetaFromState(state1));
                     count += world.rand.nextInt(3 + fortune);
-                    harvestable = true;
+                    harvestable = this.addItemDrop(crops.getItemDropped(state1, world.rand, 0), 1 + world.rand.nextInt(2 + fortune), crops.getMetaFromState(state1));
                 }
             }
             if (harvestable) {
@@ -359,7 +359,9 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
             return pos.getX() > mtePos.getX() - radius && pos.getX() < mtePos.getX() + radius && pos.getZ() > mtePos.getZ() - radius && pos.getZ() < mtePos.getZ() + radius;
         }
 
-        private <T extends IForgeRegistryEntry<T>> void addItemDrop(T type, int count, int meta) {
+        private <T extends IForgeRegistryEntry<T>> boolean addItemDrop(T type, int count, int meta) {
+            if (type == null)
+                return false;
             String key = type.getRegistryName().toString() + ":" + meta;
             ItemStack stack = itemType.get(key);
             if (stack != null) {
@@ -369,36 +371,29 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<Farmi
                 itemType.put(key, itemStack);
                 itemOutputs.add(itemStack);
             }
+            return true;
         }
 
         private boolean damageTool(ItemStack stack, WorldServer world) {
-            if (stack.getItem().getMaxDamage() > 0) {
+            if (stack.getItem() instanceof IToolItem) {
+                return ((IToolItem) stack.getItem()).damageItem(stack, 1, false) || (outputTools && this.outputTool(stack));
+            } else if (stack.getItem().getMaxDamage() > 0) {
                 stack.damageItem(1, FakePlayerFactory.getMinecraft(world));
                 return true;
             }
-            IElectricItem eu = stack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
-            if (eu != null) {
-                boolean success = eu.discharge(32, Integer.MAX_VALUE, true, false, false) == 32;
-                if ((!success || eu.getCharge() == 0) && outputTools && this.outputTool(stack.copy())) {
-                    stack.shrink(1);
-                }
-                return success;
-            }
             IEnergyStorage rf = stack.getCapability(CapabilityEnergy.ENERGY, null);
             if (rf != null) {
-                boolean success = rf.extractEnergy(128, false) == 128;
-                if (!success && outputTools && this.outputTool(stack.copy())) {
-                    stack.shrink(1);
-                }
-                return success;
+                return rf.extractEnergy(128, false) == 128 || (outputTools && this.outputTool(stack));
             }
-            return false;
+            return outputTools && this.outputTool(stack);
         }
 
         private boolean outputTool(ItemStack stack) {
+            ItemStack exportStack = stack.copy();
             IItemHandlerModifiable output = exportItemsSupplier.get();
-            if (ItemStackHelper.insertIntoItemHandler(output, stack, true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(output, stack, false);
+            if (ItemStackHelper.insertIntoItemHandler(output, exportStack, true).isEmpty()) {
+                ItemStackHelper.insertIntoItemHandler(output, exportStack, false);
+                stack.shrink(1);
                 return true;
             } else return false;
         }

@@ -3,17 +3,16 @@ package tj.mixin.gregtech;
 import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.GAFueledMultiblockController;
 import gregicadditions.machines.multi.IMaintenance;
-import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
-import gregtech.common.metatileentities.multi.electric.generator.FueledMultiblockController;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.*;
+import net.minecraft.util.text.event.HoverEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -23,16 +22,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.MultiblockDisplaysUtility;
-import tj.builder.multicontrollers.TJFueledMultiblockControllerBase;
-import tj.capability.impl.TJFuelRecipeLogic;
+import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.gui.widgets.AdvancedDisplayWidget;
+import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.TJProgressBarWidget;
+import tj.gui.widgets.impl.ScrollableDisplayWidget;
 
+import java.util.ArrayDeque;
 import java.util.List;
+import java.util.Queue;
+import java.util.function.UnaryOperator;
 
 import static tj.gui.TJGuiTextures.CAUTION_BUTTON;
-import static tj.gui.TJGuiTextures.POWER_BUTTON;
 import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
@@ -55,16 +60,47 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     @Inject(method = "createUITemplate", at = @At("HEAD"), cancellable = true)
     private void injectCreateUITemplate(EntityPlayer entityPlayer, CallbackInfoReturnable<ModularUI.Builder> cir) {
         if (TJConfig.machines.multiblockUIOverrides) {
+            int height = 0;
+            int[][] barMatrix = null;
+            height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
             ModularUI.Builder builder = ModularUI.extendedBuilder();
             WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                     .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
-                    .setPosition(-10, 1);
+                    .setPosition(-10, 1)
+                    .offsetPosition(0, height)
+                    .offsetY(132);
+            if (height > 0)
+                builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
+            builder.widget(new TJLabelWidget(-1, -38, 184, 20, TJGuiTextures.MACHINE_LABEL, this::getJEIRecipeUid)
+                    .setItemLabel(this.getStackForm())
+                    .setLocale(this.getMetaFullName()));
+            builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN)
+                    .image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
             this.addNewTabs(tabBuilder);
-            builder.image(-10, -20, 195, 237, TJGuiTextures.NEW_MULTIBLOCK_DISPLAY);
-            builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134);
-            builder.widget(new LabelWidget(0, -13, this.getMetaFullName(), 0xFFFFFF));
-            builder.widget(tabBuilder.build());
+            if (barMatrix != null)
+                this.addNewBars(barMatrix, builder);
+            builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
+                    .widget(tabBuilder.build())
+                    .widget(tabBuilder.buildWidgetGroup());
             cir.setReturnValue(builder);
+        }
+    }
+
+    @Unique
+    private void addNewBars(int[][] barMatrix, ModularUI.Builder builder) {
+        Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars = new ArrayDeque<>();
+        ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars);
+        for (int i = 0; i < barMatrix.length; i++) {
+            int[] column = barMatrix[i];
+            for (int j = 0; j < column.length; j++) {
+                ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
+                int height = 188 / column.length;
+                builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
+                        .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
+                        .setLocale(bar.getLocale(), bar.getParams())
+                        .setFluid(bar.getFluidStackSupplier())
+                        .setColor(bar.getColor()));
+            }
         }
     }
 
@@ -72,8 +108,8 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     private void addNewTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::addMainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.addWidget(new AdvancedTextWidget(10, -2, textList -> {
-                    if (this.getHolder().getMetaTileEntity() instanceof GAFueledMultiblockController && !(this.getHolder().getMetaTileEntity() instanceof TJFueledMultiblockControllerBase)) {
+                maintenanceTab.add(new AdvancedTextWidget(10, -13, textList -> {
+                    if (this.getHolder().getMetaTileEntity() instanceof GAFueledMultiblockController) {
                         GAFueledMultiblockController controller = (GAFueledMultiblockController) this.getHolder().getMetaTileEntity();
                         MultiblockDisplaysUtility.mufflerDisplay(textList, !controller.hasMufflerHatch() || controller.isMufflerFaceFree());
                     }
@@ -85,24 +121,24 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     }
 
     @Unique
-    private void addMainDisplayTab(WidgetGroup widgetGroup) {
-        widgetGroup.addWidget(new AdvancedTextWidget(10, -2, this::addDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180)
-                .setClickHandler(this::handleDisplayClick));
-        if (this.getHolder().getMetaTileEntity() instanceof FueledMultiblockController) {
-            FuelRecipeLogic recipeLogic = ((IFueledMultiblockControllerMixin) this.getHolder().getMetaTileEntity()).getFuelRecipeLogic();
-            widgetGroup.addWidget(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
-                    .setTooltipText("machine.universal.toggle.run.mode"));
-            widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
-                    .setTooltipText("machine.universal.toggle.check.mode"));
-            if (recipeLogic instanceof TJFuelRecipeLogic) {
-                widgetGroup.addWidget(new TJToggleButtonWidget(172, 151, 18, 18)
-                        .setToggleButtonResponder(((TJFuelRecipeLogic) recipeLogic)::setVoidEnergy)
-                        .setButtonSupplier(((TJFuelRecipeLogic) recipeLogic)::isVoidEnergy)
-                        .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
-                        .setBackgroundTextures(TJGuiTextures.ENERGY_VOID)
-                        .useToggleTexture(true));
-            }
+    protected void addMainDisplayTab(List<Widget> widgetGroup) {
+        widgetGroup.add(new ScrollableDisplayWidget(10, -15, 183, 142)
+                .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::configureDisplayText, 0xFFFFFF)
+                        .setClickHandler(this::handleDisplayClick)
+                        .setMaxWidthLimit(180))
+                .setScrollPanelWidth(3));
+        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
+                .setTooltipText("machine.universal.toggle.check.mode"));
+    }
+
+    @Unique
+    protected void configureDisplayText(UIDisplayBuilder builder) {
+        if (!this.isStructureFormed()) {
+            ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
+            tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
+            builder.customLine(text -> text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
+                    .setStyle(new Style().setColor(TextFormatting.RED)
+                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
         }
     }
 
@@ -120,5 +156,10 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
             this.invalidateStructure();
             this.structurePattern = this.createStructurePattern();
         }
+    }
+
+    @Unique
+    public String getJEIRecipeUid() {
+        return null;
     }
 }

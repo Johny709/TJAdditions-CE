@@ -36,7 +36,7 @@ import tj.builder.WidgetTabBuilder;
 import tj.capability.IEnderNotifiable;
 import tj.gui.widgets.*;
 import tj.gui.widgets.impl.ClickPopUpWidget;
-import tj.gui.widgets.impl.ScrollableTextWidget;
+import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
@@ -153,14 +153,14 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                             .setMaxStringLength(256);
                     TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
                     textWidget.setMaxWidthLimit(1000);
-                    tab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
+                    tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                             .addPopup(widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(3, 61, 170, 80, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(-25, 33, 28, 28, BORDERED_BACKGROUND_RIGHT));
-                                widgetGroup.addWidget(new ScrollableTextWidget(3, 61, 182, 80)
+                                widgetGroup.addWidget(new ScrollableDisplayWidget(3, 61, 182, 80)
                                         .addTextWidget(textWidget));
                                 widgetGroup.addWidget(new NewTextFieldWidget<>(32, 43, 112, 13, false)
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
@@ -289,12 +289,12 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                             .setMaxStringLength(256);
                     TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addFrequencyDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
                     textWidget.setMaxWidthLimit(1000);
-                    tab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
+                    tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                             .addPopup(widgetGroup -> {
                                 widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(3, 38, 170, 103, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
-                                widgetGroup.addWidget(new ScrollableTextWidget(3, 38, 182, 103)
+                                widgetGroup.addWidget(new ScrollableDisplayWidget(3, 38, 182, 103)
                                         .addTextWidget(textWidget));
                                 widgetGroup.addWidget(new NewTextFieldWidget<>(32, 20, 112, 18)
                                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
@@ -381,7 +381,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                                         widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 130, BORDERED_BACKGROUND));
                                                         widgetGroup2.addWidget(new ImageWidget(3, 25, 176, 80, DISPLAY));
                                                         widgetGroup2.addWidget(new ImageWidget(30, 106, 115, 18, DISPLAY));
-                                                        widgetGroup2.addWidget(new ScrollableTextWidget(3, 25, 185, 80)
+                                                        widgetGroup2.addWidget(new ScrollableDisplayWidget(3, 25, 185, 80)
                                                                 .addTextWidget(playerTextWidget));
                                                         widgetGroup2.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentString(I18n.translateToLocalFormatted("metaitem.ender_cover.allowed_players", this.frequency))), 0x404040));
                                                         widgetGroup2.addWidget(new NewTextFieldWidget<>(32, 110, 112, 13, false)

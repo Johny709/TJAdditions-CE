@@ -20,9 +20,9 @@ import net.minecraft.util.text.TextFormatting;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.BlackSteel;
@@ -36,8 +36,8 @@ public class LargeEnchanterInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        GATransparentCasing.CasingType[] glasses = GATransparentCasing.CasingType.values();
-        GAMultiblockShapeInfo.Builder shapeInfo = GAMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN)
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN)
                 .aisle("~~~~~~~", "~~~~~~~", "~~~C~~~", "~~CCC~~", "~~~C~~~", "~~~~~~~", "~~~~~~~")
                 .aisle("~~~~~~~", "~~~~~~~", "~~CCC~~", "~~CeC~~", "~~CCC~~", "~~~~~~~", "~~~~~~~")
                 .aisle("~~~~~~~", "~C~~~C~", "~~CGC~~", "~~G#G~~", "~~CGC~~", "~C~~~C~", "~~~~~~~")
@@ -52,18 +52,18 @@ public class LargeEnchanterInfo extends TJMultiblockInfoPage {
                 .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.BLACK_STEEL))
                 .where('o', Blocks.OBSIDIAN.getDefaultState())
                 .where('B', Block.getBlockFromName("apotheosis:hellshelf").getDefaultState())
-                .where('e', GAMetaBlocks.EMITTER_CASING.getDefaultState())
                 .where('F', MetaBlocks.FRAMES.get(BlackSteel).getDefaultState())
-                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
-                .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
-                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
-        return Arrays.stream(EmitterCasing.CasingType.values())
-                .map(casingType -> shapeInfo.where('e', GAMetaBlocks.EMITTER_CASING.getState(casingType))
-                        .where('E', this.getEnergyHatch(casingType.getTier(), false), EnumFacing.EAST)
-                        .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(glasses[Math.min(glasses.length - 1, casingType.ordinal())]))
-                        .build())
-                .collect(Collectors.toList());
+        for (int tier = 0; tier < 15; tier++) {
+            shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
+                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9 - 1, tier)], EnumFacing.WEST)
+                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9 - 1, tier)], EnumFacing.WEST)
+                    .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9 - 1, tier)], EnumFacing.WEST)
+                    .where('e', GAMetaBlocks.EMITTER_CASING.getState(EmitterCasing.CasingType.values()[Math.max(0, tier - 1)]))
+                    .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.values()[Math.min(6, tier)]))
+                    .build());
+        }
+        return shapeInfos;
     }
 
     @Override

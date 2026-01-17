@@ -10,6 +10,7 @@ import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IControllable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
@@ -28,15 +29,27 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IMuffler;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
+import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
+import tj.gui.widgets.AdvancedDisplayWidget;
+import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.TJProgressBarWidget;
+import tj.gui.widgets.impl.ScrollableDisplayWidget;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.*;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
@@ -175,47 +188,90 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
         }
     }
 
-    @Override
-    protected ModularUI.Builder createUITemplate(EntityPlayer player) {
-        ModularUI.Builder builder = ModularUI.extendedBuilder();
-        WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
-                .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
-                .setPosition(-10, 1 + this.getExtended());
-        this.addTabs(tabBuilder, player);
-        builder.image(-10, -20, 195, 237 + this.getExtended(), this.getExtended() == 0 ? NEW_MULTIBLOCK_DISPLAY : NEW_MULTIBLOCK_DISPLAY_EXTENDED);
-        builder.bindPlayerInventory(player.inventory, GuiTextures.SLOT ,-3, 134 + this.getExtended());
-        builder.widget(new LabelWidget(0, -13, getMetaFullName(), 0xFFFFFF));
-        builder.widget(tabBuilder.buildWidgetGroup());
-        builder.widget(tabBuilder.build());
-        return builder;
+    protected int getOffsetY(int y) {
+        int height = this.getExtended();
+        int[][] barMatrix;
+        height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
+        return y + height;
     }
 
     protected int getExtended() {
         return 0;
     }
 
+    @Override
+    protected ModularUI.Builder createUITemplate(EntityPlayer entityPlayer) {
+        int height = this.getExtended();
+        int[][] barMatrix = null;
+        height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
+        ModularUI.Builder builder = ModularUI.extendedBuilder();
+        WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
+                .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
+                .setPosition(-10, 1)
+                .offsetPosition(0, height)
+                .offsetY(132 - this.getExtended());
+        if (height > 0)
+            builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
+        builder.widget(new TJLabelWidget(-1, -38, 184, 20, MACHINE_LABEL, this::getRecipeUid)
+                .setItemLabel(this.getStackForm())
+                .setLocale(this.getMetaFullName()));
+        builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN)
+                .image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
+        this.addTabs(tabBuilder, entityPlayer);
+        if (barMatrix != null)
+            this.addBars(barMatrix, builder);
+        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
+                .widget(tabBuilder.build())
+                .widget(tabBuilder.buildWidgetGroup());
+        return builder;
+    }
+
+    private void addBars(int[][] barMatrix, ModularUI.Builder builder) {
+        Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars = new ArrayDeque<>();
+        ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars);
+        for (int i = 0; i < barMatrix.length; i++) {
+            int[] column = barMatrix[i];
+            for (int j = 0; j < column.length; j++) {
+                ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
+                int height = 188 / column.length;
+                builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
+                        .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
+                        .setLocale(bar.getLocale(), bar.getParams())
+                        .setFluid(bar.getFluidStackSupplier()));
+            }
+        }
+    }
+
     @OverridingMethodsMustInvokeSuper
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.addWidget(new AdvancedTextWidget(10, -2 - this.getExtended(), textList -> {
+                maintenanceTab.add(new AdvancedTextWidget(10, -13, textList -> {
             MultiblockDisplaysUtility.mufflerDisplay(textList, !this.hasMufflerHatch() || this.isMufflerFaceFree());
             MultiblockDisplaysUtility.maintenanceDisplay(textList, this.maintenance_problems, this.hasProblems());
             }, 0xFFFFFF).setMaxWidthLimit(180)));
     }
 
-    protected void mainDisplayTab(WidgetGroup widgetGroup) {
-        widgetGroup.addWidget(new AdvancedTextWidget(10, -2 - this.getExtended(), this::addDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180).setClickHandler(this::handleDisplayClick));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 169, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        widgetGroup.add(new ScrollableDisplayWidget(10, -15, 183, 142)
+                .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addDisplayText, 0xFFFFFF)
+                        .setClickHandler(this::handleDisplayClick)
+                        .setMaxWidthLimit(180))
+                .setScrollPanelWidth(3));
+        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 133, 18, 18, CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 
-    @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        MultiblockDisplaysUtility.isInvalid(textList, isStructureFormed());
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        if (!this.isStructureFormed()) {
+            ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
+            tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
+            builder.customLine(text -> text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
+                    .setStyle(new Style().setColor(TextFormatting.RED)
+                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
+        }
     }
 
     @Override
@@ -320,5 +376,12 @@ public abstract class TJMultiblockDisplayBase extends MultiblockWithDisplayBase 
         this.maintenance_problems = data.getByte("Maintenance");
         this.timeActive = data.getInteger("ActiveTimer");
         this.isWorkingEnabled = data.getBoolean("IsWorking");
+    }
+
+    /**
+     * Recipe Uid for JEI recipe click area.
+     */
+    public String getRecipeUid() {
+        return null;
     }
 }

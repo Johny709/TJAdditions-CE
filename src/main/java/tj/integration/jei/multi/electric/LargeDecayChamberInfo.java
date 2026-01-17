@@ -5,7 +5,6 @@ import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.item.metal.NuclearCasing;
 import gregicadditions.machines.GATileEntities;
-import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
@@ -17,9 +16,9 @@ import net.minecraft.util.text.TextFormatting;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class LargeDecayChamberInfo extends TJMultiblockInfoPage {
 
@@ -30,26 +29,27 @@ public class LargeDecayChamberInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        NuclearCasing.CasingType[] rodTypes = NuclearCasing.CasingType.values();
-        MultiblockShapeInfo.Builder shapeInfo = MultiblockShapeInfo.builder()
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        MultiblockShapeInfo.Builder builder = MultiblockShapeInfo.builder()
                 .aisle("~~C~~", "~CCC~", "CCCCC", "~CCC~", "~~C~~")
-                .aisle("~CCC~", "!###C", "C#F#C", "I###C", "~CCC~")
+                .aisle("~CCC~", "i###C", "C#F#C", "I###C", "~CCC~")
                 .aisle("CCCCC", "C#F#C", "SFRFE", "M#F#C", "CCCCC")
-                .aisle("~CCC~", "0###C", "C#F#C", "O###C", "~CCC~")
+                .aisle("~CCC~", "o###C", "C#F#C", "O###C", "~CCC~")
                 .aisle("~~C~~", "~CCC~", "CCCCC", "~CCC~", "~~C~~")
-                .where('S', TJMetaTileEntities.LARGE_DECAY_CHAMBER, EnumFacing.WEST)
+                .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.LEAD))
-                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.LuV], EnumFacing.WEST)
-                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.LuV], EnumFacing.WEST)
-                .where('!', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.LuV], EnumFacing.WEST)
-                .where('0', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.LuV], EnumFacing.WEST);
-        return Arrays.stream(FieldGenCasing.CasingType.values())
-                .map(casingType -> shapeInfo.where('F', GAMetaBlocks.FIELD_GEN_CASING.getState(casingType))
-                        .where('E', this.getEnergyHatch(casingType.getTier(), false), EnumFacing.EAST)
-                        .where('R', GAMetaBlocks.NUCLEAR_CASING.getState(rodTypes[Math.min(rodTypes.length - 1, casingType.ordinal())]))
-                        .build())
-                .collect(Collectors.toList());
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
+        for (int tier = 0; tier < 15; tier++) {
+            shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
+                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('F', GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.values()[Math.max(0, tier -1)]))
+                    .where('R', GAMetaBlocks.NUCLEAR_CASING.getState(NuclearCasing.CasingType.values()[Math.min(11, tier)]))
+                    .build());
+        }
+        return shapeInfos;
     }
 
     @Override

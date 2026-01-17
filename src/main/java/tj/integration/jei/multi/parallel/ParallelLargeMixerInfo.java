@@ -59,10 +59,10 @@ public class ParallelLargeMixerInfo extends TJMultiblockInfoPage implements IPar
                         .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
                         .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
                         .where('E', this.getEnergyHatch(tier, false), WEST)
-                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[2], WEST)
-                        .where('i', GATileEntities.OUTPUT_HATCH_MULTI.get(1), WEST)
-                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[2], WEST)
-                        .where('o', GATileEntities.INPUT_HATCH_MULTI.get(1), WEST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], WEST)
+                        .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], WEST)
+                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], WEST)
+                        .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], WEST)
                         .build();
             }
             shapeInfos.add(infos);

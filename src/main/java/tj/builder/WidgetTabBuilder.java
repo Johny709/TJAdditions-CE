@@ -17,10 +17,11 @@ import java.util.function.Supplier;
 
 public class WidgetTabBuilder {
 
-    private Position position = Position.ORIGIN;
-    private Supplier<TabListRenderer> tabListRenderer;
     private final LinkedHashMap<ItemTabInfo, AbstractWidgetGroup> tabs = new LinkedHashMap<>();
     private final List<Widget> widgetGroup = new ArrayList<>();
+    private Position position = Position.ORIGIN;
+    private Supplier<TabListRenderer> tabListRenderer;
+    private int offsetY;
 
     public WidgetTabBuilder setTabListRenderer(Supplier<TabListRenderer> tabListRenderer) {
         this.tabListRenderer = tabListRenderer;
@@ -32,6 +33,19 @@ public class WidgetTabBuilder {
         return this;
     }
 
+    public WidgetTabBuilder offsetY(int offsetY) {
+        this.offsetY = offsetY;
+        return this;
+    }
+
+    /**
+     * Offset from the last set position. Offsets from x:0, y:0 if no prior position has been set.
+     */
+    public WidgetTabBuilder offsetPosition(int x, int y) {
+        this.position = new Position(this.position.getX() + x, this.position.getY() + y);
+        return this;
+    }
+
     /**
      * These widgets affect all tabs. Added widgets are used for building widget group.
      */
@@ -40,16 +54,28 @@ public class WidgetTabBuilder {
         return this;
     }
 
-    public WidgetTabBuilder addTab(String name, ItemStack itemDisplay, Consumer<WidgetGroup> widgetGroupConsumer) {
-        WidgetGroup widgets = new WidgetGroup();
+    public WidgetTabBuilder addTab(String name, ItemStack itemDisplay, Consumer<List<Widget>> widgetGroupConsumer) {
+        WidgetGroup widgetGroup = new WidgetGroup(), offsetWidgetGroup = new WidgetGroup(new Position(0, -this.position.getY()));
+        List<Widget> widgets = new ArrayList<>();
         widgetGroupConsumer.accept(widgets);
-        this.tabs.put(new ItemTabInfo(name, itemDisplay), widgets);
+        widgets.forEach(widget -> {
+            if (widget.getPosition().getY() < this.offsetY)
+                offsetWidgetGroup.addWidget(widget);
+            else widgetGroup.addWidget(widget);
+        });
+        widgetGroup.addWidget(offsetWidgetGroup);
+        this.tabs.put(new ItemTabInfo(name, itemDisplay), widgetGroup);
         return this;
     }
 
     public WidgetGroup buildWidgetGroup() {
-        WidgetGroup widgetGroup = new WidgetGroup(this.position);
-        this.widgetGroup.forEach(widgetGroup::addWidget);
+        WidgetGroup widgetGroup = new WidgetGroup(this.position), offsetWidgetGroup = new WidgetGroup(new Position(0, -this.position.getY()));
+        this.widgetGroup.forEach(widget -> {
+            if (widget.getPosition().getY() < this.offsetY)
+                offsetWidgetGroup.addWidget(widget);
+            else widgetGroup.addWidget(widget);
+        });
+        widgetGroup.addWidget(offsetWidgetGroup);
         return widgetGroup;
     }
 

@@ -5,7 +5,6 @@ import gregicadditions.item.components.PistonCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
-import gregtech.api.GTValues;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
@@ -60,8 +59,8 @@ public class ParallelLargeSifterInfo extends TJMultiblockInfoPage implements IPa
                         .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
                         .where('F', MetaBlocks.FRAMES.get(EglinSteel).getDefaultState())
                         .where('P', GAMetaBlocks.PISTON_CASING.getState(PistonCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[GTValues.IV], WEST)
-                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[GTValues.IV], WEST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], WEST)
+                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], WEST)
                         .where('E', this.getEnergyHatch(tier, false), EAST)
                         .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
                         .build();

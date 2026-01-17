@@ -34,7 +34,9 @@ import org.apache.commons.lang3.tuple.Triple;
 import tj.builder.handlers.CrafterRecipeLogic;
 import tj.builder.handlers.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
+import tj.gui.TJGuiTextures;
 import tj.gui.widgets.SlotScrollableWidgetGroup;
+import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.CraftingRecipeTransferWidget;
 import tj.gui.widgets.impl.SlotDisplayWidget;
 import tj.textures.TJTextures;
@@ -53,7 +55,13 @@ import static tj.gui.TJGuiTextures.*;
 
 public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implements IRecipeMapProvider {
 
-    private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this);
+    private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this)
+            .setImportEnergySupplier(this::getEnergyContainer)
+            .setImportItemsSupplier(this::getImportItems)
+            .setExportItemsSupplier(this::getExportItems)
+            .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setParallelSupplier(() -> 1)
+            .initialize(1);
     private final InventoryCrafting inventoryCrafting = new InventoryCrafting(new DummyContainer(), 3, 3);
     private final ItemStackHandler craftingInventory = new ItemStackHandler(9);
     private final ItemStackHandler encodingInventory;
@@ -66,12 +74,6 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
         super(metaTileEntityId, tier);
         this.encodingSlots = 6 + (tier * 3);
         this.encodingInventory = new ItemStackHandler(this.encodingSlots);
-        this.recipeLogic.initialize(1)
-                .setImportItemsSupplier(this::getImportItems)
-                .setExportItemsSupplier(this::getExportItems)
-                .setImportEnergySupplier(this::getEnergyContainer)
-                .setMaxVoltageSupplier(this::getMaxVoltage)
-                .setParallelSupplier(() -> 1);
     }
 
     @Override
@@ -135,8 +137,9 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                     }));
         }
         return ModularUI.builder(BACKGROUND, 176, 216)
+                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
+                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 55, 111, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
-                .widget(new LabelWidget(7, 5, this.getMetaFullName()))
                 .widget(new ImageWidget(72, 28, 26, 26, SLOT))
                 .widget(new ImageWidget(109, 14, 54, 54, DARKENED_SLOT))
                 .widget(new SlotDisplayWidget(this.resultInventory, 0, 76, 32)

@@ -5,11 +5,12 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
+import gregtech.api.GTValues;
 import gregtech.api.capability.*;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidFuelInfo;
 import gregtech.api.gui.GuiTextures;
-import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.recipes.machines.FuelRecipeMap;
 import gregtech.api.render.Textures;
@@ -19,7 +20,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -51,15 +51,20 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IGeneratorInfo;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.AbstractWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.util.TJFluidUtils;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.DoubleSupplier;
+import java.util.function.UnaryOperator;
 
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
 import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
@@ -67,11 +72,16 @@ import static gregtech.api.unification.material.Materials.DistilledWater;
 import static net.minecraft.util.text.TextFormatting.AQUA;
 import static net.minecraft.util.text.TextFormatting.RED;
 
-public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase {
+public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase implements IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
             GregicAdditionsCapabilities.STEAM, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final SteamEngineWorkableHandler workableHandler = new SteamEngineWorkableHandler(this, RecipeMaps.STEAM_TURBINE_FUELS, this::getEfficiency);
+    private final SteamEngineWorkableHandler workableHandler = new SteamEngineWorkableHandler(this, RecipeMaps.STEAM_TURBINE_FUELS, this::getEfficiency)
+            .setImportFluidsSupplier(this::getImportFluidHandler)
+            .setExportFluidsSupplier(this::getExportFluidHandler)
+            .setExportEnergySupplier(this::getEnergyContainer)
+            .setMaxVoltageSupplier(this::getMaxVoltage)
+            .setTierSupplier(this::getTier);
     private IMultipleTankHandler importFluidHandler;
     private IMultipleTankHandler exportFluidHandler;
     private IEnergyContainer energyContainer;
@@ -81,11 +91,6 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
 
     public MetaTileEntityIndustrialSteamEngine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportFluidsSupplier(this::getImportFluidHandler)
-                .setExportFluidsSupplier(this::getExportFluidHandler)
-                .setExportEnergySupplier(this::getEnergyContainer)
-                .setMaxVoltageSupplier(this::getMaxVoltage)
-                .setTierSupplier(this::getTier);
     }
 
     @Override
@@ -101,33 +106,32 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         if (!isStructureFormed()) return;
-        MultiblockDisplayBuilder.start(textList)
-                .custom(text -> {
-                    text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.workableHandler.getConsumption(),
+        builder.customLine(text -> {
+                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.workableHandler.getConsumption(),
                             net.minecraft.util.text.translation.I18n.translateToLocal(this.workableHandler.getFuelName()),
                             this.workableHandler.getMaxProgress() / 20)));
                     FluidStack fuelStack = this.workableHandler.getFuelStack();
                     int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
                     ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
-                    text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelName.getUnformattedText())));
+                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelName.getUnformattedText())));
 
-                    text.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", this.workableHandler.getProduction())));
+                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", this.workableHandler.getProduction())));
 
-                    text.add(new TextComponentTranslation("gregtech.universal.tooltip.efficiency", TJValues.thousandFormat.format(this.efficiency * 100)).setStyle(new Style().setColor(AQUA)));
+                    text.addTextComponent(new TextComponentTranslation("gregtech.universal.tooltip.efficiency", TJValues.thousandFormat.format(this.efficiency * 100)).setStyle(new Style().setColor(AQUA)));
 
                     if (!this.workableHandler.isVoidEnergy() && this.energyContainer.getEnergyCanBeInserted() < this.workableHandler.getProduction())
-                        text.add(new TextComponentTranslation("machine.universal.output.full").setStyle(new Style().setColor(RED)));
-                }).isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                        text.addTextComponent(new TextComponentTranslation("machine.universal.output.full").setStyle(new Style().setColor(RED)));
+                }).isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override
-    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.addWidget(new TJToggleButtonWidget(172, 151, 18, 18)
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18)
                 .setToggleButtonResponder(this.workableHandler::setVoidEnergy)
                 .setButtonSupplier(this.workableHandler::isVoidEnergy)
                 .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
@@ -224,6 +228,26 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
         Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive());
     }
 
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[1][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
+                .setLocale("tj.multiblock.bars.fuel").setParams(() -> new Object[]{this.workableHandler.getFuelName()})
+                .setFluidStackSupplier(this.workableHandler::getFuelStack));
+    }
+
+    private long getFuelAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(this.workableHandler.getFuelStack(), this.getImportFluidHandler());
+    }
+
+    private long getFuelCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(this.workableHandler.getFuelStack(), this.getImportFluidHandler());
+    }
+
     private IMultipleTankHandler getImportFluidHandler() {
         return this.importFluidHandler;
     }
@@ -246,6 +270,11 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockDisplayBase
 
     public long getMaxVoltage() {
         return this.maxVoltage;
+    }
+
+    @Override
+    public String getRecipeUid() {
+        return GTValues.MODID + ":" + RecipeMaps.STEAM_TURBINE_FUELS.getUnlocalizedName();
     }
 
     private static class SteamEngineWorkableHandler extends AbstractWorkableHandler<SteamEngineWorkableHandler> implements IGeneratorInfo, IFuelable {

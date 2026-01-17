@@ -4,6 +4,7 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PistonCasing;
 import gregicadditions.jei.GAMultiblockShapeInfo;
+import gregicadditions.machines.GATileEntities;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
@@ -52,10 +53,10 @@ public class ParallelLargeBendingAndFormingInfo extends TJMultiblockInfoPage imp
                         .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE))
                         .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
                         .where('p', GAMetaBlocks.PISTON_CASING.getState(PistonCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                        .where('M', this.getEnergyHatch(tier, false), WEST)
-                        .where('E', MetaTileEntities.ENERGY_INPUT_HATCH[0], EAST)
-                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[2], WEST)
-                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[2], WEST)
+                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
+                        .where('E', this.getEnergyHatch(tier, false), EAST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], WEST)
+                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], WEST)
                         .build();
             }
             shapeInfos.add(infos);

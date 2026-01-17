@@ -36,7 +36,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -51,27 +50,26 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.BatteryChargerWorkableHandler;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
-import tj.capability.IParallelController;
-import tj.capability.LinkEntity;
-import tj.capability.LinkEvent;
-import tj.capability.TJCapabilities;
+import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.capability.*;
 import tj.gui.TJGuiTextures;
+import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.TJAdvancedTextWidget;
-import tj.gui.widgets.TJTextFieldWidget;
 import tj.gui.widgets.impl.ClickPopUpWidget;
-import tj.gui.widgets.impl.ScrollableTextWidget;
+import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.items.TJMetaItems;
+import tj.util.TJFluidUtils;
 import tj.util.consumers.QuadConsumer;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 import static gregicadditions.GAMaterials.Talonite;
@@ -86,10 +84,17 @@ import static net.minecraftforge.energy.CapabilityEnergy.ENERGY;
 import static tj.builder.handlers.BatteryChargerWorkableHandler.TransferMode.INPUT;
 import static tj.builder.handlers.BatteryChargerWorkableHandler.TransferMode.OUTPUT;
 
-public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase implements LinkEntity, LinkEvent, IParallelController {
+public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase implements LinkEntity, LinkEvent, IParallelController, IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, OUTPUT_ENERGY, IMPORT_FLUIDS, MAINTENANCE_HATCH};
-    private final BatteryChargerWorkableHandler workableHandler = new BatteryChargerWorkableHandler(this);
+    private final BatteryChargerWorkableHandler workableHandler = new BatteryChargerWorkableHandler(this)
+            .setExportEnergySupplier(this::getOutputEnergyContainer)
+            .setImportEnergySupplier(this::getInputEnergyContainer)
+            .setImportFluidsSupplier(this::getImportFluidHandler)
+            .setImportItemsSupplier(this::getImportItemHandler)
+            .setExportItemsSupplier(this::getExportItemHandler)
+            .setTierSupplier(this::getTier)
+            .setResetEnergy(false);
     private int tier;
     private final int pageSize = 4;
     private int pageIndex;
@@ -101,13 +106,6 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
 
     public MetaTileEntityLargeBatteryCharger(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportItemsSupplier(this::getImportItemHandler)
-                .setExportItemsSupplier(this::getExportItemHandler)
-                .setImportFluidsSupplier(this::getImportFluidHandler)
-                .setImportEnergySupplier(this::getInputEnergyContainer)
-                .setExportEnergySupplier(this::getOutputEnergyContainer)
-                .setTierSupplier(this::getTier)
-                .setResetEnergy(false);
     }
 
     @Override
@@ -127,25 +125,24 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
         if (this.isStructureFormed())
-            MultiblockDisplayBuilder.start(textList)
-                    .voltageIn(this.inputEnergyContainer)
-                    .voltageTier(this.tier)
-                    .energyStored(this.getEnergyStored(), this.getEnergyCapacity())
-                    .energyInput(this.inputEnergyContainer.getEnergyStored() >= this.workableHandler.getEnergyPerTick(), this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
-                    .fluidInput(this.hasEnoughFluid(this.workableHandler.getFluidConsumption()), Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
-                    .custom(text -> {
-                        text.add(new TextComponentTranslation("machine.universal.item.output.transfer")
+            builder.voltageInLine(this.inputEnergyContainer)
+                    .voltageTierLine(this.tier)
+                    .energyStoredLine(this.getEnergyStored(), this.getEnergyCapacity())
+                    .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
+                    .fluidInputLine(this.importFluidHandler, Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
+                    .customLine(text -> {
+                        text.addTextComponent(new TextComponentTranslation("machine.universal.item.output.transfer")
                                 .appendText(" ")
                                 .appendSibling(this.workableHandler.isTransferToOutput() ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "transferEnabled")
                                         : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "transferDisabled")));
-                        text.add(new TextComponentTranslation("machine.universal.mode.transfer")
+                        text.addTextComponent(new TextComponentTranslation("machine.universal.mode.transfer")
                                 .appendText(" ")
                                 .appendSibling(this.workableHandler.getTransferMode() == INPUT ? withButton(new TextComponentTranslation("machine.universal.mode.transfer.input"), "input")
                                         : withButton(new TextComponentTranslation("machine.universal.mode.transfer.output"), "output")));
-                    }).isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                    }).isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override
@@ -166,16 +163,16 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                     .setTooltipText("machine.universal.toggle.rename.entry")
                     .setTextResponder(this.workableHandler::renameLink)
                     .setMaxStringLength(256);
-            TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(0, 0, this.addDisplayLinkedPlayersText(searchResults, patternFlags, search), 0xFFFFFF)
+            AdvancedDisplayWidget displayWidget = new AdvancedDisplayWidget(0, 2, this.addDisplayLinkedPlayersText(searchResults, patternFlags, search), 0xFFFFFF)
                     .addClickHandler(this.handleLinkedPlayersClick(textFieldWidgetRename));
-            textWidget.setMaxWidthLimit(1024);
-            tab.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
+            displayWidget.setMaxWidthLimit(1024);
+            tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                     .addPopup(widgetGroup -> {
-                        widgetGroup.addWidget(new AdvancedTextWidget(10, -20, (textList) -> textList.add(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("machine.universal.linked.players") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getEntityLinkName().length + "§r)")), 0xFFFFFF));
-                        widgetGroup.addWidget(new ScrollableTextWidget(10, -8, 178, 117)
-                                .addTextWidget(textWidget));
-                        widgetGroup.addWidget(new ImageWidget(7, 112, 162, 18, DISPLAY));
-                        widgetGroup.addWidget(new NewTextFieldWidget<>(12, 117, 157, 18)
+                        widgetGroup.addWidget(new ScrollableDisplayWidget(10, -15, 183, 142)
+                                .addDisplayWidget(displayWidget)
+                                .setScrollPanelWidth(3));
+                        widgetGroup.addWidget(new ImageWidget(7, this.getOffsetY(114), 162, 18, DISPLAY));
+                        widgetGroup.addWidget(new NewTextFieldWidget<>(12, this.getOffsetY(119), 157, 18)
                                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                 .setBackgroundText("machine.universal.search")
                                 .setTextResponder((s, id) -> search[0] = s)
@@ -194,7 +191,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
                             .setButtonSupplier(() -> false)
                             .useToggleTexture(true))
-                    .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
+                    .addPopup(0, 61, 182, 60, displayWidget, false, widgetGroup -> {
                         widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                         widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
                         widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
@@ -204,7 +201,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                         }, 0x404040));
                         widgetGroup.addWidget(textFieldWidgetRename);
                         return false;
-                    }).addPopup(118, 31, 60, 78, new TJToggleButtonWidget(172, 112, 18, 18)
+                    }).addPopup(118, 31, 60, 78, new TJToggleButtonWidget(172, this.getOffsetY(114), 18, 18)
                             .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                             .setTooltipText("machine.universal.search.settings")
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
@@ -213,16 +210,16 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     @Override
-    protected void mainDisplayTab(WidgetGroup widgetGroup) {
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.addWidget(new ImageWidget(28, 112, 141, 18, DISPLAY));
-        widgetGroup.addWidget(new TJTextFieldWidget(33, 117, 136, 18, false, () -> String.valueOf(this.workableHandler.getMaxProgress()), maxProgress -> this.workableHandler.setMaxProgress(maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress)))
-                .setTooltipText("machine.universal.tick.speed")
+        widgetGroup.add(new ImageWidget(28, 114, 141, 18, DISPLAY));
+        widgetGroup.add(new NewTextFieldWidget<>(33, 119, 136, 18, () -> String.valueOf(this.workableHandler.getMaxProgress()), (maxProgress, id) -> this.workableHandler.setMaxProgress(maxProgress.isEmpty() ? 1 : Integer.parseInt(maxProgress)))
                 .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.workableHandler.getMaxProgress())))
-                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()));
-        widgetGroup.addWidget(new ClickButtonWidget(7, 112, 18, 18, "+", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))));
-        widgetGroup.addWidget(new ClickButtonWidget(172, 112, 18, 18, "-", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))));
-        widgetGroup.addWidget(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setReset)
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setTooltipText("machine.universal.tick.speed"));
+        widgetGroup.add(new ClickButtonWidget(7, 114, 18, 18, "+", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))));
+        widgetGroup.add(new ClickButtonWidget(175, 114, 18, 18, "-", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))));
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setReset)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 
@@ -296,8 +293,9 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         return false;
     }
 
-    private Consumer<List<ITextComponent>> addDisplayLinkedPlayersText(int[] searchResults, int[] flags, String[] search) {
-        return (textList) -> {
+    private Consumer<UIDisplayBuilder> addDisplayLinkedPlayersText(int[] searchResults, int[] flags, String[] search) {
+        return (builder) -> {
+            builder.addTextComponent(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("machine.universal.linked.players") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getEntityLinkName().length + "§r)"));
             int results = 0;
             for (int i = 0; i < this.workableHandler.getEntityLinkName().length; i++) {
                 String name = this.workableHandler.getEntityLinkName()[i] != null ? this.workableHandler.getEntityLinkName()[i] : net.minecraft.util.text.translation.I18n.translateToLocal("machine.universal.empty");
@@ -366,8 +364,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                         }
                     }
                 }
-
-                textList.add(new TextComponentString(": [§a" + (++searchResults[0]) + "§r] ")
+                builder.addTextComponent(new TextComponentString(": [§a" + (++searchResults[0]) + "§r] ")
                         .appendSibling(new TextComponentString(name))
                         .setStyle(new Style()
                                 .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
@@ -629,6 +626,29 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER)
             return TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER.cast(this);
         return super.getCapability(capability, side);
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[2][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getEnergyStored).setMaxProgress(this::getEnergyCapacity)
+                .setLocale("tj.multiblock.bars.energy")
+                .setColor(0xFFF6FF00));
+        bars.add(bar -> bar.setProgress(this::getNitrogenAmount).setMaxProgress(this::getNitrogenCapacity)
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{MetaTileEntityLargeWirelessEnergyEmitter.NITROGEN_PLASMA.getLocalizedName()})
+                .setFluidStackSupplier(() -> MetaTileEntityLargeWirelessEnergyEmitter.NITROGEN_PLASMA));
+    }
+
+    private long getNitrogenAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(MetaTileEntityLargeWirelessEnergyEmitter.NITROGEN_PLASMA, this.getImportFluidHandler());
+    }
+
+    private long getNitrogenCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(MetaTileEntityLargeWirelessEnergyEmitter.NITROGEN_PLASMA, this.getImportFluidHandler());
     }
 
     @Override

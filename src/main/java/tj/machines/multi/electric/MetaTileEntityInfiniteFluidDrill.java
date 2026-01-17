@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
+import gregicadditions.Gregicality;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
@@ -11,7 +12,6 @@ import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockContr
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
-import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -25,39 +25,43 @@ import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
-import tj.builder.WidgetTabBuilder;
 import tj.builder.handlers.InfiniteFluidDrillWorkableHandler;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
 import tj.textures.TJTextures;
+import tj.util.TJFluidUtils;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.function.UnaryOperator;
 
 import static gregicadditions.GAMaterials.*;
 import static net.minecraft.util.text.TextFormatting.RED;
 
 
-public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
+public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase implements IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
             MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final InfiniteFluidDrillWorkableHandler workableHandler = new InfiniteFluidDrillWorkableHandler(this);
+    private final InfiniteFluidDrillWorkableHandler workableHandler = new InfiniteFluidDrillWorkableHandler(this)
+            .setImportEnergySupplier(this::getEnergyContainer)
+            .setExportFluidsSupplier(this::getOutputFluid)
+            .setImportFluidsSupplier(this::getInputFluid)
+            .setMaxVoltageSupplier(this::getMaxVoltage);
     private long maxVoltage;
     private int tier;
     private IMultipleTankHandler outputFluid;
@@ -66,10 +70,6 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
 
     public MetaTileEntityInfiniteFluidDrill(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
-        this.workableHandler.setImportFluidsSupplier(() -> this.inputFluid)
-                .setExportFluidsSupplier(() -> this.outputFluid)
-                .setImportEnergySupplier(() -> this.energyContainer)
-                .setMaxVoltageSupplier(() -> this.maxVoltage);
     }
 
     @Override
@@ -100,44 +100,21 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
     }
 
     @Override
-    protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
-        super.addTabs(tabBuilder, player);
-        tabBuilder.addTab("tj.multiblock.tab.fluid", new ItemStack(Items.WATER_BUCKET), fluidsTab -> fluidsTab.addWidget(new AdvancedTextWidget(10, -2, this::addFluidDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180)));
-    }
-
-    @Override
-    protected void addDisplayText(List<ITextComponent> textList) {
-        super.addDisplayText(textList);
-        if (!this.isStructureFormed())
-            return;
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
 
         if (this.workableHandler.getVeinFluid() == null) {
-            textList.add(new TextComponentTranslation("gtadditions.multiblock.drilling_rig.no_fluid").setStyle(new Style().setColor(RED)));
+            builder.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.drilling_rig.no_fluid").setStyle(new Style().setColor(RED)));
             return;
         }
-
-        MultiblockDisplayBuilder.start(textList)
-                .voltageIn(this.energyContainer)
-                .voltageTier(this.tier)
-                .energyInput(!this.workableHandler.hasNotEnoughEnergy(), this.maxVoltage)
-                .addTranslation("gtadditions.multiblock.drilling_rig.fluid", this.workableHandler.getVeinFluid().getName())
-                .isWorking(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
-    }
-
-    private void addFluidDisplayText(List<ITextComponent> textList) {
-        FluidStack drillingMud = DrillingMud.getFluid(this.workableHandler.getDrillingMudAmount());
-        List<FluidStack> fluidOutputs = this.workableHandler.getFluidOutputs();
-
-        MultiblockDisplayBuilder builder = new MultiblockDisplayBuilder(textList);
-        builder.fluidInput(this.workableHandler.hasEnoughFluid(drillingMud, this.workableHandler.getDrillingMudAmount()), drillingMud, this.workableHandler.getMaxProgress());
-        int index = 0;
-        for (FluidStack fluidOutput : fluidOutputs) {
-            int amount = fluidOutput.isFluidEqual(UsedDrillingMud.getFluid(this.workableHandler.getDrillingMudAmount()))
-                    ? this.workableHandler.getDrillingMudAmount()
-                    : this.workableHandler.getOutputVeinFluidAmount()[index++];
-            builder.fluidOutput(this.workableHandler.canOutputFluid(fluidOutput, amount), fluidOutput);
-        }
+        builder.voltageInLine(this.getEnergyContainer())
+                .voltageTierLine(this.tier)
+                .energyInputLine(this.getEnergyContainer(), this.maxVoltage)
+                .addTranslationLine("gtadditions.multiblock.drilling_rig.fluid", this.workableHandler.getVeinFluid().getName())
+                .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+                .addRecipeInputLine(this.workableHandler)
+                .addRecipeOutputLine(this.workableHandler);
     }
 
     @Override
@@ -199,5 +176,46 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockDisplayBase {
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
+    }
+
+    @Override
+    public String getRecipeUid() {
+        return Gregicality.MODID + ":drilling_rig";
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[1][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getDrillingMudAmount).setMaxProgress(this::getDrillingMudCapacity)
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{MetaTileEntityVoidMOreMiner.DRILLING_MUD.getLocalizedName()})
+                .setFluidStackSupplier(() -> MetaTileEntityVoidMOreMiner.DRILLING_MUD));
+    }
+
+    private long getDrillingMudAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(MetaTileEntityVoidMOreMiner.DRILLING_MUD, this.getInputFluid());
+    }
+
+    private long getDrillingMudCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(MetaTileEntityVoidMOreMiner.DRILLING_MUD, this.getInputFluid());
+    }
+
+    private IMultipleTankHandler getInputFluid() {
+        return this.inputFluid;
+    }
+
+    private IMultipleTankHandler getOutputFluid() {
+        return this.outputFluid;
+    }
+
+    private EnergyContainerList getEnergyContainer() {
+        return this.energyContainer;
+    }
+
+    private long getMaxVoltage() {
+        return this.maxVoltage;
     }
 }

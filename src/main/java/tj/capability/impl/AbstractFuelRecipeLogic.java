@@ -22,7 +22,7 @@ import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
-public class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<R>> extends FuelRecipeLogic implements IWorkable {
+public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<R>> extends FuelRecipeLogic implements IWorkable {
 
     protected Supplier<IItemHandlerModifiable> importItemsSupplier;
     protected Supplier<IItemHandlerModifiable> exportItemsSupplier;
@@ -150,26 +150,8 @@ public class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<R>> exten
             this.stopRecipe();
             return;
         }
-
         if (this.wasActiveAndNeedsUpdate && this.isActive)
             this.setActive(false);
-
-        if (this.progress < 1) {
-            if (this.sleepTimer > 1) {
-                this.sleepRecipe();
-                return;
-            }
-            boolean canStart = this.startRecipe();
-            if (canStart) {
-                this.progress = 1;
-                this.sleepTime = 1;
-                this.progressRecipe(this.progress);
-                if (!this.isActive)
-                    this.setActive(true);
-            } else this.failRecipe();
-            this.wasActiveAndNeedsUpdate = !canStart;
-        } else this.progressRecipe(this.progress);
-
         if (this.progress > this.maxProgress) {
             if (this.completeRecipe()) {
                 this.progress = 0;
@@ -183,6 +165,20 @@ public class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<R>> exten
                     this.setProblem(true);
             }
         }
+        if (this.progress < 1) {
+            if (this.sleepTimer > 1) {
+                this.sleepRecipe();
+                return;
+            }
+            boolean canStart = this.startRecipe();
+            if (canStart) {
+                this.sleepTime = 1;
+                this.progressRecipe(this.progress);
+                if (!this.isActive)
+                    this.setActive(true);
+            } else this.failRecipe();
+            this.wasActiveAndNeedsUpdate = !canStart;
+        } else this.progressRecipe(this.progress);
     }
 
     /**
@@ -220,7 +216,7 @@ public class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<R>> exten
     protected void progressRecipe(int progress) {
         if (this.importEnergySupplier.get().removeEnergy(this.energyPerTick) == -this.energyPerTick) {
             this.progress++;
-        } else if (this.progress > 1)
+        } else if (this.progress > 0)
             this.progress--;
     }
 

@@ -55,10 +55,10 @@ public class ParallelLargeCanningMachineInfo extends TJMultiblockInfoPage implem
                         .where('p', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
                         .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
                         .where('E', this.getEnergyHatch(tier, false), EAST)
-                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
-                        .where('i', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
-                        .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                        .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], WEST)
+                        .where('i', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], WEST)
+                        .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], WEST)
+                        .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], WEST)
                         .build();
             }
             shapeInfos.add(infos);
