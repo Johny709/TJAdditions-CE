@@ -35,6 +35,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
     private ItemStack[] lastItemInputs;
     private boolean recipeRecheck;
     private boolean voidOutputs;
+    private int outputIndex;
 
     public CrafterRecipeLogic(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -143,14 +144,18 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
 
     @Override
     protected boolean completeRecipe() {
-        if (this.voidOutputs || ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), this.itemOutputs.get(0), true).isEmpty()) {
-            ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), this.itemOutputs.get(0), false);
-            this.itemInputs.clear();
-            this.itemOutputs.clear();
-            this.recipeRecheck = true;
-            return true;
+        for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
+            ItemStack stack = this.itemOutputs.get(i);
+            if (ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), stack, true).isEmpty()) {
+                ItemStackHelper.insertIntoItemHandler(this.exportItemsSupplier.get(), stack, false);
+                this.outputIndex++;
+            } else return false;
         }
-        return false;
+        this.outputIndex = 0;
+        this.itemInputs.clear();
+        this.itemOutputs.clear();
+        this.recipeRecheck = true;
+        return true;
     }
 
     @Override
@@ -171,6 +176,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
             inputList.appendTag(stack.serializeNBT());
         for (ItemStack stack : this.itemOutputs)
             outputList.appendTag(stack.serializeNBT());
+        data.setInteger("outputIndex", this.outputIndex);
         data.setTag("inputList", inputList);
         data.setTag("outputList", outputList);
         data.setBoolean("voidOutputs", this.voidOutputs);
@@ -186,6 +192,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
         for (int i = 0; i < outputList.tagCount(); i++)
             this.itemOutputs.add(new ItemStack(outputList.getCompoundTagAt(i)));
         this.voidOutputs = data.getBoolean("voidOutputs");
+        this.outputIndex = data.getInteger("outputIndex");
     }
 
     @Override
