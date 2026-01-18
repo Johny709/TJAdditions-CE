@@ -6,7 +6,6 @@ import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
-import gregtech.api.util.PositionedRect;
 import gregtech.api.util.Size;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -33,6 +32,7 @@ public class TJProgressBarWidget extends Widget {
     private final boolean isFluid;
     private final ProgressWidget.MoveType moveType;
 
+    private boolean inverted;
     private double progress;
     private double maxProgress;
     private int color;
@@ -86,6 +86,11 @@ public class TJProgressBarWidget extends Widget {
         return this;
     }
 
+    public TJProgressBarWidget setInverted(boolean inverted) {
+        this.inverted = inverted;
+        return this;
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
@@ -106,15 +111,17 @@ public class TJProgressBarWidget extends Widget {
         Position pos = this.getPosition();
         int width = this.moveType == ProgressWidget.MoveType.HORIZONTAL ? (int) ((size.getWidth() - 2) * (this.progress / this.maxProgress)) : size.getWidth() - 2;
         int height = this.moveType == ProgressWidget.MoveType.VERTICAL ? (int) ((size.getHeight() - 2) * (this.progress / this.maxProgress)) : size.getHeight() - 2;
+        int x = this.inverted ? pos.getX() + size.getWidth() - 1: pos.getX() + 1;
+        int y = this.inverted ? pos.getY() + size.getHeight() - 1: pos.getY() + 1;
         if (this.backgroundTexture != null)
             this.backgroundTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         if (!this.isFluid) {
             if (this.barTexture != null)
-                this.barTexture.draw(pos.getX() + 1, pos.getY() + 1, width, height);
-            else Widget.drawSolidRect(pos.getX() + 1, pos.getY() + 1, width, height, this.color);
+                this.barTexture.draw(x, y, this.inverted ? -width : width, this.inverted ? -height : height);
+            else Widget.drawSolidRect(x, y, this.inverted ? -width : width, this.inverted ? -height : height, this.color);
         } else if (this.fluid != null) {
             GlStateManager.disableBlend();
-            TJGuiUtils.drawFluidForGui(this.fluid, (long) this.progress, (long) this.maxProgress, pos.getX() + 1, pos.getY() + 1, width + 1, height);
+            TJGuiUtils.drawFluidForGui(this.fluid, (long) this.progress, (long) this.maxProgress, x, y, this.inverted ? -(width + 1) : width + 1, this.inverted ? -height : height);
             GlStateManager.enableBlend();
             GlStateManager.color(1.0f, 1.0f, 1.0f);
         }
