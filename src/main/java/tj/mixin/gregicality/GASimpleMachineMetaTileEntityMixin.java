@@ -50,6 +50,7 @@ public abstract class GASimpleMachineMetaTileEntityMixin extends GAWorkableTiere
         if (!TJConfig.machines.multiblockUIOverrides) return;
         ModularUI.Builder newBuilder = this.workable.recipeMap.createUITemplate(this.workable::getProgressPercent, this.importItems, this.exportItems, this.importFluids, this.exportFluids)
                 .image(-28, 0, 26, 86, GuiTextures.BORDERED_BACKGROUND)
+                .image(-28, 138, 26, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL, () -> Gregicality.MODID + ":" + this.workable.recipeMap.getUnlocalizedName())
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(-24, 4, 18, 78, () -> this.energyContainer.getEnergyStored(), () -> this.energyContainer.getEnergyCapacity(), ProgressWidget.MoveType.VERTICAL)
@@ -60,6 +61,8 @@ public abstract class GASimpleMachineMetaTileEntityMixin extends GAWorkableTiere
                         .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.CHARGER_OVERLAY))
                 .widget(new ImageWidget(79, 42, 18, 18, GuiTextures.INDICATOR_NO_ENERGY)
                         .setPredicate(this.workable::isHasNotEnoughEnergy))
+                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TJGuiTextures.POWER_BUTTON, this.workable::isWorkingEnabled, this.workable::setWorkingEnabled)
+                        .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(rightButtonStartX, 60, 20, 20,
                         GuiTextures.BUTTON_OVERCLOCK, this.workable::isAllowOverclocking, this.workable::setAllowOverclocking)
                         .setTooltipText("gregtech.gui.overclock"))
