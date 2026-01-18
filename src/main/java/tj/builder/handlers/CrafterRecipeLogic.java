@@ -91,6 +91,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<CrafterRecipeLog
             recipeMapList:
             for (int i = 0; i < this.recipeMapList.size(); i++) {
                 Map<Integer, Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = this.recipeMapList.get(i);
+                if (recipeMap == null) continue;
                 recipeMap:
                 for (int j = 0; j < recipeMap.size(); j++) {
                     Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> recipe = recipeMap.get(j);
