@@ -70,9 +70,6 @@ public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithD
         builder.voltageInLine(this.energyContainer)
                 .energyInputLine(this.getEnergyContainer(), this.recipeMapWorkable.getRecipeEUt())
                 .customLine(text -> {
-                    if (this.recipeMapWorkable.isHasNotEnoughEnergy()) {
-                        text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.not_enough_energy").setStyle(new Style().setColor(TextFormatting.RED)));
-                    }
                     if (ConfigHolder.debug_options_for_caching) {
                         text.addTextComponent(new TextComponentString(String.format("Cache size (%s) hit (%s) miss (%s)", this.recipeMapWorkable.previousRecipe.getCachedRecipeCount(), this.recipeMapWorkable.previousRecipe.getCacheHit(), this.recipeMapWorkable.previousRecipe.getCacheMiss()))
                                 .setStyle(new Style().setColor(TextFormatting.WHITE)));
