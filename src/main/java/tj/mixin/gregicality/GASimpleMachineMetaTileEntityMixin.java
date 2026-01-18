@@ -8,6 +8,7 @@ import gregtech.api.gui.widgets.DischargerSlotWidget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
+import gregtech.common.gui.widget.GhostCircuitWidget;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.items.ItemStackHandler;
@@ -67,6 +68,7 @@ public abstract class GASimpleMachineMetaTileEntityMixin extends GAWorkableTiere
                 .widget(new ToggleButtonWidget(rightButtonStartX, 60, 20, 20,
                         GuiTextures.BUTTON_OVERCLOCK, this.workable::isAllowOverclocking, this.workable::setAllowOverclocking)
                         .setTooltipText("gregtech.gui.overclock"))
+                .widget(new GhostCircuitWidget(this.ghostCircuitInventory, 133, 62))
                 .bindPlayerInventory(player.inventory);
 
         leftButtonStartX -= this.exportItems.getSlots() * 18;

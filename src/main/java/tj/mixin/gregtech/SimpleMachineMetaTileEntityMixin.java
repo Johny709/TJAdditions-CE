@@ -5,6 +5,7 @@ import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.SimpleMachineMetaTileEntity;
+import gregtech.common.gui.widget.GhostCircuitWidget;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.items.ItemStackHandler;
@@ -66,6 +67,7 @@ public abstract class SimpleMachineMetaTileEntityMixin extends WorkableTieredMet
                 .widget(new CycleButtonWidget(leftButtonStartX, 62, 18, 18, this.workable.getAvailableOverclockingTiers(), this.workable::getOverclockTier, this.workable::setOverclockTier)
                         .setTooltipHoverString("gregtech.gui.overclock.description")
                         .setButtonTexture(GuiTextures.BUTTON_OVERCLOCK))
+                .widget(new GhostCircuitWidget(this.ghostCircuitInventory, 151, 62))
                 .bindPlayerInventory(player.inventory);
 
         leftButtonStartX -= (this.exportItems.getSlots() - this.exportFluids.getTanks()) * 18;
