@@ -8,6 +8,7 @@ import gregtech.api.gui.widgets.DischargerSlotWidget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
+import gregtech.api.metatileentity.SimpleMachineMetaTileEntity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.items.ItemStackHandler;
@@ -69,7 +70,10 @@ public abstract class GASimpleMachineMetaTileEntityMixin extends GAWorkableTiere
                         .setTooltipText("gregtech.gui.overclock"))
                 .bindPlayerInventory(player.inventory);
 
-        leftButtonStartX -= this.exportItems.getSlots() * 18;
+        leftButtonStartX = 7;
+        if (this.workable.recipeMap instanceof SimpleMachineMetaTileEntity.RecipeMapWithConfigButton) {
+            leftButtonStartX += ((SimpleMachineMetaTileEntity.RecipeMapWithConfigButton) workable.recipeMap).getLeftButtonOffset();
+        }
         if (this.exportItems.getSlots() > 0) {
             newBuilder.widget(new ToggleButtonWidget(leftButtonStartX, 62, 18, 18,
                     GuiTextures.BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setAutoOutputItems)
