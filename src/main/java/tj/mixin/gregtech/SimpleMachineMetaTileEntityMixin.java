@@ -70,7 +70,10 @@ public abstract class SimpleMachineMetaTileEntityMixin extends WorkableTieredMet
                 .widget(new GhostCircuitWidget(this.ghostCircuitInventory, 151, 62))
                 .bindPlayerInventory(player.inventory);
 
-        leftButtonStartX -= (this.exportItems.getSlots() - this.exportFluids.getTanks()) * 18;
+        leftButtonStartX = 7;
+        if (this.workable.recipeMap instanceof SimpleMachineMetaTileEntity.RecipeMapWithConfigButton) {
+            leftButtonStartX += ((SimpleMachineMetaTileEntity.RecipeMapWithConfigButton) workable.recipeMap).getLeftButtonOffset();
+        }
         if (this.exportItems.getSlots() > 0) {
             newBuilder.widget(new ToggleButtonWidget(leftButtonStartX, 62, 18, 18,
                     GuiTextures.BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setAutoOutputItems)
