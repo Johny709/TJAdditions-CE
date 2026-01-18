@@ -35,6 +35,7 @@
     "gregicality.MetaTileEntityVoidMinerMixin",
     "gregicality.MultiRecipeMapMultiblockControllerMixin",
     "gregicality.QubitContainerInfoProviderMixin",
+    "gregicality.RecipeMapSteamMultiblockControllerMixin",
     "gregicality.TileEntityFusionReactorMixin",
     "gregtech.FuelableInfoProviderMixin",
     "gregtech.FueledMultiblockControllerMixin",
