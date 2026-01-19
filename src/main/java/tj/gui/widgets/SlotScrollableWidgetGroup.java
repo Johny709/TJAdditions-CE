@@ -2,7 +2,7 @@ package tj.gui.widgets;
 
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.AbstractWidgetGroup;
+import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.RenderUtil;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class SlotScrollableWidgetGroup extends AbstractWidgetGroup implements ISlotGroup {
+public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup {
 
     protected static final int SLOT_HEIGHT = 18;
     private final int rowLength;
@@ -50,6 +50,11 @@ public class SlotScrollableWidgetGroup extends AbstractWidgetGroup implements IS
     public SlotScrollableWidgetGroup(int x, int y, int width, int height, int rowLength) {
         super(new Position(x, y), new Size(width, height));
         this.rowLength = rowLength;
+    }
+
+    public SlotScrollableWidgetGroup setScrollWidth(int scrollPaneWidth) {
+        this.scrollPaneWidth = scrollPaneWidth;
+        return this;
     }
 
     public SlotScrollableWidgetGroup setItemHandler(IItemHandler itemHandler) {
