@@ -33,9 +33,7 @@ import tj.gui.TJGuiTextures;
 import tj.gui.widgets.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
-import tj.gui.widgets.impl.ButtonPopUpWidget;
-import tj.gui.widgets.impl.TJPhantomSlotWidget;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.gui.widgets.impl.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -76,7 +74,7 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
             public ItemStack getStackInSlot(int slot) {
                 ItemStack slotStack = super.getStackInSlot(slot);
                 ItemStack filterStack = filterInventory.getStackInSlot(slot);
-                return ItemHandlerHelper.canItemStacksStackRelaxed(slotStack, filterStack) ? slotStack : filterStack;
+                return filterStack.isEmpty() || ItemHandlerHelper.canItemStacksStackRelaxed(slotStack, filterStack) ? slotStack : ItemStack.EMPTY;
             }
 
             @Override
@@ -98,14 +96,14 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
             public ItemStack getStackInSlot(int slot) {
                 ItemStack slotStack = super.getStackInSlot(slot);
                 ItemStack filterStack = filterInventory.getStackInSlot(slot);
-                return ItemHandlerHelper.canItemStacksStackRelaxed(slotStack, filterStack) ? slotStack : filterStack;
+                return filterStack.isEmpty() || ItemHandlerHelper.canItemStacksStackRelaxed(slotStack, filterStack) ? slotStack : ItemStack.EMPTY;
             }
 
             @Override
             @Nonnull
             public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
                 ItemStack filterStack = filterInventory.getStackInSlot(slot);
-                if (!ItemHandlerHelper.canItemStacksStackRelaxed(stack, filterStack))
+                if (!filterStack.isEmpty() && !ItemHandlerHelper.canItemStacksStackRelaxed(stack, filterStack))
                     return stack;
                 return super.insertItem(slot, stack, simulate);
             }
@@ -182,6 +180,7 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
         data.setTag("filterInventory", this.filterInventory.serializeNBT());
         return data;
     }

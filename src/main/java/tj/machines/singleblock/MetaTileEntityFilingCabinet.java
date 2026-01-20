@@ -130,8 +130,8 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        SlotScrollableWidgetGroup slotScrollableWidgetGroup = this.guiUsers.getOrDefault(player, new SlotScrollableWidgetGroup(7, 35, 180, 72, 9));
-        slotScrollableWidgetGroup.setItemHandler(this.importItems);
+        SlotScrollableWidgetGroup slotScrollableWidgetGroup = this.guiUsers.getOrDefault(player, new SlotScrollableWidgetGroup(7, 35, 180, 72, 9))
+                .setItemHandler(this.importItems);
         slotScrollableWidgetGroup.clearWidgets();
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             slotScrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.importItems, i, 18 * (i % 9), 18 * (i / 9))

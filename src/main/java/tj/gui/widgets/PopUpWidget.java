@@ -136,11 +136,19 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (this.selectedIndex != 0 && !this.widgetMap.get(this.selectedIndex).getRight().isMouseOverElement(mouseX, mouseY)) {
+        if (this.selectedIndex != 0 && !this.isMouseOverElements(this.widgetMap.get(this.selectedIndex).getValue(), mouseX, mouseY)) {
             this.selectedIndex = 0;
             this.writeClientAction(2, buffer -> buffer.writeInt(this.selectedIndex));
         }
         return this.widgetMap.get(this.selectedIndex).getRight().mouseClicked(mouseX, mouseY, button);
+    }
+
+    public boolean isMouseOverElements(AbstractWidgetGroup widgetGroup, int mouseX, int mouseY) {
+        for (Widget widget : widgetGroup.getContainedWidgets(true)) {
+            if (widget.isMouseOverElement(mouseX, mouseY))
+                return true;
+        }
+        return this.isMouseOverElement(mouseX, mouseY);
     }
 
     @Override

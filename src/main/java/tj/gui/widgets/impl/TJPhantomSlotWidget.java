@@ -43,7 +43,8 @@ public class TJPhantomSlotWidget extends TJSlotWidget<TJPhantomSlotWidget> imple
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        this.writeClientAction(6, buffer -> buffer.writeInt(this.slotIndex));
+        if (this.isMouseOverElement(mouseX, mouseY))
+            this.writeClientAction(6, buffer -> buffer.writeInt(this.slotIndex));
         return super.mouseClicked(mouseX, mouseY, button);
     }
 

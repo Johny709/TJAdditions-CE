@@ -198,52 +198,56 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
         EntityPlayer player = this.gui.entityPlayer;
         ItemStack handStack = player.inventory.getItemStack();
         ItemStack newStack = handStack;
-        if (id == 1) {
-            boolean isCtrlKeyPressed = buffer.readBoolean();
-            boolean isShiftKeyPressed = buffer.readBoolean();
-            int button = buffer.readInt();
-            if (button == 0) {
-                if (handStack.isEmpty())
-                    if (this.getItemHandler() != null && (this.takeItemsPredicate == null || this.takeItemsPredicate.getAsBoolean())) {
-                        int amount = isCtrlKeyPressed ? Integer.MAX_VALUE : 64;
-                        newStack = this.getItemHandler().extractItem(this.slotIndex, amount, false);
-                        if (isShiftKeyPressed)
-                            newStack = ItemStackHelper.insertInMainInventory(player.inventory, newStack);
-                        if (this.widgetGroup != null)
-                            this.writeUpdateInfo(3, buffer1 -> buffer1.writeInt(5));
-                    } else return;
-                else if (this.widgetGroup == null && (this.putItemsPredicate == null || this.putItemsPredicate.getAsBoolean()))
-                    // if this slot was not added to a slot group then let this slot handle the stack insertion
-                    newStack = this.insert(handStack, false);
-                else return;
-            } else if (button == 1) {
-                if (handStack.isEmpty()) {
-                    if (this.getItemHandler() != null && (this.takeItemsPredicate == null || this.takeItemsPredicate.getAsBoolean())) {
-                        ItemStack stack = this.getItemHandler().getStackInSlot(this.slotIndex);
-                        newStack = this.getItemHandler().extractItem(this.slotIndex, Math.max(1, stack.getCount() / 2), false);
-                    } else return;
-                } else {
-                    if (this.putItemsPredicate == null || this.putItemsPredicate.getAsBoolean()) {
-                        this.insertAmount(handStack, 1);
-                    } else return;
+        switch (id) {
+            case 1:
+                boolean isCtrlKeyPressed = buffer.readBoolean();
+                boolean isShiftKeyPressed = buffer.readBoolean();
+                int button = buffer.readInt();
+                if (button == 0) {
+                    if (handStack.isEmpty())
+                        if (this.getItemHandler() != null && (this.takeItemsPredicate == null || this.takeItemsPredicate.getAsBoolean())) {
+                            int amount = isCtrlKeyPressed ? Integer.MAX_VALUE : 64;
+                            newStack = this.getItemHandler().extractItem(this.slotIndex, amount, false);
+                            if (isShiftKeyPressed)
+                                newStack = ItemStackHelper.insertInMainInventory(player.inventory, newStack);
+                            if (this.widgetGroup != null)
+                                this.writeUpdateInfo(3, buffer1 -> buffer1.writeInt(5));
+                        } else return;
+                    else if (this.widgetGroup == null && (this.putItemsPredicate == null || this.putItemsPredicate.getAsBoolean()))
+                        // if this slot was not added to a slot group then let this slot handle the stack insertion
+                        newStack = this.insert(handStack, false);
+                    else return;
+                } else if (button == 1) {
+                    if (handStack.isEmpty()) {
+                        if (this.getItemHandler() != null && (this.takeItemsPredicate == null || this.takeItemsPredicate.getAsBoolean())) {
+                            ItemStack stack = this.getItemHandler().getStackInSlot(this.slotIndex);
+                            newStack = this.getItemHandler().extractItem(this.slotIndex, Math.max(1, stack.getCount() / 2), false);
+                        } else return;
+                    } else {
+                        if (this.putItemsPredicate == null || this.putItemsPredicate.getAsBoolean()) {
+                            this.insertAmount(handStack, 1);
+                        } else return;
+                    }
+                } else if (button == 2) {
+                    if (this.getItemHandler() != null && handStack.isEmpty() && player.isCreative()) {
+                        newStack = this.getItemHandler().getStackInSlot(this.slotIndex).copy();
+                        newStack.setCount(64);
+                    }
                 }
-            } else if (button == 2) {
-                if (this.getItemHandler() != null && handStack.isEmpty() && player.isCreative()) {
-                    newStack = this.getItemHandler().getStackInSlot(this.slotIndex).copy();
-                    newStack.setCount(64);
-                }
-            }
-        } else if (id == 2) {
-            int button = buffer.readInt();
-            if (button == 1)
-                this.insertAmount(newStack, 1);
-        } else if (id == 3) {
-            int amount = buffer.readInt();
-            if (this.getItemHandler() != null)
-                newStack = ItemStackHelper.extractFromItemHandler(this.getItemHandler(), newStack, amount, false);
-        } else if (id == 4) {
-            this.simulating = buffer.readBoolean();
-            return;
+                break;
+            case 2:
+                int button1 = buffer.readInt();
+                if (button1 == 1)
+                    this.insertAmount(newStack, 1);
+                break;
+            case 3:
+                int amount = buffer.readInt();
+                if (this.getItemHandler() != null)
+                    newStack = ItemStackHelper.extractFromItemHandler(this.getItemHandler(), newStack, amount, false);
+                break;
+            case 4:
+                this.simulating = buffer.readBoolean();
+                return;
         }
         final ItemStack finalStack = newStack;
         player.inventory.setItemStack(finalStack);
@@ -253,23 +257,26 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
     @Override
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
-        if (id == 1) {
-            try {
-                ItemStack stack = buffer.readItemStack();
-                if (this.getItemHandler() instanceof IItemHandlerModifiable)
-                    ((IItemHandlerModifiable) this.getItemHandler()).setStackInSlot(this.slotIndex, stack);
-            } catch (IOException e) {
-                GTLog.logger.error(e);
-            }
-        } else if (id == 2) {
-            try {
-                this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
-            } catch (IOException e) {
-                GTLog.logger.error(e);
-            }
-        } else if (id == 3) {
-            if (this.widgetGroup != null)
-                this.widgetGroup.setTimer(buffer.readInt());
+        switch (id) {
+            case 1:
+                try {
+                    ItemStack stack = buffer.readItemStack();
+                    if (this.getItemHandler() instanceof IItemHandlerModifiable)
+                        ((IItemHandlerModifiable) this.getItemHandler()).setStackInSlot(this.slotIndex, stack);
+                } catch (IOException e) {
+                    GTLog.logger.error(e);
+                }
+                break;
+            case 2:
+                try {
+                    this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
+                } catch (IOException e) {
+                    GTLog.logger.error(e);
+                }
+                break;
+            case 3:
+                if (this.widgetGroup != null)
+                    this.widgetGroup.setTimer(buffer.readInt());
         }
     }
 

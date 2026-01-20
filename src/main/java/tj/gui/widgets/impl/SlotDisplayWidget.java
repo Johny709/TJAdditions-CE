@@ -18,8 +18,8 @@ public class SlotDisplayWidget extends TJSlotWidget<SlotDisplayWidget> {
 
     public SlotDisplayWidget(IItemHandler itemHandler, int slotIndex, int x, int y) {
         super(itemHandler, slotIndex, x, y);
-        this.setTakeItemsPredicate(() -> false);
-        this.setPutItemsPredicate(() -> false);
+        this.setTakeItemsPredicate(() -> false)
+                .setPutItemsPredicate(() -> false);
     }
 
     public SlotDisplayWidget onPressedConsumer(TriConsumer<Integer, Integer, ItemStack> onPressed) {
@@ -36,7 +36,7 @@ public class SlotDisplayWidget extends TJSlotWidget<SlotDisplayWidget> {
                 buffer.writeInt(this.index());
                 buffer.writeItemStack(this.getItemHandler().getStackInSlot(this.index()));
             });
-        return false;
+        return true;
     }
 
     @Override
