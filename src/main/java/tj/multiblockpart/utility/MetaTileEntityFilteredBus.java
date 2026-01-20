@@ -4,17 +4,20 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
+import gregtech.api.capability.GregtechTileCapabilities;
+import gregtech.api.capability.IWorkable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.PhantomSlotWidget;
-import gregtech.api.gui.widgets.SlotWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.render.Textures;
 import gregtech.api.util.Position;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -24,19 +27,24 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
+import tj.gui.widgets.impl.TJPhantomSlotWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IItemHandlerModifiable> {
 
+    private final Object2ObjectMap<MultiblockControllerBase, BooleanSupplier> activeMachines = new Object2ObjectOpenHashMap<>();
     private final ItemStackHandler filterInventory;
     private final boolean isOutput;
 
@@ -65,9 +73,17 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
         return this.isOutput ? super.createImportItemHandler() : new ItemStackHandler(this.getTierSlots(this.getTier())) {
             @Override
             @Nonnull
+            public ItemStack getStackInSlot(int slot) {
+                ItemStack slotStack = super.getStackInSlot(slot);
+                ItemStack filterStack = filterInventory.getStackInSlot(slot);
+                return ItemHandlerHelper.canItemStacksStackRelaxed(slotStack, filterStack) ? slotStack : filterStack;
+            }
+
+            @Override
+            @Nonnull
             public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
                 ItemStack filterStack = filterInventory.getStackInSlot(slot);
-                if (!filterStack.isItemEqual(stack) || ItemStack.areItemStackShareTagsEqual(filterStack, stack))
+                if (!ItemHandlerHelper.canItemStacksStackRelaxed(stack, filterStack))
                     return stack;
                 return super.insertItem(slot, stack, simulate);
             }
@@ -79,9 +95,17 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
         return this.isOutput ? new ItemStackHandler(this.getTierSlots(this.getTier())) {
             @Override
             @Nonnull
+            public ItemStack getStackInSlot(int slot) {
+                ItemStack slotStack = super.getStackInSlot(slot);
+                ItemStack filterStack = filterInventory.getStackInSlot(slot);
+                return ItemHandlerHelper.canItemStacksStackRelaxed(slotStack, filterStack) ? slotStack : filterStack;
+            }
+
+            @Override
+            @Nonnull
             public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
                 ItemStack filterStack = filterInventory.getStackInSlot(slot);
-                if (!filterStack.isItemEqual(stack) || ItemStack.areItemStackShareTagsEqual(filterStack, stack))
+                if (!ItemHandlerHelper.canItemStacksStackRelaxed(stack, filterStack))
                     return stack;
                 return super.insertItem(slot, stack, simulate);
             }
@@ -91,13 +115,14 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         int startX = Math.max(7, 79 - (9 * (this.getTier() - 1)));
+        IItemHandlerModifiable itemHandler = this.isOutput ? this.getExportItems() : this.getImportItems();
         ButtonPopUpWidget<?> popUpWidget = new ButtonPopUpWidget<>(0, 0, 0, 0)
                 .addPopup(widgetGroup -> {
                     WidgetGroup slotGroup = new WidgetGroup(new Position(0, 7));
                     SlotScrollableWidgetGroup slotScrollGroup = new SlotScrollableWidgetGroup(0, 7, 193, 180, 10)
                             .setScrollWidth(5);
-                    for (int i = 0; i < this.importItems.getSlots(); i++) {
-                        SlotWidget slotWidget = new SlotWidget(this.importItems, i, startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)))
+                    for (int i = 0; i < itemHandler.getSlots(); i++) {
+                        TJSlotWidget<?> slotWidget = new TJSlotWidget<>(itemHandler, i, startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)))
                                 .setBackgroundTexture(GuiTextures.SLOT);
                         if (this.getTier() > 9)
                             slotScrollGroup.addWidget(slotWidget);
@@ -113,8 +138,9 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
                     SlotScrollableWidgetGroup slotScrollGroup = new SlotScrollableWidgetGroup(0, 7, 193, 180, 10)
                             .setScrollWidth(5);
                     for (int i = 0; i < this.filterInventory.getSlots(); i++) {
-                        PhantomSlotWidget slotWidget = new PhantomSlotWidget(this.filterInventory, i, startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)));
-                        slotWidget.setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY);
+                        TJPhantomSlotWidget slotWidget = new TJPhantomSlotWidget(this.filterInventory, i, startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)))
+                                .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY)
+                                .setPutItemsPredicate(this::areMachinesNotActive);
                         if (this.getTier() > 9)
                             slotScrollGroup.addWidget(slotWidget);
                         else slotGroup.addWidget(slotWidget);
@@ -164,6 +190,24 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.filterInventory.deserializeNBT(data.getCompoundTag("filterInventory"));
+    }
+
+    @Override
+    public void addToMultiBlock(MultiblockControllerBase controller) {
+        super.addToMultiBlock(controller);
+        IWorkable workable = controller.getCapability(GregtechTileCapabilities.CAPABILITY_WORKABLE, null);
+        if (workable != null)
+            this.activeMachines.put(controller, workable::isActive);
+    }
+
+    @Override
+    public void removeFromMultiBlock(MultiblockControllerBase controller) {
+        super.removeFromMultiBlock(controller);
+        this.activeMachines.remove(controller);
+    }
+
+    private boolean areMachinesNotActive() {
+        return this.activeMachines.values().stream().noneMatch(BooleanSupplier::getAsBoolean);
     }
 
     private int getTierSlots(int tier) {

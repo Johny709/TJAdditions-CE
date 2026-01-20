@@ -26,10 +26,10 @@ import java.util.function.Supplier;
 public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements ISlotHandler {
 
     private final IItemHandler itemHandler;
-    private final int slotIndex;
+    protected int slotIndex;
     private Supplier<IItemHandler> itemHandlerSupplier;
-    private BooleanSupplier takeItemsPredicate;
-    private BooleanSupplier putItemsPredicate;
+    protected BooleanSupplier takeItemsPredicate;
+    protected BooleanSupplier putItemsPredicate;
     private TextureArea[] backgroundTexture;
     private ISlotGroup widgetGroup;
     private boolean simulating;
