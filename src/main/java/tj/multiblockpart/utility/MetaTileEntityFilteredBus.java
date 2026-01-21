@@ -8,6 +8,7 @@ import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IWorkable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.widgets.SlotWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -32,7 +33,6 @@ import net.minecraftforge.items.ItemStackHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.*;
 import tj.util.Color;
 import tj.util.TooltipHelper;
@@ -134,7 +134,7 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
                     SlotScrollableWidgetGroup slotScrollGroup = new SlotScrollableWidgetGroup(0, 7, 193, 180, 10)
                             .setScrollWidth(5);
                     for (int i = 0; i < itemHandler.getSlots(); i++) {
-                        TJSlotWidget<?> slotWidget = new TJSlotWidget<>(itemHandler, i, startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)))
+                        SlotWidget slotWidget = new SlotWidget(itemHandler, i, startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)))
                                 .setBackgroundTexture(GuiTextures.SLOT);
                         if (this.getTier() > 9)
                             slotScrollGroup.addWidget(slotWidget);

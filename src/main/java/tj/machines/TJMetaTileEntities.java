@@ -5,6 +5,7 @@ import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityEnergyHatch
 import gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.GregTechAPI;
+import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import net.minecraft.util.ResourceLocation;
@@ -18,6 +19,8 @@ import tj.multiblockpart.ender.MetaTileEntityEnderEnergyHatch;
 import tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderForNuclearCoolantUHVPlus;
 import tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderUHVPlus;
 import tj.multiblockpart.utility.*;
+
+import java.util.Arrays;
 
 import static gregicadditions.machines.GATileEntities.*;
 import static tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.INPUT;
@@ -260,6 +263,10 @@ public class TJMetaTileEntities {
         LARGE_IMPLOSION_COMPRESSOR = GregTechAPI.registerMetaTileEntity(5511, new MetaTileEntityLargeImplosionCompressor(TJId("large_implosion_compressor")));
         LARGE_ELECTRIC_IMPLOSION_COMPRESSOR = GregTechAPI.registerMetaTileEntity(5512, new MetaTileEntityLargeElectricImplosionCompressor(TJId("large_electric_implosion_compressor")));
 
+        // append tiers to existing hatches
+        MetaTileEntities.ITEM_IMPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_IMPORT_BUS, 15);
+        MetaTileEntities.ITEM_EXPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_EXPORT_BUS, 15);
+
         // range 6000+ -> hatches
         int superBusID = 6000; // occupies ID range 6000 - 6019
         for (int i = 0; i < SUPER_ITEM_INPUT_BUS.length; i++) {
@@ -287,6 +294,10 @@ public class TJMetaTileEntities {
             FILTERED_INPUT_BUSES[i] = GregTechAPI.registerMetaTileEntity(6068 + i, new MetaTileEntityFilteredBus(TJId("filtered_input_bus." + GAValues.VN[i]), i, false));
         for (int i = 0; i < FILTERED_OUTPUT_BUSES.length; i++) // occupies ID range 6083 - 6097
             FILTERED_OUTPUT_BUSES[i] = GregTechAPI.registerMetaTileEntity(6083 + i, new MetaTileEntityFilteredBus(TJId("filtered_output_bus." + GAValues.VN[i]), i, true));
+        for (int i = 9; i < MetaTileEntities.ITEM_IMPORT_BUS.length; i++) // occupies ID range 6098 - 6112
+            MetaTileEntities.ITEM_IMPORT_BUS[i] = GregTechAPI.registerMetaTileEntity(6089 + i, new MetaTileEntityGAItemBus(TJId("item_input_bus." + GAValues.VN[i]), i, false));
+        for (int i = 9; i < MetaTileEntities.ITEM_EXPORT_BUS.length; i++) // occupies ID range 6113 - 6127
+            MetaTileEntities.ITEM_EXPORT_BUS[i] = GregTechAPI.registerMetaTileEntity(6095 + i, new MetaTileEntityGAItemBus(TJId("item_output_bus." + GAValues.VN[i]), i, true));
 
         int energyHatchID = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {
