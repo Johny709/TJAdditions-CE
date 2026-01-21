@@ -327,6 +327,9 @@ tj.machine.energy_hatch.not_tier=Energy hatch is not the same tier
 
 tj.machine.crafter.tooltip=Click on recipe output slot to add to recipe list on the right. Left-Click on recipe list slot to display ingredients on crafting grid. Right-Click to remove recipe.
 
+tj.machine.filtered_bus.warning=WARNING: Not compatible with TJ 1.4. Machines in 1.4 have outdated item handlers that will cause a crash loop.
+tj.machine.filtered_bus.description=Filters can't be set while machine is running.
+
 tj.multiblock.large_solar_boiler.description=Produces steam from the sun. Cannot produce steam at night and while raining. Can accept either water or distilled water however doing water will make the boiler calcify over time. Once calcification reaches 100%%, then the boiler will stop working completely.
 
 tj.multiblock.ender_battery_tower.description=This Ender Battery Tower can interact with ender energy network by inserting or extracting all stored energy every minute.

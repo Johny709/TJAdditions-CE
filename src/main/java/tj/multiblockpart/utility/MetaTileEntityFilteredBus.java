@@ -34,6 +34,8 @@ import tj.gui.widgets.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.*;
+import tj.util.Color;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -62,8 +64,20 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
+        tooltip.add(TooltipHelper.blinkingText(Color.YELLOW, 20, "tj.machine.filtered_bus.warning"));
+        tooltip.add(I18n.format("tj.machine.filtered_bus.description"));
         tooltip.add(I18n.format("machine.universal.slots", this.getTierSlots(this.getTier())));
         tooltip.add(I18n.format("gregtech.universal.enabled"));
+    }
+
+    @Override
+    public void update() {
+        super.update();
+        if (!this.getWorld().isRemote && this.getOffsetTimer() % 5 == 0) {
+            if (this.isOutput)
+                this.pushItemsIntoNearbyHandlers(this.getFrontFacing());
+             else this.pullItemsFromNearbyHandlers(this.getFrontFacing());
+        }
     }
 
     @Override
@@ -169,12 +183,12 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         if (this.isOutput) {
-            Textures.ITEM_OUTPUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
-            Textures.ITEM_HATCH_OUTPUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
-            Textures.PIPE_OUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
+            Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getFrontFacing(), renderState, translation, pipeline);
+            Textures.ITEM_HATCH_OUTPUT_OVERLAY.renderSided(this.getFrontFacing(), renderState, translation, pipeline);
+            Textures.PIPE_OUT_OVERLAY.renderSided(this.getFrontFacing(), renderState, translation, pipeline);
         } else {
-            Textures.ITEM_HATCH_INPUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
-            Textures.PIPE_IN_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
+            Textures.ITEM_HATCH_INPUT_OVERLAY.renderSided(this.getFrontFacing(), renderState, translation, pipeline);
+            Textures.PIPE_IN_OVERLAY.renderSided(this.getFrontFacing(), renderState, translation, pipeline);
         }
     }
 
