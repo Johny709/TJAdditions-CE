@@ -266,6 +266,8 @@ public class TJMetaTileEntities {
         // append tiers to existing hatches
         MetaTileEntities.ITEM_IMPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_IMPORT_BUS, 15);
         MetaTileEntities.ITEM_EXPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_EXPORT_BUS, 15);
+        MetaTileEntities.FLUID_IMPORT_HATCH = Arrays.copyOf(MetaTileEntities.FLUID_IMPORT_HATCH, 15);
+        MetaTileEntities.FLUID_EXPORT_HATCH = Arrays.copyOf(MetaTileEntities.FLUID_EXPORT_HATCH, 15);
 
         // range 6000+ -> hatches
         int superBusID = 6000; // occupies ID range 6000 - 6019
@@ -294,10 +296,14 @@ public class TJMetaTileEntities {
             FILTERED_INPUT_BUSES[i] = GregTechAPI.registerMetaTileEntity(6068 + i, new MetaTileEntityFilteredBus(TJId("filtered_input_bus." + GAValues.VN[i]), i, false));
         for (int i = 0; i < FILTERED_OUTPUT_BUSES.length; i++) // occupies ID range 6083 - 6097
             FILTERED_OUTPUT_BUSES[i] = GregTechAPI.registerMetaTileEntity(6083 + i, new MetaTileEntityFilteredBus(TJId("filtered_output_bus." + GAValues.VN[i]), i, true));
-        for (int i = 9; i < MetaTileEntities.ITEM_IMPORT_BUS.length; i++) // occupies ID range 6098 - 6112
+        for (int i = 9; i < MetaTileEntities.ITEM_IMPORT_BUS.length; i++) // occupies ID range 6098 - 6103
             MetaTileEntities.ITEM_IMPORT_BUS[i] = GregTechAPI.registerMetaTileEntity(6089 + i, new MetaTileEntityGAItemBus(TJId("item_input_bus." + GAValues.VN[i]), i, false));
-        for (int i = 9; i < MetaTileEntities.ITEM_EXPORT_BUS.length; i++) // occupies ID range 6113 - 6127
+        for (int i = 9; i < MetaTileEntities.ITEM_EXPORT_BUS.length; i++) // occupies ID range 6104 - 6109
             MetaTileEntities.ITEM_EXPORT_BUS[i] = GregTechAPI.registerMetaTileEntity(6095 + i, new MetaTileEntityGAItemBus(TJId("item_output_bus." + GAValues.VN[i]), i, true));
+        for (int i = 9; i < MetaTileEntities.FLUID_IMPORT_HATCH.length; i++)
+            MetaTileEntities.FLUID_IMPORT_HATCH[i] = GregTechAPI.registerMetaTileEntity(6101 + i, new MetaTileEntityGAFluidHatch(TJId("fluid_input_hatch." + GAValues.VN[i]), i, false));
+        for (int i = 9; i < MetaTileEntities.FLUID_EXPORT_HATCH.length; i++)
+            MetaTileEntities.FLUID_EXPORT_HATCH[i] = GregTechAPI.registerMetaTileEntity(6107 + i, new MetaTileEntityGAFluidHatch(TJId("fluid_output_hatch." + GAValues.VN[i]), i, true));
 
         int energyHatchID = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {
