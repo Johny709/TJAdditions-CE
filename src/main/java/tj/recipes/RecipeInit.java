@@ -338,6 +338,18 @@ public class RecipeInit {
                     'S', CRAFTER[i].getStackForm());
         }
 
+        for (int i = 0; i < FILTERED_INPUT_BUSES.length; i++) {
+            Object motor = i == 0 ? new ItemStack(Item.getByNameOrId("contenttweaker:steammotor")) : GACraftingComponents.MOTOR.getIngredient(i);
+            ModHandler.addShapedRecipe("filtered_input_bus." + GAValues.VN[i], FILTERED_INPUT_BUSES[i].getStackForm(), " F ", "MHM", " C ",
+                    'F', MetaItems.ITEM_FILTER.getStackForm(),
+                    'M', motor,
+                    'C', GACraftingComponents.CIRCUIT.getIngredient(i));
+            ModHandler.addShapedRecipe("filtered_output_bus." + GAValues.VN[i], FILTERED_OUTPUT_BUSES[i].getStackForm(), " F ", "MHM", " C ",
+                    'F', MetaItems.ITEM_FILTER.getStackForm(),
+                    'M', motor,
+                    'C', GACraftingComponents.CIRCUIT.getIngredient(i));
+        }
+
         for (int i = 0; i < UNIVERSAL_CIRCUITS.length; i++) {
             ModHandler.addShapelessRecipe(GAValues.VN[i].toLowerCase() + "_universal_circuit", UNIVERSAL_CIRCUITS[i].getStackForm(), new UnificationEntry(OrePrefix.circuit, CIRCUIT_TIERS[i]));
 
