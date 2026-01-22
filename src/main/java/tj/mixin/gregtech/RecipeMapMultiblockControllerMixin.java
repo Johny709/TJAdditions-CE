@@ -52,6 +52,9 @@ public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithD
     @Final
     public RecipeMap<?> recipeMap;
 
+    @Shadow
+    public abstract IMultipleTankHandler getInputFluidInventory();
+
     public RecipeMapMultiblockControllerMixin(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
     }

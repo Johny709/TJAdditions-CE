@@ -33,11 +33,16 @@ import tj.builder.ParallelRecipeMap;
 import tj.builder.handlers.ParallelVolcanusRecipeLogic;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
+import tj.util.TJFluidUtils;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Queue;
+import java.util.function.UnaryOperator;
 
 import static gregicadditions.GAMaterials.Pyrotheum;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
@@ -48,10 +53,11 @@ import static gregtech.api.recipes.RecipeMaps.BLAST_RECIPES;
 import static tj.TJRecipeMaps.PARALLEL_BLAST_RECIPES;
 import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelter.heatingCoilPredicate;
 import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelter.heatingCoilPredicate2;
+import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.PYROTHEUM;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
 
-public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockController implements IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
 
@@ -145,6 +151,26 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     @Override
     protected OrientedOverlayRenderer getFrontOverlay() {
         return Textures.PRIMITIVE_BLAST_FURNACE_OVERLAY;
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[1][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getPyrotheumAmount).setMaxProgress(this::getPyrotheumCapacity)
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{PYROTHEUM.getLocalizedName()})
+                .setFluidStackSupplier(() -> PYROTHEUM));
+    }
+
+    private long getPyrotheumAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(PYROTHEUM, this.getInputFluidInventory());
+    }
+
+    private long getPyrotheumCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(PYROTHEUM, this.getInputFluidInventory());
     }
 
     public int getBlastFurnaceTemperature() {
