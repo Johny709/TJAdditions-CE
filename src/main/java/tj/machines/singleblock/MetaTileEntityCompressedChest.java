@@ -37,7 +37,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.tuple.Pair;
-import tj.gui.widgets.SlotScrollableWidgetGroup;
+import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.items.handlers.LargeItemStackHandler;
 
 import javax.annotation.Nullable;

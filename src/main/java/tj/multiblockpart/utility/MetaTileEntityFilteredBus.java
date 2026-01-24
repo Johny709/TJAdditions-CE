@@ -31,7 +31,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.SlotScrollableWidgetGroup;
+import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.*;
 import tj.util.Color;

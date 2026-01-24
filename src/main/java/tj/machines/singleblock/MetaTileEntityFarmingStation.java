@@ -34,7 +34,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.handlers.FarmingStationWorkableHandler;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.SlotScrollableWidgetGroup;
+import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.FilteredItemStackHandler;

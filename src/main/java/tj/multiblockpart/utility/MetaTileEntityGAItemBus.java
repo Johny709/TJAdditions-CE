@@ -15,7 +15,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.SlotScrollableWidgetGroup;
+import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
 
 public class MetaTileEntityGAItemBus extends MetaTileEntityItemBus {

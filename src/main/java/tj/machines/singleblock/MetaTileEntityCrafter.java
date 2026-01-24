@@ -35,7 +35,7 @@ import tj.builder.handlers.CrafterRecipeLogic;
 import tj.builder.handlers.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.SlotScrollableWidgetGroup;
+import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.CraftingRecipeTransferWidget;
 import tj.gui.widgets.impl.SlotDisplayWidget;

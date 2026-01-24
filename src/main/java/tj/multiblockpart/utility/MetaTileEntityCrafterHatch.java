@@ -35,7 +35,7 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import tj.builder.handlers.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
-import tj.gui.widgets.SlotScrollableWidgetGroup;
+import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.impl.CraftingRecipeTransferWidget;
 import tj.gui.widgets.impl.SlotDisplayWidget;
 import tj.multiblockpart.TJMultiblockAbility;

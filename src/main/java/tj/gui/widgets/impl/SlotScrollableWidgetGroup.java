@@ -1,4 +1,4 @@
-package tj.gui.widgets;
+package tj.gui.widgets.impl;
 
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
@@ -15,6 +15,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import org.lwjgl.input.Keyboard;
+import tj.gui.widgets.ISlotGroup;
+import tj.gui.widgets.ISlotHandler;
 import tj.mixin.gregtech.IAbstractWidgetGroupMixin;
 import tj.util.ItemStackHelper;
 
