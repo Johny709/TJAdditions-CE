@@ -254,11 +254,11 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
 
     @SideOnly(Side.CLIENT)
     private Size updateComponentTextSize(List<TextComponentWrapper<?>> displayText) {
-        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         int slot = 0;
         int totalHeight = 0;
         int maxStringWidth = 0;
         boolean stackApplied = false;
+        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         for (TextComponentWrapper<?> component : displayText) {
             if (component.getValue() instanceof ITextComponent) {
                 if (stackApplied) {

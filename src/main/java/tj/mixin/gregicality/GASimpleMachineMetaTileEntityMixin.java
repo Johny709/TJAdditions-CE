@@ -19,9 +19,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import tj.TJConfig;
+import tj.capability.IRecipeMap;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
+import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.mixin.gregtech.IAbstractRecipeLogicMixin;
 
 @Mixin(value = GASimpleMachineMetaTileEntity.class, remap = false)
 public abstract class GASimpleMachineMetaTileEntityMixin extends GAWorkableTieredMetaTileEntityMixin {
@@ -49,7 +52,10 @@ public abstract class GASimpleMachineMetaTileEntityMixin extends GAWorkableTiere
     private void injectCreateGUITemplate(EntityPlayer player, CallbackInfoReturnable<ModularUI.Builder> cir,
                                          ModularUI.Builder builder, int leftButtonStartX, int rightButtonStartX) {
         if (!TJConfig.machines.multiblockUIOverrides) return;
-        ModularUI.Builder newBuilder = this.workable.recipeMap.createUITemplate(this.workable::getProgressPercent, this.importItems, this.exportItems, this.importFluids, this.exportFluids)
+        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 22, 21, 20)
+                .setFluidOutputSupplier(((IAbstractRecipeLogicMixin) this.workable)::getFluidOutputs)
+                .setItemOutputSupplier(((IAbstractRecipeLogicMixin) this.workable)::getItemOutputs);
+        ModularUI.Builder newBuilder = ((IRecipeMap) this.workable.recipeMap).createUITemplateAdvanced(this.workable::getProgressPercent, this.importItems, this.exportItems, this.importFluids, this.exportFluids, displayWidget)
                 .image(-28, 0, 26, 86, GuiTextures.BORDERED_BACKGROUND)
                 .image(-28, 138, 26, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL, () -> Gregicality.MODID + ":" + this.workable.recipeMap.getUnlocalizedName())
@@ -68,6 +74,7 @@ public abstract class GASimpleMachineMetaTileEntityMixin extends GAWorkableTiere
                 .widget(new ToggleButtonWidget(rightButtonStartX, 60, 20, 20,
                         GuiTextures.BUTTON_OVERCLOCK, this.workable::isAllowOverclocking, this.workable::setAllowOverclocking)
                         .setTooltipText("gregtech.gui.overclock"))
+                .widget(displayWidget)
                 .bindPlayerInventory(player.inventory);
 
         leftButtonStartX = 7;

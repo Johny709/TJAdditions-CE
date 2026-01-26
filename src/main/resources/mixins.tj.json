@@ -51,6 +51,7 @@
     "gregtech.MetaTileEntityLargeBoilerMixin",
     "gregtech.MetaTileEntityLargeTurbineMixin",
     "gregtech.MultiblockWithDisplayBaseMixin",
+    "gregtech.RecipeMapMixin",
     "gregtech.RecipeMapMultiblockControllerMixin",
     "gregtech.RotorHolderMultiblockControllerMixin",
     "gregtech.SimpleMachineMetaTileEntityMixin",
