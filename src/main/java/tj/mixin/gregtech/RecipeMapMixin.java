@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import tj.capability.IRecipeMap;
 import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.gui.widgets.impl.RecipeOutputSlotWidget;
 
 import java.util.function.DoubleSupplier;
 
@@ -61,6 +62,9 @@ public abstract class RecipeMapMixin implements IRecipeMap {
                 int x = startInputsX + 18 * j;
                 int y = startInputsY + 18 * i;
                 addSlot(builder, x, y, slotIndex, itemHandler, fluidHandler, invertFluids, isOutputs);
+                if (isOutputs) {
+                    builder.widget(new RecipeOutputSlotWidget(slotIndex, x, y, 18, 18, displayWidget::getItemAt, null));
+                }
             }
         }
         if (fluidInputsCount > 0 || invertFluids) {
@@ -69,6 +73,9 @@ public abstract class RecipeMapMixin implements IRecipeMap {
                 for (int i = 0; i < fluidInputsCount; i++) {
                     int y = startInputsY + 18 * i;
                     addSlot(builder, startSpecX, y, i, itemHandler, fluidHandler, !invertFluids, isOutputs);
+                    if (isOutputs) {
+                        builder.widget(new RecipeOutputSlotWidget(i, startSpecX, y, 18, 18, null, displayWidget::getFluidAt));
+                    }
                 }
             } else {
                 int startSpecY = startInputsY + itemSlotsToDown * 18;
@@ -76,6 +83,9 @@ public abstract class RecipeMapMixin implements IRecipeMap {
                     int x = isOutputs ? startInputsX + 18 * (i % 3) : startInputsX + itemSlotsToLeft * 18 - 18 - 18 * (i % 3);
                     int y = startSpecY + (i / 3) * 18;
                     addSlot(builder, x, y, i, itemHandler, fluidHandler, !invertFluids, isOutputs);
+                    if (isOutputs) {
+                        builder.widget(new RecipeOutputSlotWidget(i, x, y, 18, 18, null, displayWidget::getFluidAt));
+                    }
                 }
             }
         }

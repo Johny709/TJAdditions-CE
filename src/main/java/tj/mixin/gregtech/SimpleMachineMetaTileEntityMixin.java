@@ -51,7 +51,9 @@ public abstract class SimpleMachineMetaTileEntityMixin extends WorkableTieredMet
         if (!TJConfig.machines.multiblockUIOverrides) return;
         RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 22, 21, 20)
                 .setFluidOutputSupplier(((IAbstractRecipeLogicMixin) this.workable)::getFluidOutputs)
-                .setItemOutputSupplier(((IAbstractRecipeLogicMixin) this.workable)::getItemOutputs);
+                .setItemOutputSupplier(((IAbstractRecipeLogicMixin) this.workable)::getItemOutputs)
+                .setItemHandlerSupplier(this::getExportItems)
+                .setFluidTanksSupplier(this::getExportFluids);
         ModularUI.Builder newBuilder = ((IRecipeMap) this.workable.recipeMap).createUITemplateAdvanced(this.workable::getProgressPercent, this.importItems, this.exportItems, this.importFluids, this.exportFluids, displayWidget)
                 .image(-28, 0, 26, 86, GuiTextures.BORDERED_BACKGROUND)
                 .image(-28, 138, 26, 26, GuiTextures.BORDERED_BACKGROUND)
@@ -71,8 +73,8 @@ public abstract class SimpleMachineMetaTileEntityMixin extends WorkableTieredMet
                 .widget(new CycleButtonWidget(leftButtonStartX, 62, 18, 18, this.workable.getAvailableOverclockingTiers(), this.workable::getOverclockTier, this.workable::setOverclockTier)
                         .setTooltipHoverString("gregtech.gui.overclock.description")
                         .setButtonTexture(GuiTextures.BUTTON_OVERCLOCK))
-                .widget(displayWidget)
-                .bindPlayerInventory(player.inventory);
+                .bindPlayerInventory(player.inventory)
+                .widget(displayWidget);
 
         leftButtonStartX = 7;
         if (this.workable.recipeMap instanceof SimpleMachineMetaTileEntity.RecipeMapWithConfigButton) {
