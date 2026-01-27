@@ -5,10 +5,7 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
-import gregtech.api.util.GTLog;
-import gregtech.api.util.Position;
-import gregtech.api.util.Size;
-import gregtech.api.util.TextFormattingUtil;
+import gregtech.api.util.*;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
@@ -21,6 +18,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
@@ -31,8 +29,10 @@ import tj.gui.TJGuiUtils;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.util.ItemStackHelper;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -46,11 +46,13 @@ public class RecipeOutputDisplayWidget extends Widget {
     private Supplier<List<FluidStack>> fluidOutputSupplier;
     private Supplier<IItemHandlerModifiable>  itemHandlerSupplier;
     private Supplier<IMultipleTankHandler> fluidTanksSupplier;
-    private IItemHandlerModifiable itemHandler;
-    private IMultipleTankHandler fluidTanks;
     private List<ItemStack> itemOutputs = new ArrayList<>();
     private List<FluidStack> fluidOutputs = new ArrayList<>();
+    private IItemHandlerModifiable itemHandler;
+    private IMultipleTankHandler fluidTanks;
     private Size tooltipSize;
+    private int lastX;
+    private int lastY;
 
     public RecipeOutputDisplayWidget(int x, int y, int width, int height) {
         super(new Position(x, y), new Size(width, height));
@@ -79,20 +81,27 @@ public class RecipeOutputDisplayWidget extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        if (this.tooltipSize == null || !this.isMouseOverElement(mouseX, mouseY)) return;
+        int x = this.isShiftDown() ? this.lastX : mouseX;
+        int y = this.isShiftDown() ? this.lastY : mouseY;
+        if (this.tooltipSize == null || !this.isMouseOverElement(x, y)) return;
         int slot = 0;
         int offsetX = 3;
         int offsetY = 15;
+        int screenWidth = Minecraft.getMinecraft().displayWidth;
+        int screenHeight = Minecraft.getMinecraft().displayHeight;
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        TJGuiTextures.TOOLTIP_BOX.draw(mouseX, mouseY, this.tooltipSize.getWidth() + 7, this.tooltipSize.getHeight() + 7);
-        this.drawStringSized(I18n.format("machine.universal.producing"), mouseX + 4, mouseY + 4, 0xFFFFFF, true, 1, false);
+        TJGuiTextures.TOOLTIP_BOX.draw(x, y, this.tooltipSize.getWidth() + 7, this.tooltipSize.getHeight() + 7);
+        this.drawStringSized(I18n.format("machine.universal.producing"), x + 4, y + 4, 0xFFFFFF, true, 1, false);
         for (ItemStack stack : this.itemOutputs) {
             if (slot++ > 4) {
                 offsetX = 3;
                 offsetY += 18;
             }
-            GuiTextures.SLOT.draw(mouseX + offsetX, mouseY + offsetY, 18, 18);
-            Widget.drawItemStack(stack, mouseX + offsetX + 1, mouseY + offsetY + 1, null);
+            GuiTextures.SLOT.draw(x + offsetX, y + offsetY, 18, 18);
+            Widget.drawItemStack(stack, x + offsetX + 1, y + offsetY + 1, null);
+            if (new Rectangle(x + offsetX, y + offsetY, 18, 18).contains(mouseX, mouseY)) {
+                GuiUtils.drawHoveringText(getItemToolTip(stack), mouseX, mouseY, screenWidth, screenHeight, 100, fontRenderer);
+            }
             offsetX += 18;
         }
         for (FluidStack stack : this.fluidOutputs) {
@@ -100,17 +109,26 @@ public class RecipeOutputDisplayWidget extends Widget {
                 offsetX = 3;
                 offsetY += 18;
             }
-            GuiTextures.FLUID_SLOT.draw(mouseX + offsetX, mouseY + offsetY, 18, 18);
+            GuiTextures.FLUID_SLOT.draw(x + offsetX, y + offsetY, 18, 18);
             GlStateManager.disableBlend();
-            TJGuiUtils.drawFluidForGui(stack, stack.amount, stack.amount, mouseX + offsetX + 1, mouseY + offsetY + 1, 17, 17);
+            TJGuiUtils.drawFluidForGui(stack, stack.amount, stack.amount, x + offsetX + 1, y + offsetY + 1, 17, 17);
             GlStateManager.pushMatrix();
             GlStateManager.scale(0.5, 0.5, 1);
             String s = TextFormattingUtil.formatLongToCompactString(stack.amount, 4) + "L";
-            fontRenderer.drawStringWithShadow(s, (mouseX + offsetX + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (mouseY + offsetY + 14) * 2, 0xFFFFFF);
+            fontRenderer.drawStringWithShadow(s, (x + offsetX + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + offsetY + 14) * 2, 0xFFFFFF);
             GlStateManager.popMatrix();
             GlStateManager.enableBlend();
             GlStateManager.color(1.0f, 1.0f, 1.0f);
+            if (new Rectangle(x + offsetX, y + offsetY, 18, 18).contains(mouseX, mouseY)) {
+                String formula = FluidTooltipUtil.getFluidTooltip(stack);
+                formula = formula == null || formula.isEmpty() ? "" : "\n" + formula;
+                GuiUtils.drawHoveringText(Collections.singletonList(formula), mouseX, mouseY, screenWidth, screenHeight, 100, fontRenderer);
+            }
             offsetX += 18;
+        }
+        if (!this.isShiftDown()) {
+            this.lastX = mouseX;
+            this.lastY = mouseY;
         }
     }
 
