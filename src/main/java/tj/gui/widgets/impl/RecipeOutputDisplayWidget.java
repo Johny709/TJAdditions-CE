@@ -9,6 +9,8 @@ import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import gregtech.api.util.TextFormattingUtil;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -36,6 +38,8 @@ import java.util.function.Supplier;
 
 public class RecipeOutputDisplayWidget extends Widget {
 
+    private final Int2ObjectMap<ItemStack> itemOutputIndex = new Int2ObjectOpenHashMap<>();
+    private final Int2ObjectMap<FluidStack> fluidOutputIndex = new Int2ObjectOpenHashMap<>();
     private Supplier<List<ItemStack>> itemOutputSupplier;
     private Supplier<List<FluidStack>> fluidOutputSupplier;
     private Supplier<IItemHandlerModifiable>  itemHandlerSupplier;
@@ -116,7 +120,7 @@ public class RecipeOutputDisplayWidget extends Widget {
             boolean equal = true;
             if (this.itemHandler != null && this.itemHandler.getSlots() == itemHandler.getSlots()) {
                 for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-                    if (this.itemHandler.getSlotLimit(i) != itemHandler.getSlotLimit(i)) {
+                    if (this.itemHandler.getSlotLimit(i) != itemHandler.getSlotLimit(i) && !ItemHandlerHelper.canItemStacksStackRelaxed(this.itemHandler.getStackInSlot(i), itemHandler.getStackInSlot(i))) {
                         equal = false;
                         break;
                     }
@@ -128,6 +132,7 @@ public class RecipeOutputDisplayWidget extends Widget {
                     buffer.writeInt(this.itemHandler.getSlots());
                     for (int i = 0; i < this.itemHandler.getSlots(); i++) {
                         buffer.writeInt(this.itemHandler.getSlotLimit(i));
+                        buffer.writeItemStack(this.itemHandler.getStackInSlot(i));
                     }
                 });
             }
@@ -137,7 +142,9 @@ public class RecipeOutputDisplayWidget extends Widget {
             boolean equal = true;
             if (this.fluidTanks != null && this.fluidTanks.getTanks() == fluidTanks.getTanks()) {
                 for (int i = 0; i < this.fluidTanks.getTanks(); i++) {
-                    if (this.fluidTanks.getTankAt(i).getCapacity() != fluidTanks.getTankAt(i).getCapacity()) {
+                    IFluidTank tank = fluidTanks.getTankAt(i);
+                    IFluidTank previousTank = this.fluidTanks.getTankAt(i);
+                    if (previousTank.getCapacity() != tank.getCapacity() && !FluidStack.areFluidStackTagsEqual(previousTank.getFluid(), tank.getFluid())) {
                         equal = false;
                         break;
                     }
@@ -148,7 +155,11 @@ public class RecipeOutputDisplayWidget extends Widget {
                 this.writeUpdateInfo(2, buffer -> {
                     buffer.writeInt(this.fluidTanks.getTanks());
                     for (int i = 0; i < this.fluidTanks.getTanks(); i++) {
-                        buffer.writeInt(this.fluidTanks.getTankAt(i).getCapacity());
+                        IFluidTank tank = this.fluidTanks.getTankAt(i);
+                        buffer.writeBoolean(tank.getFluid() != null);
+                        if (tank.getFluid() != null)
+                            buffer.writeCompoundTag(tank.getFluid().writeToNBT(new NBTTagCompound()));
+                        buffer.writeInt(tank.getCapacity());
                     }
                 });
             }
@@ -203,6 +214,11 @@ public class RecipeOutputDisplayWidget extends Widget {
                 List<IItemHandler> itemHandlers = new ArrayList<>();
                 int size = buffer.readInt();
                 for (int i = 0; i < size; i++) {
+                    try {
+                        this.itemOutputIndex.put(i, buffer.readItemStack());
+                    } catch (IOException e) {
+                        GTLog.logger.info(e.getMessage());
+                    }
                     itemHandlers.add(new LargeItemStackHandler(1, buffer.readInt()));
                 }
                 this.itemHandler = new ItemHandlerList(itemHandlers);
@@ -211,6 +227,13 @@ public class RecipeOutputDisplayWidget extends Widget {
                 List<IFluidTank> fluidTanks = new ArrayList<>();
                 int size1 = buffer.readInt();
                 for (int i = 0; i < size1; i++) {
+                    if (buffer.readBoolean()) {
+                        try {
+                            this.fluidOutputIndex.put(i, FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag()));
+                        } catch (IOException e) {
+                            GTLog.logger.info(e.getMessage());
+                        }
+                    }
                     fluidTanks.add(new FluidTank(buffer.readInt()));
                 }
                 this.fluidTanks = new FluidTankList(true, fluidTanks);
@@ -226,8 +249,10 @@ public class RecipeOutputDisplayWidget extends Widget {
                     }
                 }
                 if (this.itemHandler == null) break;
-                for (int i = 0; i < this.itemHandler.getSlots(); i++)
+                for (int i = 0; i < this.itemHandler.getSlots(); i++) {
                     this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
+                    this.itemHandler.insertItem(i, this.itemOutputIndex.get(i), false);
+                }
                 for (ItemStack stack : this.itemOutputs)
                     ItemStackHelper.insertIntoItemHandler(this.itemHandler, stack, false);
                 this.formatTooltip();
@@ -243,8 +268,10 @@ public class RecipeOutputDisplayWidget extends Widget {
                     }
                 }
                 if (this.fluidTanks == null) break;
-                for (int i = 0; i < this.fluidTanks.getTanks(); i++)
+                for (int i = 0; i < this.fluidTanks.getTanks(); i++) {
                     this.fluidTanks.getTankAt(i).drain(Integer.MAX_VALUE, true);
+                    this.fluidTanks.getTankAt(i).fill(this.fluidOutputIndex.get(i), true);
+                }
                 for (FluidStack stack : this.fluidOutputs)
                     this.fluidTanks.fill(stack, true);
                 this.formatTooltip();
