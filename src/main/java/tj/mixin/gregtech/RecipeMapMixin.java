@@ -61,9 +61,9 @@ public abstract class RecipeMapMixin implements IRecipeMap {
                 int slotIndex = i * itemSlotsToLeft + j;
                 int x = startInputsX + 18 * j;
                 int y = startInputsY + 18 * i;
+                addSlot(builder, x, y, slotIndex, itemHandler, fluidHandler, invertFluids, isOutputs);
                 if (isOutputs)
                     builder.widget(new RecipeOutputSlotWidget(slotIndex, x, y, 18, 18, displayWidget::getItemAt, null));
-                addSlot(builder, x, y, slotIndex, itemHandler, fluidHandler, invertFluids, isOutputs);
             }
         }
         if (fluidInputsCount > 0 || invertFluids) {
@@ -71,18 +71,18 @@ public abstract class RecipeMapMixin implements IRecipeMap {
                 int startSpecX = isOutputs ? startInputsX + itemSlotsToLeft * 18 : startInputsX - 18;
                 for (int i = 0; i < fluidInputsCount; i++) {
                     int y = startInputsY + 18 * i;
+                    addSlot(builder, startSpecX, y, i, itemHandler, fluidHandler, !invertFluids, isOutputs);
                     if (isOutputs)
                         builder.widget(new RecipeOutputSlotWidget(i, startSpecX, y, 18, 18, null, displayWidget::getFluidAt));
-                    addSlot(builder, startSpecX, y, i, itemHandler, fluidHandler, !invertFluids, isOutputs);
                 }
             } else {
                 int startSpecY = startInputsY + itemSlotsToDown * 18;
                 for (int i = 0; i < fluidInputsCount; i++) {
                     int x = isOutputs ? startInputsX + 18 * (i % 3) : startInputsX + itemSlotsToLeft * 18 - 18 - 18 * (i % 3);
                     int y = startSpecY + (i / 3) * 18;
+                    addSlot(builder, x, y, i, itemHandler, fluidHandler, !invertFluids, isOutputs);
                     if (isOutputs)
                         builder.widget(new RecipeOutputSlotWidget(i, x, y, 18, 18, null, displayWidget::getFluidAt));
-                    addSlot(builder, x, y, i, itemHandler, fluidHandler, !invertFluids, isOutputs);
                 }
             }
         }

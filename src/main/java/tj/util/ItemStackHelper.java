@@ -7,6 +7,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
+import java.util.function.BiConsumer;
 
 
 public class ItemStackHelper {
@@ -143,6 +144,40 @@ public class ItemStackHelper {
                 stack.shrink(extracted);
                 if (!simulate)
                     slotStack.grow(extracted);
+            }
+        }
+        return stack;
+    }
+
+    /**
+     * Tries to insert into container inventory or item handler. Only recommended for client-side simulations.
+     * @param itemHandler container inventory
+     * @param stack the ItemStack to insert
+     * @param simulate test to see if the item can be inserted without actually inserting the item for real.
+     * @param beforeInsertedCallback run callback before the item gets inserted into slot.
+     * @param afterInsertedCallback run callback after the item has been inserted into slot.
+     * @return ItemStack reminder. returns empty when ItemStack is fully inserted. returns the stack unmodified when unable to insert at all.
+     */
+    public static ItemStack insertIntoItemHandlerWithCallback(IItemHandler itemHandler, @Nonnull ItemStack stack, boolean simulate, BiConsumer<Integer, ItemStack> beforeInsertedCallback, BiConsumer<Integer, ItemStack> afterInsertedCallback) {
+        if (itemHandler == null || stack.isEmpty())
+            return stack;
+
+        stack = simulate ? stack.copy() : stack;
+        for (int i = 0; i < itemHandler.getSlots() && !stack.isEmpty(); i++) {
+            ItemStack slotStack = itemHandler.getStackInSlot(i);
+            int maxStackSize = itemHandler.getSlotLimit(i);
+            if (slotStack.isEmpty()) {
+                beforeInsertedCallback.accept(i, stack);
+                stack = itemHandler.insertItem(i, stack, simulate);
+                afterInsertedCallback.accept(i, stack);
+            } else if (slotStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(slotStack, stack)) {
+                beforeInsertedCallback.accept(i, stack);
+                int reminder = Math.max(0, maxStackSize - slotStack.getCount());
+                int extracted = Math.min(stack.getCount(), reminder);
+                stack.shrink(extracted);
+                if (!simulate)
+                    slotStack.grow(extracted);
+                afterInsertedCallback.accept(i, stack);
             }
         }
         return stack;

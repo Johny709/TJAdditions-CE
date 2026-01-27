@@ -21,6 +21,7 @@ public class TJGuiTextures {
     public static final TextureArea TOOLTIP_BOX = AdoptableTextureArea.fullImage("textures/gui/base/tooltip_box.png", 18, 18, 2, 2);
     public static final TextureArea FLUID_BAR = AdoptableTextureArea.fullImage("textures/gui/bar/fluid_bar.png", 10, 10, 1, 1);
     public static final TextureArea SELECTION_BOX = AdoptableTextureArea.fullImage("textures/gui/base/select_box.png", 18, 18, 1, 1);
+    public static final TextureArea SELECTION_BOX_2 = AdoptableTextureArea.fullImage("textures/gui/base/select_box2.png", 18, 18, 1, 1);
 
     public static final TextureArea AUTOSCROLL = TextureArea.fullImage("textures/gui/base/auto_scroll.png");
     public static final TextureArea AUTOSCROLL_UP = TextureArea.fullImage("textures/gui/base/auto_scroll_up.png");

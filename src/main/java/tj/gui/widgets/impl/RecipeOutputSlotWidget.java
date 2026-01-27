@@ -1,5 +1,6 @@
 package tj.gui.widgets.impl;
 
+import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
@@ -35,20 +36,35 @@ public class RecipeOutputSlotWidget extends Widget {
         Position pos = this.getPosition();
         ItemStack itemStack = this.itemOutputs != null ? this.itemOutputs.apply(this.slotIndex) : null;
         if (itemStack != null) {
-            if (!itemStack.isEmpty())
+            if (itemStack.isEmpty())
                 TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
-            Widget.drawItemStack(itemStack, pos.getX() + 1, pos.getY() + 1, null);
+            else TJGuiTextures.SELECTION_BOX_2.draw(pos.getX(), pos.getY(), 18, 18);
         }
         FluidStack fluidStack = this.fluidOutputs != null ? this.fluidOutputs.apply(this.slotIndex) : null;
         if (fluidStack != null) {
+            if (fluidStack.amount < 1)
+                TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
+            else TJGuiTextures.SELECTION_BOX_2.draw(pos.getX(), pos.getY(), 18, 18);
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+        Position pos = this.getPosition();
+        ItemStack itemStack = this.itemOutputs != null ? this.itemOutputs.apply(this.slotIndex) : null;
+        if (itemStack != null) {
+            Widget.drawItemStack(itemStack, pos.getX() + 1, pos.getY() + 1, null);
+        }
+        FluidStack fluidStack = this.fluidOutputs != null ? this.fluidOutputs.apply(this.slotIndex) : null;
+        if (fluidStack != null && fluidStack.amount > 0) {
             FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-            TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
             GlStateManager.disableBlend();
             TJGuiUtils.drawFluidForGui(fluidStack, fluidStack.amount, fluidStack.amount, pos.getX() + 1, pos.getY() + 1, 17, 17);
             GlStateManager.pushMatrix();
             GlStateManager.scale(0.5, 0.5, 1);
             String s = TextFormattingUtil.formatLongToCompactString(fluidStack.amount, 4) + "L";
-            fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + 14) * 2, 0xFFFFFF);
+            fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + 12) * 2, 0xFFFFFF);
             GlStateManager.popMatrix();
             GlStateManager.enableBlend();
             GlStateManager.color(1.0f, 1.0f, 1.0f);
