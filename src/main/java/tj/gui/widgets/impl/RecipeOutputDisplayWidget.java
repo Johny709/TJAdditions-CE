@@ -5,7 +5,6 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
@@ -35,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class RecipeOutputDisplayWidget extends WidgetGroup {
+public class RecipeOutputDisplayWidget extends Widget {
 
     private Supplier<List<ItemStack>> itemOutputSupplier;
     private Supplier<List<FluidStack>> fluidOutputSupplier;
@@ -75,7 +74,6 @@ public class RecipeOutputDisplayWidget extends WidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        super.drawInForeground(mouseX, mouseY);
         if (this.tooltipSize == null || !this.isMouseOverElement(mouseX, mouseY)) return;
         int slot = 0;
         int offsetX = 3;
@@ -113,7 +111,6 @@ public class RecipeOutputDisplayWidget extends WidgetGroup {
 
     @Override
     public void detectAndSendChanges() {
-        super.detectAndSendChanges();
         IItemHandlerModifiable itemHandler;
         if (this.itemHandlerSupplier != null && (itemHandler = this.itemHandlerSupplier.get()) != null) {
             boolean equal = true;
@@ -127,7 +124,7 @@ public class RecipeOutputDisplayWidget extends WidgetGroup {
             } else equal = false;
             if (!equal) {
                 this.itemHandler = itemHandler;
-                this.writeUpdateInfo(2, buffer -> {
+                this.writeUpdateInfo(1, buffer -> {
                     buffer.writeInt(this.itemHandler.getSlots());
                     for (int i = 0; i < this.itemHandler.getSlots(); i++) {
                         buffer.writeInt(this.itemHandler.getSlotLimit(i));
@@ -148,7 +145,7 @@ public class RecipeOutputDisplayWidget extends WidgetGroup {
             } else equal = false;
             if (!equal) {
                 this.fluidTanks = fluidTanks;
-                this.writeUpdateInfo(3, buffer -> {
+                this.writeUpdateInfo(2, buffer -> {
                     buffer.writeInt(this.fluidTanks.getTanks());
                     for (int i = 0; i < this.fluidTanks.getTanks(); i++) {
                         buffer.writeInt(this.fluidTanks.getTankAt(i).getCapacity());
@@ -169,7 +166,7 @@ public class RecipeOutputDisplayWidget extends WidgetGroup {
             } else equal = false;
             if (!equal) {
                 this.itemOutputs = itemStacks;
-                this.writeUpdateInfo(4, buffer -> {
+                this.writeUpdateInfo(3, buffer -> {
                     buffer.writeInt(this.itemOutputs.size());
                     for (ItemStack stack : this.itemOutputs)
                         buffer.writeItemStack(stack);
@@ -189,7 +186,7 @@ public class RecipeOutputDisplayWidget extends WidgetGroup {
             } else equal = false;
             if (!equal) {
                 this.fluidOutputs = fluidStacks;
-                this.writeUpdateInfo(5, buffer -> {
+                this.writeUpdateInfo(4, buffer -> {
                     buffer.writeInt(this.fluidOutputs.size());
                     for (FluidStack stack : this.fluidOutputs)
                         buffer.writeCompoundTag(stack.writeToNBT(new NBTTagCompound()));
@@ -201,9 +198,8 @@ public class RecipeOutputDisplayWidget extends WidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
-        super.readUpdateInfo(id, buffer);
         switch (id) {
-            case 2:
+            case 1:
                 List<IItemHandler> itemHandlers = new ArrayList<>();
                 int size = buffer.readInt();
                 for (int i = 0; i < size; i++) {
@@ -211,7 +207,7 @@ public class RecipeOutputDisplayWidget extends WidgetGroup {
                 }
                 this.itemHandler = new ItemHandlerList(itemHandlers);
                 break;
-            case 3:
+            case 2:
                 List<IFluidTank> fluidTanks = new ArrayList<>();
                 int size1 = buffer.readInt();
                 for (int i = 0; i < size1; i++) {
@@ -219,7 +215,7 @@ public class RecipeOutputDisplayWidget extends WidgetGroup {
                 }
                 this.fluidTanks = new FluidTankList(true, fluidTanks);
                 break;
-            case 4:
+            case 3:
                 this.itemOutputs.clear();
                 int size2 = buffer.readInt();
                 for (int i = 0; i < size2; i++) {
@@ -236,7 +232,7 @@ public class RecipeOutputDisplayWidget extends WidgetGroup {
                     ItemStackHelper.insertIntoItemHandler(this.itemHandler, stack, false);
                 this.formatTooltip();
                 break;
-            case 5:
+            case 4:
                 this.fluidOutputs.clear();
                 int size3 = buffer.readInt();
                 for (int i = 0; i < size3; i++) {

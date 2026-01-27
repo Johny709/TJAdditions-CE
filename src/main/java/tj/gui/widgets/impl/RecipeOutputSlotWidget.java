@@ -1,6 +1,5 @@
 package tj.gui.widgets.impl;
 
-import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
@@ -12,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
 
 import java.util.function.IntFunction;
@@ -31,17 +31,18 @@ public class RecipeOutputSlotWidget extends Widget {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+    public void drawInForeground(int mouseX, int mouseY) {
         Position pos = this.getPosition();
         ItemStack itemStack = this.itemOutputs != null ? this.itemOutputs.apply(this.slotIndex) : null;
         if (itemStack != null) {
-            Widget.drawSelectionOverlay(pos.getX(), pos.getY(), 18, 18);
+            if (!itemStack.isEmpty())
+                TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
             Widget.drawItemStack(itemStack, pos.getX() + 1, pos.getY() + 1, null);
         }
         FluidStack fluidStack = this.fluidOutputs != null ? this.fluidOutputs.apply(this.slotIndex) : null;
         if (fluidStack != null) {
             FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-            Widget.drawSelectionOverlay(pos.getX(), pos.getY(), 18, 18);
+            TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
             GlStateManager.disableBlend();
             TJGuiUtils.drawFluidForGui(fluidStack, fluidStack.amount, fluidStack.amount, pos.getX() + 1, pos.getY() + 1, 17, 17);
             GlStateManager.pushMatrix();
