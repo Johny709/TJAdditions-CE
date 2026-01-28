@@ -29,15 +29,15 @@ import tj.gui.TJGuiUtils;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.util.ItemStackHelper;
 import tj.util.TJFluidUtils;
+import tj.util.references.BooleanReference;
+import tj.util.references.IntegerReference;
+import tj.util.references.ObjectReference;
 
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class RecipeOutputDisplayWidget extends Widget {
@@ -271,17 +271,17 @@ public class RecipeOutputDisplayWidget extends Widget {
                 this.itemOutputIndex.clear();
                 for (ItemStack stack : this.itemOutputs) {
                     stack = stack.copy();
-                    AtomicInteger previousCount = new AtomicInteger();
-                    AtomicBoolean previouslyFilled = new AtomicBoolean();
-                    AtomicReference<ItemStack> inserted = new AtomicReference<>();
+                    IntegerReference previousCount = new IntegerReference();
+                    BooleanReference previouslyFilled = new BooleanReference();
+                    ObjectReference<ItemStack> inserted = new ObjectReference<>();
                     ItemStackHelper.insertIntoItemHandlerWithCallback(this.itemHandler, stack, false, (slot, itemStack) -> {
-                        inserted.set(itemStack.copy());
-                        previousCount.set(itemStack.getCount());
-                        previouslyFilled.set(!this.itemHandler.getStackInSlot(slot).isEmpty());
+                        inserted.setValue(itemStack.copy());
+                        previousCount.setValue(itemStack.getCount());
+                        previouslyFilled.setValue(!this.itemHandler.getStackInSlot(slot).isEmpty());
                     }, (slot, itemStack) -> {
-                        if (itemStack.getCount() < previousCount.get()) {
-                            inserted.get().setCount(previouslyFilled.get() ? 0 : this.itemHandler.getStackInSlot(slot).getCount());
-                            this.itemOutputIndex.put(slot, inserted.get());
+                        if (itemStack.getCount() < previousCount.getValue()) {
+                            inserted.getValue().setCount(previouslyFilled.isValue() ? 0 : this.itemHandler.getStackInSlot(slot).getCount());
+                            this.itemOutputIndex.put(slot, inserted.getValue());
                         }
                     });
                 }
@@ -318,17 +318,17 @@ public class RecipeOutputDisplayWidget extends Widget {
                 this.fluidOutputIndex.clear();
                 for (FluidStack stack : this.fluidOutputs) {
                     stack = stack.copy();
-                    AtomicInteger previousCount = new AtomicInteger();
-                    AtomicBoolean previouslyFilled = new AtomicBoolean();
-                    AtomicReference<FluidStack> inserted = new AtomicReference<>();
+                    IntegerReference previousCount = new IntegerReference();
+                    BooleanReference previouslyFilled = new BooleanReference();
+                    ObjectReference<FluidStack> inserted = new ObjectReference<>();
                     TJFluidUtils.fillIntoTanksWithCallback(this.fluidTanks, stack, true, (slot, fluidStack) -> {
-                        inserted.set(fluidStack.copy());
-                        previousCount.set(fluidStack.amount);
-                        previouslyFilled.set(this.fluidTanks.getTankAt(slot).getFluidAmount() > 0);
+                        inserted.setValue(fluidStack.copy());
+                        previousCount.setValue(fluidStack.amount);
+                        previouslyFilled.setValue(this.fluidTanks.getTankAt(slot).getFluidAmount() > 0);
                     }, (slot, fluidStack) -> {
-                        if (fluidStack.amount < previousCount.get()) {
-                            inserted.get().amount = previouslyFilled.get() ? 0 : this.fluidTanks.getTankAt(slot).getFluidAmount();
-                            this.fluidOutputIndex.put(slot, inserted.get());
+                        if (fluidStack.amount < previousCount.getValue()) {
+                            inserted.getValue().amount = previouslyFilled.isValue() ? 0 : this.fluidTanks.getTankAt(slot).getFluidAmount();
+                            this.fluidOutputIndex.put(slot, inserted.getValue());
                         }
                     });
                 }
