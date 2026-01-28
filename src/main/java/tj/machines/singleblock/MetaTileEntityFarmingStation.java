@@ -34,6 +34,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.handlers.FarmingStationWorkableHandler;
 import tj.gui.TJGuiTextures;
+import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.gui.widgets.impl.RecipeOutputSlotWidget;
 import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
@@ -129,6 +131,11 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     protected ModularUI createUI(EntityPlayer player) {
         WidgetGroup widgetGroup = new WidgetGroup(new Position(10, 22));
         SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(105, 22, 64, 54, 3);
+        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 21, 21, 20)
+                .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
+                .setItemOutputSupplier(this.workableHandler::getItemOutputs)
+                .setItemHandlerSupplier(this::getExportItems)
+                .setFluidTanksSupplier(this::getExportFluids);
         for (int i = 0; i < this.seedInventory.getSlots(); i++) {
             widgetGroup.addWidget(new TJSlotWidget<>(this.seedInventory, i, 18 * (i % 2), 18 * (i / 2))
                     .setBackgroundTexture(SLOT, SEEDS_OVERLAY));
@@ -136,6 +143,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
         for (int i = 0; i < this.exportItems.getSlots(); i++) {
             scrollableWidgetGroup.addWidget(new SlotWidget(this.exportItems, i, 18 * (i % 3), 18 * (i / 3), true, false)
                     .setBackgroundTexture(SLOT));
+            scrollableWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 3), 18 * (i / 3), 18, 18, displayWidget::getItemAt, null));
         }
         return ModularUI.builder(GuiTextures.BACKGROUND, 176, 182)
                 .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
@@ -168,6 +176,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                 .widget(widgetGroup)
                 .widget(scrollableWidgetGroup)
                 .bindPlayerInventory(player.inventory, 100)
+                .widget(displayWidget)
                 .build(this.getHolder(), player);
     }
 

@@ -281,7 +281,7 @@ public class RecipeOutputDisplayWidget extends Widget {
                     }, (slot, itemStack) -> {
                         ItemStack slotStack = this.itemHandler.getStackInSlot(slot);
                         int slotCapacity = this.itemHandler.getSlotLimit(slot);
-                        if (slotStack.getCount() - Math.min(previousCount.get(), slotCapacity) < slotCapacity - itemStack.getCount()) {
+                        if (slotStack.getCount() - previousCount.get() < slotCapacity - itemStack.getCount()) {
                             inserted.get().setCount(previouslyFilled.get() ? 0 : slotStack.getCount());
                             this.itemOutputIndex.put(slot, inserted.get());
                         }
@@ -330,7 +330,7 @@ public class RecipeOutputDisplayWidget extends Widget {
                     }, (slot, fluidStack) -> {
                         int amount = this.fluidTanks.getTankAt(slot).getFluidAmount();
                         int slotCapacity = this.fluidTanks.getTankAt(slot).getCapacity();
-                        if (amount - Math.min(previousCount.get(), slotCapacity) < slotCapacity - fluidStack.amount) {
+                        if (amount - previousCount.get() < slotCapacity - fluidStack.amount) {
                             inserted.get().amount = previouslyFilled.get() ? 0 : amount;
                             this.fluidOutputIndex.put(slot, inserted.get());
                         }

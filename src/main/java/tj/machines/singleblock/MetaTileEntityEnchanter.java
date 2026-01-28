@@ -22,6 +22,8 @@ import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.handlers.EnchanterWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.gui.widgets.impl.RecipeOutputSlotWidget;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -87,6 +89,11 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
+        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 21, 21, 20)
+                .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
+                .setItemOutputSupplier(this.workableHandler::getItemOutputs)
+                .setItemHandlerSupplier(this::getExportItems)
+                .setFluidTanksSupplier(this::getExportFluids);
         return ModularUI.defaultBuilder()
                 .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
@@ -99,6 +106,8 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                         .setBackgroundTexture(SLOT))
                 .widget(new SlotWidget(this.exportItems, 1, 123, 22, true, false)
                         .setBackgroundTexture(SLOT))
+                .widget(new RecipeOutputSlotWidget(0, 105, 22, 18, 18, displayWidget::getItemAt, null))
+                .widget(new RecipeOutputSlotWidget(1, 123, 22, 18, 18, displayWidget::getItemAt, null))
                 .widget(new TankWidget(this.tank, 16, 22, 18, 18)
                         .setBackgroundTexture(FLUID_SLOT))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
@@ -111,6 +120,7 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                 .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
                 .bindPlayerInventory(player.inventory)
+                .widget(displayWidget)
                 .build(this.getHolder(), player);
     }
 

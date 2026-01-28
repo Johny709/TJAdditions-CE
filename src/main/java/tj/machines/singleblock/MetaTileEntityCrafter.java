@@ -35,10 +35,8 @@ import tj.builder.handlers.CrafterRecipeLogic;
 import tj.builder.handlers.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
+import tj.gui.widgets.impl.*;
 import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.impl.CraftingRecipeTransferWidget;
-import tj.gui.widgets.impl.SlotDisplayWidget;
 import tj.textures.TJTextures;
 import tj.util.Color;
 import tj.util.EnumFacingHelper;
@@ -136,6 +134,11 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                         }
                     }));
         }
+        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 21, 21, 20)
+                .setFluidOutputSupplier(this.recipeLogic::getFluidOutputs)
+                .setItemOutputSupplier(this.recipeLogic::getItemOutputs)
+                .setItemHandlerSupplier(this::getExportItems)
+                .setFluidTanksSupplier(this::getExportFluids);
         return ModularUI.builder(BACKGROUND, 176, 216)
                 .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
@@ -148,6 +151,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new SlotWidget(this.exportItems, 0, 79, 112, true, false)
                         .setBackgroundTexture(SLOT))
+                .widget(new RecipeOutputSlotWidget(0, 79, 112, 18, 18, displayWidget::getItemAt, null))
                 .widget(new ToggleButtonWidget(133, 112, 18, 18, ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
                         .setTooltipText("machine.universal.toggle.item_voiding"))
                 .widget(new ToggleButtonWidget(151, 112, 18, 18, POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
@@ -165,6 +169,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                 .widget(inventorySlotGroup)
                 .widget(scrollableWidgetGroup)
                 .bindPlayerInventory(player.inventory, 134)
+                .widget(displayWidget)
                 .build(this.getHolder(), player);
     }
 

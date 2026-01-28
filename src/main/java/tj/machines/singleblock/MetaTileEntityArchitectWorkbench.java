@@ -17,6 +17,8 @@ import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.handlers.ArchitectWorkbenchWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.gui.widgets.impl.RecipeOutputSlotWidget;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -64,6 +66,11 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
+        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 21, 21, 20)
+                .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
+                .setItemOutputSupplier(this.workableHandler::getItemOutputs)
+                .setItemHandlerSupplier(this::getExportItems)
+                .setFluidTanksSupplier(this::getExportFluids);
         return ModularUI.defaultBuilder()
                 .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
@@ -74,6 +81,7 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
                         .setBackgroundTexture(SLOT, MOLD_OVERLAY))
                 .widget(new SlotWidget(this.exportItems, 0, 105, 22, true, false)
                         .setBackgroundTexture(SLOT))
+                .widget(new RecipeOutputSlotWidget(0, 105, 22, 18, 18, displayWidget::getItemAt, null))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new ToggleButtonWidget(151, 62, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
@@ -84,6 +92,7 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
                 .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
                 .bindPlayerInventory(player.inventory)
+                .widget(displayWidget)
                 .build(this.getHolder(), player);
     }
 
