@@ -28,6 +28,7 @@ import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.util.ItemStackHelper;
+import tj.util.TJFluidUtils;
 
 import java.awt.*;
 import java.io.IOException;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -269,16 +271,20 @@ public class RecipeOutputDisplayWidget extends Widget {
                 this.itemOutputIndex.clear();
                 for (ItemStack stack : this.itemOutputs) {
                     stack = stack.copy();
+                    AtomicInteger previousCount = new AtomicInteger();
                     AtomicBoolean previouslyFilled = new AtomicBoolean();
                     AtomicReference<ItemStack> inserted = new AtomicReference<>();
                     ItemStackHelper.insertIntoItemHandlerWithCallback(this.itemHandler, stack, false, (slot, itemStack) -> {
                         inserted.set(itemStack.copy());
+                        previousCount.set(itemStack.getCount());
                         previouslyFilled.set(!this.itemHandler.getStackInSlot(slot).isEmpty());
                     }, (slot, itemStack) -> {
                         ItemStack slotStack = this.itemHandler.getStackInSlot(slot);
-                        inserted.get().setCount(previouslyFilled.get() ? 0 : slotStack.getCount());
-                        if (slotStack.getCount() != this.itemHandler.getSlotLimit(slot))
+                        int slotCapacity = this.itemHandler.getSlotLimit(slot);
+                        if (slotStack.getCount() - Math.min(previousCount.get(), slotCapacity) < slotCapacity - itemStack.getCount()) {
+                            inserted.get().setCount(previouslyFilled.get() ? 0 : slotStack.getCount());
                             this.itemOutputIndex.put(slot, inserted.get());
+                        }
                     });
                 }
                 this.formatTooltip();
@@ -314,18 +320,21 @@ public class RecipeOutputDisplayWidget extends Widget {
                 this.fluidOutputIndex.clear();
                 for (FluidStack stack : this.fluidOutputs) {
                     stack = stack.copy();
-                    int amount = stack.amount;
-                    for (int i = 0; i < this.fluidTanks.getTanks(); i++) {
-                        IFluidTank tank = this.fluidTanks.getTankAt(i);
-                        boolean previouslyFilled = tank.getFluidAmount() > 0;
-                        FluidStack inserted = stack.copy();
-                        int filled = tank.fill(stack, true);
-                        inserted.amount = previouslyFilled ? 0 : amount;
-                        amount -= filled;
-                        if (tank.getFluidAmount() != tank.getCapacity())
-                            this.fluidOutputIndex.put(i, inserted);
-                        if (amount < 1) break;
-                    }
+                    AtomicInteger previousCount = new AtomicInteger();
+                    AtomicBoolean previouslyFilled = new AtomicBoolean();
+                    AtomicReference<FluidStack> inserted = new AtomicReference<>();
+                    TJFluidUtils.fillIntoTanksWithCallback(this.fluidTanks, stack, true, (slot, fluidStack) -> {
+                        inserted.set(fluidStack.copy());
+                        previousCount.set(fluidStack.amount);
+                        previouslyFilled.set(this.fluidTanks.getTankAt(slot).getFluidAmount() > 0);
+                    }, (slot, fluidStack) -> {
+                        int amount = this.fluidTanks.getTankAt(slot).getFluidAmount();
+                        int slotCapacity = this.fluidTanks.getTankAt(slot).getCapacity();
+                        if (amount - Math.min(previousCount.get(), slotCapacity) < slotCapacity - fluidStack.amount) {
+                            inserted.get().amount = previouslyFilled.get() ? 0 : amount;
+                            this.fluidOutputIndex.put(slot, inserted.get());
+                        }
+                    });
                 }
                 this.formatTooltip();
                 break;
