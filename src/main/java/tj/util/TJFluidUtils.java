@@ -72,7 +72,7 @@ public class TJFluidUtils {
      * Tries to insert into fluid tanks or fluid handler. Only recommended for client-side simulations.
      * @param tanks fluid container inventory
      * @param fluidStack the FluidStack to insert
-     * @param doFill test to see if the item can be inserted without actually inserting the item for real.
+     * @param doFill test to see if the item can be inserted without actually inserting the fluid for real.
      * @param beforeInsertedCallback runs callback before the fluid gets inserted.
      * @param afterInsertedCallback runs callback after the fluid has been inserted.
      * @return FluidStack reminder. returns with 0 amount when FluidStack is fully inserted. returns the stack unmodified when unable to insert at all.

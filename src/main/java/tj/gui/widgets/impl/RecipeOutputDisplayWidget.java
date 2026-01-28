@@ -279,10 +279,8 @@ public class RecipeOutputDisplayWidget extends Widget {
                         previousCount.set(itemStack.getCount());
                         previouslyFilled.set(!this.itemHandler.getStackInSlot(slot).isEmpty());
                     }, (slot, itemStack) -> {
-                        ItemStack slotStack = this.itemHandler.getStackInSlot(slot);
-                        int slotCapacity = this.itemHandler.getSlotLimit(slot);
-                        if (slotStack.getCount() - previousCount.get() < slotCapacity - itemStack.getCount()) {
-                            inserted.get().setCount(previouslyFilled.get() ? 0 : slotStack.getCount());
+                        if (itemStack.getCount() < previousCount.get()) {
+                            inserted.get().setCount(previouslyFilled.get() ? 0 : this.itemHandler.getStackInSlot(slot).getCount());
                             this.itemOutputIndex.put(slot, inserted.get());
                         }
                     });
@@ -328,10 +326,8 @@ public class RecipeOutputDisplayWidget extends Widget {
                         previousCount.set(fluidStack.amount);
                         previouslyFilled.set(this.fluidTanks.getTankAt(slot).getFluidAmount() > 0);
                     }, (slot, fluidStack) -> {
-                        int amount = this.fluidTanks.getTankAt(slot).getFluidAmount();
-                        int slotCapacity = this.fluidTanks.getTankAt(slot).getCapacity();
-                        if (amount - previousCount.get() < slotCapacity - fluidStack.amount) {
-                            inserted.get().amount = previouslyFilled.get() ? 0 : amount;
+                        if (fluidStack.amount < previousCount.get()) {
+                            inserted.get().amount = previouslyFilled.get() ? 0 : this.fluidTanks.getTankAt(slot).getFluidAmount();
                             this.fluidOutputIndex.put(slot, inserted.get());
                         }
                     });
