@@ -129,28 +129,37 @@ public class TJProgressBarWidget extends Widget {
 
     @Override
     public void detectAndSendChanges() {
-        double progress, maxProgress;
-        if (this.progressSupplier != null && (progress = this.progressSupplier.getAsDouble()) != this.progress) {
-            this.progress = progress;
-            this.writeUpdateInfo(1, buffer -> buffer.writeDouble(this.progress));
+        if (this.progressSupplier != null) {
+            double progress = this.progressSupplier.getAsDouble();
+            if (progress != this.progress) {
+                this.progress = progress;
+                this.writeUpdateInfo(1, buffer -> buffer.writeDouble(this.progress));
+            }
         }
-        if (this.maxProgressSupplier != null && (maxProgress = this.maxProgressSupplier.getAsDouble()) != this.maxProgress) {
-            this.maxProgress = maxProgress;
-            this.writeUpdateInfo(2, buffer -> buffer.writeDouble(this.maxProgress));
+        if (this.maxProgressSupplier != null) {
+            double maxProgress = this.maxProgressSupplier.getAsDouble();
+            if (maxProgress != this.maxProgress) {
+                this.maxProgress = maxProgress;
+                this.writeUpdateInfo(2, buffer -> buffer.writeDouble(this.maxProgress));
+            }
         }
-        Object[] params;
-        if (this.paramSupplier != null && (params = this.paramSupplier.get()) != null && params.length > 0 && (this.params == null || !Arrays.equals(this.params, params))) {
-            this.params = params;
-            this.writeUpdateInfo(3, buffer -> {
-                buffer.writeInt(this.params.length);
-                for (Object param : this.params)
-                    buffer.writeString(param != null ? (String) param : "");
-            });
+        if (this.paramSupplier != null) {
+            Object[] params = this.paramSupplier.get();
+            if (params != null && params.length > 0 && (this.params == null || !Arrays.equals(this.params, params))) {
+                this.params = params;
+                this.writeUpdateInfo(3, buffer -> {
+                    buffer.writeInt(this.params.length);
+                    for (Object param : this.params)
+                        buffer.writeString(param != null ? (String) param : "");
+                });
+            }
         }
-        FluidStack fluidStack;
-        if (this.fluidStackSupplier != null && (fluidStack = this.fluidStackSupplier.get()) != null && (this.fluid == null || !this.fluid.isFluidStackIdentical(fluidStack))) {
-            this.fluid = fluidStack;
-            this.writeUpdateInfo(4, buffer -> buffer.writeCompoundTag(this.fluid.writeToNBT(new NBTTagCompound())));
+        if (this.fluidStackSupplier != null) {
+            FluidStack fluidStack = this.fluidStackSupplier.get();
+            if (fluidStack != null && (this.fluid == null || !this.fluid.isFluidStackIdentical(fluidStack))) {
+                this.fluid = fluidStack;
+                this.writeUpdateInfo(4, buffer -> buffer.writeCompoundTag(this.fluid.writeToNBT(new NBTTagCompound())));
+            }
         }
     }
 

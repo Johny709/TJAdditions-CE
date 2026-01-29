@@ -136,91 +136,99 @@ public class RecipeOutputDisplayWidget extends Widget {
 
     @Override
     public void detectAndSendChanges() {
-        IItemHandlerModifiable itemHandler;
-        if (this.itemHandlerSupplier != null && (itemHandler = this.itemHandlerSupplier.get()) != null) {
-            boolean equal = true;
-            if (this.itemHandler != null && this.itemHandler.getSlots() == itemHandler.getSlots()) {
-                for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-                    if (this.itemHandler.getSlotLimit(i) != itemHandler.getSlotLimit(i) && !ItemHandlerHelper.canItemStacksStackRelaxed(this.itemHandler.getStackInSlot(i), itemHandler.getStackInSlot(i))) {
-                        equal = false;
-                        break;
-                    }
-                }
-            } else equal = false;
-            if (!equal) {
-                this.itemHandler = itemHandler;
-                this.writeUpdateInfo(1, buffer -> {
-                    buffer.writeInt(this.itemHandler.getSlots());
+        if (this.itemHandlerSupplier != null) {
+            IItemHandlerModifiable itemHandler = this.itemHandlerSupplier.get();
+            if (itemHandler != null) {
+                boolean equal = true;
+                if (this.itemHandler != null && this.itemHandler.getSlots() == itemHandler.getSlots()) {
                     for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-                        buffer.writeInt(this.itemHandler.getSlotLimit(i));
-                    }
-                });
-            }
-        }
-        IMultipleTankHandler fluidTanks;
-        if (this.fluidTanksSupplier != null && (fluidTanks = this.fluidTanksSupplier.get()) != null) {
-            boolean equal = true;
-            if (this.fluidTanks != null && this.fluidTanks.getTanks() == fluidTanks.getTanks()) {
-                for (int i = 0; i < this.fluidTanks.getTanks(); i++) {
-                    IFluidTank tank = fluidTanks.getTankAt(i);
-                    IFluidTank previousTank = this.fluidTanks.getTankAt(i);
-                    if (previousTank.getCapacity() != tank.getCapacity() && !FluidStack.areFluidStackTagsEqual(previousTank.getFluid(), tank.getFluid())) {
-                        equal = false;
-                        break;
-                    }
-                }
-            } else equal = false;
-            if (!equal) {
-                this.fluidTanks = fluidTanks;
-                this.writeUpdateInfo(2, buffer -> {
-                    buffer.writeInt(this.fluidTanks.getTanks());
-                    for (int i = 0; i < this.fluidTanks.getTanks(); i++) {
-                        buffer.writeInt(this.fluidTanks.getTankAt(i).getCapacity());
-                    }
-                });
-            }
-        }
-        List<ItemStack> itemStacks;
-        if (this.itemOutputSupplier != null && (itemStacks = this.itemOutputSupplier.get()) != null) {
-            this.itemOutputs = itemStacks;
-            this.writeUpdateInfo(3, buffer -> {
-                buffer.writeInt(this.itemOutputs.size());
-                for (ItemStack stack : this.itemOutputs)
-                        buffer.writeItemStack(stack);
-                buffer.writeBoolean(this.itemHandlerSupplier != null);
-                if (this.itemOutputSupplier != null) {
-                    IItemHandlerModifiable itemHandlerModifiable = this.itemHandlerSupplier.get();
-                    buffer.writeBoolean(itemHandlerModifiable != null);
-                    if (itemHandlerModifiable != null) {
-                        buffer.writeInt(itemHandlerModifiable.getSlots());
-                        for (int i = 0; i < itemHandlerModifiable.getSlots(); i++)
-                            buffer.writeItemStack(itemHandlerModifiable.getStackInSlot(i));
-                    }
-                }
-            });
-        }
-        List<FluidStack> fluidStacks;
-        if (this.fluidOutputSupplier != null && (fluidStacks = this.fluidOutputSupplier.get()) != null) {
-            this.fluidOutputs = fluidStacks;
-            this.writeUpdateInfo(4, buffer -> {
-                buffer.writeInt(this.fluidOutputs.size());
-                for (FluidStack stack : this.fluidOutputs)
-                    buffer.writeCompoundTag(stack.writeToNBT(new NBTTagCompound()));
-                buffer.writeBoolean(this.fluidOutputSupplier != null);
-                if (this.fluidOutputSupplier != null) {
-                    IMultipleTankHandler tankHandler = this.fluidTanksSupplier.get();
-                    buffer.writeBoolean(tankHandler != null);
-                    if (tankHandler != null) {
-                        buffer.writeInt(tankHandler.getTanks());
-                        for (int i = 0; i < tankHandler.getTanks(); i++) {
-                            FluidStack stack = tankHandler.getTankAt(i).getFluid();
-                            buffer.writeBoolean(stack != null);
-                            if (stack != null)
-                                buffer.writeCompoundTag(stack.writeToNBT(new NBTTagCompound()));
+                        if (this.itemHandler.getSlotLimit(i) != itemHandler.getSlotLimit(i) && !ItemHandlerHelper.canItemStacksStackRelaxed(this.itemHandler.getStackInSlot(i), itemHandler.getStackInSlot(i))) {
+                            equal = false;
+                            break;
                         }
                     }
+                } else equal = false;
+                if (!equal) {
+                    this.itemHandler = itemHandler;
+                    this.writeUpdateInfo(1, buffer -> {
+                        buffer.writeInt(this.itemHandler.getSlots());
+                        for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+                            buffer.writeInt(this.itemHandler.getSlotLimit(i));
+                        }
+                    });
                 }
-            });
+            }
+        }
+        if (this.fluidTanksSupplier != null) {
+            IMultipleTankHandler fluidTanks = this.fluidTanksSupplier.get();
+            if (fluidTanks != null) {
+                boolean equal = true;
+                if (this.fluidTanks != null && this.fluidTanks.getTanks() == fluidTanks.getTanks()) {
+                    for (int i = 0; i < this.fluidTanks.getTanks(); i++) {
+                        IFluidTank tank = fluidTanks.getTankAt(i);
+                        IFluidTank previousTank = this.fluidTanks.getTankAt(i);
+                        if (previousTank.getCapacity() != tank.getCapacity() && !FluidStack.areFluidStackTagsEqual(previousTank.getFluid(), tank.getFluid())) {
+                            equal = false;
+                            break;
+                        }
+                    }
+                } else equal = false;
+                if (!equal) {
+                    this.fluidTanks = fluidTanks;
+                    this.writeUpdateInfo(2, buffer -> {
+                        buffer.writeInt(this.fluidTanks.getTanks());
+                        for (int i = 0; i < this.fluidTanks.getTanks(); i++) {
+                            buffer.writeInt(this.fluidTanks.getTankAt(i).getCapacity());
+                        }
+                    });
+                }
+            }
+        }
+        if (this.itemOutputSupplier != null) {
+            List<ItemStack> itemStacks = this.itemOutputSupplier.get();
+            if (itemStacks != null) {
+                this.itemOutputs = itemStacks;
+                this.writeUpdateInfo(3, buffer -> {
+                    buffer.writeInt(this.itemOutputs.size());
+                    for (ItemStack stack : this.itemOutputs)
+                        buffer.writeItemStack(stack);
+                    buffer.writeBoolean(this.itemHandlerSupplier != null);
+                    if (this.itemOutputSupplier != null) {
+                        IItemHandlerModifiable itemHandlerModifiable = this.itemHandlerSupplier.get();
+                        buffer.writeBoolean(itemHandlerModifiable != null);
+                        if (itemHandlerModifiable != null) {
+                            buffer.writeInt(itemHandlerModifiable.getSlots());
+                            for (int i = 0; i < itemHandlerModifiable.getSlots(); i++)
+                                buffer.writeItemStack(itemHandlerModifiable.getStackInSlot(i));
+                        }
+                    }
+                });
+            }
+        }
+        if (this.fluidOutputSupplier != null) {
+            List<FluidStack> fluidStacks = this.fluidOutputSupplier.get();
+            if (fluidStacks != null) {
+                this.fluidOutputs = fluidStacks;
+                this.writeUpdateInfo(4, buffer -> {
+                    buffer.writeInt(this.fluidOutputs.size());
+                    for (FluidStack stack : this.fluidOutputs)
+                        buffer.writeCompoundTag(stack.writeToNBT(new NBTTagCompound()));
+                    buffer.writeBoolean(this.fluidOutputSupplier != null);
+                    if (this.fluidOutputSupplier != null) {
+                        IMultipleTankHandler tankHandler = this.fluidTanksSupplier.get();
+                        buffer.writeBoolean(tankHandler != null);
+                        if (tankHandler != null) {
+                            buffer.writeInt(tankHandler.getTanks());
+                            for (int i = 0; i < tankHandler.getTanks(); i++) {
+                                FluidStack stack = tankHandler.getTankAt(i).getFluid();
+                                buffer.writeBoolean(stack != null);
+                                if (stack != null)
+                                    buffer.writeCompoundTag(stack.writeToNBT(new NBTTagCompound()));
+                            }
+                        }
+                    }
+                });
+            }
         }
     }
 
