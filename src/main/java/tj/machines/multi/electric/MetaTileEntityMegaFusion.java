@@ -50,7 +50,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.blocks.AdvEnergyPortCasings;
-import tj.builder.handlers.IFusionProvider;
+import tj.capability.impl.handler.IFusionProvider;
 import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IHeatInfo;

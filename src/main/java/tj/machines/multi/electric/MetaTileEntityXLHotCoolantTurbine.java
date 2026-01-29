@@ -16,7 +16,7 @@ import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.capability.impl.XLHotCoolantTurbineWorkableHandler;
+import tj.capability.impl.workable.XLHotCoolantTurbineWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;

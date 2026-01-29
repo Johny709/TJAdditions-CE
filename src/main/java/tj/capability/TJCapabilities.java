@@ -3,7 +3,7 @@ package tj.capability;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 
-public class TJCapabilities {
+public final class TJCapabilities {
 
     @CapabilityInject(IMultipleWorkable.class)
     public static Capability<IMultipleWorkable> CAPABILITY_MULTIPLE_WORKABLE = null;

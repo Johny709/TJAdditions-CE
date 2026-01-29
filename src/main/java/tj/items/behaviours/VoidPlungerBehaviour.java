@@ -48,10 +48,10 @@ public class VoidPlungerBehaviour implements IItemBehaviour {
                 exportFluids = controller.getOutputFluidInventory();
             } else if (metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
                 ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
-                importItems = controller.getInputInventory();
-                importFluids = controller.getInputFluidInventory();
-                exportItems = controller.getOutputInventory();
-                exportFluids = controller.getOutputFluidInventory();
+                importItems = controller.getImportItemInventory();
+                importFluids = controller.getImportFluidTank();
+                exportItems = controller.getExportItemInventory();
+                exportFluids = controller.getExportFluidTank();
             }
 
             ITextComponent importItemText = new TextComponentTranslation("metaitem.void_plunger.message.void.item.input");

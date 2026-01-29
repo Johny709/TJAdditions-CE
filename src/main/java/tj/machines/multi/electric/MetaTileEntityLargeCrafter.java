@@ -9,9 +9,6 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.ConveyorCasing;
 import gregicadditions.item.components.RobotArmCasing;
-import gregtech.api.capability.IEnergyContainer;
-import gregtech.api.capability.impl.EnergyContainerList;
-import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
@@ -43,13 +40,12 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.tuple.Triple;
 import tj.TJConfig;
 import tj.builder.WidgetTabBuilder;
-import tj.builder.handlers.CrafterRecipeLogic;
-import tj.builder.handlers.IRecipeMapProvider;
-import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.capability.impl.workable.CrafterRecipeLogic;
+import tj.capability.impl.handler.IRecipeMapProvider;
+import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
@@ -71,19 +67,10 @@ import static gregtech.api.unification.material.Materials.Osmiridium;
 import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
 import static tj.multiblockpart.TJMultiblockAbility.CRAFTER;
 
-public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implements IRecipeMapProvider {
+public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase implements IRecipeMapProvider {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH, CRAFTER};
-    private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this)
-            .setImportItemsSupplier(this::getImportItemInventory)
-            .setExportItemsSupplier(this::getExportItemInventory)
-            .setImportEnergySupplier(this::getEnergyContainer)
-            .setMaxVoltageSupplier(this::getMaxVoltage)
-            .setParallelSupplier(this::getParallel)
-            .setInputBus(this::getInputBus);
-    private IItemHandlerModifiable importItemInventory;
-    private IItemHandlerModifiable exportItemInventory;
-    private IEnergyContainer energyContainer;
+    private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this);
     private long maxVoltage;
     private int parallel;
 
@@ -114,9 +101,9 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     protected void addDisplayText(UIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (this.isStructureFormed())
-            builder.voltageInLine(this.energyContainer)
+            builder.voltageInLine(this.inputEnergyContainer)
                     .voltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInputLine(this.energyContainer, this.recipeLogic.getEnergyPerTick())
+                    .energyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
                     .addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
                     .customLine(text -> text.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")
@@ -160,9 +147,6 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.importItemInventory = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
-        this.exportItemInventory = new ItemHandlerList(this.getAbilities(MultiblockAbility.EXPORT_ITEMS));
-        this.energyContainer = new EnergyContainerList(this.getAbilities(MultiblockAbility.INPUT_ENERGY));
         this.recipeLogic.initialize(this.getAbilities(IMPORT_ITEMS).size());
         int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
         int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
@@ -230,27 +214,13 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockDisplayBase implemen
         this.recipeLogic.clearCache();
     }
 
-    private IItemHandlerModifiable getImportItemInventory() {
-        return this.importItemInventory;
-    }
-
-    private IItemHandlerModifiable getExportItemInventory() {
-        return this.exportItemInventory;
-    }
-
-    private IEnergyContainer getEnergyContainer() {
-        return this.energyContainer;
-    }
-
-    private IItemHandlerModifiable getInputBus(int index) {
-        return this.getAbilities(IMPORT_ITEMS).get(index);
-    }
-
-    private long getMaxVoltage() {
+    @Override
+    public long getMaxVoltage() {
         return this.maxVoltage;
     }
 
-    private int getParallel() {
+    @Override
+    public int getParallel() {
         return this.parallel;
     }
 }

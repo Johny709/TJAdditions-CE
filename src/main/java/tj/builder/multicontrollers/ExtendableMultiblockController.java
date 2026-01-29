@@ -14,7 +14,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 
-public abstract class ExtendableMultiblockController extends TJMultiblockDisplayBase {
+public abstract class ExtendableMultiblockController extends TJMultiblockControllerBase {
 
     protected int parallelLayer;
 

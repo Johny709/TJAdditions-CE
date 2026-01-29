@@ -56,7 +56,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
-import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.PopUpWidgetGroup;
@@ -78,7 +78,7 @@ import static gregtech.api.unification.material.Materials.DrillingFluid;
 import static gregtech.api.unification.material.Materials.Duranium;
 
 
-public class MetaTileEntityEliteLargeMiner extends TJMultiblockDisplayBase implements TJMiner {
+public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase implements TJMiner {
 
     protected static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 

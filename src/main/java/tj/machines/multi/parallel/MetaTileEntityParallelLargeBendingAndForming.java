@@ -3,7 +3,7 @@ package tj.machines.multi.parallel;
 import gregicadditions.machines.GATileEntities;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
+import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PistonCasing;
 import gregtech.api.metatileentity.MetaTileEntity;

@@ -31,7 +31,7 @@ import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
+import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
 import tj.util.TJFluidUtils;
 import tj.util.TooltipHelper;
 
@@ -90,7 +90,7 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     protected void addDisplayText(UIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.fluidInputLine(this.inputFluidInventory, this.cryotheum);
+        builder.fluidInputLine(this.importFluidTank, this.cryotheum);
     }
 
     @Override
@@ -154,11 +154,11 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     }
 
     private long getCryotheumAmount() {
-        return TJFluidUtils.getFluidAmountFromTanks(CRYOTHEUM, this.getInputFluidInventory());
+        return TJFluidUtils.getFluidAmountFromTanks(CRYOTHEUM, this.getImportFluidTank());
     }
 
     private long getCryotheumCapacity() {
-        return TJFluidUtils.getFluidCapacityFromTanks(CRYOTHEUM, this.getInputFluidInventory());
+        return TJFluidUtils.getFluidCapacityFromTanks(CRYOTHEUM, this.getImportFluidTank());
     }
 
     @Override

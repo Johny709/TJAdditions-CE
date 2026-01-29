@@ -24,7 +24,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
-import tj.builder.handlers.ParallelElectricBlastFurnaceRecipeLogic;
+import tj.capability.impl.workable.ParallelElectricBlastFurnaceRecipeLogic;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.util.TooltipHelper;

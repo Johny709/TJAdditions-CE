@@ -18,7 +18,7 @@ import net.minecraft.util.text.event.HoverEvent;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.capability.impl.TJBoostableFuelRecipeLogic;
+import tj.capability.impl.workable.TJBoostableFuelRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
 import tj.gui.widgets.AdvancedDisplayWidget;

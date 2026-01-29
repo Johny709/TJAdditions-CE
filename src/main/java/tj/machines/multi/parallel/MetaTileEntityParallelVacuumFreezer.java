@@ -23,7 +23,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.capability.impl.ParallelMultiblockRecipeLogic;
+import tj.capability.impl.workable.ParallelMultiblockRecipeLogic;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;

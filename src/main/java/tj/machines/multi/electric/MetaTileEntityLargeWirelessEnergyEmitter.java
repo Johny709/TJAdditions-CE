@@ -9,8 +9,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
-import tj.builder.handlers.LargeWirelessEnergyWorkableHandler;
-import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.capability.impl.workable.LargeWirelessEnergyWorkableHandler;
+import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.*;
 import tj.gui.TJGuiTextures;
@@ -29,7 +29,6 @@ import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.item.metal.MetalCasing2;
 import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.capability.IEnergyContainer;
-import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.Widget;
@@ -89,20 +88,14 @@ import static gregtech.api.unification.material.Materials.Nitrogen;
 import static gregtech.api.unification.material.Materials.RedSteel;
 import static net.minecraftforge.energy.CapabilityEnergy.ENERGY;
 
-public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDisplayBase implements LinkPos, LinkEvent, IParallelController, IProgressBar {
+public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockControllerBase implements LinkPos, LinkEvent, IParallelController, IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, OUTPUT_ENERGY, MAINTENANCE_HATCH};
     public static final FluidStack NITROGEN_PLASMA = Nitrogen.getPlasma(1);
-    protected final LargeWirelessEnergyWorkableHandler workableHandler = new LargeWirelessEnergyWorkableHandler(this)
-            .setImportEnergySupplier(this::getInputEnergyContainer)
-            .setImportFluidsSupplier(this::getImportFluidHandler)
-            .setTierSupplier(this::getTier)
-            .setResetEnergy(false);
+    protected final LargeWirelessEnergyWorkableHandler workableHandler = new LargeWirelessEnergyWorkableHandler(this);
     private final int pageSize = 4;
 
     protected TransferType transferType;
-    private IMultipleTankHandler importFluidHandler;
-    private IEnergyContainer inputEnergyContainer;
     private int tier;
     private int pageIndex;
 
@@ -136,7 +129,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
                     .voltageTierLine(this.tier)
                     .energyStoredLine(this.getEnergyStored(), this.getEnergyCapacity())
                     .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
-                    .fluidInputLine(this.importFluidHandler, Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
+                    .fluidInputLine(this.importFluidTank, Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
                     .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
 
     }
@@ -400,7 +393,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     private boolean hasEnoughFluid(int amount) {
-        FluidStack fluidStack = this.importFluidHandler.drain(Nitrogen.getPlasma(amount), false);
+        FluidStack fluidStack = this.importFluidTank.drain(Nitrogen.getPlasma(amount), false);
         return fluidStack != null && fluidStack.amount == amount;
     }
 
@@ -445,7 +438,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         }
         this.tier = Math.max(framework, framework2);
         this.inputEnergyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
-        this.importFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
+        this.importFluidTank = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         this.workableHandler.initialize(this.transferType.ordinal());
     }
 
@@ -603,11 +596,11 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
     }
 
     private long getNitrogenAmount() {
-        return TJFluidUtils.getFluidAmountFromTanks(NITROGEN_PLASMA, this.getImportFluidHandler());
+        return TJFluidUtils.getFluidAmountFromTanks(NITROGEN_PLASMA, this.getImportFluidTank());
     }
 
     private long getNitrogenCapacity() {
-        return TJFluidUtils.getFluidCapacityFromTanks(NITROGEN_PLASMA, this.getImportFluidHandler());
+        return TJFluidUtils.getFluidCapacityFromTanks(NITROGEN_PLASMA, this.getImportFluidTank());
     }
 
     @Override
@@ -620,14 +613,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockDispla
         return this.workableHandler.isWorkingEnabled();
     }
 
-    private IEnergyContainer getInputEnergyContainer() {
-        return this.inputEnergyContainer;
-    }
-
-    private IMultipleTankHandler getImportFluidHandler() {
-        return this.importFluidHandler;
-    }
-
+    @Override
     public int getTier() {
         return this.tier;
     }

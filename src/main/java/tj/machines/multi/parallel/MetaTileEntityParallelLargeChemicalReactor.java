@@ -28,7 +28,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import tj.capability.impl.ParallelMultiblockRecipeLogic;
+import tj.capability.impl.workable.ParallelMultiblockRecipeLogic;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;

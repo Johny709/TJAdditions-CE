@@ -32,7 +32,8 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.builder.handlers.FarmingStationWorkableHandler;
+import tj.capability.impl.handler.IFarmerHandler;
+import tj.capability.impl.workable.FarmingStationWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
 import tj.gui.widgets.impl.RecipeOutputSlotWidget;
@@ -54,17 +55,9 @@ import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
 import static tj.gui.TJGuiTextures.*;
 
 
-public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity {
+public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity implements IFarmerHandler {
 
-    private final FarmingStationWorkableHandler workableHandler = new FarmingStationWorkableHandler(this)
-            .setFertilizerInventory(this::getFertilizerInventory)
-            .setImportEnergySupplier(this::getEnergyContainer)
-            .setImportFluidsSupplier(this::getImportFluids)
-            .setImportItemsSupplier(this::getImportItems)
-            .setExportItemsSupplier(this::getExportItems)
-            .setMaxVoltageSupplier(this::getMaxVoltage)
-            .setToolInventory(this::getToolInventory)
-            .setTierSupplier(this::getTier);
+    private final FarmingStationWorkableHandler workableHandler = new FarmingStationWorkableHandler(this);
 
     private final IItemHandlerModifiable seedInventory = new FilteredItemStackHandler(this, 6, this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64)
             .setItemStackPredicate((slot, stack) -> stack.getItem() instanceof IPlantable || Block.getBlockFromItem(stack.getItem()) instanceof IPlantable);
@@ -190,11 +183,13 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
             Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
     }
 
-    private IItemHandlerModifiable getToolInventory() {
+    @Override
+    public IItemHandlerModifiable getToolInventory() {
         return this.toolInventory;
     }
 
-    private IItemHandlerModifiable getFertilizerInventory() {
+    @Override
+    public IItemHandlerModifiable getFertilizerInventory() {
         return this.fertilizerInventory;
     }
 }

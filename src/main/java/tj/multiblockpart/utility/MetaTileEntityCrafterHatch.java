@@ -33,7 +33,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
-import tj.builder.handlers.IRecipeMapProvider;
+import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
 import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.impl.CraftingRecipeTransferWidget;

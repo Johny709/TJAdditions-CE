@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
-import tj.builder.handlers.ArchitectWorkbenchWorkableHandler;
+import tj.capability.impl.workable.ArchitectWorkbenchWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
@@ -28,17 +28,10 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
 public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEntity {
 
-    private final ArchitectWorkbenchWorkableHandler workableHandler = new ArchitectWorkbenchWorkableHandler(this)
-            .setImportEnergySupplier(this::getEnergyContainer)
-            .setImportItemsSupplier(this::getImportItems)
-            .setExportItemsSupplier(this::getExportItems)
-            .setMaxVoltageSupplier(this::getMaxVoltage)
-            .setParallelSupplier(() -> 1)
-            .initialize(1);
+    private final ArchitectWorkbenchWorkableHandler workableHandler = new ArchitectWorkbenchWorkableHandler(this);
 
     public MetaTileEntityArchitectWorkbench(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
-        this.initializeInventory();
     }
 
     @Override

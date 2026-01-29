@@ -3,7 +3,7 @@ package tj.util.references;
 /**
  * Simple boolean holder to pass as reference. Use {@link java.util.concurrent.atomic.AtomicBoolean} for concurrency.
  */
-public class BooleanReference {
+public final class BooleanReference {
 
     private boolean value;
 

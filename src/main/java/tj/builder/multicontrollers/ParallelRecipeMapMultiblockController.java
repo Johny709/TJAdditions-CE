@@ -4,15 +4,9 @@ import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import com.google.common.collect.Lists;
 import gregicadditions.GAUtility;
 import gregicadditions.Gregicality;
 import gregicadditions.capabilities.IMultiRecipe;
-import gregtech.api.capability.IEnergyContainer;
-import gregtech.api.capability.IMultipleTankHandler;
-import gregtech.api.capability.impl.EnergyContainerList;
-import gregtech.api.capability.impl.FluidTankList;
-import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
@@ -50,7 +44,7 @@ import tj.builder.WidgetTabBuilder;
 import tj.capability.IParallelController;
 import tj.capability.IRecipeMap;
 import tj.capability.TJCapabilities;
-import tj.capability.impl.ParallelMultiblockRecipeLogic;
+import tj.capability.impl.workable.ParallelMultiblockRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.impl.GhostCircuitWidget;
@@ -63,7 +57,6 @@ import tj.multiblockpart.utility.MetaTileEntityMachineController;
 
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +69,7 @@ import static gregtech.common.blocks.BlockTurbineCasing.TurbineCasingType.STEEL_
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.gui.TJGuiTextures.*;
 
-public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockDisplayBase implements IParallelController, IMultiRecipe, IMultiblockAbilityPart<IItemHandlerModifiable> {
+public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockControllerBase implements IParallelController, IMultiRecipe, IMultiblockAbilityPart<IItemHandlerModifiable> {
 
     public final RecipeMap<?>[] recipeMaps;
     public ParallelMultiblockRecipeLogic recipeMapWorkable;
@@ -90,12 +83,6 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected int recipeMapIndex;
     protected BatchMode batchMode = BatchMode.ONE;
     protected static final DecimalFormat FORMATTER = new DecimalFormat("#0.00");
-
-    protected IItemHandlerModifiable inputInventory;
-    protected IItemHandlerModifiable outputInventory;
-    protected IMultipleTankHandler inputFluidInventory;
-    protected IMultipleTankHandler outputFluidInventory;
-    protected IEnergyContainer energyContainer;
 
     public ParallelRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?>... recipeMaps) {
         super(metaTileEntityId);
@@ -134,29 +121,9 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         abilityList.add(this.importItems);
     }
 
-    public IEnergyContainer getEnergyContainer() {
-        return this.energyContainer;
-    }
-
-    public IItemHandlerModifiable getInputInventory() {
-        return this.inputInventory;
-    }
-
-    public IItemHandlerModifiable getOutputInventory() {
-        return this.outputInventory;
-    }
-
-    public IMultipleTankHandler getInputFluidInventory() {
-        return this.inputFluidInventory;
-    }
-
-    public IMultipleTankHandler getOutputFluidInventory() {
-        return this.outputFluidInventory;
-    }
-
     @Override
     public long getMaxEUt() {
-        return this.energyContainer.getInputVoltage();
+        return this.inputEnergyContainer.getInputVoltage();
     }
 
     @Override
@@ -339,9 +306,9 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected void addDisplayText(UIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.voltageInLine(this.energyContainer)
+        builder.voltageInLine(this.inputEnergyContainer)
                     .voltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInputLine(this.energyContainer, this.getTotalEnergyConsumption())
+                    .energyInputLine(this.inputEnergyContainer, this.getTotalEnergyConsumption())
                     .energyBonusLine(this.energyBonus, this.isStructureFormed() && this.energyBonus >= 0)
                     .recipeMapLine(this.getMultiblockRecipe());
     }
@@ -529,7 +496,6 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.initializeAbilities();
         int size = this.recipeMapWorkable.getSize();
         for (int i = 0; i < getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).size(); i++) {
             MetaTileEntityMachineController controller = getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).get(i);
@@ -543,7 +509,6 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         for (MetaTileEntityMachineController controller : this.getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER))
             controller.setID(0).setController(null);
         super.invalidateStructure();
-        this.resetTileAbilities();
         this.recipeMapWorkable.invalidate();
         this.maxVoltage = 0;
     }
@@ -553,26 +518,6 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         if (this.isWorkingEnabled)
             for (int i = 0; i < this.recipeMapWorkable.getSize(); i++)
                 this.recipeMapWorkable.update(i);
-    }
-
-    private void initializeAbilities() {
-        List<IItemHandlerModifiable> itemHandlerCollection = new ArrayList<>();
-        itemHandlerCollection.addAll(getAbilities(TJMultiblockAbility.CIRCUIT_SLOT));
-        itemHandlerCollection.addAll(getAbilities(MultiblockAbility.IMPORT_ITEMS));
-
-        this.inputInventory = new ItemHandlerList(itemHandlerCollection);
-        this.inputFluidInventory = new FluidTankList(allowSameFluidFillForOutputs(), getAbilities(MultiblockAbility.IMPORT_FLUIDS));
-        this.outputInventory = new ItemHandlerList(getAbilities(MultiblockAbility.EXPORT_ITEMS));
-        this.outputFluidInventory = new FluidTankList(allowSameFluidFillForOutputs(), getAbilities(MultiblockAbility.EXPORT_FLUIDS));
-        this.energyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
-    }
-
-    private void resetTileAbilities() {
-        this.inputInventory = new ItemStackHandler(0);
-        this.inputFluidInventory = new FluidTankList(true);
-        this.outputInventory = new ItemStackHandler(0);
-        this.outputFluidInventory = new FluidTankList(true);
-        this.energyContainer = new EnergyContainerList(Lists.newArrayList());
     }
 
     protected boolean allowSameFluidFillForOutputs() {

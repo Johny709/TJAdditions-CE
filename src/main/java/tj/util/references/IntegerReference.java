@@ -3,7 +3,7 @@ package tj.util.references;
 /**
  * Simple integer holder to pass as reference. Use {@link java.util.concurrent.atomic.AtomicInteger} for concurrency.
  */
-public class IntegerReference {
+public final class IntegerReference {
 
     private int value;
 

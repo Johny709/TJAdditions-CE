@@ -12,7 +12,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import tj.capability.impl.XLTurbineWorkableHandler;
+import tj.capability.impl.workable.XLTurbineWorkableHandler;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;

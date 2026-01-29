@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
-import tj.builder.handlers.ChiselWorkbenchWorkableHandler;
+import tj.capability.impl.workable.ChiselWorkbenchWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
@@ -27,17 +27,10 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
 public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntity {
 
-    private final ChiselWorkbenchWorkableHandler workableHandler = new ChiselWorkbenchWorkableHandler(this)
-            .setImportEnergySupplier(this::getEnergyContainer)
-            .setImportItemsSupplier(this::getImportItems)
-            .setExportItemsSupplier(this::getExportItems)
-            .setMaxVoltageSupplier(this::getMaxVoltage)
-            .setParallelSupplier(() -> 1)
-            .initialize(1);
+    private final ChiselWorkbenchWorkableHandler workableHandler = new ChiselWorkbenchWorkableHandler(this);
 
     public MetaTileEntityChiselWorkbench(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
-        this.initializeInventory();
     }
 
     @Override

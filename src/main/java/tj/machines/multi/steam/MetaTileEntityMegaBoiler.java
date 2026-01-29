@@ -9,8 +9,9 @@ import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.multiblock.BlockWorldState;
 import org.apache.commons.lang3.ArrayUtils;
-import tj.builder.handlers.MegaBoilerRecipeLogic;
-import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.capability.impl.handler.IBoilerHandler;
+import tj.capability.impl.workable.MegaBoilerRecipeLogic;
+import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
@@ -66,29 +67,19 @@ import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.unification.material.Materials.Water;
 
-public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements IProgressBar {
+public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase implements IProgressBar, IBoilerHandler {
 
     private static final MultiblockAbility<?>[] OUTPUT_ABILITIES = {MultiblockAbility.EXPORT_FLUIDS, TJMultiblockAbility.STEAM_OUTPUT};
-    private final MegaBoilerRecipeLogic boilerRecipeLogic = new MegaBoilerRecipeLogic(this, this::getHeatEfficiencyMultiplier, this::getFuelConsumedMultiplier, this::getBaseSteamOutput, this::getMaxTemperature)
-            .setImportFluidsSupplier(this::getFluidImportInventory)
-            .setImportItemsSupplier(this::getItemImportInventory)
-            .setExportItemsSupplier(this::getItemExportInventory)
-            .setExportFluidsSupplier(this::getSteamOutputTank)
-            .setActive(this::replaceFireboxAsActive)
-            .setParallelSupplier(this::getParallel);
+    private final MegaBoilerRecipeLogic boilerRecipeLogic = new MegaBoilerRecipeLogic(this);
     private final Set<BlockPos> activeStates = new HashSet<>();
     private final int parallel;
     private final MetaTileEntityLargeBoiler.BoilerType boilerType;
-
-    private FluidTankList fluidImportInventory;
-    private FluidTankList steamOutputTank;
-    private ItemHandlerList itemImportInventory;
-    private ItemHandlerList itemExportInventory;
 
     public MetaTileEntityMegaBoiler(ResourceLocation metaTileEntityId, MetaTileEntityLargeBoiler.BoilerType boilerType, int parallel) {
         super(metaTileEntityId);
         this.boilerType = boilerType;
         this.parallel = parallel;
+        this.boilerRecipeLogic.setActive(this::replaceFireboxAsActive);
         this.reinitializeStructurePattern();
     }
 
@@ -129,19 +120,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
         fluidTanks.addAll(this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
         fluidTanks.addAll(this.getAbilities(TJMultiblockAbility.STEAM_OUTPUT));
 
-        this.fluidImportInventory = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
-        this.steamOutputTank = new FluidTankList(true, fluidTanks);
-        this.itemImportInventory = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
-        this.itemExportInventory = new ItemHandlerList(this.getAbilities(MultiblockAbility.EXPORT_ITEMS));
-    }
-
-    @Override
-    public void invalidateStructure() {
-        super.invalidateStructure();
-        this.fluidImportInventory = new FluidTankList(true);
-        this.steamOutputTank = new FluidTankList(true);
-        this.itemImportInventory = new ItemHandlerList(Collections.emptyList());
-        this.itemExportInventory = new ItemHandlerList(Collections.emptyList());
+        this.exportFluidTank = new FluidTankList(true, fluidTanks);
     }
 
     private void replaceFireboxAsActive(boolean isActive) {
@@ -169,7 +148,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
         int amount = (int) this.boilerRecipeLogic.getConsumption();
         FluidStack water = Water.getFluid(amount);
         builder.temperatureLine(this.boilerRecipeLogic.heat(), this.boilerType.maxTemperature)
-                .fluidInputLine(this.fluidImportInventory, water)
+                .fluidInputLine(this.importFluidTank, water)
                 .customLine(text -> {
                     text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.boilerRecipeLogic.getProduction(), this.boilerType.baseSteamOutput));
 
@@ -198,11 +177,6 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
         int modifier = componentData.equals("add") ? 1 : -1;
         int result = (clickData.isShiftClick ? 1 : 5) * modifier;
         this.boilerRecipeLogic.setThrottlePercentage(MathHelper.clamp(this.boilerRecipeLogic.getThrottlePercentage() + result, 20, 100));
-    }
-
-    private double getHeatEfficiencyMultiplier() {
-        double temperature = this.boilerRecipeLogic.heat() / (this.boilerType.maxTemperature * 1.0);
-        return 1.0 + Math.round(this.boilerType.temperatureEffBuff * temperature) / 100.0;
     }
 
     @Override
@@ -313,6 +287,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
                 .setLocale("tj.multiblock.bars.heat"));
     }
 
+    @Override
     public int getParallel() {
         return this.parallel;
     }
@@ -337,31 +312,24 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockDisplayBase implements
         return GTValues.MODID + ":" + RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.getUnlocalizedName();
     }
 
-    private ItemHandlerList getItemImportInventory() {
-        return this.itemImportInventory;
+    @Override
+    public double getHeatEfficiencyMultiplier() {
+        double temperature = this.boilerRecipeLogic.heat() / (this.boilerType.maxTemperature * 1.0);
+        return 1.0 + Math.round(this.boilerType.temperatureEffBuff * temperature) / 100.0;
     }
 
-    private ItemHandlerList getItemExportInventory() {
-        return this.itemExportInventory;
-    }
-
-    private FluidTankList getFluidImportInventory() {
-        return this.fluidImportInventory;
-    }
-
-    private FluidTankList getSteamOutputTank() {
-        return this.steamOutputTank;
-    }
-
-    private float getFuelConsumedMultiplier() {
+    @Override
+    public double getFuelConsumptionMultiplier() {
         return this.boilerType.fuelConsumptionMultiplier;
     }
 
-    private int getBaseSteamOutput() {
+    @Override
+    public int getBaseSteamOutput() {
         return this.boilerType.baseSteamOutput;
     }
 
-    private int getMaxTemperature() {
+    @Override
+    public int getMaxTemperature() {
         return this.boilerType.maxTemperature;
     }
 }

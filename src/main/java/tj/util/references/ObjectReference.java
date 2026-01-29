@@ -4,7 +4,7 @@ package tj.util.references;
  * Simple object holder to pass as reference. Use {@link java.util.concurrent.atomic.AtomicReference} for concurrency.
  * @param <V> Type of object to hold.
  */
-public class ObjectReference<V> {
+public final class ObjectReference<V> {
 
     private V value;
 

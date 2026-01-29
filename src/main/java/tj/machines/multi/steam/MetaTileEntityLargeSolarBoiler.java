@@ -44,7 +44,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.blocks.AbilityBlocks;
 import tj.blocks.TJMetaBlocks;
-import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IHeatInfo;
 import tj.capability.IProgressBar;
@@ -65,7 +65,7 @@ import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
 import static gregtech.api.unification.material.Materials.*;
 
-public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase implements IWorkable, IHeatInfo, IProgressBar {
+public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase implements IWorkable, IHeatInfo, IProgressBar {
 
     private static final FluidStack WATER = Water.getFluid(1);
     private static final FluidStack DISTILLED_WATER = DistilledWater.getFluid(1);

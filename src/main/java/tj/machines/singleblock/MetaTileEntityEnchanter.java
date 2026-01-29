@@ -19,7 +19,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
-import tj.builder.handlers.EnchanterWorkableHandler;
+import tj.capability.impl.workable.EnchanterWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
@@ -37,14 +37,7 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
 public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
 
-    private final EnchanterWorkableHandler workableHandler = new EnchanterWorkableHandler(this)
-            .setImportEnergySupplier(this::getEnergyContainer)
-            .setImportFluidsSupplier(this::getImportFluids)
-            .setImportItemsSupplier(this::getImportItems)
-            .setExportItemsSupplier(this::getExportItems)
-            .setMaxVoltageSupplier(this::getMaxVoltage)
-            .setTierSupplier(this::getTier)
-            .setParallelSupplier(() -> 1);
+    private final EnchanterWorkableHandler workableHandler = new EnchanterWorkableHandler(this);
     private final IFluidTank tank;
 
     public MetaTileEntityEnchanter(ResourceLocation metaTileEntityId, int tier) {

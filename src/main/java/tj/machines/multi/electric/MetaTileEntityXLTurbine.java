@@ -17,7 +17,7 @@ import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.capability.impl.XLTurbineWorkableHandler;
+import tj.capability.impl.workable.XLTurbineWorkableHandler;
 import tj.builder.multicontrollers.TJRotorHolderMultiblockControllerBase;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.GAMetaItems;

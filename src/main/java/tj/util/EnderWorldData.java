@@ -1,7 +1,7 @@
 package tj.util;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import tj.builder.handlers.BasicEnergyHandler;
+import tj.capability.impl.workable.BasicEnergyHandler;
 import tj.items.covers.EnderCoverProfile;
 import tj.items.handlers.LargeItemStackHandler;
 import net.minecraft.nbt.NBTTagCompound;

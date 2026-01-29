@@ -14,8 +14,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
-import tj.builder.handlers.AcceleratorWorkableHandler;
-import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.capability.impl.workable.AcceleratorWorkableHandler;
+import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.*;
 import tj.gui.TJGuiTextures;
@@ -36,10 +36,6 @@ import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.block.machines.BlockMachine;
-import gregtech.api.capability.IEnergyContainer;
-import gregtech.api.capability.IMultipleTankHandler;
-import gregtech.api.capability.impl.EnergyContainerList;
-import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -79,22 +75,15 @@ import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
-import static tj.builder.handlers.AcceleratorWorkableHandler.AcceleratorMode.*;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.unification.material.Materials.UUMatter;
 
-public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase implements AcceleratorBlacklist, LinkPos, LinkEvent, IParallelController, IProgressBar {
+public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockControllerBase implements AcceleratorBlacklist, LinkPos, LinkEvent, IParallelController, IProgressBar {
 
     private static final FluidStack UUMATTER = UUMatter.getFluid(1);
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    private final AcceleratorWorkableHandler workableHandler = new AcceleratorWorkableHandler(this)
-            .setImportFluidsSupplier(this::getImportFluidHandler)
-            .setImportEnergySupplier(this::getEnergyContainer)
-            .setTierSupplier(this::getTier)
-            .setResetEnergy(false);
-    private IMultipleTankHandler importFluidHandler;
-    private IEnergyContainer energyContainer;
+    private final AcceleratorWorkableHandler workableHandler = new AcceleratorWorkableHandler(this);
     private int tier;
     private final int pageSize = 4;
     private int pageIndex;
@@ -139,11 +128,11 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         boolean randomTick = this.workableHandler.getAcceleratorMode() == AcceleratorWorkableHandler.AcceleratorMode.RANDOM_TICK;
-        boolean tileEntity = this.workableHandler.getAcceleratorMode() == TILE_ENTITY;
-        builder.voltageInLine(this.energyContainer)
+        boolean tileEntity = this.workableHandler.getAcceleratorMode() == AcceleratorWorkableHandler.AcceleratorMode.TILE_ENTITY;
+        builder.voltageInLine(this.inputEnergyContainer)
                 .voltageTierLine(this.tier)
-                .energyInputLine(this.energyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
-                .fluidInputLine(this.importFluidHandler, UUMatter.getFluid(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
+                .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
+                .fluidInputLine(this.importFluidTank, UUMatter.getFluid(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
                 .customLine(text -> text.addTextComponent(randomTick ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.entity")
                         : tileEntity ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.tile")
                         : new TextComponentTranslation("tj.multiblock.large_world_accelerator.mode.GT")))
@@ -368,8 +357,6 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         FieldGenCasing.CasingType fieldGen = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV);
         EmitterCasing.CasingType emitter = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV);
         this.tier = Math.min(fieldGen.getTier(), emitter.getTier());
-        this.energyContainer = new EnergyContainerList(getAbilities(INPUT_ENERGY));
-        this.importFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         this.workableHandler.initialize(1);
     }
 
@@ -489,7 +476,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
 
     @Override
     public long getMaxEUt() {
-        return this.energyContainer.getInputVoltage();
+        return this.inputEnergyContainer.getInputVoltage();
     }
 
     @Override
@@ -529,11 +516,11 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
     }
 
     private double getUUMatterAmount() {
-        return TJFluidUtils.getFluidAmountFromTanks(UUMATTER, this.getImportFluidHandler());
+        return TJFluidUtils.getFluidAmountFromTanks(UUMATTER, this.getImportFluidTank());
     }
 
     private double getUUMatterCapacity() {
-        return TJFluidUtils.getFluidCapacityFromTanks(UUMATTER, this.getImportFluidHandler());
+        return TJFluidUtils.getFluidCapacityFromTanks(UUMATTER, this.getImportFluidTank());
     }
 
     @Override
@@ -546,15 +533,8 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockDisplayBase
         return this.workableHandler.isWorkingEnabled();
     }
 
-    private IMultipleTankHandler getImportFluidHandler() {
-        return importFluidHandler;
-    }
-
-    private IEnergyContainer getEnergyContainer() {
-        return energyContainer;
-    }
-
+    @Override
     public int getTier() {
-        return tier;
+        return this.tier;
     }
 }
