@@ -1,4 +1,4 @@
-package tj.mixin.gregtech;
+package tj.mixin.gregtech.client;
 
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.impl.ModularUIGui;

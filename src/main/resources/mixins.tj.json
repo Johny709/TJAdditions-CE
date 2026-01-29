@@ -62,9 +62,9 @@
   ],
   "server": [],
   "client": [
-    "gregtech.IMultiblockInfoRecipeWrapperMixin",
-    "gregtech.ModularUIGuiMixin",
-    "gregtech.MultiblockInfoRecipeWrapperMixin",
+    "gregtech.client.IMultiblockInfoRecipeWrapperMixin",
+    "gregtech.client.ModularUIGuiMixin",
+    "gregtech.client.MultiblockInfoRecipeWrapperMixin",
     "jei.InputHandlerMixin"
   ]
 }

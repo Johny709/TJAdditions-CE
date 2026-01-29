@@ -48,8 +48,8 @@ public class IndustrialFusionReactorInfo extends MultiblockInfoPage {
                     .where('C', fusionReactor.getCasingState())
                     .where('c', fusionReactor.getCoilState())
                     .where('E', tier < 9 ? MetaTileEntities.ENERGY_INPUT_HATCH[tier] : GATileEntities.ENERGY_INPUT[tier - 9], EnumFacing.WEST)
-                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(tier, 9)], EnumFacing.WEST)
-                    .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(tier, 9)], EnumFacing.WEST);
+                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
+                    .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.WEST);
             shapes.add(builder.build());
         }
         return shapes;

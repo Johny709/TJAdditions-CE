@@ -47,9 +47,9 @@ public class LargeAtmosphereCollectorInfo extends MultiblockInfoPage {
                 .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[3 + turbineType.ordinal()], EnumFacing.DOWN)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
         for (int tier = 0; tier < 15; tier++) {
-            shapeInfos.add(builder.where('F', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], EnumFacing.NORTH)
-                    .where('f', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.UP)
-                    .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], EnumFacing.DOWN)
+            shapeInfos.add(builder.where('F', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.NORTH)
+                    .where('f', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.UP)
+                    .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.DOWN)
                     .build());
         }
         return shapeInfos;

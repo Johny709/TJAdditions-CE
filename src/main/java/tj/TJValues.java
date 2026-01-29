@@ -11,7 +11,9 @@ import java.text.DecimalFormat;
 import static gregicadditions.GAMaterials.*;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.*;
 
-public class TJValues {
+public final class TJValues {
+
+    private TJValues() {}
 
     public static final int[] VC = {0x6b5f55, 0x9b9b9b, 0xf78b2c, 0xffb900, 0x656565, 0xffffff, 0xffb0b0, 0xffe9e9, 0xc6ffad, 0xffc4f8, 0x2776ff, 0xf0ff00, 0x9500cd, 0xff6565, 0xfff7f7};
     public static final String[] VCC = {"§c", "§7", "§6", "§e", "§8", "§a", "§d", "§b", "§2", "§9", "§5", "§1§l", "§c§l§n", "§4§l§n", "§f§l§n"};

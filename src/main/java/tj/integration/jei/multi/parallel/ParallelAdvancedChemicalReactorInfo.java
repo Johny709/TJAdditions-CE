@@ -4,12 +4,9 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
-import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
-import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
-import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -18,6 +15,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.ArrayList;
@@ -37,11 +35,11 @@ public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage im
     }
 
     @Override
-    public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
-        List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+    public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
+        List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
         int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
         for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
+            TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
             if (!(shapeInfo % 2 == 0)) {
                 builder.aisle("C~~~C~CCCCC~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CCCCC~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CCCCC~~~~~~");
                 builder.aisle("CCCCC~F~~~F~~~~~~", "CcccC~~~P~~~~~~~~", "CPPPPPPPpP~~~~~~~", "CcccC~~~P~~~~~~~~", "CCCCC~F~~~F~~~~~~");
@@ -64,7 +62,7 @@ public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage im
             builder.aisle(shapeInfo > 1 ?
                     new String[]{"C~~~C~IiSOo~C~~~C", "CCCCC~CCCCC~CCCCC", "C~~~C~CCCCC~C~~~C", "CCCCC~CCCCC~CCCCC", "C~~~C~CMECC~C~~~C"} :
                     new String[]{"C~~~C~IiSOo~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CCCCC~~~~~~", "CCCCC~CCCCC~~~~~~", "C~~~C~CMECC~~~~~~"});
-            MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+            TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
             for (int tier = 0; tier < infos.length; tier++) {
                 infos[tier] = builder.where('S', this.getController(), WEST)
                         .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
@@ -75,10 +73,10 @@ public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage im
                         .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
                         .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
                         .where('E', this.getEnergyHatch(tier, false), EAST)
-                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], WEST)
-                        .where('i', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], WEST)
-                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], WEST)
-                        .where('o', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], WEST)
+                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[tier], WEST)
+                        .where('i', MetaTileEntities.ITEM_IMPORT_BUS[tier], WEST)
+                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[tier], WEST)
+                        .where('o', MetaTileEntities.ITEM_EXPORT_BUS[tier], WEST)
                         .build();
             }
             shapeInfos.add(infos);

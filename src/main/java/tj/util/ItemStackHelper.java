@@ -10,7 +10,9 @@ import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
 
 
-public class ItemStackHelper {
+public final class ItemStackHelper {
+
+    private ItemStackHelper() {}
 
     /**
      * Tries to insert ItemStack into player's main inventory. Make sure to return a new copy of ItemStack before inserting an item from ItemHandler

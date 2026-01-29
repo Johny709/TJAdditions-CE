@@ -2,13 +2,9 @@ package tj.integration.jei.multi.parallel;
 
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
-import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
-import gregtech.api.GTValues;
-import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
-import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
@@ -18,6 +14,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.ArrayList;
@@ -35,11 +32,11 @@ public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage imple
     }
 
     @Override
-    public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
-        List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+    public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
+        List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
         int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
         for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
+            TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
             builder.aisle("CCMCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC");
             for (int layer = 0; layer < shapeInfo; layer++) {
                 builder.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F");
@@ -47,7 +44,7 @@ public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage imple
             }
             builder.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F")
                     .aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCECC");
-            MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+            TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
             for (int tier = 0; tier < infos.length; tier++) {
                 infos[tier] = builder.where('S', this.getController(), EnumFacing.WEST)
                         .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
@@ -56,10 +53,10 @@ public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage imple
                         .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
                         .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                         .where('E', this.getEnergyHatch(tier, false), EnumFacing.WEST)
-                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
-                        .where('i', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
-                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
-                        .where('o', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
+                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
+                        .where('i', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)
+                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.WEST)
+                        .where('o', MetaTileEntities.ITEM_EXPORT_BUS[tier], EnumFacing.WEST)
                         .build();
             }
             shapeInfos.add(infos);

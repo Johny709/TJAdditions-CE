@@ -1,4 +1,4 @@
-package tj.mixin.gregtech;
+package tj.mixin.gregtech.client;
 
 import gregtech.integration.jei.multiblock.MultiblockInfoRecipeWrapper;
 import mezz.jei.gui.recipes.RecipeLayout;

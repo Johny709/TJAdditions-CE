@@ -44,9 +44,9 @@ public class ChaosReplicatorInfo extends TJMultiblockInfoPage {
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
         for (int tier = 0; tier < 15; tier++) {
             shapeInfos.add(builder.where('K', this.getEnergyHatch(tier, false), EnumFacing.SOUTH)
-                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
-                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
-                    .where('J', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.NORTH)
+                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)
+                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[tier], EnumFacing.WEST)
+                    .where('J', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.NORTH)
                     .build());
         }
         return shapeInfos;

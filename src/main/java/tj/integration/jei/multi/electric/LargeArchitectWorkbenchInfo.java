@@ -3,12 +3,10 @@ package tj.integration.jei.multi.electric;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.ConveyorCasing;
 import gregicadditions.item.components.RobotArmCasing;
-import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
-import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
@@ -17,6 +15,7 @@ import net.minecraft.util.text.TextFormatting;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ExtendableMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
@@ -33,18 +32,18 @@ public class LargeArchitectWorkbenchInfo extends TJMultiblockInfoPage implements
     }
 
     @Override
-    public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
-        List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+    public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
+        List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
         int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
         for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT);
+            TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT);
             for (int layer = 0; layer < shapeInfo; layer++) {
                 String power = layer == 0 ? "CEC" : "CCC";
                 builder.aisle(power, "CCC", "~~~", "~~~");
                 builder.aisle("CCC", "CcC", "C#C", "CrC");
             }
             builder.aisle("CMC", "ISO", "~~~", "~~~");
-            MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+            TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
             for (int tier = 0; tier < infos.length; tier++) {
                 infos[tier] = builder.where('S', this.getController(), EnumFacing.WEST)
                         .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
@@ -52,8 +51,8 @@ public class LargeArchitectWorkbenchInfo extends TJMultiblockInfoPage implements
                         .where('r', GAMetaBlocks.ROBOT_ARM_CASING.getState(RobotArmCasing.CasingType.values()[Math.max(0, tier - 1)]))
                         .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                         .where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
-                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
-                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], EnumFacing.WEST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)
+                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[tier], EnumFacing.WEST)
                         .build();
             }
             shapeInfos.add(infos);

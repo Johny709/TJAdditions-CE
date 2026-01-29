@@ -48,7 +48,7 @@ public class LargeWirelessEnergyEmitterInfo extends TJMultiblockInfoPage {
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST);
         for (int tier = 0; tier < 15; tier++) {
             shapeInfos.add(builder.where('E', this.transferType == INPUT ? this.getEnergyHatch(tier, false) : this.getEnergyHatch(tier, true), EnumFacing.EAST)
-                    .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
+                    .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
                     .where('I', this.getVoltageCasing(tier))
                     .build());
         }

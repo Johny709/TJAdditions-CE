@@ -6,7 +6,9 @@ import net.minecraftforge.fluids.IFluidTank;
 
 import java.util.function.BiConsumer;
 
-public class TJFluidUtils {
+public final class TJFluidUtils {
+
+    private TJFluidUtils() {}
 
     public static long getFluidAmountFromTanks(FluidStack fluidStack, IMultipleTankHandler tanks) {
         if (fluidStack == null || tanks == null)
