@@ -1,7 +1,6 @@
 package tj.machines.multi.parallel;
 
 import tj.TJConfig;
-import tj.builder.ParallelRecipeMap;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.item.components.PumpCasing;
@@ -13,7 +12,6 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -33,7 +31,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static tj.TJRecipeMaps.*;
 import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
@@ -48,7 +45,7 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
 
     public MetaTileEntityParallelLargeCanningMachine(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CANNER_RECIPES, PARALLEL_FLUID_CANNER_RECIPES, PARALLEL_FLUID_SOLIDIFICATION_RECIPES});
+        super(metaTileEntityId, GATileEntities.LARGE_CANNING_MACHINE.getRecipeMaps());
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
@@ -138,10 +135,5 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeCanningMachine.maximumParallel;
-    }
-
-    @Override
-    public RecipeMap<?>[] getRecipeMaps() {
-        return GATileEntities.LARGE_CANNING_MACHINE.getRecipeMaps();
     }
 }

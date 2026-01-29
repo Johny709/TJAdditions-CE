@@ -141,7 +141,6 @@ public class CommonProxy {
 
     }
     public void onPostLoad() {
-        TJRecipeMaps.parallelRecipesInit();
         LateRecipes.init();
     }
 }

@@ -5,6 +5,7 @@ import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.metal.MetalCasing1;
+import gregicadditions.machines.GATileEntities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -13,7 +14,6 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.common.blocks.BlockBoilerCasing;
@@ -27,7 +27,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
-import tj.builder.ParallelRecipeMap;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IProgressBar;
@@ -46,8 +45,6 @@ import static gregicadditions.GAMaterials.Cryotheum;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.VACUUM_RECIPES;
-import static tj.TJRecipeMaps.PARALLEL_VACUUM_RECIPES;
 import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.CRYOTHEUM;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
@@ -58,7 +55,7 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     private FluidStack cryotheum;
 
     public MetaTileEntityParallelCryogenicFreezer(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_VACUUM_RECIPES});
+        super(metaTileEntityId, GATileEntities.VACUUM_FREEZER.recipeMap);
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack) {
 
             @Override
@@ -187,10 +184,5 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelCryogenicFreezer.maximumParallel;
-    }
-
-    @Override
-    public RecipeMap<?>[] getRecipeMaps() {
-        return new RecipeMap[]{VACUUM_RECIPES};
     }
 }

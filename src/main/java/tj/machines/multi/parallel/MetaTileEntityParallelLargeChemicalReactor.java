@@ -1,9 +1,9 @@
 package tj.machines.multi.parallel;
 
+import gregicadditions.machines.GATileEntities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.recipes.Recipe;
 import tj.TJConfig;
-import tj.builder.ParallelRecipeMap;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregicadditions.GAConfig;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
@@ -18,7 +18,6 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
@@ -38,9 +37,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
-import static tj.TJRecipeMaps.PARALLEL_CHEMICAL_REACTOR_RECIPES;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
-import static gregicadditions.recipes.GARecipeMaps.LARGE_CHEMICAL_RECIPES;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
 
@@ -50,7 +47,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
     public MetaTileEntityParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CHEMICAL_REACTOR_RECIPES});
+        super(metaTileEntityId, GATileEntities.LARGE_CHEMICAL_REACTOR.recipeMap);
         this.recipeMapWorkable = new ParallelMultiblockRecipeLogic(this, TJConfig.machines.recipeCacheCapacity) {
 
             @Override
@@ -181,10 +178,5 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelChemicalReactor.maximumParallel;
-    }
-
-    @Override
-    public RecipeMap<?>[] getRecipeMaps() {
-        return new RecipeMap[]{LARGE_CHEMICAL_RECIPES};
     }
 }

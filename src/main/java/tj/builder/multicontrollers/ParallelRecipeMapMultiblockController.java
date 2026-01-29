@@ -46,9 +46,9 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
-import tj.builder.ParallelRecipeMap;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IParallelController;
+import tj.capability.IRecipeMap;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.ParallelMultiblockRecipeLogic;
 import tj.gui.TJGuiTextures;
@@ -78,7 +78,7 @@ import static tj.gui.TJGuiTextures.*;
 
 public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockDisplayBase implements IParallelController, IMultiRecipe, IMultiblockAbilityPart<IItemHandlerModifiable> {
 
-    public final ParallelRecipeMap[] parallelRecipeMap;
+    public final RecipeMap<?>[] recipeMaps;
     public ParallelMultiblockRecipeLogic recipeMapWorkable;
     protected int parallelLayer = 1;
     protected int energyBonus = -1;
@@ -97,9 +97,9 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected IMultipleTankHandler outputFluidInventory;
     protected IEnergyContainer energyContainer;
 
-    public ParallelRecipeMapMultiblockController(ResourceLocation metaTileEntityId, ParallelRecipeMap[] recipeMap) {
+    public ParallelRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?>... recipeMaps) {
         super(metaTileEntityId);
-        this.parallelRecipeMap = recipeMap;
+        this.recipeMaps = recipeMaps;
     }
 
     @Override
@@ -192,7 +192,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     @Override
     public RecipeMap<?> getMultiblockRecipe() {
-        return this.parallelRecipeMap[this.recipeMapIndex].getRecipeMap();
+        return this.recipeMaps[this.recipeMapIndex];
     }
 
     /**
@@ -212,7 +212,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
      */
     @Override
     public void addRecipeMaps(RecipeMap<?>[] recipeMaps) {
-        ArrayUtils.addAll(this.parallelRecipeMap, recipeMaps);
+        ArrayUtils.addAll(this.recipeMaps, recipeMaps);
     }
 
     /**
@@ -325,7 +325,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     private void setRecipe(List<ItemStack> itemInputs, List<ItemStack> itemOutputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutput, EntityPlayer player) {
         for (int i = 0; i < this.recipeMapWorkable.getSize(); i++) {
             if (this.recipeMapWorkable.getRecipe(i) == null) {
-                Recipe newRecipe = this.parallelRecipeMap[this.getRecipeMapIndex()].findByInputsAndOutputs(this.maxVoltage, itemInputs, itemOutputs, fluidInputs, fluidOutput);
+                Recipe newRecipe = ((IRecipeMap) this.recipeMaps[this.getRecipeMapIndex()]).findByInputsAndOutputs(this.maxVoltage, itemInputs, itemOutputs, fluidInputs, fluidOutput);
                 this.recipeMapWorkable.setRecipe(newRecipe, i);
                 player.sendMessage(newRecipe != null ? this.displayRecipe(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.recipe.transfer.success", i + 1)), newRecipe, 1)
                         : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.recipe.transfer.fail_2", i + 1)));
@@ -351,7 +351,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         if (this.recipeMapWorkable.isActive())
             return;
         this.recipeMapWorkable.previousRecipe.clear();
-        this.recipeMapIndex = this.recipeMapIndex >= this.parallelRecipeMap.length - 1 ? 0 : this.recipeMapIndex + 1;
+        this.recipeMapIndex = this.recipeMapIndex >= this.recipeMaps.length - 1 ? 0 : this.recipeMapIndex + 1;
         if (!this.getWorld().isRemote) {
             this.writeCustomData(RECIPE_MAP_INDEX, buf -> buf.writeInt(this.recipeMapIndex));
             this.markDirty();
@@ -588,8 +588,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         //noinspection SuspiciousMethodCalls
         int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
 
-        return itemInputsCount >= this.parallelRecipeMap[this.getRecipeMapIndex()].getMinInputs() &&
-                fluidInputsCount >= this.parallelRecipeMap[this.getRecipeMapIndex()].getMinFluidInputs() &&
+        return itemInputsCount >= this.recipeMaps[this.getRecipeMapIndex()].getMinInputs() &&
+                fluidInputsCount >= this.recipeMaps[this.getRecipeMapIndex()].getMinFluidInputs() &&
                 abilities.containsKey(MultiblockAbility.INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
     }
 
@@ -734,6 +734,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     @Override
     public void removeFromMultiBlock(MultiblockControllerBase multiblockControllerBase) {}
+
+    @Override
+    public RecipeMap<?>[] getRecipeMaps() {
+        return this.recipeMaps;
+    }
 
     @Override
     public String getRecipeUid() {

@@ -25,6 +25,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.capability.IMultipleWorkable;
+import tj.capability.IRecipeMap;
 import tj.capability.TJCapabilities;
 import tj.util.ItemStackHelper;
 
@@ -346,7 +347,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     }
 
     protected Recipe findRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, boolean useOptimizedRecipeLookUp) {
-        return this.controller.parallelRecipeMap[this.controller.getRecipeMapIndex()].findRecipe(maxVoltage, inputs, fluidInputs, getMinTankCapacity(getOutputTank()), useOptimizedRecipeLookUp, this.occupiedRecipes, distinct);
+        return ((IRecipeMap) this.controller.recipeMaps[this.controller.getRecipeMapIndex()]).findRecipeDistinct(maxVoltage, inputs, fluidInputs, getMinTankCapacity(getOutputTank()), useOptimizedRecipeLookUp, this.occupiedRecipes, distinct);
     }
 
     protected boolean checkRecipeInputsDirty(IItemHandler inputs, IMultipleTankHandler fluidInputs) {
@@ -837,7 +838,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             }
 
             Recipe recipe = new Recipe(inputIngredients, itemOutputs, chanceOutputs, fluidInputs, fluidOutputs, duration, energy, false);
-            this.occupiedRecipes.set(index, this.controller.parallelRecipeMap[this.controller.getRecipeMapIndex()].findRecipe(recipe));
+            this.occupiedRecipes.set(index, ((IRecipeMap) this.controller.recipeMaps[this.controller.getRecipeMapIndex()]).findRecipe(recipe));
             this.parallel[index] = parallel;
         }
     }

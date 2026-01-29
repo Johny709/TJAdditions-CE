@@ -5,6 +5,7 @@ import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.metal.MetalCasing1;
+import gregicadditions.machines.GATileEntities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -13,7 +14,6 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -29,7 +29,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
-import tj.builder.ParallelRecipeMap;
 import tj.builder.handlers.ParallelVolcanusRecipeLogic;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.builder.multicontrollers.UIDisplayBuilder;
@@ -49,8 +48,6 @@ import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENAN
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.BLAST_RECIPES;
-import static tj.TJRecipeMaps.PARALLEL_BLAST_RECIPES;
 import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelter.heatingCoilPredicate;
 import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelter.heatingCoilPredicate2;
 import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.PYROTHEUM;
@@ -66,7 +63,7 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     private int bonusTemperature;
 
     public MetaTileEntityParallelVolcanus(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BLAST_RECIPES});
+        super(metaTileEntityId, GATileEntities.VOLCANUS.recipeMap);
         this.recipeMapWorkable = new ParallelVolcanusRecipeLogic(this, this::getBlastFurnaceTemperature, this::getPyroConsumeAmount, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
@@ -204,10 +201,5 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelVolcanus.maximumParallel;
-    }
-
-    @Override
-    public RecipeMap<?>[] getRecipeMaps() {
-        return new RecipeMap[]{BLAST_RECIPES};
     }
 }

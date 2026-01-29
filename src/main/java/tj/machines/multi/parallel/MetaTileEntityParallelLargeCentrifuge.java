@@ -1,7 +1,8 @@
 package tj.machines.multi.parallel;
 
+import gregicadditions.recipes.GARecipeMaps;
+import gregtech.api.recipes.RecipeMaps;
 import tj.TJConfig;
-import tj.builder.ParallelRecipeMap;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.client.ClientHandler;
@@ -17,7 +18,6 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -38,9 +38,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
-import static gregicadditions.machines.GATileEntities.*;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
-import static tj.TJRecipeMaps.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
@@ -50,7 +48,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH, IMPORT_FLUIDS, EXPORT_FLUIDS, REDSTONE_CONTROLLER};
 
     public MetaTileEntityParallelLargeCentrifuge(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CENTRIFUGE_RECIPES, PARALLEL_THERMAL_CENTRIFUGE_RECIPES, PARALLEL_GAS_CENTRIFUGE_RECIPES});
+        super(metaTileEntityId, GARecipeMaps.LARGE_CENTRIFUGE_RECIPES, RecipeMaps.THERMAL_CENTRIFUGE_RECIPES, GARecipeMaps.GAS_CENTRIFUGE_RECIPES);
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack) {
 
             @Override
@@ -158,10 +156,5 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeCentrifuge.maximumParallel;
-    }
-
-    @Override
-    public RecipeMap<?>[] getRecipeMaps() {
-        return new RecipeMap[]{LARGE_CENTRIFUGE.recipeMap, LARGE_THERMAL_CENTRIFUGE.recipeMap, GAS_CENTRIFUGE.recipeMap};
     }
 }

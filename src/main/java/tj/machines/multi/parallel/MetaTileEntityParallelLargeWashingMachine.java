@@ -1,7 +1,6 @@
 package tj.machines.multi.parallel;
 
 import tj.TJConfig;
-import tj.builder.ParallelRecipeMap;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.client.ClientHandler;
@@ -18,7 +17,6 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -37,7 +35,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static tj.TJRecipeMaps.*;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
@@ -49,7 +46,7 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH, IMPORT_FLUIDS, EXPORT_FLUIDS, REDSTONE_CONTROLLER};
 
     public MetaTileEntityParallelLargeWashingMachine(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_ORE_WASHER_RECIPES, PARALLEL_CHEMICAL_BATH_RECIPES, PARALLEL_SIMPLE_ORE_WASHER_RECIPES, PARALLEL_AUTOCLAVE_RECIPES});
+        super(metaTileEntityId, GATileEntities.LARGE_WASHING_PLANT.getRecipeMaps());
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
@@ -145,10 +142,5 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeWashingMachine.maximumParallel;
-    }
-
-    @Override
-    public RecipeMap<?>[] getRecipeMaps() {
-        return GATileEntities.LARGE_WASHING_PLANT.getRecipeMaps();
     }
 }

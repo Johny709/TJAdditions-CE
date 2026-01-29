@@ -5,6 +5,7 @@ import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.item.metal.MetalCasing2;
+import gregicadditions.machines.GATileEntities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -28,7 +29,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
-import tj.builder.ParallelRecipeMap;
 import tj.builder.handlers.ParallelElectricBlastFurnaceRecipeLogic;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.builder.multicontrollers.UIDisplayBuilder;
@@ -40,10 +40,8 @@ import java.util.List;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
-import static gregicadditions.recipes.GARecipeMaps.BLAST_ALLOY_RECIPES;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static tj.TJRecipeMaps.PARALLEL_BLAST_ALLOY_RECIPES;
 import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelter.heatingCoilPredicate;
 import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelter.heatingCoilPredicate2;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
@@ -56,7 +54,7 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
 
     public MetaTileEntityParallelAlloyBlastSmelter(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_BLAST_ALLOY_RECIPES});
+        super(metaTileEntityId, GATileEntities.ALLOY_BLAST_FURNACE.recipeMap);
         this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, this::getBlastFurnaceTemperature);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
@@ -158,10 +156,5 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelAlloyBlastSmelter.maximumParallel;
-    }
-
-    @Override
-    public RecipeMap<?>[] getRecipeMaps() {
-        return new RecipeMap[]{BLAST_ALLOY_RECIPES};
     }
 }

@@ -1,7 +1,6 @@
 package tj.machines.multi.parallel;
 
 import tj.TJConfig;
-import tj.builder.ParallelRecipeMap;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.client.ClientHandler;
@@ -17,7 +16,6 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import net.minecraft.block.state.IBlockState;
@@ -33,8 +31,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static tj.TJRecipeMaps.PARALLEL_PACKER_RECIPES;
-import static tj.TJRecipeMaps.PARALLEL_UNPACKER_RECIPES;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.conveyorPredicate;
@@ -50,7 +46,7 @@ public class MetaTileEntityParallelLargePackager extends ParallelRecipeMapMultib
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
 
     public MetaTileEntityParallelLargePackager(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_PACKER_RECIPES, PARALLEL_UNPACKER_RECIPES});
+        super(metaTileEntityId, GATileEntities.LARGE_PACKAGER.getRecipeMaps());
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
@@ -135,10 +131,5 @@ public class MetaTileEntityParallelLargePackager extends ParallelRecipeMapMultib
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargePackager.maximumParallel;
-    }
-
-    @Override
-    public RecipeMap<?>[] getRecipeMaps() {
-        return GATileEntities.LARGE_PACKAGER.getRecipeMaps();
     }
 }

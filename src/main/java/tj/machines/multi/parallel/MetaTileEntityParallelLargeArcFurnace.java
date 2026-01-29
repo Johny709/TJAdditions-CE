@@ -1,11 +1,10 @@
 package tj.machines.multi.parallel;
 
+import gregicadditions.machines.GATileEntities;
 import tj.TJConfig;
-import tj.builder.ParallelRecipeMap;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.item.components.PumpCasing;
-import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -14,7 +13,6 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -35,8 +33,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static tj.TJRecipeMaps.PARALLEL_ARC_FURNACE_RECIPES;
-import static tj.TJRecipeMaps.PARALLEL_PLASMA_ARC_FURNACE_RECIPES;
 import static tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate;
 import static tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate2;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
@@ -53,7 +49,7 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
 
     public MetaTileEntityParallelLargeArcFurnace(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_ARC_FURNACE_RECIPES, PARALLEL_PLASMA_ARC_FURNACE_RECIPES});
+        super(metaTileEntityId, GATileEntities.LARGE_ARC_FURNACE.getRecipeMaps());
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack) {
 
             @Override
@@ -155,10 +151,5 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelLargeArcFurnace.maximumParallel;
-    }
-
-    @Override
-    public RecipeMap<?>[] getRecipeMaps() {
-        return GATileEntities.LARGE_ARC_FURNACE.getRecipeMaps();
     }
 }
