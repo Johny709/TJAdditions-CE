@@ -39,10 +39,12 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
 
     private final EnchanterWorkableHandler workableHandler = new EnchanterWorkableHandler(this);
     private final IFluidTank tank;
+    private final int parallel;
 
     public MetaTileEntityEnchanter(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.tank = new FluidTank(64000);
+        this.parallel = 1 << this.getTier() - 1;
         this.workableHandler.initialize(1);
         this.initializeInventory();
     }
@@ -56,6 +58,7 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.large_enchanter.level.max", this.getTier()));
+        tooltip.add(I18n.format("tj.multiblock.parallel", this.parallel));
     }
 
     @Override
@@ -126,5 +129,10 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
         TJTextures.ENCHANTED_BOOK.renderSided(EnumFacingHelper.getLeftFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.ENCHANTED_BOOK.renderSided(EnumFacingHelper.getRightFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.ENCHANTING_TABLE.renderSided(EnumFacingHelper.getTopFacingFrom(this.frontFacing), renderState, translation, pipeline);
+    }
+
+    @Override
+    public int getParallel() {
+        return this.parallel;
     }
 }

@@ -60,11 +60,13 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
     private final ItemStackHandler resultInventory = new ItemStackHandler(1);
     private final Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = new Int2ObjectOpenHashMap<>();
     private final int encodingSlots;
+    private final int parallel;
     private IRecipe currentRecipe;
 
     public MetaTileEntityCrafter(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.encodingSlots = 6 + (tier * 3);
+        this.parallel = 1 << this.getTier() - 1;
         this.encodingInventory = new ItemStackHandler(this.encodingSlots);
         this.recipeLogic.initialize(1);
     }
@@ -80,6 +82,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.large_crafter.description"));
         tooltip.add(I18n.format("tj.multiblock.large_crafter.slots", this.encodingSlots));
+        tooltip.add(I18n.format("tj.multiblock.parallel", this.parallel));
         tooltip.add(I18n.format("tj.machine.crafter.tooltip"));
         tooltip.add(TooltipHelper.blinkingText(Color.YELLOW, 20, "tj.multiblock.large_crafter.warning"));
     }
@@ -268,5 +271,10 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
     @Override
     public Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> getRecipeMap() {
         return this.recipeMap;
+    }
+
+    @Override
+    public int getParallel() {
+        return this.parallel;
     }
 }

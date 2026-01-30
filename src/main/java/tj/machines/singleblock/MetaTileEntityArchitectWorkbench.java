@@ -8,8 +8,11 @@ import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.render.Textures;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -22,6 +25,9 @@ import tj.gui.widgets.impl.RecipeOutputSlotWidget;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
+import javax.annotation.Nullable;
+import java.util.List;
+
 import static gregtech.api.gui.GuiTextures.*;
 import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
@@ -29,14 +35,23 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEntity {
 
     private final ArchitectWorkbenchWorkableHandler workableHandler = new ArchitectWorkbenchWorkableHandler(this);
+    private final int parallel;
 
     public MetaTileEntityArchitectWorkbench(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
+        this.parallel = 1 << this.getTier() - 1;
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityArchitectWorkbench(this.metaTileEntityId, this.getTier());
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        super.addInformation(stack, player, tooltip, advanced);
+        tooltip.add(I18n.format("tj.multiblock.parallel", this.parallel));
     }
 
     @Override
@@ -102,5 +117,10 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
             Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
         if (this.isAutoOutputFluids())
             Textures.FLUID_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
+    }
+
+    @Override
+    public int getParallel() {
+        return this.parallel;
     }
 }
