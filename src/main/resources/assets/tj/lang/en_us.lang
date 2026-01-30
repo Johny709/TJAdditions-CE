@@ -917,3 +917,12 @@ tj.top.inputs=Inputs:
 tj.top.outputs=Outputs:
 
 item.is.empty=None
+
+item.appliedenergistics2.storage_cell_65m.name=§165m §fME Storage Cell
+item.appliedenergistics2.storage_cell_262m.name=§b262m §fME Storage Cell
+item.appliedenergistics2.storage_cell_1048m.name=§51048m §fME Storage Cell
+item.appliedenergistics2.storage_item_digital_singularity.name=§dDigital Singularity
+item.appliedenergistics2.storage_fluid_cell_65m.name=§165m §fME Fluid Storage Cell
+item.appliedenergistics2.storage_fluid_cell_262m.name=§b262m §fME Fluid Storage Cell
+item.appliedenergistics2.storage_fluid_cell_1048m.name=§51048m §fME Fluid Storage Cell
+item.appliedenergistics2.storage_fluid_digital_singularity.name=§dFluid Digital Singularity

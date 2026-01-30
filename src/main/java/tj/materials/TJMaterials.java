@@ -1,4 +1,4 @@
-package tj;
+package tj.materials;
 
 import gregtech.api.unification.material.IMaterialHandler;
 

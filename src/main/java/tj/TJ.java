@@ -1,5 +1,6 @@
 package tj;
 
+import appeng.api.config.Upgrades;
 import gregtech.api.GTValues;
 import gregtech.api.util.GTLog;
 import net.minecraftforge.fml.common.Mod;
@@ -14,6 +15,7 @@ import tj.capability.TJSimpleCapabilityManager;
 import tj.gui.uifactory.PlayerUIFactory;
 import tj.integration.theoneprobe.TheOneProbeCompatibility;
 import tj.items.TJCoverBehaviours;
+import tj.integration.ae2.items.TJAE2Items;
 import tj.machines.TJMetaTileEntities;
 
 
@@ -39,6 +41,7 @@ public class TJ {
         TJMetaTileEntities.init();
         TJSimpleCapabilityManager.init();
         logger = event.getModLog();
+        TJAE2Items tjae2Items = TJAE2Items.INSTANCE;
     }
 
     @EventHandler
@@ -50,8 +53,39 @@ public class TJ {
         }
         TJCoverBehaviours.init();
     }
+
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         proxy.onPostLoad();
+
+        // Item Storage Cells
+        Upgrades.FUZZY.registerItem(TJAE2Items.INSTANCE.getCell65m(), 1);
+        Upgrades.INVERTER.registerItem(TJAE2Items.INSTANCE.getCell65m(), 1);
+        Upgrades.STICKY.registerItem(TJAE2Items.INSTANCE.getCell65m(), 1);
+
+        Upgrades.FUZZY.registerItem(TJAE2Items.INSTANCE.getCell262m(), 1);
+        Upgrades.INVERTER.registerItem(TJAE2Items.INSTANCE.getCell262m(), 1);
+        Upgrades.STICKY.registerItem(TJAE2Items.INSTANCE.getCell262m(), 1);
+
+        Upgrades.FUZZY.registerItem(TJAE2Items.INSTANCE.getCell1048m(), 1);
+        Upgrades.INVERTER.registerItem(TJAE2Items.INSTANCE.getCell1048m(), 1);
+        Upgrades.STICKY.registerItem(TJAE2Items.INSTANCE.getCell1048m(), 1);
+
+        Upgrades.FUZZY.registerItem(TJAE2Items.INSTANCE.getCellDigitalSingularity(), 1);
+        Upgrades.INVERTER.registerItem(TJAE2Items.INSTANCE.getCellDigitalSingularity(), 1);
+        Upgrades.STICKY.registerItem(TJAE2Items.INSTANCE.getCellDigitalSingularity(), 1);
+
+        // Fluid Storage Cells
+        Upgrades.INVERTER.registerItem(TJAE2Items.INSTANCE.getFluidCell65m(), 1);
+        Upgrades.STICKY.registerItem(TJAE2Items.INSTANCE.getFluidCell65m(), 1);
+
+        Upgrades.INVERTER.registerItem(TJAE2Items.INSTANCE.getFluidCell262m(), 1);
+        Upgrades.STICKY.registerItem(TJAE2Items.INSTANCE.getFluidCell262m(), 1);
+
+        Upgrades.INVERTER.registerItem(TJAE2Items.INSTANCE.getFluidCell1048m(), 1);
+        Upgrades.STICKY.registerItem(TJAE2Items.INSTANCE.getFluidCell1048m(), 1);
+
+        Upgrades.INVERTER.registerItem(TJAE2Items.INSTANCE.getFluidCellDigitalSingularity(), 1);
+        Upgrades.STICKY.registerItem(TJAE2Items.INSTANCE.getFluidCellDigitalSingularity(), 1);
     }
 }
