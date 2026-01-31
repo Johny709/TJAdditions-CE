@@ -14,13 +14,13 @@ import java.util.Set;
 
 public enum TJAE2MaterialType {
     CELL_65M_PART(0, "material_cell65m_part", EnumSet.of(AEFeature.STORAGE_CELLS)),
-    CELL_262M_PART(1, "material_cell252m_part", EnumSet.of(AEFeature.STORAGE_CELLS)),
+    CELL_262M_PART(1, "material_cell262m_part", EnumSet.of(AEFeature.STORAGE_CELLS)),
     CELL_1048M_PART(2, "material_cell1048m_part", EnumSet.of(AEFeature.STORAGE_CELLS)),
-    ITEM_CELL_DIGITAL_SINGULARITY(3, "material_item_digital_singularity", EnumSet.of(AEFeature.STORAGE_CELLS)),
+    ITEM_CELL_DIGITAL_SINGULARITY(3, "material_item_digital_singularity_part", EnumSet.of(AEFeature.STORAGE_CELLS)),
     FLUID_CELL_65M_PART(4, "material_fluid_cell65m_part", EnumSet.of(AEFeature.STORAGE_CELLS)),
     FLUID_CELL_262M_PART(5, "material_fluid_cell262m_part", EnumSet.of(AEFeature.STORAGE_CELLS)),
     FLUID_CELL_1048M_PART(6, "material_fluid_cell1048m_part", EnumSet.of(AEFeature.STORAGE_CELLS)),
-    FLUID_CELL_DIGITAL_SINGULARITY(7, "material_fluid_digital_singularity", EnumSet.of(AEFeature.STORAGE_CELLS)),
+    FLUID_CELL_DIGITAL_SINGULARITY(7, "material_fluid_digital_singularity_part", EnumSet.of(AEFeature.STORAGE_CELLS)),
     INVALID_TYPE(-100, "material_invalid_type");
 
     private final Set<AEFeature> features;

@@ -926,3 +926,12 @@ item.appliedenergistics2.storage_fluid_cell_65m.name=§165m §fME Fluid Storage 
 item.appliedenergistics2.storage_fluid_cell_262m.name=§b262m §fME Fluid Storage Cell
 item.appliedenergistics2.storage_fluid_cell_1048m.name=§51048m §fME Fluid Storage Cell
 item.appliedenergistics2.storage_fluid_digital_singularity.name=§dFluid Digital Singularity
+
+item.appliedenergistics2.material.cell_65m_part.name=§165m §fME Storage Component
+item.appliedenergistics2.material.cell_262m_part.name=§b262m §fME Storage Component
+item.appliedenergistics2.material.cell_1048m_part.name=§51048m §fME Storage Component
+item.appliedenergistics2.material.item_cell_digital_singularity.name=§dDigital Singularity Component
+item.appliedenergistics2.material.fluid_cell_65m_part.name=§165m §fME Fluid Storage Component
+item.appliedenergistics2.material.fluid_cell_262m_part.name=§b262m §fME Fluid Storage Component
+item.appliedenergistics2.material.fluid_cell_1048m_part.name=§51048m §fME Fluid Storage Component
+item.appliedenergistics2.material.fluid_cell_digital_singularity.name=§dFluid Digital Singularity Component
