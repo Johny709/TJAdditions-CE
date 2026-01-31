@@ -21,16 +21,16 @@ public class TJTileCraftingStorageTile extends TileCraftingStorageTile {
     protected ItemStack getItemFromTile(Object obj) {
         final int storage = Math.round((float) ((TileCraftingTile) obj).getStorageBytes() / KILO_SCALAR);
 
-        IBlocks blocks = Api.INSTANCE.definitions().blocks();
+        IApiBlocks blocks = ((IApiBlocks)(IBlocks) Api.INSTANCE.definitions().blocks());
         Optional<ItemStack> is;
         switch (storage) {
-            case 65536: is = ((IApiBlocks) blocks).getCraftingStorage65m().maybeStack(1);
+            case 65536: is = blocks.getCraftingStorage65m().maybeStack(1);
                 break;
-            case 262144: is = ((IApiBlocks) blocks).getCraftingStorage262m().maybeStack(1);
+            case 262144: is = blocks.getCraftingStorage262m().maybeStack(1);
                 break;
-            case 1048576: is = ((IApiBlocks) blocks).getCraftingStorage1048m().maybeStack(1);
+            case 1048576: is = blocks.getCraftingStorage1048m().maybeStack(1);
                 break;
-            case 2097152: is = ((IApiBlocks) blocks).getCraftingStorageSingularity().maybeStack(1);
+            case 2097152: is = blocks.getCraftingStorageSingularity().maybeStack(1);
                 break;
             default: is = Optional.empty();
         }
