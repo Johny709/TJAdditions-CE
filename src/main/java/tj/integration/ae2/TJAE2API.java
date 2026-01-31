@@ -1,26 +1,38 @@
-package tj.integration.ae2.items;
+package tj.integration.ae2;
 
 import appeng.api.definitions.IItemDefinition;
+import appeng.api.definitions.ITileDefinition;
+import appeng.block.crafting.ItemCraftingStorage;
 import appeng.bootstrap.FeatureFactory;
 import appeng.bootstrap.IItemRendering;
 import appeng.bootstrap.ItemRenderingCustomizer;
+import appeng.bootstrap.definitions.TileEntityDefinition;
 import appeng.core.Api;
 import appeng.core.features.AEFeature;
 import appeng.core.features.DamagedItemDefinition;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.integration.ae2.block.crafting.TJBlockCraftingUnit;
+import tj.integration.ae2.block.crafting.TJCraftingUnitType;
 import tj.integration.ae2.items.cells.TJFluidStorageCell;
 import tj.integration.ae2.items.cells.TJItemStorageCell;
 import tj.integration.ae2.items.materials.TJAE2MaterialType;
 import tj.integration.ae2.items.materials.TJItemMaterial;
+import tj.integration.ae2.render.crafting.TJCraftingCubeRendering;
+import tj.integration.ae2.tile.crafting.TJTileCraftingStorageTile;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 
-public final class TJAE2Items {
+public final class TJAE2API {
 
-    public static final TJAE2Items INSTANCE = new TJAE2Items();
+    public static final TJAE2API INSTANCE = new TJAE2API();
+    private final ITileDefinition craftingStorage65m;
+    private final ITileDefinition craftingStorage262m;
+    private final ITileDefinition craftingStorage1048m;
+    private final ITileDefinition craftingStorageSingularity;
+
     private final IItemDefinition cell65m;
     private final IItemDefinition cell262m;
     private final IItemDefinition cell1048m;
@@ -39,7 +51,32 @@ public final class TJAE2Items {
     private final IItemDefinition fluidCell1048mPart;
     private final IItemDefinition fluidCellDigitalSingularityPart;
 
-    private TJAE2Items() {
+    private TJAE2API() {
+        FeatureFactory craftingCPU = Api.INSTANCE.definitions().getRegistry().features(AEFeature.CRAFTING_CPU);
+        this.craftingStorage65m = craftingCPU.block("crafting_storage_65m", () -> new TJBlockCraftingUnit(TJCraftingUnitType.STORAGE_65M))
+                .rendering(new TJCraftingCubeRendering("crafting_storage_65m", TJCraftingUnitType.STORAGE_65M))
+                .tileEntity(new TileEntityDefinition(TJTileCraftingStorageTile.class, "crafting_storage"))
+                .useCustomItemModel()
+                .build();
+        this.craftingStorage262m = craftingCPU.block("crafting_storage_262m", () -> new TJBlockCraftingUnit(TJCraftingUnitType.STORAGE_262M))
+                .rendering(new TJCraftingCubeRendering("crafting_storage_262m", TJCraftingUnitType.STORAGE_262M))
+                .tileEntity(new TileEntityDefinition(TJTileCraftingStorageTile.class, "crafting_storage"))
+                .item(ItemCraftingStorage::new)
+                .useCustomItemModel()
+                .build();
+        this.craftingStorage1048m = craftingCPU.block("crafting_storage_1048m", () -> new TJBlockCraftingUnit(TJCraftingUnitType.STORAGE_1048M))
+                .rendering(new TJCraftingCubeRendering("crafting_storage_1048m", TJCraftingUnitType.STORAGE_1048M))
+                .tileEntity(new TileEntityDefinition(TJTileCraftingStorageTile.class, "crafting_storage"))
+                .item(ItemCraftingStorage::new)
+                .useCustomItemModel()
+                .build();
+        this.craftingStorageSingularity = craftingCPU.block("crafting_storage_digital_singularity", () -> new TJBlockCraftingUnit(TJCraftingUnitType.STORAGE_SINGULARITY))
+                .rendering(new TJCraftingCubeRendering("crafting_storage_digital_singularity", TJCraftingUnitType.STORAGE_SINGULARITY))
+                .tileEntity(new TileEntityDefinition(TJTileCraftingStorageTile.class, "crafting_storage"))
+                .item(ItemCraftingStorage::new)
+                .useCustomItemModel()
+                .build();
+
         FeatureFactory storageCells = Api.INSTANCE.definitions().getRegistry().features(AEFeature.STORAGE_CELLS);
         this.cell65m = storageCells.item("storage_cell_65m", () -> new TJItemStorageCell(TJAE2MaterialType.CELL_65M_PART, 65_536)).build();
         this.cell262m = storageCells.item("storage_cell_262m", () -> new TJItemStorageCell(TJAE2MaterialType.CELL_262M_PART, 262_144)).build();
@@ -72,6 +109,22 @@ public final class TJAE2Items {
         this.fluidCell262mPart = new DamagedItemDefinition("material.cell.storage.262m", materials.createMaterial(TJAE2MaterialType.FLUID_CELL_262M_PART));
         this.fluidCell1048mPart = new DamagedItemDefinition("material.cell.storage.1048m", materials.createMaterial(TJAE2MaterialType.FLUID_CELL_1048M_PART));
         this.fluidCellDigitalSingularityPart = new DamagedItemDefinition("material.cell.digital.singularity", materials.createMaterial(TJAE2MaterialType.FLUID_CELL_DIGITAL_SINGULARITY));
+    }
+
+    public ITileDefinition getCraftingStorage65m() {
+        return this.craftingStorage65m;
+    }
+
+    public ITileDefinition getCraftingStorage262m() {
+        return this.craftingStorage262m;
+    }
+
+    public ITileDefinition getCraftingStorage1048m() {
+        return this.craftingStorage1048m;
+    }
+
+    public ITileDefinition getCraftingStorageSingularity() {
+        return this.craftingStorageSingularity;
     }
 
     public IItemDefinition getCell65m() {

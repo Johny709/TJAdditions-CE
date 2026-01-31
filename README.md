@@ -9,7 +9,7 @@
 - Adds some fun and unique multiblocks. Also adds some extra things to other mods like AE2.
 
 ### Credits
-- storage cell and component textures from Applied Energistics 2 
+- Thanks to Applied Energistics 2 for storage component, cell and crafting CPU textures.
   - https://www.curseforge.com/minecraft/mc-mods/applied-energistics-2
 
 
