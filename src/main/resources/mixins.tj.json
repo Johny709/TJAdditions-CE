@@ -9,6 +9,7 @@
     "ae2.ApiBlocksMixin",
     "ae2.ApiItemsMixin",
     "ae2.ApiMaterialsMixin",
+    "ae2.DisassembleRecipeMixin",
     "gregic_probe.ElectricContainerInfoProviderMixin",
     "gregic_probe.RecipeInfoProviderMixin",
     "gregic_probe.WorkableInfoProviderMixin",

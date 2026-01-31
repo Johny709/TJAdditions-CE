@@ -58,7 +58,7 @@ public class TJ {
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         proxy.onPostLoad();
-        IApiItems items = ((IApiItems) (IItems) Api.INSTANCE.definitions().items());
+        final IApiItems items = ((IApiItems) (IItems) Api.INSTANCE.definitions().items());
         // Item Storage Cells
         Upgrades.FUZZY.registerItem(items.getCell65m(), 1);
         Upgrades.INVERTER.registerItem(items.getCell65m(), 1);
