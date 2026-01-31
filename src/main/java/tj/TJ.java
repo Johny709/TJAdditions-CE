@@ -42,7 +42,6 @@ public class TJ {
         TJSimpleCapabilityManager.init();
         logger = event.getModLog();
         TJAE2API tjae2API = TJAE2API.INSTANCE;
-
     }
 
     @EventHandler

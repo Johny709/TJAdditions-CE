@@ -2,7 +2,6 @@ package tj.integration.ae2.block.crafting;
 
 import appeng.api.util.AEPartLocation;
 import appeng.block.AEBaseTileBlock;
-import appeng.block.crafting.BlockCraftingUnit;
 import appeng.client.UnlistedProperty;
 import appeng.client.render.crafting.CraftingCubeState;
 import appeng.core.sync.GuiBridge;
@@ -62,7 +61,7 @@ public class TJBlockCraftingUnit extends AEBaseTileBlock {
 
     private boolean isConnected(IBlockAccess world, BlockPos pos, EnumFacing side) {
         BlockPos adjacentPos = pos.offset(side);
-        return world.getBlockState(adjacentPos).getBlock() instanceof BlockCraftingUnit;
+        return world.getBlockState(adjacentPos).getBlock() instanceof TJBlockCraftingUnit;
     }
 
     @Override

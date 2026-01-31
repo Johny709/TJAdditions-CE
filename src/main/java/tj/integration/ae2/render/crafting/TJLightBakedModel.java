@@ -1,13 +1,13 @@
 package tj.integration.ae2.render.crafting;
 
-import appeng.block.crafting.BlockCraftingUnit;
 import appeng.client.render.cablebus.CubeBuilder;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
+import tj.integration.ae2.block.crafting.TJBlockCraftingUnit;
 
-public class TJLightBakedModel extends CraftingCubeBakedModel {
+public class TJLightBakedModel extends TJCraftingCubeBakedModel {
 
     private final TextureAtlasSprite baseTexture;
 
@@ -24,7 +24,7 @@ public class TJLightBakedModel extends CraftingCubeBakedModel {
         builder.setTexture(this.baseTexture);
         builder.addCube(x1, y1, z1, x2, y2, z2);
 
-        boolean powered = state.getValue(BlockCraftingUnit.POWERED);
+        boolean powered = state.getValue(TJBlockCraftingUnit.POWERED);
         builder.setRenderFullBright(powered);
         builder.setTexture(this.lightTexture);
         builder.addCube(x1, y1, z1, x2, y2, z2);

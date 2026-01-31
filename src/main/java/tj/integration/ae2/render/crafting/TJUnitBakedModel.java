@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
 
-public class TJUnitBakedModel extends CraftingCubeBakedModel {
+public class TJUnitBakedModel extends TJCraftingCubeBakedModel {
 
     private final TextureAtlasSprite unitTexture;
 
