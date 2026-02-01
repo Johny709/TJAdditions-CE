@@ -2,6 +2,7 @@ package tj.mixin.ae2;
 
 import appeng.api.definitions.ITileDefinition;
 import appeng.block.crafting.ItemCraftingStorage;
+import appeng.block.misc.BlockInterface;
 import appeng.bootstrap.FeatureFactory;
 import appeng.bootstrap.definitions.TileEntityDefinition;
 import appeng.core.api.definitions.ApiBlocks;
@@ -17,6 +18,7 @@ import tj.integration.ae2.block.crafting.TJBlockCraftingUnit;
 import tj.integration.ae2.block.crafting.TJCraftingUnitType;
 import tj.integration.ae2.render.crafting.TJCraftingCubeRendering;
 import tj.integration.ae2.tile.crafting.TJTileCraftingStorageTile;
+import tj.integration.ae2.tile.misc.TJTileInterface;
 
 @Mixin(value = ApiBlocks.class, remap = false)
 public abstract class ApiBlocksMixin implements IApiBlocks {
@@ -32,6 +34,9 @@ public abstract class ApiBlocksMixin implements IApiBlocks {
 
     @Unique
     private ITileDefinition craftingStorageSingularity;
+
+    @Unique
+    private ITileDefinition superInterface;
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void injectApiBlocks_Init(FeatureFactory registry, PartModels partModels, CallbackInfo ci) {
@@ -59,6 +64,10 @@ public abstract class ApiBlocksMixin implements IApiBlocks {
                 .item(ItemCraftingStorage::new)
                 .useCustomItemModel()
                 .build();
+        this.superInterface = registry.block("super_interface", BlockInterface::new)
+                .features(AEFeature.INTERFACE)
+                .tileEntity(new TileEntityDefinition(TJTileInterface.class))
+                .build();
     }
 
     @Override
@@ -79,5 +88,10 @@ public abstract class ApiBlocksMixin implements IApiBlocks {
     @Override
     public ITileDefinition getCraftingStorageSingularity() {
         return this.craftingStorageSingularity;
+    }
+
+    @Override
+    public ITileDefinition getSuperInterface() {
+        return this.superInterface;
     }
 }
