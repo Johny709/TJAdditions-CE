@@ -923,6 +923,7 @@ tile.appliedenergistics2.crafting_storage_262m.name=§b262m §fCrafting Storage
 tile.appliedenergistics2.crafting_storage_1048m.name=§51048m §fCrafting Storage
 tile.appliedenergistics2.crafting_storage_digital_singularity.name=§dDigital Singularity Crafting Storage
 tile.appliedenergistics2.super_interface.name=ME Super Interface
+tile.appliedenergistics2.super_fluid_interface.name=ME Super Fluid Interface
 
 item.appliedenergistics2.storage_cell_65m.name=§165m §fME Storage Cell
 item.appliedenergistics2.storage_cell_262m.name=§b262m §fME Storage Cell

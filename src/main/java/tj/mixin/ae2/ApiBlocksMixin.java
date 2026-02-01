@@ -8,6 +8,7 @@ import appeng.bootstrap.definitions.TileEntityDefinition;
 import appeng.core.api.definitions.ApiBlocks;
 import appeng.core.features.AEFeature;
 import appeng.core.features.registries.PartModels;
+import appeng.fluids.block.BlockFluidInterface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,6 +19,7 @@ import tj.integration.ae2.block.crafting.TJBlockCraftingUnit;
 import tj.integration.ae2.block.crafting.TJCraftingUnitType;
 import tj.integration.ae2.render.crafting.TJCraftingCubeRendering;
 import tj.integration.ae2.tile.crafting.TJTileCraftingStorageTile;
+import tj.integration.ae2.tile.misc.TJTileFluidInterface;
 import tj.integration.ae2.tile.misc.TJTileInterface;
 
 @Mixin(value = ApiBlocks.class, remap = false)
@@ -37,6 +39,9 @@ public abstract class ApiBlocksMixin implements IApiBlocks {
 
     @Unique
     private ITileDefinition superInterface;
+
+    @Unique
+    private ITileDefinition superFluidInterface;
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void injectApiBlocks_Init(FeatureFactory registry, PartModels partModels, CallbackInfo ci) {
@@ -68,6 +73,10 @@ public abstract class ApiBlocksMixin implements IApiBlocks {
                 .features(AEFeature.INTERFACE)
                 .tileEntity(new TileEntityDefinition(TJTileInterface.class))
                 .build();
+        this.superFluidInterface = registry.block("super_fluid_interface", BlockFluidInterface::new)
+                .features(AEFeature.FLUID_INTERFACE)
+                .tileEntity(new TileEntityDefinition(TJTileFluidInterface.class))
+                .build();
     }
 
     @Override
@@ -93,5 +102,10 @@ public abstract class ApiBlocksMixin implements IApiBlocks {
     @Override
     public ITileDefinition getSuperInterface() {
         return this.superInterface;
+    }
+
+    @Override
+    public ITileDefinition getSuperFluidInterface() {
+        return this.superFluidInterface;
     }
 }

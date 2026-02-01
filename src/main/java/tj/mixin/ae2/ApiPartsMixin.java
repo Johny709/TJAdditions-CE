@@ -21,6 +21,9 @@ public abstract class ApiPartsMixin implements IApiParts {
     @Unique
     private IItemDefinition superInterface;
 
+    @Unique
+    private IItemDefinition superFluidInterface;
+
     @Inject(method = "<init>", at = @At("TAIL"))
     private void injectApiParts_Init(FeatureFactory registry, PartModels partModels, CallbackInfo ci) {
         final TJItemPart tjItemPart = new TJItemPart();
@@ -31,10 +34,16 @@ public abstract class ApiPartsMixin implements IApiParts {
             partModels.registerModels(partType.getModels());
         }
         this.superInterface = new DamagedItemDefinition("part.super_interface", tjItemPart.createPart(TJPartType.SUPER_INTERFACE));
+        this.superFluidInterface = new DamagedItemDefinition("part.super_fluid_interface", tjItemPart.createPart(TJPartType.SUPER_FLUID_INTERFACE));
     }
 
     @Override
     public IItemDefinition getSuperInterface() {
         return this.superInterface;
+    }
+
+    @Override
+    public IItemDefinition getSuperFluidInterface() {
+        return this.superFluidInterface;
     }
 }

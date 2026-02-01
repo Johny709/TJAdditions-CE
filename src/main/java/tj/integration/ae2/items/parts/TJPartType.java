@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.integration.ae2.tile.misc.TJPartFluidInterface;
 import tj.integration.ae2.tile.misc.TJPartInterface;
 
 import java.lang.reflect.Constructor;
@@ -20,7 +21,8 @@ import java.util.*;
 
 public enum TJPartType {
     INVALID_TYPE(-1, "invalid", EnumSet.of(AEFeature.CORE), EnumSet.noneOf(IntegrationType.class), null),
-    SUPER_INTERFACE(0, "super_interface", EnumSet.of(AEFeature.INTERFACE), EnumSet.noneOf(IntegrationType.class), TJPartInterface.class);
+    SUPER_INTERFACE(0, "super_interface", EnumSet.of(AEFeature.INTERFACE), EnumSet.noneOf(IntegrationType.class), TJPartInterface.class),
+    SUPER_FLUID_INTERFACE(1, "super_fluid_interface", EnumSet.of(AEFeature.FLUID_INTERFACE), EnumSet.noneOf(IntegrationType.class), TJPartFluidInterface.class);
 
     private final int baseDamage;
     private final Set<AEFeature> features;

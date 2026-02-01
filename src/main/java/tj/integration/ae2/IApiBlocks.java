@@ -14,4 +14,6 @@ public interface IApiBlocks extends IBlocks {
     ITileDefinition getCraftingStorageSingularity();
 
     ITileDefinition getSuperInterface();
+
+    ITileDefinition getSuperFluidInterface();
 }

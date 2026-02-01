@@ -6,4 +6,6 @@ import appeng.api.definitions.IParts;
 public interface IApiParts extends IParts {
 
     IItemDefinition getSuperInterface();
+
+    IItemDefinition getSuperFluidInterface();
 }
