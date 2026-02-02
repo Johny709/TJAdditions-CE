@@ -14,9 +14,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import tj.integration.ae2.tile.inventory.TJAppEngNetworkInventory;
-import tj.integration.ae2.tile.misc.TJPartInterface;
-import tj.integration.ae2.tile.misc.TJTileInterface;
+import tj.integration.appeng.tile.inventory.TJAppEngNetworkInventory;
+import tj.integration.appeng.tile.misc.TJPartInterface;
+import tj.integration.appeng.tile.misc.TJTileInterface;
 
 @Mixin(value = DualityInterface.class, remap = false)
 public abstract class DualityInterfaceMixin {

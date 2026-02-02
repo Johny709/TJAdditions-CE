@@ -2,7 +2,6 @@ package tj.mixin.ae2;
 
 import appeng.api.definitions.ITileDefinition;
 import appeng.block.crafting.ItemCraftingStorage;
-import appeng.block.misc.BlockInterface;
 import appeng.bootstrap.FeatureFactory;
 import appeng.bootstrap.definitions.TileEntityDefinition;
 import appeng.core.api.definitions.ApiBlocks;
@@ -14,13 +13,14 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import tj.integration.ae2.IApiBlocks;
-import tj.integration.ae2.block.crafting.TJBlockCraftingUnit;
-import tj.integration.ae2.block.crafting.TJCraftingUnitType;
-import tj.integration.ae2.render.crafting.TJCraftingCubeRendering;
-import tj.integration.ae2.tile.crafting.TJTileCraftingStorageTile;
-import tj.integration.ae2.tile.misc.TJTileFluidInterface;
-import tj.integration.ae2.tile.misc.TJTileInterface;
+import tj.integration.appeng.IApiBlocks;
+import tj.integration.appeng.block.crafting.TJBlockCraftingUnit;
+import tj.integration.appeng.block.crafting.TJCraftingUnitType;
+import tj.integration.appeng.block.misc.TJBlockInterface;
+import tj.integration.appeng.render.crafting.TJCraftingCubeRendering;
+import tj.integration.appeng.tile.crafting.TJTileCraftingStorageTile;
+import tj.integration.appeng.tile.misc.TJTileFluidInterface;
+import tj.integration.appeng.tile.misc.TJTileInterface;
 
 @Mixin(value = ApiBlocks.class, remap = false)
 public abstract class ApiBlocksMixin implements IApiBlocks {
@@ -69,7 +69,7 @@ public abstract class ApiBlocksMixin implements IApiBlocks {
                 .item(ItemCraftingStorage::new)
                 .useCustomItemModel()
                 .build();
-        this.superInterface = registry.block("super_interface", BlockInterface::new)
+        this.superInterface = registry.block("super_interface", TJBlockInterface::new)
                 .features(AEFeature.INTERFACE)
                 .tileEntity(new TileEntityDefinition(TJTileInterface.class))
                 .build();

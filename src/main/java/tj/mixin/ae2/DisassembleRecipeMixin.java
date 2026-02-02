@@ -10,9 +10,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import tj.integration.ae2.IApiBlocks;
-import tj.integration.ae2.IApiItems;
-import tj.integration.ae2.IApiMaterials;
+import tj.integration.appeng.IApiBlocks;
+import tj.integration.appeng.IApiItems;
+import tj.integration.appeng.IApiMaterials;
 
 import java.util.Map;
 

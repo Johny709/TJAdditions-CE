@@ -10,10 +10,10 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import tj.integration.ae2.IApiParts;
-import tj.integration.ae2.items.parts.TJItemPart;
-import tj.integration.ae2.items.parts.TJItemPartRendering;
-import tj.integration.ae2.items.parts.TJPartType;
+import tj.integration.appeng.IApiParts;
+import tj.integration.appeng.items.parts.TJItemPart;
+import tj.integration.appeng.items.parts.TJItemPartRendering;
+import tj.integration.appeng.items.parts.TJPartType;
 
 @Mixin(value = ApiParts.class, remap = false)
 public abstract class ApiPartsMixin implements IApiParts {

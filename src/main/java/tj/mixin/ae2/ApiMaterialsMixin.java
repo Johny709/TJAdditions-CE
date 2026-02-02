@@ -13,9 +13,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import tj.integration.ae2.IApiMaterials;
-import tj.integration.ae2.items.materials.TJAE2MaterialType;
-import tj.integration.ae2.items.materials.TJItemMaterial;
+import tj.integration.appeng.IApiMaterials;
+import tj.integration.appeng.items.materials.TJAE2MaterialType;
+import tj.integration.appeng.items.materials.TJItemMaterial;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
