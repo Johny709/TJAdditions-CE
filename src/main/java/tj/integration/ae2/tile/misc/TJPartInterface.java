@@ -7,14 +7,12 @@ import appeng.core.AppEng;
 import appeng.items.parts.PartModels;
 import appeng.parts.PartModel;
 import appeng.parts.misc.PartInterface;
-import gregtech.api.util.GTLog;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import tj.integration.ae2.IApiParts;
 import tj.integration.ae2.helpers.TJDualityInterface;
 
-import java.lang.reflect.Field;
 
 public class TJPartInterface extends PartInterface {
 
@@ -31,12 +29,7 @@ public class TJPartInterface extends PartInterface {
 
     public TJPartInterface(ItemStack is) {
         super(is);
-        Field duality = ObfuscationReflectionHelper.findField(PartInterface.class, "duality");
-        try {
-            duality.set(this, new TJDualityInterface(this.getProxy(), this));
-        } catch (IllegalAccessException e) {
-            GTLog.logger.error("Error when trying to reflect on class {} for field duality", PartInterface.class.getName());
-        }
+        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new TJDualityInterface(this.getProxy(), this), "duality");
     }
 
     @Override

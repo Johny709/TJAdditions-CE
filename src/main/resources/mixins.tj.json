@@ -11,6 +11,7 @@
     "ae2.ApiMaterialsMixin",
     "ae2.ApiPartsMixin",
     "ae2.DisassembleRecipeMixin",
+    "ae2.DualityInterfaceMixin",
     "gregic_probe.ElectricContainerInfoProviderMixin",
     "gregic_probe.RecipeInfoProviderMixin",
     "gregic_probe.WorkableInfoProviderMixin",

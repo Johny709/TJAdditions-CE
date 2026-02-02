@@ -9,7 +9,10 @@ import appeng.items.parts.PartModels;
 import appeng.parts.PartModel;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import tj.integration.ae2.IApiParts;
+import tj.integration.ae2.helpers.TJDualityFluidInterface;
+
 
 public class TJPartFluidInterface extends PartFluidInterface {
 
@@ -26,6 +29,7 @@ public class TJPartFluidInterface extends PartFluidInterface {
 
     public TJPartFluidInterface(ItemStack is) {
         super(is);
+        ObfuscationReflectionHelper.setPrivateValue(PartFluidInterface.class, this, new TJDualityFluidInterface(this.getProxy(), this), "duality");
     }
 
     @Override

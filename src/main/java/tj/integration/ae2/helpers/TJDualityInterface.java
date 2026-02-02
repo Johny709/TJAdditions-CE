@@ -17,28 +17,17 @@ public class TJDualityInterface extends DualityInterface {
 
     public TJDualityInterface(AENetworkProxy networkProxy, IInterfaceHost ih) {
         super(networkProxy, ih);
-        Field requireWork = ObfuscationReflectionHelper.findField(DualityInterface.class, "requireWork");
+        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new IAEItemStack[18], "requireWork");
+        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new AppEngInternalAEInventory(this, 18, 1024), "config");
         try {
-            requireWork.set(this, new IAEItemStack[18]);
-        } catch (IllegalAccessException e) {
-            GTLog.logger.error("Error when trying to reflect on class {} for field requireWork", DualityInterface.class.getName());
-        }
-        Field config = ObfuscationReflectionHelper.findField(DualityInterface.class, "config");
-        try {
-            config.set(this, new AppEngInternalAEInventory(this, 18, 1024));
-        } catch (IllegalAccessException e) {
-            GTLog.logger.error("Error when trying to reflect on class {} for field config", DualityInterface.class.getName());
-        }
-        Field storage = ObfuscationReflectionHelper.findField(DualityInterface.class, "storage");
-        Field mySource = ObfuscationReflectionHelper.findField(DualityInterface.class, "mySource");
-        try {
-            storage.set(this, new TJAppEngNetworkInventory(() -> {
+            Field mySource = ObfuscationReflectionHelper.findField(DualityInterface.class, "mySource");
+            ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new TJAppEngNetworkInventory(() -> {
                 try {
                     return networkProxy.getStorage();
                 } catch (GridAccessException e) {
                     throw new RuntimeException(e);
                 }
-            }, (IActionSource) mySource.get(this), this, 18, 1024));
+            }, (IActionSource) mySource.get(this), this, 18, 1024), "storage");
         } catch (IllegalAccessException e) {
             GTLog.logger.error("Error when trying to reflect on class {} for field storage", DualityInterface.class.getName());
         }

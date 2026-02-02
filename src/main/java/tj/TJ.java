@@ -103,7 +103,7 @@ public class TJ {
         Upgrades.PATTERN_EXPANSION.registerItem(blocks.getSuperInterface(), 3);
 
         // Super Fluid Interface
-        Upgrades.CAPACITY.registerItem(parts.getSuperFluidInterface(), 2);
-        Upgrades.CAPACITY.registerItem(blocks.getSuperFluidInterface(), 2);
+        Upgrades.CAPACITY.registerItem(parts.getSuperFluidInterface(), 4);
+        Upgrades.CAPACITY.registerItem(blocks.getSuperFluidInterface(), 4);
     }
 }
