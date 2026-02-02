@@ -15,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.integration.appeng.tile.inventory.TJAppEngNetworkInventory;
-import tj.integration.appeng.tile.misc.TJPartInterface;
-import tj.integration.appeng.tile.misc.TJTileInterface;
+import tj.integration.appeng.tile.misc.PartSuperInterface;
+import tj.integration.appeng.tile.misc.TileSuperInterface;
 
 @Mixin(value = DualityInterface.class, remap = false)
 public abstract class DualityInterfaceMixin {
@@ -30,7 +30,7 @@ public abstract class DualityInterfaceMixin {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void tjInject_Init(AENetworkProxy networkProxy, IInterfaceHost ih, CallbackInfo ci) {
-        if (ih instanceof TJTileInterface || ih instanceof TJPartInterface)
+        if (ih instanceof TileSuperInterface || ih instanceof PartSuperInterface)
             this.isTJInterface = true;
     }
 

@@ -925,6 +925,9 @@ tile.appliedenergistics2.crafting_storage_digital_singularity.name=§dDigital Si
 tile.appliedenergistics2.super_interface.name=ME Super Interface
 tile.appliedenergistics2.super_fluid_interface.name=ME Super Fluid Interface
 
+item.appliedenergistics2.multi_part.super_interface.name=ME Super Interface
+item.appliedenergistics2.multi_part.super_fluid_interface.name=ME Super Fluid Interface
+
 item.appliedenergistics2.storage_cell_65m.name=§165m §fME Storage Cell
 item.appliedenergistics2.storage_cell_262m.name=§b262m §fME Storage Cell
 item.appliedenergistics2.storage_cell_1048m.name=§51048m §fME Storage Cell

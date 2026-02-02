@@ -13,9 +13,9 @@ import tj.integration.appeng.tile.inventory.TJAppEngNetworkInventory;
 
 import java.lang.reflect.Field;
 
-public class TJDualityInterface extends DualityInterface {
+public class SuperDualityInterface extends DualityInterface {
 
-    public TJDualityInterface(AENetworkProxy networkProxy, IInterfaceHost ih) {
+    public SuperDualityInterface(AENetworkProxy networkProxy, IInterfaceHost ih) {
         super(networkProxy, ih);
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new IAEItemStack[18], "requireWork");
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new AppEngInternalAEInventory(this, 18, 1024), "config");

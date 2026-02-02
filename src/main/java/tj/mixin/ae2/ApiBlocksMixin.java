@@ -16,11 +16,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tj.integration.appeng.IApiBlocks;
 import tj.integration.appeng.block.crafting.TJBlockCraftingUnit;
 import tj.integration.appeng.block.crafting.TJCraftingUnitType;
-import tj.integration.appeng.block.misc.TJBlockInterface;
+import tj.integration.appeng.block.misc.BlockSuperInterface;
 import tj.integration.appeng.render.crafting.TJCraftingCubeRendering;
 import tj.integration.appeng.tile.crafting.TJTileCraftingStorageTile;
 import tj.integration.appeng.tile.misc.TJTileFluidInterface;
-import tj.integration.appeng.tile.misc.TJTileInterface;
+import tj.integration.appeng.tile.misc.TileSuperInterface;
 
 @Mixin(value = ApiBlocks.class, remap = false)
 public abstract class ApiBlocksMixin implements IApiBlocks {
@@ -69,9 +69,9 @@ public abstract class ApiBlocksMixin implements IApiBlocks {
                 .item(ItemCraftingStorage::new)
                 .useCustomItemModel()
                 .build();
-        this.superInterface = registry.block("super_interface", TJBlockInterface::new)
+        this.superInterface = registry.block("super_interface", BlockSuperInterface::new)
                 .features(AEFeature.INTERFACE)
-                .tileEntity(new TileEntityDefinition(TJTileInterface.class))
+                .tileEntity(new TileEntityDefinition(TileSuperInterface.class))
                 .build();
         this.superFluidInterface = registry.block("super_fluid_interface", BlockFluidInterface::new)
                 .features(AEFeature.FLUID_INTERFACE)
