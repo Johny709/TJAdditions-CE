@@ -3,9 +3,11 @@ package tj.multiblockpart.utility;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.ItemStackHandler;
+import tj.TJValues;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.GhostCircuitWidget;
 import tj.items.handlers.LargeItemStackHandler;
@@ -32,6 +34,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -149,11 +152,21 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
             Textures.ITEM_OUTPUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
             Textures.ITEM_HATCH_OUTPUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
             Textures.PIPE_OUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
-        }
-        else {
+        } else {
             Textures.ITEM_HATCH_INPUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
             Textures.PIPE_IN_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
         }
+        int oldBaseColor = renderState.baseColour;
+        int oldAlphaOverride = renderState.alphaOverride;
+
+        renderState.baseColour = TJValues.VC[this.getTier()] << 8;
+        renderState.alphaOverride = 0xFF;
+
+        for (EnumFacing facing : EnumFacing.values())
+            TJTextures.SUPER_HATCH_OVERLAY.renderSided(facing, renderState, translation, pipeline);
+
+        renderState.baseColour = oldBaseColor;
+        renderState.alphaOverride = oldAlphaOverride;
     }
 
     @Override
