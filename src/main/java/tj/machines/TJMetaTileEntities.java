@@ -5,6 +5,7 @@ import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityEnergyHatch
 import gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.GregTechAPI;
+import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
@@ -296,14 +297,14 @@ public class TJMetaTileEntities {
             FILTERED_INPUT_BUSES[i] = GregTechAPI.registerMetaTileEntity(6068 + i, new MetaTileEntityFilteredBus(TJId("filtered_input_bus." + GAValues.VN[i]), i, false));
         for (int i = 0; i < FILTERED_OUTPUT_BUSES.length; i++) // occupies ID range 6083 - 6097
             FILTERED_OUTPUT_BUSES[i] = GregTechAPI.registerMetaTileEntity(6083 + i, new MetaTileEntityFilteredBus(TJId("filtered_output_bus." + GAValues.VN[i]), i, true));
-        for (int i = 9; i < MetaTileEntities.ITEM_IMPORT_BUS.length; i++) // occupies ID range 6098 - 6103
-            MetaTileEntities.ITEM_IMPORT_BUS[i] = GregTechAPI.registerMetaTileEntity(6089 + i, new MetaTileEntityGAItemBus(TJId("item_input_bus." + GAValues.VN[i]), i, false));
-        for (int i = 9; i < MetaTileEntities.ITEM_EXPORT_BUS.length; i++) // occupies ID range 6104 - 6109
-            MetaTileEntities.ITEM_EXPORT_BUS[i] = GregTechAPI.registerMetaTileEntity(6095 + i, new MetaTileEntityGAItemBus(TJId("item_output_bus." + GAValues.VN[i]), i, true));
-        for (int i = 9; i < MetaTileEntities.FLUID_IMPORT_HATCH.length; i++)
-            MetaTileEntities.FLUID_IMPORT_HATCH[i] = GregTechAPI.registerMetaTileEntity(6101 + i, new MetaTileEntityGAFluidHatch(TJId("fluid_input_hatch." + GAValues.VN[i]), i, false));
-        for (int i = 9; i < MetaTileEntities.FLUID_EXPORT_HATCH.length; i++)
-            MetaTileEntities.FLUID_EXPORT_HATCH[i] = GregTechAPI.registerMetaTileEntity(6107 + i, new MetaTileEntityGAFluidHatch(TJId("fluid_output_hatch." + GAValues.VN[i]), i, true));
+        for (int i = 10; i < MetaTileEntities.ITEM_IMPORT_BUS.length; i++) // occupies ID range 6098 - 6102
+            MetaTileEntities.ITEM_IMPORT_BUS[i] = GregTechAPI.registerMetaTileEntity(6088 + i, new MetaTileEntityGAItemBus(TJId("item_input_bus." + GAValues.VN[i]), i, false));
+        for (int i = 10; i < MetaTileEntities.ITEM_EXPORT_BUS.length; i++) // occupies ID range 6103 - 6107
+            MetaTileEntities.ITEM_EXPORT_BUS[i] = GregTechAPI.registerMetaTileEntity(6093 + i, new MetaTileEntityGAItemBus(TJId("item_output_bus." + GAValues.VN[i]), i, true));
+        for (int i = 10; i < MetaTileEntities.FLUID_IMPORT_HATCH.length; i++) // occupies ID range 6108 - 6112
+            MetaTileEntities.FLUID_IMPORT_HATCH[i] = GregTechAPI.registerMetaTileEntity(6098 + i, new MetaTileEntityGAFluidHatch(TJId("fluid_input_hatch." + GAValues.VN[i]), i, false));
+        for (int i = 10; i < MetaTileEntities.FLUID_EXPORT_HATCH.length; i++) // occupies ID range 6113 - 6117
+            MetaTileEntities.FLUID_EXPORT_HATCH[i] = GregTechAPI.registerMetaTileEntity(6103 + i, new MetaTileEntityGAFluidHatch(TJId("fluid_output_hatch." + GAValues.VN[i]), i, true));
 
         int energyHatchID = 5016; // occupies ID range 5016 - 5043
         for (int i = 0, tier = 1; tier < GAValues.VN.length; i++, tier++) {
@@ -319,6 +320,26 @@ public class TJMetaTileEntities {
         ENERGY_OUTPUT_HATCH_64_AMPS.add(GregTechAPI.registerMetaTileEntity(5049, new GAMetaTileEntityEnergyHatch(location("energy_hatch.output.max.64"), 14, 64, true)));
         ENERGY_INPUT_HATCH_128_AMPS.add(GregTechAPI.registerMetaTileEntity(5050, new GAMetaTileEntityEnergyHatch(location("energy_hatch.input.max.128"), 14, 128, false)));
         ENERGY_OUTPUT_HATCH_128_AMPS.add(GregTechAPI.registerMetaTileEntity(5051, new GAMetaTileEntityEnergyHatch(location("energy_hatch.output.max.128"), 14, 128, true)));
+    }
+
+    public static MetaTileEntity getHull(int tier) {
+        switch (tier) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8: return MetaTileEntities.HULL[tier];
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+            case 13: return GA_HULLS[tier - 9];
+            default: return MetaTileEntities.HULL[9];
+        }
     }
 
     private static ResourceLocation multiblockTweakerId(String name) {

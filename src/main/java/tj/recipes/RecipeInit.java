@@ -27,6 +27,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import tj.TJConfig;
 import tj.blocks.*;
+import tj.machines.TJMetaTileEntities;
 import tj.recipes.ct.*;
 
 import java.util.Arrays;
@@ -348,6 +349,21 @@ public class RecipeInit {
                     'F', MetaItems.ITEM_FILTER.getStackForm(),
                     'H', ITEM_EXPORT_BUS[i].getStackForm(),
                     'M', motor);
+        }
+
+        for (int i = 10; i < ITEM_IMPORT_BUS.length; i++) {
+            ModHandler.addShapedRecipe("input_bus." + GAValues.VN[i], ITEM_IMPORT_BUS[i].getStackForm(), " C", " H",
+                    'H', TJMetaTileEntities.getHull(i).getStackForm(),
+                    'C', new ItemStack(Blocks.CHEST));
+            ModHandler.addShapedRecipe("output_bus." + GAValues.VN[i], ITEM_EXPORT_BUS[i].getStackForm(), " H", " C",
+                    'H', TJMetaTileEntities.getHull(i).getStackForm(),
+                    'C', new ItemStack(Blocks.CHEST));
+            ModHandler.addShapedRecipe("input_hatch." + GAValues.VN[i], FLUID_IMPORT_HATCH[i].getStackForm(), " G", " H",
+                    'H', TJMetaTileEntities.getHull(i).getStackForm(),
+                    'G', new ItemStack(Blocks.GLASS));
+            ModHandler.addShapedRecipe("output_hatch." + GAValues.VN[i], FLUID_EXPORT_HATCH[i].getStackForm(), " H", " G",
+                    'H', TJMetaTileEntities.getHull(i).getStackForm(),
+                    'G', new ItemStack(Blocks.GLASS));
         }
 
         for (int i = 0; i < UNIVERSAL_CIRCUITS.length; i++) {
