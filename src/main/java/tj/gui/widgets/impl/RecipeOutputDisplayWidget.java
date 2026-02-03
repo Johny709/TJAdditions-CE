@@ -23,7 +23,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemHandlerHelper;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
 import tj.items.handlers.LargeItemStackHandler;
@@ -42,16 +41,16 @@ import java.util.function.Supplier;
 
 public class RecipeOutputDisplayWidget extends Widget {
 
-    private final Int2ObjectMap<ItemStack> itemOutputIndex = new Int2ObjectOpenHashMap<>();
-    private final Int2ObjectMap<FluidStack> fluidOutputIndex = new Int2ObjectOpenHashMap<>();
-    private Supplier<List<ItemStack>> itemOutputSupplier;
-    private Supplier<List<FluidStack>> fluidOutputSupplier;
-    private Supplier<IItemHandlerModifiable>  itemHandlerSupplier;
-    private Supplier<IMultipleTankHandler> fluidTanksSupplier;
+    private final Int2ObjectMap<ItemStack> itemInputIndex = new Int2ObjectOpenHashMap<>(), itemOutputIndex = new Int2ObjectOpenHashMap<>();
+    private final Int2ObjectMap<FluidStack> fluidInputIndex = new Int2ObjectOpenHashMap<>(), fluidOutputIndex = new Int2ObjectOpenHashMap<>();
+    private Supplier<IItemHandlerModifiable> itemInputInventorySupplier, itemOutputInventorySupplier;
+    private Supplier<IMultipleTankHandler> fluidInputTankSupplier, fluidOutputTankSupplier;
+    private IItemHandlerModifiable itemInputInventory, itemOutputInventory;
+    private IMultipleTankHandler fluidInputTanks, fluidOutputTanks;
     private List<ItemStack> itemOutputs = new ArrayList<>();
     private List<FluidStack> fluidOutputs = new ArrayList<>();
-    private IItemHandlerModifiable itemHandler;
-    private IMultipleTankHandler fluidTanks;
+    private Supplier<List<ItemStack>> itemOutputSupplier;
+    private Supplier<List<FluidStack>> fluidOutputSupplier;
     private Size tooltipSize;
     private int lastX;
     private int lastY;
@@ -70,13 +69,23 @@ public class RecipeOutputDisplayWidget extends Widget {
         return this;
     }
 
-    public RecipeOutputDisplayWidget setItemHandlerSupplier(Supplier<IItemHandlerModifiable> itemHandlerSupplier) {
-        this.itemHandlerSupplier = itemHandlerSupplier;
+    public RecipeOutputDisplayWidget setItemInputInventorySupplier(Supplier<IItemHandlerModifiable> itemInputInventorySupplier) {
+        this.itemInputInventorySupplier = itemInputInventorySupplier;
         return this;
     }
 
-    public RecipeOutputDisplayWidget setFluidTanksSupplier(Supplier<IMultipleTankHandler> fluidTanksSupplier) {
-        this.fluidTanksSupplier = fluidTanksSupplier;
+    public RecipeOutputDisplayWidget setItemOutputInventorySupplier(Supplier<IItemHandlerModifiable> itemOutputInventorySupplier) {
+        this.itemOutputInventorySupplier = itemOutputInventorySupplier;
+        return this;
+    }
+
+    public RecipeOutputDisplayWidget setFluidInputTankSupplier(Supplier<IMultipleTankHandler> fluidInputTankSupplier) {
+        this.fluidInputTankSupplier = fluidInputTankSupplier;
+        return this;
+    }
+
+    public RecipeOutputDisplayWidget setFluidOutputTankSupplier(Supplier<IMultipleTankHandler> fluidOutputTankSupplier) {
+        this.fluidOutputTankSupplier = fluidOutputTankSupplier;
         return this;
     }
 
@@ -136,72 +145,28 @@ public class RecipeOutputDisplayWidget extends Widget {
 
     @Override
     public void detectAndSendChanges() {
-        if (this.itemHandlerSupplier != null) {
-            IItemHandlerModifiable itemHandler = this.itemHandlerSupplier.get();
-            if (itemHandler != null) {
-                boolean equal = true;
-                if (this.itemHandler != null && this.itemHandler.getSlots() == itemHandler.getSlots()) {
-                    for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-                        if (this.itemHandler.getSlotLimit(i) != itemHandler.getSlotLimit(i) && !ItemHandlerHelper.canItemStacksStackRelaxed(this.itemHandler.getStackInSlot(i), itemHandler.getStackInSlot(i))) {
-                            equal = false;
-                            break;
-                        }
-                    }
-                } else equal = false;
-                if (!equal) {
-                    this.itemHandler = itemHandler;
-                    this.writeUpdateInfo(1, buffer -> {
-                        buffer.writeInt(this.itemHandler.getSlots());
-                        for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-                            buffer.writeInt(this.itemHandler.getSlotLimit(i));
-                        }
-                    });
-                }
-            }
+        if (this.itemInputInventorySupplier != null) {
+            this.itemInputInventory = this.writeItemInventoryPacket(this.itemInputInventorySupplier.get(), this.itemInputInventory, 1);
         }
-        if (this.fluidTanksSupplier != null) {
-            IMultipleTankHandler fluidTanks = this.fluidTanksSupplier.get();
-            if (fluidTanks != null) {
-                boolean equal = true;
-                if (this.fluidTanks != null && this.fluidTanks.getTanks() == fluidTanks.getTanks()) {
-                    for (int i = 0; i < this.fluidTanks.getTanks(); i++) {
-                        IFluidTank tank = fluidTanks.getTankAt(i);
-                        IFluidTank previousTank = this.fluidTanks.getTankAt(i);
-                        if (previousTank.getCapacity() != tank.getCapacity() && !FluidStack.areFluidStackTagsEqual(previousTank.getFluid(), tank.getFluid())) {
-                            equal = false;
-                            break;
-                        }
-                    }
-                } else equal = false;
-                if (!equal) {
-                    this.fluidTanks = fluidTanks;
-                    this.writeUpdateInfo(2, buffer -> {
-                        buffer.writeInt(this.fluidTanks.getTanks());
-                        for (int i = 0; i < this.fluidTanks.getTanks(); i++) {
-                            buffer.writeInt(this.fluidTanks.getTankAt(i).getCapacity());
-                        }
-                    });
-                }
-            }
+        if (this.itemOutputInventorySupplier != null) {
+            this.itemOutputInventory = this.writeItemInventoryPacket(this.itemOutputInventorySupplier.get(), this.itemOutputInventory, 2);
+        }
+        if (this.fluidInputTankSupplier != null) {
+            this.fluidInputTanks = this.writeFluidTanksPacket(this.fluidInputTankSupplier.get(), this.fluidInputTanks, 3);
+        }
+        if (this.fluidOutputTankSupplier != null) {
+            this.fluidOutputTanks = this.writeFluidTanksPacket(this.fluidOutputTankSupplier.get(), this.fluidOutputTanks, 4);
         }
         if (this.itemOutputSupplier != null) {
             List<ItemStack> itemStacks = this.itemOutputSupplier.get();
             if (itemStacks != null) {
                 this.itemOutputs = itemStacks;
-                this.writeUpdateInfo(3, buffer -> {
+                this.writeUpdateInfo(5, buffer -> {
                     buffer.writeInt(this.itemOutputs.size());
                     for (ItemStack stack : this.itemOutputs)
                         buffer.writeItemStack(stack);
-                    buffer.writeBoolean(this.itemHandlerSupplier != null);
-                    if (this.itemOutputSupplier != null) {
-                        IItemHandlerModifiable itemHandlerModifiable = this.itemHandlerSupplier.get();
-                        buffer.writeBoolean(itemHandlerModifiable != null);
-                        if (itemHandlerModifiable != null) {
-                            buffer.writeInt(itemHandlerModifiable.getSlots());
-                            for (int i = 0; i < itemHandlerModifiable.getSlots(); i++)
-                                buffer.writeItemStack(itemHandlerModifiable.getStackInSlot(i));
-                        }
-                    }
+                    this.writeItemContentsPacket(buffer, this.itemInputInventorySupplier);
+                    this.writeItemContentsPacket(buffer, this.itemOutputInventorySupplier);
                 });
             }
         }
@@ -209,25 +174,121 @@ public class RecipeOutputDisplayWidget extends Widget {
             List<FluidStack> fluidStacks = this.fluidOutputSupplier.get();
             if (fluidStacks != null) {
                 this.fluidOutputs = fluidStacks;
-                this.writeUpdateInfo(4, buffer -> {
+                this.writeUpdateInfo(6, buffer -> {
                     buffer.writeInt(this.fluidOutputs.size());
                     for (FluidStack stack : this.fluidOutputs)
                         buffer.writeCompoundTag(stack.writeToNBT(new NBTTagCompound()));
-                    buffer.writeBoolean(this.fluidOutputSupplier != null);
-                    if (this.fluidOutputSupplier != null) {
-                        IMultipleTankHandler tankHandler = this.fluidTanksSupplier.get();
-                        buffer.writeBoolean(tankHandler != null);
-                        if (tankHandler != null) {
-                            buffer.writeInt(tankHandler.getTanks());
-                            for (int i = 0; i < tankHandler.getTanks(); i++) {
-                                FluidStack stack = tankHandler.getTankAt(i).getFluid();
-                                buffer.writeBoolean(stack != null);
-                                if (stack != null)
-                                    buffer.writeCompoundTag(stack.writeToNBT(new NBTTagCompound()));
-                            }
-                        }
+                    this.writeFluidContentsPacket(buffer, this.fluidInputTankSupplier);
+                    this.writeFluidContentsPacket(buffer, this.fluidOutputTankSupplier);
+                });
+            }
+        }
+    }
+
+    private IItemHandlerModifiable writeItemInventoryPacket(IItemHandlerModifiable itemHandler, IItemHandlerModifiable lastItemHandler, int id) {
+        if (itemHandler != null) {
+            boolean equal = true;
+            if (lastItemHandler != null && lastItemHandler.getSlots() == itemHandler.getSlots()) {
+                for (int i = 0; i < lastItemHandler.getSlots(); i++) {
+                    if (lastItemHandler.getSlotLimit(i) != itemHandler.getSlotLimit(i)) {
+                        equal = false;
+                        break;
+                    }
+                }
+            } else equal = false;
+            if (!equal) {
+                this.writeUpdateInfo(id, buffer -> {
+                    buffer.writeInt(itemHandler.getSlots());
+                    for (int i = 0; i < itemHandler.getSlots(); i++) {
+                        buffer.writeInt(itemHandler.getSlotLimit(i));
                     }
                 });
+                return itemHandler;
+            }
+        }
+        return null;
+    }
+
+    private IMultipleTankHandler writeFluidTanksPacket(IMultipleTankHandler fluidTanks, IMultipleTankHandler lastFluidTanks, int id) {
+        if (fluidTanks != null) {
+            boolean equal = true;
+            if (lastFluidTanks != null && lastFluidTanks.getTanks() == fluidTanks.getTanks()) {
+                for (int i = 0; i < lastFluidTanks.getTanks(); i++) {
+                    IFluidTank tank = fluidTanks.getTankAt(i);
+                    IFluidTank previousTank = lastFluidTanks.getTankAt(i);
+                    if (previousTank.getCapacity() != tank.getCapacity()) {
+                        equal = false;
+                        break;
+                    }
+                }
+            } else equal = false;
+            if (!equal) {
+                this.writeUpdateInfo(id, buffer -> {
+                    buffer.writeInt(fluidTanks.getTanks());
+                    for (int i = 0; i < fluidTanks.getTanks(); i++) {
+                        buffer.writeInt(fluidTanks.getTankAt(i).getCapacity());
+                    }
+                });
+                return fluidTanks;
+            }
+        }
+        return null;
+    }
+
+    private void writeItemContentsPacket(PacketBuffer buffer, Supplier<IItemHandlerModifiable> itemInventorySupplier) {
+        buffer.writeBoolean(itemInventorySupplier != null);
+        if (itemInventorySupplier != null) {
+            IItemHandlerModifiable itemHandlerModifiable = itemInventorySupplier.get();
+            buffer.writeBoolean(itemHandlerModifiable != null);
+            if (itemHandlerModifiable != null) {
+                buffer.writeInt(itemHandlerModifiable.getSlots());
+                for (int i = 0; i < itemHandlerModifiable.getSlots(); i++)
+                    buffer.writeItemStack(itemHandlerModifiable.getStackInSlot(i));
+            }
+        }
+    }
+
+    private void writeFluidContentsPacket(PacketBuffer buffer, Supplier<IMultipleTankHandler> fluidTankSupplier) {
+        buffer.writeBoolean(fluidTankSupplier != null);
+        if (fluidTankSupplier != null) {
+            IMultipleTankHandler tankHandler = fluidTankSupplier.get();
+            buffer.writeBoolean(tankHandler != null);
+            if (tankHandler != null) {
+                buffer.writeInt(tankHandler.getTanks());
+                for (int i = 0; i < tankHandler.getTanks(); i++) {
+                    FluidStack stack = tankHandler.getTankAt(i).getFluid();
+                    buffer.writeBoolean(stack != null);
+                    if (stack != null)
+                        buffer.writeCompoundTag(stack.writeToNBT(new NBTTagCompound()));
+                }
+            }
+        }
+    }
+
+    private void readItemContentsPacket(PacketBuffer buffer, Int2ObjectMap<ItemStack> itemIndex) {
+        if (buffer.readBoolean() && buffer.readBoolean()) {
+            int size6 = buffer.readInt();
+            for (int i = 0; i < size6; i++) {
+                try {
+                    itemIndex.put(i, buffer.readItemStack());
+                } catch (IOException e) {
+                    GTLog.logger.info(e.getMessage());
+                }
+            }
+        }
+    }
+
+    private void readFluidContentsPacket(PacketBuffer buffer, Int2ObjectMap<FluidStack> fluidIndex) {
+        if (buffer.readBoolean() && buffer.readBoolean()) {
+            int size8 = buffer.readInt();
+            for (int i = 0; i < size8; i++) {
+                if (buffer.readBoolean()) {
+                    try {
+                        fluidIndex.put(i, FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag()));
+                    } catch (IOException e) {
+                        GTLog.logger.info(e.getMessage());
+                    }
+                }
             }
         }
     }
@@ -241,101 +302,127 @@ public class RecipeOutputDisplayWidget extends Widget {
                 int size = buffer.readInt();
                 for (int i = 0; i < size; i++)
                     itemHandlers.add(new LargeItemStackHandler(1, buffer.readInt()));
-                this.itemHandler = new ItemHandlerList(itemHandlers);
+                this.itemInputInventory = new ItemHandlerList(itemHandlers);
                 break;
             case 2:
-                List<IFluidTank> fluidTanks = new ArrayList<>();
+                List<IItemHandler> itemHandlers1 = new ArrayList<>();
                 int size1 = buffer.readInt();
                 for (int i = 0; i < size1; i++)
-                    fluidTanks.add(new FluidTank(buffer.readInt()));
-                this.fluidTanks = new FluidTankList(true, fluidTanks);
+                    itemHandlers1.add(new LargeItemStackHandler(1, buffer.readInt()));
+                this.itemOutputInventory = new ItemHandlerList(itemHandlers1);
                 break;
             case 3:
+                List<IFluidTank> fluidTanks = new ArrayList<>();
+                int size3 = buffer.readInt();
+                for (int i = 0; i < size3; i++)
+                    fluidTanks.add(new FluidTank(buffer.readInt()));
+                this.fluidInputTanks = new FluidTankList(true, fluidTanks);
+                break;
+            case 4:
+                List<IFluidTank> fluidTanks1 = new ArrayList<>();
+                int size4 = buffer.readInt();
+                for (int i = 0; i < size4; i++)
+                    fluidTanks1.add(new FluidTank(buffer.readInt()));
+                this.fluidOutputTanks = new FluidTankList(true, fluidTanks1);
+                break;
+            case 5:
                 this.itemOutputs.clear();
+                this.itemInputIndex.clear();
                 this.itemOutputIndex.clear();
-                int size2 = buffer.readInt();
-                for (int i = 0; i < size2; i++) {
+                int size5 = buffer.readInt();
+                for (int i = 0; i < size5; i++) {
                     try {
                         this.itemOutputs.add(buffer.readItemStack());
                     } catch (IOException e) {
                         GTLog.logger.info(e.getMessage());
                     }
                 }
-                if (buffer.readBoolean() && buffer.readBoolean()) {
-                    int size4 = buffer.readInt();
-                    for (int i = 0; i < size4; i++) {
-                        try {
-                            this.itemOutputIndex.put(i, buffer.readItemStack());
-                        } catch (IOException e) {
-                            GTLog.logger.info(e.getMessage());
-                        }
-                    }
+                this.readItemContentsPacket(buffer, this.itemInputIndex);
+                this.readItemContentsPacket(buffer, this.itemOutputIndex);
+                if (this.itemInputInventory != null) for (int i = 0; i < this.itemInputInventory.getSlots(); i++) {
+                    this.itemInputInventory.extractItem(i, Integer.MAX_VALUE, false);
+                    this.itemInputInventory.insertItem(i, this.itemInputIndex.get(i), false);
                 }
-                if (this.itemHandler == null) break;
-                for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-                    this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
-                    this.itemHandler.insertItem(i, this.itemOutputIndex.get(i), false);
+                if (this.itemOutputInventory != null) for (int i = 0; i < this.itemOutputInventory.getSlots(); i++) {
+                    this.itemOutputInventory.extractItem(i, Integer.MAX_VALUE, false);
+                    this.itemOutputInventory.insertItem(i, this.itemOutputIndex.get(i), false);
                 }
+                this.itemInputIndex.clear();
                 this.itemOutputIndex.clear();
                 for (ItemStack stack : this.itemOutputs) {
                     stack = stack.copy();
                     IntegerReference previousCount = new IntegerReference();
                     BooleanReference previouslyFilled = new BooleanReference();
                     ObjectReference<ItemStack> inserted = new ObjectReference<>();
-                    ItemStackHelper.insertIntoItemHandlerWithCallback(this.itemHandler, stack, false, (slot, itemStack) -> {
-                        inserted.setValue(itemStack.copy());
+                    stack = ItemStackHelper.insertIntoItemHandlerWithCallback(this.itemInputInventory, stack, false, (slot, itemStack) -> {
+                        previouslyFilled.setValue(!this.itemInputInventory.getStackInSlot(slot).isEmpty());
                         previousCount.setValue(itemStack.getCount());
-                        previouslyFilled.setValue(!this.itemHandler.getStackInSlot(slot).isEmpty());
+                        inserted.setValue(itemStack.copy());
                     }, (slot, itemStack) -> {
                         if (itemStack.getCount() < previousCount.getValue()) {
-                            inserted.getValue().setCount(previouslyFilled.isValue() ? 0 : this.itemHandler.getStackInSlot(slot).getCount());
+                            inserted.getValue().setCount(previouslyFilled.isValue() ? 0 : this.itemInputInventory.getStackInSlot(slot).getCount());
+                            this.itemInputIndex.put(slot, inserted.getValue());
+                        }
+                    });
+                    ItemStackHelper.insertIntoItemHandlerWithCallback(this.itemOutputInventory, stack, false, (slot, itemStack) -> {
+                        previouslyFilled.setValue(!this.itemOutputInventory.getStackInSlot(slot).isEmpty());
+                        previousCount.setValue(itemStack.getCount());
+                        inserted.setValue(itemStack.copy());
+                    }, (slot, itemStack) -> {
+                        if (itemStack.getCount() < previousCount.getValue()) {
+                            inserted.getValue().setCount(previouslyFilled.isValue() ? 0 : this.itemOutputInventory.getStackInSlot(slot).getCount());
                             this.itemOutputIndex.put(slot, inserted.getValue());
                         }
                     });
                 }
                 this.formatTooltip();
                 break;
-            case 4:
+            case 6:
                 this.fluidOutputs.clear();
+                this.fluidInputIndex.clear();
                 this.fluidOutputIndex.clear();
-                int size3 = buffer.readInt();
-                for (int i = 0; i < size3; i++) {
+                int size7 = buffer.readInt();
+                for (int i = 0; i < size7; i++) {
                     try {
                         this.fluidOutputs.add(FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag()));
                     } catch (IOException e) {
                         GTLog.logger.info(e.getMessage());
                     }
                 }
-                if (buffer.readBoolean() && buffer.readBoolean()) {
-                    int size4 = buffer.readInt();
-                    for (int i = 0; i < size4; i++) {
-                        if (buffer.readBoolean()) {
-                            try {
-                                this.fluidOutputIndex.put(i, FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag()));
-                            } catch (IOException e) {
-                                GTLog.logger.info(e.getMessage());
-                            }
-                        }
-                    }
+                this.readFluidContentsPacket(buffer, this.fluidInputIndex);
+                this.readFluidContentsPacket(buffer, this.fluidOutputIndex);
+                if (this.fluidInputTanks != null) for (int i = 0; i < this.fluidInputTanks.getTanks(); i++) {
+                    this.fluidInputTanks.getTankAt(i).drain(Integer.MAX_VALUE, true);
+                    this.fluidInputTanks.getTankAt(i).fill(this.fluidInputIndex.get(i), true);
                 }
-                if (this.fluidTanks == null) break;
-                for (int i = 0; i < this.fluidTanks.getTanks(); i++) {
-                    this.fluidTanks.getTankAt(i).drain(Integer.MAX_VALUE, true);
-                    this.fluidTanks.getTankAt(i).fill(this.fluidOutputIndex.get(i), true);
+                if (this.fluidOutputTanks != null) for (int i = 0; i < this.fluidOutputTanks.getTanks(); i++) {
+                    this.fluidOutputTanks.getTankAt(i).drain(Integer.MAX_VALUE, true);
+                    this.fluidOutputTanks.getTankAt(i).fill(this.fluidOutputIndex.get(i), true);
                 }
+                this.fluidInputIndex.clear();
                 this.fluidOutputIndex.clear();
                 for (FluidStack stack : this.fluidOutputs) {
                     stack = stack.copy();
                     IntegerReference previousCount = new IntegerReference();
                     BooleanReference previouslyFilled = new BooleanReference();
                     ObjectReference<FluidStack> inserted = new ObjectReference<>();
-                    TJFluidUtils.fillIntoTanksWithCallback(this.fluidTanks, stack, true, (slot, fluidStack) -> {
-                        inserted.setValue(fluidStack.copy());
+                    stack = TJFluidUtils.fillIntoTanksWithCallback(this.fluidInputTanks, stack, true, (slot, fluidStack) -> {
+                        previouslyFilled.setValue(this.fluidInputTanks.getTankAt(slot).getFluidAmount() > 0);
                         previousCount.setValue(fluidStack.amount);
-                        previouslyFilled.setValue(this.fluidTanks.getTankAt(slot).getFluidAmount() > 0);
+                        inserted.setValue(fluidStack.copy());
                     }, (slot, fluidStack) -> {
                         if (fluidStack.amount < previousCount.getValue()) {
-                            inserted.getValue().amount = previouslyFilled.isValue() ? 0 : this.fluidTanks.getTankAt(slot).getFluidAmount();
+                            inserted.getValue().amount = previouslyFilled.isValue() ? 0 : this.fluidInputTanks.getTankAt(slot).getFluidAmount();
+                            this.fluidInputIndex.put(slot, inserted.getValue());
+                        }
+                    });
+                    TJFluidUtils.fillIntoTanksWithCallback(this.fluidOutputTanks, stack, true, (slot, fluidStack) -> {
+                        previouslyFilled.setValue(this.fluidOutputTanks.getTankAt(slot).getFluidAmount() > 0);
+                        previousCount.setValue(fluidStack.amount);
+                        inserted.setValue(fluidStack.copy());
+                    }, (slot, fluidStack) -> {
+                        if (fluidStack.amount < previousCount.getValue()) {
+                            inserted.getValue().amount = previouslyFilled.isValue() ? 0 : this.fluidOutputTanks.getTankAt(slot).getFluidAmount();
                             this.fluidOutputIndex.put(slot, inserted.getValue());
                         }
                     });
@@ -368,11 +455,19 @@ public class RecipeOutputDisplayWidget extends Widget {
         this.tooltipSize = new Size(totalWidth, totalHeight);
     }
 
-    public ItemStack getItemAt(int index) {
+    public ItemStack getItemInputAt(int index) {
+        return this.itemInputIndex.get(index);
+    }
+
+    public ItemStack getItemOutputAt(int index) {
         return this.itemOutputIndex.get(index);
     }
 
-    public FluidStack getFluidAt(int index) {
+    public FluidStack getFluidInputAt(int index) {
+        return this.fluidInputIndex.get(index);
+    }
+
+    public FluidStack getFluidOutputAt(int index) {
         return this.fluidOutputIndex.get(index);
     }
 }

@@ -55,8 +55,8 @@ public abstract class GASimpleMachineMetaTileEntityMixin extends GAWorkableTiere
         RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 22, 21, 20)
                 .setFluidOutputSupplier(((IAbstractRecipeLogicMixin) this.workable)::getFluidOutputs)
                 .setItemOutputSupplier(((IAbstractRecipeLogicMixin) this.workable)::getItemOutputs)
-                .setItemHandlerSupplier(this::getExportItems)
-                .setFluidTanksSupplier(this::getExportFluids);
+                .setItemOutputInventorySupplier(this::getExportItems)
+                .setFluidOutputTankSupplier(this::getExportFluids);
         ModularUI.Builder newBuilder = ((IRecipeMap) this.workable.recipeMap).createUITemplateAdvanced(this.workable::getProgressPercent, this.importItems, this.exportItems, this.importFluids, this.exportFluids, displayWidget)
                 .image(-28, 0, 26, 86, GuiTextures.BORDERED_BACKGROUND)
                 .image(-28, 138, 26, 26, GuiTextures.BORDERED_BACKGROUND)

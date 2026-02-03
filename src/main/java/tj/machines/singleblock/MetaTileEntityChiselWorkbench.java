@@ -75,8 +75,8 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
         RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 21, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
-                .setItemHandlerSupplier(this::getExportItems)
-                .setFluidTanksSupplier(this::getExportFluids);
+                .setItemOutputInventorySupplier(this::getExportItems)
+                .setFluidOutputTankSupplier(this::getExportFluids);
         return ModularUI.defaultBuilder()
                 .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
@@ -89,7 +89,7 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
                         .setBackgroundTexture(SLOT, MOLD_OVERLAY))
                 .widget(new SlotWidget(this.exportItems, 0, 105, 22, true, false)
                         .setBackgroundTexture(SLOT))
-                .widget(new RecipeOutputSlotWidget(0, 105, 22, 18, 18, displayWidget::getItemAt, null))
+                .widget(new RecipeOutputSlotWidget(0, 105, 22, 18, 18, displayWidget::getItemOutputAt, null))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new ToggleButtonWidget(151, 62, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)

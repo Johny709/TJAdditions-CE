@@ -108,7 +108,7 @@ public abstract class RecipeMapMixin implements IRecipeMap {
                 int y = startInputsY + 18 * i;
                 addSlot(builder, x, y, slotIndex, itemHandler, fluidHandler, invertFluids, isOutputs);
                 if (isOutputs)
-                    builder.widget(new RecipeOutputSlotWidget(slotIndex, x, y, 18, 18, displayWidget::getItemAt, null));
+                    builder.widget(new RecipeOutputSlotWidget(slotIndex, x, y, 18, 18, displayWidget::getItemOutputAt, null));
             }
         }
         if (fluidInputsCount > 0 || invertFluids) {
@@ -118,7 +118,7 @@ public abstract class RecipeMapMixin implements IRecipeMap {
                     int y = startInputsY + 18 * i;
                     addSlot(builder, startSpecX, y, i, itemHandler, fluidHandler, !invertFluids, isOutputs);
                     if (isOutputs)
-                        builder.widget(new RecipeOutputSlotWidget(i, startSpecX, y, 18, 18, null, displayWidget::getFluidAt));
+                        builder.widget(new RecipeOutputSlotWidget(i, startSpecX, y, 18, 18, null, displayWidget::getFluidOutputAt));
                 }
             } else {
                 int startSpecY = startInputsY + itemSlotsToDown * 18;
@@ -127,7 +127,7 @@ public abstract class RecipeMapMixin implements IRecipeMap {
                     int y = startSpecY + (i / 3) * 18;
                     addSlot(builder, x, y, i, itemHandler, fluidHandler, !invertFluids, isOutputs);
                     if (isOutputs)
-                        builder.widget(new RecipeOutputSlotWidget(i, x, y, 18, 18, null, displayWidget::getFluidAt));
+                        builder.widget(new RecipeOutputSlotWidget(i, x, y, 18, 18, null, displayWidget::getFluidOutputAt));
                 }
             }
         }

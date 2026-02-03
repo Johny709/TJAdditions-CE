@@ -127,16 +127,18 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
         RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 21, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
-                .setItemHandlerSupplier(this::getExportItems)
-                .setFluidTanksSupplier(this::getExportFluids);
+                .setItemInputInventorySupplier(this::getImportItems)
+                .setItemOutputInventorySupplier(this::getExportItems)
+                .setFluidOutputTankSupplier(this::getExportFluids);
         for (int i = 0; i < this.seedInventory.getSlots(); i++) {
             widgetGroup.addWidget(new TJSlotWidget<>(this.seedInventory, i, 18 * (i % 2), 18 * (i / 2))
                     .setBackgroundTexture(SLOT, SEEDS_OVERLAY));
+            widgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 2), 18 * (i / 2), 18, 18, displayWidget::getItemInputAt, null));
         }
         for (int i = 0; i < this.exportItems.getSlots(); i++) {
             scrollableWidgetGroup.addWidget(new SlotWidget(this.exportItems, i, 18 * (i % 3), 18 * (i / 3), true, false)
                     .setBackgroundTexture(SLOT));
-            scrollableWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 3), 18 * (i / 3), 18, 18, displayWidget::getItemAt, null));
+            scrollableWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 3), 18 * (i / 3), 18, 18, displayWidget::getItemOutputAt, null));
         }
         return ModularUI.builder(GuiTextures.BACKGROUND, 176, 182)
                 .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
