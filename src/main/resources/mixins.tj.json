@@ -12,6 +12,8 @@
     "ae2.ApiPartsMixin",
     "ae2.DisassembleRecipeMixin",
     "ae2.DualityInterfaceMixin",
+    "ae2.IMultiCraftingTrackerMixin",
+    "ae2.TileCableBusMixin",
     "gregic_probe.ElectricContainerInfoProviderMixin",
     "gregic_probe.RecipeInfoProviderMixin",
     "gregic_probe.WorkableInfoProviderMixin",

@@ -5,7 +5,6 @@ import appeng.api.definitions.IBlocks;
 import appeng.api.definitions.IItems;
 import appeng.api.definitions.IParts;
 import appeng.core.Api;
-import appeng.core.sync.GuiBridge;
 import gregtech.api.GTValues;
 import gregtech.api.util.GTLog;
 import net.minecraftforge.fml.common.Mod;
@@ -14,26 +13,21 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.apache.logging.log4j.Logger;
 import tj.blocks.TJMetaBlocks;
 import tj.capability.TJSimpleCapabilityManager;
 import tj.gui.uifactory.PlayerUIFactory;
+import tj.gui.uifactory.TileEntityUIFactory;
 import tj.integration.appeng.IApiBlocks;
 import tj.integration.appeng.IApiItems;
 import tj.integration.appeng.IApiParts;
-import tj.integration.appeng.core.sync.TJGuiBridge;
 import tj.integration.theoneprobe.TheOneProbeCompatibility;
 import tj.items.TJCoverBehaviours;
 import tj.machines.TJMetaTileEntities;
 
-import javax.annotation.Nonnull;
-
 
 @Mod(modid = TJ.MODID, name = TJ.NAME, version = TJ.VERSION)
 public class TJ {
-
-    public static final TJ INSTANCE = new TJ();
 
     public static final String MODID = "tj";
     public static final String NAME = "TJ";
@@ -46,16 +40,11 @@ public class TJ {
 
     private static Logger logger;
 
-    @Nonnull
-    @Mod.InstanceFactory
-    public static TJ getInstance() {
-        return INSTANCE;
-    }
-
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         proxy.onPreLoad();
         PlayerUIFactory.INSTANCE.init();
+        TileEntityUIFactory.INSTANCE.init();
         TJMetaBlocks.init();
         TJMetaTileEntities.init();
         TJSimpleCapabilityManager.init();
@@ -117,7 +106,5 @@ public class TJ {
         // Super Fluid Interface
         Upgrades.CAPACITY.registerItem(parts.getSuperFluidInterface(), 4);
         Upgrades.CAPACITY.registerItem(blocks.getSuperFluidInterface(), 4);
-
-        NetworkRegistry.INSTANCE.registerGuiHandler(this, TJGuiBridge.GUI_HANDLER);
     }
 }
