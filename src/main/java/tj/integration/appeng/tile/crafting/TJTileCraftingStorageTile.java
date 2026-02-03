@@ -1,9 +1,11 @@
 package tj.integration.appeng.tile.crafting;
 
 import appeng.api.definitions.IBlocks;
+import appeng.block.crafting.BlockCraftingUnit;
 import appeng.core.Api;
 import appeng.tile.crafting.TileCraftingStorageTile;
 import appeng.tile.crafting.TileCraftingTile;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 
@@ -87,6 +89,20 @@ public class TJTileCraftingStorageTile extends TileCraftingStorageTile {
         if (this.world == null || this.notLoaded() || this.isInvalid()) {
             return 0;
         }
-        return (int) Math.min(Integer.MAX_VALUE, (long) ((TJBlockCraftingUnit) this.world.getBlockState(this.pos).getBlock()).getType().getBytes() * KILO_SCALAR);
+        Block block = this.world.getBlockState(this.pos).getBlock();
+        return block instanceof TJBlockCraftingUnit ? (int) Math.min(Integer.MAX_VALUE, (long) ((TJBlockCraftingUnit) block).getType().getBytes() * KILO_SCALAR)
+                : block instanceof BlockCraftingUnit ? this.getType(((BlockCraftingUnit) block).type) : 0 ;
+    }
+
+    private int getType(BlockCraftingUnit.CraftingUnitType craftingUnitType) {
+        switch (craftingUnitType) {
+            case STORAGE_4K:
+                return 4 * 1024;
+            case STORAGE_16K:
+                return 16 * 1024;
+            case STORAGE_64K:
+                return 64 * 1024;
+            default: return 1024;
+        }
     }
 }
