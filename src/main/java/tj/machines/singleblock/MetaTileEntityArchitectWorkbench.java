@@ -80,7 +80,7 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
         return ModularUI.defaultBuilder()
-                .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 21, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new SlotWidget(this.importItems, 0, 34, 22, true, true)

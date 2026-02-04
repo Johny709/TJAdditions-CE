@@ -138,7 +138,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
         return ModularUI.builder(BACKGROUND, 176, 216)
-                .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 55, 111, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new ImageWidget(72, 28, 26, 26, SLOT))
