@@ -48,7 +48,7 @@ public class MetaTileEntityGAItemBus extends MetaTileEntityItemBus {
             else slotGroup.addWidget(slotWidget);
         }
         return ModularUI.builder(GuiTextures.BACKGROUND, 196, 137 + Math.min(144, 18 * (this.getTier() - 1)))
-                .widget(new TJLabelWidget(7, -18, 178, 20, TJGuiTextures.MACHINE_LABEL)
+                .widget(new TJLabelWidget(7, -18, 178, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(this.getTier() > 9 ? slotScrollGroup : slotGroup)
                 .bindPlayerInventory(player.inventory, 55 + Math.min(144, 18 * (this.getTier() - 1)))

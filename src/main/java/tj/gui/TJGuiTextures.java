@@ -11,7 +11,8 @@ public class TJGuiTextures {
     public static final TextureArea MULTIBLOCK_DISPLAY_SLOTS = TextureArea.fullImage("textures/gui/base/multiblock_display_slots.png");
     public static final TextureArea MULTIBLOCK_DISPLAY_SLICE = AdoptableTextureArea.fullImage("textures/gui/base/multiblock_display_slice.png");
 
-    public static final TextureArea MACHINE_LABEL = AdoptableTextureArea.fullImage("textures/gui/base/machine_label.png", 20, 20, 2, 2);
+    public static final TextureArea MACHINE_LABEL = AdoptableTextureArea.fullImage("textures/gui/base/machine_label.png", 18, 18, 2, 2);
+    public static final TextureArea MACHINE_LABEL_2 = AdoptableTextureArea.fullImage("textures/gui/base/machine_label_2.png", 18, 18, 3, 3);
     public static final TextureArea MACHINE_LABEL_BRONZE = AdoptableTextureArea.fullImage("textures/gui/base/machine_label_bronze.png", 20, 20, 2, 2);
     public static final TextureArea MACHINE_LABEL_STEEL = AdoptableTextureArea.fullImage("textures/gui/base/machine_label_steel.png", 20, 20, 2, 2);
 

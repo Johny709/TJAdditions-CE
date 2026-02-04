@@ -35,6 +35,8 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
+import tj.gui.TJGuiTextures;
+import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.impl.CraftingRecipeTransferWidget;
 import tj.gui.widgets.impl.SlotDisplayWidget;
@@ -108,7 +110,8 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
                     }));
         }
         return ModularUI.builder(BACKGROUND, 176, 156)
-                .widget(new LabelWidget(7, 5, this.getMetaFullName()))
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
+                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new ImageWidget(72, 28, 26, 26, SLOT))
                 .widget(new ImageWidget(109, 14, 54, 54, DARKENED_SLOT))
                 .widget(new SlotDisplayWidget(this.resultInventory, 0, 76, 32)

@@ -60,7 +60,7 @@ public class MetaTileEntityWaterReservoirHatch extends MetaTileEntityMultiblockP
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         return ModularUI.defaultBuilder()
-                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(4, 4, 168, 80, this::getWaterAmount, this::getWaterCapacity, true, ProgressWidget.MoveType.VERTICAL)
                         .setLocale("tj.multiblock.bars.fluid", () -> new Object[]{this.fluidTank.getFluid().getLocalizedName()})
@@ -93,18 +93,19 @@ public class MetaTileEntityWaterReservoirHatch extends MetaTileEntityMultiblockP
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
+        if (this.getController() == null) {
+            int oldBaseColor = renderState.baseColour;
+            int oldAlphaOverride = renderState.alphaOverride;
+
+            renderState.baseColour = TJValues.VC[10] << 8;
+            renderState.alphaOverride = 0xFF;
+
+            for (EnumFacing facing : EnumFacing.VALUES)
+                TJTextures.SUPER_HATCH_OVERLAY.renderSided(facing, renderState, translation, pipeline);
+
+            renderState.baseColour = oldBaseColor;
+            renderState.alphaOverride = oldAlphaOverride;
+        }
         ClientHandler.COVER_INFINITE_WATER.renderSided(getFrontFacing(), renderState, translation, pipeline);
-        if (this.getController() != null) return;
-        int oldBaseColor = renderState.baseColour;
-        int oldAlphaOverride = renderState.alphaOverride;
-
-        renderState.baseColour = TJValues.VC[10] << 8;
-        renderState.alphaOverride = 0xFF;
-
-        for (EnumFacing facing : EnumFacing.VALUES)
-            TJTextures.SUPER_HATCH_OVERLAY.renderSided(facing, renderState, translation, pipeline);
-
-        renderState.baseColour = oldBaseColor;
-        renderState.alphaOverride = oldAlphaOverride;
     }
 }

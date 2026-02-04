@@ -206,7 +206,7 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkabl
                 .setBackgroundTexture(boilerType.getSlot(), boilerType.getOut()));
         widgetGroup.addWidget(new ImageWidget(38, 35, 18, 18, boilerType.getCanister()));
         return ModularUI.builder(boilerType.getBackground(), 176, 167)
-                .widget(new TJLabelWidget(7, -18, 166, 20, this.boilerType == BRONZE ? TJGuiTextures.MACHINE_LABEL_BRONZE : this.boilerType == STEEL ? TJGuiTextures.MACHINE_LABEL_STEEL : TJGuiTextures.MACHINE_LABEL)
+                .widget(new TJLabelWidget(7, -18, 166, 18, this.boilerType == BRONZE ? TJGuiTextures.MACHINE_LABEL_BRONZE : this.boilerType == STEEL ? TJGuiTextures.MACHINE_LABEL_STEEL : TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(widgetGroup)
                 .bindPlayerInventory(player.inventory, boilerType.getSlot(), 7, 85)

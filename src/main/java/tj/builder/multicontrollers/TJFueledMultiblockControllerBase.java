@@ -60,7 +60,7 @@ public abstract class TJFueledMultiblockControllerBase extends GAFueledMultibloc
                 .offsetY(132);
         if (height > 0)
             builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
-        builder.widget(new TJLabelWidget(-1, -38, 184, 20, TJGuiTextures.MACHINE_LABEL, () -> Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName())
+        builder.widget(new TJLabelWidget(-1, -38, 184, 18, TJGuiTextures.MACHINE_LABEL, () -> Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName())
                 .setItemLabel(this.getStackForm())
                 .setLocale(this.getMetaFullName()));
         builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN)
