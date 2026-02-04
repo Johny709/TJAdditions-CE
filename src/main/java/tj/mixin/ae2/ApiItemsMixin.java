@@ -10,9 +10,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tj.integration.appeng.IApiItems;
-import tj.integration.appeng.items.cells.TJFluidStorageCell;
-import tj.integration.appeng.items.cells.TJItemStorageCell;
-import tj.integration.appeng.items.materials.TJAE2MaterialType;
+import appeng.items.cells.TJFluidStorageCell;
+import appeng.items.cells.TJItemStorageCell;
+import appeng.items.materials.TJAE2MaterialType;
 
 @Mixin(value = ApiItems.class, remap = false)
 public abstract class ApiItemsMixin implements IApiItems {

@@ -11,9 +11,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tj.integration.appeng.IApiParts;
-import tj.integration.appeng.items.parts.TJItemPart;
-import tj.integration.appeng.items.parts.TJItemPartRendering;
-import tj.integration.appeng.items.parts.TJPartType;
+import appeng.items.parts.TJItemPart;
+import appeng.items.parts.TJItemPartRendering;
+import appeng.items.parts.TJPartType;
 
 @Mixin(value = ApiParts.class, remap = false)
 public abstract class ApiPartsMixin implements IApiParts {

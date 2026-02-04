@@ -14,13 +14,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tj.integration.appeng.IApiBlocks;
-import tj.integration.appeng.block.crafting.TJBlockCraftingUnit;
-import tj.integration.appeng.block.crafting.TJCraftingUnitType;
-import tj.integration.appeng.block.misc.BlockSuperInterface;
-import tj.integration.appeng.render.crafting.TJCraftingCubeRendering;
-import tj.integration.appeng.tile.crafting.TJTileCraftingStorageTile;
-import tj.integration.appeng.tile.misc.TJTileFluidInterface;
-import tj.integration.appeng.tile.misc.TileSuperInterface;
+import appeng.block.crafting.TJBlockCraftingUnit;
+import appeng.block.crafting.TJCraftingUnitType;
+import appeng.block.misc.BlockSuperInterface;
+import appeng.render.crafting.TJCraftingCubeRendering;
+import appeng.tile.crafting.TJTileCraftingStorageTile;
+import appeng.tile.misc.TJTileFluidInterface;
+import appeng.tile.misc.TileSuperInterface;
 
 @Mixin(value = ApiBlocks.class, remap = false)
 public abstract class ApiBlocksMixin implements IApiBlocks {

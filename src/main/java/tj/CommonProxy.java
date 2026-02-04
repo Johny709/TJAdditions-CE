@@ -5,7 +5,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import tj.capability.LinkEvent;
 import tj.event.MTELinkEvent;
-import tj.integration.appeng.items.materials.TJItemMaterial;
+import appeng.items.materials.TJItemMaterial;
 import tj.items.TJMetaItems;
 import tj.items.item.TJItems;
 import tj.recipes.LateRecipes;
