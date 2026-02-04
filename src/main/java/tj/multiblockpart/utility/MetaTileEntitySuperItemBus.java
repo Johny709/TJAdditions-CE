@@ -156,13 +156,14 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
             Textures.ITEM_HATCH_INPUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
             Textures.PIPE_IN_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
         }
+        if (this.getController() != null) return;
         int oldBaseColor = renderState.baseColour;
         int oldAlphaOverride = renderState.alphaOverride;
 
         renderState.baseColour = TJValues.VC[this.getTier()] << 8;
         renderState.alphaOverride = 0xFF;
 
-        for (EnumFacing facing : EnumFacing.values())
+        for (EnumFacing facing : EnumFacing.VALUES)
             TJTextures.SUPER_HATCH_OVERLAY.renderSided(facing, renderState, translation, pipeline);
 
         renderState.baseColour = oldBaseColor;

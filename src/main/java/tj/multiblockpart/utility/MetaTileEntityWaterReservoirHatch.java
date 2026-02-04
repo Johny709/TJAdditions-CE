@@ -15,15 +15,18 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.unification.material.Materials;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityMultiblockPart;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.TJValues;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
+import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
 
 import javax.annotation.Nullable;
@@ -91,5 +94,17 @@ public class MetaTileEntityWaterReservoirHatch extends MetaTileEntityMultiblockP
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         ClientHandler.COVER_INFINITE_WATER.renderSided(getFrontFacing(), renderState, translation, pipeline);
+        if (this.getController() != null) return;
+        int oldBaseColor = renderState.baseColour;
+        int oldAlphaOverride = renderState.alphaOverride;
+
+        renderState.baseColour = TJValues.VC[10] << 8;
+        renderState.alphaOverride = 0xFF;
+
+        for (EnumFacing facing : EnumFacing.VALUES)
+            TJTextures.SUPER_HATCH_OVERLAY.renderSided(facing, renderState, translation, pipeline);
+
+        renderState.baseColour = oldBaseColor;
+        renderState.alphaOverride = oldAlphaOverride;
     }
 }

@@ -109,19 +109,21 @@ public class TJProgressBarWidget extends Widget {
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         Size size = this.getSize();
         Position pos = this.getPosition();
-        int width = this.moveType == ProgressWidget.MoveType.HORIZONTAL ? (int) ((size.getWidth() - 2) * (this.progress / this.maxProgress)) : size.getWidth() - 2;
-        int height = this.moveType == ProgressWidget.MoveType.VERTICAL ? (int) ((size.getHeight() - 2) * (this.progress / this.maxProgress)) : size.getHeight() - 2;
+        long width = this.moveType == ProgressWidget.MoveType.HORIZONTAL ? (long) ((size.getWidth() - 2) * (this.progress / this.maxProgress)) : size.getWidth() - 2;
+        long height = this.moveType == ProgressWidget.MoveType.VERTICAL ? (long) ((size.getHeight() - 2) * (this.progress / this.maxProgress)) : size.getHeight() - 2;
         int x = this.inverted ? pos.getX() + size.getWidth() - 1: pos.getX() + 1;
         int y = this.inverted ? pos.getY() + size.getHeight() - 1: pos.getY() + 1;
         if (this.backgroundTexture != null)
             this.backgroundTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         if (!this.isFluid) {
-            if (this.barTexture != null)
-                this.barTexture.draw(x, y, this.inverted ? -width : width, this.inverted ? -height : height);
-            else Widget.drawSolidRect(x, y, this.inverted ? -width : width, this.inverted ? -height : height, this.color);
+            if (this.barTexture != null) {
+                this.barTexture.draw(x, y, (int) (this.inverted ? -width : width), (int) (this.inverted ? -height : height));
+            } else Widget.drawSolidRect(x, y, (int) (this.inverted ? -width : width), (int) (this.inverted ? -height : height), this.color);
         } else if (this.fluid != null) {
             GlStateManager.disableBlend();
-            TJGuiUtils.drawFluidForGui(this.fluid, (long) this.progress, (long) this.maxProgress, x, y, this.inverted ? -(width + 1) : width + 1, this.inverted ? -height : height);
+            x -= (this.inverted ? size.getWidth() - 1 : 0);
+            y -= (this.inverted ? size.getHeight() - 1 : 0);
+            TJGuiUtils.drawFluidForGui(this.fluid, (long) this.progress, (long) this.maxProgress, x, y, width + 1, height);
             GlStateManager.enableBlend();
             GlStateManager.color(1.0f, 1.0f, 1.0f);
         }
