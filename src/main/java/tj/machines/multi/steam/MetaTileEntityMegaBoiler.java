@@ -4,10 +4,14 @@ import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregicadditions.item.GAHeatingCoil;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.multiblock.BlockWorldState;
+import gregtech.common.blocks.BlockWireCoil;
+import net.minecraft.block.Block;
+import net.minecraft.network.PacketBuffer;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.capability.impl.handler.IBoilerHandler;
 import tj.capability.impl.workable.MegaBoilerRecipeLogic;
@@ -121,24 +125,6 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
         fluidTanks.addAll(this.getAbilities(TJMultiblockAbility.STEAM_OUTPUT));
 
         this.exportFluidTank = new FluidTankList(true, fluidTanks);
-    }
-
-    private void replaceFireboxAsActive(boolean isActive) {
-        this.activeStates.forEach(pos -> {
-            IBlockState state = this.getWorld().getBlockState(pos);
-            if (state.getBlock() instanceof BlockFireboxCasing) {
-                state = state.withProperty(BlockFireboxCasing.ACTIVE, isActive);
-                this.getWorld().setBlockState(pos, state);
-            }
-        });
-    }
-
-    @Override
-    public void onRemoval() {
-        super.onRemoval();
-        if (!this.getWorld().isRemote) {
-            this.replaceFireboxAsActive(false);
-        }
     }
 
     @Override
@@ -273,6 +259,61 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
             }
         }
         return super.onRightClick(playerIn, hand, facing, hitResult);
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        this.writeActiveBlockPacket(buf, this.boilerRecipeLogic.isActive());
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.readActiveBlockPacket(buf);
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 128) {
+            this.readActiveBlockPacket(buf);
+        }
+    }
+
+    private void writeActiveBlockPacket(PacketBuffer buffer, boolean isActive) {
+        buffer.writeBoolean(isActive);
+        buffer.writeInt(this.activeStates.size());
+        for (BlockPos pos : this.activeStates) {
+            buffer.writeBlockPos(pos);
+        }
+    }
+
+    private void readActiveBlockPacket(PacketBuffer buffer) {
+        boolean isActive = buffer.readBoolean();
+        int size = buffer.readInt();
+        for (int i = 0; i < size; i++) {
+            BlockPos pos = buffer.readBlockPos();
+            IBlockState state = this.getWorld().getBlockState(pos);
+            Block block = state.getBlock();
+            if (block instanceof BlockWireCoil) {
+                state = state.withProperty(BlockFireboxCasing.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            }
+        }
+    }
+
+    private void replaceFireboxAsActive(boolean isActive) {
+        this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (!this.getWorld().isRemote) {
+            this.replaceFireboxAsActive(false);
+            this.markDirty();
+        }
     }
 
     @Override
