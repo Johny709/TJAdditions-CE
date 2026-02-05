@@ -6,10 +6,8 @@
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ae2.ApiBlocksMixin",
     "ae2.ApiItemsMixin",
     "ae2.ApiMaterialsMixin",
-    "ae2.ApiPartsMixin",
     "ae2.DisassembleRecipeMixin",
     "ae2.DualityInterfaceMixin",
     "ae2.IMultiCraftingTrackerMixin",

@@ -1,9 +1,7 @@
 package tj;
 
 import appeng.api.config.Upgrades;
-import appeng.api.definitions.IBlocks;
 import appeng.api.definitions.IItems;
-import appeng.api.definitions.IParts;
 import appeng.core.Api;
 import gregtech.api.GTValues;
 import gregtech.api.util.GTLog;
@@ -18,9 +16,7 @@ import tj.blocks.TJMetaBlocks;
 import tj.capability.TJSimpleCapabilityManager;
 import tj.gui.uifactory.PlayerUIFactory;
 import tj.gui.uifactory.TileEntityUIFactory;
-import tj.integration.appeng.IApiBlocks;
 import tj.integration.appeng.IApiItems;
-import tj.integration.appeng.IApiParts;
 import tj.integration.theoneprobe.TheOneProbeCompatibility;
 import tj.items.TJCoverBehaviours;
 import tj.machines.TJMetaTileEntities;
@@ -65,8 +61,6 @@ public class TJ {
     public void postInit(FMLPostInitializationEvent event) {
         proxy.onPostLoad();
         final IApiItems items = ((IApiItems) (IItems) Api.INSTANCE.definitions().items());
-        final IApiParts parts = ((IApiParts) (IParts) Api.INSTANCE.definitions().parts());
-        final IApiBlocks blocks = ((IApiBlocks) (IBlocks) Api.INSTANCE.definitions().blocks());
         // Item Storage Cells
         Upgrades.FUZZY.registerItem(items.getCell65m(), 1);
         Upgrades.INVERTER.registerItem(items.getCell65m(), 1);
@@ -96,15 +90,5 @@ public class TJ {
 
         Upgrades.INVERTER.registerItem(items.getFluidCellDigitalSingularity(), 1);
         Upgrades.STICKY.registerItem(items.getFluidCellDigitalSingularity(), 1);
-
-        // Super Interface
-        Upgrades.CRAFTING.registerItem(parts.getSuperInterface(), 1);
-        Upgrades.CRAFTING.registerItem(blocks.getSuperInterface(), 1);
-        Upgrades.PATTERN_EXPANSION.registerItem(parts.getSuperInterface(), 3);
-        Upgrades.PATTERN_EXPANSION.registerItem(blocks.getSuperInterface(), 3);
-
-        // Super Fluid Interface
-        Upgrades.CAPACITY.registerItem(parts.getSuperFluidInterface(), 4);
-        Upgrades.CAPACITY.registerItem(blocks.getSuperFluidInterface(), 4);
     }
 }

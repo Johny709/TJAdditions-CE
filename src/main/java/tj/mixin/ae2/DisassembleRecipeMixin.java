@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import tj.integration.appeng.IApiBlocks;
 import tj.integration.appeng.IApiItems;
 import tj.integration.appeng.IApiMaterials;
 
@@ -30,7 +29,6 @@ public abstract class DisassembleRecipeMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void injectDisassembleRecipe_Init(CallbackInfo ci) {
         final IDefinitions definitions = Api.INSTANCE.definitions();
-        final IApiBlocks blocks = (IApiBlocks) definitions.blocks();
         final IApiItems items = (IApiItems) definitions.items();
         final IApiMaterials materials = (IApiMaterials) definitions.materials();
 
@@ -48,10 +46,5 @@ public abstract class DisassembleRecipeMixin {
         this.cellMappings.put(items.fluidCell4k(), materials.fluidCell4kPart());
         this.cellMappings.put(items.fluidCell16k(), materials.fluidCell16kPart());
         this.cellMappings.put(items.fluidCell64k(), materials.fluidCell64kPart());
-
-        this.nonCellMappings.put(blocks.getCraftingStorage65m(), materials.getCell65mPart());
-        this.nonCellMappings.put(blocks.getCraftingStorage262m(), materials.getCell262mPart());
-        this.nonCellMappings.put(blocks.getCraftingStorage1048m(), materials.getCell1048mPart());
-        this.nonCellMappings.put(blocks.getCraftingStorageSingularity(), materials.getCellDigitalSingularityPart());
     }
 }
