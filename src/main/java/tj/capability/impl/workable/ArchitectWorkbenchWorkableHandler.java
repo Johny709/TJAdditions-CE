@@ -13,15 +13,21 @@ import tj.capability.TJCapabilities;
 import tj.capability.AbstractWorkableHandler;
 import tj.util.ItemStackHelper;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
 
 public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IItemFluidHandlerInfo {
 
-    private ItemStack catalyst;
-    private ItemStack input;
-    private ItemStack output;
+    @Nonnull
+    private ItemStack catalyst = ItemStack.EMPTY;
+
+    @Nonnull
+    private ItemStack input = ItemStack.EMPTY;
+
+    @Nonnull
+    private ItemStack output = ItemStack.EMPTY;
 
     public ArchitectWorkbenchWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -51,9 +57,9 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
             ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), this.output, false);
             if (this.metaTileEntity instanceof TJMultiblockControllerBase)
                 ((TJMultiblockControllerBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
-            this.catalyst = null;
-            this.input = null;
-            this.output = null;
+            this.catalyst = ItemStack.EMPTY;
+            this.input = ItemStack.EMPTY;
+            this.output = ItemStack.EMPTY;
             return true;
         }
         return false;
@@ -77,7 +83,7 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
             ItemStack stack = itemInputs.getStackInSlot(i);
             if (stack.isEmpty() || this.isArchitectureStack(stack.getTagCompound()))
                 continue;
-            if (this.input == null)
+            if (this.input.isEmpty())
                 this.input = stack.copy();
             if (!stack.isItemEqual(this.input))
                 continue;
@@ -99,11 +105,11 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound compound = super.serializeNBT();
-        if (this.catalyst != null)
+        if (!this.catalyst.isEmpty())
             compound.setTag("catalyst", this.catalyst.serializeNBT());
-        if (this.input != null)
+        if (!this.input.isEmpty())
             compound.setTag("input", this.input.serializeNBT());
-        if (this.output != null)
+        if (!this.output.isEmpty())
             compound.setTag("output", this.output.serializeNBT());
         return compound;
     }
@@ -128,11 +134,11 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
 
     @Override
     public List<ItemStack> getItemInputs() {
-        return this.input != null ? Collections.singletonList(this.input) : null;
+        return !this.input.isEmpty() ? Collections.singletonList(this.input) : null;
     }
 
     @Override
     public List<ItemStack> getItemOutputs() {
-        return this.output != null ? Collections.singletonList(this.output) : null;
+        return !this.output.isEmpty() ? Collections.singletonList(this.output) : null;
     }
 }

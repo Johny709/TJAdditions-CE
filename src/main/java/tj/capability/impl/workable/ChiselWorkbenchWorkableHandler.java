@@ -14,6 +14,7 @@ import tj.capability.TJCapabilities;
 import tj.capability.AbstractWorkableHandler;
 import tj.util.ItemStackHelper;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,8 +22,12 @@ import java.util.List;
 public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IItemFluidHandlerInfo {
 
     private int circuitNumber;
-    private ItemStack input;
-    private ItemStack output;
+
+    @Nonnull
+    private ItemStack input = ItemStack.EMPTY;
+
+    @Nonnull
+    private ItemStack output = ItemStack.EMPTY;
 
     public ChiselWorkbenchWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -49,8 +54,8 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
     protected boolean completeRecipe() {
         if (ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), this.output, true).isEmpty()) {
             ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), this.output, false);
-            this.input = null;
-            this.output = null;
+            this.input = ItemStack.EMPTY;
+            this.output = ItemStack.EMPTY;
             return true;
         }
         return false;
@@ -75,7 +80,7 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
             ItemStack stack = itemInputs.getStackInSlot(i);
             if (stack.isEmpty() || this.isCircuitStack(stack.getTagCompound()))
                 continue;
-            if (this.input == null) {
+            if (this.input.isEmpty()) {
                 ICarvingGroup carvingGroup = CarvingUtils.getChiselRegistry().getGroup(stack);
                 if (carvingGroup != null) {
                     List<ICarvingVariation> carvingVariations = carvingGroup.getVariations();
@@ -83,7 +88,7 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
                         this.input = stack.copy();
                 }
             }
-            if (this.input == null || !stack.isItemEqual(this.input))
+            if (!stack.isItemEqual(this.input))
                 continue;
             int reminder = Math.min(stack.getCount(), availableParallels);
             if (this.handler.getImportItemInventory().extractItem(i, reminder, true).getCount() == reminder) {
@@ -104,9 +109,9 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
     public NBTTagCompound serializeNBT() {
         NBTTagCompound compound = super.serializeNBT();
         compound.setInteger("circuitNumber", this.circuitNumber);
-        if (this.input != null)
+        if (!this.input.isEmpty())
             compound.setTag("itemInput", this.input.serializeNBT());
-        if (this.output != null)
+        if (!this.output.isEmpty())
             compound.setTag("itemOutput", this.output.serializeNBT());
         return compound;
     }
@@ -130,11 +135,11 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
 
     @Override
     public List<ItemStack> getItemInputs() {
-        return this.input != null ? Collections.singletonList(this.input) : null;
+        return !this.input.isEmpty() ? Collections.singletonList(this.input) : null;
     }
 
     @Override
     public List<ItemStack> getItemOutputs() {
-        return this.output != null ? Collections.singletonList(this.output) : null;
+        return !this.output.isEmpty() ? Collections.singletonList(this.output) : null;
     }
 }
