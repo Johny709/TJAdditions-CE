@@ -44,7 +44,7 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
     public MetaTileEntityEnchanter(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.tank = new FluidTank(64000);
-        this.parallel = 1 << this.getTier() - 1;
+        this.parallel = this.getTier();
         this.workableHandler.initialize(1);
         this.initializeInventory();
     }

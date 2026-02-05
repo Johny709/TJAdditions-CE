@@ -128,11 +128,6 @@ public class AdvEnergyPortCasings extends VariantBlock<AdvEnergyPortCasings.Abil
     }
 
     @Override
-    public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
-        return state.getValue(ACTIVE) ? 15 : 0;
-    }
-
-    @Override
     public IBlockState getStateFromMeta(int meta) {
         return super.getStateFromMeta(meta % 6).withProperty(ACTIVE, meta / 6 >= 1);
     }

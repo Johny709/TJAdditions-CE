@@ -119,7 +119,7 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
         FluidTankList tank = isExport ? exportFluids : importFluids;
         int tier = Math.min(3, getTier() / 3);
         WidgetGroup widgetGroup = new WidgetGroup();
-        widgetGroup.addWidget(new TJLabelWidget(7, -19, 162, 19, TJGuiTextures.MACHINE_LABEL_2)
+        widgetGroup.addWidget(new TJLabelWidget(7, -19, 180, 19, TJGuiTextures.MACHINE_LABEL_2)
                 .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()));
         widgetGroup.addWidget(new ImageWidget(169, 81 + 18 * (tier - 1), 18, 18, GuiTextures.DISPLAY));
         widgetGroup.addWidget(new AdvancedTextWidget(170, 86 + 18 * (tier - 1), this::addDisplayText, 0xFFFFFF));

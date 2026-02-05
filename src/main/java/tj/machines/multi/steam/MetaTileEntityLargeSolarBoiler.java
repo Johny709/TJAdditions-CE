@@ -44,7 +44,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.blocks.AbilityBlocks;
-import tj.blocks.EnergyPortCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
@@ -331,8 +330,8 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
             BlockPos pos = buffer.readBlockPos();
             IBlockState state = this.getWorld().getBlockState(pos);
             Block block = state.getBlock();
-            if (block instanceof EnergyPortCasings) {
-                state = state.withProperty(EnergyPortCasings.ACTIVE, isActive);
+            if (block instanceof BlockFireboxCasing) {
+                state = state.withProperty(BlockFireboxCasing.ACTIVE, isActive);
                 this.getWorld().setBlockState(pos, state);
             }
         }

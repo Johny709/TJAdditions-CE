@@ -38,7 +38,7 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
 
     public MetaTileEntityChiselWorkbench(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
-        this.parallel = 1 << this.getTier() - 1;
+        this.parallel = this.getTier();
     }
 
     @Override

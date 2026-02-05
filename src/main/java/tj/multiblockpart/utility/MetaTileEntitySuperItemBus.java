@@ -112,7 +112,7 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
         IItemHandlerModifiable bus = this.isExport ? this.exportItems : this.importItems;
         int tier = Math.min(3, this.getTier() / 3);
         WidgetGroup widgetGroup = new WidgetGroup();
-        widgetGroup.addWidget(new TJLabelWidget(7, -19, 162, 19, TJGuiTextures.MACHINE_LABEL_2)
+        widgetGroup.addWidget(new TJLabelWidget(7, -19, 180, 19, TJGuiTextures.MACHINE_LABEL_2)
                 .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()));
         widgetGroup.addWidget(new ImageWidget(169, 72 * tier, 18, 18, GuiTextures.DISPLAY));
         widgetGroup.addWidget(new AdvancedTextWidget(170, 5 + 72 * tier, this::addDisplayText, 0xFFFFFF));

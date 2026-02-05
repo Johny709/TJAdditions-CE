@@ -50,7 +50,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.blocks.AdvEnergyPortCasings;
-import tj.blocks.EnergyPortCasings;
 import tj.capability.impl.handler.IFusionProvider;
 import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
@@ -323,8 +322,8 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
             BlockPos pos = buffer.readBlockPos();
             IBlockState state = this.getWorld().getBlockState(pos);
             Block block = state.getBlock();
-            if (block instanceof EnergyPortCasings) {
-                state = state.withProperty(EnergyPortCasings.ACTIVE, isActive);
+            if (block instanceof AdvEnergyPortCasings) {
+                state = state.withProperty(AdvEnergyPortCasings.ACTIVE, isActive);
                 this.getWorld().setBlockState(pos, state);
             }
         }

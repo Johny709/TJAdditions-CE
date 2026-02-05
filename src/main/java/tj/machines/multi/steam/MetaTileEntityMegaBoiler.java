@@ -4,12 +4,10 @@ import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import gregicadditions.item.GAHeatingCoil;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.multiblock.BlockWorldState;
-import gregtech.common.blocks.BlockWireCoil;
 import net.minecraft.block.Block;
 import net.minecraft.network.PacketBuffer;
 import org.apache.commons.lang3.ArrayUtils;
@@ -296,7 +294,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
             BlockPos pos = buffer.readBlockPos();
             IBlockState state = this.getWorld().getBlockState(pos);
             Block block = state.getBlock();
-            if (block instanceof BlockWireCoil) {
+            if (block instanceof BlockFireboxCasing) {
                 state = state.withProperty(BlockFireboxCasing.ACTIVE, isActive);
                 this.getWorld().setBlockState(pos, state);
             }
