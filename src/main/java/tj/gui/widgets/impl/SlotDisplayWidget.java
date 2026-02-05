@@ -30,13 +30,15 @@ public class SlotDisplayWidget extends TJSlotWidget<SlotDisplayWidget> {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (this.isMouseOverElement(mouseX, mouseY))
+        if (this.isMouseOverElement(mouseX, mouseY)) {
             this.writeClientAction(1, buffer -> {
                 buffer.writeInt(button);
                 buffer.writeInt(this.index());
                 buffer.writeItemStack(this.getItemHandler().getStackInSlot(this.index()));
             });
-        return true;
+            return true;
+        }
+        return false;
     }
 
     @Override
