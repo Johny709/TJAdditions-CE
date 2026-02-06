@@ -3,8 +3,10 @@ package tj.multiblockpart.utility;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.TJValues;
 import tj.gui.TJGuiTextures;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
@@ -31,6 +33,8 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
+import tj.gui.widgets.TJLabelWidget;
+import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -115,6 +119,8 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
         FluidTankList tank = isExport ? exportFluids : importFluids;
         int tier = Math.min(3, getTier() / 3);
         WidgetGroup widgetGroup = new WidgetGroup();
+        widgetGroup.addWidget(new TJLabelWidget(7, -19, 180, 19, TJGuiTextures.MACHINE_LABEL_2)
+                .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()));
         widgetGroup.addWidget(new ImageWidget(169, 81 + 18 * (tier - 1), 18, 18, GuiTextures.DISPLAY));
         widgetGroup.addWidget(new AdvancedTextWidget(170, 86 + 18 * (tier - 1), this::addDisplayText, 0xFFFFFF));
         widgetGroup.addWidget(new ToggleButtonWidget(169, 63 + 18 * (tier - 1), 18, 18, TJGuiTextures.UP_BUTTON, this::isIncrement, this::onIncrement)
@@ -129,7 +135,6 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
                     .setContainerClicking(!isExport, true));
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 144 + 18 * (tier - 1))
-                .label(7, 4, getMetaFullName())
                 .bindPlayerInventory(player.inventory, 63 + 18 * (tier - 1))
                 .widget(widgetGroup)
                 .build(getHolder(), player);
@@ -168,7 +173,20 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        if (isExport) {
+        if (this.getController() == null) {
+            int oldBaseColor = renderState.baseColour;
+            int oldAlphaOverride = renderState.alphaOverride;
+
+            renderState.baseColour = TJValues.VC[this.getTier()] << 8;
+            renderState.alphaOverride = 0xFF;
+
+            for (EnumFacing facing : EnumFacing.VALUES)
+                TJTextures.SUPER_HATCH_OVERLAY.renderSided(facing, renderState, translation, pipeline);
+
+            renderState.baseColour = oldBaseColor;
+            renderState.alphaOverride = oldAlphaOverride;
+        }
+        if (this.isExport) {
             Textures.PIPE_OUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
             Textures.FLUID_HATCH_OUTPUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
             Textures.FLUID_OUTPUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);

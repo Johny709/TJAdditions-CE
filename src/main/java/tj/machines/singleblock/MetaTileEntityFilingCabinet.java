@@ -35,7 +35,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.SlotScrollableWidgetGroup;
+import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.CabinetItemStackHandler;
@@ -130,8 +130,8 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        SlotScrollableWidgetGroup slotScrollableWidgetGroup = this.guiUsers.getOrDefault(player, new SlotScrollableWidgetGroup(7, 35, 180, 72, 9));
-        slotScrollableWidgetGroup.setItemHandler(this.importItems);
+        SlotScrollableWidgetGroup slotScrollableWidgetGroup = this.guiUsers.getOrDefault(player, new SlotScrollableWidgetGroup(7, 35, 180, 72, 9))
+                .setItemHandler(this.importItems);
         slotScrollableWidgetGroup.clearWidgets();
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             slotScrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.importItems, i, 18 * (i % 9), 18 * (i / 9))
@@ -139,7 +139,7 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
         return ModularUI.builder(GuiTextures.BACKGROUND, 176, 197)
-                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .bindOpenListener(() -> this.guiUsers.put(player, slotScrollableWidgetGroup))
                 .bindCloseListener(() -> this.guiUsers.remove(player))

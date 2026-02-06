@@ -8,11 +8,6 @@ import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.EmitterCasing;
 import gregicadditions.item.metal.MetalCasing2;
-import gregtech.api.capability.IEnergyContainer;
-import gregtech.api.capability.IMultipleTankHandler;
-import gregtech.api.capability.impl.EnergyContainerList;
-import gregtech.api.capability.impl.FluidTankList;
-import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -35,10 +30,9 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
-import tj.builder.handlers.EnchanterWorkableHandler;
-import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.capability.impl.workable.EnchanterWorkableHandler;
+import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
@@ -56,22 +50,10 @@ import static gregtech.api.unification.material.Materials.BlackSteel;
 import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
 
 
-public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
+public class MetaTileEntityLargeEnchanter extends TJMultiblockControllerBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
-    private final EnchanterWorkableHandler workableHandler = new EnchanterWorkableHandler(this)
-            .setImportFluidsSupplier(this::getFluidInputs)
-            .setImportEnergySupplier(this::getEnergyInput)
-            .setExportItemsSupplier(this::getItemOutputs)
-            .setImportItemsSupplier(this::getItemInputs)
-            .setMaxVoltageSupplier(this::getMaxVoltage)
-            .setParallelSupplier(this::getParallel)
-            .setTierSupplier(this::getTier)
-            .setInputBus(this::getInputBus);
-    private IItemHandlerModifiable itemInputs;
-    private IItemHandlerModifiable itemOutputs;
-    private IMultipleTankHandler fluidInputs;
-    private IEnergyContainer energyInput;
+    private final EnchanterWorkableHandler workableHandler = new EnchanterWorkableHandler(this);
     private long maxVoltage;
     private int parallel;
     private int tier;
@@ -102,9 +84,9 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
     protected void addDisplayText(UIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (this.isStructureFormed())
-            builder.voltageInLine(this.energyInput)
+            builder.voltageInLine(this.inputEnergyContainer)
                     .voltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInputLine(this.energyInput, this.workableHandler.getEnergyPerTick())
+                    .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
                     .addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
                     .customLine(text -> text.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")
@@ -173,10 +155,6 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.tier = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV).getTier();
-        this.itemInputs = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
-        this.itemOutputs = new ItemHandlerList(this.getAbilities(EXPORT_ITEMS));
-        this.fluidInputs = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
-        this.energyInput = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
         this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
         this.maxVoltage = (long) (Math.pow(4, this.tier) * 8);
         this.parallel = TJConfig.largeEnchanter.stack * this.tier;
@@ -199,35 +177,18 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockDisplayBase {
         TJTextures.ENCHANTING_TABLE.renderSided(EnumFacingHelper.getTopFacingFrom(this.frontFacing), renderState, translation, pipeline);
     }
 
-    private IItemHandlerModifiable getInputBus(int index) {
-        return this.getAbilities(IMPORT_ITEMS).get(index);
-    }
-
-    private IItemHandlerModifiable getItemInputs() {
-        return this.itemInputs;
-    }
-
-    private IItemHandlerModifiable getItemOutputs() {
-        return this.itemOutputs;
-    }
-
-    private IMultipleTankHandler getFluidInputs() {
-        return this.fluidInputs;
-    }
-
-    private IEnergyContainer getEnergyInput() {
-        return this.energyInput;
-    }
-
-    private long getMaxVoltage() {
+    @Override
+    public long getMaxVoltage() {
         return this.maxVoltage;
     }
 
-    private int getTier() {
+    @Override
+    public int getTier() {
         return this.tier;
     }
 
-    private int getParallel() {
+    @Override
+    public int getParallel() {
         return this.parallel;
     }
 }

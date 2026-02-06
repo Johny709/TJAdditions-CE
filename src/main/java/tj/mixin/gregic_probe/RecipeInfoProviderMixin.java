@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tj.TJConfig;
 import tj.TJValues;
-import tj.capability.impl.AbstractWorkableHandler;
+import tj.capability.AbstractWorkableHandler;
 import vfyjxf.gregicprobe.integration.gregtech.RecipeInfoProvider;
 
 @Mixin(value = RecipeInfoProvider.class, remap = false)

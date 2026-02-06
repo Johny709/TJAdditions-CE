@@ -9,9 +9,6 @@ import gregicadditions.item.CellCasing;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.metal.MetalCasing1;
 import gregtech.api.capability.*;
-import gregtech.api.capability.impl.EnergyContainerList;
-import gregtech.api.capability.impl.FluidTankList;
-import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MTETrait;
@@ -46,11 +43,10 @@ import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.builder.WidgetTabBuilder;
-import tj.builder.handlers.BatteryChargerWorkableHandler;
-import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.capability.impl.workable.BatteryChargerWorkableHandler;
+import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.*;
 import tj.gui.TJGuiTextures;
@@ -81,28 +77,16 @@ import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.unification.material.Materials.Nitrogen;
 import static net.minecraftforge.energy.CapabilityEnergy.ENERGY;
-import static tj.builder.handlers.BatteryChargerWorkableHandler.TransferMode.INPUT;
-import static tj.builder.handlers.BatteryChargerWorkableHandler.TransferMode.OUTPUT;
+import static tj.capability.impl.workable.BatteryChargerWorkableHandler.TransferMode.INPUT;
+import static tj.capability.impl.workable.BatteryChargerWorkableHandler.TransferMode.OUTPUT;
 
-public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase implements LinkEntity, LinkEvent, IParallelController, IProgressBar {
+public class MetaTileEntityLargeBatteryCharger extends TJMultiblockControllerBase implements LinkEntity, LinkEvent, IParallelController, IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, OUTPUT_ENERGY, IMPORT_FLUIDS, MAINTENANCE_HATCH};
-    private final BatteryChargerWorkableHandler workableHandler = new BatteryChargerWorkableHandler(this)
-            .setExportEnergySupplier(this::getOutputEnergyContainer)
-            .setImportEnergySupplier(this::getInputEnergyContainer)
-            .setImportFluidsSupplier(this::getImportFluidHandler)
-            .setImportItemsSupplier(this::getImportItemHandler)
-            .setExportItemsSupplier(this::getExportItemHandler)
-            .setTierSupplier(this::getTier)
-            .setResetEnergy(false);
+    private final BatteryChargerWorkableHandler workableHandler = new BatteryChargerWorkableHandler(this);
     private int tier;
     private final int pageSize = 4;
     private int pageIndex;
-    private IItemHandlerModifiable importItemHandler;
-    private IItemHandlerModifiable exportItemHandler;
-    private IMultipleTankHandler importFluidHandler;
-    private IEnergyContainer inputEnergyContainer;
-    private IEnergyContainer outputEnergyContainer;
 
     public MetaTileEntityLargeBatteryCharger(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -132,7 +116,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
                     .voltageTierLine(this.tier)
                     .energyStoredLine(this.getEnergyStored(), this.getEnergyCapacity())
                     .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
-                    .fluidInputLine(this.importFluidHandler, Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
+                    .fluidInputLine(this.importFluidTank, Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
                     .customLine(text -> {
                         text.addTextComponent(new TextComponentTranslation("machine.universal.item.output.transfer")
                                 .appendText(" ")
@@ -449,17 +433,12 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.importItemHandler = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
-        this.exportItemHandler = new ItemHandlerList(this.getAbilities(EXPORT_ITEMS));
-        this.importFluidHandler = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
-        this.inputEnergyContainer = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
-        this.outputEnergyContainer = new EnergyContainerList(this.getAbilities(OUTPUT_ENERGY));
         this.tier = context.getOrDefault("CellType", CellCasing.CellType.CELL_EV).getTier();
         this.workableHandler.initialize(0);
     }
 
     private boolean hasEnoughFluid(int amount) {
-        FluidStack fluidStack = this.importFluidHandler.drain(Nitrogen.getPlasma(amount), false);
+        FluidStack fluidStack = this.importFluidTank.drain(Nitrogen.getPlasma(amount), false);
         return fluidStack != null && fluidStack.amount == amount;
     }
 
@@ -644,11 +623,11 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
     }
 
     private long getNitrogenAmount() {
-        return TJFluidUtils.getFluidAmountFromTanks(MetaTileEntityLargeWirelessEnergyEmitter.NITROGEN_PLASMA, this.getImportFluidHandler());
+        return TJFluidUtils.getFluidAmountFromTanks(MetaTileEntityLargeWirelessEnergyEmitter.NITROGEN_PLASMA, this.getImportFluidTank());
     }
 
     private long getNitrogenCapacity() {
-        return TJFluidUtils.getFluidCapacityFromTanks(MetaTileEntityLargeWirelessEnergyEmitter.NITROGEN_PLASMA, this.getImportFluidHandler());
+        return TJFluidUtils.getFluidCapacityFromTanks(MetaTileEntityLargeWirelessEnergyEmitter.NITROGEN_PLASMA, this.getImportFluidTank());
     }
 
     @Override
@@ -661,26 +640,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockDisplayBase i
         return this.workableHandler.isWorkingEnabled();
     }
 
-    private IItemHandlerModifiable getImportItemHandler() {
-        return this.importItemHandler;
-    }
-
-    private IItemHandlerModifiable getExportItemHandler() {
-        return this.exportItemHandler;
-    }
-
-    private IMultipleTankHandler getImportFluidHandler() {
-        return this.importFluidHandler;
-    }
-
-    private IEnergyContainer getInputEnergyContainer() {
-        return this.inputEnergyContainer;
-    }
-
-    private IEnergyContainer getOutputEnergyContainer() {
-        return this.outputEnergyContainer;
-    }
-
+    @Override
     public int getTier() {
         return this.tier;
     }

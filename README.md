@@ -1,10 +1,15 @@
-A GTCE/GCYL addon made for the Technological Journey (TJ) Mod pack
+### A GTCE/GCYL addon made for the Technological Journey (TJ) Mod pack
 
-Modpack: https://www.curseforge.com/minecraft/modpacks/technologicaljourney
+- Modpack: https://www.curseforge.com/minecraft/modpacks/technologicaljourney
 
-GTCE: https://github.com/BraggestSage833/GTCE-TJ-Fork
+- GTCE: https://github.com/BraggestSage833/GTCE-TJ-Fork
 
-GCYL: https://github.com/BraggestSage833/gregicality-TJFork
+- GCYL: https://github.com/BraggestSage833/gregicality-TJFork
 
-Adds some fun and unique multiblocks.
+- Adds some fun and unique multiblocks. Also adds some extra things to other mods like AE2.
+
+### Credits
+- Thanks to Applied Energistics 2 for storage component, cell and crafting CPU textures.
+  - https://www.curseforge.com/minecraft/mc-mods/applied-energistics-2
+
 

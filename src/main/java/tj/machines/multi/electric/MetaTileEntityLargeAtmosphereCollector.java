@@ -41,7 +41,7 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.blocks.BlockPipeCasings;
 import tj.blocks.TJMetaBlocks;
-import tj.builder.handlers.LargeAtmosphereCollectorWorkableHandler;
+import tj.capability.impl.workable.LargeAtmosphereCollectorWorkableHandler;
 import tj.builder.multicontrollers.TJRotorHolderMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 

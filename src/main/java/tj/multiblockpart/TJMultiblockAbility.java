@@ -1,6 +1,6 @@
 package tj.multiblockpart;
 
-import tj.builder.handlers.IRecipeMapProvider;
+import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.multiblockpart.utility.MetaTileEntityMachineController;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import net.minecraftforge.fluids.IFluidTank;

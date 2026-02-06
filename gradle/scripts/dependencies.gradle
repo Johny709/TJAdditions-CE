@@ -74,9 +74,10 @@ dependencies {
     implementation("curse.maven:CTM-267602:2915363")
     implementation("curse.maven:forestry-59751:6104316")
     implementation("curse.maven:theoneprobe-245211:2667280")
-    implementation("curse.maven:ae2-extended-life-570458:5411078")
     implementation("curse.maven:gregicprobe-592190:3686839")
+    implementation("curse.maven:baubles-227083:2518667")
     api("curse.maven:chisel-235279:2915375")
+    implementation(rfg.deobf(project.files("libs/ae2-uel-v0.56.7-5-g26bb598-dev.jar")))
     implementation(rfg.deobf(project.files("libs/gregtech_tj_fork-1.18.1B-dev.jar")))
     implementation(rfg.deobf(project.files("libs/gregicality_tj_fork-0.26.1B-dev.jar")))
 }

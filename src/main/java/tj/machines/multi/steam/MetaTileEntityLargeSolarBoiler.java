@@ -24,6 +24,7 @@ import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.BlockFireboxCasing;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -44,7 +45,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.blocks.AbilityBlocks;
 import tj.blocks.TJMetaBlocks;
-import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IHeatInfo;
 import tj.capability.IProgressBar;
@@ -65,7 +66,7 @@ import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
 import static gregtech.api.unification.material.Materials.*;
 
-public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase implements IWorkable, IHeatInfo, IProgressBar {
+public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase implements IWorkable, IHeatInfo, IProgressBar {
 
     private static final FluidStack WATER = Water.getFluid(1);
     private static final FluidStack DISTILLED_WATER = DistilledWater.getFluid(1);
@@ -236,16 +237,6 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
         };
     }
 
-    private void replaceFireboxAsActive(boolean isActive) {
-        this.activeStates.forEach(pos -> {
-            IBlockState state = this.getWorld().getBlockState(pos);
-            if (state.getBlock() instanceof BlockFireboxCasing) {
-                state = state.withProperty(BlockFireboxCasing.ACTIVE, isActive);
-                this.getWorld().setBlockState(pos, state);
-            }
-        });
-    }
-
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
@@ -272,6 +263,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
         super.onRemoval();
         if (!this.getWorld().isRemote) {
             this.replaceFireboxAsActive(false);
+            this.markDirty();
         }
     }
 
@@ -306,7 +298,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
     public void receiveCustomData(int dataId, PacketBuffer buf) {
         super.receiveCustomData(dataId, buf);
         if (dataId == 1) {
-            this.isActive = buf.readBoolean();
+            this.readActiveBlockPacket(buf);
             this.scheduleRenderUpdate();
         }
     }
@@ -314,20 +306,46 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockDisplayBase impl
     @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
-        buf.writeBoolean(this.isActive);
+        this.writeActiveBlockPacket(buf, this.isActive);
     }
 
     @Override
     public void receiveInitialSyncData(PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
-        this.isActive = buf.readBoolean();
+        this.readActiveBlockPacket(buf);
     }
+
+    private void writeActiveBlockPacket(PacketBuffer buffer, boolean isActive) {
+        buffer.writeBoolean(isActive);
+        buffer.writeInt(this.activeStates.size());
+        for (BlockPos pos : this.activeStates) {
+            buffer.writeBlockPos(pos);
+        }
+    }
+
+    private void readActiveBlockPacket(PacketBuffer buffer) {
+        boolean isActive = buffer.readBoolean();
+        int size = buffer.readInt();
+        for (int i = 0; i < size; i++) {
+            BlockPos pos = buffer.readBlockPos();
+            IBlockState state = this.getWorld().getBlockState(pos);
+            Block block = state.getBlock();
+            if (block instanceof BlockFireboxCasing) {
+                state = state.withProperty(BlockFireboxCasing.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            }
+        }
+    }
+
+    private void replaceFireboxAsActive(boolean isActive) {
+        this.writeCustomData(1, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+    }
+
 
     protected void setActive(boolean active) {
         this.isActive = active;
         if (!this.getWorld().isRemote) {
             this.replaceFireboxAsActive(active);
-            this.writeCustomData(1, buf -> buf.writeBoolean(active));
             this.markDirty();
         }
     }

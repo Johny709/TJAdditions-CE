@@ -22,8 +22,8 @@ import tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.capability.impl.TJBoostableFuelRecipeLogic;
-import tj.capability.impl.TJCycleFuelRecipeLogic;
+import tj.capability.impl.workable.TJBoostableFuelRecipeLogic;
+import tj.capability.impl.workable.TJCycleFuelRecipeLogic;
 import tj.util.TJFluidUtils;
 
 import javax.annotation.Nonnull;

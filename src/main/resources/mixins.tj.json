@@ -6,6 +6,12 @@
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "ae2.ApiItemsMixin",
+    "ae2.ApiMaterialsMixin",
+    "ae2.DisassembleRecipeMixin",
+    "ae2.DualityInterfaceMixin",
+    "ae2.IMultiCraftingTrackerMixin",
+    "ae2.TileCableBusMixin",
     "gregic_probe.ElectricContainerInfoProviderMixin",
     "gregic_probe.RecipeInfoProviderMixin",
     "gregic_probe.WorkableInfoProviderMixin",
@@ -22,6 +28,7 @@
     "gregicality.LargeSimpleRecipeMapMultiblockControllerMixin",
     "gregicality.MetaTileEntityAdvFusionReactorMixin",
     "gregicality.MetaTileEntityBatteryTowerMixin",
+    "gregicality.MetaTileEntityCryogenicFreezerMixin",
     "gregicality.MetaTileEntityElectricBlastFurnaceMixin",
     "gregicality.MetaTileEntityExtremeDieselEngineMixin",
     "gregicality.MetaTileEntityFluidDrillingPlantMixin",
@@ -32,7 +39,9 @@
     "gregicality.MetaTileEntityLargeRocketEngineMixin",
     "gregicality.MetaTileEntityMufflerHatchMixin",
     "gregicality.MetaTileEntityMultiFurnaceMixin",
+    "gregicality.MetaTileEntityVacuumFreezerMixin",
     "gregicality.MetaTileEntityVoidMinerMixin",
+    "gregicality.MetaTileEntityVolcanusMixin",
     "gregicality.MultiRecipeMapMultiblockControllerMixin",
     "gregicality.QubitContainerInfoProviderMixin",
     "gregicality.RecipeMapSteamMultiblockControllerMixin",
@@ -48,6 +57,7 @@
     "gregtech.MetaTileEntityLargeBoilerMixin",
     "gregtech.MetaTileEntityLargeTurbineMixin",
     "gregtech.MultiblockWithDisplayBaseMixin",
+    "gregtech.RecipeMapMixin",
     "gregtech.RecipeMapMultiblockControllerMixin",
     "gregtech.RotorHolderMultiblockControllerMixin",
     "gregtech.SimpleMachineMetaTileEntityMixin",
@@ -58,9 +68,9 @@
   ],
   "server": [],
   "client": [
-    "gregtech.IMultiblockInfoRecipeWrapperMixin",
-    "gregtech.ModularUIGuiMixin",
-    "gregtech.MultiblockInfoRecipeWrapperMixin",
+    "gregtech.client.IMultiblockInfoRecipeWrapperMixin",
+    "gregtech.client.ModularUIGuiMixin",
+    "gregtech.client.MultiblockInfoRecipeWrapperMixin",
     "jei.InputHandlerMixin"
   ]
 }

@@ -21,11 +21,18 @@ import gregtech.api.render.Textures;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.IFluidTank;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
+import tj.TJValues;
+import tj.gui.TJGuiTextures;
+import tj.gui.widgets.TJLabelWidget;
+import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -94,10 +101,24 @@ public class MetaTileEntityTJSteamHatch extends GAMetaTileEntityMultiblockPart i
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
+        if (this.getController() == null) {
+            int oldBaseColor = renderState.baseColour;
+            int oldAlphaOverride = renderState.alphaOverride;
+
+            renderState.baseColour = TJValues.VC[this.getTier()] << 8;
+            renderState.alphaOverride = 0xFF;
+
+            for (EnumFacing facing : EnumFacing.VALUES)
+                TJTextures.SUPER_HATCH_OVERLAY.renderSided(facing, renderState, translation, pipeline);
+
+            renderState.baseColour = oldBaseColor;
+            renderState.alphaOverride = oldAlphaOverride;
+        }
         Textures.PUMP_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
-        if (isExport) {
+        if (this.isExport) {
             Textures.FLUID_HATCH_OUTPUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
             Textures.FLUID_OUTPUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
         } else {
@@ -108,21 +129,22 @@ public class MetaTileEntityTJSteamHatch extends GAMetaTileEntityMultiblockPart i
     @Override
     protected ModularUI createUI(EntityPlayer entityPlayer) {
         IFluidTank fluidTank = isExport ? exportFluids.getTankAt(0) : importFluids.getTankAt(0);
-        return createTankUI(fluidTank, getMetaFullName(), entityPlayer)
+        return createTankUI(fluidTank, entityPlayer)
                 .build(getHolder(), entityPlayer);
     }
 
-    public ModularUI.Builder createTankUI(IFluidTank fluidTank, String title, EntityPlayer entityPlayer) {
-        ModularUI.Builder builder = ModularUI.defaultBuilder();
-        builder.image(7, 16, 81, 55, GuiTextures.DISPLAY);
+    public ModularUI.Builder createTankUI(IFluidTank fluidTank, EntityPlayer entityPlayer) {
+        ModularUI.Builder builder = ModularUI.defaultBuilder()
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
+                        .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
+                .image(7, 16, 81, 55, GuiTextures.DISPLAY);
         TankWidget tankWidget = new TankWidget(fluidTank, 69, 52, 18, 18)
                 .setHideTooltip(true).setAlwaysShowFull(true);
-        builder.widget(tankWidget);
-        builder.label(11, 20, "gregtech.gui.fluid_amount", 0xFFFFFF);
-        builder.dynamicLabel(11, 30, tankWidget::getFormattedFluidAmount, 0xFFFFFF);
-        builder.dynamicLabel(11, 40, tankWidget::getFluidLocalizedName, 0xFFFFFF);
-        return builder.label(6, 6, title)
-                .widget(new FluidContainerSlotWidget(importItems, 0, 90, 17, false)
+        builder.widget(tankWidget)
+                .label(11, 20, "gregtech.gui.fluid_amount", 0xFFFFFF)
+                .dynamicLabel(11, 30, tankWidget::getFormattedFluidAmount, 0xFFFFFF)
+                .dynamicLabel(11, 40, tankWidget::getFluidLocalizedName, 0xFFFFFF);
+        return builder.widget(new FluidContainerSlotWidget(importItems, 0, 90, 17, false)
                         .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.IN_SLOT_OVERLAY))
                 .widget(new ImageWidget(91, 36, 14, 15, GuiTextures.TANK_ICON))
                 .widget(new SlotWidget(exportItems, 0, 90, 54, true, false)

@@ -50,6 +50,7 @@ public class TJTextures {
     public static final TJSimpleOverlayRenderer OUTSIDE_OVERLAY_BASE = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/outside_overlay_base");
     public static final TJSimpleOverlayRenderer INSIDE_OVERLAY_BASE = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/inside_overlay_base");
     public static final TJSimpleOverlayRenderer PORTAL_OVERLAY = new TJSimpleOverlayRenderer("minecraft", "blocks/portal");
+    public static final TJSimpleOverlayRenderer SUPER_HATCH_OVERLAY = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/overlay/super_hatch_overlay");
     public static final TJOrientedOverlayRenderer TELEPORTER_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/teleporter", "teleporter", TOP);
     public static final TJOrientedOverlayRenderer TJ_MULTIBLOCK_WORKABLE_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/multiblock_workable", FRONT);
     public static final TJOrientedOverlayRenderer TJ_ASSEMBLER_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/assembler", FRONT, TOP);

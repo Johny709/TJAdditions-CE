@@ -8,8 +8,8 @@ import net.minecraft.item.Item;
 import net.minecraft.util.text.Style;
 import net.minecraftforge.fluids.FluidStack;
 import tj.builder.WidgetTabBuilder;
-import tj.builder.handlers.TeleporterWorkableHandler;
-import tj.builder.multicontrollers.TJMultiblockDisplayBase;
+import tj.capability.impl.workable.TeleporterWorkableHandler;
+import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.*;
 import tj.gui.TJGuiTextures;
@@ -22,10 +22,6 @@ import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
-import gregtech.api.capability.IEnergyContainer;
-import gregtech.api.capability.IMultipleTankHandler;
-import gregtech.api.capability.impl.EnergyContainerList;
-import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -90,16 +86,11 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FL
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 
 
-public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements IParallelController, LinkPos, IProgressBar {
+public class MetaTileEntityTeleporter extends TJMultiblockControllerBase implements IParallelController, LinkPos, IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private static final FluidStack ENDER_PEARL = EnderPearl.getFluid(1);
-    private final TeleporterWorkableHandler workableHandler = new TeleporterWorkableHandler(this)
-            .setImportFluidsSupplier(this::getInputFluidHandler)
-            .setImportEnergySupplier(this::getEnergyContainer)
-            .setTierSupplier(this::getTier);
-    private IEnergyContainer energyContainer;
-    private IMultipleTankHandler inputFluidHandler;
+    private final TeleporterWorkableHandler workableHandler = new TeleporterWorkableHandler(this);
     private int tier;
 
     public MetaTileEntityTeleporter(ResourceLocation metaTileEntityId) {
@@ -151,8 +142,6 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             this.invalidateStructure();
             return;
         }
-        this.energyContainer = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
-        this.inputFluidHandler = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
         this.workableHandler.initialize(0);
     }
 
@@ -217,7 +206,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
             distance = 0;
             distanceEU = 0;
         }
-        builder.voltageInLine(this.energyContainer)
+        builder.voltageInLine(this.inputEnergyContainer)
                 .voltageTierLine(this.tier)
                 .customLine(text -> {
                     if (selectedPos != null) {
@@ -225,7 +214,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
                         text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
                         text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("metaitem.linking.device.range", distance)));
                     }
-                }).energyInputLine(this.energyContainer, distanceEU, this.workableHandler.getMaxProgress())
+                }).energyInputLine(this.inputEnergyContainer, distanceEU, this.workableHandler.getMaxProgress())
                 .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
@@ -509,21 +498,21 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
     }
 
     private long getEnderPearlAmount() {
-        return TJFluidUtils.getFluidAmountFromTanks(ENDER_PEARL, this.getInputFluidHandler());
+        return TJFluidUtils.getFluidAmountFromTanks(ENDER_PEARL, this.getImportFluidTank());
     }
 
     private long getEnderPearlCapacity() {
-        return TJFluidUtils.getFluidCapacityFromTanks(ENDER_PEARL, this.getInputFluidHandler());
+        return TJFluidUtils.getFluidCapacityFromTanks(ENDER_PEARL, this.getImportFluidTank());
     }
 
     @Override
     public long getEnergyStored() {
-        return this.energyContainer.getEnergyStored();
+        return this.inputEnergyContainer.getEnergyStored();
     }
 
     @Override
     public long getEnergyCapacity() {
-        return this.energyContainer.getEnergyCapacity();
+        return this.inputEnergyContainer.getEnergyCapacity();
     }
 
     @Override
@@ -612,14 +601,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockDisplayBase implements
         return this.workableHandler.isWorkingEnabled();
     }
 
-    private IEnergyContainer getEnergyContainer() {
-        return this.energyContainer;
-    }
-
-    private IMultipleTankHandler getInputFluidHandler() {
-        return this.inputFluidHandler;
-    }
-
+    @Override
     public int getTier() {
         return this.tier;
     }

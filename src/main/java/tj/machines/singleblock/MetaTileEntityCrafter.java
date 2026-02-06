@@ -31,14 +31,12 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
-import tj.builder.handlers.CrafterRecipeLogic;
-import tj.builder.handlers.IRecipeMapProvider;
+import tj.capability.impl.workable.CrafterRecipeLogic;
+import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.SlotScrollableWidgetGroup;
+import tj.gui.widgets.impl.*;
 import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.impl.CraftingRecipeTransferWidget;
-import tj.gui.widgets.impl.SlotDisplayWidget;
 import tj.textures.TJTextures;
 import tj.util.Color;
 import tj.util.EnumFacingHelper;
@@ -55,25 +53,22 @@ import static tj.gui.TJGuiTextures.*;
 
 public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implements IRecipeMapProvider {
 
-    private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this)
-            .setImportEnergySupplier(this::getEnergyContainer)
-            .setImportItemsSupplier(this::getImportItems)
-            .setExportItemsSupplier(this::getExportItems)
-            .setMaxVoltageSupplier(this::getMaxVoltage)
-            .setParallelSupplier(() -> 1)
-            .initialize(1);
+    private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this);
     private final InventoryCrafting inventoryCrafting = new InventoryCrafting(new DummyContainer(), 3, 3);
     private final ItemStackHandler craftingInventory = new ItemStackHandler(9);
     private final ItemStackHandler encodingInventory;
     private final ItemStackHandler resultInventory = new ItemStackHandler(1);
     private final Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = new Int2ObjectOpenHashMap<>();
     private final int encodingSlots;
+    private final int parallel;
     private IRecipe currentRecipe;
 
     public MetaTileEntityCrafter(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.encodingSlots = 6 + (tier * 3);
+        this.parallel = this.getTier();
         this.encodingInventory = new ItemStackHandler(this.encodingSlots);
+        this.recipeLogic.initialize(1);
     }
 
     @Override
@@ -87,6 +82,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.large_crafter.description"));
         tooltip.add(I18n.format("tj.multiblock.large_crafter.slots", this.encodingSlots));
+        tooltip.add(I18n.format("tj.multiblock.parallel", this.parallel));
         tooltip.add(I18n.format("tj.machine.crafter.tooltip"));
         tooltip.add(TooltipHelper.blinkingText(Color.YELLOW, 20, "tj.multiblock.large_crafter.warning"));
     }
@@ -136,8 +132,13 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                         }
                     }));
         }
+        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 21, 21, 20)
+                .setFluidOutputSupplier(this.recipeLogic::getFluidOutputs)
+                .setItemOutputSupplier(this.recipeLogic::getItemOutputs)
+                .setItemOutputInventorySupplier(this::getExportItems)
+                .setFluidOutputTankSupplier(this::getExportFluids);
         return ModularUI.builder(BACKGROUND, 176, 216)
-                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 55, 111, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new ImageWidget(72, 28, 26, 26, SLOT))
@@ -148,6 +149,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new SlotWidget(this.exportItems, 0, 79, 112, true, false)
                         .setBackgroundTexture(SLOT))
+                .widget(new RecipeOutputSlotWidget(0, 79, 112, 18, 18, displayWidget::getItemOutputAt, null))
                 .widget(new ToggleButtonWidget(133, 112, 18, 18, ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
                         .setTooltipText("machine.universal.toggle.item_voiding"))
                 .widget(new ToggleButtonWidget(151, 112, 18, 18, POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
@@ -165,6 +167,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                 .widget(inventorySlotGroup)
                 .widget(scrollableWidgetGroup)
                 .bindPlayerInventory(player.inventory, 134)
+                .widget(displayWidget)
                 .build(this.getHolder(), player);
     }
 
@@ -268,5 +271,10 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
     @Override
     public Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> getRecipeMap() {
         return this.recipeMap;
+    }
+
+    @Override
+    public int getParallel() {
+        return this.parallel;
     }
 }

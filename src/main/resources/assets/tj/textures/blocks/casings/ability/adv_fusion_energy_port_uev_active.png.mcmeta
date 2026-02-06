@@ -1,0 +1,13 @@
+{
+  "ctm": {
+    "ctm_version": 1,
+    "type": "normal",
+    "layer": "SOLID",
+    "extra": {
+      "light": {
+        "block": 15,
+        "sky": 15
+      }
+    }
+  }
+}

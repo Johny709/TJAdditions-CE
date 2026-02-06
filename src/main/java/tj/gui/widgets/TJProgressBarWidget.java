@@ -109,19 +109,21 @@ public class TJProgressBarWidget extends Widget {
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         Size size = this.getSize();
         Position pos = this.getPosition();
-        int width = this.moveType == ProgressWidget.MoveType.HORIZONTAL ? (int) ((size.getWidth() - 2) * (this.progress / this.maxProgress)) : size.getWidth() - 2;
-        int height = this.moveType == ProgressWidget.MoveType.VERTICAL ? (int) ((size.getHeight() - 2) * (this.progress / this.maxProgress)) : size.getHeight() - 2;
+        long width = this.moveType == ProgressWidget.MoveType.HORIZONTAL ? (long) ((size.getWidth() - 2) * (this.progress / this.maxProgress)) : size.getWidth() - 2;
+        long height = this.moveType == ProgressWidget.MoveType.VERTICAL ? (long) ((size.getHeight() - 2) * (this.progress / this.maxProgress)) : size.getHeight() - 2;
         int x = this.inverted ? pos.getX() + size.getWidth() - 1: pos.getX() + 1;
         int y = this.inverted ? pos.getY() + size.getHeight() - 1: pos.getY() + 1;
         if (this.backgroundTexture != null)
             this.backgroundTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         if (!this.isFluid) {
-            if (this.barTexture != null)
-                this.barTexture.draw(x, y, this.inverted ? -width : width, this.inverted ? -height : height);
-            else Widget.drawSolidRect(x, y, this.inverted ? -width : width, this.inverted ? -height : height, this.color);
+            if (this.barTexture != null) {
+                this.barTexture.draw(x, y, (int) (this.inverted ? -width : width), (int) (this.inverted ? -height : height));
+            } else Widget.drawSolidRect(x, y, (int) (this.inverted ? -width : width), (int) (this.inverted ? -height : height), this.color);
         } else if (this.fluid != null) {
             GlStateManager.disableBlend();
-            TJGuiUtils.drawFluidForGui(this.fluid, (long) this.progress, (long) this.maxProgress, x, y, this.inverted ? -(width + 1) : width + 1, this.inverted ? -height : height);
+            x -= (this.inverted ? size.getWidth() - 1 : 0);
+            y -= (this.inverted ? size.getHeight() - 1 : 0);
+            TJGuiUtils.drawFluidForGui(this.fluid, (long) this.progress, (long) this.maxProgress, x, y, width + 1, height);
             GlStateManager.enableBlend();
             GlStateManager.color(1.0f, 1.0f, 1.0f);
         }
@@ -129,28 +131,37 @@ public class TJProgressBarWidget extends Widget {
 
     @Override
     public void detectAndSendChanges() {
-        double progress, maxProgress;
-        if (this.progressSupplier != null && (progress = this.progressSupplier.getAsDouble()) != this.progress) {
-            this.progress = progress;
-            this.writeUpdateInfo(1, buffer -> buffer.writeDouble(this.progress));
+        if (this.progressSupplier != null) {
+            double progress = this.progressSupplier.getAsDouble();
+            if (progress != this.progress) {
+                this.progress = progress;
+                this.writeUpdateInfo(1, buffer -> buffer.writeDouble(this.progress));
+            }
         }
-        if (this.maxProgressSupplier != null && (maxProgress = this.maxProgressSupplier.getAsDouble()) != this.maxProgress) {
-            this.maxProgress = maxProgress;
-            this.writeUpdateInfo(2, buffer -> buffer.writeDouble(this.maxProgress));
+        if (this.maxProgressSupplier != null) {
+            double maxProgress = this.maxProgressSupplier.getAsDouble();
+            if (maxProgress != this.maxProgress) {
+                this.maxProgress = maxProgress;
+                this.writeUpdateInfo(2, buffer -> buffer.writeDouble(this.maxProgress));
+            }
         }
-        Object[] params;
-        if (this.paramSupplier != null && (params = this.paramSupplier.get()) != null && params.length > 0 && (this.params == null || !Arrays.equals(this.params, params))) {
-            this.params = params;
-            this.writeUpdateInfo(3, buffer -> {
-                buffer.writeInt(this.params.length);
-                for (Object param : this.params)
-                    buffer.writeString(param != null ? (String) param : "");
-            });
+        if (this.paramSupplier != null) {
+            Object[] params = this.paramSupplier.get();
+            if (params != null && params.length > 0 && (this.params == null || !Arrays.equals(this.params, params))) {
+                this.params = params;
+                this.writeUpdateInfo(3, buffer -> {
+                    buffer.writeInt(this.params.length);
+                    for (Object param : this.params)
+                        buffer.writeString(param != null ? (String) param : "");
+                });
+            }
         }
-        FluidStack fluidStack;
-        if (this.fluidStackSupplier != null && (fluidStack = this.fluidStackSupplier.get()) != null && (this.fluid == null || !this.fluid.isFluidStackIdentical(fluidStack))) {
-            this.fluid = fluidStack;
-            this.writeUpdateInfo(4, buffer -> buffer.writeCompoundTag(this.fluid.writeToNBT(new NBTTagCompound())));
+        if (this.fluidStackSupplier != null) {
+            FluidStack fluidStack = this.fluidStackSupplier.get();
+            if (fluidStack != null && (this.fluid == null || !this.fluid.isFluidStackIdentical(fluidStack))) {
+                this.fluid = fluidStack;
+                this.writeUpdateInfo(4, buffer -> buffer.writeCompoundTag(this.fluid.writeToNBT(new NBTTagCompound())));
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.metal.MetalCasing1;
+import gregicadditions.machines.GATileEntities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -13,7 +14,6 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.common.blocks.BlockBoilerCasing;
@@ -27,32 +27,35 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
-import tj.builder.ParallelRecipeMap;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.builder.multicontrollers.UIDisplayBuilder;
-import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
+import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
+import tj.util.TJFluidUtils;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Queue;
+import java.util.function.UnaryOperator;
 
 import static gregicadditions.GAMaterials.Cryotheum;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.recipes.RecipeMaps.VACUUM_RECIPES;
-import static tj.TJRecipeMaps.PARALLEL_VACUUM_RECIPES;
+import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.CRYOTHEUM;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
 
-public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMultiblockController implements IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
     private FluidStack cryotheum;
 
     public MetaTileEntityParallelCryogenicFreezer(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_VACUUM_RECIPES});
+        super(metaTileEntityId, GATileEntities.VACUUM_FREEZER.recipeMap);
         this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack) {
 
             @Override
@@ -87,7 +90,7 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     protected void addDisplayText(UIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.fluidInputLine(this.inputFluidInventory, this.cryotheum);
+        builder.fluidInputLine(this.importFluidTank, this.cryotheum);
     }
 
     @Override
@@ -139,6 +142,26 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     }
 
     @Override
+    public int[][] getBarMatrix() {
+        return new int[1][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getCryotheumAmount).setMaxProgress(this::getCryotheumCapacity)
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{CRYOTHEUM.getLocalizedName()})
+                .setFluidStackSupplier(() -> CRYOTHEUM));
+    }
+
+    private long getCryotheumAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(CRYOTHEUM, this.getImportFluidTank());
+    }
+
+    private long getCryotheumCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(CRYOTHEUM, this.getImportFluidTank());
+    }
+
+    @Override
     public int getEUPercentage() {
         return TJConfig.parallelCryogenicFreezer.eutPercentage;
     }
@@ -161,10 +184,5 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelCryogenicFreezer.maximumParallel;
-    }
-
-    @Override
-    public RecipeMap<?>[] getRecipeMaps() {
-        return new RecipeMap[]{VACUUM_RECIPES};
     }
 }

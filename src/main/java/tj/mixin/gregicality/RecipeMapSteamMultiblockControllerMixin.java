@@ -1,7 +1,9 @@
 package tj.mixin.gregicality;
 
+import gregicadditions.Gregicality;
 import gregicadditions.capabilities.impl.RecipeMapSteamMultiblockController;
 import gregicadditions.capabilities.impl.SteamMultiblockRecipeLogic;
+import gregtech.api.recipes.RecipeMap;
 import gregtech.common.ConfigHolder;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Style;
@@ -9,6 +11,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.IFluidTank;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import tj.builder.multicontrollers.UIDisplayBuilder;
@@ -19,6 +22,10 @@ public abstract class RecipeMapSteamMultiblockControllerMixin extends Multiblock
 
     @Shadow
     protected SteamMultiblockRecipeLogic recipeMapWorkable;
+
+    @Shadow
+    @Final
+    public RecipeMap<?> recipeMap;
 
     public RecipeMapSteamMultiblockControllerMixin(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
@@ -43,5 +50,10 @@ public abstract class RecipeMapSteamMultiblockControllerMixin extends Multiblock
                     }
                 }).isWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), 999)
                 .addRecipeOutputLine(this.recipeMapWorkable, 1000);
+    }
+
+    @Override
+    public String getJEIRecipeUid() {
+        return Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName();
     }
 }

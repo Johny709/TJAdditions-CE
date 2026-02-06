@@ -3,10 +3,7 @@ package tj.machines.singleblock;
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import gregicadditions.GAValues;
 import gregicadditions.machines.overrides.GATieredMetaTileEntity;
-import gregtech.api.capability.GregtechCapabilities;
-import gregtech.api.capability.IActiveOutputSide;
-import gregtech.api.capability.IElectricItem;
-import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.capability.*;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.ICoverable;
@@ -23,8 +20,10 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
+import tj.capability.IMachineHandler;
 import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
@@ -33,7 +32,7 @@ import java.util.List;
 /**
  * Serves as a basis to implement your own recipe or workable handler for single blocks.
  */
-public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEntity implements IActiveOutputSide {
+public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEntity implements IActiveOutputSide, IMachineHandler {
 
     protected final ItemStackHandler chargerInventory;
     private EnumFacing outputFacing = EnumFacingHelper.getBottomFacingFrom(this.frontFacing);
@@ -229,11 +228,43 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
         return this.allowInputFromOutputSide;
     }
 
-    public IEnergyContainer getEnergyContainer() {
+    @Override
+    public IItemHandlerModifiable getInputBus(int index) {
+        return this.getImportItems();
+    }
+
+    @Override
+    public IItemHandlerModifiable getImportItemInventory() {
+        return this.getImportItems();
+    }
+
+    @Override
+    public IItemHandlerModifiable getExportItemInventory() {
+        return this.getExportItems();
+    }
+
+    @Override
+    public IMultipleTankHandler getImportFluidTank() {
+        return this.getImportFluids();
+    }
+
+    @Override
+    public IMultipleTankHandler getExportFluidTank() {
+        return this.getExportFluids();
+    }
+
+    @Override
+    public IEnergyContainer getInputEnergyContainer() {
         return this.energyContainer;
     }
 
+    @Override
     public long getMaxVoltage() {
         return GAValues.V[this.getTier()];
+    }
+
+    @Override
+    public int getTier() {
+        return super.getTier();
     }
 }

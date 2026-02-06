@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @SideOnly(Side.CLIENT)
-public class TooltipHelper {
+public final class TooltipHelper {
+
+    private TooltipHelper() {}
 
     public static void shiftText(List<String> tooltip, Consumer<List<String>> tip) {
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {

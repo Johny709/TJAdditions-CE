@@ -16,7 +16,7 @@ import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.capability.impl.XLHotCoolantTurbineWorkableHandler;
+import tj.capability.impl.workable.XLHotCoolantTurbineWorkableHandler;
 import tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
@@ -430,7 +430,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                 .offsetY(132);
         if (height > 0)
             builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
-        builder.widget(new TJLabelWidget(-1, -38, 184, 20, TJGuiTextures.MACHINE_LABEL, this::getRecipeUid)
+        builder.widget(new TJLabelWidget(-1, -38, 184, 18, TJGuiTextures.MACHINE_LABEL, this::getRecipeUid)
                 .setItemLabel(this.getStackForm())
                 .setLocale(this.getMetaFullName()));
         builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN)

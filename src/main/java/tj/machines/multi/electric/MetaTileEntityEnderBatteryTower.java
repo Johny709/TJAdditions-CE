@@ -50,13 +50,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
-import tj.builder.handlers.BasicEnergyHandler;
+import tj.capability.impl.handler.IBatteryHandler;
+import tj.capability.impl.workable.BasicEnergyHandler;
 import tj.builder.multicontrollers.ExtendableMultiblockController;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IEnderNotifiable;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.capability.impl.AbstractWorkableHandler;
+import tj.capability.AbstractWorkableHandler;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJAdvancedTextWidget;
@@ -72,7 +73,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
@@ -87,12 +87,12 @@ import static tj.gui.TJGuiTextures.*;
 import static tj.gui.TJGuiTextures.LIST_OVERLAY;
 import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
 
-public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockController implements IEnderNotifiable<BasicEnergyHandler>, IProgressBar {
+public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockController implements IEnderNotifiable<BasicEnergyHandler>, IProgressBar, IBatteryHandler {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private final long maxTransferRate = Long.MAX_VALUE;
 
-    private final EnderBatteryTowerWorkableHandler workableHandler = new EnderBatteryTowerWorkableHandler(this, this::getPumpMode, this::getHandler, this::getEnergyBuffer, this::getInputEnergy, this::getOutputEnergy);
+    private final EnderBatteryTowerWorkableHandler workableHandler = new EnderBatteryTowerWorkableHandler(this);
 
     private BasicEnergyHandler handler;
     private BasicEnergyHandler energyBuffer;
@@ -133,7 +133,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     }
 
     protected BasicEnergyHandler createHandler() {
-        return new BasicEnergyHandler(this.energyBuffer != null ? this.energyBuffer.getEnergyCapacity() : 0);
+        return new BasicEnergyHandler(this.inputEnergyContainer != null ? this.inputEnergyContainer.getEnergyCapacity() : 0);
     }
 
     protected Map<String, EnderCoverProfile<BasicEnergyHandler>> getPlayerMap() {
@@ -727,7 +727,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     protected void addDisplayText(UIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.energyStoredLine(this.energyBuffer.getEnergyStored(), this.energyBuffer.getEnergyCapacity())
+        builder.energyStoredLine(this.inputEnergyContainer.getEnergyStored(), this.inputEnergyContainer.getEnergyCapacity())
                 .customLine(text -> {
                     text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.ender_battery_tower.energy_inserted", this.workableHandler.getEnergyInserted()))
                             .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.ender_battery_tower.energy_inserted.tooltip")))));
@@ -908,6 +908,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
             this.energyBuffer = new BasicEnergyHandler(capacity);
             this.energyBuffer.addEnergy(Math.min(stored, capacity));
         }
+        this.inputEnergyContainer = this.energyBuffer;
     }
 
     @Override
@@ -1019,45 +1020,35 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         return this.handler != null ? this.handler.getEnergyStored() : 0;
     }
 
+    @Override
     public CoverPump.PumpMode getPumpMode() {
         return this.pumpMode;
     }
 
-    public BasicEnergyHandler getHandler() {
+    @Override
+    public BasicEnergyHandler getEnergyHandler() {
         return this.handler != null ? this.handler : TJValues.DUMMY_ENERGY;
     }
 
-    private IEnergyContainer getEnergyBuffer() {
-        return this.energyBuffer;
-    }
-
-    private List<IEnergyContainer> getInputEnergy() {
+    @Override
+    public List<IEnergyContainer> getInputEnergy() {
         return this.inputEnergy;
     }
 
-    private List<IEnergyContainer> getOutputEnergy() {
+    @Override
+    public List<IEnergyContainer> getOutputEnergy() {
         return this.outputEnergy;
     }
 
-    private static class EnderBatteryTowerWorkableHandler extends AbstractWorkableHandler<EnderBatteryTowerWorkableHandler> implements IEnergyContainer {
+    private static class EnderBatteryTowerWorkableHandler extends AbstractWorkableHandler<IBatteryHandler> implements IEnergyContainer {
 
-        private final Supplier<CoverPump.PumpMode> pumpMode;
-        private final Supplier<BasicEnergyHandler> handler;
-        private final Supplier<IEnergyContainer> energyBuffer;
-        private final Supplier<List<IEnergyContainer>> inputEnergy;
-        private final Supplier<List<IEnergyContainer>> outputEnergy;
         private long lastEnergyExtracted;
         private long energyExtracted;
         private long lastEnergyInserted;
         private long energyInserted;
 
-        public EnderBatteryTowerWorkableHandler(MetaTileEntity metaTileEntity, Supplier<CoverPump.PumpMode> pumpMode, Supplier<BasicEnergyHandler> handler, Supplier<IEnergyContainer> energyBuffer, Supplier<List<IEnergyContainer>> inputEnergy, Supplier<List<IEnergyContainer>> outputEnergy) {
+        public EnderBatteryTowerWorkableHandler(MetaTileEntity metaTileEntity) {
             super(metaTileEntity);
-            this.pumpMode = pumpMode;
-            this.handler = handler;
-            this.energyBuffer = energyBuffer;
-            this.inputEnergy = inputEnergy;
-            this.outputEnergy = outputEnergy;
             this.maxProgress = 1200;
         }
 
@@ -1071,10 +1062,10 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
             this.energyExtracted = 0;
             this.energyInserted = 0;
             if (!this.isWorking) return;
-            for (int i = 0; i < this.inputEnergy.get().size(); i++)
-                this.energyInserted += this.importEnergy(this.inputEnergy.get().get(i));
-            for (int i = 0; i < this.outputEnergy.get().size(); i++)
-                this.energyExtracted += this.exportEnergy(this.outputEnergy.get().get(i));
+            for (int i = 0; i < this.handler.getInputEnergy().size(); i++)
+                this.energyInserted += this.importEnergy(this.handler.getInputEnergy().get(i));
+            for (int i = 0; i < this.handler.getOutputEnergy().size(); i++)
+                this.energyExtracted += this.exportEnergy(this.handler.getOutputEnergy().get(i));
             this.progress++;
         }
 
@@ -1082,26 +1073,26 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         protected boolean completeRecipe() {
             this.lastEnergyExtracted = 0;
             this.lastEnergyInserted = 0;
-            if (this.pumpMode.get() == CoverPump.PumpMode.IMPORT)
-                this.lastEnergyInserted = this.exportEnergy(this.handler.get());
-            else this.lastEnergyExtracted = this.importEnergy(this.handler.get());
+            if (this.handler.getPumpMode() == CoverPump.PumpMode.IMPORT)
+                this.lastEnergyInserted = this.exportEnergy(this.handler.getEnergyHandler());
+            else this.lastEnergyExtracted = this.importEnergy(this.handler.getEnergyHandler());
             return true;
         }
 
         private long exportEnergy(IEnergyContainer enderEnergyContainer) {
             long energyRemainingToFill = enderEnergyContainer.getEnergyCapacity() - enderEnergyContainer.getEnergyStored();
             if (enderEnergyContainer.getEnergyStored() < 1 || energyRemainingToFill != 0) {
-                long energyExtracted = this.energyBuffer.get().removeEnergy(energyRemainingToFill);
+                long energyExtracted = this.handler.getInputEnergyContainer().removeEnergy(energyRemainingToFill);
                 return enderEnergyContainer.addEnergy(Math.abs(energyExtracted));
             }
             return 0;
         }
 
         private long importEnergy(IEnergyContainer enderEnergyContainer) {
-            long energyRemainingToFill = this.energyBuffer.get().getEnergyCapacity() - this.energyBuffer.get().getEnergyStored();
-            if (this.energyBuffer.get().getEnergyStored() < 1 || energyRemainingToFill != 0) {
+            long energyRemainingToFill = this.handler.getInputEnergyContainer().getEnergyCapacity() - this.handler.getInputEnergyContainer().getEnergyStored();
+            if (this.handler.getInputEnergyContainer().getEnergyStored() < 1 || energyRemainingToFill != 0) {
                 long energyExtracted = Math.abs(enderEnergyContainer.removeEnergy(energyRemainingToFill));
-                return this.energyBuffer.get().addEnergy(energyExtracted);
+                return this.handler.getInputEnergyContainer().addEnergy(energyExtracted);
             }
             return 0;
         }
@@ -1146,12 +1137,12 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
 
         @Override
         public long getEnergyStored() {
-            return this.energyBuffer.get().getEnergyStored();
+            return this.handler.getInputEnergyContainer().getEnergyStored();
         }
 
         @Override
         public long getEnergyCapacity() {
-            return this.energyBuffer.get().getEnergyCapacity();
+            return this.handler.getInputEnergyContainer().getEnergyCapacity();
         }
 
         @Override

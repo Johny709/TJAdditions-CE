@@ -18,7 +18,10 @@ import net.minecraftforge.fluids.FluidStack;
 
 import static gregtech.api.gui.resources.RenderUtil.setGlColorFromInt;
 
-public class TJGuiUtils {
+
+public final class TJGuiUtils {
+
+    private TJGuiUtils() {}
 
     /**
      *

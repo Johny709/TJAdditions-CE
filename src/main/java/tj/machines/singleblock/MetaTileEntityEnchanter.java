@@ -19,9 +19,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
-import tj.builder.handlers.EnchanterWorkableHandler;
+import tj.capability.impl.workable.EnchanterWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.gui.widgets.impl.RecipeOutputSlotWidget;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -35,19 +37,14 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 
 public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
 
-    private final EnchanterWorkableHandler workableHandler = new EnchanterWorkableHandler(this)
-            .setImportEnergySupplier(this::getEnergyContainer)
-            .setImportFluidsSupplier(this::getImportFluids)
-            .setImportItemsSupplier(this::getImportItems)
-            .setExportItemsSupplier(this::getExportItems)
-            .setMaxVoltageSupplier(this::getMaxVoltage)
-            .setTierSupplier(this::getTier)
-            .setParallelSupplier(() -> 1);
+    private final EnchanterWorkableHandler workableHandler = new EnchanterWorkableHandler(this);
     private final IFluidTank tank;
+    private final int parallel;
 
     public MetaTileEntityEnchanter(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.tank = new FluidTank(64000);
+        this.parallel = this.getTier();
         this.workableHandler.initialize(1);
         this.initializeInventory();
     }
@@ -61,6 +58,7 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.large_enchanter.level.max", this.getTier()));
+        tooltip.add(I18n.format("tj.multiblock.parallel", this.parallel));
     }
 
     @Override
@@ -87,8 +85,13 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
+        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 21, 21, 20)
+                .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
+                .setItemOutputSupplier(this.workableHandler::getItemOutputs)
+                .setItemOutputInventorySupplier(this::getExportItems)
+                .setFluidOutputTankSupplier(this::getExportFluids);
         return ModularUI.defaultBuilder()
-                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 21, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new SlotWidget(this.importItems, 0, 34, 22, true, true)
@@ -99,6 +102,8 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                         .setBackgroundTexture(SLOT))
                 .widget(new SlotWidget(this.exportItems, 1, 123, 22, true, false)
                         .setBackgroundTexture(SLOT))
+                .widget(new RecipeOutputSlotWidget(0, 105, 22, 18, 18, displayWidget::getItemOutputAt, null))
+                .widget(new RecipeOutputSlotWidget(1, 123, 22, 18, 18, displayWidget::getItemOutputAt, null))
                 .widget(new TankWidget(this.tank, 16, 22, 18, 18)
                         .setBackgroundTexture(FLUID_SLOT))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
@@ -111,6 +116,7 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                 .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
                 .bindPlayerInventory(player.inventory)
+                .widget(displayWidget)
                 .build(this.getHolder(), player);
     }
 
@@ -123,5 +129,10 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
         TJTextures.ENCHANTED_BOOK.renderSided(EnumFacingHelper.getLeftFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.ENCHANTED_BOOK.renderSided(EnumFacingHelper.getRightFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.ENCHANTING_TABLE.renderSided(EnumFacingHelper.getTopFacingFrom(this.frontFacing), renderState, translation, pipeline);
+    }
+
+    @Override
+    public int getParallel() {
+        return this.parallel;
     }
 }

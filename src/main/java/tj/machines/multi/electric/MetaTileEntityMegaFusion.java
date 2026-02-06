@@ -52,7 +52,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.blocks.AdvEnergyPortCasings;
-import tj.builder.handlers.IFusionProvider;
+import tj.capability.impl.handler.IFusionProvider;
 import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IHeatInfo;
@@ -243,25 +243,6 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
     }
 
     @Override
-    public void replaceEnergyPortsAsActive(boolean active) {
-        this.activeStates.forEach(pos -> {
-            IBlockState state = this.getWorld().getBlockState(pos);
-            if (state.getBlock() instanceof AdvEnergyPortCasings) {
-                state = state.withProperty(AdvEnergyPortCasings.ACTIVE, active);
-                this.getWorld().setBlockState(pos, state);
-            }
-        });
-    }
-
-    @Override
-    public void onRemoval() {
-        super.onRemoval();
-        if (!this.getWorld().isRemote) {
-            this.replaceEnergyPortsAsActive(false);
-        }
-    }
-
-    @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         LongList energyPortAmps = context.getOrDefault("EnergyAmps", new LongArrayList());
@@ -307,11 +288,60 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
     }
 
     @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        this.writeActiveBlockPacket(buf, this.recipeMapWorkable.isActive());
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+    }
+
+    @Override
     public void receiveCustomData(int dataId, PacketBuffer buf) {
         super.receiveCustomData(dataId, buf);
         if (dataId == 10) {
             this.tier = buf.readInt();
             this.scheduleRenderUpdate();
+        } else if (dataId == 128) {
+            this.readActiveBlockPacket(buf);
+        }
+    }
+
+    private void writeActiveBlockPacket(PacketBuffer buffer, boolean isActive) {
+        buffer.writeBoolean(isActive);
+        buffer.writeInt(this.activeStates.size());
+        for (BlockPos pos : this.activeStates) {
+            buffer.writeBlockPos(pos);
+        }
+    }
+
+    private void readActiveBlockPacket(PacketBuffer buffer) {
+        boolean isActive = buffer.readBoolean();
+        int size = buffer.readInt();
+        for (int i = 0; i < size; i++) {
+            BlockPos pos = buffer.readBlockPos();
+            IBlockState state = this.getWorld().getBlockState(pos);
+            Block block = state.getBlock();
+            if (block instanceof AdvEnergyPortCasings) {
+                state = state.withProperty(AdvEnergyPortCasings.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            }
+        }
+    }
+
+    @Override
+    public void replaceEnergyPortsAsActive(boolean isActive) {
+        this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (!this.getWorld().isRemote) {
+            this.replaceEnergyPortsAsActive(false);
+            this.markDirty();
         }
     }
 

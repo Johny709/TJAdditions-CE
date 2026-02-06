@@ -20,7 +20,7 @@ import tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.capability.impl.TJBoostableFuelRecipeLogic;
+import tj.capability.impl.workable.TJBoostableFuelRecipeLogic;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.util.TJFluidUtils;
 

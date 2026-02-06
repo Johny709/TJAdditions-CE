@@ -17,9 +17,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import tj.TJConfig;
+import tj.capability.IRecipeMap;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
+import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
 
 @Mixin(value = SimpleMachineMetaTileEntity.class, remap = false)
 public abstract class SimpleMachineMetaTileEntityMixin extends WorkableTieredMetaTileEntityMixin {
@@ -48,10 +50,15 @@ public abstract class SimpleMachineMetaTileEntityMixin extends WorkableTieredMet
     private void injectCreateUITemplate(EntityPlayer player, CallbackInfoReturnable<ModularUI.Builder> cir,
                                         ModularUI.Builder builder, int leftButtonStartX, int rightButtonStartX) {
         if (!TJConfig.machines.multiblockUIOverrides) return;
-        ModularUI.Builder newBuilder = this.workable.recipeMap.createUITemplate(this.workable::getProgressPercent, this.importItems, this.exportItems, this.importFluids, this.exportFluids)
+        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 22, 21, 20)
+                .setFluidOutputSupplier(((IAbstractRecipeLogicMixin) this.workable)::getFluidOutputs)
+                .setItemOutputSupplier(((IAbstractRecipeLogicMixin) this.workable)::getItemOutputs)
+                .setItemOutputInventorySupplier(this::getExportItems)
+                .setFluidOutputTankSupplier(this::getExportFluids);
+        ModularUI.Builder newBuilder = ((IRecipeMap) this.workable.recipeMap).createUITemplateAdvanced(this.workable::getProgressPercent, this.importItems, this.exportItems, this.importFluids, this.exportFluids, displayWidget)
                 .image(-28, 0, 26, 86, GuiTextures.BORDERED_BACKGROUND)
                 .image(-28, 138, 26, 26, GuiTextures.BORDERED_BACKGROUND)
-                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL, () -> Gregicality.MODID + ":" + this.workable.recipeMap.getUnlocalizedName())
+                .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL, () -> Gregicality.MODID + ":" + this.workable.recipeMap.getUnlocalizedName())
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(-24, 4, 18, 78, () -> this.energyContainer.getEnergyStored(), () -> this.energyContainer.getEnergyCapacity(), ProgressWidget.MoveType.VERTICAL)
                         .setLocale("tj.multiblock.bars.energy", null)
@@ -68,7 +75,8 @@ public abstract class SimpleMachineMetaTileEntityMixin extends WorkableTieredMet
                         .setTooltipHoverString("gregtech.gui.overclock.description")
                         .setButtonTexture(GuiTextures.BUTTON_OVERCLOCK))
                 .widget(new GhostCircuitWidget(this.ghostCircuitInventory, 151, 62))
-                .bindPlayerInventory(player.inventory);
+                .bindPlayerInventory(player.inventory)
+                .widget(displayWidget);
 
         leftButtonStartX = 7;
         if (this.workable.recipeMap instanceof SimpleMachineMetaTileEntity.RecipeMapWithConfigButton) {

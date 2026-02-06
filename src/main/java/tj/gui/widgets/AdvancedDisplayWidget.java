@@ -4,6 +4,7 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
+import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.util.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -44,7 +45,7 @@ import java.util.stream.Stream;
 /**
  * More advanced form of {@link gregtech.api.gui.widgets.AdvancedTextWidget} that can also display items {@link net.minecraft.item.ItemStack} and fluids {@link net.minecraftforge.fluids.FluidStack}
  */
-public class AdvancedDisplayWidget extends Widget {
+public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
 
     protected int maxWidthLimit;
 
@@ -253,11 +254,11 @@ public class AdvancedDisplayWidget extends Widget {
 
     @SideOnly(Side.CLIENT)
     private Size updateComponentTextSize(List<TextComponentWrapper<?>> displayText) {
-        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         int slot = 0;
         int totalHeight = 0;
         int maxStringWidth = 0;
         boolean stackApplied = false;
+        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         for (TextComponentWrapper<?> component : displayText) {
             if (component.getValue() instanceof ITextComponent) {
                 if (stackApplied) {
@@ -478,6 +479,12 @@ public class AdvancedDisplayWidget extends Widget {
             lastHeight = heightApplied;
         }
         return null;
+    }
+
+    @Override
+    public Object getIngredientOverMouse(int mouseX, int mouseY) {
+        TextComponentWrapper<?> textComponent = this.getTextUnderMouse(mouseX, mouseY, this.hoverDisplayText != null ? this.hoverDisplayText : this.displayText, this.hoverDisplayText != null);
+        return textComponent == null ? null : textComponent.getValue() instanceof ItemStack || textComponent.getValue() instanceof FluidStack ? textComponent.getValue() : null;
     }
 
     /**

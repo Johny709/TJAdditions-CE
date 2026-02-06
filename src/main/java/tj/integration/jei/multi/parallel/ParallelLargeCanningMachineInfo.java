@@ -3,13 +3,11 @@ package tj.integration.jei.multi.parallel;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.components.PumpCasing;
-import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
-import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -18,6 +16,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.ArrayList;
@@ -36,17 +35,17 @@ public class ParallelLargeCanningMachineInfo extends TJMultiblockInfoPage implem
     }
 
     @Override
-    public List<MultiblockShapeInfo[]> getMatchingShapes(MultiblockShapeInfo[] shapes) {
-        List<MultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+    public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
+        List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
         int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
         for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            GAMultiblockShapeInfo.Builder builder = new GAMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
+            TJMultiblockShapeInfo.Builder builder = new TJMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
             builder.aisle("~~P~~", "~MPE~", "PPPPP", "~CPC~", "~~P~~");
             for (int layer = 0; layer < shapeInfo; layer++) {
                 builder.aisle("~~P~~", "~G#G~", "P#p#P", "~G#G~", "~~P~~");
             }
             builder.aisle("~~P~~", "~iPo~", "PPSPP", "~IPO~", "~~P~~");
-            MultiblockShapeInfo[] infos = new MultiblockShapeInfo[15];
+            TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
             for (int tier = 0; tier < infos.length; tier++) {
                 infos[tier] = builder.where('S', this.getController(), WEST)
                         .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
@@ -55,10 +54,10 @@ public class ParallelLargeCanningMachineInfo extends TJMultiblockInfoPage implem
                         .where('p', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
                         .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
                         .where('E', this.getEnergyHatch(tier, false), EAST)
-                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[Math.min(9, tier)], WEST)
-                        .where('i', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], WEST)
-                        .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], WEST)
-                        .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], WEST)
+                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[tier], WEST)
+                        .where('i', MetaTileEntities.ITEM_EXPORT_BUS[tier], WEST)
+                        .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[tier], WEST)
+                        .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[tier], WEST)
                         .build();
             }
             shapeInfos.add(infos);

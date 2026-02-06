@@ -33,6 +33,7 @@ import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityMultiblockPart;
+import net.minecraft.block.Block;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.state.IBlockState;
@@ -59,7 +60,7 @@ import tj.blocks.EnergyPortCasings;
 import tj.blocks.BlockFusionCasings;
 import tj.blocks.BlockFusionGlass;
 import tj.blocks.TJMetaBlocks;
-import tj.builder.handlers.IFusionProvider;
+import tj.capability.impl.handler.IFusionProvider;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IHeatInfo;
@@ -152,14 +153,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         this.structurePattern = this.createStructurePattern();
     }
 
-    @Override
-    public void onRemoval() {
-        super.onRemoval();
-        if (!this.getWorld().isRemote) {
-            this.replaceEnergyPortsAsActive(false);
-        }
-    }
-
     public int getTier() {
         return this.tier;
     }
@@ -168,17 +161,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     protected void reinitializeStructurePattern() {
         this.parallelLayer = 1;
         super.reinitializeStructurePattern();
-    }
-
-    @Override
-    public void replaceEnergyPortsAsActive(boolean active) {
-        this.activeStates.forEach(pos -> {
-            IBlockState state = this.getWorld().getBlockState(pos);
-            if (state.getBlock() instanceof EnergyPortCasings) {
-                state = state.withProperty(EnergyPortCasings.ACTIVE, active);
-                this.getWorld().setBlockState(pos, state);
-            }
-        });
     }
 
     @Override
@@ -403,26 +385,66 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
-    public void receiveCustomData(int dataId, PacketBuffer buf) {
-        super.receiveCustomData(dataId, buf);
-        if (dataId == PARALLEL_LAYER) {
-            this.parallelLayer = buf.readInt();
-            this.structurePattern = createStructurePattern();
-            this.scheduleRenderUpdate();
-        }
-    }
-
-    @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
         buf.writeInt(this.parallelLayer);
+        this.writeActiveBlockPacket(buf, this.recipeMapWorkable.isActive());
     }
 
     @Override
     public void receiveInitialSyncData(PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
         this.parallelLayer = buf.readInt();
+        this.readActiveBlockPacket(buf);
         this.structurePattern = createStructurePattern();
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == PARALLEL_LAYER) {
+            this.parallelLayer = buf.readInt();
+            this.structurePattern = createStructurePattern();
+            this.scheduleRenderUpdate();
+        } else if (dataId == 128) {
+            this.readActiveBlockPacket(buf);
+        }
+    }
+
+    private void writeActiveBlockPacket(PacketBuffer buffer, boolean isActive) {
+        buffer.writeBoolean(isActive);
+        buffer.writeInt(this.activeStates.size());
+        for (BlockPos pos : this.activeStates) {
+            buffer.writeBlockPos(pos);
+        }
+    }
+
+    private void readActiveBlockPacket(PacketBuffer buffer) {
+        boolean isActive = buffer.readBoolean();
+        int size = buffer.readInt();
+        for (int i = 0; i < size; i++) {
+            BlockPos pos = buffer.readBlockPos();
+            IBlockState state = this.getWorld().getBlockState(pos);
+            Block block = state.getBlock();
+            if (block instanceof EnergyPortCasings) {
+                state = state.withProperty(EnergyPortCasings.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            }
+        }
+    }
+
+    @Override
+    public void replaceEnergyPortsAsActive(boolean isActive) {
+        this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (!this.getWorld().isRemote) {
+            this.replaceEnergyPortsAsActive(false);
+            this.markDirty();
+        }
     }
 
     @Override

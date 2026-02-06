@@ -5,6 +5,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import tj.capability.LinkEvent;
 import tj.event.MTELinkEvent;
+import appeng.items.materials.TJItemMaterial;
 import tj.items.TJMetaItems;
 import tj.items.item.TJItems;
 import tj.recipes.LateRecipes;
@@ -45,6 +46,7 @@ public class CommonProxy {
         registry.register(ABILITY_BLOCKS);
         ENERGY_PORT_CASINGS.forEach(registry::register);
         ADV_ENERGY_PORT_CASINGS.forEach(registry::register);
+        TJItemMaterial.INSTANCE.registerOredicts();
     }
 
     @SubscribeEvent
@@ -141,7 +143,6 @@ public class CommonProxy {
 
     }
     public void onPostLoad() {
-        TJRecipeMaps.parallelRecipesInit();
         LateRecipes.init();
     }
 }

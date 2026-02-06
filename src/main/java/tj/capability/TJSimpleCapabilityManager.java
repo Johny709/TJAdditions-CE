@@ -2,7 +2,7 @@ package tj.capability;
 
 import static gregtech.api.capability.SimpleCapabilityManager.registerCapabilityWithNoDefault;
 
-public class TJSimpleCapabilityManager {
+public final class TJSimpleCapabilityManager {
 
     public static void init() {
         registerCapabilityWithNoDefault(IMultiControllable.class);

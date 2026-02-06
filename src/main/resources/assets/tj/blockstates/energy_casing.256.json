@@ -1,7 +1,7 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "minecraft:cube_all",
+    "model": "tj:energy_casing.256",
     "textures": {
       "all": "gregtech:blocks/rendering_error"
     }

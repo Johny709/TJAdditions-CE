@@ -32,9 +32,12 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.builder.handlers.FarmingStationWorkableHandler;
+import tj.capability.impl.handler.IFarmerHandler;
+import tj.capability.impl.workable.FarmingStationWorkableHandler;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.SlotScrollableWidgetGroup;
+import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.gui.widgets.impl.RecipeOutputSlotWidget;
+import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.FilteredItemStackHandler;
@@ -52,17 +55,9 @@ import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
 import static tj.gui.TJGuiTextures.*;
 
 
-public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity {
+public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity implements IFarmerHandler {
 
-    private final FarmingStationWorkableHandler workableHandler = new FarmingStationWorkableHandler(this)
-            .setFertilizerInventory(this::getFertilizerInventory)
-            .setImportEnergySupplier(this::getEnergyContainer)
-            .setImportFluidsSupplier(this::getImportFluids)
-            .setImportItemsSupplier(this::getImportItems)
-            .setExportItemsSupplier(this::getExportItems)
-            .setMaxVoltageSupplier(this::getMaxVoltage)
-            .setToolInventory(this::getToolInventory)
-            .setTierSupplier(this::getTier);
+    private final FarmingStationWorkableHandler workableHandler = new FarmingStationWorkableHandler(this);
 
     private final IItemHandlerModifiable seedInventory = new FilteredItemStackHandler(this, 6, this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64)
             .setItemStackPredicate((slot, stack) -> stack.getItem() instanceof IPlantable || Block.getBlockFromItem(stack.getItem()) instanceof IPlantable);
@@ -129,16 +124,24 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     protected ModularUI createUI(EntityPlayer player) {
         WidgetGroup widgetGroup = new WidgetGroup(new Position(10, 22));
         SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(105, 22, 64, 54, 3);
+        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 21, 21, 20)
+                .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
+                .setItemOutputSupplier(this.workableHandler::getItemOutputs)
+                .setItemInputInventorySupplier(this::getImportItems)
+                .setItemOutputInventorySupplier(this::getExportItems)
+                .setFluidOutputTankSupplier(this::getExportFluids);
         for (int i = 0; i < this.seedInventory.getSlots(); i++) {
             widgetGroup.addWidget(new TJSlotWidget<>(this.seedInventory, i, 18 * (i % 2), 18 * (i / 2))
                     .setBackgroundTexture(SLOT, SEEDS_OVERLAY));
+            widgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 2), 18 * (i / 2), 18, 18, displayWidget::getItemInputAt, null));
         }
         for (int i = 0; i < this.exportItems.getSlots(); i++) {
             scrollableWidgetGroup.addWidget(new SlotWidget(this.exportItems, i, 18 * (i % 3), 18 * (i / 3), true, false)
                     .setBackgroundTexture(SLOT));
+            scrollableWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 3), 18 * (i / 3), 18, 18, displayWidget::getItemOutputAt, null));
         }
         return ModularUI.builder(GuiTextures.BACKGROUND, 176, 182)
-                .widget(new TJLabelWidget(7, -18, 166, 20, TJGuiTextures.MACHINE_LABEL)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 21, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new TJSlotWidget<>(this.toolInventory, 0, 52, 22)
@@ -168,6 +171,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                 .widget(widgetGroup)
                 .widget(scrollableWidgetGroup)
                 .bindPlayerInventory(player.inventory, 100)
+                .widget(displayWidget)
                 .build(this.getHolder(), player);
     }
 
@@ -181,11 +185,13 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
             Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
     }
 
-    private IItemHandlerModifiable getToolInventory() {
+    @Override
+    public IItemHandlerModifiable getToolInventory() {
         return this.toolInventory;
     }
 
-    private IItemHandlerModifiable getFertilizerInventory() {
+    @Override
+    public IItemHandlerModifiable getFertilizerInventory() {
         return this.fertilizerInventory;
     }
 }

@@ -1,9 +1,8 @@
 package tj.machines.multi.parallel;
 
 import tj.TJConfig;
-import tj.builder.ParallelRecipeMap;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.capability.impl.ParallelGAMultiblockRecipeLogic;
+import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -19,7 +18,6 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
-import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -38,8 +36,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.IntSupplier;
 
-import static tj.TJRecipeMaps.PARALLEL_CHEMICAL_PLANT_RECIPES;
-import static tj.TJRecipeMaps.PARALLEL_CHEMICAL_REACTOR_RECIPES;
 import static tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate;
 import static tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate2;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
@@ -55,7 +51,7 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
             MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
     public MetaTileEntityParallelAdvancedLargeChemicalReactor(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, new ParallelRecipeMap[]{PARALLEL_CHEMICAL_REACTOR_RECIPES, PARALLEL_CHEMICAL_PLANT_RECIPES});
+        super(metaTileEntityId, GATileEntities.CHEMICAL_PLANT.getRecipeMaps());
         this.recipeMapWorkable = new AdvancedParallelMultiblockChemicalReactorWorkableHandler(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
         this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
@@ -168,11 +164,6 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
     @Override
     public int getMaxParallel() {
         return TJConfig.advancedParallelChemicalReactor.maximumParallel;
-    }
-
-    @Override
-    public RecipeMap<?>[] getRecipeMaps() {
-        return GATileEntities.CHEMICAL_PLANT.getRecipeMaps();
     }
 
     private static class AdvancedParallelMultiblockChemicalReactorWorkableHandler extends ParallelGAMultiblockRecipeLogic {

@@ -9,9 +9,6 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.ConveyorCasing;
 import gregicadditions.item.components.RobotArmCasing;
 import gregicadditions.item.metal.MetalCasing1;
-import gregtech.api.capability.IEnergyContainer;
-import gregtech.api.capability.impl.EnergyContainerList;
-import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -30,9 +27,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
-import tj.builder.handlers.ChiselWorkbenchWorkableHandler;
+import tj.capability.impl.workable.ChiselWorkbenchWorkableHandler;
 import tj.builder.multicontrollers.ExtendableMultiblockController;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.textures.TJTextures;
@@ -52,16 +48,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
-    private final ChiselWorkbenchWorkableHandler workableHandler = new ChiselWorkbenchWorkableHandler(this)
-            .setImportEnergySupplier(this::getEnergyInput)
-            .setExportItemsSupplier(this::getItemOutputs)
-            .setImportItemsSupplier(this::getItemInputs)
-            .setMaxVoltageSupplier(this::getMaxVoltage)
-            .setParallelSupplier(this::getParallel)
-            .setInputBus(this::getInputBus);
-    private IItemHandlerModifiable itemInputs;
-    private IItemHandlerModifiable itemOutputs;
-    private IEnergyContainer energyInput;
+    private final ChiselWorkbenchWorkableHandler workableHandler = new ChiselWorkbenchWorkableHandler(this);
     private long maxVoltage;
     private int parallel;
 
@@ -91,9 +78,9 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
     protected void addDisplayText(UIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (this.isStructureFormed())
-            builder.voltageInLine(this.energyInput)
+            builder.voltageInLine(this.inputEnergyContainer)
                     .voltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInputLine(this.energyInput, this.workableHandler.getEnergyPerTick())
+                    .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
                     .addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
                     .customLine(text -> text.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")
@@ -151,9 +138,6 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
         ConveyorCasing.CasingType conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV);
         RobotArmCasing.CasingType robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV);
         int min = Math.min(conveyor.getTier(), robotArm.getTier());
-        this.itemInputs = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
-        this.itemOutputs = new ItemHandlerList(this.getAbilities(EXPORT_ITEMS));
-        this.energyInput = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
         this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
         this.maxVoltage = (long) (Math.pow(4, min) * 8);
         this.parallel = TJConfig.largeChiselWorkbench.stack * min;
@@ -183,32 +167,18 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
         return this.workableHandler.isWorkingEnabled();
     }
 
-    private IItemHandlerModifiable getInputBus(int index) {
-        return this.getAbilities(IMPORT_ITEMS).get(index);
-    }
-
     @Override
     public int getMaxParallel() {
         return TJConfig.largeChiselWorkbench.maximumSlices;
     }
 
-    private IItemHandlerModifiable getItemInputs() {
-        return itemInputs;
+    @Override
+    public long getMaxVoltage() {
+        return this.maxVoltage;
     }
 
-    private IItemHandlerModifiable getItemOutputs() {
-        return itemOutputs;
-    }
-
-    private IEnergyContainer getEnergyInput() {
-        return energyInput;
-    }
-
-    private long getMaxVoltage() {
-        return maxVoltage;
-    }
-
-    private int getParallel() {
-        return parallel;
+    @Override
+    public int getParallel() {
+        return this.parallel;
     }
 }
