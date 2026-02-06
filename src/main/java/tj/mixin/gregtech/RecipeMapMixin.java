@@ -62,7 +62,7 @@ public abstract class RecipeMapMixin implements IRecipeMap {
 
     @Shadow
     @Final
-    private Map<Recipe, Byte> recipeIngredientCountMap;
+    private Object2ByteMap<Recipe> recipeIngredientCountMap;
 
     @Shadow
     @Final
@@ -194,12 +194,16 @@ public abstract class RecipeMapMixin implements IRecipeMap {
         }
 
         Object2ByteMap<Recipe> recipeLeftoverIngredients = new Object2ByteOpenHashMap<>();
+        recipeLeftoverIngredients.defaultReturnValue((byte) -127);
         for (MapItemStackIngredient item : uniqueItems) {
             boolean hasRecipes = recipeItemMap.containsKey(item);
             if (!hasRecipes) continue;
             Collection<Recipe> recipes = recipeItemMap.get(item);
             for (Recipe recipe : recipes) {
-                Byte leftOverIngredients = recipeLeftoverIngredients.getOrDefault(recipe, this.recipeIngredientCountMap.getOrDefault(recipe, (byte) 0));
+                byte leftOverIngredients;
+                if ((leftOverIngredients = recipeLeftoverIngredients.getByte(recipe)) == -127)
+                    if ((leftOverIngredients = this.recipeIngredientCountMap.getByte(recipe)) == -127)
+                        leftOverIngredients = 0;
                 leftOverIngredients--;
                 recipeLeftoverIngredients.put(recipe, leftOverIngredients);
                 if (leftOverIngredients > 0) {
@@ -221,7 +225,10 @@ public abstract class RecipeMapMixin implements IRecipeMap {
             if (!hasRecipes) continue;
             Collection<Recipe> recipes = recipeFluidMap.get(fluid);
             for (Recipe recipe : recipes) {
-                Byte leftOverIngredients = recipeLeftoverIngredients.getOrDefault(recipe, this.recipeIngredientCountMap.getOrDefault(recipe, (byte) 0));
+                byte leftOverIngredients;
+                if ((leftOverIngredients = recipeLeftoverIngredients.getByte(recipe)) == -127)
+                    if ((leftOverIngredients = this.recipeIngredientCountMap.getByte(recipe)) == -127)
+                        leftOverIngredients = 0;
                 leftOverIngredients--;
                 recipeLeftoverIngredients.put(recipe, leftOverIngredients);
                 if (leftOverIngredients > 0) {
