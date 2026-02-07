@@ -25,7 +25,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
     protected boolean hasProblem;
     protected long energyPerTick;
     protected int progress;
-    protected int maxProgress;
+    protected int maxProgress = 1;
     protected int lastInputIndex;
     protected int busCount;
     protected int sleepTimer;
@@ -202,7 +202,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
 
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
-        this.maxProgress = compound.getInteger("maxProgress");
+        this.maxProgress = Math.max(1, compound.getInteger("maxProgress"));
         this.progress = compound.getInteger("progress");
         this.energyPerTick = compound.getLong("energyPerTick");
         this.isWorking = compound.getBoolean("isWorking");
@@ -249,7 +249,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
     }
 
     public void setMaxProgress(int maxProgress) {
-        this.maxProgress = maxProgress;
+        this.maxProgress = Math.max(1, maxProgress);
         this.metaTileEntity.markDirty();
     }
 

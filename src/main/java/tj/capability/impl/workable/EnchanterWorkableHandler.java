@@ -87,8 +87,6 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
             if (i != catalystSlotIndex && !stack.isEmpty()) {
                 catalystStack = this.catalyst.copy();
                 catalystStack.setCount(1);
-                if (this.handler.getImportItemInventory().extractItem(i, 1, simulate).getCount() != 1)
-                    continue;
                 if (!simulate) {
                     this.itemInputs.add(stack.copy());
                     this.itemInputs.add(catalystStack.copy());
@@ -145,14 +143,11 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
                 } else newCatalystEnchants.appendTag(newCatalystCompound);
             }
         }
-        ItemStack newStack = stack.copy();
-        newStack.setCount(1);
+        ItemStack newStack = this.handler.getImportItemInventory().extractItem(slot, 1, simulate);
         this.setEnchantments(catalyst, newCatalystEnchants);
         this.setEnchantments(newStack, newStackEnchants);
         newStack = this.setBookOrEnchantedBook(newStack);
-        if (this.handler.getImportItemInventory().extractItem(slot, 1, simulate).getCount() != 1) {
-            return 0;
-        } else if (!simulate)
+        if (!simulate)
             this.itemOutputs.add(newStack);
         return applied;
     }
