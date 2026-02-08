@@ -108,6 +108,8 @@ public class TJMetaTileEntities {
     public static MetaTileEntityLargeSolarBoiler MEGA_SOLAR_BOILER;
     public static MetaTileEntityLargeImplosionCompressor LARGE_IMPLOSION_COMPRESSOR;
     public static MetaTileEntityLargeElectricImplosionCompressor LARGE_ELECTRIC_IMPLOSION_COMPRESSOR;
+    public static MetaTileEntityCharcoalPit CHARCOAL_PIT;
+    public static MetaTileEntityCharcoalPit CHARCOAL_PIT_ADVANCED;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -263,6 +265,8 @@ public class TJMetaTileEntities {
         MEGA_SOLAR_BOILER = GregTechAPI.registerMetaTileEntity(5510, new MetaTileEntityLargeSolarBoiler(TJId("mega_solar_boiler"), true));
         LARGE_IMPLOSION_COMPRESSOR = GregTechAPI.registerMetaTileEntity(5511, new MetaTileEntityLargeImplosionCompressor(TJId("large_implosion_compressor")));
         LARGE_ELECTRIC_IMPLOSION_COMPRESSOR = GregTechAPI.registerMetaTileEntity(5512, new MetaTileEntityLargeElectricImplosionCompressor(TJId("large_electric_implosion_compressor")));
+        CHARCOAL_PIT = GregTechAPI.registerMetaTileEntity(5513, new MetaTileEntityCharcoalPit(TJId("charcoal_pit"), false));
+        CHARCOAL_PIT_ADVANCED = GregTechAPI.registerMetaTileEntity(5514, new MetaTileEntityCharcoalPit(TJId("charcoal_pit_advanced"), true));
 
         // append tiers to existing hatches
         MetaTileEntities.ITEM_IMPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_IMPORT_BUS, 15);
