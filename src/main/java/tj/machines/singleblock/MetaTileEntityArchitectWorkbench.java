@@ -3,6 +3,7 @@ package tj.machines.singleblock;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -20,6 +21,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import tj.capability.impl.workable.ArchitectWorkbenchWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
 import tj.gui.widgets.impl.RecipeOutputSlotWidget;
 import tj.textures.TJTextures;
@@ -80,8 +82,15 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
         return ModularUI.defaultBuilder()
+                .image(-28, 0, 26, 86, GuiTextures.BORDERED_BACKGROUND)
+                .image(-28, 138, 26, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
+                .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
+                        .setLocale("tj.multiblock.bars.energy", null)
+                        .setBarTexture(TJGuiTextures.BAR_YELLOW)
+                        .setTexture(TJGuiTextures.FLUID_BAR)
+                        .setInverted(true))
                 .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 21, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new SlotWidget(this.importItems, 0, 34, 22, true, true)
                         .setBackgroundTexture(SLOT, BOXED_OVERLAY))
@@ -92,7 +101,7 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
                 .widget(new RecipeOutputSlotWidget(0, 105, 22, 18, 18, displayWidget::getItemOutputAt, null))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
-                .widget(new ToggleButtonWidget(151, 62, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(-24, 142, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))

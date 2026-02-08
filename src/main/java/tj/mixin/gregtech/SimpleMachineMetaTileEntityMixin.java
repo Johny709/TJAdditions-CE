@@ -59,7 +59,7 @@ public abstract class SimpleMachineMetaTileEntityMixin extends WorkableTieredMet
                 .image(-28, 138, 26, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL, () -> Gregicality.MODID + ":" + this.workable.recipeMap.getUnlocalizedName())
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
-                .widget(new TJProgressBarWidget(-24, 4, 18, 78, () -> this.energyContainer.getEnergyStored(), () -> this.energyContainer.getEnergyCapacity(), ProgressWidget.MoveType.VERTICAL)
+                .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
                         .setLocale("tj.multiblock.bars.energy", null)
                         .setBarTexture(TJGuiTextures.BAR_YELLOW)
                         .setTexture(TJGuiTextures.FLUID_BAR)

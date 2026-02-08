@@ -35,6 +35,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.capability.impl.handler.IFarmerHandler;
 import tj.capability.impl.workable.FarmingStationWorkableHandler;
 import tj.gui.TJGuiTextures;
+import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
 import tj.gui.widgets.impl.RecipeOutputSlotWidget;
 import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
@@ -141,8 +142,15 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
             scrollableWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 3), 18 * (i / 3), 18, 18, displayWidget::getItemOutputAt, null));
         }
         return ModularUI.builder(GuiTextures.BACKGROUND, 176, 182)
+                .image(-28, 0, 26, 86, GuiTextures.BORDERED_BACKGROUND)
+                .image(-28, 138, 26, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
+                .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
+                        .setLocale("tj.multiblock.bars.energy", null)
+                        .setBarTexture(TJGuiTextures.BAR_YELLOW)
+                        .setTexture(TJGuiTextures.FLUID_BAR)
+                        .setInverted(true))
                 .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 21, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new TJSlotWidget<>(this.toolInventory, 0, 52, 22)
                         .setBackgroundTexture(SLOT, HOE_OVERLAY))
@@ -160,7 +168,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setBackgroundTexture(FLUID_SLOT))
                 .widget(new ToggleButtonWidget(133, 78, 18, 18, ITEM_VOID_BUTTON, this.workableHandler::isVoidOutputs, this.workableHandler::setVoidOutputs)
                         .setTooltipText("machine.universal.toggle.item_voiding"))
-                .widget(new ToggleButtonWidget(151, 78, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(-24, 142, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 78, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
