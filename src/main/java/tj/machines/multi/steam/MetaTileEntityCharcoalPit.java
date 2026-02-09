@@ -4,6 +4,8 @@ import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.gui.GuiTextures;
+import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -32,6 +34,9 @@ import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.impl.handler.ICharcoalHandler;
+import tj.gui.widgets.impl.ButtonPopUpWidget;
+import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.gui.widgets.impl.WindowsWidgetGroup;
 
 import java.util.*;
 
@@ -81,8 +86,22 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
     }
 
     @Override
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.add(new ButtonPopUpWidget<>(0, 0, 0, 0)
+                .addPopup(widgetGroup1 -> true)
+                .addPopup(new TJToggleButtonWidget(175, 152, 18, 18)
+                        .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                        .useToggleTexture(true), widgetGroup1 -> {
+                    widgetGroup1.addWidget(new WindowsWidgetGroup(12, 60, 160, 100, GuiTextures.BORDERED_BACKGROUND));
+                    return false;
+                }));
+    }
+
+    @Override
     public boolean onRightClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (!playerIn.getEntityWorld().isRemote && playerIn.getHeldItem(hand).getItem() instanceof ItemFlintAndSteel) {
+            playerIn.getHeldItem(hand).damageItem(1, playerIn);
             this.workableHandler.setCanStart(true);
             return true;
         }
@@ -103,7 +122,8 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
         for (int i = 0; i < this.depth; i++) {
             factoryPattern.aisle(charcoalAisle);
         }
-        controllerAisle[this.widthHeight] = '~' + this.getAisleWidthHeight('G', this.widthHeight) + 'S' + this.getAisleWidthHeight('G', this.widthHeight) + '~';
+        controllerAisle = Arrays.copyOf(controllerAisle, controllerAisle.length);
+        controllerAisle[this.widthHeight + 1] = '~' + this.getAisleWidthHeight('G', this.widthHeight) + 'S' + this.getAisleWidthHeight('G', this.widthHeight) + '~';
         return factoryPattern.aisle(controllerAisle)
                 .where('S', this.selfPredicate())
                 .where('C', blockWorldState -> {
@@ -231,7 +251,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
         protected boolean completeRecipe() {
             Block charcoalBlock = MetaBlocks.COMPRESSED.get(Charcoal);
             for (BlockPos pos : this.handler.getCharcoalPos()) {
-               this.metaTileEntity.getWorld().setBlockState(pos, charcoalBlock.getDefaultState());
+               this.metaTileEntity.getWorld().setBlockState(pos, charcoalBlock.getStateFromMeta(5));
             }
             this.canStart = false;
             this.itemInputs.clear();

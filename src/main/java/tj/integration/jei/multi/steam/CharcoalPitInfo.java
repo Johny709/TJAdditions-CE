@@ -32,7 +32,7 @@ public class CharcoalPitInfo extends TJMultiblockInfoPage {
                 .aisle("~GGG~", "GCCCG", "GCCCG", "GCCCG", "~GGG~")
                 .aisle("~~~~~", "~GGG~", "~GSG~", "~GGG~", "~~~~~")
                 .where('S', this.getController(), EnumFacing.WEST)
-                .where('C', MetaBlocks.COMPRESSED.get(Charcoal).getDefaultState())
+                .where('C', MetaBlocks.COMPRESSED.get(Charcoal).getStateFromMeta(5))
                 .where('G', Blocks.DIRT.getDefaultState())
                 .build());
     }
