@@ -27,12 +27,14 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.IItemFluidHandlerInfo;
+import tj.capability.TJCapabilities;
 import tj.capability.impl.handler.ICharcoalHandler;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
@@ -54,6 +56,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
     public MetaTileEntityCharcoalPit(ResourceLocation metaTileEntityId, boolean advanced) {
         super(metaTileEntityId);
         this.advanced = advanced;
+        this.maintenance_problems = 0b111111;
         this.reinitializeStructurePattern();
     }
 
@@ -232,7 +235,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
 
         @Override
         protected boolean startRecipe() {
-            this.setMaxProgress(this.handler.getCharcoalPos().size() * 60);
+            this.setMaxProgress(this.handler.getCharcoalPos().size() * 1200);
             if (this.canStart || this.checkForFire()) {
                 ItemStack charcoalBlocks = MetaBlocks.COMPRESSED.get(Charcoal).getItem(Charcoal);
                 charcoalBlocks.setCount(this.handler.getCharcoalPos().size());
@@ -257,6 +260,13 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
             this.itemInputs.clear();
             this.itemOutputs.clear();
             return true;
+        }
+
+        @Override
+        public <T> T getCapability(Capability<T> capability) {
+            if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
+                return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
+            return super.getCapability(capability);
         }
 
         @Override

@@ -92,6 +92,7 @@ tj.machine.large_implosion_compressor.name=Large Implosion Compressor (LIC)
 tj.machine.large_electric_implosion_compressor.name=Large Electric Implosion Compressor (LEIC)
 tj.machine.charcoal_pit.name=Charcoal Pit
 tj.machine.charcoal_pit_advanced.name=Advanced Charcoal Pit
+tj.machine.primitive_water_pump.name=Primitive Water Pump
 tj.machine.architect_workbench_lv.name=Basic Architect Workbench
 tj.machine.architect_workbench_mv.name=Advanced Architect Workbench
 tj.machine.architect_workbench_hv.name=Advanced Architect Workbench II
@@ -640,6 +641,7 @@ tile.fusion_glass.fusion_glass_uhv.name=Fusion Glass MK IV
 tile.fusion_glass.fusion_glass_uev.name=Fusion Glass MK V
 tile.fusion_glass.description=Can replace casings at middle layer where output hatches are.
 tile.ability_block.solar_collector.name=Solar Collector
+tile.ability_block.primitive_pump_casing.name=Primitive Pump Casing
 
 cover.creative_fluid.title=Creative Fluid Cover
 cover.creative_item.title=Creative Item Cover
