@@ -3,13 +3,16 @@ package tj.machines.multi.steam;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregicadditions.item.components.PumpCasing;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
+import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
+import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.MetaBlocks;
@@ -24,15 +27,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.blocks.AbilityBlocks;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
+import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.IMachineHandler;
 import tj.capability.TJCapabilities;
 import tj.textures.TJTextures;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Water;
@@ -69,17 +72,37 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
     }
 
     @Override
+    protected void addDisplayText(UIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        builder.isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+                .addRecipeOutputLine(this.workableHandler);
+    }
+
+    @Override
     protected BlockPattern createStructurePattern() {
         return FactoryBlockPattern.start(RIGHT, UP, BACK)
                 .aisle(this.otherMode ? new String[]{"CCCCC", "~~F~~", "~~F~~"} : new String[]{"CCCC", "~~F~", "~~F~"})
-                .aisle(this.otherMode ? new String[]{"CCXCC", "F~~~F", "FFFFF"} : new String[]{"CCXC", "F~~F", "FFFF"})
+                .aisle(this.otherMode ? new String[]{"CPXPC", "F~~~F", "FFFFF"} : new String[]{"CPXC", "F~~F", "FFFF"})
                 .aisle(this.otherMode ? new String[]{"SCCCC", "~~F~~", "~~F~~"} : new String[]{"SCCC", "~~F~", "~~F~"})
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.EXPORT_FLUIDS)))
+                .where('P', statePredicate(this.getCasingState()).or(pumpPredicate()))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Wood).getDefaultState()))
                 .where('~', tile -> true)
                 .build();
+    }
+
+    public static Predicate<BlockWorldState> pumpPredicate() {
+        return blockWorldState -> {
+            IBlockState state = blockWorldState.getBlockState();
+            if (!(state.getBlock() instanceof PumpCasing))
+                return false;
+            List<PumpCasing.CasingType> casingType = blockWorldState.getMatchContext().getOrCreate("Pumps", ArrayList::new);
+            PumpCasing.CasingType currentCasingType = ((PumpCasing) state.getBlock()).getState(state);
+            casingType.add(currentCasingType);
+            return casingType.get(0).getTier() == currentCasingType.getTier();
+        };
     }
 
     private IBlockState getCasingState() {
@@ -89,6 +112,15 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return TJTextures.PRIMITIVE_PUMP;
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        List<PumpCasing.CasingType> casingTypes = context.getOrDefault("Pumps", new ArrayList<>());
+        this.workableHandler.initialize(500 + casingTypes.stream()
+                .mapToInt(pump -> 750 << pump.getTier() - 1)
+                .sum());
     }
 
     @Override
@@ -128,10 +160,17 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
 
         private final List<FluidStack> fluidOutputs = new ArrayList<>();
         private int lastAmount;
-        private int amount = 100;
+        private int amount;
 
         public PrimitivePumpWorkableHandler(MetaTileEntity metaTileEntity) {
             super(metaTileEntity);
+            this.maxProgress = 20;
+        }
+
+        @Override
+        public void initialize(int amount) {
+            super.initialize(amount);
+            this.amount = amount;
         }
 
         @Override
@@ -151,7 +190,7 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
 
         @Override
         protected boolean completeRecipe() {
-            this.handler.getExportFluidTank().fill(this.fluidOutputs.get(0), false);
+            this.handler.getExportFluidTank().fill(this.fluidOutputs.get(0), true);
             return true;
         }
 
@@ -160,6 +199,26 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
             if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
                 return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
             return super.getCapability(capability);
+        }
+
+        @Override
+        public List<FluidStack> getFluidOutputs() {
+            return this.fluidOutputs;
+        }
+
+        @Override
+        public NBTTagCompound serializeNBT() {
+            NBTTagCompound compound = super.serializeNBT();
+            if (!this.fluidOutputs.isEmpty())
+                compound.setTag("fluidOutput", this.fluidOutputs.get(0).writeToNBT(new NBTTagCompound()));
+            return compound;
+        }
+
+        @Override
+        public void deserializeNBT(NBTTagCompound compound) {
+            super.deserializeNBT(compound);
+            if (compound.hasKey("fluidOutput"))
+                this.fluidOutputs.add(FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("fluidOutput")));
         }
     }
 }
