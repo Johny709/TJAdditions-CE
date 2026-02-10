@@ -485,6 +485,10 @@ tj.multiblock.mega_fusion.coolant_increase=Vacuum Coolant Increase: §b%s§7 Per
 tj.multiblock.mega_fusion.energy_decrease=Vacuum Energy Decrease: §b%s§7 Per Tier Difference
 tj.multiblock.mega_fusion.output_increase=Divertor Output Increase: §b%s§7 Per Tier Difference
 
+tj.multiblock.charcoal_pit.window_settings=Settings
+tj.multiblock.charcoal_pit.set_width_length=WidthXLength:
+tj.multiblock.charcoal_pit.set_depth=Depth:
+
 recipemap.primitive_alloy.tj.name=Primitive Alloy Smelter
 recipemap.coke_oven_2.tj.name=Coke Oven
 recipemap.heat_exchanger.tj.name=Heat Exchanger

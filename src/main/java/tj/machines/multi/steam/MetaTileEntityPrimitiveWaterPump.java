@@ -1,5 +1,6 @@
 package tj.machines.multi.steam;
 
+import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
@@ -17,8 +18,11 @@ import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
@@ -74,6 +78,7 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
     @Override
     protected void addDisplayText(UIDisplayBuilder builder) {
         super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
         builder.isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
                 .addRecipeOutputLine(this.workableHandler);
     }
@@ -119,8 +124,21 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
         super.formStructure(context);
         List<PumpCasing.CasingType> casingTypes = context.getOrDefault("Pumps", new ArrayList<>());
         this.workableHandler.initialize(500 + casingTypes.stream()
-                .mapToInt(pump -> 750 << pump.getTier() - 1)
+                .mapToInt(pump -> 750 << (pump.getTier() - 1) * 2)
                 .sum());
+    }
+
+    @Override
+    public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
+        if (!playerIn.getEntityWorld().isRemote) {
+            this.otherMode = !this.otherMode;
+            this.writeCustomData(1, buffer -> buffer.writeBoolean(this.otherMode));
+            this.invalidateStructure();
+            this.structurePattern = this.createStructurePattern();
+            this.markDirty();
+            return true;
+        }
+        return super.onScrewdriverClick(playerIn, hand, facing, hitResult);
     }
 
     @Override
@@ -128,6 +146,15 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         Textures.PUMP_OVERLAY.renderSided(this.getFrontFacing(), renderState, translation, pipeline);
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 1) {
+            this.otherMode = buf.readBoolean();
+            this.structurePattern = this.createStructurePattern();
+        }
     }
 
     @Override

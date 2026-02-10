@@ -1,15 +1,16 @@
 package tj.gui.widgets.impl;
 
 import gregtech.api.gui.IRenderContext;
+import gregtech.api.gui.Widget;
 import gregtech.api.gui.resources.TextureArea;
-import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.gui.widgets.AbstractWidgetGroup;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 
-public class WindowsWidgetGroup extends WidgetGroup {
+public class WindowsWidgetGroup extends AbstractWidgetGroup {
 
     private final TextureArea backgroundTexture;
     private boolean dragging;
@@ -21,11 +22,16 @@ public class WindowsWidgetGroup extends WidgetGroup {
         this.backgroundTexture = backgroundTexture;
     }
 
+    public WindowsWidgetGroup addSubWidget(Widget widget) {
+        this.addWidget(widget);
+        return this;
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        super.drawInBackground(mouseX, mouseY, context);
         this.backgroundTexture.draw(this.getPosition().getX(), this.getPosition().getY(), this.getSize().getWidth(), this.getSize().getHeight());
+        super.drawInBackground(mouseX, mouseY, context);
     }
 
     @Override

@@ -104,8 +104,8 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
 
     /**
      * This will attempt to translate the text if they're a lang string.
-     * @param baseDisplayText The text shown when the button is not pressed.
-     * @param activeDisplayText The text shown when the button is pressed.
+     * @param baseDisplayText The text shown on the button when it's not pressed.
+     * @param activeDisplayText The text shown on the button when it's pressed.
      */
     public TJToggleButtonWidget setToggleDisplayText(String baseDisplayText, String activeDisplayText) {
         this.baseDisplayText = baseDisplayText;

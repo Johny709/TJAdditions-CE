@@ -6,6 +6,8 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.ImageWidget;
+import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -83,6 +85,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
     @Override
     protected void addDisplayText(UIDisplayBuilder builder) {
         super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
         builder.isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
                 .addRecipeInputLine(this.workableHandler)
                 .addRecipeOutputLine(this.workableHandler);
@@ -96,7 +99,32 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
                 .addPopup(new TJToggleButtonWidget(175, 152, 18, 18)
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                         .useToggleTexture(true), widgetGroup1 -> {
-                    widgetGroup1.addWidget(new WindowsWidgetGroup(12, 60, 160, 100, GuiTextures.BORDERED_BACKGROUND));
+                    widgetGroup1.addWidget(new WindowsWidgetGroup(12, 60, 160, 100, GuiTextures.BORDERED_BACKGROUND)
+                            .addSubWidget(new LabelWidget(60, 4, "tj.multiblock.charcoal_pit.window_settings"))
+                            .addSubWidget(new LabelWidget(50, 18, "tj.multiblock.charcoal_pit.set_width_length"))
+                            .addSubWidget(new LabelWidget(60, 53, "tj.multiblock.charcoal_pit.set_depth"))
+                            .addSubWidget(new ImageWidget(50, 30, 60, 18, GuiTextures.DISPLAY))
+                            .addSubWidget(new ImageWidget(50, 65, 60, 18, GuiTextures.DISPLAY))
+                            .addSubWidget(new TJToggleButtonWidget(38, 30, 18, 18)
+                                    .setToggleDisplayText("§c-", "§c-")
+                                    .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                                    .setButtonSupplier(() -> false)
+                                    .useToggleTexture(true))
+                            .addSubWidget(new TJToggleButtonWidget(38, 65, 18, 18)
+                                    .setToggleDisplayText("§c-", "§c-")
+                                    .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                                    .setButtonSupplier(() -> false)
+                                    .useToggleTexture(true))
+                            .addSubWidget(new TJToggleButtonWidget(110, 30, 18, 18)
+                                    .setToggleDisplayText("§9+", "§9+")
+                                    .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                                    .setButtonSupplier(() -> false)
+                                    .useToggleTexture(true))
+                            .addSubWidget(new TJToggleButtonWidget(110, 65, 18, 18)
+                                    .setToggleDisplayText("§9+", "§9+")
+                                    .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                                    .setButtonSupplier(() -> false)
+                                    .useToggleTexture(true)));
                     return false;
                 }));
     }
