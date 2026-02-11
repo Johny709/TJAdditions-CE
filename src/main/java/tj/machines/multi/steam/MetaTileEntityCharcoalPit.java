@@ -7,7 +7,6 @@ import codechicken.lib.vec.Matrix4;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ImageWidget;
-import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -38,6 +37,7 @@ import tj.capability.AbstractWorkableHandler;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.handler.ICharcoalHandler;
+import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.gui.widgets.impl.WindowsWidgetGroup;
@@ -100,17 +100,23 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                         .useToggleTexture(true), widgetGroup1 -> {
                     widgetGroup1.addWidget(new WindowsWidgetGroup(12, 60, 160, 100, GuiTextures.BORDERED_BACKGROUND)
-                            .addSubWidget(new LabelWidget(60, 4, "tj.multiblock.charcoal_pit.window_settings"))
-                            .addSubWidget(new LabelWidget(50, 18, "tj.multiblock.charcoal_pit.set_width_length"))
-                            .addSubWidget(new LabelWidget(60, 53, "tj.multiblock.charcoal_pit.set_depth"))
-                            .addSubWidget(new ImageWidget(50, 30, 60, 18, GuiTextures.DISPLAY))
-                            .addSubWidget(new ImageWidget(50, 65, 60, 18, GuiTextures.DISPLAY))
-                            .addSubWidget(new TJToggleButtonWidget(38, 30, 18, 18)
+                            .addSubWidget(new TJLabelWidget(0, -1, 160, 18, null)
+                                    .setLocale("tj.multiblock.charcoal_pit.window_settings")
+                                    .setCanSlide(false))
+                            .addSubWidget(new TJLabelWidget(35, 12, 99, 18, null)
+                                    .setLocale("tj.multiblock.charcoal_pit.set_width_length")
+                                    .setCanSlide(false))
+                            .addSubWidget(new TJLabelWidget(35, 47, 99, 18, null)
+                                    .setLocale("tj.multiblock.charcoal_pit.set_depth")
+                                    .setCanSlide(false))
+                            .addSubWidget(new ImageWidget(47, 30, 63, 18, GuiTextures.DISPLAY))
+                            .addSubWidget(new ImageWidget(47, 65, 63, 18, GuiTextures.DISPLAY))
+                            .addSubWidget(new TJToggleButtonWidget(35, 30, 18, 18)
                                     .setToggleDisplayText("§c-", "§c-")
                                     .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                                     .setButtonSupplier(() -> false)
                                     .useToggleTexture(true))
-                            .addSubWidget(new TJToggleButtonWidget(38, 65, 18, 18)
+                            .addSubWidget(new TJToggleButtonWidget(35, 65, 18, 18)
                                     .setToggleDisplayText("§c-", "§c-")
                                     .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                                     .setButtonSupplier(() -> false)
@@ -224,6 +230,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
             this.widthHeight = data.getInteger("widthHeight");
         if (data.hasKey("depth"))
             this.depth = data.getInteger("depth");
+        this.structurePattern = this.createStructurePattern();
     }
 
     @Override

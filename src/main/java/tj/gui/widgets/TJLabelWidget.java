@@ -28,7 +28,9 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
     private int offsetX;
     private int tickCounter;
     private int hoverTicks;
+    private boolean canSlide = true;
     private boolean slideAtEnd;
+    private boolean centered = true;
     private String locale;
     private String uid;
     private ItemStack itemLabel;
@@ -64,6 +66,22 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
         return this;
     }
 
+    /**
+     * set for text to start sliding to the left gradually when hovered over. Default: True
+     */
+    public TJLabelWidget setCanSlide(boolean canSlide) {
+        this.canSlide = canSlide;
+        return this;
+    }
+
+    /**
+     * set to display text on center of this label. Default: True
+     */
+    public TJLabelWidget setCentered(boolean centered) {
+        this.centered = centered;
+        return this;
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public void updateScreen() {
@@ -77,7 +95,8 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
         Size size = this.getSize();
         Position pos = this.getPosition();
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        this.labelTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
+        if (this.labelTexture != null)
+            this.labelTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         if (this.itemLabel != null) {
             Widget.drawItemStack(this.itemLabel, pos.getX() + 3, pos.getY() + 2, null);
             widthApplied += 16;
@@ -121,7 +140,7 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
             if (this.slideAtEnd) {
                 this.slideAtEnd = false;
                 this.offsetX = -(this.getSize().getWidth() - 24);
-            } else if (this.tickCounter % 2 == 0 || this.tickCounter % 3 == 0)
+            } else if (this.canSlide && (this.tickCounter % 2 == 0 || this.tickCounter % 3 == 0))
                 this.offsetX++;
             if (++this.hoverTicks > 20 && this.uid != null) {
                 FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
@@ -131,6 +150,19 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
         } else {
             this.hoverTicks = 0;
             this.offsetX = 0;
+            if (this.centered && this.locale != null) {
+                String locale = I18n.format(this.locale);
+                int length = Minecraft.getMinecraft().fontRenderer.getStringWidth(locale);
+                int widthApplied = 5;
+                if (this.itemLabel != null)
+                    widthApplied += 16;
+                if (this.fluidLabel != null)
+                    widthApplied += 18;
+                int boxLength = this.getSize().getWidth() - widthApplied;
+                if (length < boxLength) {
+                    this.offsetX = (length - boxLength) / 2;
+                }
+            }
         }
     }
 
