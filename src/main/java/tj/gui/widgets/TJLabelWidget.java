@@ -24,6 +24,7 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
 
     private final TextureArea labelTexture;
     private final Supplier<String> recipeUid;
+    private Supplier<String> localeSupplier;
     private int color = 0x404040;
     private int offsetX;
     private int tickCounter;
@@ -56,6 +57,10 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
         return this;
     }
 
+    /**
+     * Set translatable text to be displayed in the label.
+     * This is redundant if {@link #setDynamicLocale(Supplier)} is set.
+     */
     public TJLabelWidget setLocale(String locale) {
         this.locale = locale;
         return this;
@@ -79,6 +84,14 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
      */
     public TJLabelWidget setCentered(boolean centered) {
         this.centered = centered;
+        return this;
+    }
+
+    /**
+     * Setting this will update the locale automatically and replace locale defined in {@link #setLocale(String)}
+     */
+    public TJLabelWidget setDynamicLocale(Supplier<String> localeSupplier) {
+        this.localeSupplier = localeSupplier;
         return this;
     }
 
@@ -118,19 +131,30 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
 
     @Override
     public void detectAndSendChanges() {
-        if (this.recipeUid == null) return;
-        String uid = this.recipeUid.get();
-        if (uid != null && !uid.equals(this.uid)) {
-            this.uid = uid;
-            this.writeUpdateInfo(1, buffer -> buffer.writeString(this.uid));
+        if (this.recipeUid != null) {
+            String uid = this.recipeUid.get();
+            if (uid != null && !uid.equals(this.uid)) {
+                this.uid = uid;
+                this.writeUpdateInfo(1, buffer -> buffer.writeString(this.uid));
+            }
+        }
+        if (this.localeSupplier != null) {
+            String locale = this.localeSupplier.get();
+            if (this.locale == null || !this.locale.equals(locale)) {
+                this.locale = locale;
+                this.writeUpdateInfo(2, buffer -> buffer.writeString(this.locale));
+            }
         }
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
-        if (id == 1)
+        if (id == 1) {
             this.uid = buffer.readString(Short.MAX_VALUE);
+        } else if (id == 2) {
+            this.locale = buffer.readString(Short.MAX_VALUE);
+        }
     }
 
     @Override

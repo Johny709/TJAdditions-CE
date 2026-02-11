@@ -6,7 +6,6 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -20,6 +19,7 @@ import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.blocks.wood.BlockGregLog;
 import net.minecraft.block.*;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemFlintAndSteel;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -41,8 +41,11 @@ import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.gui.widgets.impl.WindowsWidgetGroup;
+import tj.util.references.IntegerReference;
+import tj.util.references.ObjectReference;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Charcoal;
@@ -94,45 +97,87 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
+        IntegerReference widthHeight = new IntegerReference(this.widthHeight);
+        IntegerReference depth = new IntegerReference(this.depth);
+        ObjectReference<String> result = new ObjectReference<>(widthHeight.getValue() + ":" + depth.getValue());
+        Consumer<String> addWidthHeight = value -> {
+            widthHeight.setValue(Integer.parseInt(value) + 1);
+            result.setValue(widthHeight.getValue() + ":" + depth.getValue());
+        };
+        Consumer<String> subtractWidthHeight = value -> {
+            widthHeight.setValue(Integer.parseInt(value) - 1);
+            result.setValue(widthHeight.getValue() + ":" + depth.getValue());
+        };
+        Consumer<String> addDepth = value -> {
+            depth.setValue(Integer.parseInt(value) + 1);
+            result.setValue(widthHeight.getValue() + ":" + depth.getValue());
+        };
+        Consumer<String> subtractDepth = value -> {
+            depth.setValue(Integer.parseInt(value) - 1);
+            result.setValue(widthHeight.getValue() + ":" + depth.getValue());
+        };
         widgetGroup.add(new ButtonPopUpWidget<>(0, 0, 0, 0)
                 .addPopup(widgetGroup1 -> true)
                 .addPopup(new TJToggleButtonWidget(175, 152, 18, 18)
+                        .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                         .useToggleTexture(true), widgetGroup1 -> {
-                    widgetGroup1.addWidget(new WindowsWidgetGroup(12, 60, 160, 100, GuiTextures.BORDERED_BACKGROUND)
+                    widgetGroup1.addWidget(new WindowsWidgetGroup(12, 60, 160, 120, GuiTextures.BORDERED_BACKGROUND)
                             .addSubWidget(new TJLabelWidget(0, -1, 160, 18, null)
                                     .setLocale("tj.multiblock.charcoal_pit.window_settings")
                                     .setCanSlide(false))
-                            .addSubWidget(new TJLabelWidget(35, 12, 99, 18, null)
+                            .addSubWidget(new TJLabelWidget(0, 12, 160, 18, null)
                                     .setLocale("tj.multiblock.charcoal_pit.set_width_length")
                                     .setCanSlide(false))
-                            .addSubWidget(new TJLabelWidget(35, 47, 99, 18, null)
+                            .addSubWidget(new TJLabelWidget(0, 47, 160, 18, null)
                                     .setLocale("tj.multiblock.charcoal_pit.set_depth")
                                     .setCanSlide(false))
-                            .addSubWidget(new ImageWidget(47, 30, 63, 18, GuiTextures.DISPLAY))
-                            .addSubWidget(new ImageWidget(47, 65, 63, 18, GuiTextures.DISPLAY))
-                            .addSubWidget(new TJToggleButtonWidget(35, 30, 18, 18)
+                            .addSubWidget(new TJLabelWidget(47, 30, 63, 18, GuiTextures.DISPLAY)
+                                    .setDynamicLocale(widthHeight::toString)
+                                    .setCanSlide(false))
+                            .addSubWidget(new TJLabelWidget(47, 65, 63, 18, GuiTextures.DISPLAY)
+                                    .setDynamicLocale(depth::toString)
+                                    .setCanSlide(false))
+                            .addSubWidget(new TJToggleButtonWidget(35, 30, 18, 18, () -> false, subtractWidthHeight) // subtract button 1
                                     .setToggleDisplayText("§c-", "§c-")
                                     .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
-                                    .setButtonSupplier(() -> false)
+                                    .setDynamicButtonId(widthHeight::toString)
                                     .useToggleTexture(true))
-                            .addSubWidget(new TJToggleButtonWidget(35, 65, 18, 18)
+                            .addSubWidget(new TJToggleButtonWidget(35, 65, 18, 18, () -> false, subtractDepth) // subtract button 2
                                     .setToggleDisplayText("§c-", "§c-")
                                     .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
-                                    .setButtonSupplier(() -> false)
+                                    .setDynamicButtonId(depth::toString)
                                     .useToggleTexture(true))
-                            .addSubWidget(new TJToggleButtonWidget(110, 30, 18, 18)
+                            .addSubWidget(new TJToggleButtonWidget(110, 30, 18, 18, () -> false, addWidthHeight) // add button 1
+                                    .setToggleDisplayText("§9+", "§9+")
+                                    .setDynamicButtonId(widthHeight::toString)
+                                    .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                                    .useToggleTexture(true))
+                            .addSubWidget(new TJToggleButtonWidget(110, 65, 18, 18, () -> false, addDepth) // add button 2
                                     .setToggleDisplayText("§9+", "§9+")
                                     .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
-                                    .setButtonSupplier(() -> false)
+                                    .setDynamicButtonId(depth::toString)
                                     .useToggleTexture(true))
-                            .addSubWidget(new TJToggleButtonWidget(110, 65, 18, 18)
-                                    .setToggleDisplayText("§9+", "§9+")
+                            .addSubWidget(new TJToggleButtonWidget(3, 99, 154, 18, () -> false, this::setSize) // ok button
+                                    .setToggleDisplayText("machine.universal.ok", "machine.universal.ok")
                                     .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
-                                    .setButtonSupplier(() -> false)
+                                    .setDynamicButtonId(result::getValue)
                                     .useToggleTexture(true)));
                     return false;
                 }));
+    }
+
+    private void setSize(String size) {
+        String[] args = size.split(":");
+        this.widthHeight = Integer.parseInt(args[0]);
+        this.depth = Integer.parseInt(args[1]);
+        this.writeCustomData(1, buffer -> {
+            buffer.writeInt(this.widthHeight);
+            buffer.writeInt(this.depth);
+        });
+        this.invalidateStructure();
+        this.structurePattern = this.createStructurePattern();
+        this.markDirty();
     }
 
     @Override
@@ -198,6 +243,17 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
         Textures.ROCK_CRUSHER_OVERLAY.renderSided(this.getFrontFacing(), renderState, translation, pipeline);
         if (this.workableHandler.isActive())
             Textures.ROCK_CRUSHER_ACTIVE_OVERLAY.renderSided(this.getFrontFacing(), renderState, translation, pipeline);
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 1) {
+            this.widthHeight = buf.readInt();
+            this.depth = buf.readInt();
+            this.structurePattern = this.createStructurePattern();
+            this.scheduleRenderUpdate();
+        }
     }
 
     @Override

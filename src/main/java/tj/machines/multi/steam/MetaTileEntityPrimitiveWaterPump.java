@@ -181,6 +181,7 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.otherMode = data.getBoolean("otherMode");
+        this.structurePattern = this.createStructurePattern();
     }
 
     private static class PrimitivePumpWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IItemFluidHandlerInfo {

@@ -177,8 +177,11 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
         if (this.isPressedCondition != null) {
-            this.isPressed = this.isPressedCondition.getAsBoolean();
-            this.writeUpdateInfo(3, buffer -> buffer.writeBoolean(this.isPressed));
+            boolean isPressed = this.isPressedCondition.getAsBoolean();
+            if (this.isPressed != isPressed) {
+                this.isPressed = isPressed;
+                this.writeUpdateInfo(3, buffer -> buffer.writeBoolean(this.isPressed));
+            }
         }
     }
 

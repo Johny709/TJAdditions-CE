@@ -25,7 +25,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
 
     /**
      * Call this before any of the {@link ButtonPopUpWidget#addPopup(Predicate)} methods. These widgets are bound to the popup defined by calling the {@link ButtonPopUpWidget#addPopup(Predicate) method} mentioned
-     * @param button button widgets to close this popup.
+     * @param button button widgets to close this popup. The position of this button is relative to it's bound popup.
      */
     public T addClosingButton(ButtonWidget<?> button) {
         button.setButtonId(String.valueOf(0));

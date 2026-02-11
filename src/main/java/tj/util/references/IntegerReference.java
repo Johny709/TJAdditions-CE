@@ -20,4 +20,9 @@ public final class IntegerReference {
     public int getValue() {
         return this.value;
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(this.value);
+    }
 }
