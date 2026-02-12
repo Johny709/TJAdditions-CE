@@ -485,9 +485,16 @@ tj.multiblock.mega_fusion.coolant_increase=Vacuum Coolant Increase: §b%s§7 Per
 tj.multiblock.mega_fusion.energy_decrease=Vacuum Energy Decrease: §b%s§7 Per Tier Difference
 tj.multiblock.mega_fusion.output_increase=Divertor Output Increase: §b%s§7 Per Tier Difference
 
+tj.multiblock.charcoal_pit.description=Slowly turn logs into charcoal. Each log adds 1 minute to total burn time. Ignite with flint and steel to start.
+tj.multiblock.charcoal_pit.description.1=Can be ignited automatically when there's fire adjacent to this charcoal pit.
+tj.multiblock.charcoal_pit.burn_time=Burn Time: §c%,ds
 tj.multiblock.charcoal_pit.window_settings=Settings
-tj.multiblock.charcoal_pit.set_width_length=WidthXLength:
+tj.multiblock.charcoal_pit.width_height=WidthXHeight: §9%,d
+tj.multiblock.charcoal_pit.set_width_height=WidthXHeight
+tj.multiblock.charcoal_pit.depth=Depth: §9%,d
 tj.multiblock.charcoal_pit.set_depth=Depth:
+
+tj.multiblock.primitive_water_pump.description=Pumps %,dL of water every second.
 
 recipemap.primitive_alloy.tj.name=Primitive Alloy Smelter
 recipemap.coke_oven_2.tj.name=Coke Oven

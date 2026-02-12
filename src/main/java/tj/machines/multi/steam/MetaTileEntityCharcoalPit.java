@@ -18,16 +18,19 @@ import gregtech.api.render.Textures;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.blocks.wood.BlockGregLog;
 import net.minecraft.block.*;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemFlintAndSteel;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -44,6 +47,7 @@ import tj.gui.widgets.impl.WindowsWidgetGroup;
 import tj.util.references.IntegerReference;
 import tj.util.references.ObjectReference;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -71,6 +75,14 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("tj.multiblock.charcoal_pit.description"));
+        if (this.advanced)
+            tooltip.add(I18n.format("tj.multiblock.charcoal_pit.description.1"));
+    }
+
+    @Override
     protected boolean shouldUpdate(MTETrait trait) {
         return false;
     }
@@ -89,7 +101,10 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
     protected void addDisplayText(UIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+        builder.addTranslationLine("tj.multiblock.charcoal_pit.burn_time", this.charcoalPos.size() * 60)
+                .addTranslationLine("tj.multiblock.charcoal_pit.width_height", this.widthHeight)
+                .addTranslationLine("tj.multiblock.charcoal_pit.depth", this.depth)
+                .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
                 .addRecipeInputLine(this.workableHandler)
                 .addRecipeOutputLine(this.workableHandler);
     }
@@ -121,13 +136,14 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
                 .addPopup(new TJToggleButtonWidget(175, 152, 18, 18)
                         .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                        .setTooltipText("tj.multiblock.tab.settings")
                         .useToggleTexture(true), widgetGroup1 -> {
                     widgetGroup1.addWidget(new WindowsWidgetGroup(12, 60, 160, 120, GuiTextures.BORDERED_BACKGROUND)
                             .addSubWidget(new TJLabelWidget(0, -1, 160, 18, null)
                                     .setLocale("tj.multiblock.charcoal_pit.window_settings")
                                     .setCanSlide(false))
                             .addSubWidget(new TJLabelWidget(0, 12, 160, 18, null)
-                                    .setLocale("tj.multiblock.charcoal_pit.set_width_length")
+                                    .setLocale("tj.multiblock.charcoal_pit.set_width_height")
                                     .setCanSlide(false))
                             .addSubWidget(new TJLabelWidget(0, 47, 160, 18, null)
                                     .setLocale("tj.multiblock.charcoal_pit.set_depth")
@@ -368,6 +384,25 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
         @Override
         public List<ItemStack> getItemOutputs() {
             return this.itemOutputs;
+        }
+
+        @Override
+        public NBTTagCompound serializeNBT() {
+            NBTTagCompound compound = super.serializeNBT();
+            NBTTagList itemOutputsList = new NBTTagList();
+            for (ItemStack stack : this.itemOutputs)
+                itemOutputsList.appendTag(stack.serializeNBT());
+            compound.setTag("itemOutputs", itemOutputsList);
+            return compound;
+        }
+
+        @Override
+        public void deserializeNBT(NBTTagCompound compound) {
+            super.deserializeNBT(compound);
+            NBTTagList itemOutputsList = compound.getTagList("itemOutputs", 10);
+            for (int i = 0; i < itemOutputsList.tagCount(); i++) {
+                this.itemOutputs.add(new ItemStack(itemOutputsList.getCompoundTagAt(i)));
+            }
         }
     }
 }

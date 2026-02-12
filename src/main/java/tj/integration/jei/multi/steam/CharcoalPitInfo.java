@@ -2,7 +2,6 @@ package tj.integration.jei.multi.steam;
 
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
-import gregtech.common.blocks.MetaBlocks;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
@@ -13,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static gregtech.api.unification.material.Materials.Charcoal;
 
 public class CharcoalPitInfo extends TJMultiblockInfoPage {
 
@@ -28,12 +26,12 @@ public class CharcoalPitInfo extends TJMultiblockInfoPage {
         return Collections.singletonList(GAMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("~~~~~", "~GGG~", "~GGG~", "~GGG~", "~~~~~")
                 .aisle("~GGG~", "GCCCG", "GCCCG", "GCCCG", "~GGG~")
+                .aisle("~GGG~", "GCCCG", "GCCCG", "GCCCG", "~GSG~")
                 .aisle("~GGG~", "GCCCG", "GCCCG", "GCCCG", "~GGG~")
-                .aisle("~GGG~", "GCCCG", "GCCCG", "GCCCG", "~GGG~")
-                .aisle("~~~~~", "~GGG~", "~GSG~", "~GGG~", "~~~~~")
-                .where('S', this.getController(), EnumFacing.WEST)
-                .where('C', MetaBlocks.COMPRESSED.get(Charcoal).getStateFromMeta(5))
+                .aisle("~~~~~", "~GGG~", "~GGG~", "~GGG~", "~~~~~")
+                .where('S', this.getController(), EnumFacing.UP)
                 .where('G', Blocks.DIRT.getDefaultState())
+                .where('C', Blocks.LOG.getDefaultState())
                 .build());
     }
 
