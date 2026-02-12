@@ -494,7 +494,7 @@ tj.multiblock.charcoal_pit.set_width_height=WidthXHeight:
 tj.multiblock.charcoal_pit.depth=Depth: §9%,d
 tj.multiblock.charcoal_pit.set_depth=Depth:
 
-tj.multiblock.primitive_water_pump.description=Pumps %,dL of water every second.
+tj.multiblock.primitive_water_pump.description=Pumps %,dL of water every second. Pump blocks are optional with each adding %,dL/s to pump rate, quadrupled with every tier. Right-click controller with screwdriver to change structure layout. All available structure layouts can be viewed in JEI preview.
 
 recipemap.primitive_alloy.tj.name=Primitive Alloy Smelter
 recipemap.coke_oven_2.tj.name=Coke Oven
