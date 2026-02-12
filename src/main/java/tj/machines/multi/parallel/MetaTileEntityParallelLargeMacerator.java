@@ -60,10 +60,7 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.parallel_large_macerator.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
-        TooltipHelper.shiftText(tooltip, tip -> {
-            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
-            super.addInformation(stack, player, tip, advanced);
-        });
+        TooltipHelper.shiftText(tooltip, tip -> super.addInformation(stack, player, tip, advanced));
     }
 
     @Override

@@ -75,7 +75,7 @@ public class LargeSolarBoilerInfo extends MultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[]{I18n.format("tj.multiblock.large_solar_boiler.description"),
-                this.mega ? I18n.format("tj.multiblock.mega_boiler.parallel.description", this.getController().getMaxParallel()) : "",
+                this.mega ? I18n.format("tj.multiblock.mega_boiler.parallel.description", this.getController().getMaxParallel()).replace("§7", "§r") : "",
                 this.mega ? (Color.YELLOW + I18n.format("tj.multiblock.mega_boiler.warning")) : ""};
     }
 

@@ -87,6 +87,7 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.large_crafter.description"));
+        tooltip.add(I18n.format("tj.multiblock.large_crafter.description.1"));
         tooltip.add(TooltipHelper.blinkingText(Color.YELLOW,  20, "tj.multiblock.large_crafter.warning"));
         TooltipHelper.shiftText(tooltip, tip -> tip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeCrafter.stack)));
     }

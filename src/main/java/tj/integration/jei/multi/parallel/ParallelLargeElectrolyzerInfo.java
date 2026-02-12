@@ -80,8 +80,7 @@ public class ParallelLargeElectrolyzerInfo extends TJMultiblockInfoPage implemen
     public String[] getDescription() {
         return ArrayUtils.addAll(new String[] {
                 I18n.format("tj.multiblock.parallel_large_electrolyzer.description"),
-                I18n.format("tj.multiblock.parallel.description"),
-                I18n.format("tj.multiblock.parallel.extend.tooltip")},
+                I18n.format("tj.multiblock.parallel.description")},
                 super.getDescription());
     }
 

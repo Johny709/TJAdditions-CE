@@ -80,7 +80,6 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
         tooltip.add(I18n.format("tj.multiblock.parallel_cryogenic_freezer.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
         TooltipHelper.shiftText(tooltip, tip -> {
-            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
             tip.add(I18n.format("gregtech.multiblock.vol_cryo.description"));
             super.addInformation(stack, player, tip, advanced);
         });

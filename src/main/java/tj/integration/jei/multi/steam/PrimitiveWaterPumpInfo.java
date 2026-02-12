@@ -46,6 +46,6 @@ public class PrimitiveWaterPumpInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[]{I18n.format("tj.multiblock.primitive_water_pump.description", 500, 1280)};
+        return new String[]{I18n.format("tj.multiblock.primitive_water_pump.description", 500, 1280).replace("§7", "§r")};
     }
 }

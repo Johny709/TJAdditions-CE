@@ -78,7 +78,6 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
         tooltip.add(I18n.format("tj.multiblock.parallel_chemical_reactor.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
         TooltipHelper.shiftText(tooltip, tip -> {
-            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
             tip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.1"));
             tip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2"));
             tip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.3"));

@@ -75,7 +75,6 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
         tooltip.add(I18n.format("tj.multiblock.parallel_large_arc_furnace.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
         TooltipHelper.shiftText(tooltip, tip -> {
-            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
             tip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2"));
             super.addInformation(stack, player, tip, advanced);
         });

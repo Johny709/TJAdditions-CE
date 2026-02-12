@@ -69,7 +69,6 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
         tooltip.add(I18n.format("tj.multiblock.parallel_alloy_blast_smelter.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
         TooltipHelper.shiftText(tooltip, tip -> {
-            tip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
             tip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.1"));
             tip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.2"));
             tip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.3"));

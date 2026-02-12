@@ -74,9 +74,8 @@ public class ParallelCryogenicFreezerInfo extends TJMultiblockInfoPage implement
     @Override
     public String[] getDescription() {
         return ArrayUtils.addAll(new String[] {
-                I18n.format("tj.multiblock.parallel_cryogenic_freezer.description"),
+                I18n.format("tj.multiblock.parallel_cryogenic_freezer.description").replace("§7", "§r"),
                 I18n.format("tj.multiblock.parallel.description"),
-                I18n.format("tj.multiblock.parallel.extend.tooltip"),
                 I18n.format("gregtech.multiblock.vol_cryo.description")},
                 super.getDescription());
     }

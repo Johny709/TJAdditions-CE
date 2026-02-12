@@ -15,9 +15,9 @@ public class TJMetaItem1 extends MaterialMetaItem {
     @Override
     public void registerSubItems() {
         TOOLBOX = addItem(999, "toolbox").addComponents(new ToolboxBehaviour()).setMaxStackSize(1);
-        CREATIVE_FLUID_COVER = addItem(1000, "creative.fluid.cover");
-        CREATIVE_ITEM_COVER = addItem(1001, "creative.item.cover");
-        CREATIVE_ENERGY_COVER = addItem(1002, "creative.energy.cover");
+        CREATIVE_FLUID_COVER = addItem(1000, "creative.fluid.cover").addComponents(new CreativeFluidCoverBehaviour());
+        CREATIVE_ITEM_COVER = addItem(1001, "creative.item.cover").addComponents(new CreativeItemCoverBehaviour());
+        CREATIVE_ENERGY_COVER = addItem(1002, "creative.energy.cover").addComponents(new CreativeEnergyCoverBehaviour());
         LINKING_DEVICE = addItem(1003,"item.linking.device").addComponents(new LinkingDeviceBehavior()).setMaxStackSize(1);
         VOID_PLUNGER = addItem(1004, "void_plunger").addComponents(new VoidPlungerBehaviour()).setMaxStackSize(1);
         NBT_READER = addItem(1005, "nbt_reader").addComponents(new NBTReaderBehaviour()).setMaxStackSize(1);

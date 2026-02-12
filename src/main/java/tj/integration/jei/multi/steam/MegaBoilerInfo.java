@@ -86,7 +86,7 @@ public class MegaBoilerInfo extends MultiblockInfoPage {
                         : this.boilerType == MetaTileEntityLargeBoiler.BoilerType.STEEL ? "tj.multiblock.mega_steel_boiler.description"
                         : this.boilerType == MetaTileEntityLargeBoiler.BoilerType.TITANIUM ? "tj.multiblock.mega_titanium_boiler.description"
                         : "tj.multiblock.mega_tungstensteel_boiler.description"),
-                I18n.format("tj.multiblock.mega_boiler.parallel.description", this.megaBoiler.getParallel()),
+                I18n.format("tj.multiblock.mega_boiler.parallel.description", this.megaBoiler.getParallel()).replace("§7", "§r"),
                 Color.YELLOW + I18n.format("tj.multiblock.mega_boiler.warning"),
                 I18n.format("tj.multiblock.universal.tooltip.1", RecipeMaps.DIESEL_GENERATOR_FUELS.getLocalizedName() + ", " + RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.getLocalizedName()),
                 I18n.format("tj.multiblock.universal.tooltip.2", this.megaBoiler.getParallel())};
