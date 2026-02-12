@@ -104,7 +104,7 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        int widthApplied = 5;
+        int widthApplied = 3;
         Size size = this.getSize();
         Position pos = this.getPosition();
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
@@ -177,7 +177,7 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
             if (this.centered && this.locale != null) {
                 String locale = I18n.format(this.locale);
                 int length = Minecraft.getMinecraft().fontRenderer.getStringWidth(locale);
-                int widthApplied = 5;
+                int widthApplied = 3;
                 if (this.itemLabel != null)
                     widthApplied += 16;
                 if (this.fluidLabel != null)
