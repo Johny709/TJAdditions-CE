@@ -49,7 +49,7 @@ public abstract class MetaTileEntityExtremeDieselEngineMixin extends FueledMulti
     @Inject(method = "createWorkable", at = @At("HEAD"), cancellable = true)
     private void injectCreateWorkable(long maxVoltage, CallbackInfoReturnable<FuelRecipeLogic> cir) {
         if (TJConfig.machines.generatorWorkableHandlerOverrides) {
-            this.booster = GAMaterials.LiquidOxygen.getFluid(80);
+            this.booster = Materials.Oxygen.getFluid(80);
             this.reagent = Materials.Lubricant.getFluid(100);
             MetaTileEntityExtremeDieselEngine tileEntity = (MetaTileEntityExtremeDieselEngine) (Object) this;
             cir.setReturnValue(new TJCycleFuelRecipeLogic(tileEntity, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getBooster, this::getReagent, this::getFuelMultiplier, this::getEUMultiplier, maxVoltage * 4));
