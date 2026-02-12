@@ -63,7 +63,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
     private int depth = 3;
 
     public MetaTileEntityCharcoalPit(ResourceLocation metaTileEntityId, boolean advanced) {
-        super(metaTileEntityId);
+        super(metaTileEntityId, false);
         this.advanced = advanced;
         this.maintenance_problems = 0b111111;
         this.reinitializeStructurePattern();

@@ -124,8 +124,6 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<IMach
             IElectricItem EUContainer = stack.getCapability(CAPABILITY_ELECTRIC_ITEM, null);
             this.transferEU(this.energyPerTick, EUContainer, this.transferMode, stack, this.transferToOutput);
         }
-        if (this.metaTileEntity instanceof TJMultiblockControllerBase)
-            ((TJMultiblockControllerBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
         return true;
     }
 

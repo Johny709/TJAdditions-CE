@@ -46,4 +46,10 @@ public interface IMachineHandler {
     default long getMaxVoltage() {
         return 0;
     }
+
+    default boolean hasMaintenanceHatch() {
+        return false;
+    }
+
+    default void calculateMaintenance(int duration) {}
 }
