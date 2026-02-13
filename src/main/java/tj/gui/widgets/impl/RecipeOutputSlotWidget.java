@@ -2,6 +2,7 @@ package tj.gui.widgets.impl;
 
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
+import gregtech.api.util.FluidTooltipUtil;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import gregtech.api.util.TextFormattingUtil;
@@ -10,11 +11,13 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
 
+import java.util.Collections;
 import java.util.function.IntFunction;
 
 public class RecipeOutputSlotWidget extends Widget {
@@ -34,14 +37,18 @@ public class RecipeOutputSlotWidget extends Widget {
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         if (!this.isMouseOverElement(mouseX, mouseY)) return;
-        Position pos = this.getPosition();
+        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        int screenWidth = Minecraft.getMinecraft().displayWidth;
+        int screenHeight = Minecraft.getMinecraft().displayHeight;
         ItemStack itemStack = this.itemOutputs != null ? this.itemOutputs.apply(this.slotIndex) : null;
-        if (itemStack != null) {
-
+        if (itemStack != null && !itemStack.isEmpty()) {
+            GuiUtils.drawHoveringText(getItemToolTip(itemStack), mouseX, mouseY, screenWidth, screenHeight, 100, fontRenderer);
         }
         FluidStack fluidStack = this.fluidOutputs != null ? this.fluidOutputs.apply(this.slotIndex) : null;
         if (fluidStack != null) {
-
+            String formula = FluidTooltipUtil.getFluidTooltip(fluidStack);
+            formula = formula == null || formula.isEmpty() ? "" : fluidStack.getLocalizedName();
+            GuiUtils.drawHoveringText(Collections.singletonList(formula), mouseX, mouseY, screenWidth, screenHeight, 100, fontRenderer);
         }
     }
 

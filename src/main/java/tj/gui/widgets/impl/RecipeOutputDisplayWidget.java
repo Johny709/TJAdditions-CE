@@ -132,7 +132,7 @@ public class RecipeOutputDisplayWidget extends Widget {
             GlStateManager.color(1.0f, 1.0f, 1.0f);
             if (new Rectangle(x + offsetX, y + offsetY, 18, 18).contains(mouseX, mouseY)) {
                 String formula = FluidTooltipUtil.getFluidTooltip(stack);
-                formula = formula == null || formula.isEmpty() ? "" : "\n" + formula;
+                formula = formula == null || formula.isEmpty() ? "" : stack.getLocalizedName();
                 GuiUtils.drawHoveringText(Collections.singletonList(formula), mouseX, mouseY, screenWidth, screenHeight, 100, fontRenderer);
             }
             offsetX += 18;
