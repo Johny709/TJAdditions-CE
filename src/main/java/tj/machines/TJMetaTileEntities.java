@@ -111,6 +111,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityCharcoalPit CHARCOAL_PIT;
     public static MetaTileEntityCharcoalPit CHARCOAL_PIT_ADVANCED;
     public static MetaTileEntityPrimitiveWaterPump PRIMITIVE_WATER_PUMP;
+    public static MetaTileEntityAdvancedLargeMiner ADVANCED_LARGE_MINER;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -269,6 +270,7 @@ public class TJMetaTileEntities {
         CHARCOAL_PIT = GregTechAPI.registerMetaTileEntity(5513, new MetaTileEntityCharcoalPit(TJId("charcoal_pit"), false));
         CHARCOAL_PIT_ADVANCED = GregTechAPI.registerMetaTileEntity(5514, new MetaTileEntityCharcoalPit(TJId("charcoal_pit_advanced"), true));
         PRIMITIVE_WATER_PUMP = GregTechAPI.registerMetaTileEntity(5515, new MetaTileEntityPrimitiveWaterPump(TJId("primitive_water_pump")));
+        ADVANCED_LARGE_MINER = GregTechAPI.registerMetaTileEntity(5516, new MetaTileEntityAdvancedLargeMiner(TJId("advanced_large_miner")));
 
         // append tiers to existing hatches
         MetaTileEntities.ITEM_IMPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_IMPORT_BUS, 15);

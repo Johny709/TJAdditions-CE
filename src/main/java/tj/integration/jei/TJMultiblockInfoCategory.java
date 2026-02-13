@@ -126,7 +126,8 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("large_electric_implosion_compressor", new MultiblockInfoRecipeWrapper(new LargeElectricImplosionCompressor()))
                             .put("charcoal_pit", new MultiblockInfoRecipeWrapper(new CharcoalPitInfo(false)))
                             .put("charcoal_pit_advanced", new MultiblockInfoRecipeWrapper(new CharcoalPitInfo(true)))
-                            .put("primitive_water_pump", new MultiblockInfoRecipeWrapper(new PrimitiveWaterPumpInfo()));
+                            .put("primitive_water_pump", new MultiblockInfoRecipeWrapper(new PrimitiveWaterPumpInfo()))
+                            .put("advanced_large_miner", new MultiblockInfoRecipeWrapper(new AdvancedLargeMinerInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;
