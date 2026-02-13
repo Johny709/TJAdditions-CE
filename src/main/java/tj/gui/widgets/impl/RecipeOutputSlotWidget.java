@@ -33,18 +33,15 @@ public class RecipeOutputSlotWidget extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
+        if (!this.isMouseOverElement(mouseX, mouseY)) return;
         Position pos = this.getPosition();
         ItemStack itemStack = this.itemOutputs != null ? this.itemOutputs.apply(this.slotIndex) : null;
         if (itemStack != null) {
-            if (itemStack.isEmpty())
-                TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
-            else TJGuiTextures.SELECTION_BOX_2.draw(pos.getX(), pos.getY(), 18, 18);
+
         }
         FluidStack fluidStack = this.fluidOutputs != null ? this.fluidOutputs.apply(this.slotIndex) : null;
         if (fluidStack != null) {
-            if (fluidStack.amount < 1)
-                TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
-            else TJGuiTextures.SELECTION_BOX_2.draw(pos.getX(), pos.getY(), 18, 18);
+
         }
     }
 
@@ -55,9 +52,12 @@ public class RecipeOutputSlotWidget extends Widget {
         ItemStack itemStack = this.itemOutputs != null ? this.itemOutputs.apply(this.slotIndex) : null;
         if (itemStack != null) {
             Widget.drawItemStack(itemStack, pos.getX() + 1, pos.getY() + 1, null);
+            if (itemStack.isEmpty()) {
+                TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
+            } else TJGuiTextures.SELECTION_BOX_2.draw(pos.getX(), pos.getY(), 18, 18);
         }
         FluidStack fluidStack = this.fluidOutputs != null ? this.fluidOutputs.apply(this.slotIndex) : null;
-        if (fluidStack != null && fluidStack.amount > 0) {
+        if (fluidStack != null) {
             FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
             GlStateManager.disableBlend();
             TJGuiUtils.drawFluidForGui(fluidStack, fluidStack.amount, fluidStack.amount, pos.getX() + 1, pos.getY() + 1, 17, 17);
@@ -68,6 +68,9 @@ public class RecipeOutputSlotWidget extends Widget {
             GlStateManager.popMatrix();
             GlStateManager.enableBlend();
             GlStateManager.color(1.0f, 1.0f, 1.0f);
+            if (fluidStack.amount < 1) {
+                TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
+            } else TJGuiTextures.SELECTION_BOX_2.draw(pos.getX(), pos.getY(), 18, 18);
         }
     }
 }
