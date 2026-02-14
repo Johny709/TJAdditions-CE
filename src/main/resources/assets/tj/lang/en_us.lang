@@ -93,6 +93,7 @@ tj.machine.large_electric_implosion_compressor.name=Large Electric Implosion Com
 tj.machine.charcoal_pit.name=Charcoal Pit
 tj.machine.charcoal_pit_advanced.name=Advanced Charcoal Pit
 tj.machine.primitive_water_pump.name=Primitive Water Pump
+tj.machine.advanced_large_miner.name=Advanced Large Miner
 tj.machine.architect_workbench_lv.name=Basic Architect Workbench
 tj.machine.architect_workbench_mv.name=Advanced Architect Workbench
 tj.machine.architect_workbench_hv.name=Advanced Architect Workbench II
@@ -497,6 +498,9 @@ tj.multiblock.charcoal_pit.depth=Depth: §9%,d
 tj.multiblock.charcoal_pit.set_depth=Depth:
 
 tj.multiblock.primitive_water_pump.description=Pumps §b%,dL§7 of §bwater§7 every second. Pump blocks are optional with each adding §b%,dL/s§7 to pump rate, quadrupled with every tier. §fRight-Click§7 controller with screwdriver to change structure layout. All available structure layouts can be viewed in JEI preview.
+
+tj.multiblock.advanced_large_miner.description=More advanced version of §5Large Miner§7 with more stability and functions.
+tj.multiblock.advanced_large_miner.chunk_index=Chunk Index: §b%,d / %,d
 
 recipemap.primitive_alloy.tj.name=Primitive Alloy Smelter
 recipemap.coke_oven_2.tj.name=Coke Oven
