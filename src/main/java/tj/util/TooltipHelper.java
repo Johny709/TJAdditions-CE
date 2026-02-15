@@ -17,6 +17,13 @@ public final class TooltipHelper {
     public static void shiftText(List<String> tooltip, Consumer<List<String>> tip) {
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
             tip.accept(tooltip);
+            tooltip.add(TooltipHelper.blinkingText(Color.WHITE, 50, "tj.multiblock.universal.tooltip.shifted"));
+        } else tooltip.add(TooltipHelper.blinkingText(Color.WHITE, 50, "tj.multiblock.universal.tooltip.shift"));
+    }
+
+    public static void shiftTextJEI(List<String> tooltip, Consumer<List<String>> tip) {
+        if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
+            tip.accept(tooltip);
             tooltip.add(TooltipHelper.blinkingText(Color.WHITE, 50, "tj.multiblock.universal.tooltip.more_jei"));
         } else tooltip.add(TooltipHelper.blinkingText(Color.WHITE, 50, "tj.multiblock.universal.tooltip.shift"));
     }

@@ -158,7 +158,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.turbine.description"));
         tooltip.add(I18n.format("tj.multiblock.turbine.fast_mode.description"));
-        TooltipHelper.shiftText(tooltip, tip -> {
+        TooltipHelper.shiftTextJEI(tooltip, tip -> {
             tip.add(I18n.format("tj.multiblock.universal.tooltip.1", this.turbineType.recipeMap.getLocalizedName()));
             tip.add(I18n.format("tj.multiblock.universal.tooltip.2", 12));
             tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency"));

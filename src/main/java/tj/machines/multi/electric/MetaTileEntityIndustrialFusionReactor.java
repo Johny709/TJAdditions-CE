@@ -135,7 +135,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.industrial_fusion_reactor.description"));
-        TooltipHelper.shiftText(tooltip, tip -> {
+        TooltipHelper.shiftTextJEI(tooltip, tip -> {
             tip.add(I18n.format("tj.multiblock.industrial_fusion_reactor.overclock.description"));
             tip.add(I18n.format("tj.multiblock.universal.tooltip.1", this.recipeMap.getLocalizedName()));
             tip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", formatter.format(TJConfig.industrialFusionReactor.eutPercentage / 100.0)));

@@ -73,7 +73,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.parallel_large_centrifuge.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
-        TooltipHelper.shiftText(tooltip, tip -> {
+        TooltipHelper.shiftTextJEI(tooltip, tip -> {
             tip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2"));
             super.addInformation(stack, player, tip, advanced);
         });

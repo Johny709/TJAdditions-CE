@@ -99,7 +99,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
                 : "tj.multiblock.mega_tungstensteel_boiler.description"));
         tooltip.add(I18n.format("tj.multiblock.mega_boiler.parallel.description", this.getParallel()));
         tooltip.add(TooltipHelper.blinkingText(Color.YELLOW, 20, "tj.multiblock.mega_boiler.warning"));
-        TooltipHelper.shiftText(tooltip, tip -> {
+        TooltipHelper.shiftTextJEI(tooltip, tip -> {
             tip.add(I18n.format("tj.multiblock.universal.tooltip.1", RecipeMaps.DIESEL_GENERATOR_FUELS.getLocalizedName() + ", " + RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.getLocalizedName()));
             tip.add(I18n.format("tj.multiblock.universal.tooltip.2", this.parallel));
         });

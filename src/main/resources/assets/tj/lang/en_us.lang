@@ -520,6 +520,7 @@ material.awakened_draconium=Awakened Draconium
 material.chaotic=Choatic
 
 tj.machine.compressed_chest.description=Keeps the items stored inside when broken.
+tj.machine.compressed_chest.slot=Slot: §6%,d,§7 Item: §5%s,§7 Count: §6%,d
 tj.machine.filing_cabinet.description=Starts initially at §6%,d§7 slots, slot count increase gradually when getting full. Can only store one set of items.
 
 tj.multiblock.default.description=A custom multiblock added by Technological Journey (TJ).
@@ -583,6 +584,7 @@ tj.multiblock.large_crafter.description.1=Add §5Crafter Hatches§7 to encode re
 tj.multiblock.large_crafter.warning=WARNING: non-consumables in crafting table recipes will get consumed here for now. Some recipes may not work.
 
 tj.multiblock.universal.tooltip.shift=[Press shift for more info]
+tj.multiblock.universal.tooltip.shifted=[Showing more tooltips]
 tj.multiblock.universal.tooltip.more_jei=Full tooltip can also be viewed in JEI info page.
 tj.multiblock.universal.tooltip.1=Multiblock Recipe: §e%s§r
 tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7

@@ -89,7 +89,7 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
         tooltip.add(I18n.format("tj.multiblock.large_crafter.description"));
         tooltip.add(I18n.format("tj.multiblock.large_crafter.description.1"));
         tooltip.add(TooltipHelper.blinkingText(Color.YELLOW,  20, "tj.multiblock.large_crafter.warning"));
-        TooltipHelper.shiftText(tooltip, tip -> tip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeCrafter.stack)));
+        TooltipHelper.shiftTextJEI(tooltip, tip -> tip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeCrafter.stack)));
     }
 
 

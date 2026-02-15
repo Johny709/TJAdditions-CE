@@ -17,8 +17,10 @@ import gregtech.api.util.GTUtility;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -30,6 +32,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.tuple.Pair;
 import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.items.handlers.LargeItemStackHandler;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -64,6 +67,16 @@ public class MetaTileEntityCompressedCrate extends MetaTileEntity {
         tooltip.add(I18n.format("tj.machine.compressed_chest.description"));
         tooltip.add(I18n.format("machine.universal.stack",  this.isInfinite ? Integer.MAX_VALUE : 64));
         tooltip.add(I18n.format("machine.universal.slots", ROW_SIZE * AMOUNT_OF_ROWS));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            NBTTagCompound compound = stack.getTagCompound();
+            if (compound == null || compound.isEmpty()) return;
+            NBTTagList itemList = compound.getCompoundTag("Inventory").getTagList("Items", 10);
+            for (int i = 0; i < itemList.tagCount(); i++) {
+                NBTTagCompound itemCompound = itemList.getCompoundTagAt(i);
+                ItemStack itemStack = new ItemStack(Item.getByNameOrId(itemCompound.getString("id")), itemCompound.getInteger("Count"), itemCompound.getShort("Damage"));
+                tip.add(I18n.format("tj.machine.compressed_chest.slot", itemCompound.getInteger("Slot"), itemStack.getDisplayName(), itemStack.getCount()));
+            }
+        });
     }
 
     @Override

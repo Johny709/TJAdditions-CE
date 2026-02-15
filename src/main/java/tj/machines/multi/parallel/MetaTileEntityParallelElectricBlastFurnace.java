@@ -63,7 +63,7 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.parallel_electric_blast_furnace.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
-        TooltipHelper.shiftText(tooltip, tip -> {
+        TooltipHelper.shiftTextJEI(tooltip, tip -> {
             tip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.1"));
             tip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.2"));
             tip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.3"));
