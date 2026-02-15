@@ -877,11 +877,13 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
 
     @Override
     public void addToMultiBlock(MultiblockControllerBase controller) {
+        super.addToMultiBlock(controller);
         this.controller = controller;
     }
 
     @Override
     public void removeFromMultiBlock(MultiblockControllerBase controller) {
+        super.removeFromMultiBlock(controller);
         this.controller = null;
     }
 }

@@ -69,10 +69,10 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
         String tierName = GAValues.VN[this.getTier()];
         if (this.isOutput) {
             tooltip.add(I18n.format("gregtech.universal.tooltip.voltage_out", this.enderEnergyHandler.getOutputVoltage(), TJValues.VCC[this.getTier()], tierName));
-            tooltip.add(I18n.format("gregtech.universal.tooltip.amperage_out_till", this.enderEnergyHandler.getOutputAmperage()));
+            tooltip.add(I18n.format("gregtech.universal.tooltip.amperage_out_till", this.enderEnergyHandler.getOutputAmperage(), TJValues.VCC[this.getTier()]));
         } else {
             tooltip.add(I18n.format("gregtech.universal.tooltip.voltage_in", this.enderEnergyHandler.getInputVoltage(), TJValues.VCC[this.getTier()], tierName));
-            tooltip.add(I18n.format("gregtech.universal.tooltip.amperage_in_till", this.enderEnergyHandler.getInputAmperage()));
+            tooltip.add(I18n.format("gregtech.universal.tooltip.amperage_in_till", this.enderEnergyHandler.getInputAmperage(), TJValues.VCC[this.getTier()]));
         }
         tooltip.add(I18n.format("gregtech.universal.enabled"));
     }

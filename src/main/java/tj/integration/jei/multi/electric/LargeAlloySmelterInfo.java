@@ -62,8 +62,7 @@ public class LargeAlloySmelterInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[] {
-                I18n.format("tj.multiblock.large_alloy_smelter.description")};
+        return new String[] {I18n.format("tj.multiblock.large_alloy_smelter.description").replace("§7", "§r")};
     }
 
     @Override

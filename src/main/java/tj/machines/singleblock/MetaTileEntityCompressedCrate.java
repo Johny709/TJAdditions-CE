@@ -63,15 +63,16 @@ public class MetaTileEntityCompressedCrate extends MetaTileEntity {
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.machine.compressed_chest.description"));
         tooltip.add(I18n.format("machine.universal.stack",  this.isInfinite ? Integer.MAX_VALUE : 64));
         tooltip.add(I18n.format("machine.universal.slots", ROW_SIZE * AMOUNT_OF_ROWS));
+        NBTTagCompound compound = stack.getTagCompound();
+        if (compound == null || compound.isEmpty()) return;
+        NBTTagList itemList = compound.getCompoundTag("Inventory").getTagList("Items", 10);
+        int size = itemList.tagCount() / 10;
+        if (itemList.tagCount() > 0)
+            tooltip.add(I18n.format("tj.machine.compressed_chest.slot_filled", itemList.tagCount(), ROW_SIZE * AMOUNT_OF_ROWS));
         TooltipHelper.shiftText(tooltip, tip -> {
-            NBTTagCompound compound = stack.getTagCompound();
-            if (compound == null || compound.isEmpty()) return;
-            NBTTagList itemList = compound.getCompoundTag("Inventory").getTagList("Items", 10);
-            int size = itemList.tagCount() / 10;
             TooltipHelper.pageText(tip, size, (tip1, tooltipHandler) -> {
                 int start = tooltipHandler.getIndex() * 10;
                 for (int i = start; i < Math.min(itemList.tagCount(), start + 10); i++) {

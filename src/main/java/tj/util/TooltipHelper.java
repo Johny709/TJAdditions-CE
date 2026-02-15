@@ -20,10 +20,12 @@ public final class TooltipHelper {
     public static void pageText(List<String> tooltip, int maxPages, BiConsumer<List<String>, TooltipHandler> tipHandler) {
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
             INSTANCE.setEnd(maxPages);
-            tooltip.add(Color.WHITE + I18n.format("tj.multiblock.universal.tooltip.page", INSTANCE.getIndex(), INSTANCE.getEnd()));
-            if (Keyboard.isKeyDown(Keyboard.KEY_TAB) && !INSTANCE.isPressed()) {
-                INSTANCE.setPressed(true);
-                INSTANCE.setIndex(INSTANCE.getIndex() + 1);
+            tooltip.add(Color.WHITE + I18n.format("tj.multiblock.universal.tooltip.page", INSTANCE.getIndex() + 1, INSTANCE.getEnd() + 1));
+            if (Keyboard.isKeyDown(Keyboard.KEY_TAB)) {
+                if (!INSTANCE.isPressed()) {
+                    INSTANCE.setPressed(true);
+                    INSTANCE.setIndex(INSTANCE.getIndex() + 1);
+                }
             } else INSTANCE.setPressed(false);
             tipHandler.accept(tooltip, INSTANCE);
             tooltip.add(I18n.format("tj.multiblock.universal.tooltip.page_info"));
@@ -34,14 +36,20 @@ public final class TooltipHelper {
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
             tip.accept(tooltip);
             tooltip.add(TooltipHelper.blinkingText(Color.WHITE, 50, "tj.multiblock.universal.tooltip.shifted"));
-        } else tooltip.add(TooltipHelper.blinkingText(Color.WHITE, 50, "tj.multiblock.universal.tooltip.shift"));
+        } else {
+            tooltip.add(TooltipHelper.blinkingText(Color.WHITE, 50, "tj.multiblock.universal.tooltip.shift"));
+            INSTANCE.reset();
+        }
     }
 
     public static void shiftTextJEI(List<String> tooltip, Consumer<List<String>> tip) {
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
             tip.accept(tooltip);
             tooltip.add(TooltipHelper.blinkingText(Color.WHITE, 50, "tj.multiblock.universal.tooltip.more_jei"));
-        } else tooltip.add(TooltipHelper.blinkingText(Color.WHITE, 50, "tj.multiblock.universal.tooltip.shift"));
+        } else {
+            tooltip.add(TooltipHelper.blinkingText(Color.WHITE, 50, "tj.multiblock.universal.tooltip.shift"));
+            INSTANCE.reset();
+        }
     }
 
     public static String blinking(Color color, int ticks) {
