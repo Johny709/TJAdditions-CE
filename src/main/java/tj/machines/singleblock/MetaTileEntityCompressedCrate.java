@@ -71,11 +71,15 @@ public class MetaTileEntityCompressedCrate extends MetaTileEntity {
             NBTTagCompound compound = stack.getTagCompound();
             if (compound == null || compound.isEmpty()) return;
             NBTTagList itemList = compound.getCompoundTag("Inventory").getTagList("Items", 10);
-            for (int i = 0; i < itemList.tagCount(); i++) {
-                NBTTagCompound itemCompound = itemList.getCompoundTagAt(i);
-                ItemStack itemStack = new ItemStack(Item.getByNameOrId(itemCompound.getString("id")), itemCompound.getInteger("Count"), itemCompound.getShort("Damage"));
-                tip.add(I18n.format("tj.machine.compressed_chest.slot", itemCompound.getInteger("Slot"), itemStack.getDisplayName(), itemStack.getCount()));
-            }
+            int size = itemList.tagCount() / 10;
+            TooltipHelper.pageText(tip, size, (tip1, tooltipHandler) -> {
+                int start = tooltipHandler.getIndex() * 10;
+                for (int i = start; i < Math.min(itemList.tagCount(), start + 10); i++) {
+                    NBTTagCompound itemCompound = itemList.getCompoundTagAt(i);
+                    ItemStack itemStack = new ItemStack(Item.getByNameOrId(itemCompound.getString("id")), itemCompound.getInteger("Count"), itemCompound.getShort("Damage"));
+                    tip1.add(I18n.format("tj.machine.compressed_chest.slot", itemCompound.getInteger("Slot"), itemStack.getDisplayName(), itemStack.getCount()));
+                }
+            });
         });
     }
 

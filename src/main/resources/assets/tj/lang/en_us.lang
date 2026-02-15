@@ -585,6 +585,8 @@ tj.multiblock.large_crafter.warning=WARNING: non-consumables in crafting table r
 
 tj.multiblock.universal.tooltip.shift=[Press shift for more info]
 tj.multiblock.universal.tooltip.shifted=[Showing more tooltips]
+tj.multiblock.universal.tooltip.page=[Page: %,d / %,d]
+tj.multiblock.universal.tooltip.page_info=§f[Press tab to turn page]
 tj.multiblock.universal.tooltip.more_jei=Full tooltip can also be viewed in JEI info page.
 tj.multiblock.universal.tooltip.1=Multiblock Recipe: §e%s§r
 tj.multiblock.universal.tooltip.2=Max Parallel: §e%d§7
