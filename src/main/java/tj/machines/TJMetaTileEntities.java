@@ -30,6 +30,29 @@ import static tj.machines.singleblock.BoilerType.*;
 
 public class TJMetaTileEntities {
 
+    public static final GAMetaTileEntityEnergyHatch[] ENERGY_INPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
+    public static final GAMetaTileEntityEnergyHatch[] ENERGY_OUTPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
+    public static final MetaTileEntityCoalBoiler[] COAL_BOILER = new MetaTileEntityCoalBoiler[3];
+    public static final MetaTileEntitySolarBoiler[] SOLAR_BOILER = new MetaTileEntitySolarBoiler[3];
+    public static final MetaTileEntityFluidBoiler[] FLUID_BOILER = new MetaTileEntityFluidBoiler[3];
+    public static final MetaTileEntityArchitectWorkbench[] ARCHITECT_WORKBENCH = new MetaTileEntityArchitectWorkbench[14];
+    public static final MetaTileEntityChiselWorkbench[] CHISEL_WORKBENCH = new MetaTileEntityChiselWorkbench[14];
+    public static final MetaTileEntityEnchanter[] ENCHANTER = new MetaTileEntityEnchanter[14];
+    public static final MetaTileEntityCrafter[] CRAFTER = new MetaTileEntityCrafter[14];
+    public static final MetaTileEntityFarmingStation[] FARMING_STATION = new MetaTileEntityFarmingStation[14];
+    public static final MetaTileEntitySuperItemBus[] SUPER_ITEM_INPUT_BUS = new MetaTileEntitySuperItemBus[5];
+    public static final MetaTileEntitySuperItemBus[] SUPER_ITEM_OUTPUT_BUS = new MetaTileEntitySuperItemBus[5];
+    public static final MetaTileEntitySuperFluidHatch[] SUPER_FLUID_INPUT_HATCH = new MetaTileEntitySuperFluidHatch[5];
+    public static final MetaTileEntitySuperFluidHatch[] SUPER_FLUID_OUTPUT_HATCH = new MetaTileEntitySuperFluidHatch[5];
+    public static final MetaTileEntityTJSteamHatch[] STEAM_INPUT_FLUID_HATCH = new MetaTileEntityTJSteamHatch[3];
+    public static final MetaTileEntityTJSteamHatch[] STEAM_OUTPUT_FLUID_HATCH = new MetaTileEntityTJSteamHatch[3];
+    public static final MetaTileEntityCrafterHatch[] CRAFTER_HATCHES = new MetaTileEntityCrafterHatch[14];
+    public static final MetaTileEntityEnderEnergyHatch[] ENDER_ENERGY_INPUT_HATCHES = new MetaTileEntityEnderEnergyHatch[14];
+    public static final MetaTileEntityEnderEnergyHatch[] ENDER_ENERGY_OUTPUT_HATCHES = new MetaTileEntityEnderEnergyHatch[14];
+    public static final MetaTileEntityFilteredBus[] FILTERED_INPUT_BUSES = new MetaTileEntityFilteredBus[15];
+    public static final MetaTileEntityFilteredBus[] FILTERED_OUTPUT_BUSES = new MetaTileEntityFilteredBus[15];
+    public static final MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
+    public static final MetaTileEntityAdvancedLargeChunkMiner[] ADVANCED_LARGE_MINERS = new MetaTileEntityAdvancedLargeChunkMiner[5];
     public static MetaTileEntityPrimitiveAlloy PRIMITIVE_ALLOY;
     public static MetaTileEntityCokeOven COKE_OVEN;
     public static MetaTileEntityMegaCokeOven MEGA_COKE_OVEN;
@@ -111,34 +134,11 @@ public class TJMetaTileEntities {
     public static MetaTileEntityCharcoalPit CHARCOAL_PIT;
     public static MetaTileEntityCharcoalPit CHARCOAL_PIT_ADVANCED;
     public static MetaTileEntityPrimitiveWaterPump PRIMITIVE_WATER_PUMP;
-    public static MetaTileEntityAdvancedLargeMiner ADVANCED_LARGE_MINER;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
     public static MetaTileEntityCompressedCrate INFINITY_CRATE;
     public static MetaTileEntityFilingCabinet FILING_CABINET;
-    public static final GAMetaTileEntityEnergyHatch[] ENERGY_INPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
-    public static final GAMetaTileEntityEnergyHatch[] ENERGY_OUTPUT_HATCH_256A = new GAMetaTileEntityEnergyHatch[14];
-    public static final MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
-    public static final MetaTileEntityCoalBoiler[] COAL_BOILER = new MetaTileEntityCoalBoiler[3];
-    public static final MetaTileEntitySolarBoiler[] SOLAR_BOILER = new MetaTileEntitySolarBoiler[3];
-    public static final MetaTileEntityFluidBoiler[] FLUID_BOILER = new MetaTileEntityFluidBoiler[3];
-    public static final MetaTileEntityArchitectWorkbench[] ARCHITECT_WORKBENCH = new MetaTileEntityArchitectWorkbench[14];
-    public static final MetaTileEntityChiselWorkbench[] CHISEL_WORKBENCH = new MetaTileEntityChiselWorkbench[14];
-    public static final MetaTileEntityEnchanter[] ENCHANTER = new MetaTileEntityEnchanter[14];
-    public static final MetaTileEntityCrafter[] CRAFTER = new MetaTileEntityCrafter[14];
-    public static final MetaTileEntityFarmingStation[] FARMING_STATION = new MetaTileEntityFarmingStation[14];
-    public static final MetaTileEntitySuperItemBus[] SUPER_ITEM_INPUT_BUS = new MetaTileEntitySuperItemBus[5];
-    public static final MetaTileEntitySuperItemBus[] SUPER_ITEM_OUTPUT_BUS = new MetaTileEntitySuperItemBus[5];
-    public static final MetaTileEntitySuperFluidHatch[] SUPER_FLUID_INPUT_HATCH = new MetaTileEntitySuperFluidHatch[5];
-    public static final MetaTileEntitySuperFluidHatch[] SUPER_FLUID_OUTPUT_HATCH = new MetaTileEntitySuperFluidHatch[5];
-    public static final MetaTileEntityTJSteamHatch[] STEAM_INPUT_FLUID_HATCH = new MetaTileEntityTJSteamHatch[3];
-    public static final MetaTileEntityTJSteamHatch[] STEAM_OUTPUT_FLUID_HATCH = new MetaTileEntityTJSteamHatch[3];
-    public static final MetaTileEntityCrafterHatch[] CRAFTER_HATCHES = new MetaTileEntityCrafterHatch[14];
-    public static final MetaTileEntityEnderEnergyHatch[] ENDER_ENERGY_INPUT_HATCHES = new MetaTileEntityEnderEnergyHatch[14];
-    public static final MetaTileEntityEnderEnergyHatch[] ENDER_ENERGY_OUTPUT_HATCHES = new MetaTileEntityEnderEnergyHatch[14];
-    public static final MetaTileEntityFilteredBus[] FILTERED_INPUT_BUSES = new MetaTileEntityFilteredBus[15];
-    public static final MetaTileEntityFilteredBus[] FILTERED_OUTPUT_BUSES = new MetaTileEntityFilteredBus[15];
 
     public static void init() {
 
@@ -270,7 +270,8 @@ public class TJMetaTileEntities {
         CHARCOAL_PIT = GregTechAPI.registerMetaTileEntity(5513, new MetaTileEntityCharcoalPit(TJId("charcoal_pit"), false));
         CHARCOAL_PIT_ADVANCED = GregTechAPI.registerMetaTileEntity(5514, new MetaTileEntityCharcoalPit(TJId("charcoal_pit_advanced"), true));
         PRIMITIVE_WATER_PUMP = GregTechAPI.registerMetaTileEntity(5515, new MetaTileEntityPrimitiveWaterPump(TJId("primitive_water_pump")));
-        ADVANCED_LARGE_MINER = GregTechAPI.registerMetaTileEntity(5516, new MetaTileEntityAdvancedLargeMiner(TJId("advanced_large_miner")));
+        for (int i = 0; i < ADVANCED_LARGE_MINERS.length; i++)
+            ADVANCED_LARGE_MINERS[i] = GregTechAPI.registerMetaTileEntity(5516 + i, new MetaTileEntityAdvancedLargeChunkMiner(TJId("advanced_large_chunk_miner." + GAValues.VN[i + 4]), i + 4));
 
         // append tiers to existing hatches
         MetaTileEntities.ITEM_IMPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_IMPORT_BUS, 15);

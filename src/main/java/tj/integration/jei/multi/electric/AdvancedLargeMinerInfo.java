@@ -1,27 +1,28 @@
 package tj.integration.jei.multi.electric;
 
-import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
-import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
-import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.util.EnumFacing;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
+import tj.machines.multi.electric.MetaTileEntityAdvancedLargeChunkMiner;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static gregtech.api.unification.material.Materials.BlackSteel;
-
 public class AdvancedLargeMinerInfo extends TJMultiblockInfoPage {
 
+    private final int type;
+
+    public AdvancedLargeMinerInfo(int type) {
+        this.type = type;
+    }
+
     @Override
-    public MultiblockControllerBase getController() {
-        return TJMetaTileEntities.ADVANCED_LARGE_MINER;
+    public MetaTileEntityAdvancedLargeChunkMiner getController() {
+        return TJMetaTileEntities.ADVANCED_LARGE_MINERS[this.type];
     }
 
     @Override
@@ -35,8 +36,8 @@ public class AdvancedLargeMinerInfo extends TJMultiblockInfoPage {
                 .aisle("F~~~F", "F~~~F", "CCCCC", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .where('S', this.getController(), EnumFacing.SOUTH)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.NORTH)
-                .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.BLACK_STEEL))
-                .where('F', MetaBlocks.FRAMES.get(BlackSteel).getDefaultState());
+                .where('C', this.getController().getCasingState())
+                .where('F', this.getController().getFrameState());
         for (int tier = 0; tier < 15; tier++) {
             shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.NORTH)
                     .where('I', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.SOUTH)

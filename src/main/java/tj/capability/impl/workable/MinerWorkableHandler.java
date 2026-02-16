@@ -1,5 +1,6 @@
 package tj.capability.impl.workable;
 
+import gregicadditions.GAValues;
 import gregtech.api.metatileentity.MetaTileEntity;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -30,6 +31,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMachineHandle
     private final List<Chunk> chunks = new ArrayList<>();
     private boolean initialized;
     private Chunk currentChunk;
+    private int miningSpeed;
     private int outputIndex;
     private int chunkIndex;
     private int levelY;
@@ -39,14 +41,22 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMachineHandle
     }
 
     @Override
+    public void initialize(int busCount) {
+        super.initialize(busCount);
+        this.miningSpeed = 1 << this.handler.getTier() - 1;
+        this.energyPerTick = GAValues.VA[this.handler.getTier()];
+    }
+
+    @Override
     protected boolean startRecipe() {
         this.initializeChunks();
+        if (this.handler.getInputEnergyContainer().getEnergyStored() < this.energyPerTick)
+            return false;
         if (this.chunkIndex >= this.chunks.size())
             this.chunkIndex = 0;
         this.currentChunk = this.chunks.get(this.chunkIndex++);
         this.levelY = this.metaTileEntity.getPos().getY();
         this.setMaxProgress(this.levelY * 256);
-        this.energyPerTick = 512;
         return true;
     }
 
@@ -57,17 +67,23 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMachineHandle
         if (this.currentChunk == null)
             this.currentChunk = this.chunks.get(this.chunkIndex);
         if (this.progress > progress) {
-            progress = this.progress % 256;
-            this.miningPos.setPos(this.currentChunk.x + (progress % 16), this.levelY, this.currentChunk.z + (progress / 16));
-            IBlockState state = this.metaTileEntity.getWorld().getBlockState(this.miningPos);
-            Block block = state.getBlock();
-            if (state.getBlock() instanceof BlockDirt || state.getBlock() instanceof BlockGrass || state.getBlock() instanceof BlockStone || state.getBlock() instanceof BlockSand) {
-                Item item = block.getItemDropped(state, this.metaTileEntity.getWorld().rand, 0);
-                if (this.addItemDrop(item, 1, block.damageDropped(state)))
-                    this.metaTileEntity.getWorld().destroyBlock(this.miningPos, false);
+            int added = -1;
+            for (int i = 0; i < this.miningSpeed; i++, added++) {
+                progress = this.progress++ % 256 + i;
+                this.miningPos.setPos(this.currentChunk.x + (progress % 16), this.levelY, this.currentChunk.z + (progress / 16));
+                IBlockState state = this.metaTileEntity.getWorld().getBlockState(this.miningPos);
+                Block block = state.getBlock();
+                if (state.getBlock() instanceof BlockDirt || state.getBlock() instanceof BlockGrass || state.getBlock() instanceof BlockStone || state.getBlock() instanceof BlockSand) {
+                    Item item = block.getItemDropped(state, this.metaTileEntity.getWorld().rand, 0);
+                    if (this.addItemDrop(item, 1, block.damageDropped(state)))
+                        this.metaTileEntity.getWorld().destroyBlock(this.miningPos, false);
+                }
+                if (progress == 255) {
+                    this.levelY--;
+                    break;
+                }
             }
-            if (progress == 255)
-                this.levelY--;
+            this.progress = added;
         }
     }
 
@@ -94,8 +110,10 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMachineHandle
             Chunk origin = this.metaTileEntity.getWorld().getChunk(this.metaTileEntity.getPos());
             int originX = origin.x * 16;
             int originZ = origin.z * 16;
-            for (int i = -start; i < end; i++) {
-                this.chunks.add(this.metaTileEntity.getWorld().getChunk(originX + (16 * (i % this.handler.getTier())), originZ + (16 * (i / this.handler.getTier()))));
+            for (int i = 0; i < this.handler.getTier(); i++) {
+                for (int j = -start; j < end; j++) {
+                    this.chunks.add(this.metaTileEntity.getWorld().getChunk(originX + (16 * (j % this.handler.getTier())), originZ + (16 * (j / this.handler.getTier())) + (i * 16)));
+                }
             }
         }
     }

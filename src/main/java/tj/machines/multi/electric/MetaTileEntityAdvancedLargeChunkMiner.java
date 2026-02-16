@@ -3,6 +3,7 @@ package tj.machines.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregicadditions.GAMaterials;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -14,7 +15,9 @@ import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
+import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
+import gregtech.api.unification.material.Materials;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -23,34 +26,40 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.blocks.BlockSolidCasings;
+import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.impl.workable.MinerWorkableHandler;
 import tj.textures.TJTextures;
+import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static gregtech.api.unification.material.Materials.BlackSteel;
 
-public class MetaTileEntityAdvancedLargeMiner extends TJMultiblockControllerBase {
+public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControllerBase {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
+    private final int tier;
 
-    public MetaTileEntityAdvancedLargeMiner(ResourceLocation metaTileEntityId) {
+    public MetaTileEntityAdvancedLargeChunkMiner(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId);
+        this.tier = tier;
+        this.reinitializeStructurePattern();
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityAdvancedLargeMiner(this.metaTileEntityId);
+        return new MetaTileEntityAdvancedLargeChunkMiner(this.metaTileEntityId, this.tier);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.description"));
+        tooltip.add(I18n.format("gtadditions.machine.miner.multi.description2", this.getTier(), this.getTier(), 1));
     }
 
     @Override
@@ -80,7 +89,7 @@ public class MetaTileEntityAdvancedLargeMiner extends TJMultiblockControllerBase
 
     @Override
     protected BlockPattern createStructurePattern() {
-        return FactoryBlockPattern.start()
+        return this.tier == 0 ? null : FactoryBlockPattern.start()
                 .aisle("F~~~F", "F~~~F", "CCCCC", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("~~~~~", "~~~~~", "CCCCC", "~XXX~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("~~~~~", "~~~~~", "CCCCC", "~XXX~", "~FFF~", "~FFF~", "~FFF~", "~~F~~", "~~F~~", "~~F~~")
@@ -94,17 +103,41 @@ public class MetaTileEntityAdvancedLargeMiner extends TJMultiblockControllerBase
                 .build();
     }
 
-    private IBlockState getCasingState() {
-        return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.BLACK_STEEL);
+    public IBlockState getCasingState() {
+        switch (this.tier) {
+            case 5: return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.HSS_G);
+            case 6: return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.HSS_S);
+            case 7: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.DURANIUM_CASING);
+            case 8: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SEABORGIUM_CASING);
+            default: return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.BLACK_STEEL);
+        }
     }
 
-    private IBlockState getFrameState() {
-        return MetaBlocks.FRAMES.get(BlackSteel).getDefaultState();
+    public IBlockState getFrameState() {
+        switch (this.tier) {
+            case 5: return MetaBlocks.FRAMES.get(Materials.HSSG).getDefaultState();
+            case 6: return MetaBlocks.FRAMES.get(Materials.HSSS).getDefaultState();
+            case 7: return MetaBlocks.FRAMES.get(Materials.Duranium).getDefaultState();
+            case 8: return MetaBlocks.FRAMES.get(GAMaterials.Seaborgium).getDefaultState();
+            default: return MetaBlocks.FRAMES.get(Materials.BlackSteel).getDefaultState();
+        }
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        this.workableHandler.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
     }
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return ClientHandler.BLACK_STEEL_CASING;
+        switch (this.tier) {
+            case 5: return ClientHandler.HSS_G_CASING;
+            case 6: return ClientHandler.HSS_S_CASING;
+            case 7: return TJTextures.DURANIUM;
+            case 8: return TJTextures.SEABORGIUM;
+            default: return ClientHandler.BLACK_STEEL_CASING;
+        }
     }
 
     @Override
@@ -112,6 +145,8 @@ public class MetaTileEntityAdvancedLargeMiner extends TJMultiblockControllerBase
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
+        ClientHandler.CHUNK_MINER_OVERLAY.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
+        ClientHandler.CHUNK_MINER_OVERLAY.renderSided(EnumFacingHelper.getRightFacingFromSpin(this.getFrontFacing()), renderState, translation, pipeline);
     }
 
     @Override
@@ -126,6 +161,6 @@ public class MetaTileEntityAdvancedLargeMiner extends TJMultiblockControllerBase
 
     @Override
     public int getTier() {
-        return 1;
+        return this.tier;
     }
 }
