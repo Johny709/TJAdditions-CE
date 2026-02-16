@@ -30,6 +30,7 @@ import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.capability.impl.handler.IMinerHandler;
 import tj.capability.impl.workable.MinerWorkableHandler;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
@@ -38,14 +39,16 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 
-public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControllerBase {
+public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControllerBase implements IMinerHandler {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
+    private final int fortune;
     private final int tier;
 
     public MetaTileEntityAdvancedLargeChunkMiner(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId);
+        this.fortune = 3 + (tier * 2);
         this.tier = tier;
         this.reinitializeStructurePattern();
     }
@@ -59,7 +62,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.description"));
-        tooltip.add(I18n.format("gtadditions.machine.miner.multi.description2", this.getTier(), this.getTier(), 1));
+        tooltip.add(I18n.format("gtadditions.machine.miner.multi.description", this.getTier(), this.getTier(), this.getFortuneLvl()));
     }
 
     @Override
@@ -84,6 +87,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
             builder.addTranslationLine("metaitem.linking.device.x", this.workableHandler.getX())
                     .addTranslationLine("metaitem.linking.device.y", this.workableHandler.getY())
                     .addTranslationLine("metaitem.linking.device.z", this.workableHandler.getZ())
+                    .addTranslationLine("gregtech.multiblock.large_miner.block_per_tick", this.workableHandler.getMiningSpeed())
                     .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
@@ -162,5 +166,10 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     @Override
     public int getTier() {
         return this.tier;
+    }
+
+    @Override
+    public int getFortuneLvl() {
+        return this.fortune;
     }
 }

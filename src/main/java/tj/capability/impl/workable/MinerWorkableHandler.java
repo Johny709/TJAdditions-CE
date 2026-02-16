@@ -2,10 +2,18 @@ package tj.capability.impl.workable;
 
 import gregicadditions.GAValues;
 import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.RecipeMaps;
+import gregtech.api.unification.OreDictUnifier;
+import gregtech.api.unification.ore.OrePrefix;
+import gregtech.common.blocks.BlockFrame;
+import gregtech.common.blocks.VariantBlock;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,18 +22,20 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.registries.IForgeRegistryEntry;
+import org.apache.commons.lang3.tuple.Pair;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.IItemFluidHandlerInfo;
-import tj.capability.IMachineHandler;
 import tj.capability.TJCapabilities;
+import tj.capability.impl.handler.IMinerHandler;
 import tj.util.ItemStackHelper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class MinerWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IItemFluidHandlerInfo {
+public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler> implements IItemFluidHandlerInfo {
 
-    private final Object2ObjectMap<String, ItemStack> itemType = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<String, Pair<Integer, ItemStack>> itemType = new Object2ObjectOpenHashMap<>();
     private final BlockPos.MutableBlockPos miningPos = new BlockPos.MutableBlockPos();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     private final List<Chunk> chunks = new ArrayList<>();
@@ -64,26 +74,32 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMachineHandle
     protected void progressRecipe(int progress) {
         super.progressRecipe(progress);
         this.initializeChunks();
-        if (this.currentChunk == null)
+        if (this.currentChunk == null) {
+            if (this.chunkIndex >= this.chunks.size())
+                this.chunkIndex = 0;
             this.currentChunk = this.chunks.get(this.chunkIndex);
+        }
         if (this.progress > progress) {
-            int added = -1;
-            for (int i = 0; i < this.miningSpeed; i++, added++) {
-                progress = this.progress++ % 256 + i;
+            int progressed = -1;
+            for (int i = 0; i < this.miningSpeed; i++) {
+                progress = (this.progress + i) % 256;
                 this.miningPos.setPos(this.currentChunk.x + (progress % 16), this.levelY, this.currentChunk.z + (progress / 16));
                 IBlockState state = this.metaTileEntity.getWorld().getBlockState(this.miningPos);
                 Block block = state.getBlock();
-                if (state.getBlock() instanceof BlockDirt || state.getBlock() instanceof BlockGrass || state.getBlock() instanceof BlockStone || state.getBlock() instanceof BlockSand) {
-                    Item item = block.getItemDropped(state, this.metaTileEntity.getWorld().rand, 0);
-                    if (this.addItemDrop(item, 1, block.damageDropped(state)))
-                        this.metaTileEntity.getWorld().destroyBlock(this.miningPos, false);
+                if (block != Blocks.AIR && !(block instanceof VariantBlock) && !(block instanceof BlockFrame) && !(this.metaTileEntity.getWorld().getTileEntity(this.miningPos) instanceof MetaTileEntityHolder)) {
+                    Item item = block.getItemDropped(state, this.metaTileEntity.getWorld().rand, this.handler.getFortuneLvl());
+                    if (this.addItemDrop(item, 1, block.damageDropped(state))) {
+                        this.metaTileEntity.getWorld().playEvent(2001, this.miningPos, Block.getStateId(state));
+                        this.metaTileEntity.getWorld().setBlockState(this.miningPos, Blocks.AIR.getDefaultState());
+                    }
                 }
+                progressed++;
                 if (progress == 255) {
                     this.levelY--;
                     break;
                 }
             }
-            this.progress = added;
+            this.progress += progressed;
         }
     }
 
@@ -110,7 +126,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMachineHandle
             Chunk origin = this.metaTileEntity.getWorld().getChunk(this.metaTileEntity.getPos());
             int originX = origin.x * 16;
             int originZ = origin.z * 16;
-            for (int i = 0; i < this.handler.getTier(); i++) {
+            for (int i = -start; i < end; i++) {
                 for (int j = -start; j < end; j++) {
                     this.chunks.add(this.metaTileEntity.getWorld().getChunk(originX + (16 * (j % this.handler.getTier())), originZ + (16 * (j / this.handler.getTier())) + (i * 16)));
                 }
@@ -122,15 +138,33 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMachineHandle
         if (type == null)
             return false;
         String key = type.getRegistryName().toString() + ":" + meta;
-        ItemStack stack = this.itemType.get(key);
-        if (stack != null) {
-            stack.grow(count);
+        Pair<Integer, ItemStack> stackPair = this.itemType.get(key);
+        if (stackPair != null) {
+            if (OreDictUnifier.getPrefix(stackPair.getValue()) == OrePrefix.crushed)
+                count = this.getFortune(stackPair.getKey());
+            stackPair.getValue().grow(count);
         } else {
             ItemStack itemStack = type instanceof Block ? new ItemStack((Block) type, count, meta) : new ItemStack((Item) type, count, meta);
-            this.itemType.put(key, itemStack);
+            Recipe recipe = RecipeMaps.FORGE_HAMMER_RECIPES.findRecipe(Long.MAX_VALUE, Collections.singletonList(itemStack), Collections.emptyList(), 0);
+            if (recipe != null) {
+                itemStack = recipe.getResultItemOutputs(Integer.MAX_VALUE, this.metaTileEntity.getWorld().rand, 0).get(0).copy();
+                if (OreDictUnifier.getPrefix(itemStack) == OrePrefix.crushed) {
+                    itemStack.setCount(this.getFortune(itemStack.getCount()));
+                }
+            }
+            this.itemType.put(key, Pair.of(itemStack.getCount(), itemStack));
             this.itemOutputs.add(itemStack);
         }
         return true;
+    }
+
+    private int getFortune(int count) {
+        int fortuneLevel = this.handler.getFortuneLvl();
+        if (fortuneLevel > 3) fortuneLevel = 3;
+        int i = (this.metaTileEntity.getWorld().rand.nextFloat() <= (fortuneLevel / 3.0) ? 2 : 1);
+        count *= i;
+        if (count == 0) count = 1;
+        return count;
     }
 
     @Override
@@ -192,5 +226,9 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMachineHandle
 
     public int getZ() {
         return this.miningPos.getZ();
+    }
+
+    public int getMiningSpeed() {
+        return this.miningSpeed;
     }
 }
