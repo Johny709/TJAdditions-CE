@@ -88,14 +88,14 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMachineHandle
     private void initializeChunks() {
         if (!this.initialized) {
             this.initialized = true;
-            boolean odd = this.handler.getTier() % 2 == 0;
+            int reminder = this.handler.getTier() % 2;
+            int start = this.handler.getTier() / 2;
+            int end = start + reminder;
             Chunk origin = this.metaTileEntity.getWorld().getChunk(this.metaTileEntity.getPos());
-            int originX = origin.x;
-            int originZ = origin.z;
-            for (int x = -this.handler.getTier() + (odd ? 1 : 0) ; x < this.handler.getTier(); x++) {
-                for (int z = -this.handler.getTier() + (odd ? 1 : 0); z < this.handler.getTier(); z++) {
-                    this.chunks.add(this.metaTileEntity.getWorld().getChunk(originX + (x * 16), originZ + (z * 16)));
-                }
+            int originX = origin.x * 16;
+            int originZ = origin.z * 16;
+            for (int i = -start; i < end; i++) {
+                this.chunks.add(this.metaTileEntity.getWorld().getChunk(originX + (16 * (i % this.handler.getTier())), originZ + (16 * (i / this.handler.getTier()))));
             }
         }
     }
