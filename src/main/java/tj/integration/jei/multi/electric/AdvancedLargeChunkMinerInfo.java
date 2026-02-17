@@ -23,7 +23,7 @@ public class AdvancedLargeChunkMinerInfo extends TJMultiblockInfoPage {
 
     @Override
     public MetaTileEntityAdvancedLargeChunkMiner getController() {
-        return TJMetaTileEntities.ADVANCED_LARGE_MINERS[this.type];
+        return TJMetaTileEntities.ADVANCED_LARGE_CHUNK_MINERS[this.type];
     }
 
     @Override

@@ -40,6 +40,7 @@ public class TJMetaTileEntities {
     public static final MetaTileEntityEnchanter[] ENCHANTER = new MetaTileEntityEnchanter[14];
     public static final MetaTileEntityCrafter[] CRAFTER = new MetaTileEntityCrafter[14];
     public static final MetaTileEntityFarmingStation[] FARMING_STATION = new MetaTileEntityFarmingStation[14];
+    public static final MetaTileEntityAdvancedChunkMiner[] ADVANCED_CHUNK_MINERS = new MetaTileEntityAdvancedChunkMiner[14];
     public static final MetaTileEntitySuperItemBus[] SUPER_ITEM_INPUT_BUS = new MetaTileEntitySuperItemBus[5];
     public static final MetaTileEntitySuperItemBus[] SUPER_ITEM_OUTPUT_BUS = new MetaTileEntitySuperItemBus[5];
     public static final MetaTileEntitySuperFluidHatch[] SUPER_FLUID_INPUT_HATCH = new MetaTileEntitySuperFluidHatch[5];
@@ -52,7 +53,7 @@ public class TJMetaTileEntities {
     public static final MetaTileEntityFilteredBus[] FILTERED_INPUT_BUSES = new MetaTileEntityFilteredBus[15];
     public static final MetaTileEntityFilteredBus[] FILTERED_OUTPUT_BUSES = new MetaTileEntityFilteredBus[15];
     public static final MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
-    public static final MetaTileEntityAdvancedLargeChunkMiner[] ADVANCED_LARGE_MINERS = new MetaTileEntityAdvancedLargeChunkMiner[6];
+    public static final MetaTileEntityAdvancedLargeChunkMiner[] ADVANCED_LARGE_CHUNK_MINERS = new MetaTileEntityAdvancedLargeChunkMiner[6];
     public static MetaTileEntityPrimitiveAlloy PRIMITIVE_ALLOY;
     public static MetaTileEntityCokeOven COKE_OVEN;
     public static MetaTileEntityMegaCokeOven MEGA_COKE_OVEN;
@@ -247,6 +248,8 @@ public class TJMetaTileEntities {
             CRAFTER[i] = GregTechAPI.registerMetaTileEntity(5351 + i, new MetaTileEntityCrafter(TJId("crafter_" + GAValues.VN[tier]), tier));
         for (int i = 0, tier = 1; i < FARMING_STATION.length; i++, tier++) // occupies ID range 5365 - 5378
             FARMING_STATION[i] = GregTechAPI.registerMetaTileEntity(5365 + i, new MetaTileEntityFarmingStation(TJId("farming_station_" + GAValues.VN[tier]), tier));
+        for (int i = 0, tier = 1; i < ADVANCED_CHUNK_MINERS.length; i++, tier++) // occupies ID range 5379 - 5392
+            ADVANCED_CHUNK_MINERS[i] = GregTechAPI.registerMetaTileEntity(5379 + i, new MetaTileEntityAdvancedChunkMiner(TJId("advanced_chunk_miner." + GAValues.VN[tier]), tier));
         COMPRESSED_CHEST = GregTechAPI.registerMetaTileEntity(5406, new MetaTileEntityCompressedChest(TJId("compressed_chest"), false));
         COMPRESSED_CRATE = GregTechAPI.registerMetaTileEntity(5407, new MetaTileEntityCompressedCrate(TJId("compressed_crate"), false));
         INFINITY_CHEST = GregTechAPI.registerMetaTileEntity(5408, new MetaTileEntityCompressedChest(TJId("infinity_chest"), true));
@@ -270,8 +273,8 @@ public class TJMetaTileEntities {
         CHARCOAL_PIT = GregTechAPI.registerMetaTileEntity(5513, new MetaTileEntityCharcoalPit(TJId("charcoal_pit"), false));
         CHARCOAL_PIT_ADVANCED = GregTechAPI.registerMetaTileEntity(5514, new MetaTileEntityCharcoalPit(TJId("charcoal_pit_advanced"), true));
         PRIMITIVE_WATER_PUMP = GregTechAPI.registerMetaTileEntity(5515, new MetaTileEntityPrimitiveWaterPump(TJId("primitive_water_pump")));
-        for (int i = 0; i < ADVANCED_LARGE_MINERS.length; i++)
-            ADVANCED_LARGE_MINERS[i] = GregTechAPI.registerMetaTileEntity(5516 + i, new MetaTileEntityAdvancedLargeChunkMiner(TJId("advanced_large_chunk_miner." + GAValues.VN[i + 4]), i + 4));
+        for (int i = 0; i < ADVANCED_LARGE_CHUNK_MINERS.length; i++) // occupies ID range 5516 - 5521
+            ADVANCED_LARGE_CHUNK_MINERS[i] = GregTechAPI.registerMetaTileEntity(5516 + i, new MetaTileEntityAdvancedLargeChunkMiner(TJId("advanced_large_chunk_miner." + GAValues.VN[i + 4]), i + 4));
 
         // append tiers to existing hatches
         MetaTileEntities.ITEM_IMPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_IMPORT_BUS, 15);

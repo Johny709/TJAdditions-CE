@@ -24,7 +24,6 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
 import tj.capability.IMachineHandler;
-import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -35,7 +34,7 @@ import java.util.List;
 public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEntity implements IActiveOutputSide, IMachineHandler {
 
     protected final ItemStackHandler chargerInventory;
-    private EnumFacing outputFacing = EnumFacingHelper.getBottomFacingFrom(this.frontFacing);
+    private EnumFacing outputFacing = this.getInitialFacing();
     private boolean allowInputFromOutputSide;
     private boolean isItemAutoOutput;
     private boolean isFluidAutoOutput;
@@ -211,6 +210,10 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
 
     public EnumFacing getOutputFacing() {
         return this.outputFacing;
+    }
+
+    public EnumFacing getInitialFacing() {
+        return this.frontFacing.getOpposite();
     }
 
     @Override

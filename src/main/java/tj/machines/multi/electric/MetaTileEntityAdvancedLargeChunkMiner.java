@@ -84,6 +84,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.voltageInLine(this.getInputEnergyContainer())
+                .energyInputLine(this.getInputEnergyContainer(), this.workableHandler.getEnergyPerTick())
                 .addTranslationLine("tj.multiblock.advanced_large_miner.chunk_index", this.workableHandler.getChunkIndex(), this.workableHandler.getChunkSize())
                 .addRecipeOutputLine(this.workableHandler, 1000);
         if (this.workableHandler.isActive())

@@ -21,6 +21,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.IItemFluidHandlerInfo;
@@ -70,7 +71,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
 
     @Override
     protected void progressRecipe(int progress) {
-        if (!this.handler.getDrillingFluid().isFluidEqual(this.handler.getImportFluidTank().drain(this.handler.getDrillingFluid(), true))) return;
+        if (!this.handler.getDrillingFluid().isFluidStackIdentical(this.handler.getImportFluidTank().drain(this.handler.getDrillingFluid(), true))) return;
         super.progressRecipe(progress);
         this.initializeChunks();
         if (this.currentChunk == null) {
@@ -93,10 +94,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                     }
                 }
                 progressed++;
-                if (progress == 255 || this.progress + progressed == this.maxProgress) {
-                    this.levelY--;
-                    break;
-                }
+                if (this.progress + progressed == this.maxProgress) break;
+                if (progress == 255) this.levelY--;
             }
             this.progress += progressed;
         }
@@ -104,10 +103,11 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
 
     @Override
     protected boolean completeRecipe() {
+        IItemHandlerModifiable itemHandlerModifiable = this.handler.getExportItemInventory();
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
             ItemStack stack = this.itemOutputs.get(i);
-            if (ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
+            if (ItemStackHelper.insertIntoItemHandler(itemHandlerModifiable, stack, true).isEmpty()) {
+                ItemStackHelper.insertIntoItemHandler(itemHandlerModifiable, stack, false);
                 this.outputIndex++;
             } else return false;
         }
@@ -141,16 +141,18 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         String key = type.getRegistryName().toString() + ":" + meta;
         IntPair<ItemStack> stackPair = this.itemType.get(key);
         if (stackPair != null) {
-            if (OreDictUnifier.getPrefix(stackPair.getValue()) == OrePrefix.crushed)
+            if (this.handler.getFortuneLvl() < 1 && OreDictUnifier.getPrefix(stackPair.getValue()) == OrePrefix.crushed)
                 count = this.getFortune(stackPair.getKey());
             stackPair.getValue().grow(count);
         } else {
             ItemStack itemStack = type instanceof Block ? new ItemStack((Block) type, count, meta) : new ItemStack((Item) type, count, meta);
-            Recipe recipe = RecipeMaps.FORGE_HAMMER_RECIPES.findRecipe(Long.MAX_VALUE, Collections.singletonList(itemStack), Collections.emptyList(), 0);
-            if (recipe != null) {
-                itemStack = recipe.getResultItemOutputs(Integer.MAX_VALUE, this.metaTileEntity.getWorld().rand, 0).get(0).copy();
-                if (OreDictUnifier.getPrefix(itemStack) == OrePrefix.crushed) {
-                    itemStack.setCount(this.getFortune(itemStack.getCount()));
+            if (this.handler.getFortuneLvl() > 1) {
+                Recipe recipe = RecipeMaps.FORGE_HAMMER_RECIPES.findRecipe(Long.MAX_VALUE, Collections.singletonList(itemStack), Collections.emptyList(), 0);
+                if (recipe != null) {
+                    itemStack = recipe.getResultItemOutputs(Integer.MAX_VALUE, this.metaTileEntity.getWorld().rand, 0).get(0).copy();
+                    if (OreDictUnifier.getPrefix(itemStack) == OrePrefix.crushed) {
+                        itemStack.setCount(this.getFortune(itemStack.getCount()));
+                    }
                 }
             }
             this.itemType.put(key, IntPair.of(itemStack.getCount(), itemStack));
