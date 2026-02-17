@@ -225,7 +225,7 @@ public class RecipeInit {
                     'P', CraftingComponent.PIPE.getIngredient(5 + i));
         }
 
-        Material[] materials = {Duranium, Seaborgium, TungstenTitaniumCarbide, HeavyQuarkDegenerateMatter, Periodicium};
+        Material[] materials = {Duranium, Seaborgium, TungstenTitaniumCarbide, HeavyQuarkDegenerateMatter, Periodicium, Rutherfordium};
         for (Material material : materials) {
             ModHandler.addShapedRecipe(material.toString(), TJMetaBlocks.SOLID_CASING.getItemVariant(Arrays.stream(BlockSolidCasings.SolidCasingType.values())
                             .filter(block -> block.getName().equals(material.toString()))

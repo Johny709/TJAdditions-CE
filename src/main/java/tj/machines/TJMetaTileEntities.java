@@ -52,7 +52,7 @@ public class TJMetaTileEntities {
     public static final MetaTileEntityFilteredBus[] FILTERED_INPUT_BUSES = new MetaTileEntityFilteredBus[15];
     public static final MetaTileEntityFilteredBus[] FILTERED_OUTPUT_BUSES = new MetaTileEntityFilteredBus[15];
     public static final MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
-    public static final MetaTileEntityAdvancedLargeChunkMiner[] ADVANCED_LARGE_MINERS = new MetaTileEntityAdvancedLargeChunkMiner[5];
+    public static final MetaTileEntityAdvancedLargeChunkMiner[] ADVANCED_LARGE_MINERS = new MetaTileEntityAdvancedLargeChunkMiner[6];
     public static MetaTileEntityPrimitiveAlloy PRIMITIVE_ALLOY;
     public static MetaTileEntityCokeOven COKE_OVEN;
     public static MetaTileEntityMegaCokeOven MEGA_COKE_OVEN;

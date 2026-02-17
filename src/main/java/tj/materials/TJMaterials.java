@@ -2,8 +2,7 @@ package tj.materials;
 
 import gregtech.api.unification.material.IMaterialHandler;
 
-import static gregicadditions.GAMaterials.GENERATE_DOUBLE_PLATE;
-import static gregicadditions.GAMaterials.Periodicium;
+import static gregicadditions.GAMaterials.*;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.api.unification.material.type.DustMaterial.MatFlags.GENERATE_PLATE;
 import static gregtech.api.unification.material.type.DustMaterial.MatFlags.SMELT_INTO_FLUID;
@@ -20,5 +19,6 @@ public class TJMaterials implements IMaterialHandler {
         EnderEye.addFlag(SMELT_INTO_FLUID);
         Silver.addFlag(GENERATE_DOUBLE_PLATE, GENERATE_DENSE);
         Iron.addFlag(GENERATE_ROTOR);
+        Rutherfordium.addFlag(GENERATE_FRAME);
     }
 }

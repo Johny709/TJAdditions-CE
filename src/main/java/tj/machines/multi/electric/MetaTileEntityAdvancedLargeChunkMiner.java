@@ -116,8 +116,9 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         switch (this.tier) {
             case 5: return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.HSS_G);
             case 6: return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.HSS_S);
-            case 7: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.DURANIUM_CASING);
-            case 8: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SEABORGIUM_CASING);
+            case 7: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.RUTHERFORDIUM_CASING);
+            case 8: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.DURANIUM_CASING);
+            case 9: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SEABORGIUM_CASING);
             default: return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.BLACK_STEEL);
         }
     }
@@ -126,8 +127,9 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         switch (this.tier) {
             case 5: return MetaBlocks.FRAMES.get(Materials.HSSG).getDefaultState();
             case 6: return MetaBlocks.FRAMES.get(Materials.HSSS).getDefaultState();
-            case 7: return MetaBlocks.FRAMES.get(Materials.Duranium).getDefaultState();
-            case 8: return MetaBlocks.FRAMES.get(GAMaterials.Seaborgium).getDefaultState();
+            case 7: return MetaBlocks.FRAMES.get(GAMaterials.Rutherfordium).getDefaultState();
+            case 8: return MetaBlocks.FRAMES.get(Materials.Duranium).getDefaultState();
+            case 9: return MetaBlocks.FRAMES.get(GAMaterials.Seaborgium).getDefaultState();
             default: return MetaBlocks.FRAMES.get(Materials.BlackSteel).getDefaultState();
         }
     }
@@ -144,8 +146,9 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         switch (this.tier) {
             case 5: return ClientHandler.HSS_G_CASING;
             case 6: return ClientHandler.HSS_S_CASING;
-            case 7: return TJTextures.DURANIUM;
-            case 8: return TJTextures.SEABORGIUM;
+            case 7: return TJTextures.RUTHERFORDIUM;
+            case 8: return TJTextures.DURANIUM;
+            case 9: return TJTextures.SEABORGIUM;
             default: return ClientHandler.BLACK_STEEL_CASING;
         }
     }

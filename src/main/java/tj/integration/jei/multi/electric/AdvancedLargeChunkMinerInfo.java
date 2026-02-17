@@ -4,6 +4,7 @@ import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
@@ -12,11 +13,11 @@ import tj.machines.multi.electric.MetaTileEntityAdvancedLargeChunkMiner;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdvancedLargeMinerInfo extends TJMultiblockInfoPage {
+public class AdvancedLargeChunkMinerInfo extends TJMultiblockInfoPage {
 
     private final int type;
 
-    public AdvancedLargeMinerInfo(int type) {
+    public AdvancedLargeChunkMinerInfo(int type) {
         this.type = type;
     }
 
@@ -47,5 +48,12 @@ public class AdvancedLargeMinerInfo extends TJMultiblockInfoPage {
                     .build());
         }
         return shapeInfos;
+    }
+
+    @Override
+    public String[] getDescription() {
+        return new String[]{I18n.format("tj.multiblock.advanced_large_miner.description").replace("§7", "§r"),
+                I18n.format("gtadditions.machine.miner.multi.description", this.getController().getTier(), this.getController().getTier(), this.getController().getFortuneLvl()),
+                I18n.format("gtadditions.machine.miner.fluid_usage", 1 << this.getController().getTier() - 1, this.getController().getDrillingFluid().getLocalizedName())};
     }
 }

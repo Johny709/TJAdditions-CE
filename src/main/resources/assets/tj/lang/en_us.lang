@@ -98,6 +98,7 @@ tj.machine.advanced_large_chunk_miner.iv.name=Advanced Large Chunk Miner (IV)
 tj.machine.advanced_large_chunk_miner.luv.name=Advanced Large Chunk Miner (LuV)
 tj.machine.advanced_large_chunk_miner.zpm.name=Advanced Large Chunk Miner (ZPM)
 tj.machine.advanced_large_chunk_miner.uv.name=Advanced Large Chunk Miner (UV)
+tj.machine.advanced_large_chunk_miner.uhv.name=Advanced Large Chunk Miner (UHV)
 tj.machine.architect_workbench_lv.name=Basic Architect Workbench
 tj.machine.architect_workbench_mv.name=Advanced Architect Workbench
 tj.machine.architect_workbench_hv.name=Advanced Architect Workbench II
