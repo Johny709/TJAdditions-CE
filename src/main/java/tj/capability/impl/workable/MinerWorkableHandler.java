@@ -22,12 +22,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.registries.IForgeRegistryEntry;
-import org.apache.commons.lang3.tuple.Pair;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.handler.IMinerHandler;
 import tj.util.ItemStackHelper;
+import tj.util.pair.IntPair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +35,7 @@ import java.util.List;
 
 public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler> implements IItemFluidHandlerInfo {
 
-    private final Object2ObjectMap<String, Pair<Integer, ItemStack>> itemType = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<String, IntPair<ItemStack>> itemType = new Object2ObjectOpenHashMap<>();
     private final BlockPos.MutableBlockPos miningPos = new BlockPos.MutableBlockPos();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     private final List<Chunk> chunks = new ArrayList<>();
@@ -60,11 +60,9 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     @Override
     protected boolean startRecipe() {
         this.initializeChunks();
-        if (this.handler.getInputEnergyContainer().getEnergyStored() < this.energyPerTick)
-            return false;
         if (this.chunkIndex >= this.chunks.size())
             this.chunkIndex = 0;
-        this.currentChunk = this.chunks.get(this.chunkIndex++);
+        this.currentChunk = this.chunks.get(this.chunkIndex);
         this.levelY = this.metaTileEntity.getPos().getY();
         this.setMaxProgress(this.levelY * 256);
         return true;
@@ -80,7 +78,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                 this.chunkIndex = 0;
             this.currentChunk = this.chunks.get(this.chunkIndex);
         }
-        if (this.progress > progress) {
+        if (this.progress > progress && this.progress < this.maxProgress) {
             int progressed = -1;
             for (int i = 0; i < this.miningSpeed; i++) {
                 progress = (this.progress + i) % 256;
@@ -95,7 +93,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                     }
                 }
                 progressed++;
-                if (progress == 255) {
+                if (progress == 255 || this.progress + progressed == this.maxProgress) {
                     this.levelY--;
                     break;
                 }
@@ -113,6 +111,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                 this.outputIndex++;
             } else return false;
         }
+        this.chunkIndex++;
+        this.outputIndex = 0;
         this.itemType.clear();
         this.itemOutputs.clear();
         return true;
@@ -139,7 +139,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         if (type == null)
             return false;
         String key = type.getRegistryName().toString() + ":" + meta;
-        Pair<Integer, ItemStack> stackPair = this.itemType.get(key);
+        IntPair<ItemStack> stackPair = this.itemType.get(key);
         if (stackPair != null) {
             if (OreDictUnifier.getPrefix(stackPair.getValue()) == OrePrefix.crushed)
                 count = this.getFortune(stackPair.getKey());
@@ -153,7 +153,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                     itemStack.setCount(this.getFortune(itemStack.getCount()));
                 }
             }
-            this.itemType.put(key, Pair.of(itemStack.getCount(), itemStack));
+            this.itemType.put(key, IntPair.of(itemStack.getCount(), itemStack));
             this.itemOutputs.add(itemStack);
         }
         return true;

@@ -50,7 +50,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
 
     public MetaTileEntityAdvancedLargeChunkMiner(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId);
-        this.fortune = 3 + (tier * 2);
+        this.fortune = tier + tier;
         this.tier = tier;
         this.reinitializeStructurePattern();
     }
@@ -90,9 +90,9 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
             builder.addTranslationLine("metaitem.linking.device.x", this.workableHandler.getX())
                     .addTranslationLine("metaitem.linking.device.y", this.workableHandler.getY())
                     .addTranslationLine("metaitem.linking.device.z", this.workableHandler.getZ())
-                    .addTranslationLine("gregtech.multiblock.large_miner.block_per_tick", this.workableHandler.getMiningSpeed())
                     .fluidInputLine(this.getImportFluidTank(), this.drillingFluid)
                     .addTranslationLine("gtadditions.machine.miner.fluid_usage", this.drillingFluid.amount, this.drillingFluid.getLocalizedName())
+                    .addTranslationLine("gregtech.multiblock.large_miner.block_per_tick", this.workableHandler.getMiningSpeed())
                     .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
