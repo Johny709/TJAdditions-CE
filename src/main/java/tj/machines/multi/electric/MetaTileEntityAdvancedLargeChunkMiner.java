@@ -24,6 +24,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.blocks.BlockSolidCasings;
@@ -45,6 +46,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
     private final int fortune;
     private final int tier;
+    private FluidStack drillingFluid = Materials.DrillingFluid.getFluid(1);
 
     public MetaTileEntityAdvancedLargeChunkMiner(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId);
@@ -63,6 +65,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.description"));
         tooltip.add(I18n.format("gtadditions.machine.miner.multi.description", this.getTier(), this.getTier(), this.getFortuneLvl()));
+        tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", 1 << this.getTier() - 1, this.drillingFluid.getLocalizedName()));
     }
 
     @Override
@@ -88,6 +91,8 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
                     .addTranslationLine("metaitem.linking.device.y", this.workableHandler.getY())
                     .addTranslationLine("metaitem.linking.device.z", this.workableHandler.getZ())
                     .addTranslationLine("gregtech.multiblock.large_miner.block_per_tick", this.workableHandler.getMiningSpeed())
+                    .fluidInputLine(this.getImportFluidTank(), this.drillingFluid)
+                    .addTranslationLine("gtadditions.machine.miner.fluid_usage", this.drillingFluid.amount, this.drillingFluid.getLocalizedName())
                     .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
@@ -131,6 +136,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.workableHandler.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
+        this.drillingFluid = Materials.DrillingFluid.getFluid(1 << this.getTier() - 1);
     }
 
     @Override
@@ -171,5 +177,10 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     @Override
     public int getFortuneLvl() {
         return this.fortune;
+    }
+
+    @Override
+    public FluidStack getDrillingFluid() {
+        return this.drillingFluid;
     }
 }

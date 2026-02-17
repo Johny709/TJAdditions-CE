@@ -72,6 +72,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
 
     @Override
     protected void progressRecipe(int progress) {
+        if (!this.handler.getDrillingFluid().isFluidEqual(this.handler.getImportFluidTank().drain(this.handler.getDrillingFluid(), true))) return;
         super.progressRecipe(progress);
         this.initializeChunks();
         if (this.currentChunk == null) {
