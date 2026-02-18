@@ -71,7 +71,6 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
 
     @Override
     protected void progressRecipe(int progress) {
-        if (!this.handler.getDrillingFluid().isFluidStackIdentical(this.handler.getImportFluidTank().drain(this.handler.getDrillingFluid(), true))) return;
         super.progressRecipe(progress);
         this.initializeChunks();
         if (this.currentChunk == null) {
@@ -80,6 +79,10 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
             this.currentChunk = this.chunks.get(this.chunkIndex);
         }
         if (this.progress > progress && this.progress < this.maxProgress) {
+            if (!this.handler.getDrillingFluid().isFluidStackIdentical(this.handler.getImportFluidTank().drain(this.handler.getDrillingFluid(), true))) {
+                this.progress--;
+                return;
+            }
             int progressed = -1;
             for (int i = 0; i < this.miningSpeed; i++) {
                 progress = (this.progress + i) % 256;
@@ -93,8 +96,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                         this.metaTileEntity.getWorld().setBlockState(this.miningPos, Blocks.AIR.getDefaultState());
                     }
                 }
-                progressed++;
-                if (this.progress + progressed == this.maxProgress) break;
+                if (this.progress + ++progressed == this.maxProgress) break;
                 if (progress == 255) this.levelY--;
             }
             this.progress += progressed;
