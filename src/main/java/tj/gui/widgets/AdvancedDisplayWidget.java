@@ -325,9 +325,8 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
         TextComponentWrapper<?> textComponent = this.getTextUnderMouse(mouseX, mouseY, this.hoverDisplayText != null ? this.hoverDisplayText : this.displayText, this.hoverDisplayText != null);
-        if (textComponent != null && textComponent.getValue() instanceof TextComponentWrapper<?>) {
-            TextComponentWrapper<?> subComponent = (TextComponentWrapper<?>) textComponent.getValue();
-            if (this.handleCustomComponentClick((ITextComponent) subComponent.getValue()) || this.getWrapScreen().handleComponentClick((ITextComponent) subComponent.getValue())) {
+        if (textComponent != null && textComponent.getValue() instanceof ITextComponent) {
+            if (this.handleCustomComponentClick((ITextComponent) textComponent.getValue()) || this.getWrapScreen().handleComponentClick((ITextComponent) textComponent.getValue())) {
                 this.playButtonClickSound();
                 return true;
             }
@@ -403,7 +402,10 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
             TJGuiTextures.TOOLTIP_BOX.draw(this.lastHoverX, this.lastHoverY, size.getWidth() + 7, size.getHeight() + 5);
             this.drawDisplayText(this.lastHoverX + 4, this.lastHoverY + 4, displayText);
         }
-        if (component != null && component.getValue() instanceof TextComponentWrapper<?>) {
+        if (component == null) return;
+        if (component.getValue() instanceof ITextComponent) {
+            this.getWrapScreen().handleComponentHover((ITextComponent) component.getValue(), mouseX, mouseY);
+        } else if (component.getValue() instanceof TextComponentWrapper<?>) {
             TextComponentWrapper<?> subComponent = (TextComponentWrapper<?>) component.getValue();
             this.getWrapScreen().handleComponentHover((ITextComponent) subComponent.getValue(), mouseX, mouseY);
         }
