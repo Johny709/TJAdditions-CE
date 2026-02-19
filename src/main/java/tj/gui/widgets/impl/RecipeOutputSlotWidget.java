@@ -2,6 +2,7 @@ package tj.gui.widgets.impl;
 
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
+import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.util.FluidTooltipUtil;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
@@ -20,7 +21,7 @@ import tj.gui.TJGuiUtils;
 import java.util.Collections;
 import java.util.function.IntFunction;
 
-public class RecipeOutputSlotWidget extends Widget {
+public class RecipeOutputSlotWidget extends Widget implements IIngredientSlot {
 
     private final IntFunction<ItemStack> itemOutputs;
     private final IntFunction<FluidStack> fluidOutputs;
@@ -79,5 +80,16 @@ public class RecipeOutputSlotWidget extends Widget {
                 TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
             } else TJGuiTextures.SELECTION_BOX_2.draw(pos.getX(), pos.getY(), 18, 18);
         }
+    }
+
+    @Override
+    public Object getIngredientOverMouse(int mouseX, int mouseY) {
+        if (!this.isMouseOverElement(mouseX, mouseY))
+            return null;
+        if (this.itemOutputs != null)
+            return this.itemOutputs.apply(this.slotIndex);
+        if (this.fluidOutputs != null)
+            return this.fluidOutputs.apply(this.slotIndex);
+        return null;
     }
 }
