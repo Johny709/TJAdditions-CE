@@ -41,6 +41,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     private final List<Chunk> chunks = new ArrayList<>();
     private boolean initialized;
+    private boolean blacklist = true;
     private Chunk currentChunk;
     private int miningSpeed;
     private int outputIndex;
@@ -143,11 +144,15 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         String key = type.getRegistryName().toString() + ":" + meta;
         IntPair<ItemStack> stackPair = this.itemType.get(key);
         if (stackPair != null) {
+            if (this.blacklist == (this.handler.getOreDictionaryItemFIlter().matchItemStack(stackPair.getValue()) != null))
+                return false;
             if (this.handler.getFortuneLvl() < 1 && OreDictUnifier.getPrefix(stackPair.getValue()) == OrePrefix.crushed)
                 count = this.getFortune(stackPair.getKey());
             stackPair.getValue().grow(count);
         } else {
             ItemStack itemStack = type instanceof Block ? new ItemStack((Block) type, count, meta) : new ItemStack((Item) type, count, meta);
+            if (this.blacklist == (this.handler.getOreDictionaryItemFIlter().matchItemStack(itemStack) != null))
+                return false;
             if (this.handler.getFortuneLvl() > 1) {
                 Recipe recipe = RecipeMaps.FORGE_HAMMER_RECIPES.findRecipe(Long.MAX_VALUE, Collections.singletonList(itemStack), Collections.emptyList(), 0);
                 if (recipe != null) {
@@ -185,6 +190,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         compound.setInteger("y", this.miningPos.getY());
         compound.setInteger("z", this.miningPos.getZ());
         compound.setTag("itemOutputList", itemOutputList);
+        this.handler.getOreDictionaryItemFIlter().writeToNBT(compound);
         return compound;
     }
 
@@ -199,6 +205,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         this.chunkIndex = compound.getInteger("chunkIndex");
         this.levelY = compound.getInteger("levelY");
         this.miningPos.setPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
+        this.handler.getOreDictionaryItemFIlter().readFromNBT(compound);
     }
 
     @Override
@@ -211,6 +218,14 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     @Override
     public List<ItemStack> getItemOutputs() {
         return this.itemOutputs;
+    }
+
+    public void setBlacklist(boolean blacklist) {
+        this.blacklist = blacklist;
+    }
+
+    public boolean isBlacklist() {
+        return this.blacklist;
     }
 
     public int getChunkIndex() {

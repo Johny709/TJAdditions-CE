@@ -19,6 +19,7 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.unification.material.Materials;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
@@ -44,6 +45,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
+    private final OreDictionaryItemFilter itemFilter = new OreDictionaryItemFilter();
     private final int fortune;
     private final int tier;
     private FluidStack drillingFluid = Materials.DrillingFluid.getFluid(1);
@@ -186,5 +188,10 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     @Override
     public FluidStack getDrillingFluid() {
         return this.drillingFluid;
+    }
+
+    @Override
+    public OreDictionaryItemFilter getOreDictionaryItemFIlter() {
+        return this.itemFilter;
     }
 }

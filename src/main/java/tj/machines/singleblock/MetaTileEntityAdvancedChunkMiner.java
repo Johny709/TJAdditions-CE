@@ -13,6 +13,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.render.Textures;
 import gregtech.api.unification.material.Materials;
+import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -40,6 +41,7 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEntity implements IMinerHandler {
 
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
+    private final OreDictionaryItemFilter itemFilter = new OreDictionaryItemFilter();
     private final FluidStack drillingFluid;
 
     public MetaTileEntityAdvancedChunkMiner(ResourceLocation metaTileEntityId, int tier) {
@@ -149,5 +151,10 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     @Override
     public FluidStack getDrillingFluid() {
         return this.drillingFluid;
+    }
+
+    @Override
+    public OreDictionaryItemFilter getOreDictionaryItemFIlter() {
+        return this.itemFilter;
     }
 }
