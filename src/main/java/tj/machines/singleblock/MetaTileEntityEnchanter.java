@@ -93,7 +93,7 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
         return ModularUI.defaultBuilder()
-                .image(-28, 0, 26, 86, GuiTextures.BORDERED_BACKGROUND)
+                .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
                 .image(-28, 138, 26, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
@@ -115,7 +115,7 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                 .widget(new RecipeOutputSlotWidget(1, 123, 22, 18, 18, displayWidget::getItemOutputAt, null))
                 .widget(new TankWidget(this.tank, 16, 22, 18, 18)
                         .setBackgroundTexture(FLUID_SLOT))
-                .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 62)
+                .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new ToggleButtonWidget(-24, 142, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))

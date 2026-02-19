@@ -75,7 +75,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
     protected boolean startRecipe() {
         this.maxProgress = this.range;
         this.energyPerTick = (long) (this.range / 4) * this.harvesters.length;
-        return true;
+        return this.handler.getInputEnergyContainer().getEnergyStored() >= this.energyPerTick;
     }
 
     @Override

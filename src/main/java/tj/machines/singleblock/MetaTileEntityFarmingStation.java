@@ -123,9 +123,9 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        WidgetGroup widgetGroup = new WidgetGroup(new Position(10, 22));
+        WidgetGroup widgetGroup = new WidgetGroup(new Position(7, 22));
         SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(105, 22, 64, 54, 3);
-        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 21, 21, 20)
+        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 39, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
                 .setItemInputInventorySupplier(this::getImportItems)
@@ -142,8 +142,8 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
             scrollableWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 3), 18 * (i / 3), 18, 18, displayWidget::getItemOutputAt, null));
         }
         return ModularUI.builder(GuiTextures.BACKGROUND, 176, 182)
-                .image(-28, 0, 26, 86, GuiTextures.BORDERED_BACKGROUND)
-                .image(-28, 138, 26, 26, GuiTextures.BORDERED_BACKGROUND)
+                .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
+                .image(-28, 154, 26, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
@@ -151,7 +151,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setBarTexture(TJGuiTextures.BAR_YELLOW)
                         .setTexture(TJGuiTextures.FLUID_BAR)
                         .setInverted(true))
-                .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 21, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
+                .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 39, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new TJSlotWidget<>(this.toolInventory, 0, 52, 22)
                         .setBackgroundTexture(SLOT, HOE_OVERLAY))
                 .widget(new TJSlotWidget<>(this.toolInventory, 1, 52, 40)
@@ -162,19 +162,19 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setBackgroundTexture(SLOT, BONE_MEAL_OVERLAY))
                 .widget(new TJSlotWidget<>(this.fertilizerInventory, 1, 34, 78)
                         .setBackgroundTexture(SLOT, BONE_MEAL_OVERLAY))
-                .widget(new DischargerSlotWidget(this.chargerInventory, 0, 79, 78)
+                .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new TankWidget(this.waterTank, 105, 78, 18, 18)
                         .setBackgroundTexture(FLUID_SLOT))
-                .widget(new ToggleButtonWidget(133, 78, 18, 18, ITEM_VOID_BUTTON, this.workableHandler::isVoidOutputs, this.workableHandler::setVoidOutputs)
+                .widget(new ToggleButtonWidget(151, 78, 18, 18, ITEM_VOID_BUTTON, this.workableHandler::isVoidOutputs, this.workableHandler::setVoidOutputs)
                         .setTooltipText("machine.universal.toggle.item_voiding"))
-                .widget(new ToggleButtonWidget(-24, 142, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(-24, 158, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 78, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
-                .widget(new ToggleButtonWidget(79, 58, 18, 18, BUTTON_ALLOW_IMPORT_EXPORT, this.workableHandler::isOutputTools, this.workableHandler::setOutputTools)
+                .widget(new ToggleButtonWidget(79, 78, 18, 18, BUTTON_ALLOW_IMPORT_EXPORT, this.workableHandler::isOutputTools, this.workableHandler::setOutputTools)
                         .setTooltipText("tj.machine.farming_station.tool_output.tooltip"))
-                .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
+                .widget(new ImageWidget(79, 58, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
                 .widget(widgetGroup)
                 .widget(scrollableWidgetGroup)

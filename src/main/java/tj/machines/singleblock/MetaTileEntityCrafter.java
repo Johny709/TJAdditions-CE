@@ -6,7 +6,6 @@ import codechicken.lib.vec.Matrix4;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
-import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.recipes.CountableIngredient;
@@ -135,13 +134,13 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                         }
                     }));
         }
-        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 21, 21, 20)
+        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(55, 111, 21, 20)
                 .setFluidOutputSupplier(this.recipeLogic::getFluidOutputs)
                 .setItemOutputSupplier(this.recipeLogic::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
         return ModularUI.builder(BACKGROUND, 176, 216)
-                .image(-28, 0, 26, 86, GuiTextures.BORDERED_BACKGROUND)
+                .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
                 .image(-28, 188, 26, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
@@ -155,7 +154,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                 .widget(new ImageWidget(109, 14, 54, 54, DARKENED_SLOT))
                 .widget(new SlotDisplayWidget(this.resultInventory, 0, 76, 32)
                         .onPressedConsumer((button, slot, stack) -> this.addRecipe(this.currentRecipe)))
-                .widget(new DischargerSlotWidget(this.chargerInventory, 0, 25, 112)
+                .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new SlotWidget(this.exportItems, 0, 79, 112, true, false)
                         .setBackgroundTexture(SLOT))
