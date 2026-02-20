@@ -2,13 +2,10 @@ package tj.capability.impl.workable;
 
 import gregicadditions.GAValues;
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.unification.OreDictUnifier;
 import gregtech.api.unification.ore.OrePrefix;
-import gregtech.common.blocks.BlockFrame;
-import gregtech.common.blocks.VariantBlock;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.*;
@@ -18,6 +15,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.capabilities.Capability;
@@ -65,7 +63,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         if (this.chunkIndex >= this.chunks.size())
             this.chunkIndex = 0;
         this.currentChunk = this.chunks.get(this.chunkIndex);
-        this.levelY = this.metaTileEntity.getPos().getY();
+        this.levelY = this.metaTileEntity.getPos().offset(EnumFacing.DOWN).getY();
         this.setMaxProgress(this.levelY * 256);
         return this.handler.getInputEnergyContainer().getEnergyStored() >= this.energyPerTick;
     }
@@ -90,7 +88,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                 this.miningPos.setPos(this.currentChunk.x + (progress % 16), this.levelY, this.currentChunk.z + (progress / 16));
                 IBlockState state = this.metaTileEntity.getWorld().getBlockState(this.miningPos);
                 Block block = state.getBlock();
-                if (block != Blocks.AIR && !(block instanceof VariantBlock) && !(block instanceof BlockFrame) && !(this.metaTileEntity.getWorld().getTileEntity(this.miningPos) instanceof MetaTileEntityHolder)) {
+                if (block != Blocks.AIR) {
                     Item item = block.getItemDropped(state, this.metaTileEntity.getWorld().rand, this.handler.getFortuneLvl());
                     if (this.addItemDrop(item, 1, block.damageDropped(state))) {
                         this.metaTileEntity.getWorld().playEvent(2001, this.miningPos, Block.getStateId(state));
@@ -189,6 +187,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         compound.setInteger("x", this.miningPos.getX());
         compound.setInteger("y", this.miningPos.getY());
         compound.setInteger("z", this.miningPos.getZ());
+        compound.setBoolean("blacklist", this.blacklist);
         compound.setTag("itemOutputList", itemOutputList);
         this.handler.getOreDictionaryItemFIlter().writeToNBT(compound);
         return compound;
@@ -205,6 +204,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         this.chunkIndex = compound.getInteger("chunkIndex");
         this.levelY = compound.getInteger("levelY");
         this.miningPos.setPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
+        this.blacklist = compound.getBoolean("blacklist");
         this.handler.getOreDictionaryItemFIlter().readFromNBT(compound);
     }
 

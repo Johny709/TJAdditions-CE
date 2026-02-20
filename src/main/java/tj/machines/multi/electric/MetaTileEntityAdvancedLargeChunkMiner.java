@@ -8,6 +8,8 @@ import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.metal.MetalCasing2;
+import gregtech.api.gui.GuiTextures;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -20,8 +22,10 @@ import gregtech.api.render.ICubeRenderer;
 import gregtech.api.unification.material.Materials;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.covers.filter.OreDictionaryItemFilter;
+import gregtech.common.items.MetaItems;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -30,10 +34,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
+import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.impl.handler.IMinerHandler;
 import tj.capability.impl.workable.MinerWorkableHandler;
+import tj.gui.TJGuiTextures;
+import tj.gui.widgets.impl.ButtonPopUpWidget;
+import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -66,8 +74,10 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.description"));
+        tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.crushed"));
         tooltip.add(I18n.format("gtadditions.machine.miner.multi.description", this.getTier(), this.getTier(), this.getFortuneLvl()));
         tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", 1 << this.getTier() - 1, this.drillingFluid.getLocalizedName()));
+        tooltip.add(I18n.format("gregtech.multiblock.large_miner.block_per_tick", 1 << this.getTier() - 1));
     }
 
     @Override
@@ -97,6 +107,25 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
                     .addTranslationLine("gtadditions.machine.miner.fluid_usage", this.drillingFluid.amount, this.drillingFluid.getLocalizedName())
                     .addTranslationLine("gregtech.multiblock.large_miner.block_per_tick", this.workableHandler.getMiningSpeed())
                     .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+    }
+
+    @Override
+    protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
+        super.addTabs(tabBuilder, player);
+        tabBuilder.addTab("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), tab -> {
+            tab.add(new ButtonPopUpWidget<>()
+                    .addPopup(widgetGroup -> true)
+                    .addPopup(40, 40, 0, 0, new TJToggleButtonWidget(175, 134, 18, 18)
+                            .setBackgroundTextures(TJGuiTextures.ITEM_FILTER)
+                            .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                            .useToggleTexture(true), widgetGroup -> {
+                        this.itemFilter.initUI(widgetGroup::addWidget);
+                        return false;
+                    }));
+            tab.add(new ToggleButtonWidget(175, 151, 18, 18, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
+                    .setButtonTexture(GuiTextures.BUTTON_BLACKLIST)
+                    .setTooltipText("cover.filter.blacklist"));
+        });
     }
 
     @Override

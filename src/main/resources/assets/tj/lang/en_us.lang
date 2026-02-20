@@ -518,7 +518,8 @@ tj.multiblock.charcoal_pit.set_depth=Depth:
 
 tj.multiblock.primitive_water_pump.description=Pumps §b%,dL§7 of §bwater§7 every second. Pump blocks are optional with each adding §b%,dL/s§7 to pump rate, quadrupled with every tier. §fRight-Click§7 controller with screwdriver to change structure layout. All available structure layouts can be viewed in JEI preview.
 
-tj.multiblock.advanced_large_miner.description=More advanced version of §5Large Miner§7 with more stability and functions.
+tj.multiblock.advanced_large_miner.description=More advanced version of §5Chunk Miner§7 with more stability and functions. §aMining level starts right below the miner.
+tj.multiblock.advanced_large_miner.crushed=§dThis Large Chunk Miner outputs crushed ores with much higher yield than macerator. Affected by fortune.
 tj.multiblock.advanced_large_miner.chunk_index=Chunk Index: §b%,d / %,d
 
 recipemap.primitive_alloy.tj.name=Primitive Alloy Smelter

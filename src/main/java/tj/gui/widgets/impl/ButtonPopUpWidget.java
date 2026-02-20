@@ -19,6 +19,10 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
 
     private final Int2ObjectMap<ActionResultPredicate<String>> buttonConditions = new Int2ObjectOpenHashMap<>();
 
+    public ButtonPopUpWidget() {
+        this(0, 0, 0, 0);
+    }
+
     public ButtonPopUpWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
     }

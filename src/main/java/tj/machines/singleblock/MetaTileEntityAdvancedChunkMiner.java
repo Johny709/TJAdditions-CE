@@ -14,10 +14,13 @@ import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.render.Textures;
 import gregtech.api.unification.material.Materials;
 import gregtech.common.covers.filter.OreDictionaryItemFilter;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -30,8 +33,12 @@ import tj.capability.impl.workable.MinerWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
+import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.gui.widgets.impl.TJToggleButtonWidget;
 
+import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Objects;
 
 import static gregtech.api.gui.GuiTextures.BUTTON_ITEM_OUTPUT;
@@ -53,6 +60,16 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityAdvancedChunkMiner(this.metaTileEntityId, this.getTier());
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        super.addInformation(stack, player, tooltip, advanced);
+        tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.description"));
+        tooltip.add(I18n.format("gtadditions.machine.miner.multi.description", this.getTier(), this.getTier(), this.getFortuneLvl()));
+        tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", 1 << this.getTier() - 1, this.drillingFluid.getLocalizedName()));
+        tooltip.add(I18n.format("gregtech.multiblock.large_miner.block_per_tick", 1 << this.getTier() - 1));
     }
 
     @Override
@@ -90,6 +107,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
         return ModularUI.defaultBuilder()
                 .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
                 .image(-28, 120, 26, 44, GuiTextures.BORDERED_BACKGROUND)
+                .image(129, 168, 44, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
@@ -97,24 +115,37 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                         .setBarTexture(TJGuiTextures.BAR_YELLOW)
                         .setTexture(TJGuiTextures.FLUID_BAR)
                         .setInverted(true))
-                .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 90, 30, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.CHARGER_OVERLAY))
                 .widget(new ToggleButtonWidget(-24, 124, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
                 .widget(new ToggleButtonWidget(-24, 142, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
-                .image(7, 6, 81, 65, GuiTextures.DISPLAY)
-                .widget(tankWidget)
-                .label(11, 10, "gregtech.gui.fluid_amount", 0xFFFFFF)
-                .dynamicLabel(11, 20, tankWidget::getFormattedFluidAmount, 0xFFFFFF)
-                .dynamicLabel(11, 30, tankWidget::getFluidLocalizedName, 0xFFFFFF)
-                .widget(new FluidContainerSlotWidget(this.getImportItemInventory(), 0, 90, 8, true)
-                        .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.IN_SLOT_OVERLAY))
-                .widget(new SlotWidget(this.getImportItemInventory(), 1, 90, 54, true, false)
-                        .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.OUT_SLOT_OVERLAY))
+                .widget(new ToggleButtonWidget(151, 172, 18, 18, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
+                        .setButtonTexture(GuiTextures.BUTTON_BLACKLIST)
+                        .setTooltipText("cover.filter.blacklist"))
+                .widget(new ButtonPopUpWidget<>()
+                        .addPopup(widgetGroup -> {
+                            widgetGroup.addWidget(new ProgressWidget(this.workableHandler::getProgressPercent, 90, 30, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL));
+                            widgetGroup.addWidget(new ImageWidget(7, 6, 81, 65, GuiTextures.DISPLAY));
+                            widgetGroup.addWidget(tankWidget);
+                            widgetGroup.addWidget(new LabelWidget(11, 10, "gregtech.gui.fluid_amount", 0xFFFFFF));
+                            widgetGroup.addWidget(new DynamicLabelWidget(11, 20, tankWidget::getFormattedFluidAmount, 0xFFFFFF));
+                            widgetGroup.addWidget(new DynamicLabelWidget(11, 30, tankWidget::getFluidLocalizedName, 0xFFFFFF));
+                            widgetGroup.addWidget(new FluidContainerSlotWidget(this.getImportItemInventory(), 0, 90, 8, true)
+                                    .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.IN_SLOT_OVERLAY));
+                            widgetGroup.addWidget(new SlotWidget(this.getImportItemInventory(), 1, 90, 54, true, false)
+                                    .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.OUT_SLOT_OVERLAY));
+                            widgetGroup.addWidget(displayWidget);
+                            return false;
+                        }).addPopup(30, 20, 0, 0, new TJToggleButtonWidget(133, 172, 18, 18)
+                                .setBackgroundTextures(TJGuiTextures.ITEM_FILTER)
+                                .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                                .useToggleTexture(true), widgetGroup -> {
+                            this.itemFilter.initUI(widgetGroup::addWidget);
+                            return false;
+                        }))
                 .bindPlayerInventory(player.inventory)
-                .widget(displayWidget)
                 .build(this.getHolder(), player);
     }
 
