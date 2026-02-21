@@ -13,6 +13,8 @@ import tj.machines.multi.electric.MetaTileEntityAdvancedLargeChunkMiner;
 import java.util.ArrayList;
 import java.util.List;
 
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+
 public class AdvancedLargeChunkMinerInfo extends TJMultiblockInfoPage {
 
     private final int type;
@@ -29,7 +31,7 @@ public class AdvancedLargeChunkMinerInfo extends TJMultiblockInfoPage {
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
         List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder()
+        GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("F~~~F", "F~~~F", "CCCCC", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("~~~~~", "~~~~~", "CCCCC", "~CEM~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("~~~~~", "~~~~~", "CCCCC", "~iCo~", "~FFF~", "~FFF~", "~FFF~", "~~F~~", "~~F~~", "~~F~~")

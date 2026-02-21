@@ -93,6 +93,7 @@ tj.machine.large_electric_implosion_compressor.name=Large Electric Implosion Com
 tj.machine.charcoal_pit.name=Charcoal Pit
 tj.machine.charcoal_pit_advanced.name=Advanced Charcoal Pit
 tj.machine.primitive_water_pump.name=Primitive Water Pump
+tj.machine.large_naming_machine.name=Large Naming Machine
 tj.machine.advanced_large_chunk_miner.ev.name=Advanced Large Chunk Miner (EV)
 tj.machine.advanced_large_chunk_miner.iv.name=Advanced Large Chunk Miner (IV)
 tj.machine.advanced_large_chunk_miner.luv.name=Advanced Large Chunk Miner (LuV)

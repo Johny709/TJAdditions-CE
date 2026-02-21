@@ -77,7 +77,7 @@ public class MetaTileEntityNamingMachine extends TJTieredWorkableMetaTileEntity 
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 21, 21, 20)
+        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 25, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
@@ -104,7 +104,8 @@ public class MetaTileEntityNamingMachine extends TJTieredWorkableMetaTileEntity 
                         .setBackgroundTexture(SLOT))
                 .widget(new SlotWidget(this.exportItems, 1, 123, 26, true, false)
                         .setBackgroundTexture(SLOT))
-                .widget(new RecipeOutputSlotWidget(0, 105, 22, 18, 18, displayWidget::getItemOutputAt, null))
+                .widget(new RecipeOutputSlotWidget(0, 105, 26, 18, 18, displayWidget::getItemOutputAt, null))
+                .widget(new RecipeOutputSlotWidget(1, 123, 26, 18, 18, displayWidget::getItemInputAt, null))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new ToggleButtonWidget(-24, 142, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
