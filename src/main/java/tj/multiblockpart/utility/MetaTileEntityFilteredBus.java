@@ -117,7 +117,7 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
             @Nonnull
             public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
                 ItemStack filterStack = filterInventory.getStackInSlot(slot);
-                if (!filterStack.isEmpty() && !ItemHandlerHelper.canItemStacksStackRelaxed(stack, filterStack))
+                if (!ItemHandlerHelper.canItemStacksStackRelaxed(stack, filterStack))
                     return stack;
                 return super.insertItem(slot, stack, simulate);
             }
