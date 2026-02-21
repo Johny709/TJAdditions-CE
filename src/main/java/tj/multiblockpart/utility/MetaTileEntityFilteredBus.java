@@ -4,8 +4,6 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
-import gregtech.api.capability.GregtechTileCapabilities;
-import gregtech.api.capability.IWorkable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.SlotWidget;
@@ -14,11 +12,8 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
-import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.render.Textures;
 import gregtech.api.util.Position;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -43,11 +38,9 @@ import tj.util.TooltipHelper;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 
 public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IItemHandlerModifiable> {
 
-    private final Object2ObjectMap<MultiblockControllerBase, BooleanSupplier> activeMachines = new Object2ObjectOpenHashMap<>();
     private final ItemStackHandler filterInventory;
     private final boolean[] areGhostItems;
     private final boolean isOutput;
@@ -157,7 +150,6 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
                     for (int i = 0; i < this.filterInventory.getSlots(); i++) {
                         TJPhantomSlotWidget slotWidget = new TJPhantomSlotWidget(this.filterInventory, i, startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)))
                                 .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY)
-                                .setPutItemsPredicate(this::areMachinesNotActive)
                                 .setAreGhostItems(this.areGhostItems);
                         if (this.getTier() > 9)
                             slotScrollGroup.addWidget(slotWidget);
@@ -232,24 +224,6 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
         for (int i = 0; i < ghostItemList.tagCount(); i++)
             this.areGhostItems[i] = ((NBTTagByte) ghostItemList.get(i)).getByte() == 1;
         this.filterInventory.deserializeNBT(data.getCompoundTag("filterInventory"));
-    }
-
-    @Override
-    public void addToMultiBlock(MultiblockControllerBase controller) {
-        super.addToMultiBlock(controller);
-        IWorkable workable = controller.getCapability(GregtechTileCapabilities.CAPABILITY_WORKABLE, null);
-        if (workable != null)
-            this.activeMachines.put(controller, workable::isActive);
-    }
-
-    @Override
-    public void removeFromMultiBlock(MultiblockControllerBase controller) {
-        super.removeFromMultiBlock(controller);
-        this.activeMachines.remove(controller);
-    }
-
-    private boolean areMachinesNotActive() {
-        return this.activeMachines.values().stream().noneMatch(BooleanSupplier::getAsBoolean);
     }
 
     private int getTierSlots(int tier) {

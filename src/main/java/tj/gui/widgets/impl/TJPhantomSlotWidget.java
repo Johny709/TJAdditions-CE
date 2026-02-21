@@ -61,7 +61,7 @@ public class TJPhantomSlotWidget extends TJSlotWidget<TJPhantomSlotWidget> imple
         if (this.getItemHandler().getStackInSlot(this.slotIndex).isEmpty()) return;
         if (this.areGhostItems[this.slotIndex])
             TJGuiTextures.SELECTION_BOX_2.draw(this.getPosition().getX(), this.getPosition().getY(), 18, 18);
-        else TJGuiTextures.SELECTION_BOX.draw(this.getPosition().getX(), this.getPosition().getY(), 18, 18);
+        else TJGuiTextures.SELECTION_BOX_3.draw(this.getPosition().getX(), this.getPosition().getY(), 18, 18);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class TJPhantomSlotWidget extends TJSlotWidget<TJPhantomSlotWidget> imple
             try {
                 ItemStack stack = buffer.readItemStack();
                 boolean isGhostItem = buffer.readBoolean();
-                if (this.putItemsPredicate.getAsBoolean()) {
+                if (this.putItemsPredicate == null || this.putItemsPredicate.getAsBoolean()) {
                     if (this.getItemHandler().getStackInSlot(this.slotIndex).isEmpty() && this.getItemHandler().insertItem(this.slotIndex, stack, true).isEmpty()) {
                         this.getItemHandler().insertItem(this.slotIndex, stack, false);
                         this.areGhostItems[this.slotIndex] = isGhostItem;
