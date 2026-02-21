@@ -191,7 +191,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         super.renderMetaTileEntity(renderState, translation, pipeline);
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
         ClientHandler.CHUNK_MINER_OVERLAY.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
-        ClientHandler.CHUNK_MINER_OVERLAY.renderSided(EnumFacingHelper.getRightFacingFromSpin(this.getFrontFacing()), renderState, translation, pipeline);
+        ClientHandler.CHUNK_MINER_OVERLAY.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
     }
 
     @Override

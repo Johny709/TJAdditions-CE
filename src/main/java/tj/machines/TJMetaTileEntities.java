@@ -41,6 +41,7 @@ public class TJMetaTileEntities {
     public static final MetaTileEntityCrafter[] CRAFTER = new MetaTileEntityCrafter[14];
     public static final MetaTileEntityFarmingStation[] FARMING_STATION = new MetaTileEntityFarmingStation[14];
     public static final MetaTileEntityAdvancedChunkMiner[] ADVANCED_CHUNK_MINERS = new MetaTileEntityAdvancedChunkMiner[14];
+    public static final MetaTileEntityNamingMachine[] NAMING_MACHINES = new MetaTileEntityNamingMachine[14];
     public static final MetaTileEntitySuperItemBus[] SUPER_ITEM_INPUT_BUS = new MetaTileEntitySuperItemBus[5];
     public static final MetaTileEntitySuperItemBus[] SUPER_ITEM_OUTPUT_BUS = new MetaTileEntitySuperItemBus[5];
     public static final MetaTileEntitySuperFluidHatch[] SUPER_FLUID_INPUT_HATCH = new MetaTileEntitySuperFluidHatch[5];
@@ -250,11 +251,8 @@ public class TJMetaTileEntities {
             FARMING_STATION[i] = GregTechAPI.registerMetaTileEntity(5365 + i, new MetaTileEntityFarmingStation(TJId("farming_station_" + GAValues.VN[tier]), tier));
         for (int i = 0, tier = 1; i < ADVANCED_CHUNK_MINERS.length; i++, tier++) // occupies ID range 5379 - 5392
             ADVANCED_CHUNK_MINERS[i] = GregTechAPI.registerMetaTileEntity(5379 + i, new MetaTileEntityAdvancedChunkMiner(TJId("advanced_chunk_miner." + GAValues.VN[tier]), tier));
-        COMPRESSED_CHEST = GregTechAPI.registerMetaTileEntity(5406, new MetaTileEntityCompressedChest(TJId("compressed_chest"), false));
-        COMPRESSED_CRATE = GregTechAPI.registerMetaTileEntity(5407, new MetaTileEntityCompressedCrate(TJId("compressed_crate"), false));
-        INFINITY_CHEST = GregTechAPI.registerMetaTileEntity(5408, new MetaTileEntityCompressedChest(TJId("infinity_chest"), true));
-        INFINITY_CRATE = GregTechAPI.registerMetaTileEntity(5409, new MetaTileEntityCompressedCrate(TJId("infinity_crate"), true));
-        FILING_CABINET = GregTechAPI.registerMetaTileEntity(5410, new MetaTileEntityFilingCabinet(TJId("filing_cabinet")));
+        for (int i = 0, tier = 1; i < NAMING_MACHINES.length; i++, tier++) // occupies ID range 5393 -
+            NAMING_MACHINES[i] = GregTechAPI.registerMetaTileEntity(5393 + i, new MetaTileEntityNamingMachine(TJId("naming_machine." + GAValues.VN[tier]), tier));
 
         // range 5500+ -> misc
         ACCELERATOR_ANCHOR_POINT = GregTechAPI.registerMetaTileEntity(5500, new MetaTileEntityAcceleratorAnchorPoint(TJId("accelerator_anchor_point")));
