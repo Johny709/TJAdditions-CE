@@ -53,6 +53,7 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.parallel", this.parallel));
+        tooltip.add(I18n.format("tj.multiblock.large_chisel_workbench.description"));
     }
 
     @Override
