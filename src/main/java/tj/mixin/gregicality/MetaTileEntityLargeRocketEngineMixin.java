@@ -51,12 +51,20 @@ public abstract class MetaTileEntityLargeRocketEngineMixin extends GAFueledMulti
             this.air = Air.getFluid(37500);
             MetaTileEntityLargeRocketEngine tileEntity = (MetaTileEntityLargeRocketEngine) (Object) this;
             cir.setReturnValue(new TJBoostableFuelRecipeLogic(tileEntity, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getBooster, this::getFuelMultiplier, this::getEUMultiplier, 655360) {
+                private FluidStack airStack;
+
                 @Override
                 protected boolean checkRecipe(FuelRecipe recipe) {
                     int amount = recipe.getRecipeFluid().amount * getVoltageMultiplier(this.getMaxVoltage(), recipe.getMinVoltage());
                     booster = LiquidOxygen.getFluid(4 * (int) Math.ceil(amount / 10.0));
-                    FluidStack airStack = this.fluidTank.get().drain(air, true);
-                    return airStack != null && airStack.amount == air.amount;
+                    this.airStack = this.fluidTank.get().drain(air, true);
+                    return this.airStack != null && this.airStack.amount == air.amount;
+                }
+
+                @Override
+                protected long startRecipe(FuelRecipe currentRecipe, int fuelAmountUsed, int recipeDuration) {
+                    this.fluidInputs.add(this.airStack);
+                    return super.startRecipe(currentRecipe, fuelAmountUsed, recipeDuration);
                 }
             });
         }
@@ -123,7 +131,9 @@ public abstract class MetaTileEntityLargeRocketEngineMixin extends GAFueledMulti
                             text.addTextComponent(new TextComponentString(String.format("%s: %dmb", booster.getLocalizedName(), boosterAmount)).setStyle(new Style().setColor(TextFormatting.AQUA)));
                     }
                     text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", workableHandler.getProduction())));
-                }).isWorkingLine(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress());
+                }).isWorkingLine(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress())
+                .addRecipeInputLine(workableHandler)
+                .addRecipeOutputLine(workableHandler);
     }
 
     @Override

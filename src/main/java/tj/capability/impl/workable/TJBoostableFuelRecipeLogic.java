@@ -34,7 +34,7 @@ public class TJBoostableFuelRecipeLogic extends TJFuelRecipeLogic implements IWo
     @Override
     protected long startRecipe(FuelRecipe currentRecipe, int fuelAmountUsed, int recipeDuration) {
         if (this.boosted)
-            this.fluidTank.get().drain(this.booster.get(), true);
+            this.fluidInputs.add(this.fluidTank.get().drain(this.booster.get(), true));
         return this.maxVoltage * (this.boosted ? this.euMultiplier.getAsInt() : 1);
     }
 

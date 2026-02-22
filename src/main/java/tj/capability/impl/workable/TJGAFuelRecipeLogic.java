@@ -8,6 +8,7 @@ import gregtech.api.capability.*;
 import gregtech.api.capability.impl.FluidFuelInfo;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
@@ -15,15 +16,18 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.capability.AbstractGAFuelRecipeLogic;
 import tj.capability.IGeneratorInfo;
+import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 
 import java.util.*;
 import java.util.function.Supplier;
 
-public class TJGAFuelRecipeLogic extends AbstractGAFuelRecipeLogic<TJGAFuelRecipeLogic> implements IGeneratorInfo, IFuelable {
+public class TJGAFuelRecipeLogic extends AbstractGAFuelRecipeLogic<TJGAFuelRecipeLogic> implements IGeneratorInfo, IFuelable, IItemFluidHandlerInfo {
 
     protected final Set<FluidStack> lastSearchedFluid = new HashSet<>();
     protected final Set<FluidStack> blacklistFluid = new HashSet<>();
+    protected final List<FluidStack> fluidInputs = new ArrayList<>();
+    protected final List<FluidStack> fluidOutputs = new ArrayList<>();
     private boolean voidEnergy = true;
     protected int consumption;
     private int searchCount;
@@ -55,6 +59,7 @@ public class TJGAFuelRecipeLogic extends AbstractGAFuelRecipeLogic<TJGAFuelRecip
             this.fuelName = fluidStack.getUnlocalizedName();
             this.lastSearchedFluid.remove(fuelStack);
             this.consumption = fluidStack.amount;
+            this.fluidInputs.add(fuelStack);
             return true; //recipe is found and ready to use
         }
         if (++this.searchCount >= this.fluidTank.get().getTanks()) {
@@ -77,6 +82,8 @@ public class TJGAFuelRecipeLogic extends AbstractGAFuelRecipeLogic<TJGAFuelRecip
 
     @Override
     protected boolean completeRecipe() {
+        this.fluidInputs.clear();
+        this.fluidOutputs.clear();
         this.lastSearchedFluid.clear();
         return true;
     }
@@ -150,17 +157,29 @@ public class TJGAFuelRecipeLogic extends AbstractGAFuelRecipeLogic<TJGAFuelRecip
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound tagCompound = super.serializeNBT();
-        tagCompound.setInteger("consumption", this.consumption);
-        tagCompound.setBoolean("voidEnergy", this.voidEnergy);
+        NBTTagCompound compound = super.serializeNBT();
+        NBTTagList fluidInputList = new NBTTagList(), fluidOutputList = new NBTTagList();
+        for (FluidStack stack : this.fluidInputs)
+            fluidInputList.appendTag(stack.writeToNBT(new NBTTagCompound()));
+        for (FluidStack stack : this.fluidOutputs)
+            fluidOutputList.appendTag(stack.writeToNBT(new NBTTagCompound()));
+        compound.setTag("fluidInputs", fluidInputList);
+        compound.setTag("fluidOutputs", fluidOutputList);
+        compound.setInteger("consumption", this.consumption);
+        compound.setBoolean("voidEnergy", this.voidEnergy);
         if (this.fuelName != null)
-            tagCompound.setString("fuelName", this.fuelName);
-        return tagCompound;
+            compound.setString("fuelName", this.fuelName);
+        return compound;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
+        NBTTagList fluidInputList = compound.getTagList("fluidInputs", 10), fluidOutputList = compound.getTagList("fluidOutputs", 10);
+        for (int i = 0; i < fluidInputList.tagCount(); i++)
+            this.fluidInputs.add(FluidStack.loadFluidStackFromNBT(fluidInputList.getCompoundTagAt(i)));
+        for (int i = 0; i < fluidOutputList.tagCount(); i++)
+            this.fluidOutputs.add(FluidStack.loadFluidStackFromNBT(fluidOutputList.getCompoundTagAt(i)));
         this.consumption = compound.getInteger("consumption");
         this.voidEnergy = compound.getBoolean("voidEnergy");
         if (compound.hasKey("fuelName"))
@@ -173,6 +192,8 @@ public class TJGAFuelRecipeLogic extends AbstractGAFuelRecipeLogic<TJGAFuelRecip
             return TJCapabilities.CAPABILITY_GENERATOR.cast(this);
         if (capability == GregtechCapabilities.CAPABILITY_FUELABLE)
             return GregtechCapabilities.CAPABILITY_FUELABLE.cast(this);
+        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
+            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
         return super.getCapability(capability);
     }
 
@@ -202,6 +223,16 @@ public class TJGAFuelRecipeLogic extends AbstractGAFuelRecipeLogic<TJGAFuelRecip
 
     public long getEnergyCapacity() {
         return this.energyContainer.get() != null ? this.energyContainer.get().getEnergyCapacity() : 0;
+    }
+
+    @Override
+    public List<FluidStack> getFluidInputs() {
+        return this.fluidInputs;
+    }
+
+    @Override
+    public List<FluidStack> getFluidOutputs() {
+        return this.fluidOutputs;
     }
 
     @Override

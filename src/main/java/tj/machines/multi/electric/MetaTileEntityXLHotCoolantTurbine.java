@@ -195,7 +195,9 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                 text.addTextComponent(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode").appendText(" ")
                         .appendSibling(this.xlHotCoolantTurbineWorkableHandler.isFastMode() ? withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true")
                                 : withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false")));
-            }).isWorkingLine(this.xlHotCoolantTurbineWorkableHandler.isWorkingEnabled(), this.xlHotCoolantTurbineWorkableHandler.isActive(), this.xlHotCoolantTurbineWorkableHandler.getProgress(), this.xlHotCoolantTurbineWorkableHandler.getMaxProgress());
+            }).isWorkingLine(this.xlHotCoolantTurbineWorkableHandler.isWorkingEnabled(), this.xlHotCoolantTurbineWorkableHandler.isActive(), this.xlHotCoolantTurbineWorkableHandler.getProgress(), this.xlHotCoolantTurbineWorkableHandler.getMaxProgress())
+                    .addRecipeInputLine(this.xlHotCoolantTurbineWorkableHandler)
+                    .addRecipeOutputLine(this.xlHotCoolantTurbineWorkableHandler);
         } else {
             ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
             tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
@@ -588,11 +590,14 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
 
     @Override
     public int[][] getBarMatrix() {
-        return new int[1][1];
+        return new int[2][1];
     }
 
     @Override
     public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this.xlHotCoolantTurbineWorkableHandler::getEnergyStored).setMaxProgress(this.xlHotCoolantTurbineWorkableHandler::getEnergyCapacity)
+                .setLocale("tj.multiblock.bars.energy")
+                .setColor(0xFFF6FF00));
         bars.add(bar -> bar.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
                 .setLocale("tj.multiblock.bars.fuel").setParams(() -> new Object[]{this.xlHotCoolantTurbineWorkableHandler.getFuelName()})
                 .setFluidStackSupplier(this.xlHotCoolantTurbineWorkableHandler::getFuelStack));

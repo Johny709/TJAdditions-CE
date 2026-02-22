@@ -99,6 +99,7 @@ public class XLHotCoolantTurbineWorkableHandler extends TJGAFuelRecipeLogic {
             if (fuelStack.amount >= fuelAmountToUse) {
                 FluidStack outputFluid = currentRecipe.getOutputFluid().copy();
                 outputFluid.amount = fuelAmountToUse;
+                this.fluidOutputs.add(outputFluid);
                 this.maxProgress = this.calculateRecipeDuration(currentRecipe);
                 this.exportFluidsSupplier.get().fill(outputFluid, true);
                 FluidStack recipeFluid = currentRecipe.getRecipeFluid();
