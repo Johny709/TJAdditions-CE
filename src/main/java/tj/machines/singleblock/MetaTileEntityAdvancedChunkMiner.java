@@ -33,8 +33,10 @@ import tj.capability.impl.workable.MinerWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
+import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 
 import javax.annotation.Nullable;
@@ -55,6 +57,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
         super(metaTileEntityId, tier);
         this.drillingFluid = Materials.DrillingFluid.getFluid(1 << tier - 1);
         this.workableHandler.initialize(1);
+        this.initializeInventory();
     }
 
     @Override
@@ -67,6 +70,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.description"));
+        tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.output"));
         tooltip.add(I18n.format("gtadditions.machine.miner.multi.description", this.getDiameter(), this.getDiameter(), this.getFortuneLvl()));
         tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", 1 << this.getTier() - 1, this.drillingFluid.getLocalizedName()));
         tooltip.add(I18n.format("gregtech.multiblock.large_miner.block_per_tick", 1 << this.getTier() - 1));
@@ -79,7 +83,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new ItemStackHandler(9);
+        return new ItemStackHandler(9 + (this.getTier() * 3));
     }
 
     @Override
@@ -91,18 +95,26 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     @Override
     public void update() {
         super.update();
-        if (!this.getWorld().isRemote)
+        if (!this.getWorld().isRemote) {
             this.workableHandler.update();
+            this.fillInternalTankFromFluidContainer(this.getImportItemInventory(), this.getExportItemInventory(), 0, 1);
+        }
     }
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
+        SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(113, 8, 60, 72, 3)
+                .setScrollWidth(6);
+        for (int i = 0; i < this.getExportItemInventory().getSlots(); i++) {
+            scrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.getExportItemInventory(), i, 18 * (i % 3), 18 * (i / 3))
+                    .setBackgroundTexture(GuiTextures.SLOT));
+        }
         RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(90, 30, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
-        TankWidget tankWidget = new TankWidget(this.importFluids.getTankAt(0), 69, 52, 18, 18)
+        TankWidget tankWidget = new TankWidget(this.importFluids.getTankAt(0), 69, 58, 18, 18)
                 .setHideTooltip(true).setAlwaysShowFull(true);
         return ModularUI.defaultBuilder()
                 .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
@@ -126,16 +138,17 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                         .setTooltipText("cover.filter.blacklist"))
                 .widget(new ButtonPopUpWidget<>()
                         .addPopup(widgetGroup -> {
-                            widgetGroup.addWidget(new ProgressWidget(this.workableHandler::getProgressPercent, 90, 30, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL));
-                            widgetGroup.addWidget(new ImageWidget(7, 6, 81, 65, GuiTextures.DISPLAY));
+                            widgetGroup.addWidget(new ProgressWidget(this.workableHandler::getProgressPercent, 90, 33, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL));
+                            widgetGroup.addWidget(new ImageWidget(7, 6, 81, 71, GuiTextures.DISPLAY));
                             widgetGroup.addWidget(tankWidget);
                             widgetGroup.addWidget(new LabelWidget(11, 10, "gregtech.gui.fluid_amount", 0xFFFFFF));
                             widgetGroup.addWidget(new DynamicLabelWidget(11, 20, tankWidget::getFormattedFluidAmount, 0xFFFFFF));
                             widgetGroup.addWidget(new DynamicLabelWidget(11, 30, tankWidget::getFluidLocalizedName, 0xFFFFFF));
                             widgetGroup.addWidget(new FluidContainerSlotWidget(this.getImportItemInventory(), 0, 90, 8, true)
                                     .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.IN_SLOT_OVERLAY));
-                            widgetGroup.addWidget(new SlotWidget(this.getImportItemInventory(), 1, 90, 54, true, false)
+                            widgetGroup.addWidget(new SlotWidget(this.getImportItemInventory(), 1, 90, 60, true, false)
                                     .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.OUT_SLOT_OVERLAY));
+                            widgetGroup.addWidget(scrollableWidgetGroup);
                             widgetGroup.addWidget(displayWidget);
                             return false;
                         }).addPopup(30, 20, 0, 0, new TJToggleButtonWidget(133, 172, 18, 18)

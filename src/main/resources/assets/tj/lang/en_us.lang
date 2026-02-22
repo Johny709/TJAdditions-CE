@@ -535,6 +535,7 @@ tj.multiblock.primitive_water_pump.description=Pumps §b%,dL§7 of §bwater§7 e
 
 tj.multiblock.advanced_large_miner.description=More advanced version of §5Chunk Miner§7 with more stability and functions. §aMining level starts right below the miner.
 tj.multiblock.advanced_large_miner.crushed=§dThis Large Chunk Miner outputs crushed ores with much higher yield than macerator. Affected by fortune.
+tj.multiblock.advanced_large_miner.output=§dThe Miner will try to output the items directly at an inventory adjacent to its output side before it tries outputting to it's own output inventory.
 tj.multiblock.advanced_large_miner.chunk_index=Chunk Index: §b%,d / %,d
 
 recipemap.primitive_alloy.tj.name=Primitive Alloy Smelter
