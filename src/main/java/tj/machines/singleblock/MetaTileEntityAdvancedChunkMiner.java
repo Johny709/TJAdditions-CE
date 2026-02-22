@@ -67,7 +67,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.description"));
-        tooltip.add(I18n.format("gtadditions.machine.miner.multi.description", this.getTier(), this.getTier(), this.getFortuneLvl()));
+        tooltip.add(I18n.format("gtadditions.machine.miner.multi.description", this.getDiameter(), this.getDiameter(), this.getFortuneLvl()));
         tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", 1 << this.getTier() - 1, this.drillingFluid.getLocalizedName()));
         tooltip.add(I18n.format("gregtech.multiblock.large_miner.block_per_tick", 1 << this.getTier() - 1));
     }
@@ -177,6 +177,11 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     @Override
     public int getFortuneLvl() {
         return 0;
+    }
+
+    @Override
+    public int getDiameter() {
+        return this.getTier();
     }
 
     @Override

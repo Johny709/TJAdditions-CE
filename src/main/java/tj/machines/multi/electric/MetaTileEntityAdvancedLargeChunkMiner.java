@@ -7,7 +7,9 @@ import gregicadditions.GAMaterials;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.metal.MetalCasing2;
+import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
@@ -47,6 +49,7 @@ import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 
 
 public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControllerBase implements IMinerHandler {
@@ -57,6 +60,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     private final int fortune;
     private final int tier;
     private FluidStack drillingFluid = Materials.DrillingFluid.getFluid(1);
+    private int currentTier;
 
     public MetaTileEntityAdvancedLargeChunkMiner(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId);
@@ -75,9 +79,14 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.description"));
         tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.crushed"));
-        tooltip.add(I18n.format("gtadditions.machine.miner.multi.description", this.getTier(), this.getTier(), this.getFortuneLvl()));
-        tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", 1 << this.getTier() - 1, this.drillingFluid.getLocalizedName()));
-        tooltip.add(I18n.format("gregtech.multiblock.large_miner.block_per_tick", 1 << this.getTier() - 1));
+        tooltip.add(I18n.format("gtadditions.machine.miner.multi.description", this.getDiameter(), this.getDiameter(), this.getFortuneLvl()));
+        tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", 1 << this.getDiameter() - 1, this.drillingFluid.getLocalizedName()));
+        tooltip.add(I18n.format("gregtech.multiblock.large_miner.block_per_tick", 1 << this.getDiameter() - 1));
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        return abilities.containsKey(MultiblockAbility.EXPORT_ITEMS) && abilities.containsKey(MultiblockAbility.INPUT_ENERGY) && abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS) && super.checkStructureComponents(parts, abilities);
     }
 
     @Override
@@ -87,6 +96,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
 
     @Override
     protected void updateFormedValid() {
+        if (this.currentTier < this.tier) return;
         if (((this.getProblems() >> 5) & 1) != 0)
             this.workableHandler.update();
     }
@@ -133,12 +143,13 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         return this.tier == 0 ? null : FactoryBlockPattern.start()
                 .aisle("F~~~F", "F~~~F", "CCCCC", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("~~~~~", "~~~~~", "CCCCC", "~XXX~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
-                .aisle("~~~~~", "~~~~~", "CCCCC", "~XXX~", "~FFF~", "~FFF~", "~FFF~", "~~F~~", "~~F~~", "~~F~~")
+                .aisle("~~~~~", "~~~~~", "CCMCC", "~XXX~", "~FFF~", "~FFF~", "~FFF~", "~~F~~", "~~F~~", "~~F~~")
                 .aisle("~~~~~", "~~~~~", "CCCCC", "~XSX~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("F~~~F", "F~~~F", "CCCCC", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('M', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('F', statePredicate(this.getFrameState()))
                 .where('~', tile -> true)
                 .build();
@@ -171,6 +182,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         super.formStructure(context);
         this.workableHandler.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
         this.drillingFluid = Materials.DrillingFluid.getFluid(1 << this.getTier() - 1);
+        this.currentTier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
     }
 
     @Override
@@ -206,12 +218,17 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
 
     @Override
     public int getTier() {
-        return this.tier;
+        return this.currentTier;
     }
 
     @Override
     public int getFortuneLvl() {
         return this.fortune;
+    }
+
+    @Override
+    public int getDiameter() {
+        return this.tier;
     }
 
     @Override

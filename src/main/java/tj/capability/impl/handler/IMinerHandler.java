@@ -12,6 +12,8 @@ public interface IMinerHandler extends IMachineHandler {
      */
     int getFortuneLvl();
 
+    int getDiameter();
+
     FluidStack getDrillingFluid();
 
     OreDictionaryItemFilter getOreDictionaryItemFIlter();
