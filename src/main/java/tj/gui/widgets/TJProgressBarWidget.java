@@ -2,6 +2,7 @@ package tj.gui.widgets;
 
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
+import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.api.util.GTLog;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-public class TJProgressBarWidget extends Widget {
+public class TJProgressBarWidget extends Widget implements IIngredientSlot {
 
     private final DoubleSupplier progressSupplier;
     private final DoubleSupplier maxProgressSupplier;
@@ -188,5 +189,10 @@ public class TJProgressBarWidget extends Widget {
                     GTLog.logger.info(e.getMessage());
                 }
         }
+    }
+
+    @Override
+    public Object getIngredientOverMouse(int mouseX, int mouseY) {
+        return this.isMouseOverElement(mouseX, mouseY) ? this.fluid : null;
     }
 }

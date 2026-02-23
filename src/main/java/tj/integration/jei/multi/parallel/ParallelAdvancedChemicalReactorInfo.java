@@ -98,7 +98,6 @@ public class ParallelAdvancedChemicalReactorInfo extends TJMultiblockInfoPage im
         return ArrayUtils.addAll(new String[] {
                 I18n.format("tj.multiblock.advanced_parallel_chemical_reactor.description"),
                 I18n.format("tj.multiblock.parallel.description"),
-                I18n.format("tj.multiblock.parallel.extend.tooltip"),
                 I18n.format("tj.multiblock.parallel.chemical_plant.description"),
                 I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.1"),
                 I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2").replace("§7", "§0").replace("§r", "§r§0"),

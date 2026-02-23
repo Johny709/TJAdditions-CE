@@ -103,9 +103,13 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     protected IEnergyContainer outputEnergyContainer;
 
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId) {
+        this(metaTileEntityId, true);
+    }
+
+    public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance) {
         super(metaTileEntityId);
         this.hasMuffler = false;
-        this.hasMaintenance = true;
+        this.hasMaintenance = hasMaintenance;
         this.maintenance_problems = 0b000000;
     }
 
@@ -158,6 +162,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
      * Used to calculate whether a maintenance problem should happen based on machine time active
      * @param duration duration in ticks to add to the counter of active time
      */
+    @Override
     public void calculateMaintenance(int duration) {
         MetaTileEntityMaintenanceHatch maintenanceHatch = getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).get(0);
         if (maintenanceHatch.getType() == 2 || !GAConfig.GT5U.enableMaintenance) {
@@ -366,6 +371,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
         return this.hasMuffler;
     }
 
+    @Override
     public boolean hasMaintenanceHatch() {
         return this.hasMaintenance;
     }

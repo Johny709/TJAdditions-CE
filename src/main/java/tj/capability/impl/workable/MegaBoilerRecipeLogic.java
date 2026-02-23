@@ -118,8 +118,6 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
             ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), this.itemOutput.remove(0), false);
         if (!this.fluidOutput.isEmpty())
             this.handler.getExportFluidTank().fill(this.fluidOutput.remove(0), true);
-        if (this.metaTileEntity instanceof TJMultiblockControllerBase)
-            ((TJMultiblockControllerBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
         this.itemInput.clear();
         this.fluidInput.clear();
         return true;

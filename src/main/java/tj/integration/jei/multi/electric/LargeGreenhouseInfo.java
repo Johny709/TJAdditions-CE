@@ -70,8 +70,7 @@ public class LargeGreenhouseInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[] {
-                I18n.format("tj.multiblock.large_greenhouse.description")};
+        return new String[] {I18n.format("tj.multiblock.large_greenhouse.description").replace("§7", "§r")};
     }
 
     @Override

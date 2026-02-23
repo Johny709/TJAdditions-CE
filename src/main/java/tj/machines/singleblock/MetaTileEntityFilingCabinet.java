@@ -18,8 +18,10 @@ import gregtech.api.render.Textures;
 import gregtech.api.util.GTUtility;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -39,6 +41,7 @@ import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.handlers.CabinetItemStackHandler;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -72,6 +75,22 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
         tooltip.add(net.minecraft.client.resources.I18n.format("tj.machine.filing_cabinet.description", 27));
         tooltip.add(net.minecraft.client.resources.I18n.format("machine.universal.stack", 64));
         tooltip.add(net.minecraft.client.resources.I18n.format("machine.universal.slots", SLOT_LIMIT));
+        NBTTagCompound compound = stack.getTagCompound();
+        if (compound == null || compound.isEmpty()) return;
+        NBTTagList itemList = compound.getCompoundTag("Inventory").getTagList("Items", 10);
+        int size = itemList.tagCount() / 10;
+        if (itemList.tagCount() > 0)
+            tooltip.add(net.minecraft.client.resources.I18n.format("tj.machine.compressed_chest.slot_filled", itemList.tagCount(), this.getImportItems().getSlots()));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            TooltipHelper.pageText(tip, size, (tip1, tooltipHandler) -> {
+                int start = tooltipHandler.getIndex() * 10;
+                for (int i = start; i < Math.min(itemList.tagCount(), start + 10); i++) {
+                    NBTTagCompound itemCompound = itemList.getCompoundTagAt(i);
+                    ItemStack itemStack = new ItemStack(Item.getByNameOrId(itemCompound.getString("id")), itemCompound.getInteger("Count"), itemCompound.getShort("Damage"));
+                    tip1.add(net.minecraft.client.resources.I18n.format("tj.machine.compressed_chest.slot", itemCompound.getInteger("Slot"), itemStack.getDisplayName(), itemStack.getCount()));
+                }
+            });
+        });
     }
 
     @Override

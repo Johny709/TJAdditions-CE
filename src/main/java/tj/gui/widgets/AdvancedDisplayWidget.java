@@ -35,6 +35,7 @@ import tj.util.consumers.QuadConsumer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -401,8 +402,12 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
             TJGuiTextures.TOOLTIP_BOX.draw(this.lastHoverX, this.lastHoverY, size.getWidth() + 7, size.getHeight() + 5);
             this.drawDisplayText(this.lastHoverX + 4, this.lastHoverY + 4, displayText);
         }
-        if (component != null && component.getValue() instanceof ITextComponent) {
+        if (component == null) return;
+        if (component.getValue() instanceof ITextComponent) {
             this.getWrapScreen().handleComponentHover((ITextComponent) component.getValue(), mouseX, mouseY);
+        } else if (component.getValue() instanceof TextComponentWrapper<?>) {
+            TextComponentWrapper<?> subComponent = (TextComponentWrapper<?>) component.getValue();
+            this.getWrapScreen().handleComponentHover((ITextComponent) subComponent.getValue(), mouseX, mouseY);
         }
     }
 
@@ -457,20 +462,22 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                             for (int j = 1; j < tooltip.size(); j++)
                                 hoverComponent.appendText("\n" + tooltip.get(j));
                         }
-                        return new TextComponentWrapper<>(new TextComponentString("")
+                        return new TextComponentWrapper<>(new TextComponentWrapper<>(new TextComponentString("")
                                 .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
                                         .appendSibling(hoverComponent)
                                         .appendText("\n" + I18n.format("tj.machine.universal.item_amount", itemStack.getCount()))))))
+                                .setAdvancedHoverComponent(Collections.singletonList(new TextComponentWrapper<>(itemStack))))
                                 .setAdvancedHoverComponent(component.getAdvancedHoverComponent());
                     } else {
                         FluidStack fluidStack = (FluidStack) component.getValue();
                         // Add chemical formula tooltip
                         String formula = FluidTooltipUtil.getFluidTooltip(fluidStack);
                         formula = formula == null || formula.isEmpty() ? "" : "\n" + formula;
-                        return new TextComponentWrapper<>(new TextComponentString("")
+                        return new TextComponentWrapper<>(new TextComponentWrapper<>(new TextComponentString("")
                                 .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(fluidStack.getLocalizedName())
                                         .appendText(ChatFormatting.GRAY + formula)
                                         .appendText("\n" + I18n.format("tj.machine.universal.fluid_amount", fluidStack.amount))))))
+                                .setAdvancedHoverComponent(Collections.singletonList(new TextComponentWrapper<>(fluidStack))))
                                 .setAdvancedHoverComponent(component.getAdvancedHoverComponent());
                     }
                 }
@@ -483,8 +490,15 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
 
     @Override
     public Object getIngredientOverMouse(int mouseX, int mouseY) {
-        TextComponentWrapper<?> textComponent = this.getTextUnderMouse(mouseX, mouseY, this.hoverDisplayText != null ? this.hoverDisplayText : this.displayText, this.hoverDisplayText != null);
-        return textComponent == null ? null : textComponent.getValue() instanceof ItemStack || textComponent.getValue() instanceof FluidStack ? textComponent.getValue() : null;
+        if (!this.isMouseOverElement(mouseX, mouseY))
+            return null;
+        TextComponentWrapper<?> component = this.getTextUnderMouse(mouseX, mouseY, this.hoverDisplayText != null ? this.hoverDisplayText : this.displayText, this.hoverDisplayText != null);
+        if (!(component instanceof TextComponentWrapper<?>) || !(component.getValue() instanceof TextComponentWrapper<?>))
+            return null;
+        TextComponentWrapper<?> subComponent = (TextComponentWrapper<?>) component.getValue();
+        if (subComponent.getAdvancedHoverComponent().isEmpty())
+            return null;
+        return subComponent.getAdvancedHoverComponent().get(0).getValue();
     }
 
     /**
@@ -509,7 +523,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
         }
     }
 
-    public static class TextComponentWrapper<T> {
+    public static final class TextComponentWrapper<T> {
 
         private final T value;
         private int priority;

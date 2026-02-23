@@ -97,10 +97,15 @@ public class XLTurbineWorkableHandler extends TJFuelRecipeLogic {
             int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
             if (fuelStack.amount >= fuelAmountToUse) {
                 this.maxProgress = this.calculateRecipeDuration(currentRecipe);
-                if (this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.PLASMA)
-                    this.exportFluidsSupplier.get().fill(FluidRegistry.getFluidStack(FluidRegistry.getFluidName(currentRecipe.getRecipeFluid()).substring(7), fuelAmountToUse), true);
-                else if (this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM)
-                    this.exportFluidsSupplier.get().fill(DistilledWater.getFluid(fuelAmountToUse / 160), true);
+                if (this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.PLASMA) {
+                    FluidStack outputFluid = FluidRegistry.getFluidStack(FluidRegistry.getFluidName(currentRecipe.getRecipeFluid()).substring(7), fuelAmountToUse);
+                    this.exportFluidsSupplier.get().fill(outputFluid, true);
+                    this.fluidOutputs.add(outputFluid);
+                } else if (this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM) {
+                    FluidStack outputFluid = DistilledWater.getFluid(fuelAmountToUse / 160);
+                    this.exportFluidsSupplier.get().fill(outputFluid, true);
+                    this.fluidOutputs.add(outputFluid);
+                }
                 FluidStack recipeFluid = currentRecipe.getRecipeFluid();
                 recipeFluid.amount = fuelAmountToUse;
                 return recipeFluid;

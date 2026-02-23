@@ -105,7 +105,8 @@ public abstract class TJMultiblockInfoPage extends MultiblockInfoPage {
             if (i < controller.getRecipeMaps().length - 1)
                 builder.append(", ");
         }
-        return new String[]{I18n.format("gtadditions.multiblock.universal.tooltip.1", builder.toString()),
+        return new String[]{I18n.format("tj.multiblock.parallel.extend.tooltip").replace("§7", "§r"),
+                I18n.format("gtadditions.multiblock.universal.tooltip.1", builder.toString()),
                 I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(controller.getEUPercentage() / 100.0)),
                 I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(controller.getDurationPercentage() / 100.0)),
                 I18n.format("tj.multiblock.parallel.tooltip.1", controller.getStack()).replace("§7", "§0").replace("§r", "§r§0"),

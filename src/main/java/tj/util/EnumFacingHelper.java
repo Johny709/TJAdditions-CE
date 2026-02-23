@@ -2,7 +2,9 @@ package tj.util;
 
 import net.minecraft.util.EnumFacing;
 
-public class EnumFacingHelper {
+public final class EnumFacingHelper {
+
+    private EnumFacingHelper() {}
 
     public static EnumFacing getTopFacingFrom(EnumFacing facing) {
         switch (facing) {

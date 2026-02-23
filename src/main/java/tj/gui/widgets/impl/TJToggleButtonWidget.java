@@ -104,8 +104,8 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
 
     /**
      * This will attempt to translate the text if they're a lang string.
-     * @param baseDisplayText The text shown when the button is not pressed.
-     * @param activeDisplayText The text shown when the button is pressed.
+     * @param baseDisplayText The text shown on the button when it's not pressed.
+     * @param activeDisplayText The text shown on the button when it's pressed.
      */
     public TJToggleButtonWidget setToggleDisplayText(String baseDisplayText, String activeDisplayText) {
         this.baseDisplayText = baseDisplayText;
@@ -177,8 +177,11 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
         if (this.isPressedCondition != null) {
-            this.isPressed = this.isPressedCondition.getAsBoolean();
-            this.writeUpdateInfo(3, buffer -> buffer.writeBoolean(this.isPressed));
+            boolean isPressed = this.isPressedCondition.getAsBoolean();
+            if (this.isPressed != isPressed) {
+                this.isPressed = isPressed;
+                this.writeUpdateInfo(4, buffer -> buffer.writeBoolean(this.isPressed));
+            }
         }
     }
 
@@ -186,7 +189,7 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
         super.readUpdateInfo(id, buffer);
-        if (id == 3)
+        if (id == 4)
             this.isPressed = buffer.readBoolean();
     }
 }

@@ -41,6 +41,8 @@ public class TJTextures {
     public static final TJSimpleCubeRenderer HEAVY_QUARK_DEGENERATE_MATTER = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/heavy_quark_degenerate_matter");
     public static final TJSimpleCubeRenderer STAINLESS_PIPE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/pipe/machine_casing_pipe_stainless");
     public static final TJSimpleCubeRenderer TUNGSTEN_TITANIUM_CARBIDE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/tungsten_titanium_carbide");
+    public static final TJSimpleCubeRenderer RUTHERFORDIUM = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/rutherfordium");
+    public static final TJSimpleSidedCubeRenderer PRIMITIVE_PUMP = new TJSimpleSidedCubeRenderer(TJ.MODID, "blocks/casings/pump_deck");
 
     public static final TJSimpleOverlayRenderer COVER_CREATIVE_FLUID = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/creative_fluid_cover_overlay");
     public static final TJSimpleOverlayRenderer COVER_CREATIVE_ENERGY = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/creative_energy_cover_overlay");
@@ -86,6 +88,7 @@ public class TJTextures {
     public static final TJSimpleOverlayRenderer ENCHANTED_BOOK = new TJSimpleOverlayRenderer("minecraft", "items/book_enchanted");
     public static final TJSimpleOverlayRenderer ENCHANTING_TABLE = new TJSimpleOverlayRenderer("minecraft", "blocks/enchanting_table_top");
     public static final TJSimpleOverlayRenderer CRAFTER = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/overlay/crafter_overlay");
+    public static final TJSimpleOverlayRenderer NAME_TAG = new TJSimpleOverlayRenderer("minecraft", "items/name_tag");
 
     @SideOnly(Side.CLIENT)
     public static void register(TextureMap textureMap) {

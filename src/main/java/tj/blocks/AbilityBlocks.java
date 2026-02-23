@@ -28,7 +28,8 @@ public class AbilityBlocks extends VariantBlock<AbilityBlocks.AbilityType> {
     }
 
     public enum AbilityType implements IStringSerializable {
-        SOLAR_COLLECTOR("solar_collector");
+        SOLAR_COLLECTOR("solar_collector"),
+        PRIMITIVE_PUMP_CASING("primitive_pump_casing");
 
         private final String name;
 

@@ -144,8 +144,6 @@ public class AcceleratorWorkableHandler extends AbstractWorkableHandler<IMachine
                     }
                 }
         }
-        if (this.metaTileEntity instanceof TJMultiblockControllerBase)
-            ((TJMultiblockControllerBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
         return true;
     }
 

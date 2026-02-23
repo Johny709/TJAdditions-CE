@@ -54,6 +54,11 @@
         "textures": {
           "all": "tj:blocks/casings/solid/periodicium"
         }
+      },
+      "rutherfordium": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/rutherfordium"
+        }
       }
     }
   }

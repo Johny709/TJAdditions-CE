@@ -108,7 +108,7 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
         tooltip.add(I18n.format("tj.multiblock.mega_fusion.coolant_increase", TJValues.thousandTwoPlaceFormat.format(GAConfig.multis.advFusion.vacuumCoolantIncrease)));
         tooltip.add(I18n.format("tj.multiblock.mega_fusion.energy_decrease", TJValues.thousandTwoPlaceFormat.format(GAConfig.multis.advFusion.vacuumEnergyDecrease)));
         tooltip.add(I18n.format("tj.multiblock.mega_fusion.output_increase", TJValues.thousandTwoPlaceFormat.format(GAConfig.multis.advFusion.divertorOutputIncrease)));
-        TooltipHelper.shiftText(tooltip, tip -> super.addInformation(stack, player, tip, advanced));
+        TooltipHelper.shiftTextJEI(tooltip, tip -> super.addInformation(stack, player, tip, advanced));
     }
 
     @Override

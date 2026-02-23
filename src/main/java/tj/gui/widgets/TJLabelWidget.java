@@ -24,11 +24,14 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
 
     private final TextureArea labelTexture;
     private final Supplier<String> recipeUid;
+    private Supplier<String> localeSupplier;
     private int color = 0x404040;
     private int offsetX;
     private int tickCounter;
     private int hoverTicks;
+    private boolean canSlide = true;
     private boolean slideAtEnd;
+    private boolean centered = true;
     private String locale;
     private String uid;
     private ItemStack itemLabel;
@@ -54,6 +57,10 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
         return this;
     }
 
+    /**
+     * Set translatable text to be displayed in the label.
+     * This is redundant if {@link #setDynamicLocale(Supplier)} is set.
+     */
     public TJLabelWidget setLocale(String locale) {
         this.locale = locale;
         return this;
@@ -61,6 +68,30 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
 
     public TJLabelWidget setColor(int color) {
         this.color = color;
+        return this;
+    }
+
+    /**
+     * set for text to start sliding to the left gradually when hovered over. Default: True
+     */
+    public TJLabelWidget setCanSlide(boolean canSlide) {
+        this.canSlide = canSlide;
+        return this;
+    }
+
+    /**
+     * set to display text on center of this label. Default: True
+     */
+    public TJLabelWidget setCentered(boolean centered) {
+        this.centered = centered;
+        return this;
+    }
+
+    /**
+     * Setting this will update the locale automatically and replace locale defined in {@link #setLocale(String)}
+     */
+    public TJLabelWidget setDynamicLocale(Supplier<String> localeSupplier) {
+        this.localeSupplier = localeSupplier;
         return this;
     }
 
@@ -73,11 +104,12 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        int widthApplied = 5;
+        int widthApplied = 3;
         Size size = this.getSize();
         Position pos = this.getPosition();
         FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        this.labelTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
+        if (this.labelTexture != null)
+            this.labelTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         if (this.itemLabel != null) {
             Widget.drawItemStack(this.itemLabel, pos.getX() + 3, pos.getY() + 2, null);
             widthApplied += 16;
@@ -93,25 +125,36 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
             length -= this.offsetX;
             if (length < 0)
                 this.slideAtEnd = true;
-            RenderUtil.useScissor(pos.getX() + widthApplied, pos.getY(), size.getWidth() - 25, size.getHeight(), () -> fontRenderer.drawString(locale, finalX, pos.getY() + 6, this.color));
+            RenderUtil.useScissor(pos.getX() + widthApplied, pos.getY(), size.getWidth() - 22, size.getHeight(), () -> fontRenderer.drawString(locale, finalX, pos.getY() + 6, this.color));
         }
     }
 
     @Override
     public void detectAndSendChanges() {
-        if (this.recipeUid == null) return;
-        String uid = this.recipeUid.get();
-        if (uid != null && !uid.equals(this.uid)) {
-            this.uid = uid;
-            this.writeUpdateInfo(1, buffer -> buffer.writeString(this.uid));
+        if (this.recipeUid != null) {
+            String uid = this.recipeUid.get();
+            if (uid != null && !uid.equals(this.uid)) {
+                this.uid = uid;
+                this.writeUpdateInfo(1, buffer -> buffer.writeString(this.uid));
+            }
+        }
+        if (this.localeSupplier != null) {
+            String locale = this.localeSupplier.get();
+            if (this.locale == null || !this.locale.equals(locale)) {
+                this.locale = locale;
+                this.writeUpdateInfo(2, buffer -> buffer.writeString(this.locale));
+            }
         }
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
-        if (id == 1)
+        if (id == 1) {
             this.uid = buffer.readString(Short.MAX_VALUE);
+        } else if (id == 2) {
+            this.locale = buffer.readString(Short.MAX_VALUE);
+        }
     }
 
     @Override
@@ -121,7 +164,7 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
             if (this.slideAtEnd) {
                 this.slideAtEnd = false;
                 this.offsetX = -(this.getSize().getWidth() - 24);
-            } else if (this.tickCounter % 2 == 0 || this.tickCounter % 3 == 0)
+            } else if (this.canSlide && (this.tickCounter % 2 == 0 || this.tickCounter % 3 == 0))
                 this.offsetX++;
             if (++this.hoverTicks > 20 && this.uid != null) {
                 FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
@@ -131,6 +174,19 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
         } else {
             this.hoverTicks = 0;
             this.offsetX = 0;
+            if (this.centered && this.locale != null) {
+                String locale = I18n.format(this.locale);
+                int length = Minecraft.getMinecraft().fontRenderer.getStringWidth(locale);
+                int widthApplied = 3;
+                if (this.itemLabel != null)
+                    widthApplied += 16;
+                if (this.fluidLabel != null)
+                    widthApplied += 18;
+                int boxLength = this.getSize().getWidth() - widthApplied;
+                if (length < boxLength) {
+                    this.offsetX = (length - boxLength) / 2;
+                }
+            }
         }
     }
 

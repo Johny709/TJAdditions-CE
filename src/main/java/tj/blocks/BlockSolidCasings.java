@@ -38,7 +38,8 @@ public class BlockSolidCasings extends VariantBlock<BlockSolidCasings.SolidCasin
         SEABORGIUM_CASING("seaborgium"),
         TUNGSTEN_TITANIUM_CARBIDE_CASING("tungsten_titanium_carbide"),
         HEAVY_QUARK_DEGENERATE_MATTER("heavy_quark_degenerate_matter"),
-        PERIODICIUM("periodicium");
+        PERIODICIUM("periodicium"),
+        RUTHERFORDIUM_CASING("rutherfordium");
 
         private final String name;
 

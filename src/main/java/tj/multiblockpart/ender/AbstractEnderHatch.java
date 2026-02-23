@@ -783,7 +783,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
         int oldBaseColor = renderState.baseColour;
         int oldAlphaOverride = renderState.alphaOverride;
 
-        renderState.baseColour = getPortalColor() << 8;
+        renderState.baseColour = this.getPortalColor() << 8;
         renderState.alphaOverride = 0xFF;
         this.getOverlay().renderSided(this.frontFacing, renderState, translation, pipeline);
 
@@ -792,7 +792,8 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
 
         renderState.baseColour = oldBaseColor;
         renderState.alphaOverride = oldAlphaOverride;
-        TJTextures.OUTSIDE_OVERLAY_BASE.renderSided(this.frontFacing, renderState, translation, pipeline);
+        if (this.getController() == null)
+            TJTextures.OUTSIDE_OVERLAY_BASE.renderSided(this.frontFacing, renderState, translation, pipeline);
     }
 
     @Override
@@ -875,17 +876,14 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
     }
 
     @Override
-    public boolean isAttachedToMultiBlock() {
-        return false;
-    }
-
-    @Override
     public void addToMultiBlock(MultiblockControllerBase controller) {
+        super.addToMultiBlock(controller);
         this.controller = controller;
     }
 
     @Override
     public void removeFromMultiBlock(MultiblockControllerBase controller) {
+        super.removeFromMultiBlock(controller);
         this.controller = null;
     }
 }

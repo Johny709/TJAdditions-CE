@@ -122,7 +122,7 @@ public final class UIDisplayBuilder {
     }
 
     public UIDisplayBuilder energyStoredLine(long energyStored, long energyCapacity) {
-        return this.energyStoredLine(energyStored, energyCapacity, 0);
+        return this.energyStoredLine(energyStored, energyCapacity, this.count);
     }
 
     public UIDisplayBuilder energyStoredLine(long energyStored, long energyCapacity, int priority) {
@@ -133,12 +133,12 @@ public final class UIDisplayBuilder {
     }
 
     public UIDisplayBuilder energyInputLine(IEnergyContainer container, long amount) {
-        return this.energyInputLine(container, amount, 1, 0);
+        return this.energyInputLine(container, amount, 1, this.count);
     }
 
 
     public UIDisplayBuilder energyInputLine(IEnergyContainer container, long amount, int maxProgress) {
-        return this.energyInputLine(container, amount, maxProgress, 0);
+        return this.energyInputLine(container, amount, maxProgress, this.count);
     }
 
     public UIDisplayBuilder energyInputLine(IEnergyContainer container, long amount, int maxProgress, int priority) {

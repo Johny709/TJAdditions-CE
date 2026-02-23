@@ -75,8 +75,9 @@ public class LargeCrafterInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[]{I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeArchitectWorkbench.stack).replace("§r", "§7"),
+        return new String[]{I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeArchitectWorkbench.stack).replace("§7", "§r"),
                 I18n.format("tj.multiblock.large_crafter.description"),
+                I18n.format("tj.multiblock.large_crafter.description.1").replace("§7", "§r"),
                 TooltipHelper.blinkingText(Color.YELLOW,  20, "tj.multiblock.large_crafter.warning")};
     }
 }

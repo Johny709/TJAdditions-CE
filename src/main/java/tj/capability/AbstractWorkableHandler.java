@@ -70,6 +70,8 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
             if (this.completeRecipe()) {
                 this.progress = 0;
                 this.energyPerTick = 0;
+                if (this.handler.hasMaintenanceHatch())
+                    this.handler.calculateMaintenance(this.maxProgress);
                 if (this.hasProblem)
                     this.setProblem(false);
             } else {

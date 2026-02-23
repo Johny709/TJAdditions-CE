@@ -102,7 +102,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(net.minecraft.client.resources.I18n.format("tj.multiblock.large_solar_boiler.description"));
         if (!this.mega) return;
-        tooltip.add(net.minecraft.client.resources.I18n.format("tj.multiblock.mega_boiler.parallel.description", this.getMaxParallel()).replace("§r", "§7"));
+        tooltip.add(net.minecraft.client.resources.I18n.format("tj.multiblock.mega_boiler.parallel.description", this.getMaxParallel()));
         tooltip.add(TooltipHelper.blinkingText(Color.YELLOW, 20, "tj.multiblock.mega_boiler.warning"));
     }
 

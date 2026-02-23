@@ -55,8 +55,6 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
     protected boolean completeRecipe() {
         if (ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), this.output, true).isEmpty()) {
             ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), this.output, false);
-            if (this.metaTileEntity instanceof TJMultiblockControllerBase)
-                ((TJMultiblockControllerBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
             this.catalyst = ItemStack.EMPTY;
             this.input = ItemStack.EMPTY;
             this.output = ItemStack.EMPTY;
