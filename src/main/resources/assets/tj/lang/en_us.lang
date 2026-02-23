@@ -392,7 +392,7 @@ tj.machine.water_reservoir_hatch.description=Provides up to §b2,147,483,647L/t�
 tj.machine.crafter.tooltip=§fClick§7 on recipe output slot to §aadd§7 to recipe list on the right. §fLeft-Click§7 on recipe list slot to display ingredients on crafting grid. §fRight-Click§7 to §cremove§7 recipe.
 
 tj.machine.filtered_bus.warning=WARNING: Not compatible with TJ 1.4. Machines in 1.4 have outdated item handlers that will cause a crash loop.
-tj.machine.filtered_bus.description=§aIts recommended to drag items from JEI to set filter in slot. While in filter mode, item slot marked in green outline are ghost items from JEI.
+tj.machine.filtered_bus.description=§aIts recommended to drag items from JEI to set filter in slot. While in filter mode, item slot marked in green outline are ghost items from JEI. §bblue slot outline are non-ghost items.
 
 tj.multiblock.large_solar_boiler.description=Produces steam from the sun. Cannot produce steam at night and while raining. Can accept either water or distilled water however doing water will make the boiler calcify over time. Once calcification reaches 100%%, then the boiler will stop working completely.
 

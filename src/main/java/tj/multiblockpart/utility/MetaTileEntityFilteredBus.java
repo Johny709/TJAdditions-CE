@@ -21,6 +21,7 @@ import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -187,6 +188,18 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
         } else {
             Textures.ITEM_HATCH_INPUT_OVERLAY.renderSided(this.getFrontFacing(), renderState, translation, pipeline);
             Textures.PIPE_IN_OVERLAY.renderSided(this.getFrontFacing(), renderState, translation, pipeline);
+        }
+    }
+
+    @Override
+    public void clearMachineInventory(NonNullList<ItemStack> itemBuffer) {
+        super.clearMachineInventory(itemBuffer);
+        for (int i = 0; i < this.filterInventory.getSlots(); i++) {
+            ItemStack stack = this.filterInventory.getStackInSlot(i);
+            if (!stack.isEmpty() && !this.areGhostItems[i]) {
+                this.filterInventory.setStackInSlot(i, ItemStack.EMPTY);
+                itemBuffer.add(stack);
+            }
         }
     }
 

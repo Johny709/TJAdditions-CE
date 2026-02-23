@@ -8,7 +8,6 @@ import net.minecraftforge.fluids.FluidStack;
 import tj.capability.IGeneratorInfo;
 
 import java.util.function.DoubleSupplier;
-import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 public class TJBoostableFuelRecipeLogic extends TJFuelRecipeLogic implements IWorkable, IGeneratorInfo {

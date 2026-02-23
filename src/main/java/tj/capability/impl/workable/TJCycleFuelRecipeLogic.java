@@ -8,7 +8,7 @@ import gregtech.api.recipes.recipes.FuelRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
 
-import java.util.function.IntSupplier;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 public class TJCycleFuelRecipeLogic extends TJBoostableFuelRecipeLogic {
@@ -16,7 +16,7 @@ public class TJCycleFuelRecipeLogic extends TJBoostableFuelRecipeLogic {
     private final Supplier<FluidStack> reagent;
     private int currentCycle;
 
-    public TJCycleFuelRecipeLogic(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank, Supplier<FluidStack> booster, Supplier<FluidStack> reagent, IntSupplier fuelMultiplier, IntSupplier euMultiplier, long maxVoltage) {
+    public TJCycleFuelRecipeLogic(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank, Supplier<FluidStack> booster, Supplier<FluidStack> reagent, DoubleSupplier fuelMultiplier, DoubleSupplier euMultiplier, long maxVoltage) {
         super(metaTileEntity, recipeMap, energyContainer, fluidTank, booster, fuelMultiplier, euMultiplier, maxVoltage);
         this.reagent = reagent;
     }
