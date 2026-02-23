@@ -52,9 +52,8 @@ public abstract class FueledMultiblockControllerMixin extends MultiblockWithDisp
         widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
         if (recipeLogic instanceof TJFuelRecipeLogic) {
-            widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18)
-                    .setToggleButtonResponder(((TJFuelRecipeLogic) recipeLogic)::setVoidEnergy)
-                    .setButtonSupplier(((TJFuelRecipeLogic) recipeLogic)::isVoidEnergy)
+            widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, ((TJFuelRecipeLogic) recipeLogic)::isVoidEnergy, ((TJFuelRecipeLogic) recipeLogic)::setVoidEnergy)
+                    .setDynamicTooltipText(() -> ((TJFuelRecipeLogic) recipeLogic).isVoidEnergy() ? "machine.universal.toggle.energy_voiding.enabled" : "machine.universal.toggle.energy_voiding.disabled")
                     .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                     .setBackgroundTextures(TJGuiTextures.ENERGY_VOID)
                     .useToggleTexture(true));
