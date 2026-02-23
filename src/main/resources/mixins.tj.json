@@ -47,6 +47,7 @@
     "gregicality.MultiRecipeMapMultiblockControllerMixin",
     "gregicality.QubitContainerInfoProviderMixin",
     "gregicality.RecipeMapSteamMultiblockControllerMixin",
+    "gregicality.TileEntityAlloyBlastFurnaceMixin",
     "gregicality.TileEntityFusionReactorMixin",
     "gregtech.FuelableInfoProviderMixin",
     "gregtech.FueledMultiblockControllerMixin",
