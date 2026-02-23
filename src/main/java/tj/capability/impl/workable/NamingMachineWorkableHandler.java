@@ -38,15 +38,17 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
         IItemHandlerModifiable itemHandlerModifiable = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
         for (int i = 0; i < itemHandlerModifiable.getSlots(); i++) {
             ItemStack stack = itemHandlerModifiable.getStackInSlot(i);
-            if (this.catalyst.isEmpty() && stack.getItem() == Items.NAME_TAG) {
-                this.itemInputs.add(this.catalyst = stack);
+            if (stack.getItem() == Items.NAME_TAG) {
+                if (this.catalyst.isEmpty())
+                    this.itemInputs.add(this.catalyst = stack);
                 catalystIndex = i;
                 break;
             }
         }
         for (int i = 0; i < itemHandlerModifiable.getSlots() && availableParallels > 0; i++) {
+            if (i == catalystIndex) continue;
             ItemStack stack = itemHandlerModifiable.extractItem(i, availableParallels, false);
-            if (stack.isEmpty() || i == catalystIndex) continue;
+            if (stack.isEmpty()) continue;
             this.itemInputs.add(stack.copy());
             stack.setStackDisplayName(this.catalyst.isEmpty() ? this.handler.getName() : this.catalyst.getDisplayName());
             availableParallels -= stack.getCount();
