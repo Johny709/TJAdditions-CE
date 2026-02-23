@@ -28,6 +28,7 @@
     "gregicality.LargeSimpleRecipeMapMultiblockControllerMixin",
     "gregicality.MetaTileEntityAdvFusionReactorMixin",
     "gregicality.MetaTileEntityBatteryTowerMixin",
+    "gregicality.MetaTileEntityCosmicRayDetectorMixin",
     "gregicality.MetaTileEntityCryogenicFreezerMixin",
     "gregicality.MetaTileEntityElectricBlastFurnaceMixin",
     "gregicality.MetaTileEntityExtremeDieselEngineMixin",
