@@ -35,6 +35,7 @@
     "gregicality.MetaTileEntityHyperReactorIIIMixin",
     "gregicality.MetaTileEntityHyperReactorIIMixin",
     "gregicality.MetaTileEntityHyperReactorIMixin",
+    "gregicality.MetaTileEntityLargeMinerMixin",
     "gregicality.MetaTileEntityLargeNaquadahReactorMixin",
     "gregicality.MetaTileEntityLargeRocketEngineMixin",
     "gregicality.MetaTileEntityMufflerHatchMixin",
