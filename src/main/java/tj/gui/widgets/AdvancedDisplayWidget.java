@@ -493,10 +493,10 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
         if (!this.isMouseOverElement(mouseX, mouseY))
             return null;
         TextComponentWrapper<?> component = this.getTextUnderMouse(mouseX, mouseY, this.hoverDisplayText != null ? this.hoverDisplayText : this.displayText, this.hoverDisplayText != null);
-        if (!(component instanceof TextComponentWrapper<?>))
+        if (!(component instanceof TextComponentWrapper<?>) || !(component.getValue() instanceof TextComponentWrapper<?>))
             return null;
         TextComponentWrapper<?> subComponent = (TextComponentWrapper<?>) component.getValue();
-        if (subComponent == null || subComponent.getAdvancedHoverComponent().isEmpty())
+        if (subComponent.getAdvancedHoverComponent().isEmpty())
             return null;
         return subComponent.getAdvancedHoverComponent().get(0).getValue();
     }
