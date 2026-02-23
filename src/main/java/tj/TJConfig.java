@@ -291,7 +291,7 @@ public class TJConfig {
         @Config.Name("Elite Large Miner Fortune Level")
         @Config.RequiresMcRestart
         @Config.Comment("The level of fortune which will be applied to blocks that the Miner mines.")
-        public int eliteMinerFortune = 18;
+        public int eliteMinerFortune = 12;
 
         @Config.Name("Elite Large Miner Drilling Fluid Consumption")
         @Config.RequiresMcRestart
@@ -312,7 +312,7 @@ public class TJConfig {
         @Config.Name("Elite Large Miner Fortune Level")
         @Config.RequiresMcRestart
         @Config.Comment("The level of fortune which will be applied to blocks that the Miner mines.")
-        public int ultimateMinerFortune = 24;
+        public int ultimateMinerFortune = 15;
 
         @Config.Name("Elite Large Miner Drilling Fluid Consumption")
         @Config.RequiresMcRestart
