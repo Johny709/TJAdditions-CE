@@ -1,16 +1,19 @@
 package tj.capability.impl.workable;
 
 import gregtech.api.metatileentity.MetaTileEntity;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.handler.INameHandler;
 import tj.util.ItemStackHelper;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +21,8 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
 
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
+    @Nonnull
+    private ItemStack catalyst = ItemStack.EMPTY;
     private int outputIndex;
 
     public NamingMachineWorkableHandler(MetaTileEntity metaTileEntity) {
@@ -26,17 +31,29 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
 
     @Override
     protected boolean startRecipe() {
-        int availableParallels = this.handler.getParallel();
         this.itemInputs.clear();
         this.itemOutputs.clear();
-        for (int i = 0; i < this.handler.getImportItemInventory().getSlots() && availableParallels > 0; i++) {
-            ItemStack stack = this.handler.getImportItemInventory().extractItem(i, availableParallels, false);
-            if (stack.isEmpty()) continue;
+        int catalystIndex = -1;
+        int availableParallels = this.handler.getParallel();
+        IItemHandlerModifiable itemHandlerModifiable = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
+        for (int i = 0; i < itemHandlerModifiable.getSlots(); i++) {
+            ItemStack stack = itemHandlerModifiable.getStackInSlot(i);
+            if (this.catalyst.isEmpty() && stack.getItem() == Items.NAME_TAG) {
+                this.itemInputs.add(this.catalyst = stack);
+                catalystIndex = i;
+                break;
+            }
+        }
+        for (int i = 0; i < itemHandlerModifiable.getSlots() && availableParallels > 0; i++) {
+            ItemStack stack = itemHandlerModifiable.extractItem(i, availableParallels, false);
+            if (stack.isEmpty() || i == catalystIndex) continue;
             this.itemInputs.add(stack.copy());
-            stack.setStackDisplayName(this.handler.getName());
+            stack.setStackDisplayName(this.catalyst.isEmpty() ? this.handler.getName() : this.catalyst.getDisplayName());
             availableParallels -= stack.getCount();
             this.itemOutputs.add(stack);
         }
+        if (++this.lastInputIndex == this.busCount)
+            this.lastInputIndex = 0;
         this.setMaxProgress(this.calculateOverclock(30L, 50, 2.8F));
         return availableParallels != this.handler.getParallel();
     }
@@ -53,6 +70,7 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
         this.outputIndex = 0;
         this.itemInputs.clear();
         this.itemOutputs.clear();
+        this.catalyst = ItemStack.EMPTY;
         return true;
     }
 

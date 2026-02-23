@@ -56,6 +56,7 @@ public class MetaTileEntityNamingMachine extends TJTieredWorkableMetaTileEntity 
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.parallel", this.parallel));
+        tooltip.add(I18n.format("tj.machine.naming_machine.description"));
     }
 
     @Override

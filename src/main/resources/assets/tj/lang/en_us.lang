@@ -391,6 +391,8 @@ tj.machine.water_reservoir_hatch.description=Provides up to §b2,147,483,647L/t�
 
 tj.machine.crafter.tooltip=§fClick§7 on recipe output slot to §aadd§7 to recipe list on the right. §fLeft-Click§7 on recipe list slot to display ingredients on crafting grid. §fRight-Click§7 to §cremove§7 recipe.
 
+tj.machine.naming_machine.description=Changes the display name of items like an anvil would. Place in a nametag with the specified name as a catalyst. If there's no nametag then it'll use the name from the textbox.
+
 tj.machine.filtered_bus.warning=WARNING: Not compatible with TJ 1.4. Machines in 1.4 have outdated item handlers that will cause a crash loop.
 tj.machine.filtered_bus.description=§aIts recommended to drag items from JEI to set filter in slot. While in filter mode, item slot marked in green outline are ghost items from JEI. §bblue slot outline are non-ghost items.
 

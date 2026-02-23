@@ -10,6 +10,7 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.PistonCasing;
 import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
+import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -24,6 +25,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -39,6 +41,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
+import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 
 public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase implements INameHandler {
@@ -61,8 +64,8 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeNamingMachine.stack));
+        tooltip.add(I18n.format("tj.machine.naming_machine.description"));
     }
 
     @Override
@@ -89,9 +92,19 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
                 .voltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
                 .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
                 .addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
+                .customLine(text -> text.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
+                        .appendText(" ")
+                        .appendSibling(this.workableHandler.isDistinct()
+                                ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
+                                : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
                 .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
                 .addRecipeInputLine(this.workableHandler)
                 .addRecipeOutputLine(this.workableHandler);
+    }
+
+    @Override
+    protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
+        this.workableHandler.setDistinct(!componentData.equals("distinctEnabled"));
     }
 
     @Override
@@ -130,6 +143,7 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
         int tier = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
         this.maxVoltage = 8 << tier * 2;
         this.parallel = TJConfig.largeNamingMachine.stack * 16;
+        this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
     }
 
     @Override
