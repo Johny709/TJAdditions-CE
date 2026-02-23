@@ -74,9 +74,8 @@ public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage imple
     @Override
     public String[] getDescription() {
         return ArrayUtils.addAll(new String[] {
-                I18n.format("tj.multiblock.parallel_chemical_reactor.description"),
-                I18n.format("tj.multiblock.parallel.description"),
-                I18n.format("tj.multiblock.parallel.extend.tooltip")},
+                I18n.format("tj.multiblock.parallel_chemical_reactor.description").replace("§7", "§r"),
+                I18n.format("tj.multiblock.parallel.description")},
                 super.getDescription());
     }
 

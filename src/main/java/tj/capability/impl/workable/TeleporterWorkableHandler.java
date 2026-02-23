@@ -84,8 +84,6 @@ public class TeleporterWorkableHandler extends AbstractWorkableHandler<IMachineH
                 }
             }
         }
-        if (this.metaTileEntity instanceof TJMultiblockControllerBase)
-            ((TJMultiblockControllerBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
         return true;
     }
 

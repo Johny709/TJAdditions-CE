@@ -91,8 +91,6 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
         this.fluidInputsList.clear();
         this.fluidOutputsList.clear();
         this.outputIndex = 0;
-        if (this.metaTileEntity instanceof TJMultiblockControllerBase)
-            ((TJMultiblockControllerBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
         return true;
     }
 

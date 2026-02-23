@@ -105,6 +105,7 @@ public class RecipeOutputDisplayWidget extends Widget {
         this.drawStringSized(I18n.format("machine.universal.producing"), x + 4, y + 4, 0xFFFFFF, true, 1, false);
         for (ItemStack stack : this.itemOutputs) {
             if (slot++ > 4) {
+                slot = 1;
                 offsetX = 3;
                 offsetY += 18;
             }
@@ -117,6 +118,7 @@ public class RecipeOutputDisplayWidget extends Widget {
         }
         for (FluidStack stack : this.fluidOutputs) {
             if (slot++ > 4) {
+                slot = 1;
                 offsetX = 3;
                 offsetY += 18;
             }
@@ -132,7 +134,7 @@ public class RecipeOutputDisplayWidget extends Widget {
             GlStateManager.color(1.0f, 1.0f, 1.0f);
             if (new Rectangle(x + offsetX, y + offsetY, 18, 18).contains(mouseX, mouseY)) {
                 String formula = FluidTooltipUtil.getFluidTooltip(stack);
-                formula = formula == null || formula.isEmpty() ? "" : "\n" + formula;
+                formula = formula == null || formula.isEmpty() ? "" : stack.getLocalizedName();
                 GuiUtils.drawHoveringText(Collections.singletonList(formula), mouseX, mouseY, screenWidth, screenHeight, 100, fontRenderer);
             }
             offsetX += 18;
@@ -439,15 +441,15 @@ public class RecipeOutputDisplayWidget extends Widget {
         int widthApplied = 0;
         int totalWidth = Minecraft.getMinecraft().fontRenderer.getStringWidth(I18n.format("machine.universal.producing"));
         for (int i = 0; i < this.itemOutputs.size(); i++) {
-            if (slot++ > 8) {
-                slot = 0;
+            if (slot++ > 4) {
+                slot = 1;
                 widthApplied = 0;
                 totalHeight += 18;
             } else totalWidth = Math.max(totalWidth, widthApplied += 18);
         }
         for (int i = 0; i < this.fluidOutputs.size(); i++) {
-            if (slot++ > 8) {
-                slot = 0;
+            if (slot++ > 4) {
+                slot = 1;
                 widthApplied = 0;
                 totalHeight += 18;
             } else totalWidth = Math.max(totalWidth, widthApplied += 18);

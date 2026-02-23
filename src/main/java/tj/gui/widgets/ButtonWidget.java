@@ -27,6 +27,8 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
 
     protected QuadConsumer<String, Integer, Integer, Integer> textResponderWithMouse;
     protected Supplier<String[]> formatSupplier;
+    protected Supplier<String> buttonIdSupplier;
+    protected Supplier<String> dynamicTooltipText;
     protected Consumer<String> buttonResponder;
     protected TextureArea[] backgroundTextures;
     protected String[] format;
@@ -61,6 +63,15 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     }
 
     /**
+     * Translates the passed in String for display when cursor is hovering over this widget. Updated every tick by supplier.
+     */
+    public R setDynamicTooltipText(Supplier<String> dynamicTooltipText) {
+        Preconditions.checkNotNull(dynamicTooltipText, "dynamicTooltipText");
+        this.dynamicTooltipText = dynamicTooltipText;
+        return (R) this;
+    }
+
+    /**
      * The format args used for translating series of text for TooltipText. Text is constantly updated by the supplier.
      * @apiNote
      * <p>Very similar to I18n.format() where Object... param is the series of text being translated. See setTooltipText for String translateKey param.
@@ -87,6 +98,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
 
     /**
      * Set buttonId that will be used to determine response type. Null will be treated as empty string.
+     * This is redundant if {@link #setDynamicButtonId(Supplier)} is set.
      * @param buttonId button
      */
     public R setButtonId(String buttonId) {
@@ -142,6 +154,14 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
 
     public R setButtonIdAsLong(long buttonIdAsLong) {
         this.buttonIdAsLong = buttonIdAsLong;
+        return (R) this;
+    }
+
+    /**
+     * setting this will update the buttonId automatically which will replace buttonId defined in {@link #setButtonId(String)}
+     */
+    public R setDynamicButtonId(Supplier<String> buttonIdSupplier) {
+        this.buttonIdSupplier = buttonIdSupplier;
         return (R) this;
     }
 
@@ -213,23 +233,41 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     public void detectAndSendChanges() {
         if (this.formatSupplier != null) {
             String[] formatArgs = this.formatSupplier.get();
-            this.writeUpdateInfo(2, buffer -> {
+            this.writeUpdateInfo(1, buffer -> {
                 buffer.writeInt(formatArgs.length);
                 for (String format : formatArgs) {
                     buffer.writeString(format);
                 }
             });
         }
+        if (this.buttonIdSupplier != null) {
+            String buttonId = this.buttonIdSupplier.get();
+            if (this.buttonId == null || !this.buttonId.equals(buttonId)) {
+                this.buttonId = buttonId;
+                this.writeUpdateInfo(2, buffer -> buffer.writeString(this.buttonId));
+            }
+        }
+        if (this.dynamicTooltipText != null) {
+            String tooltipText = this.dynamicTooltipText.get();
+            if (this.tooltipText == null || !this.tooltipText.equals(tooltipText)) {
+                this.tooltipText = tooltipText;
+                this.writeUpdateInfo(3, buffer -> buffer.writeString(this.tooltipText));
+            }
+        }
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
-        if (id == 2) {
+        if (id == 1) {
             int size = buffer.readInt();
             for (int i = 0; i < size; i++) {
                this.format[i] =  buffer.readString(Short.MAX_VALUE);
             }
+        } else if (id == 2) {
+            this.buttonId = buffer.readString(Short.MAX_VALUE);
+        } else if (id == 3) {
+            this.tooltipText = buffer.readString(Short.MAX_VALUE);
         }
     }
 }

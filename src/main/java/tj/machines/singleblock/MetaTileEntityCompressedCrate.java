@@ -17,8 +17,10 @@ import gregtech.api.util.GTUtility;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -30,6 +32,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.tuple.Pair;
 import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.items.handlers.LargeItemStackHandler;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -60,10 +63,25 @@ public class MetaTileEntityCompressedCrate extends MetaTileEntity {
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.machine.compressed_chest.description"));
         tooltip.add(I18n.format("machine.universal.stack",  this.isInfinite ? Integer.MAX_VALUE : 64));
         tooltip.add(I18n.format("machine.universal.slots", ROW_SIZE * AMOUNT_OF_ROWS));
+        NBTTagCompound compound = stack.getTagCompound();
+        if (compound == null || compound.isEmpty()) return;
+        NBTTagList itemList = compound.getCompoundTag("Inventory").getTagList("Items", 10);
+        int size = itemList.tagCount() / 10;
+        if (itemList.tagCount() > 0)
+            tooltip.add(I18n.format("tj.machine.compressed_chest.slot_filled", itemList.tagCount(), ROW_SIZE * AMOUNT_OF_ROWS));
+        TooltipHelper.shiftText(tooltip, tip -> {
+            TooltipHelper.pageText(tip, size, (tip1, tooltipHandler) -> {
+                int start = tooltipHandler.getIndex() * 10;
+                for (int i = start; i < Math.min(itemList.tagCount(), start + 10); i++) {
+                    NBTTagCompound itemCompound = itemList.getCompoundTagAt(i);
+                    ItemStack itemStack = new ItemStack(Item.getByNameOrId(itemCompound.getString("id")), itemCompound.getInteger("Count"), itemCompound.getShort("Damage"));
+                    tip1.add(I18n.format("tj.machine.compressed_chest.slot", itemCompound.getInteger("Slot"), itemStack.getDisplayName(), itemStack.getCount()));
+                }
+            });
+        });
     }
 
     @Override

@@ -74,8 +74,7 @@ public class ParallelLargeWiremillInfo extends TJMultiblockInfoPage implements I
     public String[] getDescription() {
         return ArrayUtils.addAll(new String[] {
                 I18n.format("tj.multiblock.parallel_large_wiremill.description"),
-                I18n.format("tj.multiblock.parallel.description"),
-                I18n.format("tj.multiblock.parallel.extend.tooltip")},
+                I18n.format("tj.multiblock.parallel.description")},
                 super.getDescription());
     }
 

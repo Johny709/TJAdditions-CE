@@ -1,6 +1,7 @@
 package tj.multiblockpart.ender;
 
 import gregicadditions.GAValues;
+import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ProgressWidget;
@@ -11,11 +12,13 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
@@ -36,7 +39,7 @@ import static gregtech.api.gui.widgets.ProgressWidget.MoveType.VERTICAL;
 import static tj.gui.TJGuiTextures.BAR_HEAT;
 import static tj.gui.TJGuiTextures.BAR_STEEL;
 
-public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyContainer, BasicEnergyHandler> {
+public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyContainer, BasicEnergyHandler> implements IEnergyContainer {
 
     private final EnderEnergyHandler enderEnergyHandler = new EnderEnergyHandler(TJValues.DUMMY_ENERGY);
     private final long capacity;
@@ -65,11 +68,11 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
         super.addInformation(stack, player, tooltip, advanced);
         String tierName = GAValues.VN[this.getTier()];
         if (this.isOutput) {
-            tooltip.add(I18n.format("gregtech.universal.tooltip.voltage_out", this.enderEnergyHandler.getOutputVoltage(), TJValues.VCC[this.getTier()], tierName));
-            tooltip.add(I18n.format("gregtech.universal.tooltip.amperage_out_till", this.enderEnergyHandler.getOutputAmperage()));
+            tooltip.add(I18n.format("gregtech.universal.tooltip.voltage_out", this.enderEnergyHandler.getOutputVoltage(), TJValues.VCC[this.getTier()] + tierName));
+            tooltip.add(I18n.format("gregtech.universal.tooltip.amperage_out_till", this.enderEnergyHandler.getOutputAmperage(), TJValues.VCC[this.getTier()]));
         } else {
-            tooltip.add(I18n.format("gregtech.universal.tooltip.voltage_in", this.enderEnergyHandler.getInputVoltage(), TJValues.VCC[this.getTier()], tierName));
-            tooltip.add(I18n.format("gregtech.universal.tooltip.amperage_in_till", this.enderEnergyHandler.getInputAmperage()));
+            tooltip.add(I18n.format("gregtech.universal.tooltip.voltage_in", this.enderEnergyHandler.getInputVoltage(), TJValues.VCC[this.getTier()] + tierName));
+            tooltip.add(I18n.format("gregtech.universal.tooltip.amperage_in_till", this.enderEnergyHandler.getInputAmperage(), TJValues.VCC[this.getTier()]));
         }
         tooltip.add(I18n.format("gregtech.universal.enabled"));
     }
@@ -91,7 +94,7 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
 
     @Override
     protected void addWidgets(Consumer<Widget> widget) {
-        widget.accept(new ProgressWidget(this::getEnergyStored, 7, 38, 18, 18) {
+        widget.accept(new ProgressWidget(this::getEnergyPercent, 7, 38, 18, 18) {
             private long energyStored;
             private long energyCapacity;
 
@@ -126,10 +129,6 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
         }.setProgressBar(BAR_STEEL, BAR_HEAT, VERTICAL));
     }
 
-    private double getEnergyStored() {
-        return this.handler != null ? (double) this.handler.getEnergyStored() / this.handler.getEnergyCapacity() : 0;
-    }
-
     @Override
     protected BasicEnergyHandler createHandler() {
         return new BasicEnergyHandler(this.capacity);
@@ -148,7 +147,14 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
 
     @Override
     public void registerAbilities(List<IEnergyContainer> list) {
-        list.add(this.enderEnergyHandler);
+        list.add(this);
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing side) {
+        if (capability == GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER)
+            return GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER.cast(this);
+        return super.getCapability(capability, side);
     }
 
     @Override
@@ -167,5 +173,64 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.enderEnergyHandler.setBasicEnergyHandler(this.handler != null ? this.handler : TJValues.DUMMY_ENERGY);
+    }
+
+    private double getEnergyPercent() {
+        return this.handler != null ? (double) this.handler.getEnergyStored() / this.handler.getEnergyCapacity() : 0;
+    }
+
+    @Override
+    public long acceptEnergyFromNetwork(EnumFacing enumFacing, long l, long l1) {
+        return this.enderEnergyHandler.acceptEnergyFromNetwork(enumFacing, l, l1);
+    }
+
+    @Override
+    public boolean inputsEnergy(EnumFacing enumFacing) {
+        return true;
+    }
+
+    @Override
+    public long addEnergy(long energyToAdd) {
+        return this.enderEnergyHandler.addEnergy(energyToAdd);
+    }
+
+    @Override
+    public long removeEnergy(long energyToRemove) {
+        return this.enderEnergyHandler.removeEnergy(energyToRemove);
+    }
+
+    @Override
+    public long changeEnergy(long l) {
+        return this.enderEnergyHandler.changeEnergy(l);
+    }
+
+    @Override
+    public long getEnergyStored() {
+        return this.enderEnergyHandler.getEnergyStored();
+    }
+
+    @Override
+    public long getEnergyCapacity() {
+        return this.enderEnergyHandler.getEnergyCapacity();
+    }
+
+    @Override
+    public long getOutputAmperage() {
+        return this.enderEnergyHandler.getOutputAmperage();
+    }
+
+    @Override
+    public long getInputAmperage() {
+        return this.enderEnergyHandler.getInputAmperage();
+    }
+
+    @Override
+    public long getInputVoltage() {
+        return this.enderEnergyHandler.getInputVoltage();
+    }
+
+    @Override
+    public long getOutputVoltage() {
+        return this.enderEnergyHandler.getOutputVoltage();
     }
 }

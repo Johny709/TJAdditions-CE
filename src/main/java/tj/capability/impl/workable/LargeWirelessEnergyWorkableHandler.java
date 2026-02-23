@@ -106,8 +106,6 @@ public class LargeWirelessEnergyWorkableHandler extends AbstractWorkableHandler<
                 IEnergyContainer EUContainer = metaTileEntity.getCapability(CAPABILITY_ENERGY_CONTAINER, null);
                 this.transferEU(energyToAdd, EUContainer);
             }
-            if (this.metaTileEntity instanceof TJMultiblockControllerBase)
-                ((TJMultiblockControllerBase) this.metaTileEntity).calculateMaintenance(this.maxProgress);
         }
         return true;
     }

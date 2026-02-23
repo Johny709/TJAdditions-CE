@@ -2,6 +2,8 @@ package tj.gui.widgets.impl;
 
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
+import gregtech.api.gui.igredient.IIngredientSlot;
+import gregtech.api.util.FluidTooltipUtil;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import gregtech.api.util.TextFormattingUtil;
@@ -10,14 +12,16 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
 
+import java.util.Collections;
 import java.util.function.IntFunction;
 
-public class RecipeOutputSlotWidget extends Widget {
+public class RecipeOutputSlotWidget extends Widget implements IIngredientSlot {
 
     private final IntFunction<ItemStack> itemOutputs;
     private final IntFunction<FluidStack> fluidOutputs;
@@ -33,18 +37,19 @@ public class RecipeOutputSlotWidget extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        Position pos = this.getPosition();
+        if (!this.isMouseOverElement(mouseX, mouseY)) return;
+        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        int screenWidth = Minecraft.getMinecraft().displayWidth;
+        int screenHeight = Minecraft.getMinecraft().displayHeight;
         ItemStack itemStack = this.itemOutputs != null ? this.itemOutputs.apply(this.slotIndex) : null;
-        if (itemStack != null) {
-            if (itemStack.isEmpty())
-                TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
-            else TJGuiTextures.SELECTION_BOX_2.draw(pos.getX(), pos.getY(), 18, 18);
+        if (itemStack != null && !itemStack.isEmpty()) {
+            GuiUtils.drawHoveringText(getItemToolTip(itemStack), mouseX, mouseY, screenWidth, screenHeight, 100, fontRenderer);
         }
         FluidStack fluidStack = this.fluidOutputs != null ? this.fluidOutputs.apply(this.slotIndex) : null;
         if (fluidStack != null) {
-            if (fluidStack.amount < 1)
-                TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
-            else TJGuiTextures.SELECTION_BOX_2.draw(pos.getX(), pos.getY(), 18, 18);
+            String formula = FluidTooltipUtil.getFluidTooltip(fluidStack);
+            formula = formula == null || formula.isEmpty() ? "" : fluidStack.getLocalizedName();
+            GuiUtils.drawHoveringText(Collections.singletonList(formula), mouseX, mouseY, screenWidth, screenHeight, 100, fontRenderer);
         }
     }
 
@@ -55,9 +60,12 @@ public class RecipeOutputSlotWidget extends Widget {
         ItemStack itemStack = this.itemOutputs != null ? this.itemOutputs.apply(this.slotIndex) : null;
         if (itemStack != null) {
             Widget.drawItemStack(itemStack, pos.getX() + 1, pos.getY() + 1, null);
+            if (itemStack.isEmpty()) {
+                TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
+            } else TJGuiTextures.SELECTION_BOX_2.draw(pos.getX(), pos.getY(), 18, 18);
         }
         FluidStack fluidStack = this.fluidOutputs != null ? this.fluidOutputs.apply(this.slotIndex) : null;
-        if (fluidStack != null && fluidStack.amount > 0) {
+        if (fluidStack != null) {
             FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
             GlStateManager.disableBlend();
             TJGuiUtils.drawFluidForGui(fluidStack, fluidStack.amount, fluidStack.amount, pos.getX() + 1, pos.getY() + 1, 17, 17);
@@ -68,6 +76,20 @@ public class RecipeOutputSlotWidget extends Widget {
             GlStateManager.popMatrix();
             GlStateManager.enableBlend();
             GlStateManager.color(1.0f, 1.0f, 1.0f);
+            if (fluidStack.amount < 1) {
+                TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
+            } else TJGuiTextures.SELECTION_BOX_2.draw(pos.getX(), pos.getY(), 18, 18);
         }
+    }
+
+    @Override
+    public Object getIngredientOverMouse(int mouseX, int mouseY) {
+        if (!this.isMouseOverElement(mouseX, mouseY))
+            return null;
+        if (this.itemOutputs != null)
+            return this.itemOutputs.apply(this.slotIndex);
+        if (this.fluidOutputs != null)
+            return this.fluidOutputs.apply(this.slotIndex);
+        return null;
     }
 }

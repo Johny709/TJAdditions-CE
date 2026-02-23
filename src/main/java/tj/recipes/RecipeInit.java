@@ -225,7 +225,7 @@ public class RecipeInit {
                     'P', CraftingComponent.PIPE.getIngredient(5 + i));
         }
 
-        Material[] materials = {Duranium, Seaborgium, TungstenTitaniumCarbide, HeavyQuarkDegenerateMatter, Periodicium};
+        Material[] materials = {Duranium, Seaborgium, TungstenTitaniumCarbide, HeavyQuarkDegenerateMatter, Periodicium, Rutherfordium};
         for (Material material : materials) {
             ModHandler.addShapedRecipe(material.toString(), TJMetaBlocks.SOLID_CASING.getItemVariant(Arrays.stream(BlockSolidCasings.SolidCasingType.values())
                             .filter(block -> block.getName().equals(material.toString()))
@@ -331,6 +331,35 @@ public class RecipeInit {
                 'P', new UnificationEntry(OrePrefix.pipeLarge, Steel),
                 'S', HULL[1].getStackForm());
 
+        ModHandler.addShapedRecipe("primitive_pump_casing", TJMetaBlocks.ABILITY_BLOCKS.getItemVariant(AbilityBlocks.AbilityType.PRIMITIVE_PUMP_CASING, 2), "   ", "SWS", "sCh",
+                'W', new UnificationEntry(OrePrefix.plank, Wood),
+                'S', new UnificationEntry(OrePrefix.screw, Iron),
+                'C', new ItemStack(Blocks.STONE_SLAB, 1, 3));
+
+        ModHandler.addShapedRecipe("primitive_water_pump", PRIMITIVE_WATER_PUMP.getStackForm(), "RMS", "BWd", "CLC",
+                'M', new UnificationEntry(OrePrefix.pipeMedium, Wood),
+                'L', new UnificationEntry(OrePrefix.pipeLarge, Wood),
+                'W', new UnificationEntry(OrePrefix.plank, Wood),
+                'S', new UnificationEntry(OrePrefix.screw, Iron),
+                'B', new UnificationEntry(OrePrefix.rotor, Iron),
+                'R', new UnificationEntry(OrePrefix.ring, Iron),
+                'C', new ItemStack(Blocks.STONE_SLAB, 1, 3));
+
+        ModHandler.addShapedRecipe("large_naming_machine", LARGE_NAMING_MACHINE.getStackForm(), "GPG", "CHC", "GAG",
+                'C', GACraftingComponents.CIRCUIT.getIngredient(5),
+                'P', GACraftingComponents.PISTON.getIngredient(5),
+                'G', GACraftingComponents.GEAR.getIngredient(5),
+                'H', NAMING_MACHINES[4].getStackForm(),
+                'A', new ItemStack(Blocks.ANVIL));
+
+        for (int i = 0; i < 2; i++) {
+            ModHandler.addShapedRecipe("charcoal_pit." + i, i == 0 ? CHARCOAL_PIT.getStackForm() : CHARCOAL_PIT_ADVANCED.getStackForm(), "PRP", "PHP", "FFF",
+                    'H', i == 0 ? MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.BRONZE_BRICKS_HULL) : MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.STEEL_BRICKS_HULL),
+                    'P', new UnificationEntry(OrePrefix.plate, i == 0 ? Bronze : Steel),
+                    'R', new UnificationEntry(OrePrefix.rotor, i == 0 ? Iron : Steel),
+                    'F', new ItemStack(Items.FLINT));
+        }
+
         for (int i = 0; i < 2; i++) {
             ModHandler.addShapedRecipe("filing_cabinet." + i, FILING_CABINET.getStackForm(), "NCN", "PSP", "NCN",
                     'N', new UnificationEntry(OrePrefix.plateDense, StainlessSteel),
@@ -410,6 +439,22 @@ public class RecipeInit {
                     .outputs(i == 0 ? aeCellParts[0] : aeCellParts[4])
                     .duration(300).EUt(GAValues.VA[9])
                     .buildAndRegister();
+        }
+        for (int i = 0, tier = 1; i < ADVANCED_CHUNK_MINERS.length; i++, tier++) {
+            ModHandler.addShapedRecipe("advanced_chunk_miner." + GAValues.VN[tier], ADVANCED_CHUNK_MINERS[i].getStackForm(), "SCS", "RHR", "BCB",
+                    'B', tier > 4 ? MetaItems.COMPONENT_GRINDER_TUNGSTEN.getStackForm() : MetaItems.COMPONENT_GRINDER_DIAMOND.getStackForm(),
+                    'C', GACraftingComponents.CIRCUIT.getIngredient(tier),
+                    'S', GACraftingComponents.SENSOR.getIngredient(tier),
+                    'R', GACraftingComponents.PISTON.getIngredient(tier),
+                    'H', GACraftingComponents.HULL.getIngredient(tier));
+        }
+        for (int i = 0, tier = 1; i < NAMING_MACHINES.length; i++, tier++) {
+            ModHandler.addShapedRecipe("naming_machine." + GAValues.VN[tier], NAMING_MACHINES[i].getStackForm(), "GPG", "CHC", "GAG",
+                    'G', new UnificationEntry(OrePrefix.gearSmall, MATERIAL_TIER[0][i]),
+                    'C', GACraftingComponents.CIRCUIT.getIngredient(tier),
+                    'P', GACraftingComponents.PISTON.getIngredient(tier),
+                    'H', GACraftingComponents.HULL.getIngredient(tier),
+                    'A', new ItemStack(Blocks.ANVIL));
         }
         for (int i = 0; i < 4; i++) {
             ItemStack aeCellParts2 = i == 0 ? new ItemStack(Item.getByNameOrId("nae2:material"), 3, 4) : aeCellParts[i - 1].copy();

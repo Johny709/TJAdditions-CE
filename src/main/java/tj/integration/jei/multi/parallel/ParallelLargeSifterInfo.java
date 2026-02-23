@@ -81,8 +81,7 @@ public class ParallelLargeSifterInfo extends TJMultiblockInfoPage implements IPa
     public String[] getDescription() {
         return ArrayUtils.addAll(new String[] {
                 I18n.format("tj.multiblock.parallel_large_sifter.description"),
-                I18n.format("tj.multiblock.parallel.description"),
-                I18n.format("tj.multiblock.parallel.extend.tooltip")},
+                I18n.format("tj.multiblock.parallel.description")},
                 super.getDescription());
     }
 

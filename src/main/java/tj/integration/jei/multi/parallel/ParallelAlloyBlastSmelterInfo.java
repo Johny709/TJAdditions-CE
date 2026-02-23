@@ -77,9 +77,8 @@ public class ParallelAlloyBlastSmelterInfo extends TJMultiblockInfoPage implemen
     @Override
     public String[] getDescription() {
         return ArrayUtils.addAll(new String[] {
-                I18n.format("tj.multiblock.parallel_alloy_blast_smelter.description"),
+                I18n.format("tj.multiblock.parallel_alloy_blast_smelter.description").replace("§7", "§r"),
                 I18n.format("tj.multiblock.parallel.description"),
-                I18n.format("tj.multiblock.parallel.extend.tooltip"),
                 I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.1").replace("§7", "§0").replace("§r", "§r§0"),
                 I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.2").replace("§7", "§0").replace("§r", "§r§0"),
                 I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.3").replace("§7", "§0").replace("§r", "§r§0")},

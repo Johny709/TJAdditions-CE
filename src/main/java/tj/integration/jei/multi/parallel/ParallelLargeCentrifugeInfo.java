@@ -83,7 +83,6 @@ public class ParallelLargeCentrifugeInfo extends TJMultiblockInfoPage implements
         return ArrayUtils.addAll(new String[] {
                 I18n.format("tj.multiblock.parallel_large_centrifuge.description"),
                 I18n.format("tj.multiblock.parallel.description"),
-                I18n.format("tj.multiblock.parallel.extend.tooltip"),
                 I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2").replace("§7", "§0").replace("§r", "§r§0")},
                 super.getDescription());
     }

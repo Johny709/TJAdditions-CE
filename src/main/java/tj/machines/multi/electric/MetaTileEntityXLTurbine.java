@@ -127,7 +127,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.turbine.description"));
         tooltip.add(I18n.format("tj.multiblock.turbine.fast_mode.description"));
-        TooltipHelper.shiftText(tooltip, tip -> {
+        TooltipHelper.shiftTextJEI(tooltip, tip -> {
             tip.add(I18n.format("tj.multiblock.universal.tooltip.1", this.turbineType.recipeMap.getLocalizedName()));
             tip.add(I18n.format("tj.multiblock.universal.tooltip.2", 12));
             tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency"));
@@ -155,7 +155,9 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
             text.addTextComponent(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode").appendText(" ")
                     .appendSibling(this.xlTurbineWorkableHandler.isFastMode() ? withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true")
                             : withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false")));
-        }).isWorkingLine(this.xlTurbineWorkableHandler.isWorkingEnabled(), this.xlTurbineWorkableHandler.isActive(), this.xlTurbineWorkableHandler.getProgress(), this.xlTurbineWorkableHandler.getMaxProgress());
+        }).isWorkingLine(this.xlTurbineWorkableHandler.isWorkingEnabled(), this.xlTurbineWorkableHandler.isActive(), this.xlTurbineWorkableHandler.getProgress(), this.xlTurbineWorkableHandler.getMaxProgress())
+                .addRecipeInputLine(this.xlTurbineWorkableHandler)
+                .addRecipeOutputLine(this.xlTurbineWorkableHandler);
     }
 
     private void addRotorDisplayText(UIDisplayBuilder builder) {
@@ -415,11 +417,14 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
 
     @Override
     public int[][] getBarMatrix() {
-        return new int[1][1];
+        return new int[2][1];
     }
 
     @Override
     public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this.xlTurbineWorkableHandler::getEnergyStored).setMaxProgress(this.xlTurbineWorkableHandler::getEnergyCapacity)
+                .setLocale("tj.multiblock.bars.energy")
+                .setColor(0xFFF6FF00));
         bars.add(bar -> bar.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
                 .setLocale("tj.multiblock.bars.fuel").setParams(() -> new Object[]{this.xlTurbineWorkableHandler.getFuelName()})
                 .setFluidStackSupplier(this.xlTurbineWorkableHandler::getFuelStack));

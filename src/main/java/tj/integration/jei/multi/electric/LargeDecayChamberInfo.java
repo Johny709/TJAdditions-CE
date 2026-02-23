@@ -63,8 +63,7 @@ public class LargeDecayChamberInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[] {
-                I18n.format("tj.multiblock.large_decay_chamber.description")};
+        return new String[] {I18n.format("tj.multiblock.large_decay_chamber.description").replace("§7", "§r")};
     }
 
     @Override

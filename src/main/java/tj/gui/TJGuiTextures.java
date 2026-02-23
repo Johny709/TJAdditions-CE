@@ -22,6 +22,7 @@ public class TJGuiTextures {
     public static final TextureArea FLUID_BAR = AdoptableTextureArea.fullImage("textures/gui/bar/fluid_bar.png", 10, 10, 1, 1);
     public static final TextureArea SELECTION_BOX = AdoptableTextureArea.fullImage("textures/gui/base/select_box.png", 18, 18, 1, 1);
     public static final TextureArea SELECTION_BOX_2 = AdoptableTextureArea.fullImage("textures/gui/base/select_box2.png", 18, 18, 1, 1);
+    public static final TextureArea SELECTION_BOX_3 = AdoptableTextureArea.fullImage("textures/gui/base/select_box3.png", 18, 18, 1, 1);
 
     public static final TextureArea AUTOSCROLL = TextureArea.fullImage("textures/gui/base/auto_scroll.png");
     public static final TextureArea AUTOSCROLL_UP = TextureArea.fullImage("textures/gui/base/auto_scroll_up.png");
@@ -30,6 +31,7 @@ public class TJGuiTextures {
     public static final TextureArea BAR_RED = AdoptableTextureArea.fullImage("textures/gui/bar/bar_red.png");
     public static final TextureArea BAR_YELLOW = AdoptableTextureArea.fullImage("textures/gui/bar/bar_yellow.png");
 
+    public static final TextureArea OUTPUT_BUTTON = TextureArea.fullImage("textures/gui/widget/button_output.png");
     public static final TextureArea POWER_BUTTON = TextureArea.fullImage("textures/gui/widget/power_button_toggle.png");
     public static final TextureArea CAUTION_BUTTON = TextureArea.fullImage("textures/gui/widget/caution_button_toggle.png");
     public static final TextureArea DISTINCT_BUTTON = TextureArea.fullImage("textures/gui/widget/distinct_button_toggle.png");

@@ -54,6 +54,7 @@ public abstract class MetaTileEntityLargeTurbineMixin extends RotorHolderMultibl
                         MIN_DURABILITY_TO_WARN, rotorDurability).setStyle(new Style().setColor(TextFormatting.RED)));
             }
         }
+        builder.addTranslationLine("gregtech.multiblock.generation_eu", this.workableHandler.getRecipeOutputVoltage());
 
         if (!this.isRotorFaceFree()) {
             builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.turbine.obstructed")

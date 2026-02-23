@@ -73,9 +73,8 @@ public class ParallelVacuumFreezerInfo extends TJMultiblockInfoPage implements I
     @Override
     public String[] getDescription() {
         return ArrayUtils.addAll(new String[] {
-                I18n.format("tj.multiblock.parallel_vacuum_freezer.description"),
-                I18n.format("tj.multiblock.parallel.description"),
-                I18n.format("tj.multiblock.parallel.extend.tooltip")},
+                I18n.format("tj.multiblock.parallel_vacuum_freezer.description").replace("§7", "§r"),
+                I18n.format("tj.multiblock.parallel.description")},
                 super.getDescription());
     }
 

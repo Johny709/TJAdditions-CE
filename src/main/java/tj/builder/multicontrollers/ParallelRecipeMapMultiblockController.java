@@ -98,6 +98,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
             if (i < this.getRecipeMaps().length - 1)
                 builder.append(", ");
         }
+        tooltip.add(net.minecraft.client.resources.I18n.format("tj.multiblock.parallel.extend.tooltip"));
         tooltip.add(net.minecraft.client.resources.I18n.format("gtadditions.multiblock.universal.tooltip.1", builder.toString()));
         tooltip.add(net.minecraft.client.resources.I18n.format("gtadditions.multiblock.universal.tooltip.2", FORMATTER.format(this.getEUPercentage() / 100.0)));
         tooltip.add(net.minecraft.client.resources.I18n.format("gtadditions.multiblock.universal.tooltip.3", FORMATTER.format(this.getDurationPercentage() / 100.0)));

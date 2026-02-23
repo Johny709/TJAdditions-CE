@@ -3,6 +3,7 @@ package tj.machines.singleblock;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -35,6 +36,7 @@ import tj.capability.impl.workable.CrafterRecipeLogic;
 import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
 import tj.gui.TJGuiTextures;
+import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.impl.*;
 import tj.gui.widgets.TJLabelWidget;
 import tj.textures.TJTextures;
@@ -132,27 +134,34 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                         }
                     }));
         }
-        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 21, 21, 20)
+        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(55, 111, 21, 20)
                 .setFluidOutputSupplier(this.recipeLogic::getFluidOutputs)
                 .setItemOutputSupplier(this.recipeLogic::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
         return ModularUI.builder(BACKGROUND, 176, 216)
+                .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
+                .image(-28, 188, 26, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
+                .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
+                        .setLocale("tj.multiblock.bars.energy", null)
+                        .setBarTexture(TJGuiTextures.BAR_YELLOW)
+                        .setTexture(TJGuiTextures.FLUID_BAR)
+                        .setInverted(true))
                 .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 55, 111, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new ImageWidget(72, 28, 26, 26, SLOT))
                 .widget(new ImageWidget(109, 14, 54, 54, DARKENED_SLOT))
                 .widget(new SlotDisplayWidget(this.resultInventory, 0, 76, 32)
                         .onPressedConsumer((button, slot, stack) -> this.addRecipe(this.currentRecipe)))
-                .widget(new DischargerSlotWidget(this.chargerInventory, 0, 25, 112)
+                .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new SlotWidget(this.exportItems, 0, 79, 112, true, false)
                         .setBackgroundTexture(SLOT))
                 .widget(new RecipeOutputSlotWidget(0, 79, 112, 18, 18, displayWidget::getItemOutputAt, null))
-                .widget(new ToggleButtonWidget(133, 112, 18, 18, ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
+                .widget(new ToggleButtonWidget(151, 112, 18, 18, ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
                         .setTooltipText("machine.universal.toggle.item_voiding"))
-                .widget(new ToggleButtonWidget(151, 112, 18, 18, POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(-24, 192, 18, 18, POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 112, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))

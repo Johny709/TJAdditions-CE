@@ -76,9 +76,8 @@ public class ParallelVolcanusInfo extends TJMultiblockInfoPage implements IParal
     @Override
     public String[] getDescription() {
         return ArrayUtils.addAll(new String[] {
-                I18n.format("tj.multiblock.parallel_volcanus.description"),
+                I18n.format("tj.multiblock.parallel_volcanus.description").replace("§7", "§r"),
                 I18n.format("tj.multiblock.parallel.description"),
-                I18n.format("tj.multiblock.parallel.extend.tooltip"),
                 I18n.format("gregtech.multiblock.vol_cryo.description"),
                 I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.1").replace("§7", "§0").replace("§r", "§r§0"),
                 I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.2").replace("§7", "§0").replace("§r", "§r§0"),

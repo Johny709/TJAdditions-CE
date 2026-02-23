@@ -76,8 +76,7 @@ public class ParallelLargeBendingAndFormingInfo extends TJMultiblockInfoPage imp
     public String[] getDescription() {
         return ArrayUtils.addAll(new String[] {
                 I18n.format("tj.multiblock.parallel_large_bending_and_forming.description"),
-                I18n.format("tj.multiblock.parallel.description"),
-                I18n.format("tj.multiblock.parallel.extend.tooltip")},
+                I18n.format("tj.multiblock.parallel.description")},
                 super.getDescription());
     }
 
