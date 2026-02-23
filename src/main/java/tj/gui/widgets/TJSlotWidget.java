@@ -2,6 +2,7 @@ package tj.gui.widgets;
 
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
+import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements ISlotHandler {
+public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements ISlotHandler, IIngredientSlot {
 
     private final IItemHandler itemHandler;
     protected int slotIndex;
@@ -303,5 +304,12 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
     @SideOnly(Side.CLIENT)
     public int getSimulatedAmount() {
         return this.simulatedAmount;
+    }
+
+    @Override
+    public Object getIngredientOverMouse(int mouseX, int mouseY) {
+        if (!this.isMouseOverElement(mouseX, mouseY))
+            return null;
+        return this.getItemHandler() != null ? this.getItemHandler().getStackInSlot(this.slotIndex) : null;
     }
 }
