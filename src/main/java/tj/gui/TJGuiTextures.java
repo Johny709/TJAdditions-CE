@@ -31,6 +31,7 @@ public class TJGuiTextures {
     public static final TextureArea BAR_RED = AdoptableTextureArea.fullImage("textures/gui/bar/bar_red.png");
     public static final TextureArea BAR_YELLOW = AdoptableTextureArea.fullImage("textures/gui/bar/bar_yellow.png");
 
+    public static final TextureArea OUTPUT_BUTTON = TextureArea.fullImage("textures/gui/widget/button_output.png");
     public static final TextureArea POWER_BUTTON = TextureArea.fullImage("textures/gui/widget/power_button_toggle.png");
     public static final TextureArea CAUTION_BUTTON = TextureArea.fullImage("textures/gui/widget/caution_button_toggle.png");
     public static final TextureArea DISTINCT_BUTTON = TextureArea.fullImage("textures/gui/widget/distinct_button_toggle.png");

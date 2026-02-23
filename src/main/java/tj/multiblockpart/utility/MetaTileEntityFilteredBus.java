@@ -7,6 +7,7 @@ import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockP
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.SlotWidget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -45,6 +46,7 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
     private final ItemStackHandler filterInventory;
     private final boolean[] areGhostItems;
     private final boolean isOutput;
+    private boolean bypassEmptySlots;
 
     public MetaTileEntityFilteredBus(ResourceLocation metaTileEntityId, int tier, boolean isOutput) {
         super(metaTileEntityId, tier);
@@ -94,9 +96,9 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
             @Nonnull
             public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
                 ItemStack filterStack = filterInventory.getStackInSlot(slot);
-                if (!ItemHandlerHelper.canItemStacksStackRelaxed(stack, filterStack))
-                    return stack;
-                return super.insertItem(slot, stack, simulate);
+                if ((bypassEmptySlots && filterStack.isEmpty()) || ItemHandlerHelper.canItemStacksStackRelaxed(stack, filterStack))
+                    return super.insertItem(slot, stack, simulate);
+                return stack;
             }
         };
     }
@@ -116,9 +118,9 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
             @Nonnull
             public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
                 ItemStack filterStack = filterInventory.getStackInSlot(slot);
-                if (!ItemHandlerHelper.canItemStacksStackRelaxed(stack, filterStack))
-                    return stack;
-                return super.insertItem(slot, stack, simulate);
+                if ((bypassEmptySlots && filterStack.isEmpty()) || ItemHandlerHelper.canItemStacksStackRelaxed(stack, filterStack))
+                    return super.insertItem(slot, stack, simulate);
+                return stack;
             }
         } : super.createExportItemHandler();
     }
@@ -140,7 +142,7 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
                         else slotGroup.addWidget(slotWidget);
                     }
                     widgetGroup.addWidget(this.getTier() > 9 ? slotScrollGroup : slotGroup);
-                    return true;
+                    return false;
                 }).addPopup(new TJToggleButtonWidget(172, 113 + Math.min(144, 18 * (this.getTier() - 1)), 18, 18)
                         .setBackgroundTextures(TJGuiTextures.ITEM_FILTER)
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
@@ -162,6 +164,8 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
         return ModularUI.builder(GuiTextures.BACKGROUND, 196, 137 + Math.min(144, 18 * (this.getTier() - 1)))
                 .widget(new TJLabelWidget(7, -18, 178, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
+                .widget(new ToggleButtonWidget(172, 91 + Math.min(144, 18 * (this.getTier() - 1)), 18, 18, TJGuiTextures.OUTPUT_BUTTON, () -> this.bypassEmptySlots, this::setBypassEmptySlots)
+                        .setTooltipText("machine.universal.toggle.bypass_empty_slots"))
                 .widget(popUpWidget)
                 .bindPlayerInventory(player.inventory, 55 + Math.min(144, 18 * (this.getTier() - 1)))
                 .build(this.getHolder(), player);
@@ -227,6 +231,7 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
             ghostItemList.appendTag(new NBTTagByte((byte) (isGhostItem ? 1 : 0)));
         data.setTag("ghostItems", ghostItemList);
         data.setTag("filterInventory", this.filterInventory.serializeNBT());
+        data.setBoolean("bypassEmpty", this.bypassEmptySlots);
         return data;
     }
 
@@ -237,6 +242,12 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
         for (int i = 0; i < ghostItemList.tagCount(); i++)
             this.areGhostItems[i] = ((NBTTagByte) ghostItemList.get(i)).getByte() == 1;
         this.filterInventory.deserializeNBT(data.getCompoundTag("filterInventory"));
+        this.bypassEmptySlots = data.getBoolean("bypassEmpty");
+    }
+
+    public void setBypassEmptySlots(boolean bypassEmptySlots) {
+        this.bypassEmptySlots = bypassEmptySlots;
+        this.markDirty();
     }
 
     private int getTierSlots(int tier) {

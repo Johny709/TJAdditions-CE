@@ -394,7 +394,7 @@ tj.machine.crafter.tooltip=§fClick§7 on recipe output slot to §aadd§7 to rec
 tj.machine.naming_machine.description=Changes the display name of items like an anvil would. Place in a nametag with the specified name as a catalyst. If there's no nametag then it'll use the name from the textbox.
 
 tj.machine.filtered_bus.warning=WARNING: Not compatible with TJ 1.4. Machines in 1.4 have outdated item handlers that will cause a crash loop.
-tj.machine.filtered_bus.description=§aIts recommended to drag items from JEI to set filter in slot. While in filter mode, item slot marked in green outline are ghost items from JEI. §bblue slot outline are non-ghost items.
+tj.machine.filtered_bus.description=§aIts recommended to drag items from JEI to set filter in slot. While in filter mode, item slot marked in green outline are ghost items from JEI. §bBlue slot outline are non-ghost items.
 
 tj.multiblock.large_solar_boiler.description=Produces steam from the sun. Cannot produce steam at night and while raining. Can accept either water or distilled water however doing water will make the boiler calcify over time. Once calcification reaches 100%%, then the boiler will stop working completely.
 
@@ -537,7 +537,7 @@ tj.multiblock.primitive_water_pump.description=Pumps §b%,dL§7 of §bwater§7 e
 
 tj.multiblock.advanced_large_miner.description=More advanced version of §5Chunk Miner§7 with more stability and functions. §aMining level starts right below the miner.
 tj.multiblock.advanced_large_miner.crushed=§dThis Large Chunk Miner outputs crushed ores with much higher yield than macerator. Affected by fortune.
-tj.multiblock.advanced_large_miner.output=§dThe Miner will try to output the items directly at an inventory adjacent to its output side before it tries outputting to it's own output inventory.
+tj.multiblock.advanced_large_miner.output=§dThe Miner will try to output the items directly at an inventory adjacent to its output side before it tries outputting to its own output inventory.
 tj.multiblock.advanced_large_miner.chunk_index=Chunk Index: §b%,d / %,d
 
 recipemap.primitive_alloy.tj.name=Primitive Alloy Smelter
@@ -860,6 +860,8 @@ machine.universal.toggle.check.mode.enabled=Initiating Structure Check
 machine.universal.toggle.check.mode.disabled=Do Structure Check
 machine.universal.toggle.distinct.mode.enabled=Distinct Mode: ON
 machine.universal.toggle.distinct.mode.disabled=Distinct Mode: OFF
+machine.universal.toggle.bypass_empty_slots.enabled=Allow Insertion into non-filtered slots regardless of filter: §aTRUE
+machine.universal.toggle.bypass_empty_slots.disabled=Allow Insertion into non-filtered slots regardless of filter: §cFALSE
 machine.universal.toggle.filter.enabled=Filter ON
 machine.universal.toggle.filter.disabled=Filter OFF
 machine.universal.toggle.filter.open.enabled=Filter Open
