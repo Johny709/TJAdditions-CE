@@ -7,17 +7,18 @@ import gregtech.api.recipes.recipes.FuelRecipe;
 import net.minecraftforge.fluids.FluidStack;
 import tj.capability.IGeneratorInfo;
 
+import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 public class TJBoostableFuelRecipeLogic extends TJFuelRecipeLogic implements IWorkable, IGeneratorInfo {
 
-    private final IntSupplier euMultiplier;
-    private final IntSupplier fuelMultiplier;
+    private final DoubleSupplier euMultiplier;
+    private final DoubleSupplier fuelMultiplier;
     private final Supplier<FluidStack> booster;
     private boolean boosted;
 
-    public TJBoostableFuelRecipeLogic(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank, Supplier<FluidStack> booster, IntSupplier fuelMultiplier, IntSupplier euMultiplier, long maxVoltage) {
+    public TJBoostableFuelRecipeLogic(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank, Supplier<FluidStack> booster, DoubleSupplier fuelMultiplier, DoubleSupplier euMultiplier, long maxVoltage) {
         super(metaTileEntity, recipeMap, energyContainer, fluidTank, maxVoltage);
         this.euMultiplier = euMultiplier;
         this.fuelMultiplier = fuelMultiplier;
@@ -28,14 +29,14 @@ public class TJBoostableFuelRecipeLogic extends TJFuelRecipeLogic implements IWo
     protected int calculateFuelAmount(FuelRecipe currentRecipe) {
         FluidStack drainBooster = this.fluidTank.get().drain(this.booster.get(), false);
         this.boosted = drainBooster != null && drainBooster.amount >= this.booster.get().amount;
-        return super.calculateFuelAmount(currentRecipe) * (this.boosted ? this.fuelMultiplier.getAsInt() : 1);
+        return (int) (super.calculateFuelAmount(currentRecipe) * (this.boosted ? this.fuelMultiplier.getAsDouble() : 1));
     }
 
     @Override
     protected long startRecipe(FuelRecipe currentRecipe, int fuelAmountUsed, int recipeDuration) {
         if (this.boosted)
             this.fluidInputs.add(this.fluidTank.get().drain(this.booster.get(), true));
-        return this.maxVoltage * (this.boosted ? this.euMultiplier.getAsInt() : 1);
+        return (long) (this.maxVoltage * (this.boosted ? this.euMultiplier.getAsDouble() : 1));
     }
 
     public boolean isBoosted() {
