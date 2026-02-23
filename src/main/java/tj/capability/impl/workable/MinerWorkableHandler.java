@@ -40,6 +40,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     private final List<Chunk> chunks = new ArrayList<>();
     private boolean initialized;
     private boolean blacklist = true;
+    private boolean silkTouch;
     private Chunk currentChunk;
     private int miningSpeed;
     private int outputIndex;
@@ -89,8 +90,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                 IBlockState state = this.metaTileEntity.getWorld().getBlockState(this.miningPos);
                 Block block = state.getBlock();
                 if (block != Blocks.AIR) {
-                    Item item = block.getItemDropped(state, this.metaTileEntity.getWorld().rand, this.handler.getFortuneLvl());
-                    if (this.addItemDrop(item, 1, block.damageDropped(state))) {
+                    if (this.silkTouch ? this.addItemDrop(block, 1, block.getMetaFromState(state)) : this.addItemDrop(block.getItemDropped(state, this.metaTileEntity.getWorld().rand, this.handler.getFortuneLvl()), 1, block.damageDropped(state))) {
                         this.metaTileEntity.getWorld().playEvent(2001, this.miningPos, Block.getStateId(state));
                         this.metaTileEntity.getWorld().setBlockState(this.miningPos, Blocks.AIR.getDefaultState());
                     }
@@ -144,14 +144,14 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         if (stackPair != null) {
             if (this.blacklist == (this.handler.getOreDictionaryItemFIlter().matchItemStack(stackPair.getValue()) != null))
                 return false;
-            if (this.handler.getFortuneLvl() < 1 && OreDictUnifier.getPrefix(stackPair.getValue()) == OrePrefix.crushed)
+            if (!this.silkTouch && this.handler.getFortuneLvl() < 1 && OreDictUnifier.getPrefix(stackPair.getValue()) == OrePrefix.crushed)
                 count = this.getFortune(stackPair.getKey());
             stackPair.getValue().grow(count);
         } else {
             ItemStack itemStack = type instanceof Block ? new ItemStack((Block) type, count, meta) : new ItemStack((Item) type, count, meta);
             if (this.blacklist == (this.handler.getOreDictionaryItemFIlter().matchItemStack(itemStack) != null))
                 return false;
-            if (this.handler.getFortuneLvl() > 1) {
+            if (!this.silkTouch && this.handler.getFortuneLvl() > 1) {
                 Recipe recipe = RecipeMaps.FORGE_HAMMER_RECIPES.findRecipe(Long.MAX_VALUE, Collections.singletonList(itemStack), Collections.emptyList(), 0);
                 if (recipe != null) {
                     itemStack = recipe.getResultItemOutputs(Integer.MAX_VALUE, this.metaTileEntity.getWorld().rand, 0).get(0).copy();
@@ -188,6 +188,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         compound.setInteger("y", this.miningPos.getY());
         compound.setInteger("z", this.miningPos.getZ());
         compound.setBoolean("blacklist", this.blacklist);
+        compound.setBoolean("silkTouch", this.silkTouch);
         compound.setTag("itemOutputList", itemOutputList);
         this.handler.getOreDictionaryItemFIlter().writeToNBT(compound);
         return compound;
@@ -205,6 +206,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         this.levelY = compound.getInteger("levelY");
         this.miningPos.setPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
         this.blacklist = compound.getBoolean("blacklist");
+        this.silkTouch = compound.getBoolean("silkTouch");
         this.handler.getOreDictionaryItemFIlter().readFromNBT(compound);
     }
 
@@ -222,10 +224,20 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
 
     public void setBlacklist(boolean blacklist) {
         this.blacklist = blacklist;
+        this.metaTileEntity.markDirty();
     }
 
     public boolean isBlacklist() {
         return this.blacklist;
+    }
+
+    public void setSilkTouch(boolean silkTouch) {
+        this.silkTouch = silkTouch;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isSilkTouch() {
+        return this.silkTouch;
     }
 
     public int getChunkIndex() {

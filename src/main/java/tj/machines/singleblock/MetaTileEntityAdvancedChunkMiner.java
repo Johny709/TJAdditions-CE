@@ -16,6 +16,7 @@ import gregtech.api.unification.material.Materials;
 import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -119,7 +120,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
         return ModularUI.defaultBuilder()
                 .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
                 .image(-28, 120, 26, 44, GuiTextures.BORDERED_BACKGROUND)
-                .image(129, 168, 44, 26, GuiTextures.BORDERED_BACKGROUND)
+                .image(111, 168, 62, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
@@ -136,6 +137,11 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                 .widget(new ToggleButtonWidget(151, 172, 18, 18, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
                         .setButtonTexture(GuiTextures.BUTTON_BLACKLIST)
                         .setTooltipText("cover.filter.blacklist"))
+                .widget(new TJToggleButtonWidget(133, 172, 18, 18, this.workableHandler::isSilkTouch, (bool, str) -> this.workableHandler.setSilkTouch(bool))
+                        .setDynamicTooltipText(() -> this.workableHandler.isSilkTouch() ? "tj.multiblock.advanced_large_miner.silktouch_true" : "tj.multiblock.advanced_large_miner.silktouch_false")
+                        .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                        .setItemDisplay(new ItemStack(Blocks.WEB))
+                        .useToggleTexture(true))
                 .widget(new ButtonPopUpWidget<>()
                         .addPopup(widgetGroup -> {
                             widgetGroup.addWidget(new ProgressWidget(this.workableHandler::getProgressPercent, 90, 33, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL));
@@ -151,7 +157,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                             widgetGroup.addWidget(scrollableWidgetGroup);
                             widgetGroup.addWidget(displayWidget);
                             return false;
-                        }).addPopup(30, 20, 0, 0, new TJToggleButtonWidget(133, 172, 18, 18)
+                        }).addPopup(30, 20, 0, 0, new TJToggleButtonWidget(115, 172, 18, 18)
                                 .setBackgroundTextures(TJGuiTextures.ITEM_FILTER)
                                 .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                                 .useToggleTexture(true), widgetGroup -> {

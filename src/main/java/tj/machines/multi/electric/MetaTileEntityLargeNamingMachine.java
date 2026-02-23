@@ -50,7 +50,7 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
     private final NamingMachineWorkableHandler workableHandler = new NamingMachineWorkableHandler(this);
     private int maxVoltage;
     private int parallel;
-    private String name;
+    private String name = "";
 
     public MetaTileEntityLargeNamingMachine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);

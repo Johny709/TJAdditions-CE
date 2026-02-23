@@ -11,6 +11,8 @@ import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.gui.GuiTextures;
+import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -30,6 +32,9 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -39,6 +44,8 @@ import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
 import tj.capability.impl.handler.IMinerHandler;
 import tj.capability.impl.workable.MinerWorkableHandler;
 import tj.gui.TJGuiTextures;
@@ -46,13 +53,16 @@ import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
+import tj.util.TJFluidUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.function.UnaryOperator;
 
 
-public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControllerBase implements IMinerHandler {
+public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControllerBase implements IMinerHandler, IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
@@ -108,6 +118,9 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         builder.voltageInLine(this.getInputEnergyContainer())
                 .energyInputLine(this.getInputEnergyContainer(), this.workableHandler.getEnergyPerTick())
                 .addTranslationLine("tj.multiblock.advanced_large_miner.chunk_index", this.workableHandler.getChunkIndex(), this.workableHandler.getChunkSize())
+                .addTextComponent(AdvancedTextWidget.withButton(new TextComponentTranslation(this.workableHandler.isSilkTouch() ? "tj.multiblock.advanced_large_miner.silktouch_true" : "tj.multiblock.advanced_large_miner.silktouch_false")
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.advanced_large_miner.silktouch")))), this.workableHandler.isSilkTouch() ? "silkTouch:True" : "silkTouch:False"))
+                .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), 999)
                 .addRecipeOutputLine(this.workableHandler, 1000);
         if (this.workableHandler.isActive())
             builder.addTranslationLine("metaitem.linking.device.x", this.workableHandler.getX())
@@ -115,8 +128,12 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
                     .addTranslationLine("metaitem.linking.device.z", this.workableHandler.getZ())
                     .fluidInputLine(this.getImportFluidTank(), this.drillingFluid)
                     .addTranslationLine("gtadditions.machine.miner.fluid_usage", this.drillingFluid.amount, this.drillingFluid.getLocalizedName())
-                    .addTranslationLine("gregtech.multiblock.large_miner.block_per_tick", this.workableHandler.getMiningSpeed())
-                    .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                    .addTranslationLine("gregtech.multiblock.large_miner.block_per_tick", this.workableHandler.getMiningSpeed());
+    }
+
+    @Override
+    protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
+        this.workableHandler.setSilkTouch(!componentData.contains("silkTouch:True"));
     }
 
     @Override
@@ -180,9 +197,9 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
+        this.currentTier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         this.workableHandler.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
         this.drillingFluid = Materials.DrillingFluid.getFluid(1 << this.getTier() - 1);
-        this.currentTier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
     }
 
     @Override
@@ -239,5 +256,25 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     @Override
     public OreDictionaryItemFilter getOreDictionaryItemFIlter() {
         return this.itemFilter;
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[1][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        bars.add(bar -> bar.setProgress(this::getDrillingFluidAmount).setMaxProgress(this::getDrillingFluidCapacity)
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{this.drillingFluid.getLocalizedName()})
+                .setFluidStackSupplier(() -> this.drillingFluid));
+    }
+
+    private long getDrillingFluidAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(this.drillingFluid, this.getImportFluidTank());
+    }
+
+    private long getDrillingFluidCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(this.drillingFluid, this.getImportFluidTank());
     }
 }

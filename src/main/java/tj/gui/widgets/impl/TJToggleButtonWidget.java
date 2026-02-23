@@ -180,7 +180,7 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
             boolean isPressed = this.isPressedCondition.getAsBoolean();
             if (this.isPressed != isPressed) {
                 this.isPressed = isPressed;
-                this.writeUpdateInfo(3, buffer -> buffer.writeBoolean(this.isPressed));
+                this.writeUpdateInfo(4, buffer -> buffer.writeBoolean(this.isPressed));
             }
         }
     }
@@ -189,7 +189,7 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
         super.readUpdateInfo(id, buffer);
-        if (id == 3)
+        if (id == 4)
             this.isPressed = buffer.readBoolean();
     }
 }

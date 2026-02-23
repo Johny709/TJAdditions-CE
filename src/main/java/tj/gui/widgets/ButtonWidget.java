@@ -28,6 +28,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     protected QuadConsumer<String, Integer, Integer, Integer> textResponderWithMouse;
     protected Supplier<String[]> formatSupplier;
     protected Supplier<String> buttonIdSupplier;
+    protected Supplier<String> dynamicTooltipText;
     protected Consumer<String> buttonResponder;
     protected TextureArea[] backgroundTextures;
     protected String[] format;
@@ -58,6 +59,15 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     public R setTooltipText(String tooltipText) {
         Preconditions.checkNotNull(tooltipText, "tooltipText");
         this.tooltipText = tooltipText;
+        return (R) this;
+    }
+
+    /**
+     * Translates the passed in String for display when cursor is hovering over this widget. Updated every tick by supplier.
+     */
+    public R setDynamicTooltipText(Supplier<String> dynamicTooltipText) {
+        Preconditions.checkNotNull(dynamicTooltipText, "dynamicTooltipText");
+        this.dynamicTooltipText = dynamicTooltipText;
         return (R) this;
     }
 
@@ -237,6 +247,13 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
                 this.writeUpdateInfo(2, buffer -> buffer.writeString(this.buttonId));
             }
         }
+        if (this.dynamicTooltipText != null) {
+            String tooltipText = this.dynamicTooltipText.get();
+            if (this.tooltipText == null || !this.tooltipText.equals(tooltipText)) {
+                this.tooltipText = tooltipText;
+                this.writeUpdateInfo(3, buffer -> buffer.writeString(this.tooltipText));
+            }
+        }
     }
 
     @Override
@@ -249,6 +266,8 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
             }
         } else if (id == 2) {
             this.buttonId = buffer.readString(Short.MAX_VALUE);
+        } else if (id == 3) {
+            this.tooltipText = buffer.readString(Short.MAX_VALUE);
         }
     }
 }

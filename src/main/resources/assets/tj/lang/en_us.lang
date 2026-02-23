@@ -539,6 +539,9 @@ tj.multiblock.advanced_large_miner.description=More advanced version of §5Chunk
 tj.multiblock.advanced_large_miner.crushed=§dThis Large Chunk Miner outputs crushed ores with much higher yield than macerator. Affected by fortune.
 tj.multiblock.advanced_large_miner.output=§dThe Miner will try to output the items directly at an inventory adjacent to its output side before it tries outputting to its own output inventory.
 tj.multiblock.advanced_large_miner.chunk_index=Chunk Index: §b%,d / %,d
+tj.multiblock.advanced_large_miner.silktouch=Click to toggle silktouch for the miner.
+tj.multiblock.advanced_large_miner.silktouch_true=§fSilkTouch: §a[True]
+tj.multiblock.advanced_large_miner.silktouch_false=§fSilkTouch: §c[False]
 
 recipemap.primitive_alloy.tj.name=Primitive Alloy Smelter
 recipemap.coke_oven_2.tj.name=Coke Oven
