@@ -50,7 +50,7 @@ public class LargeNamingMachineInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[]{I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeNamingMachine.stack),
+        return new String[]{I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeNamingMachine.stack).replace("§7", "§r"),
                 I18n.format("tj.machine.naming_machine.description")};
     }
 }

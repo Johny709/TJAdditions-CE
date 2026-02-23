@@ -142,14 +142,14 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         tabBuilder.addTab("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), tab -> {
             tab.add(new ButtonPopUpWidget<>()
                     .addPopup(widgetGroup -> true)
-                    .addPopup(40, 40, 0, 0, new TJToggleButtonWidget(175, 134, 18, 18)
+                    .addPopup(40, 40, 0, 0, new TJToggleButtonWidget(175, this.getOffsetY(134), 18, 18)
                             .setBackgroundTextures(TJGuiTextures.ITEM_FILTER)
                             .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                             .useToggleTexture(true), widgetGroup -> {
                         this.itemFilter.initUI(widgetGroup::addWidget);
                         return false;
                     }));
-            tab.add(new ToggleButtonWidget(175, 151, 18, 18, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
+            tab.add(new ToggleButtonWidget(175, this.getOffsetY(151), 18, 18, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
                     .setButtonTexture(GuiTextures.BUTTON_BLACKLIST)
                     .setTooltipText("cover.filter.blacklist"));
         });
