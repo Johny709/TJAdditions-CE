@@ -33,8 +33,14 @@ public class TJCycleFuelRecipeLogic extends TJBoostableFuelRecipeLogic {
                     this.currentCycle--;
                 return false;
             }
-        } else this.currentCycle++;
+        }
         return true;
+    }
+
+    @Override
+    protected boolean completeRecipe() {
+        this.currentCycle++;
+        return super.completeRecipe();
     }
 
     @Override
