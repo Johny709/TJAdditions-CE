@@ -219,7 +219,7 @@ public abstract class MetaTileEntityLargeRocketEngineMixin extends GAFueledMulti
 
     @Unique
     private double getFuelMultiplier() {
-        return 4.5;
+        return 3.75;
     }
 
     @Unique
