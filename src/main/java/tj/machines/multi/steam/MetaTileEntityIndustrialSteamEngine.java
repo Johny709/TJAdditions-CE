@@ -56,6 +56,7 @@ import tj.capability.ProgressBar;
 import tj.capability.TJCapabilities;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.impl.handler.ISteamHandler;
+import tj.capability.impl.workable.TJFuelRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.util.TJFluidUtils;
@@ -121,9 +122,8 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18)
-                .setToggleButtonResponder(this.workableHandler::setVoidEnergy)
-                .setButtonSupplier(this.workableHandler::isVoidEnergy)
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, this.workableHandler::isVoidEnergy, this.workableHandler::setVoidEnergy)
+                .setDynamicTooltipText(() -> this.workableHandler.isVoidEnergy() ? "machine.universal.toggle.energy_voiding.enabled" : "machine.universal.toggle.energy_voiding.disabled")
                 .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                 .setBackgroundTextures(TJGuiTextures.ENERGY_VOID)
                 .useToggleTexture(true));
