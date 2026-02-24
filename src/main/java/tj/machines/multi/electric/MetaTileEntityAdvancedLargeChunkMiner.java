@@ -33,6 +33,9 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -41,6 +44,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
@@ -52,7 +56,10 @@ import tj.capability.impl.handler.IMinerHandler;
 import tj.capability.impl.workable.MinerWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
+import tj.gui.widgets.impl.TJPhantomSlotWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.items.handlers.GhostSlotHandler;
+import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 import tj.util.TJFluidUtils;
@@ -69,6 +76,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
     private final OreDictionaryItemFilter itemFilter = new OreDictionaryItemFilter();
+    private final GhostSlotHandler ghostSlotHandler = new GhostSlotHandler(this.getImportItems().getSlots());
     private final int fortune;
     private final int tier;
     private FluidStack drillingFluid = Materials.DrillingFluid.getFluid(1);
@@ -94,6 +102,11 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         tooltip.add(I18n.format("gtadditions.machine.miner.multi.description", this.getDiameter(), this.getDiameter(), this.getFortuneLvl()));
         tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", 1 << this.getDiameter() - 1, this.drillingFluid.getLocalizedName()));
         tooltip.add(I18n.format("gregtech.multiblock.large_miner.block_per_tick", 1 << this.getDiameter() - 1));
+    }
+
+    @Override
+    protected IItemHandlerModifiable createImportItemHandler() {
+        return new LargeItemStackHandler(60, 1);
     }
 
     @Override
@@ -143,9 +156,17 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         super.addTabs(tabBuilder, player);
         tabBuilder.addTab("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), tab -> {
             tab.add(new ButtonPopUpWidget<>()
-                    .addPopup(widgetGroup -> true)
-                    .addPopup(40, 40, 0, 0, new TJToggleButtonWidget(175, this.getOffsetY(134), 18, 18)
-                            .setBackgroundTextures(TJGuiTextures.ITEM_FILTER)
+                    .addPopup(widgetGroup -> {
+                        for (int i = 0; i < this.getImportItems().getSlots(); i++) {
+                            widgetGroup.addWidget(new TJPhantomSlotWidget(this.getImportItems(), i, 10 + (18 * (i % 10)), 10 + (18 * (i / 10)))
+                                    .setTakeItemsPredicate(this.workableHandler::removeItemFromFilter)
+                                    .setPutItemsPredicate(this.workableHandler::addItemToFilter)
+                                    .setAreGhostItems(this.ghostSlotHandler.getAreGhostItems())
+                                    .setBackgroundTexture(GuiTextures.SLOT));
+                        }
+                        return false;
+                    }).addPopup(40, 40, 0, 0, new TJToggleButtonWidget(175, this.getOffsetY(134), 18, 18)
+                            .setBackgroundTextures(TJGuiTextures.ORE_DICTIONARY_FILTER)
                             .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                             .useToggleTexture(true), widgetGroup -> {
                         this.itemFilter.initUI(widgetGroup::addWidget);
@@ -223,6 +244,36 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
         ClientHandler.CHUNK_MINER_OVERLAY.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
         ClientHandler.CHUNK_MINER_OVERLAY.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
+    }
+
+    @Override
+    public void clearMachineInventory(NonNullList<ItemStack> itemBuffer) {
+        this.ghostSlotHandler.clearInventory(this.getImportItems(), itemBuffer);
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        this.ghostSlotHandler.writeInitialSyncData(buf);
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.ghostSlotHandler.readInitialSyncData(buf);
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        this.ghostSlotHandler.writeToNBT(data);
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.ghostSlotHandler.readFromNBT(data);
     }
 
     @Override
