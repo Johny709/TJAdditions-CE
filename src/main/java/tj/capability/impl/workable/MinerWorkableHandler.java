@@ -144,8 +144,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         if (stackPair != null) {
             if (this.blacklist == (this.handler.getOreDictionaryItemFIlter().matchItemStack(stackPair.getValue()) != null))
                 return false;
-            if (!this.silkTouch && this.handler.getFortuneLvl() > 1 && OreDictUnifier.getPrefix(stackPair.getValue()) == OrePrefix.crushed)
-                count = this.getFortune(stackPair.getKey());
+            if (!this.silkTouch)
+                count = this.handler.getFortuneLvl() > 1 && OreDictUnifier.getPrefix(stackPair.getValue()) == OrePrefix.crushed ? this.getFortune(stackPair.getKey()) : stackPair.getKey();
             stackPair.getValue().grow(count);
         } else {
             ItemStack itemStack = type instanceof Block ? new ItemStack((Block) type, count, meta) : new ItemStack((Item) type, count, meta);

@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAMaterials;
+import gregicadditions.Gregicality;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -22,6 +23,7 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.unification.material.Materials;
 import gregtech.common.blocks.MetaBlocks;
@@ -276,5 +278,10 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
 
     private long getDrillingFluidCapacity() {
         return TJFluidUtils.getFluidCapacityFromTanks(this.drillingFluid, this.getImportFluidTank());
+    }
+
+    @Override
+    public String getRecipeUid() {
+        return Gregicality.MODID + ":" + RecipeMaps.MACERATOR_RECIPES.getUnlocalizedName();
     }
 }
