@@ -80,7 +80,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         }
         if (this.progress > progress && this.progress < this.maxProgress) {
             if (!this.handler.getDrillingFluid().isFluidStackIdentical(this.handler.getImportFluidTank().drain(this.handler.getDrillingFluid(), true))) {
-                this.progress--;
+                if (this.progress > 0) this.progress--;
                 return;
             }
             int progressed = -1;
@@ -144,7 +144,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         if (stackPair != null) {
             if (this.blacklist == (this.handler.getOreDictionaryItemFIlter().matchItemStack(stackPair.getValue()) != null))
                 return false;
-            if (!this.silkTouch && this.handler.getFortuneLvl() < 1 && OreDictUnifier.getPrefix(stackPair.getValue()) == OrePrefix.crushed)
+            if (!this.silkTouch && this.handler.getFortuneLvl() > 1 && OreDictUnifier.getPrefix(stackPair.getValue()) == OrePrefix.crushed)
                 count = this.getFortune(stackPair.getKey());
             stackPair.getValue().grow(count);
         } else {
@@ -152,11 +152,15 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
             if (this.blacklist == (this.handler.getOreDictionaryItemFIlter().matchItemStack(itemStack) != null))
                 return false;
             if (!this.silkTouch && this.handler.getFortuneLvl() > 1) {
-                Recipe recipe = RecipeMaps.FORGE_HAMMER_RECIPES.findRecipe(Long.MAX_VALUE, Collections.singletonList(itemStack), Collections.emptyList(), 0);
+                Recipe recipe = RecipeMaps.MACERATOR_RECIPES.findRecipe(Long.MAX_VALUE, Collections.singletonList(itemStack), Collections.emptyList(), 0);
                 if (recipe != null) {
-                    itemStack = recipe.getResultItemOutputs(Integer.MAX_VALUE, this.metaTileEntity.getWorld().rand, 0).get(0).copy();
+                    itemStack = recipe.getResultItemOutputs(Integer.MAX_VALUE, this.metaTileEntity.getWorld().rand, this.handler.getTier()).get(0).copy();
+                    int originalCount = itemStack.getCount();
                     if (OreDictUnifier.getPrefix(itemStack) == OrePrefix.crushed) {
-                        itemStack.setCount(this.getFortune(itemStack.getCount()));
+                        itemStack.setCount(this.getFortune(originalCount));
+                        this.itemType.put(key, IntPair.of(originalCount, itemStack));
+                        this.itemOutputs.add(itemStack);
+                        return true;
                     }
                 }
             }
@@ -167,12 +171,12 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     }
 
     private int getFortune(int count) {
-        int fortuneLevel = this.handler.getFortuneLvl();
-        if (fortuneLevel > 3) fortuneLevel = 3;
-        int i = (this.metaTileEntity.getWorld().rand.nextFloat() <= (fortuneLevel / 3.0) ? 2 : 1);
-        count *= i;
-        if (count == 0) count = 1;
-        return count;
+        int growAmount = Math.round(count * this.metaTileEntity.getWorld().rand.nextFloat());
+        if (this.handler.getFortuneLvl() > 0) {
+            int i = Math.max(0, this.metaTileEntity.getWorld().rand.nextInt(this.handler.getFortuneLvl() + 2) - 1);
+            growAmount += count * i;
+        }
+        return growAmount;
     }
 
     @Override
@@ -198,9 +202,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
         NBTTagList itemOutputList = compound.getTagList("itemOutputList", 10);
-        for (int i = 0; i < itemOutputList.tagCount(); i++) {
+        for (int i = 0; i < itemOutputList.tagCount(); i++)
             this.itemOutputs.add(new ItemStack(itemOutputList.getCompoundTagAt(i)));
-        }
         this.outputIndex = compound.getInteger("outputIndex");
         this.chunkIndex = compound.getInteger("chunkIndex");
         this.levelY = compound.getInteger("levelY");
