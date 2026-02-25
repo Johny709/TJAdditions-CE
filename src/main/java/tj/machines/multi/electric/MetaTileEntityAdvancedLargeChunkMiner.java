@@ -27,7 +27,6 @@ import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.unification.material.Materials;
 import gregtech.common.blocks.MetaBlocks;
-import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import gregtech.common.items.MetaItems;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -58,6 +57,7 @@ import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.TJPhantomSlotWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.gui.widgets.impl.WindowsWidgetGroup;
 import tj.items.handlers.GhostSlotHandler;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
@@ -75,7 +75,6 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
-    private final OreDictionaryItemFilter itemFilter = new OreDictionaryItemFilter();
     private final GhostSlotHandler ghostSlotHandler = new GhostSlotHandler(this.getImportItems().getSlots());
     private final int fortune;
     private final int tier;
@@ -159,22 +158,25 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
                     .addPopup(widgetGroup -> {
                         for (int i = 0; i < this.getImportItems().getSlots(); i++) {
                             widgetGroup.addWidget(new TJPhantomSlotWidget(this.getImportItems(), i, 10 + (18 * (i % 10)), 10 + (18 * (i / 10)))
+                                    .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY)
                                     .setTakeItemsPredicate(this.workableHandler::removeItemFromFilter)
                                     .setPutItemsPredicate(this.workableHandler::addItemToFilter)
-                                    .setAreGhostItems(this.ghostSlotHandler.getAreGhostItems())
-                                    .setBackgroundTexture(GuiTextures.SLOT));
+                                    .setAreGhostItems(this.ghostSlotHandler.getAreGhostItems()));
                         }
                         return false;
                     }).addPopup(40, 40, 0, 0, new TJToggleButtonWidget(175, this.getOffsetY(134), 18, 18)
                             .setBackgroundTextures(TJGuiTextures.ORE_DICTIONARY_FILTER)
                             .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                             .useToggleTexture(true), widgetGroup -> {
-                        this.itemFilter.initUI(widgetGroup::addWidget);
+                        WindowsWidgetGroup windowsWidgetGroup = new WindowsWidgetGroup(0, -3, 135, 45, GuiTextures.BORDERED_BACKGROUND)
+                                .addSubWidget(new ToggleButtonWidget(113, 23, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
+                                        .setTooltipText("tj.multiblock.advanced_large_miner.blacklist"));
+                        this.workableHandler.getOreDictFilter().initUI(windowsWidgetGroup::addSubWidget);
+                        widgetGroup.addWidget(windowsWidgetGroup);
                         return false;
                     }));
-            tab.add(new ToggleButtonWidget(175, this.getOffsetY(151), 18, 18, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
-                    .setButtonTexture(GuiTextures.BUTTON_BLACKLIST)
-                    .setTooltipText("cover.filter.blacklist"));
+            tab.add(new ToggleButtonWidget(175, this.getOffsetY(151), 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
+                    .setTooltipText("tj.multiblock.advanced_large_miner.blacklist_block"));
         });
     }
 
@@ -304,11 +306,6 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     @Override
     public FluidStack getDrillingFluid() {
         return this.drillingFluid;
-    }
-
-    @Override
-    public OreDictionaryItemFilter getOreDictionaryItemFIlter() {
-        return this.itemFilter;
     }
 
     @Override
