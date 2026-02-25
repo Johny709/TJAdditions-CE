@@ -13,13 +13,15 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.render.Textures;
 import gregtech.api.unification.material.Materials;
-import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
@@ -35,10 +37,9 @@ import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.TJSlotWidget;
-import tj.gui.widgets.impl.ButtonPopUpWidget;
-import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
-import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.gui.widgets.impl.*;
+import tj.items.handlers.GhostSlotHandler;
+import tj.items.handlers.LargeItemStackHandler;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -51,7 +52,8 @@ import static tj.gui.TJGuiTextures.POWER_BUTTON;
 public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEntity implements IMinerHandler {
 
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
-    private final OreDictionaryItemFilter itemFilter = new OreDictionaryItemFilter();
+    private final LargeItemStackHandler filterInventory = new LargeItemStackHandler(27, 1);
+    private final GhostSlotHandler ghostSlotHandler = new GhostSlotHandler(this.filterInventory.getSlots());
     private final FluidStack drillingFluid;
 
     public MetaTileEntityAdvancedChunkMiner(ResourceLocation metaTileEntityId, int tier) {
@@ -98,7 +100,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
         super.update();
         if (!this.getWorld().isRemote) {
             this.workableHandler.update();
-            this.fillInternalTankFromFluidContainer(this.getImportItemInventory(), this.getExportItemInventory(), 0, 1);
+            this.fillInternalTankFromFluidContainer(this.getImportItemInventory(), this.getImportItemInventory(), 0, 1);
         }
     }
 
@@ -134,10 +136,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
                 .widget(new ToggleButtonWidget(-24, 142, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
-                .widget(new ToggleButtonWidget(151, 172, 18, 18, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
-                        .setButtonTexture(GuiTextures.BUTTON_BLACKLIST)
-                        .setTooltipText("cover.filter.blacklist"))
-                .widget(new TJToggleButtonWidget(133, 172, 18, 18, this.workableHandler::isSilkTouch, (bool, str) -> this.workableHandler.setSilkTouch(bool))
+                .widget(new TJToggleButtonWidget(151, 172, 18, 18, this.workableHandler::isSilkTouch, (bool, str) -> this.workableHandler.setSilkTouch(bool))
                         .setDynamicTooltipText(() -> this.workableHandler.isSilkTouch() ? "tj.multiblock.advanced_large_miner.silktouch_true" : "tj.multiblock.advanced_large_miner.silktouch_false")
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                         .setItemDisplay(new ItemStack(Blocks.WEB))
@@ -157,11 +156,27 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                             widgetGroup.addWidget(scrollableWidgetGroup);
                             widgetGroup.addWidget(displayWidget);
                             return false;
-                        }).addPopup(30, 20, 0, 0, new TJToggleButtonWidget(115, 172, 18, 18)
+                        }).addPopup(7, 5, 0, 0, new TJToggleButtonWidget(115, 172, 18, 18)
+                                .setBackgroundTextures(TJGuiTextures.ORE_DICTIONARY_FILTER)
+                                .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                                .useToggleTexture(true), widgetGroup -> {
+                            for (int i = 0; i < this.filterInventory.getSlots(); i++) {
+                                widgetGroup.addWidget(new TJPhantomSlotWidget(this.filterInventory, i, 18 * (i % 9), 18 * (i / 9))
+                                        .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY)
+                                        .setTakeItemsPredicate(this.workableHandler::removeItemFromFilter)
+                                        .setPutItemsPredicate(this.workableHandler::addItemToFilter)
+                                        .setAreGhostItems(this.ghostSlotHandler.getAreGhostItems()));
+                            }
+                            widgetGroup.addWidget(new ToggleButtonWidget(144, 57, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
+                                    .setTooltipText("tj.multiblock.advanced_large_miner.blacklist_block"));
+                            return false;
+                        }).addPopup(30, 20, 0, 0, new TJToggleButtonWidget(133, 172, 18, 18)
                                 .setBackgroundTextures(TJGuiTextures.ITEM_FILTER)
                                 .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                                 .useToggleTexture(true), widgetGroup -> {
-                            this.itemFilter.initUI(widgetGroup::addWidget);
+                            widgetGroup.addWidget(new ToggleButtonWidget(121, 42, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
+                                    .setTooltipText("tj.multiblock.advanced_large_miner.blacklist"));
+                            this.workableHandler.getOreDictFilter().initUI(widgetGroup::addWidget);
                             return false;
                         }))
                 .bindPlayerInventory(player.inventory)
@@ -179,6 +194,39 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
         Textures.PIPE_OUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
         if (this.isAutoOutputItems())
             Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
+    }
+
+    @Override
+    public void clearMachineInventory(NonNullList<ItemStack> itemBuffer) {
+        super.clearMachineInventory(itemBuffer);
+        this.ghostSlotHandler.clearInventory(this.filterInventory, itemBuffer);
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        this.ghostSlotHandler.writeInitialSyncData(buf);
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.ghostSlotHandler.readInitialSyncData(buf);
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setTag("filterInventory", this.filterInventory.serializeNBT());
+        this.ghostSlotHandler.writeToNBT(data);
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.filterInventory.deserializeNBT(data.getCompoundTag("filterInventory"));
+        this.ghostSlotHandler.readFromNBT(data);
     }
 
     @Override
@@ -206,10 +254,5 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     @Override
     public FluidStack getDrillingFluid() {
         return this.drillingFluid;
-    }
-
-    @Override
-    public OreDictionaryItemFilter getOreDictionaryItemFIlter() {
-        return this.itemFilter;
     }
 }

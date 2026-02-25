@@ -12,6 +12,7 @@ import mezz.jei.api.ingredients.VanillaTypes;
 import net.minecraft.util.ResourceLocation;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.recipe.GTRecipeTransferGuiHandler;
+import tj.machines.multi.electric.MetaTileEntityAdvancedLargeChunkMiner;
 import tj.machines.multi.steam.MetaTileEntityMegaBoiler;
 
 import static tj.machines.TJMetaTileEntities.*;
@@ -28,6 +29,8 @@ public class TJJEIPlugin implements IModPlugin {
         registry.addRecipeCatalyst(INFINITE_FLUID_DRILL.getStackForm(), Gregicality.MODID + ":drilling_rig");
         for (MetaTileEntityMegaBoiler boiler : MEGA_BOILER)
             registry.addRecipeCatalyst(boiler.getStackForm(), boiler.getRecipeUid());
+        for (MetaTileEntityAdvancedLargeChunkMiner chunkMiner : ADVANCED_LARGE_CHUNK_MINERS)
+            registry.addRecipeCatalyst(chunkMiner.getStackForm(), chunkMiner.getRecipeUid());
 
         for (ResourceLocation metaTileEntityId : GregTechAPI.META_TILE_ENTITY_REGISTRY.getKeys()) {
             MetaTileEntity metaTileEntity = GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(metaTileEntityId);

@@ -44,7 +44,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     private final BlockPos[] posCorner = new BlockPos[4];
-    private final Object2ObjectMap<String, ItemStack> itemType = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<Item, ItemStack> itemType = new Object2ObjectOpenHashMap<>();
     private Harvester[] harvesters;
     private boolean initialized;
     private boolean outputTools;
@@ -160,6 +160,8 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
             this.itemInputs.add(new ItemStack(inputList.getCompoundTagAt(i)));
         for (int i = 0; i < outputList.tagCount(); i++)
             this.itemOutputs.add(new ItemStack(outputList.getCompoundTagAt(i)));
+        for (ItemStack stack : this.itemOutputs)
+            this.itemType.put(stack.getItem(), stack);
         this.outputIndex = data.getInteger("outputIndex");
         this.outputTools = data.getBoolean("outputTools");
         this.voidOutputs = data.getBoolean("voidOutputs");
@@ -341,13 +343,13 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
         private <T extends IForgeRegistryEntry<T>> boolean addItemDrop(T type, int count, int meta) {
             if (type == null)
                 return false;
-            String key = type.getRegistryName().toString() + ":" + meta;
-            ItemStack stack = itemType.get(key);
+            Item item = type instanceof Item ? (Item) type : Item.getItemFromBlock((Block) type);
+            ItemStack stack = itemType.get(item);
             if (stack != null) {
                 stack.grow(count);
             } else {
                 ItemStack itemStack = type instanceof Block ? new ItemStack((Block) type, count, meta) : new ItemStack((Item) type, count, meta);
-                itemType.put(key, itemStack);
+                itemType.put(item, itemStack);
                 itemOutputs.add(itemStack);
             }
             return true;

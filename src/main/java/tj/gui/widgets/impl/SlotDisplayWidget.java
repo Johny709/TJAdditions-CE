@@ -18,8 +18,8 @@ public class SlotDisplayWidget extends TJSlotWidget<SlotDisplayWidget> {
 
     public SlotDisplayWidget(IItemHandler itemHandler, int slotIndex, int x, int y) {
         super(itemHandler, slotIndex, x, y);
-        this.setTakeItemsPredicate(() -> false)
-                .setPutItemsPredicate(() -> false);
+        this.setTakeItemsPredicate((stack) -> false)
+                .setPutItemsPredicate((stack) -> false);
     }
 
     public SlotDisplayWidget onPressedConsumer(TriConsumer<Integer, Integer, ItemStack> onPressed) {

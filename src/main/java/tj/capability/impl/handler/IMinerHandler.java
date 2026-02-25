@@ -15,6 +15,4 @@ public interface IMinerHandler extends IMachineHandler {
     int getDiameter();
 
     FluidStack getDrillingFluid();
-
-    OreDictionaryItemFilter getOreDictionaryItemFIlter();
 }

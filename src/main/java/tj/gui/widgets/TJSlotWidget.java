@@ -21,7 +21,7 @@ import tj.util.ItemStackHelper;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements ISlotHandler, IIngredientSlot {
@@ -29,8 +29,8 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
     private final IItemHandler itemHandler;
     protected int slotIndex;
     private Supplier<IItemHandler> itemHandlerSupplier;
-    protected BooleanSupplier takeItemsPredicate;
-    protected BooleanSupplier putItemsPredicate;
+    protected Predicate<ItemStack> takeItemsPredicate;
+    protected Predicate<ItemStack> putItemsPredicate;
     private TextureArea[] backgroundTexture;
     private ISlotGroup widgetGroup;
     private boolean simulating;
@@ -60,12 +60,12 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
         return (R) this;
     }
 
-    public R setTakeItemsPredicate(BooleanSupplier takeItemsPredicate) {
+    public R setTakeItemsPredicate(Predicate<ItemStack> takeItemsPredicate) {
         this.takeItemsPredicate = takeItemsPredicate;
         return (R) this;
     }
 
-    public R setPutItemsPredicate(BooleanSupplier putItemsPredicate) {
+    public R setPutItemsPredicate(Predicate<ItemStack> putItemsPredicate) {
         this.putItemsPredicate = putItemsPredicate;
         return (R) this;
     }
@@ -205,27 +205,29 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
                 boolean isShiftKeyPressed = buffer.readBoolean();
                 int button = buffer.readInt();
                 if (button == 0) {
-                    if (handStack.isEmpty())
-                        if (this.getItemHandler() != null && (this.takeItemsPredicate == null || this.takeItemsPredicate.getAsBoolean())) {
+                    if (handStack.isEmpty()) {
+                        if (this.getItemHandler() != null) {
                             int amount = isCtrlKeyPressed ? Integer.MAX_VALUE : 64;
+                            if (this.takeItemsPredicate != null && !this.takeItemsPredicate.test(this.getItemHandler().extractItem(this.slotIndex, amount, true))) return;
                             newStack = this.getItemHandler().extractItem(this.slotIndex, amount, false);
                             if (isShiftKeyPressed)
                                 newStack = ItemStackHelper.insertInMainInventory(player.inventory, newStack);
                             if (this.widgetGroup != null)
                                 this.writeUpdateInfo(3, buffer1 -> buffer1.writeInt(5));
                         } else return;
-                    else if (this.widgetGroup == null && (this.putItemsPredicate == null || this.putItemsPredicate.getAsBoolean()))
+                    } else if (this.widgetGroup == null && (this.putItemsPredicate == null || this.putItemsPredicate.test(handStack))) {
                         // if this slot was not added to a slot group then let this slot handle the stack insertion
                         newStack = this.insert(handStack, false);
-                    else return;
+                    } else return;
                 } else if (button == 1) {
                     if (handStack.isEmpty()) {
-                        if (this.getItemHandler() != null && (this.takeItemsPredicate == null || this.takeItemsPredicate.getAsBoolean())) {
+                        if (this.getItemHandler() != null) {
                             ItemStack stack = this.getItemHandler().getStackInSlot(this.slotIndex);
-                            newStack = this.getItemHandler().extractItem(this.slotIndex, Math.max(1, stack.getCount() / 2), false);
+                            if (this.takeItemsPredicate == null || this.takeItemsPredicate.test(stack))
+                                newStack = this.getItemHandler().extractItem(this.slotIndex, Math.max(1, stack.getCount() / 2), false);
                         } else return;
                     } else {
-                        if (this.putItemsPredicate == null || this.putItemsPredicate.getAsBoolean()) {
+                        if (this.putItemsPredicate == null || this.putItemsPredicate.test(handStack)) {
                             this.insertAmount(handStack, 1);
                         } else return;
                     }

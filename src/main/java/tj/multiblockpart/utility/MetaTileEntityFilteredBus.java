@@ -18,9 +18,7 @@ import gregtech.api.util.Position;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -34,6 +32,7 @@ import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.*;
+import tj.items.handlers.GhostSlotHandler;
 import tj.util.Color;
 import tj.util.TooltipHelper;
 
@@ -43,8 +42,8 @@ import java.util.List;
 
 public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IItemHandlerModifiable> {
 
+    private final GhostSlotHandler ghostSlotHandler;
     private final ItemStackHandler filterInventory;
-    private final boolean[] areGhostItems;
     private final boolean isOutput;
     private boolean bypassEmptySlots;
 
@@ -52,7 +51,7 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
         super(metaTileEntityId, tier);
         this.isOutput = isOutput;
         this.filterInventory = new ItemStackHandler(this.getTierSlots(tier));
-        this.areGhostItems = new boolean[this.filterInventory.getSlots()];
+        this.ghostSlotHandler = new GhostSlotHandler(this.filterInventory.getSlots());
         this.initializeInventory();
     }
 
@@ -153,7 +152,7 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
                     for (int i = 0; i < this.filterInventory.getSlots(); i++) {
                         TJPhantomSlotWidget slotWidget = new TJPhantomSlotWidget(this.filterInventory, i, startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)))
                                 .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY)
-                                .setAreGhostItems(this.areGhostItems);
+                                .setAreGhostItems(this.ghostSlotHandler.getAreGhostItems());
                         if (this.getTier() > 9)
                             slotScrollGroup.addWidget(slotWidget);
                         else slotGroup.addWidget(slotWidget);
@@ -198,38 +197,25 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
     @Override
     public void clearMachineInventory(NonNullList<ItemStack> itemBuffer) {
         super.clearMachineInventory(itemBuffer);
-        for (int i = 0; i < this.filterInventory.getSlots(); i++) {
-            ItemStack stack = this.filterInventory.getStackInSlot(i);
-            if (!stack.isEmpty() && !this.areGhostItems[i]) {
-                this.filterInventory.setStackInSlot(i, ItemStack.EMPTY);
-                itemBuffer.add(stack);
-            }
-        }
+        this.ghostSlotHandler.clearInventory(this.filterInventory, itemBuffer);
     }
 
     @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
-        buf.writeInt(this.areGhostItems.length);
-        for (boolean isGhostItem : this.areGhostItems)
-            buf.writeBoolean(isGhostItem);
+        this.ghostSlotHandler.writeInitialSyncData(buf);
     }
 
     @Override
     public void receiveInitialSyncData(PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
-        int size = buf.readInt();
-        for (int i = 0; i < size; i++)
-            this.areGhostItems[i] = buf.readBoolean();
+        this.ghostSlotHandler.readInitialSyncData(buf);
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        NBTTagList ghostItemList = new NBTTagList();
-        for (boolean isGhostItem : this.areGhostItems)
-            ghostItemList.appendTag(new NBTTagByte((byte) (isGhostItem ? 1 : 0)));
-        data.setTag("ghostItems", ghostItemList);
+        this.ghostSlotHandler.writeToNBT(data);
         data.setTag("filterInventory", this.filterInventory.serializeNBT());
         data.setBoolean("bypassEmpty", this.bypassEmptySlots);
         return data;
@@ -238,9 +224,7 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        NBTTagList ghostItemList = data.getTagList("ghostItems", 1);
-        for (int i = 0; i < ghostItemList.tagCount(); i++)
-            this.areGhostItems[i] = ((NBTTagByte) ghostItemList.get(i)).getByte() == 1;
+        this.ghostSlotHandler.readFromNBT(data);
         this.filterInventory.deserializeNBT(data.getCompoundTag("filterInventory"));
         this.bypassEmptySlots = data.getBoolean("bypassEmpty");
     }

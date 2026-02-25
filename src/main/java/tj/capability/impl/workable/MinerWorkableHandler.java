@@ -1,11 +1,15 @@
 package tj.capability.impl.workable;
 
 import gregicadditions.GAValues;
+import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.LabelWidget;
+import gregtech.api.gui.widgets.TextFieldWidget;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.unification.OreDictUnifier;
 import gregtech.api.unification.ore.OrePrefix;
+import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.*;
@@ -14,6 +18,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -31,15 +36,30 @@ import tj.util.pair.IntPair;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler> implements IItemFluidHandlerInfo {
 
-    private final Object2ObjectMap<String, IntPair<ItemStack>> itemType = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<Item, IntPair<ItemStack>> itemType = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<Item, ItemStack> itemFilterType = new Object2ObjectOpenHashMap<>();
+    private final OreDictionaryItemFilter oreDictFilter = new OreDictionaryItemFilter() {
+        @Override
+        public void initUI(Consumer<Widget> widgetGroup) {
+            widgetGroup.accept(new LabelWidget(10, 3, "cover.ore_dictionary_filter.title1"));
+            widgetGroup.accept(new LabelWidget(10, 13, "cover.ore_dictionary_filter.title2"));
+            widgetGroup.accept(new TextFieldWidget(10, 28, 100, 12, true,
+                    () -> this.oreDictionaryFilter, this::setOreDictionaryFilter)
+                    .setMaxStringLength(256)
+                    .setValidator(str -> Pattern.compile("\\*?[a-zA-Z0-9_]*\\*?").matcher(str).matches()));
+        }
+    };
     private final BlockPos.MutableBlockPos miningPos = new BlockPos.MutableBlockPos();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     private final List<Chunk> chunks = new ArrayList<>();
     private boolean initialized;
     private boolean blacklist = true;
+    private boolean blacklistBlock;
     private boolean silkTouch;
     private Chunk currentChunk;
     private int miningSpeed;
@@ -89,10 +109,12 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                 this.miningPos.setPos(this.currentChunk.x + (progress % 16), this.levelY, this.currentChunk.z + (progress / 16));
                 IBlockState state = this.metaTileEntity.getWorld().getBlockState(this.miningPos);
                 Block block = state.getBlock();
-                if (block != Blocks.AIR) {
-                    if (this.silkTouch ? this.addItemDrop(block, 1, block.getMetaFromState(state)) : this.addItemDrop(block.getItemDropped(state, this.metaTileEntity.getWorld().rand, this.handler.getFortuneLvl()), 1, block.damageDropped(state))) {
-                        this.metaTileEntity.getWorld().playEvent(2001, this.miningPos, Block.getStateId(state));
-                        this.metaTileEntity.getWorld().setBlockState(this.miningPos, Blocks.AIR.getDefaultState());
+                if (this.blacklistBlock == (this.itemFilterType.get(Item.getItemFromBlock(block)) == null)) {
+                    if (block != Blocks.AIR) {
+                        if (this.silkTouch ? this.addItemDrop(block, 1, block.getMetaFromState(state)) : this.addItemDrop(block.getItemDropped(state, this.metaTileEntity.getWorld().rand, this.handler.getFortuneLvl()), 1, block.damageDropped(state))) {
+                            this.metaTileEntity.getWorld().playEvent(2001, this.miningPos, Block.getStateId(state));
+                            this.metaTileEntity.getWorld().setBlockState(this.miningPos, Blocks.AIR.getDefaultState());
+                        }
                     }
                 }
                 if (this.progress + ++progressed == this.maxProgress) break;
@@ -139,17 +161,17 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     private <T extends IForgeRegistryEntry<T>> boolean addItemDrop(T type, int count, int meta) {
         if (type == null)
             return false;
-        String key = type.getRegistryName().toString() + ":" + meta;
-        IntPair<ItemStack> stackPair = this.itemType.get(key);
+        Item item = type instanceof Item ? (Item) type : Item.getItemFromBlock((Block) type);
+        IntPair<ItemStack> stackPair = this.itemType.get(item);
         if (stackPair != null) {
-            if (this.blacklist == (this.handler.getOreDictionaryItemFIlter().matchItemStack(stackPair.getValue()) != null))
+            if (this.blacklist == (this.oreDictFilter.matchItemStack(stackPair.getValue()) != null))
                 return false;
-            if (!this.silkTouch && this.handler.getFortuneLvl() > 1 && OreDictUnifier.getPrefix(stackPair.getValue()) == OrePrefix.crushed)
-                count = this.getFortune(stackPair.getKey());
+            if (!this.silkTouch)
+                count = this.handler.getFortuneLvl() > 1 && OreDictUnifier.getPrefix(stackPair.getValue()) == OrePrefix.crushed ? this.getFortune(stackPair.getKey()) : stackPair.getKey();
             stackPair.getValue().grow(count);
         } else {
             ItemStack itemStack = type instanceof Block ? new ItemStack((Block) type, count, meta) : new ItemStack((Item) type, count, meta);
-            if (this.blacklist == (this.handler.getOreDictionaryItemFIlter().matchItemStack(itemStack) != null))
+            if (this.blacklist == (this.oreDictFilter.matchItemStack(itemStack) != null))
                 return false;
             if (!this.silkTouch && this.handler.getFortuneLvl() > 1) {
                 Recipe recipe = RecipeMaps.MACERATOR_RECIPES.findRecipe(Long.MAX_VALUE, Collections.singletonList(itemStack), Collections.emptyList(), 0);
@@ -158,13 +180,13 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                     int originalCount = itemStack.getCount();
                     if (OreDictUnifier.getPrefix(itemStack) == OrePrefix.crushed) {
                         itemStack.setCount(this.getFortune(originalCount));
-                        this.itemType.put(key, IntPair.of(originalCount, itemStack));
+                        this.itemType.put(item, IntPair.of(originalCount, itemStack));
                         this.itemOutputs.add(itemStack);
                         return true;
                     }
                 }
             }
-            this.itemType.put(key, IntPair.of(itemStack.getCount(), itemStack));
+            this.itemType.put(item, IntPair.of(itemStack.getCount(), itemStack));
             this.itemOutputs.add(itemStack);
         }
         return true;
@@ -179,12 +201,27 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         return growAmount;
     }
 
+    public boolean removeItemFromFilter(ItemStack stack) {
+        return this.itemFilterType.remove(stack.getItem()) != null;
+    }
+
+    public boolean addItemToFilter(ItemStack stack) {
+        if (this.itemFilterType.get(stack.getItem()) != null)
+            return false;
+        this.itemFilterType.put(stack.getItem(), stack);
+        return true;
+    }
+
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound compound = super.serializeNBT();
-        NBTTagList itemOutputList = new NBTTagList();
+        NBTTagList itemOutputList = new NBTTagList(), itemTypeCountList = new NBTTagList(), filterItemList = new NBTTagList();
         for (ItemStack stack : this.itemOutputs)
             itemOutputList.appendTag(stack.serializeNBT());
+        for (IntPair<ItemStack> value : this.itemType.values())
+            itemTypeCountList.appendTag(new NBTTagInt(value.getKey()));
+        for (ItemStack stack : this.itemFilterType.values())
+            filterItemList.appendTag(stack.serializeNBT());
         compound.setInteger("outputIndex", this.outputIndex);
         compound.setInteger("chunkIndex", this.chunkIndex);
         compound.setInteger("levelY", this.levelY);
@@ -193,24 +230,34 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         compound.setInteger("z", this.miningPos.getZ());
         compound.setBoolean("blacklist", this.blacklist);
         compound.setBoolean("silkTouch", this.silkTouch);
+        compound.setBoolean("blacklistBlock", this.blacklistBlock);
         compound.setTag("itemOutputList", itemOutputList);
-        this.handler.getOreDictionaryItemFIlter().writeToNBT(compound);
+        compound.setTag("itemTypeCountList", itemTypeCountList);
+        compound.setTag("filterItemList", filterItemList);
+        this.oreDictFilter.writeToNBT(compound);
         return compound;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
-        NBTTagList itemOutputList = compound.getTagList("itemOutputList", 10);
+        NBTTagList itemOutputList = compound.getTagList("itemOutputList", 10), itemTypeCountList = compound.getTagList("itemTypeCountList", 3), filterItemList = compound.getTagList("filterItemList", 10);
         for (int i = 0; i < itemOutputList.tagCount(); i++)
             this.itemOutputs.add(new ItemStack(itemOutputList.getCompoundTagAt(i)));
+        for (int i = 0; i < itemTypeCountList.tagCount(); i++)
+            this.itemType.put(this.itemOutputs.get(i).getItem(), IntPair.of(itemTypeCountList.getIntAt(i), this.itemOutputs.get(i)));
+        for (int i = 0; i < filterItemList.tagCount(); i++) {
+            ItemStack stack = new ItemStack(filterItemList.getCompoundTagAt(i));
+            this.itemFilterType.put(stack.getItem(), stack);
+        }
         this.outputIndex = compound.getInteger("outputIndex");
         this.chunkIndex = compound.getInteger("chunkIndex");
         this.levelY = compound.getInteger("levelY");
         this.miningPos.setPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
         this.blacklist = compound.getBoolean("blacklist");
         this.silkTouch = compound.getBoolean("silkTouch");
-        this.handler.getOreDictionaryItemFIlter().readFromNBT(compound);
+        this.blacklistBlock = compound.getBoolean("blacklistBlock");
+        this.oreDictFilter.readFromNBT(compound);
     }
 
     @Override
@@ -232,6 +279,15 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
 
     public boolean isBlacklist() {
         return this.blacklist;
+    }
+
+    public void setBlacklistBlock(boolean blacklistBlock) {
+        this.blacklistBlock = blacklistBlock;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isBlacklistBlock() {
+        return this.blacklistBlock;
     }
 
     public void setSilkTouch(boolean silkTouch) {
@@ -265,5 +321,9 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
 
     public int getMiningSpeed() {
         return this.miningSpeed;
+    }
+
+    public OreDictionaryItemFilter getOreDictFilter() {
+        return this.oreDictFilter;
     }
 }

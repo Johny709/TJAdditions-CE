@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAMaterials;
+import gregicadditions.Gregicality;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -22,15 +23,18 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.unification.material.Materials;
 import gregtech.common.blocks.MetaBlocks;
-import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import gregtech.common.items.MetaItems;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -39,6 +43,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
@@ -50,7 +55,11 @@ import tj.capability.impl.handler.IMinerHandler;
 import tj.capability.impl.workable.MinerWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
+import tj.gui.widgets.impl.TJPhantomSlotWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.gui.widgets.impl.WindowsWidgetGroup;
+import tj.items.handlers.GhostSlotHandler;
+import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 import tj.util.TJFluidUtils;
@@ -66,7 +75,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
-    private final OreDictionaryItemFilter itemFilter = new OreDictionaryItemFilter();
+    private final GhostSlotHandler ghostSlotHandler = new GhostSlotHandler(this.getImportItems().getSlots());
     private final int fortune;
     private final int tier;
     private FluidStack drillingFluid = Materials.DrillingFluid.getFluid(1);
@@ -92,6 +101,11 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         tooltip.add(I18n.format("gtadditions.machine.miner.multi.description", this.getDiameter(), this.getDiameter(), this.getFortuneLvl()));
         tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", 1 << this.getDiameter() - 1, this.drillingFluid.getLocalizedName()));
         tooltip.add(I18n.format("gregtech.multiblock.large_miner.block_per_tick", 1 << this.getDiameter() - 1));
+    }
+
+    @Override
+    protected IItemHandlerModifiable createImportItemHandler() {
+        return new LargeItemStackHandler(60, 1);
     }
 
     @Override
@@ -141,17 +155,28 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         super.addTabs(tabBuilder, player);
         tabBuilder.addTab("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), tab -> {
             tab.add(new ButtonPopUpWidget<>()
-                    .addPopup(widgetGroup -> true)
-                    .addPopup(40, 40, 0, 0, new TJToggleButtonWidget(175, this.getOffsetY(134), 18, 18)
-                            .setBackgroundTextures(TJGuiTextures.ITEM_FILTER)
+                    .addPopup(widgetGroup -> {
+                        for (int i = 0; i < this.getImportItems().getSlots(); i++) {
+                            widgetGroup.addWidget(new TJPhantomSlotWidget(this.getImportItems(), i, 10 + (18 * (i % 10)), 10 + (18 * (i / 10)))
+                                    .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY)
+                                    .setTakeItemsPredicate(this.workableHandler::removeItemFromFilter)
+                                    .setPutItemsPredicate(this.workableHandler::addItemToFilter)
+                                    .setAreGhostItems(this.ghostSlotHandler.getAreGhostItems()));
+                        }
+                        return false;
+                    }).addPopup(40, 40, 0, 0, new TJToggleButtonWidget(175, this.getOffsetY(134), 18, 18)
+                            .setBackgroundTextures(TJGuiTextures.ORE_DICTIONARY_FILTER)
                             .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                             .useToggleTexture(true), widgetGroup -> {
-                        this.itemFilter.initUI(widgetGroup::addWidget);
+                        WindowsWidgetGroup windowsWidgetGroup = new WindowsWidgetGroup(0, -3, 135, 45, GuiTextures.BORDERED_BACKGROUND)
+                                .addSubWidget(new ToggleButtonWidget(113, 23, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
+                                        .setTooltipText("tj.multiblock.advanced_large_miner.blacklist"));
+                        this.workableHandler.getOreDictFilter().initUI(windowsWidgetGroup::addSubWidget);
+                        widgetGroup.addWidget(windowsWidgetGroup);
                         return false;
                     }));
-            tab.add(new ToggleButtonWidget(175, this.getOffsetY(151), 18, 18, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
-                    .setButtonTexture(GuiTextures.BUTTON_BLACKLIST)
-                    .setTooltipText("cover.filter.blacklist"));
+            tab.add(new ToggleButtonWidget(175, this.getOffsetY(151), 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
+                    .setTooltipText("tj.multiblock.advanced_large_miner.blacklist_block"));
         });
     }
 
@@ -224,6 +249,36 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     }
 
     @Override
+    public void clearMachineInventory(NonNullList<ItemStack> itemBuffer) {
+        this.ghostSlotHandler.clearInventory(this.getImportItems(), itemBuffer);
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        this.ghostSlotHandler.writeInitialSyncData(buf);
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.ghostSlotHandler.readInitialSyncData(buf);
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        this.ghostSlotHandler.writeToNBT(data);
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.ghostSlotHandler.readFromNBT(data);
+    }
+
+    @Override
     public void setWorkingEnabled(boolean isActivationAllowed) {
         this.workableHandler.setWorkingEnabled(isActivationAllowed);
     }
@@ -254,11 +309,6 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     }
 
     @Override
-    public OreDictionaryItemFilter getOreDictionaryItemFIlter() {
-        return this.itemFilter;
-    }
-
-    @Override
     public int[][] getBarMatrix() {
         return new int[1][1];
     }
@@ -276,5 +326,10 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
 
     private long getDrillingFluidCapacity() {
         return TJFluidUtils.getFluidCapacityFromTanks(this.drillingFluid, this.getImportFluidTank());
+    }
+
+    @Override
+    public String getRecipeUid() {
+        return Gregicality.MODID + ":" + RecipeMaps.MACERATOR_RECIPES.getUnlocalizedName();
     }
 }

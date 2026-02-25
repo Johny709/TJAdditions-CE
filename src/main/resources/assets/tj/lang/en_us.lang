@@ -542,6 +542,10 @@ tj.multiblock.advanced_large_miner.chunk_index=Chunk Index: §b%,d / %,d
 tj.multiblock.advanced_large_miner.silktouch=Click to toggle silktouch for the miner.
 tj.multiblock.advanced_large_miner.silktouch_true=§fSilkTouch: §a[True]
 tj.multiblock.advanced_large_miner.silktouch_false=§fSilkTouch: §c[False]
+tj.multiblock.advanced_large_miner.blacklist.enabled=Blacklist set for Ore Dict Filter
+tj.multiblock.advanced_large_miner.blacklist.disabled=Whitelist set for Ore Dict Filter
+tj.multiblock.advanced_large_miner.blacklist_block.enabled=Blacklist set for Block Filter
+tj.multiblock.advanced_large_miner.blacklist_block.disabled=Whitelist set for Block Filter
 
 recipemap.primitive_alloy.tj.name=Primitive Alloy Smelter
 recipemap.coke_oven_2.tj.name=Coke Oven
