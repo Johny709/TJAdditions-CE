@@ -16,12 +16,9 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class TJPhantomSlotWidget extends TJSlotWidget<TJPhantomSlotWidget> implements IGhostIngredientTarget {
 
-    private Predicate<ItemStack> putItemsPredicate2;
     private boolean[] areGhostItems;
 
     public TJPhantomSlotWidget(IItemHandler itemHandler, int slotIndex, int x, int y) {
@@ -30,11 +27,6 @@ public class TJPhantomSlotWidget extends TJSlotWidget<TJPhantomSlotWidget> imple
 
     public TJPhantomSlotWidget setAreGhostItems(boolean[] areGhostItems) {
         this.areGhostItems = areGhostItems;
-        return this;
-    }
-
-    public TJPhantomSlotWidget setPutItemsPredicate2(Predicate<ItemStack> putItemsPredicate2) {
-        this.putItemsPredicate2 = putItemsPredicate2;
         return this;
     }
 
@@ -89,8 +81,7 @@ public class TJPhantomSlotWidget extends TJSlotWidget<TJPhantomSlotWidget> imple
             try {
                 ItemStack stack = buffer.readItemStack();
                 boolean isGhostItem = buffer.readBoolean();
-                if (this.putItemsPredicate2 != null && !this.putItemsPredicate2.test(stack)) return;
-                if (this.putItemsPredicate != null && !this.putItemsPredicate.getAsBoolean()) return;
+                if (this.putItemsPredicate != null && !this.putItemsPredicate.test(stack)) return;
                 if (this.getItemHandler().getStackInSlot(this.slotIndex).isEmpty() && this.getItemHandler().insertItem(this.slotIndex, stack, true).isEmpty()) {
                     this.getItemHandler().insertItem(this.slotIndex, stack, false);
                     this.areGhostItems[this.slotIndex] = isGhostItem;
@@ -101,6 +92,7 @@ public class TJPhantomSlotWidget extends TJSlotWidget<TJPhantomSlotWidget> imple
         } else if (id == 6) {
             boolean isGhostItem = buffer.readBoolean();
             if (this.areGhostItems[this.slotIndex]) {
+                if (this.takeItemsPredicate != null && !this.takeItemsPredicate.test(this.getItemHandler().getStackInSlot(this.slotIndex))) return;
                 this.areGhostItems[this.slotIndex] = isGhostItem;
                 this.getItemHandler().extractItem(this.slotIndex, Integer.MAX_VALUE, false);
                 this.insert(ItemStack.EMPTY, false);
