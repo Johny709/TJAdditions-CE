@@ -14,6 +14,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -34,8 +35,8 @@ import java.util.List;
 
 public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler> implements IItemFluidHandlerInfo {
 
-    private final Object2ObjectMap<String, IntPair<ItemStack>> itemType = new Object2ObjectOpenHashMap<>();
-    private final Object2ObjectMap<Block, ItemStack> blockFilterType = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<Item, IntPair<ItemStack>> itemType = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<Item, ItemStack> itemFilterType = new Object2ObjectOpenHashMap<>();
     private final BlockPos.MutableBlockPos miningPos = new BlockPos.MutableBlockPos();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     private final List<Chunk> chunks = new ArrayList<>();
@@ -90,7 +91,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                 this.miningPos.setPos(this.currentChunk.x + (progress % 16), this.levelY, this.currentChunk.z + (progress / 16));
                 IBlockState state = this.metaTileEntity.getWorld().getBlockState(this.miningPos);
                 Block block = state.getBlock();
-                if (this.blacklist == (this.blockFilterType.get(block) == null)) {
+                if (this.blacklist == (this.itemFilterType.get(Item.getItemFromBlock(block)) == null)) {
                     if (block != Blocks.AIR) {
                         if (this.silkTouch ? this.addItemDrop(block, 1, block.getMetaFromState(state)) : this.addItemDrop(block.getItemDropped(state, this.metaTileEntity.getWorld().rand, this.handler.getFortuneLvl()), 1, block.damageDropped(state))) {
                             this.metaTileEntity.getWorld().playEvent(2001, this.miningPos, Block.getStateId(state));
@@ -142,8 +143,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     private <T extends IForgeRegistryEntry<T>> boolean addItemDrop(T type, int count, int meta) {
         if (type == null)
             return false;
-        String key = type.getRegistryName().toString() + ":" + meta;
-        IntPair<ItemStack> stackPair = this.itemType.get(key);
+        Item item = type instanceof Item ? (Item) type : Item.getItemFromBlock((Block) type);
+        IntPair<ItemStack> stackPair = this.itemType.get(item);
         if (stackPair != null) {
             if (this.blacklist == (this.handler.getOreDictionaryItemFIlter().matchItemStack(stackPair.getValue()) != null))
                 return false;
@@ -161,13 +162,13 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                     int originalCount = itemStack.getCount();
                     if (OreDictUnifier.getPrefix(itemStack) == OrePrefix.crushed) {
                         itemStack.setCount(this.getFortune(originalCount));
-                        this.itemType.put(key, IntPair.of(originalCount, itemStack));
+                        this.itemType.put(item, IntPair.of(originalCount, itemStack));
                         this.itemOutputs.add(itemStack);
                         return true;
                     }
                 }
             }
-            this.itemType.put(key, IntPair.of(itemStack.getCount(), itemStack));
+            this.itemType.put(item, IntPair.of(itemStack.getCount(), itemStack));
             this.itemOutputs.add(itemStack);
         }
         return true;
@@ -183,23 +184,25 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     }
 
     public boolean removeItemFromFilter(ItemStack stack) {
-        return this.blockFilterType.remove(Block.getBlockFromItem(stack.getItem())) != null;
+        return this.itemFilterType.remove(stack.getItem()) != null;
     }
 
     public boolean addItemToFilter(ItemStack stack) {
-        if (this.blockFilterType.get(Block.getBlockFromItem(stack.getItem())) != null)
+        if (this.itemFilterType.get(stack.getItem()) != null)
             return false;
-        this.blockFilterType.put(Block.getBlockFromItem(stack.getItem()), stack);
+        this.itemFilterType.put(stack.getItem(), stack);
         return true;
     }
 
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound compound = super.serializeNBT();
-        NBTTagList itemOutputList = new NBTTagList(), filterItemList = new NBTTagList();
+        NBTTagList itemOutputList = new NBTTagList(), itemTypeCountList = new NBTTagList(), filterItemList = new NBTTagList();
         for (ItemStack stack : this.itemOutputs)
             itemOutputList.appendTag(stack.serializeNBT());
-        for (ItemStack stack : this.blockFilterType.values())
+        for (IntPair<ItemStack> value : this.itemType.values())
+            itemTypeCountList.appendTag(new NBTTagInt(value.getKey()));
+        for (ItemStack stack : this.itemFilterType.values())
             filterItemList.appendTag(stack.serializeNBT());
         compound.setInteger("outputIndex", this.outputIndex);
         compound.setInteger("chunkIndex", this.chunkIndex);
@@ -210,6 +213,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         compound.setBoolean("blacklist", this.blacklist);
         compound.setBoolean("silkTouch", this.silkTouch);
         compound.setTag("itemOutputList", itemOutputList);
+        compound.setTag("itemTypeCountList", itemTypeCountList);
         compound.setTag("filterItemList", filterItemList);
         this.handler.getOreDictionaryItemFIlter().writeToNBT(compound);
         return compound;
@@ -218,12 +222,14 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
-        NBTTagList itemOutputList = compound.getTagList("itemOutputList", 10), filterItemList = compound.getTagList("filterItemList", 10);
+        NBTTagList itemOutputList = compound.getTagList("itemOutputList", 10), itemTypeCountList = compound.getTagList("itemTypeCountList", 3), filterItemList = compound.getTagList("filterItemList", 10);
         for (int i = 0; i < itemOutputList.tagCount(); i++)
             this.itemOutputs.add(new ItemStack(itemOutputList.getCompoundTagAt(i)));
+        for (int i = 0; i < itemTypeCountList.tagCount(); i++)
+            this.itemType.put(this.itemOutputs.get(i).getItem(), IntPair.of(itemTypeCountList.getIntAt(i), this.itemOutputs.get(i)));
         for (int i = 0; i < filterItemList.tagCount(); i++) {
             ItemStack stack = new ItemStack(filterItemList.getCompoundTagAt(i));
-            this.blockFilterType.put(Block.getBlockFromItem(stack.getItem()), stack);
+            this.itemFilterType.put(stack.getItem(), stack);
         }
         this.outputIndex = compound.getInteger("outputIndex");
         this.chunkIndex = compound.getInteger("chunkIndex");
