@@ -75,7 +75,6 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     public void initialize(int busCount) {
         super.initialize(busCount);
         this.miningSpeed = 1 << this.handler.getTier() - 1;
-        this.energyPerTick = GAValues.VA[this.handler.getTier()];
     }
 
     @Override
@@ -84,6 +83,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         if (this.chunkIndex >= this.chunks.size())
             this.chunkIndex = 0;
         this.currentChunk = this.chunks.get(this.chunkIndex);
+        this.energyPerTick = GAValues.VA[this.handler.getTier()];
         this.levelY = this.metaTileEntity.getPos().offset(EnumFacing.DOWN).getY();
         this.setMaxProgress(this.levelY * 256);
         return this.handler.getInputEnergyContainer().getEnergyStored() >= this.energyPerTick;
