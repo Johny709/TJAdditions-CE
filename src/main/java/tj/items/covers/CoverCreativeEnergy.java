@@ -17,6 +17,7 @@ import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import tj.gui.widgets.PopUpWidgetGroup;
@@ -110,6 +111,23 @@ public class CoverCreativeEnergy extends CoverBehavior implements ITickable, Cov
                         .setPredicate(this::getSimulateVoltage)
                         .setInverted())
                 .build(this, player);
+    }
+
+    @Override
+    public void onAttached(ItemStack itemStack) {
+        NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
+        if (compound.hasKey("simulateVoltage"))
+            this.simulateVoltage = compound.getBoolean("simulateVoltage");
+        if (compound.hasKey("draining"))
+            this.isDraining = compound.getBoolean("draining");
+        if (compound.hasKey("active"))
+            this.isActive = compound.getBoolean("active");
+        if (compound.hasKey("energyRate"))
+            this.energyRate = compound.getLong("energyRate");
+        if (compound.hasKey("voltage"))
+            this.voltage = compound.getLong("voltage");
+        if (compound.hasKey("amps"))
+            this.amps = compound.getLong("amps");
     }
 
     private void setActive(boolean isActive) {

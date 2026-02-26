@@ -22,6 +22,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import tj.gui.TJGuiTextures;
+import tj.gui.TJGuiUtils;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -40,7 +41,8 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
 
     @Override
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
-        NBTTagCompound compound = player.getHeldItem(EnumHand.MAIN_HAND).getOrCreateSubCompound("init");
+        ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
+        NBTTagCompound compound = stack.getOrCreateSubCompound("init");
         if (!compound.hasKey("speed"))
             compound.setInteger("speed", 1);
         if (!compound.hasKey("power"))
@@ -82,12 +84,13 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
         fluidFilterGroup.addWidget(new ClickButtonWidget(65, 55, 18, 18, "-", onDecrement));
         fluidFilterGroup.addWidget(new ToggleButtonWidget(83, 55, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, b -> compound.setInteger("speed", 1))
                 .setTooltipText("machine.universal.toggle.reset"));
-        fluidFilterGroup.addWidget(new ToggleButtonWidget(101, 55, 18, 18, TJGuiTextures.POWER_BUTTON, () -> false, b -> compound.setBoolean("power", !compound.getBoolean("power")))
+        fluidFilterGroup.addWidget(new ToggleButtonWidget(101, 55, 18, 18, TJGuiTextures.POWER_BUTTON, () -> compound.getBoolean("power"), b -> compound.setBoolean("power", !compound.getBoolean("power")))
                 .setTooltipText("machine.universal.toggle.run.mode"));
         fluidFilter.initUI(fluidFilterGroup::addWidget);
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
                 .widget(fluidFilterGroup)
-                .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
+                .bindCloseListener(() -> stack.getOrCreateSubCompound("init").merge(compound))
+                .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 105, stack))
                 .build(holder, player);
     }
 
