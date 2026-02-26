@@ -17,6 +17,7 @@ import gregtech.api.util.Position;
 import gregtech.common.covers.filter.SimpleFluidFilter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraft.util.math.MathHelper;
@@ -83,6 +84,19 @@ public class CoverCreativeFluid extends CoverBehavior implements CoverWithUI, IT
                 .widget(fluidFilterGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
                 .build(this, player);
+    }
+
+    @Override
+    public void onAttached(ItemStack itemStack) {
+        NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
+        if (compound.hasKey("speed"))
+            this.speed = compound.getInteger("speed");
+        if (compound.hasKey("power"))
+            this.isWorking = compound.getBoolean("power");
+        for (int i = 0; i < 9; i++) {
+            if (compound.hasKey("slot:" + i))
+                this.fluidFilter.setFluidInSlot(i, FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("slot:" + i)));
+        }
     }
 
     @Override

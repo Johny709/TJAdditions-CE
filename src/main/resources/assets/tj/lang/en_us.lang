@@ -716,6 +716,7 @@ cover.creative_item.title=Creative Item Cover
 cover.filter.ore_dictionary.open.enabled=Ore Dictionary Filter Open
 cover.filter.ore_dictionary.open.disabled=Ore Dictionary Filter Closed
 cover.creative.only=§dCreative Only
+cover.creative.description=§fRight-Click§7 while holding cover item to open GUI to set initial values before placing this cover.
 metaitem.creative.fluid.cover.name=Creative Fluid Cover
 metaitem.creative.fluid.cover.description=Provides unlimited §bfluids.§7 Put or drag §bfluids§7 into slots to generate them.
 metaitem.creative.item.cover.name=Creative Item Cover
