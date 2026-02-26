@@ -84,6 +84,19 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
     }
 
     @Override
+    public void onAttached(ItemStack itemStack) {
+        NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
+        if (compound.hasKey("speed"))
+            this.speed = compound.getInteger("speed");
+        if (compound.hasKey("power"))
+            this.isWorking = compound.getBoolean("power");
+        for (int i = 0; i < 9; i++) {
+            if (compound.hasKey("slot:" + i))
+                this.itemFilter.getItemFilterSlots().setStackInSlot(i, new ItemStack(compound.getCompoundTag("slot:" + i)));
+        }
+    }
+
+    @Override
     public void setWorkingEnabled(boolean isWorking) {
         this.isWorking = isWorking;
         this.markAsDirty();
@@ -102,7 +115,6 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
     private void displayText(List<ITextComponent> textList) {
         textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", this.speed));
     }
-
 
     private void onIncrement(Widget.ClickData clickData) {
         int value = clickData.isCtrlClick ? 100
