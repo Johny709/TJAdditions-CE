@@ -43,6 +43,34 @@ public final class TJFluidUtils {
     }
 
     /**
+     *
+     * @param tanks fluid container inventory
+     * @param fluidStack the FluidStack to search and drain. the passed in FluidStack doesn't get modified.
+     * @param amount the amount to drain.
+     * @param doDrain if the fluid should actually be drained from tanks.
+     */
+    public static int drainFromTanks(IMultipleTankHandler tanks, FluidStack fluidStack, int amount, boolean doDrain) {
+        if (fluidStack == null || tanks == null)
+            return 0;
+        int amountDrained = 0;
+        for (int i = 0; i < tanks.getTanks(); i++) {
+            IFluidTank tank = tanks.getTankAt(i);
+            FluidStack slotStack = tank.getFluid();
+            if (slotStack == null) continue;
+            if (slotStack.isFluidEqual(fluidStack)) {
+                FluidStack drained = tank.drain(amount, doDrain);
+                if (drained != null) {
+                    amountDrained += drained.amount;
+                    amount -= amountDrained;
+                }
+            }
+            if (amount < 1)
+                break;
+        }
+        return amountDrained;
+    }
+
+    /**
      * Tries to insert into fluid tanks or fluid handler.
      * @param tanks fluid container inventory
      * @param fluidStack the FluidStack to insert
@@ -52,7 +80,7 @@ public final class TJFluidUtils {
     public static FluidStack fillIntoTanks(IMultipleTankHandler tanks, FluidStack fluidStack, boolean doFill) {
         if (fluidStack == null || tanks == null)
             return fluidStack;
-        fluidStack = doFill ? fluidStack.copy() : fluidStack;
+        fluidStack = doFill ? fluidStack : fluidStack.copy();
         for (int i = 0; i < tanks.getTanks() && fluidStack.amount > 0; i++) {
             IFluidTank tank = tanks.getTankAt(i);
             FluidStack slotStack = tank.getFluid();

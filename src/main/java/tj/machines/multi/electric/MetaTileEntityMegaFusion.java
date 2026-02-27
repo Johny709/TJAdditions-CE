@@ -1,5 +1,8 @@
 package tj.machines.multi.electric;
 
+import codechicken.lib.render.CCRenderState;
+import codechicken.lib.render.pipeline.IVertexOperation;
+import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAConfig;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
@@ -10,24 +13,18 @@ import gregicadditions.item.fusion.GADivertorCasing;
 import gregicadditions.item.fusion.GAFusionCasing;
 import gregicadditions.item.fusion.GAVacuumCasing;
 import gregicadditions.recipes.GARecipeMaps;
-import gregicadditions.recipes.impl.AdvFusionRecipeBuilder;
-import gregicadditions.utils.GALog;
 import gregtech.api.capability.IEnergyContainer;
-import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerHandler;
-import gregtech.api.capability.impl.EnergyContainerList;
-import gregtech.api.capability.impl.FluidTankList;
+import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
-import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
-import gregtech.api.recipes.RecipeBuilder;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -44,19 +41,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.blocks.AdvEnergyPortCasings;
-import tj.capability.impl.handler.IFusionProvider;
-import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
+import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.UIDisplayBuilder;
-import tj.capability.IHeatInfo;
-import tj.capability.IProgressBar;
-import tj.capability.ProgressBar;
-import tj.capability.TJCapabilities;
+import tj.capability.*;
+import tj.capability.impl.handler.IRecipeHandler;
+import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
 import tj.util.TooltipHelper;
@@ -72,16 +65,18 @@ import static gregicadditions.machines.multi.advance.MetaTileEntityAdvFusionReac
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockControllerBase implements IFusionProvider, IHeatInfo, IProgressBar {
+public class MetaTileEntityMegaFusion extends TJMultiblockControllerBase implements IRecipeHandler, IHeatInfo, IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
+    private final BasicRecipeLogic recipeLogic = new BasicRecipeLogic(this, GARecipeMaps.ADV_FUSION_RECIPES);
     private final Set<BlockPos> activeStates = new HashSet<>();
-    private IEnergyContainer inputEnergyContainers;
+    private IEnergyContainer energyContainer;
     private Recipe recipe;
     private boolean initialized;
     private long energyToStart;
     private long heat;
     private long maxHeat;
+    private long maxVoltage;
     private int parallels;
     private int tier;
     private int coilTier;
@@ -89,8 +84,8 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
     private int divertorTier;
 
     public MetaTileEntityMegaFusion(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, GARecipeMaps.ADV_FUSION_RECIPES, 100, 100, 100, 16);
-        this.recipeMapWorkable = new MegaFusionRecipeLogic(this, 100, 100, 100, 1);
+        super(metaTileEntityId);
+        this.recipeLogic.setActive(this::replaceEnergyPortsAsActive);
     }
 
     @Override
@@ -110,32 +105,47 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
     }
 
     @Override
-    public boolean checkRecipe(Recipe recipe, boolean consumeIfSuccess) {
+    public boolean checkRecipe(Recipe recipe) {
+        long energyCapacity = this.energyContainer.getEnergyCapacity();
+        this.parallels = (int) (energyCapacity / (long) recipe.getProperty("eu_to_start"));
+        this.recipe = recipe;
+        this.maxHeat = energyCapacity;
         long energyToStart = recipe.getProperty("eu_to_start");
         int tier = recipe.getProperty("coil_tier");
-        return this.tier >= tier && this.heat >= energyToStart;
+        return this.energyToStart >= energyToStart && this.tier >= tier && this.heat >= energyToStart;
+    }
+
+    @Override
+    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        overclockManager.setEUt(overclockManager.getEUt() * overclockManager.getParallel());
+    }
+
+    @Override
+    protected boolean shouldUpdate(MTETrait trait) {
+        return false;
     }
 
     @Override
     protected void updateFormedValid() {
-        super.updateFormedValid();
-        long inputEnergyStored = this.inputEnergyContainers.getEnergyStored();
+        if (((this.getProblems() >> 5) & 1) == 0) return;
+        this.recipeLogic.update();
+        long inputEnergyStored = this.inputEnergyContainer.getEnergyStored();
         if (inputEnergyStored > 0) {
             long energyAdded = this.energyContainer.addEnergy(inputEnergyStored);
             if (energyAdded > 0)
-                this.inputEnergyContainers.removeEnergy(energyAdded);
+                this.inputEnergyContainer.removeEnergy(energyAdded);
         }
 
         if (this.heat > this.maxHeat)
             this.heat = this.maxHeat;
 
-        if (!this.recipeMapWorkable.isActive() || !this.recipeMapWorkable.isWorkingEnabled()) {
-            this.heat -= Math.min(this.heat, 10000L * this.getParallels());
+        if (!this.recipeLogic.isActive() || !this.recipeLogic.isWorkingEnabled()) {
+            this.heat -= Math.min(this.heat, 10000L * this.getParallel());
         }
 
-        if (this.recipe != null && this.recipeMapWorkable.isWorkingEnabled()) {
+        if (this.recipe != null && this.recipeLogic.isWorkingEnabled()) {
             long remainingHeat = this.maxHeat - this.heat;
-            long energyToRemove = Math.min(remainingHeat, this.inputEnergyContainers.getInputAmperage() * this.inputEnergyContainers.getInputVoltage());
+            long energyToRemove = Math.min(remainingHeat, this.inputEnergyContainer.getInputAmperage() * this.inputEnergyContainer.getInputVoltage());
             this.heat += Math.abs(this.energyContainer.removeEnergy(energyToRemove));
         }
         if (this.getOffsetTimer() > 20 && !this.initialized) {
@@ -149,16 +159,20 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
     protected void addDisplayText(UIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.energyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
+        builder.voltageInLine(this.inputEnergyContainer)
+                .energyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
+                .energyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
                 .customLine(text -> {
-                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.getParallels())));
+                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.getParallel())));
                     text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.heat", this.heat)));
                     if (this.recipe != null) {
                         long energyToStart = this.recipe.getProperty("eu_to_start");
                         text.addTextComponent(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart))
                                 .setStyle(new Style().setColor(this.heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
                     }
-                });
+                }).isWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress())
+                .addRecipeInputLine(this.recipeLogic)
+                .addRecipeOutputLine(this.recipeLogic);
     }
 
     @Override
@@ -221,26 +235,6 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
     }
 
     @Override
-    public int getParallels() {
-        return this.parallels;
-    }
-
-    @Override
-    public long getEnergyToStart() {
-        return this.energyToStart;
-    }
-
-    @Override
-    public void setRecipe(long heat, Recipe recipe) {
-        if (recipe != null) {
-            long energyCapacity = this.energyContainer.getEnergyCapacity();
-            this.parallels = (int) (energyCapacity / (long) recipe.getProperty("eu_to_start"));
-            this.recipe = recipe;
-            this.maxHeat = energyCapacity;
-        }
-    }
-
-    @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         LongList energyPortAmps = context.getOrDefault("EnergyAmps", new LongArrayList());
@@ -259,9 +253,6 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
             energyCapacity += (long) (100000000 * container.getInputAmperage() * Math.pow(2, GAUtility.getTierByVoltage(container.getInputVoltage()) - GAValues.UHV));
         }
         this.energyToStart = (long) (Math.pow(2, this.tier - 1) * 1_600_000_000);
-        this.inputEnergyContainers = new EnergyContainerList(this.getAbilities(INPUT_ENERGY));
-        this.inputFluidInventory = new FluidTankList(true, this.getAbilities(IMPORT_FLUIDS));
-        this.outputFluidInventory = new FluidTankList(true, this.getAbilities(EXPORT_FLUIDS));
         this.energyContainer = new EnergyContainerHandler(this, energyCapacity, GAValues.V[this.tier + GAValues.UV], 0, 0, 0);
         this.initialized = false;
     }
@@ -275,25 +266,33 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         switch (this.tier) {
-            case 1: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UHV_ACTIVE : TJTextures.ADV_FUSION_PORT_UHV;
-            case 2: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UEV_ACTIVE : TJTextures.ADV_FUSION_PORT_UEV;
-            case 3: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UIV_ACTIVE : TJTextures.ADV_FUSION_PORT_UIV;
-            case 4: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UMV_ACTIVE : TJTextures.ADV_FUSION_PORT_UMV;
-            case 5: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_UXV_ACTIVE : TJTextures.ADV_FUSION_PORT_UXV;
-            case 6: return this.recipeMapWorkable.isActive() ? TJTextures.ADV_FUSION_PORT_MAX_ACTIVE : TJTextures.ADV_FUSION_PORT_MAX;
+            case 1: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UHV_ACTIVE : TJTextures.ADV_FUSION_PORT_UHV;
+            case 2: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UEV_ACTIVE : TJTextures.ADV_FUSION_PORT_UEV;
+            case 3: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UIV_ACTIVE : TJTextures.ADV_FUSION_PORT_UIV;
+            case 4: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UMV_ACTIVE : TJTextures.ADV_FUSION_PORT_UMV;
+            case 5: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UXV_ACTIVE : TJTextures.ADV_FUSION_PORT_UXV;
+            case 6: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_MAX_ACTIVE : TJTextures.ADV_FUSION_PORT_MAX;
             default: return ClientHandler.FUSION_TEXTURE;
         }
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
+        super.renderMetaTileEntity(renderState, translation, pipeline);
+        this.getFrontOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive());
+    }
+
+    @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
-        this.writeActiveBlockPacket(buf, this.recipeMapWorkable.isActive());
+        this.writeActiveBlockPacket(buf, this.recipeLogic.isActive());
     }
 
     @Override
     public void receiveInitialSyncData(PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
+        this.readActiveBlockPacket(buf);
     }
 
     @Override
@@ -329,9 +328,10 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
         }
     }
 
-    @Override
     public void replaceEnergyPortsAsActive(boolean isActive) {
         this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+        if (!isActive)
+            this.recipe = null;
     }
 
     @Override
@@ -378,6 +378,16 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
     }
 
     @Override
+    public boolean isWorkingEnabled() {
+        return this.recipeLogic.isWorkingEnabled();
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean isActivationAllowed) {
+        this.recipeLogic.setWorkingEnabled(isActivationAllowed);
+    }
+
+    @Override
     public long heat() {
         return this.heat;
     }
@@ -387,102 +397,13 @@ public class MetaTileEntityMegaFusion extends TJLargeSimpleRecipeMapMultiblockCo
         return this.maxHeat;
     }
 
-    private class MegaFusionRecipeLogic extends LargeSimpleMultiblockRecipeLogic {
-        private final int EUtPercentage;
-        private final int durationPercentage;
-        private final IFusionProvider fusionReactor;
+    @Override
+    public int getParallel() {
+        return this.parallels;
+    }
 
-        public MegaFusionRecipeLogic(RecipeMapMultiblockController tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
-            super(tileEntity, EUtPercentage, durationPercentage, chancePercentage, stack);
-            this.fusionReactor = (IFusionProvider) tileEntity;
-            this.EUtPercentage = EUtPercentage;
-            this.durationPercentage = durationPercentage;
-            this.recipeMap = tileEntity.recipeMap;
-            this.allowOverclocking = true;
-        }
-
-        @Override
-        protected void completeRecipe() {
-            super.completeRecipe();
-            this.fusionReactor.setRecipe(0L, null);
-        }
-
-        @Override
-        protected Recipe createRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, Recipe matchingRecipe) {
-            int EUt = matchingRecipe.getEUt();
-            int duration = matchingRecipe.getDuration();
-            int minMultiplier = Integer.MAX_VALUE;
-            long recipeEnergy = matchingRecipe.getProperty("eu_to_start");
-
-            this.fusionReactor.setRecipe(recipeEnergy, matchingRecipe);
-            RecipeBuilder<?> newRecipe = this.recipeMap.recipeBuilder();
-            int recipeTier = matchingRecipe.getIntegerProperty("coil_tier");
-            int coilTierDifference = coilTier - recipeTier;
-            int vacuumTierDifference = vacuumTier - recipeTier;
-            int divertorTierDifference = divertorTier - recipeTier;
-            newRecipe.fluidInputs(matchingRecipe.getFluidInputs().get(0), matchingRecipe.getFluidInputs().get(1));
-            FluidStack newOutput = matchingRecipe.getFluidOutputs().get(0).copy();
-            newOutput.amount = (int) (newOutput.amount * (1 + divertorTierDifference * GAConfig.multis.advFusion.divertorOutputIncrease));
-            newRecipe.fluidOutputs(newOutput);
-            newRecipe.duration(duration);
-            newRecipe.EUt(EUt);
-
-            if (matchingRecipe.getFluidInputs().size() == 3) {
-
-                FluidStack newFluid = matchingRecipe.getFluidInputs().get(2).copy();
-                newFluid.amount = (int) (newFluid.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease));
-                newRecipe.fluidInputs(newFluid);
-
-                newOutput = matchingRecipe.getFluidOutputs().get(1).copy();
-                newOutput.amount = (int) (newOutput.amount * (1 + divertorTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease));
-                newRecipe.fluidOutputs(newOutput);
-            }
-            Recipe modifiedRecipe = newRecipe.build().getResult();
-            Map<String, Integer> countFluid = new HashMap<>();
-            if (!modifiedRecipe.getFluidInputs().isEmpty()) {
-
-                this.findFluid(countFluid, fluidInputs);
-                minMultiplier = Math.min(minMultiplier, this.getMinRatioFluid(countFluid, modifiedRecipe, this.fusionReactor.getParallels() * this.fusionReactor.getBatchMode().getAmount()));
-            }
-
-            if (minMultiplier == Integer.MAX_VALUE) {
-                GALog.logger.error("Cannot calculate ratio of items for large multiblocks");
-                return null;
-            }
-
-            List<FluidStack> newFluidInputs = new ArrayList<>();
-            List<FluidStack> outputF = new ArrayList<>();
-            multiplyInputsAndOutputs(newFluidInputs, outputF, modifiedRecipe, minMultiplier);
-
-            newRecipe = this.recipeMap.recipeBuilder();
-            ((AdvFusionRecipeBuilder) newRecipe).euStart(recipeEnergy)
-                    .euReturn(matchingRecipe.getIntegerProperty("eu_return"))
-                    .coilTier(recipeTier)
-                    .fluidInputs(newFluidInputs)
-                    .fluidOutputs(outputF)
-                    .EUt((int) Math.max(1, (EUt * (1 - vacuumTierDifference * GAConfig.multis.advFusion.vacuumEnergyDecrease) * this.EUtPercentage * minMultiplier / 100.0) / this.fusionReactor.getBatchMode().getAmount()))
-                    .duration((int) Math.max(1, (duration * (1 - GAConfig.multis.advFusion.coilDurationDiscount * coilTierDifference) * (this.durationPercentage / 100.0)) * this.fusionReactor.getBatchMode().getAmount()));
-
-            return newRecipe.build().getResult();
-        }
-
-        private void multiplyInputsAndOutputs(List<FluidStack> newFluidInputs, List<FluidStack> outputF, Recipe recipe, int multiplier) {
-            for (FluidStack fluidS : recipe.getFluidInputs()) {
-                FluidStack newFluid = new FluidStack(fluidS.getFluid(), fluidS.amount * multiplier);
-                newFluidInputs.add(newFluid);
-            }
-            for (FluidStack fluid : recipe.getFluidOutputs()) {
-                int fluidNum = fluid.amount * multiplier;
-                FluidStack fluidCopy = fluid.copy();
-                fluidCopy.amount = fluidNum;
-                outputF.add(fluidCopy);
-            }
-        }
-
-        @Override
-        protected void setActive(boolean active) {
-            this.fusionReactor.replaceEnergyPortsAsActive(active);
-            super.setActive(active);
-        }
+    @Override
+    public long getMaxVoltage() {
+        return this.maxVoltage;
     }
 }

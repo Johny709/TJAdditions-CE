@@ -240,4 +240,19 @@ public final class ItemStackHelper {
         }
         return count;
     }
+
+    /**
+     * Tries to extract from container inventory or item handler with ingredients.
+     * @param itemHandler container inventory
+     * @param ingredient the ItemStack to check
+     */
+    public static boolean checkItemHandlerForIngredient(IItemHandler itemHandler, @Nonnull Ingredient ingredient) {
+        if (itemHandler == null)
+            return false;
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            if (ingredient.apply(itemHandler.getStackInSlot(i)))
+                return true;
+        }
+        return false;
+    }
 }
