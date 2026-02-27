@@ -25,7 +25,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
     protected boolean hasProblem;
     protected long energyPerTick;
     protected int progress;
-    protected int maxProgress = 1;
+    protected int maxProgress;
     protected int lastInputIndex;
     protected int busCount;
     protected int sleepTimer;
@@ -66,7 +66,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
         }
         if (this.wasActiveAndNeedsUpdate && this.isActive)
             this.setActive(false);
-        if (this.progress >= this.maxProgress) {
+        if (this.progress > this.maxProgress) {
             if (this.completeRecipe()) {
                 this.progress = 0;
                 this.energyPerTick = 0;
@@ -88,6 +88,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
             boolean canStart = this.startRecipe();
             if (canStart) {
                 this.sleepTime = 1;
+                this.progress = 1;
                 this.progressRecipe(this.progress);
                 if (!this.isActive)
                     this.setActive(true);

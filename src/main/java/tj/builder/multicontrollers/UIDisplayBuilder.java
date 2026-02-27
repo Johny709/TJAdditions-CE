@@ -241,6 +241,7 @@ public final class UIDisplayBuilder {
     }
 
     public UIDisplayBuilder isWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, int priority) {
+        if (isActive) progress--;
         int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
         ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentString(I18n.translateToLocal("machine.universal.work_paused"))
                 : !isActive ? new TextComponentString(I18n.translateToLocal("machine.universal.idling"))

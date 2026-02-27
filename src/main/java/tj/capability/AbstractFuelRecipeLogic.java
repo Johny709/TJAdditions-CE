@@ -41,7 +41,7 @@ public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<
     protected boolean resetEnergy = true;
     protected long energyPerTick;
     protected int progress;
-    protected int maxProgress = 1;
+    protected int maxProgress;
     protected int lastInputIndex;
     protected int busCount;
     protected int sleepTimer;
@@ -152,7 +152,7 @@ public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<
         }
         if (this.wasActiveAndNeedsUpdate && this.isActive)
             this.setActive(false);
-        if (this.progress >= this.maxProgress) {
+        if (this.progress > this.maxProgress) {
             if (this.completeRecipe()) {
                 this.progress = 0;
                 if (this.resetEnergy)
@@ -172,6 +172,7 @@ public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<
             }
             boolean canStart = this.startRecipe();
             if (canStart) {
+                this.progress = 1;
                 this.sleepTime = 1;
                 this.progressRecipe(this.progress);
                 if (!this.isActive)
