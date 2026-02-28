@@ -7,6 +7,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 
@@ -234,6 +235,35 @@ public final class ItemStackHelper {
                 int extracted = itemHandler.extractItem(i, amount, simulate).getCount();
                 count += extracted;
                 amount -= extracted;
+                if (amount < 1)
+                    break;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Tries to extract from container inventory or item handler with ingredients and adds the extracted items to list
+     * @param itemHandler container inventory
+     * @param ingredient the ItemStack to extract
+     * @param amount the amount of items to extract and will be added to ItemStack count
+     * @param simulate test to see if the item can be extracted without actually extracting the item for real.
+     * @return The amount extracted
+     */
+    public static int extractFromItemHandlerByIngredientToList(IItemHandler itemHandler, @Nonnull Ingredient ingredient, int amount, boolean simulate, List<ItemStack> stacks) {
+        if (itemHandler == null)
+            return 0;
+
+        int count = 0;
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            ItemStack slotStack = itemHandler.getStackInSlot(i);
+            if (ingredient.apply(slotStack)) {
+                ItemStack extract = itemHandler.extractItem(i, amount, simulate);
+                int extracted = extract.getCount();
+                count += extracted;
+                amount -= extracted;
+                if (!extract.isEmpty())
+                    stacks.add(extract);
                 if (amount < 1)
                     break;
             }

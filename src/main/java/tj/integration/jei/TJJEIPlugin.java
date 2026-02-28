@@ -35,7 +35,8 @@ public class TJJEIPlugin implements IModPlugin {
                     GTRecipeTransferGuiHandler gtRecipeTransferGuiHandler = new GTRecipeTransferGuiHandler(jeiHelpers.recipeTransferHandlerHelper());
                     registry.getRecipeTransferRegistry().addRecipeTransferHandler(gtRecipeTransferGuiHandler, recipeName);
                 }
-            } else if (metaTileEntity instanceof TJMultiblockControllerBase) {
+            }
+            if (metaTileEntity instanceof TJMultiblockControllerBase) {
                 registry.addRecipeCatalyst(metaTileEntity.getStackForm(), ((TJMultiblockControllerBase) metaTileEntity).getRecipeUid());
             }
         }

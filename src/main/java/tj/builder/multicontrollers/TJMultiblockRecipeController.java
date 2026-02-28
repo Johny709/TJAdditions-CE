@@ -3,6 +3,7 @@ package tj.builder.multicontrollers;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregicadditions.GAUtility;
 import gregicadditions.Gregicality;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
@@ -49,7 +50,7 @@ public abstract class TJMultiblockRecipeController extends TJMultiblockControlle
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         overclockManager.setEUt(overclockManager.getEUt() * this.getEUtMultiplier() / 100);
         overclockManager.setDuration(overclockManager.getDuration() * this.getDurationMultiplier() / 100);
-        overclockManager.setParallel(this.getParallel() * this.getTier());
+        overclockManager.setParallel(this.getParallel() * (this.getTier() - GAUtility.getTierByVoltage(recipe.getEUt()) + 1));
     }
 
     @Override
