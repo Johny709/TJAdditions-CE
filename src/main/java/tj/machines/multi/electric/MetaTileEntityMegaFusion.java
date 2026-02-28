@@ -1,8 +1,5 @@
 package tj.machines.multi.electric;
 
-import codechicken.lib.render.CCRenderState;
-import codechicken.lib.render.pipeline.IVertexOperation;
-import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAConfig;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
@@ -15,7 +12,6 @@ import gregicadditions.item.fusion.GAVacuumCasing;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.impl.EnergyContainerHandler;
-import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -111,6 +107,9 @@ public class MetaTileEntityMegaFusion extends TJMultiblockRecipeController imple
         int tier = recipe.getProperty("coil_tier");
         return this.energyToStart >= energyToStart && this.tier >= tier && this.heat >= energyToStart;
     }
+
+    @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {}
 
     @Override
     public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {

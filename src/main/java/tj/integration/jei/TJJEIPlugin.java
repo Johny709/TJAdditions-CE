@@ -11,6 +11,7 @@ import mezz.jei.api.IModRegistry;
 import mezz.jei.api.ingredients.VanillaTypes;
 import net.minecraft.util.ResourceLocation;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.integration.jei.recipe.GTRecipeTransferGuiHandler;
 import tj.machines.multi.electric.MetaTileEntityAdvancedLargeChunkMiner;
 import tj.machines.multi.steam.MetaTileEntityMegaBoiler;
@@ -25,13 +26,6 @@ public class TJJEIPlugin implements IModPlugin {
         IJeiHelpers jeiHelpers = registry.getJeiHelpers();
         TJMultiblockInfoCategory.registerRecipes(registry);
 
-        registry.addRecipeCatalyst(INDUSTRIAL_STEAM_ENGINE.getStackForm(), INDUSTRIAL_STEAM_ENGINE.getRecipeUid());
-        registry.addRecipeCatalyst(INFINITE_FLUID_DRILL.getStackForm(), Gregicality.MODID + ":drilling_rig");
-        for (MetaTileEntityMegaBoiler boiler : MEGA_BOILER)
-            registry.addRecipeCatalyst(boiler.getStackForm(), boiler.getRecipeUid());
-        for (MetaTileEntityAdvancedLargeChunkMiner chunkMiner : ADVANCED_LARGE_CHUNK_MINERS)
-            registry.addRecipeCatalyst(chunkMiner.getStackForm(), chunkMiner.getRecipeUid());
-
         for (ResourceLocation metaTileEntityId : GregTechAPI.META_TILE_ENTITY_REGISTRY.getKeys()) {
             MetaTileEntity metaTileEntity = GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(metaTileEntityId);
             if (metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
@@ -41,6 +35,8 @@ public class TJJEIPlugin implements IModPlugin {
                     GTRecipeTransferGuiHandler gtRecipeTransferGuiHandler = new GTRecipeTransferGuiHandler(jeiHelpers.recipeTransferHandlerHelper());
                     registry.getRecipeTransferRegistry().addRecipeTransferHandler(gtRecipeTransferGuiHandler, recipeName);
                 }
+            } else if (metaTileEntity instanceof TJMultiblockControllerBase) {
+                registry.addRecipeCatalyst(metaTileEntity.getStackForm(), ((TJMultiblockControllerBase) metaTileEntity).getRecipeUid());
             }
         }
 
