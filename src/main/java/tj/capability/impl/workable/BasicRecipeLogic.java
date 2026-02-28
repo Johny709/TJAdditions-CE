@@ -33,16 +33,14 @@ public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> im
     private final OverclockManager<?> overclockManager = new OverclockManager<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     private final List<FluidStack> fluidOutputs = new ArrayList<>();
-    private final RecipeMap<?> recipeMap;
     protected ItemStack[] lastItemInputs;
     protected FluidStack[] lastFluidInputs;
     private boolean recipeRecheck = true;
     private int itemOutputIndex;
     private int fluidOutputIndex;
 
-    public BasicRecipeLogic(MetaTileEntity metaTileEntity, RecipeMap<?> recipeMap) {
+    public BasicRecipeLogic(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
-        this.recipeMap = recipeMap;
     }
 
     @Override
@@ -52,22 +50,25 @@ public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> im
         Recipe recipe = this.previousRecipe.get(itemHandlerModifiable, this.handler.getImportFluidTank());
         if (recipe == null && this.recipeRecheck && this.checkRecipeInputsDirty(itemHandlerModifiable, this.handler.getImportFluidTank())) {
             this.recipeRecheck = false;
-            recipe = this.recipeMap.findRecipe(this.handler.getMaxVoltage(), itemHandlerModifiable, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
+            recipe = this.handler.getRecipeMap().findRecipe(this.handler.getMaxVoltage(), itemHandlerModifiable, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
             if (recipe != null) {
                 this.previousRecipe.put(recipe);
                 this.previousRecipe.cacheUnutilized();
             }
         }
-        if (recipe != null && this.handler.checkRecipe(recipe) && this.consumeRecipe(recipe)) {
+        if (recipe != null) {
             this.overclockManager.setEUt(recipe.getEUt());
             this.overclockManager.setDuration(recipe.getDuration());
+            this.overclockManager.setParallel(this.handler.getParallel());
             this.handler.preOverclock(this.overclockManager, recipe);
-            this.calculateOverclock(this.overclockManager.getEUt(), this.overclockManager.getDuration(), 2.8F);
-            this.handler.postOverclock(this.overclockManager, recipe);
-            this.energyPerTick = this.overclockManager.getEUt();
-            this.setMaxProgress(this.overclockManager.getDuration());
-            this.previousRecipe.cacheUtilized();
-            start = true;
+            if (this.handler.checkRecipe(recipe) && this.consumeRecipe(recipe)) {
+                this.calculateOverclock(this.overclockManager.getEUt(), this.overclockManager.getDuration(), 2.8F);
+                this.handler.postOverclock(this.overclockManager, recipe);
+                this.energyPerTick = this.overclockManager.getEUt();
+                this.setMaxProgress(this.overclockManager.getDuration());
+                this.previousRecipe.cacheUtilized();
+                start = true;
+            }
         }
         if (++this.lastInputIndex == this.busCount)
             this.lastInputIndex = 0;
@@ -75,7 +76,7 @@ public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> im
     }
 
     protected boolean consumeRecipe(Recipe recipe) {
-        int parallels = this.handler.getParallel();
+        int parallels = this.overclockManager.getParallel();
         // check for parallel count and if there's enough inputs to be consumed.
         for (CountableIngredient ingredient : recipe.getInputs()) {
             if (ingredient.getCount() != 0) {

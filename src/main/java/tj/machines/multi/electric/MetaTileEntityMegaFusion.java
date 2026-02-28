@@ -45,11 +45,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
 import tj.blocks.AdvEnergyPortCasings;
-import tj.builder.multicontrollers.TJMultiblockControllerBase;
+import tj.builder.multicontrollers.TJMultiblockRecipeController;
 import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.*;
-import tj.capability.impl.handler.IRecipeHandler;
-import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
 import tj.util.TooltipHelper;
@@ -65,10 +63,9 @@ import static gregicadditions.machines.multi.advance.MetaTileEntityAdvFusionReac
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class MetaTileEntityMegaFusion extends TJMultiblockControllerBase implements IRecipeHandler, IHeatInfo, IProgressBar {
+public class MetaTileEntityMegaFusion extends TJMultiblockRecipeController implements IHeatInfo, IProgressBar {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
-    private final BasicRecipeLogic recipeLogic = new BasicRecipeLogic(this, GARecipeMaps.ADV_FUSION_RECIPES);
     private final Set<BlockPos> activeStates = new HashSet<>();
     private IEnergyContainer energyContainer;
     private Recipe recipe;
@@ -84,7 +81,7 @@ public class MetaTileEntityMegaFusion extends TJMultiblockControllerBase impleme
     private int divertorTier;
 
     public MetaTileEntityMegaFusion(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId);
+        super(metaTileEntityId, GARecipeMaps.ADV_FUSION_RECIPES);
         this.recipeLogic.setActive(this::replaceEnergyPortsAsActive);
     }
 
@@ -117,18 +114,15 @@ public class MetaTileEntityMegaFusion extends TJMultiblockControllerBase impleme
 
     @Override
     public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        int tier = recipe.getProperty("coil_tier");
+        overclockManager.setDuration((int) (overclockManager.getDuration() * (10.0 - (this.divertorTier - tier)) / 10));
+        overclockManager.setEUt((long) (overclockManager.getEUt() * (10.0 - (this.vacuumTier - tier)) / 10));
         overclockManager.setEUt(overclockManager.getEUt() * overclockManager.getParallel());
     }
 
     @Override
-    protected boolean shouldUpdate(MTETrait trait) {
-        return false;
-    }
-
-    @Override
     protected void updateFormedValid() {
-        if (((this.getProblems() >> 5) & 1) == 0) return;
-        this.recipeLogic.update();
+        super.updateFormedValid();
         long inputEnergyStored = this.inputEnergyContainer.getEnergyStored();
         if (inputEnergyStored > 0) {
             long energyAdded = this.energyContainer.addEnergy(inputEnergyStored);
@@ -159,9 +153,7 @@ public class MetaTileEntityMegaFusion extends TJMultiblockControllerBase impleme
     protected void addDisplayText(UIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.voltageInLine(this.inputEnergyContainer)
-                .energyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
-                .energyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
+        builder.energyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
                 .customLine(text -> {
                     text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.getParallel())));
                     text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.heat", this.heat)));
@@ -170,9 +162,7 @@ public class MetaTileEntityMegaFusion extends TJMultiblockControllerBase impleme
                         text.addTextComponent(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart))
                                 .setStyle(new Style().setColor(this.heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
                     }
-                }).isWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress())
-                .addRecipeInputLine(this.recipeLogic)
-                .addRecipeOutputLine(this.recipeLogic);
+                });
     }
 
     @Override
@@ -277,13 +267,6 @@ public class MetaTileEntityMegaFusion extends TJMultiblockControllerBase impleme
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
-        super.renderMetaTileEntity(renderState, translation, pipeline);
-        this.getFrontOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive());
-    }
-
-    @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
         this.writeActiveBlockPacket(buf, this.recipeLogic.isActive());
@@ -375,16 +358,6 @@ public class MetaTileEntityMegaFusion extends TJMultiblockControllerBase impleme
         bars.add(bar -> bar.setProgress(this::heat).setMaxProgress(this::maxHeat)
                 .setBarTexture(TJGuiTextures.BAR_RED)
                 .setLocale("tj.multiblock.bars.heat"));
-    }
-
-    @Override
-    public boolean isWorkingEnabled() {
-        return this.recipeLogic.isWorkingEnabled();
-    }
-
-    @Override
-    public void setWorkingEnabled(boolean isActivationAllowed) {
-        this.recipeLogic.setWorkingEnabled(isActivationAllowed);
     }
 
     @Override

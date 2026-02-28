@@ -13,6 +13,7 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
@@ -20,8 +21,10 @@ import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockWireCoil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
 import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
+import tj.builder.multicontrollers.TJMultiblockRecipeController;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -29,14 +32,15 @@ import java.util.function.Predicate;
 
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 
-public class MetaTileEntityLargeAlloySmelter extends TJLargeSimpleRecipeMapMultiblockControllerBase {
+public class MetaTileEntityLargeAlloySmelter extends TJMultiblockRecipeController {
 
     private int tier;
+    private long maxVoltage;
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
     public MetaTileEntityLargeAlloySmelter(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, RecipeMaps.ALLOY_SMELTER_RECIPES, TJConfig.largeAlloySmelter.eutPercentage, TJConfig.largeAlloySmelter.durationPercentage, TJConfig.largeAlloySmelter.chancePercentage, TJConfig.largeAlloySmelter.stack);
+        super(metaTileEntityId, RecipeMaps.ALLOY_SMELTER_RECIPES);
     }
 
     @Override
@@ -174,4 +178,28 @@ public class MetaTileEntityLargeAlloySmelter extends TJLargeSimpleRecipeMapMulti
         return Textures.BLAST_FURNACE_OVERLAY;
     }
 
+    @Override
+    public int getEUtMultiplier() {
+        return TJConfig.largeAlloySmelter.eutPercentage;
+    }
+
+    @Override
+    public int getDurationMultiplier() {
+        return TJConfig.largeAlloySmelter.durationPercentage;
+    }
+
+    @Override
+    public int getParallel() {
+        return TJConfig.largeAlloySmelter.stack;
+    }
+
+    @Override
+    public long getMaxVoltage() {
+        return this.maxVoltage;
+    }
+
+    @Override
+    public int getTier() {
+        return this.tier;
+    }
 }
