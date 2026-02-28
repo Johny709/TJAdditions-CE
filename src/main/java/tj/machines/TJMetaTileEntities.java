@@ -162,7 +162,7 @@ public class TJMetaTileEntities {
         XL_PLASMA_TURBINE = GregTechAPI.registerMetaTileEntity(4208, new MetaTileEntityXLTurbine(TJId("xl_turbine.plasma"), MetaTileEntityLargeTurbine.TurbineType.PLASMA));
         XL_COOLANT_TURBINE = GregTechAPI.registerMetaTileEntity(4209, new MetaTileEntityXLHotCoolantTurbine(TJId("xl_turbine.coolant"), MetaTileEntityHotCoolantTurbine.TurbineType.HOT_COOLANT));
 
-        LARGE_GREENHOUSE = GregTechAPI.registerMetaTileEntity(5000, new MetaTileEntityLargeGreenhouse(TJId("large_greenhouse"), GARecipeMaps.GREEN_HOUSE_RECIPES));
+        LARGE_GREENHOUSE = GregTechAPI.registerMetaTileEntity(5000, new MetaTileEntityLargeGreenhouse(TJId("large_greenhouse")));
         LARGE_DECAY_CHAMBER = GregTechAPI.registerMetaTileEntity(5001, new MetaTileEntityLargeDecayChamber(TJId("large_decay_chamber")));
         LARGE_ALLOY_SMELTER = GregTechAPI.registerMetaTileEntity(5002, new MetaTileEntityLargeAlloySmelter(TJId("large_alloy_smelter")));
 

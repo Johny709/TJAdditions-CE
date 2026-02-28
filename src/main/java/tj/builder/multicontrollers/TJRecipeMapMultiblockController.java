@@ -27,18 +27,18 @@ import tj.gui.TJGuiTextures;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class TJMultiblockRecipeController extends TJMultiblockControllerBase implements IRecipeHandler {
+public abstract class TJRecipeMapMultiblockController extends TJMultiblockControllerBase implements IRecipeHandler {
 
     protected final BasicRecipeLogic recipeLogic = this.createRecipeLogic();
     protected final RecipeMap<?> recipeMap;
     protected long maxVoltage;
     protected int tier;
 
-    public TJMultiblockRecipeController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap) {
+    public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap) {
         this(metaTileEntityId, true, recipeMap);
     }
 
-    public TJMultiblockRecipeController(ResourceLocation metaTileEntityId, boolean hasMaintenance, RecipeMap<?> recipeMap) {
+    public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, boolean hasMaintenance, RecipeMap<?> recipeMap) {
         super(metaTileEntityId, hasMaintenance);
         this.recipeMap = recipeMap;
     }
