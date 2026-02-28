@@ -76,6 +76,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
 
     private final boolean hasMuffler;
     private final boolean hasMaintenance;
+    private final boolean hasDistinct;
 
     public static final XSTR XSTR_RAND = new XSTR();
 
@@ -103,14 +104,20 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     protected IEnergyContainer outputEnergyContainer;
 
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId) {
-        this(metaTileEntityId, true);
+        this(metaTileEntityId, true, true);
     }
 
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance) {
+        this(metaTileEntityId, hasMaintenance, true);
+    }
+
+    public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance, boolean hasDistinct) {
         super(metaTileEntityId);
         this.hasMuffler = false;
+        this.hasDistinct = hasDistinct;
         this.hasMaintenance = hasMaintenance;
         this.maintenance_problems = 0b000000;
+        if (!hasMaintenance) this.maintenance_problems = 0b111111;
     }
 
     /**
@@ -420,6 +427,10 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
         this.maintenance_problems = data.getByte("Maintenance");
         this.timeActive = data.getInteger("ActiveTimer");
         this.isWorkingEnabled = data.getBoolean("IsWorking");
+    }
+
+    public boolean hasDistinct() {
+        return this.hasDistinct;
     }
 
     @Override

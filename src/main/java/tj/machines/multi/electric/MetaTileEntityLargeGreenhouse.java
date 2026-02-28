@@ -1,7 +1,6 @@
 package tj.machines.multi.electric;
 
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
-import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;

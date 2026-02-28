@@ -19,11 +19,11 @@ public abstract class TJMultiRecipeMapMultiblockController extends TJRecipeMapMu
     protected int recipeMapIndex;
 
     public TJMultiRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?>... recipeMaps) {
-        this(metaTileEntityId, true, recipeMaps);
+        this(metaTileEntityId, true, true, recipeMaps);
     }
 
-    public TJMultiRecipeMapMultiblockController(ResourceLocation metaTileEntityId, boolean hasMaintenance, RecipeMap<?>... recipeMaps) {
-        super(metaTileEntityId, hasMaintenance, recipeMaps[0]);
+    public TJMultiRecipeMapMultiblockController(ResourceLocation metaTileEntityId, boolean hasMaintenance, boolean hasDistinct, RecipeMap<?>... recipeMaps) {
+        super(metaTileEntityId, recipeMaps[0], hasMaintenance, hasDistinct);
         this.recipeMaps = recipeMaps;
     }
 

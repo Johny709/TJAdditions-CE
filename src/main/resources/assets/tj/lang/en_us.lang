@@ -461,10 +461,10 @@ tj.multiblock.recipe.transfer.fail=Recipe lock §cFailed§r %n-All recipe handle
 tj.multiblock.recipe.transfer.fail_2=Recipe lock to Handler [§a%d§r]: §cFailed§r %n-Recipe not found or insufficient voltage tier
 
 tj.multiblock.parallel.extend.tooltip=Parallels and layers can be adjusted with screwdriver. §fLeft-Click§7 to increment, §fShift-Left-Click§7 to decrement. §eThe multiblock will have to be rebuilt accordingly.
-tj.multiblock.parallel.layer.increment.success=Increased layers to:
-tj.multiblock.parallel.layer.decrement.success=Decreased layers to:
-tj.multiblock.parallel.layer.increment.fail=Already reached minimum layers:
-tj.multiblock.parallel.layer.decrement.fail=Already reached maximum layers:
+tj.multiblock.parallel.layer.increment.success=Increased layers to: §b%,d
+tj.multiblock.parallel.layer.decrement.success=Decreased layers to: §b%,d
+tj.multiblock.parallel.layer.increment.fail=Already reached minimum layers: §b%,d
+tj.multiblock.parallel.layer.decrement.fail=Already reached maximum layers: §b%,d
 tj.multiblock.parallel.status=Status: %s
 tj.multiblock.parallel.lock=[Locked]
 tj.multiblock.parallel.unlock=[Unlocked]

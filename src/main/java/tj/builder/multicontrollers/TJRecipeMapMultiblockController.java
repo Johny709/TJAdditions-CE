@@ -38,11 +38,11 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     protected int tier;
 
     public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap) {
-        this(metaTileEntityId, true, recipeMap);
+        this(metaTileEntityId, recipeMap, true, true);
     }
 
-    public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, boolean hasMaintenance, RecipeMap<?> recipeMap) {
-        super(metaTileEntityId, hasMaintenance);
+    public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, boolean hasMaintenance, boolean hasDistinct) {
+        super(metaTileEntityId, hasMaintenance, hasDistinct);
         this.recipeMap = recipeMap;
     }
 
@@ -62,7 +62,12 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        return !abilities.getOrDefault(MultiblockAbility.INPUT_ENERGY, Collections.emptyList()).isEmpty() && super.checkStructureComponents(parts, abilities);
+        return !abilities.getOrDefault(MultiblockAbility.INPUT_ENERGY, Collections.emptyList()).isEmpty() &&
+                abilities.getOrDefault(MultiblockAbility.IMPORT_ITEMS, Collections.emptyList()).size() >= Math.min(1, this.recipeMap.getMinInputs()) &&
+                abilities.getOrDefault(MultiblockAbility.EXPORT_ITEMS, Collections.emptyList()).size() >= Math.min(1, this.recipeMap.getMinOutputs()) &&
+                abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size() >= Math.min(1, this.recipeMap.getMinFluidInputs()) &&
+                abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size() >= Math.min(1, this.recipeMap.getMinFluidOutputs()) &&
+                super.checkStructureComponents(parts, abilities);
     }
 
     @Override
@@ -81,12 +86,13 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         overclockManager.setChanceMultiplier(this.getChanceMultiplier());
         overclockManager.setEUt(overclockManager.getEUt() * this.getEUtMultiplier() / 100);
         overclockManager.setDuration(overclockManager.getDuration() * this.getDurationMultiplier() / 100);
-        overclockManager.setParallel(this.getParallel() * (this.getTier() - GAUtility.getTierByVoltage(overclockManager.getEUt())));
+        overclockManager.setParallel(this.getParallel() * this.getTierDifference(overclockManager.getEUt()));
     }
 
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
+        if (!this.hasDistinct()) return;
         widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this.recipeLogic::isDistinct, this.recipeLogic::setDistinct)
                 .setTooltipText("machine.universal.toggle.distinct.mode"));
     }
@@ -102,6 +108,8 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
                 .isWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress(), 998)
                 .addRecipeInputLine(this.recipeLogic, 999)
                 .addRecipeOutputLine(this.recipeLogic, 1000);
+        if (this.hasDistinct())
+            builder.addDistinctLine(this.recipeLogic.isDistinct(), 997);
     }
 
     @Override
@@ -142,6 +150,10 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     @Override
     public int getTier() {
         return this.tier;
+    }
+
+    public int getTierDifference(long recipeEUt) {
+        return this.getTier() - GAUtility.getTierByVoltage(recipeEUt);
     }
 
     @Override

@@ -39,6 +39,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.blocks.AdvEnergyPortCasings;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
@@ -75,7 +76,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     private int divertorTier;
 
     public MetaTileEntityMegaFusion(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, GARecipeMaps.ADV_FUSION_RECIPES);
+        super(metaTileEntityId, GARecipeMaps.ADV_FUSION_RECIPES, false, false);
         this.recipeLogic.setActive(this::replaceEnergyPortsAsActive);
     }
 
@@ -369,5 +370,10 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     @Override
     public int getParallel() {
         return this.parallels;
+    }
+
+    @Override
+    public IItemHandlerModifiable getInputBus(int index) {
+        return this.getImportItemInventory();
     }
 }

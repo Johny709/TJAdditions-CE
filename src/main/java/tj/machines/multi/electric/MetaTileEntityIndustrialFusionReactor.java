@@ -26,7 +26,6 @@ import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
-import gregtech.common.items.MetaItems;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityMultiblockPart;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -39,6 +38,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -84,7 +84,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     private IEnergyContainer energyContainer;
 
     public MetaTileEntityIndustrialFusionReactor(ResourceLocation metaTileEntityId, int tier) {
-        super(metaTileEntityId, false, RecipeMaps.FUSION_RECIPES);
+        super(metaTileEntityId, RecipeMaps.FUSION_RECIPES, false, false);
         this.recipeLogic.setAllowOverclocking(false);
         this.tier = tier;
         this.energyToStart = 160_000_000L << tier - 6;
@@ -94,7 +94,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 return "EnergyContainerInternal";
             }
         };
-        this.maintenance_problems = 0b111111;
         this.reinitializeStructurePattern();
     }
 
@@ -136,7 +135,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         }
         overclockManager.setEUt((long) (overclockManager.getEUt() * ocMultiplier));
         overclockManager.setDuration((int) (overclockManager.getDuration() / ocMultiplier));
-        overclockManager.setParallel(overclockManager.getParallel() * this.batchMode.getAmount());
+        overclockManager.setParallel(this.getParallel() * this.batchMode.getAmount());
     }
 
     @Override
@@ -325,35 +324,18 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
-    public boolean onRightClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        if (playerIn.getHeldItemMainhand().isItemEqual(MetaItems.SCREWDRIVER.getStackForm()))
-            return false;
-        return super.onRightClick(playerIn, hand, facing, hitResult);
-    }
-
-    @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        ITextComponent textComponent;
-        if (!playerIn.isSneaking()) {
-            if (this.parallelLayer < TJConfig.industrialFusionReactor.maximumSlices) {
-                this.parallelLayer++;
-                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.increment.success").appendSibling(new TextComponentString(" " + this.parallelLayer));
-            } else
-                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.increment.fail").appendSibling(new TextComponentString(" " + this.parallelLayer));
-        } else {
-            if (this.parallelLayer > 1) {
-                this.parallelLayer--;
-                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.success").appendSibling(new TextComponentString(" " + this.parallelLayer));
-            } else
-                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.fail").appendSibling(new TextComponentString(" " + this.parallelLayer));
+        if (!this.getWorld().isRemote) {
+            int lastParallelLayer = this.parallelLayer;
+            this.parallelLayer += MathHelper.clamp(playerIn.isSneaking() ? -1 : 1, 0, TJConfig.industrialFusionReactor.maximumSlices);
+            if (this.parallelLayer != lastParallelLayer) {
+                playerIn.sendMessage(new TextComponentTranslation(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
+            } else playerIn.sendMessage(new TextComponentTranslation(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.fail" : "tj.multiblock.parallel.layer.increment.fail", this.parallelLayer));
+            this.structurePattern = this.createStructurePattern();
+            this.invalidateStructure();
+            this.writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
+            this.markDirty();
         }
-        if (this.getWorld().isRemote)
-            playerIn.sendMessage(textComponent);
-        else {
-            writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
-        }
-        this.invalidateStructure();
-        this.structurePattern = this.createStructurePattern();
         return true;
     }
 
@@ -375,7 +357,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         super.receiveInitialSyncData(buf);
         this.parallelLayer = buf.readInt();
         this.readActiveBlockPacket(buf);
-        this.structurePattern = createStructurePattern();
+        this.structurePattern = this.createStructurePattern();
     }
 
     @Override
@@ -383,7 +365,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         super.receiveCustomData(dataId, buf);
         if (dataId == PARALLEL_LAYER) {
             this.parallelLayer = buf.readInt();
-            this.structurePattern = createStructurePattern();
+            this.structurePattern = this.createStructurePattern();
+            this.invalidateStructure();
             this.scheduleRenderUpdate();
         } else if (dataId == 128) {
             this.readActiveBlockPacket(buf);
@@ -488,5 +471,10 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     public int getDurationMultiplier() {
         return TJConfig.industrialFusionReactor.durationPercentage;
+    }
+
+    @Override
+    public int getTierDifference(long recipeEUt) {
+        return 0;
     }
 }
