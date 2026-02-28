@@ -5,6 +5,7 @@ public final class OverclockManager<T> {
     private long EUt;
     private int duration;
     private int parallel;
+    private int chanceMultiplier;
     private T recipeProperty;
 
     public void setEUtAndDuration(long EUt, int duration) {
@@ -28,6 +29,10 @@ public final class OverclockManager<T> {
         this.parallel = parallel;
     }
 
+    public void setChanceMultiplier(int chanceMultiplier) {
+        this.chanceMultiplier = chanceMultiplier;
+    }
+
     public T getRecipeProperty() {
         return this.recipeProperty;
     }
@@ -42,5 +47,9 @@ public final class OverclockManager<T> {
 
     public int getParallel() {
         return this.parallel;
+    }
+
+    public int getChanceMultiplier() {
+        return this.chanceMultiplier;
     }
 }

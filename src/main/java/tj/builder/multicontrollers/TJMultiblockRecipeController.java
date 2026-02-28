@@ -11,12 +11,19 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMap;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.TJValues;
 import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public abstract class TJMultiblockRecipeController extends TJMultiblockControllerBase implements IRecipeHandler {
 
@@ -30,6 +37,16 @@ public abstract class TJMultiblockRecipeController extends TJMultiblockControlle
     public TJMultiblockRecipeController(ResourceLocation metaTileEntityId, boolean hasMaintenance, RecipeMap<?> recipeMap) {
         super(metaTileEntityId, hasMaintenance);
         this.recipeMap = recipeMap;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1", this.getRecipeMapNames()));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandFormat.format(this.getEUtMultiplier() / 100.0)));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandFormat.format(this.getDurationMultiplier() / 100.0)));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", this.getParallel()));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", this.getBoostChance()));
     }
 
     protected BasicRecipeLogic createRecipeLogic() {
@@ -49,9 +66,10 @@ public abstract class TJMultiblockRecipeController extends TJMultiblockControlle
 
     @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        overclockManager.setChanceMultiplier(this.getBoostChance());
         overclockManager.setEUt(overclockManager.getEUt() * this.getEUtMultiplier() / 100);
         overclockManager.setDuration(overclockManager.getDuration() * this.getDurationMultiplier() / 100);
-        overclockManager.setParallel(this.getParallel() * (this.getTier() - GAUtility.getTierByVoltage(recipe.getEUt()) + 1));
+        overclockManager.setParallel(this.getParallel() * (this.getTier() - GAUtility.getTierByVoltage(overclockManager.getEUt())));
     }
 
     @Override
@@ -110,6 +128,10 @@ public abstract class TJMultiblockRecipeController extends TJMultiblockControlle
     @Override
     public String getRecipeUid() {
         return Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName();
+    }
+
+    public String getRecipeMapNames() {
+        return this.recipeMap.getLocalizedName();
     }
 
     public int getEUtMultiplier() {

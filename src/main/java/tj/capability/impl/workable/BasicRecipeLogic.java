@@ -1,5 +1,6 @@
 package tj.capability.impl.workable;
 
+import gregicadditions.GAUtility;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.CountableIngredient;
@@ -108,6 +109,15 @@ public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> im
             ItemStack item = stack.copy();
             item.setCount(stack.getCount() * parallels);
             this.itemOutputs.add(item);
+        }
+        int tier = this.handler.getTier() - GAUtility.getTierByVoltage(this.overclockManager.getEUt());
+        for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
+            int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
+            if (Math.random() * 10000 < chance) {
+                ItemStack stack = entry.getItemStack().copy();
+                stack.setCount(stack.getCount() * parallels);
+                this.itemOutputs.add(stack);
+            }
         }
         for (FluidStack stack : recipe.getFluidOutputs()) {
             FluidStack fluid = stack.copy();
