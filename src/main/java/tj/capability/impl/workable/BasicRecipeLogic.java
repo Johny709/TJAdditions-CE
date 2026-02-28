@@ -4,7 +4,6 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
-import gregtech.api.util.RecipeLRUCache;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.capabilities.Capability;
@@ -12,10 +11,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.capability.AbstractWorkableHandler;
-import tj.capability.IItemFluidHandlerInfo;
-import tj.capability.OverclockManager;
-import tj.capability.TJCapabilities;
+import tj.capability.*;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.util.ItemStackHelper;
 import tj.util.TJFluidUtils;
@@ -28,7 +24,7 @@ import static net.minecraft.item.ItemStack.areItemStacksEqual;
 
 public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> implements IItemFluidHandlerInfo {
 
-    private final RecipeLRUCache previousRecipe = new RecipeLRUCache(10);
+    private final ParallelRecipeLRUCache previousRecipe = new ParallelRecipeLRUCache(10);
     private final OverclockManager<?> overclockManager = new OverclockManager<>();
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
@@ -54,25 +50,22 @@ public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> im
         boolean start = false;
         IItemHandlerModifiable itemHandlerModifiable = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
         Recipe recipe = this.previousRecipe.get(itemHandlerModifiable, this.handler.getImportFluidTank());
-        if (recipe == null && this.recipeRecheck && this.checkRecipeInputsDirty(itemHandlerModifiable, this.handler.getImportFluidTank())) {
+        if (recipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(itemHandlerModifiable, this.handler.getImportFluidTank()))) {
             this.recipeRecheck = false;
             recipe = this.handler.getRecipeMap().findRecipe(this.handler.getMaxVoltage(), itemHandlerModifiable, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
-            if (recipe != null) {
+            if (recipe != null)
                 this.previousRecipe.put(recipe);
-                this.previousRecipe.cacheUnutilized();
-            }
         }
         if (recipe != null) {
             this.overclockManager.setEUt(recipe.getEUt());
             this.overclockManager.setDuration(recipe.getDuration());
             this.overclockManager.setParallel(this.handler.getParallel());
             this.handler.preOverclock(this.overclockManager, recipe);
-            if (this.handler.checkRecipe(recipe) && this.consumeRecipe(recipe)) {
+            if (this.handler.checkRecipe(recipe) && this.consumeRecipe(recipe, itemHandlerModifiable)) {
                 this.calculateOverclock(this.overclockManager.getEUt(), this.overclockManager.getDuration(), 2.8F);
                 this.handler.postOverclock(this.overclockManager, recipe);
                 this.energyPerTick = this.overclockManager.getEUt();
                 this.setMaxProgress(this.overclockManager.getDuration());
-                this.previousRecipe.cacheUtilized();
                 start = true;
             }
         }
@@ -81,15 +74,15 @@ public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> im
         return start;
     }
 
-    protected boolean consumeRecipe(Recipe recipe) {
+    protected boolean consumeRecipe(Recipe recipe, IItemHandlerModifiable itemHandlerModifiable) {
         int parallels = this.overclockManager.getParallel();
         // check for parallel count and if there's enough inputs to be consumed.
         for (CountableIngredient ingredient : recipe.getInputs()) {
             if (ingredient.getCount() > 0) {
-                parallels = Math.min(parallels, ItemStackHelper.extractFromItemHandlerByIngredient(this.handler.getImportItemInventory(), ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
+                parallels = Math.min(parallels, ItemStackHelper.extractFromItemHandlerByIngredient(itemHandlerModifiable, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
                 if (parallels < 1)
                     return false;
-            } else if (!ItemStackHelper.checkItemHandlerForIngredient(this.handler.getImportItemInventory(), ingredient.getIngredient()))
+            } else if (!ItemStackHelper.checkItemHandlerForIngredient(itemHandlerModifiable, ingredient.getIngredient()))
                 return false;
         }
         for (FluidStack stack : recipe.getFluidInputs()) {
@@ -102,11 +95,11 @@ public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> im
         }
         // consume item and fluid inputs then add to input list
         for (CountableIngredient ingredient : recipe.getInputs()) {
-            ItemStackHelper.extractFromItemHandlerByIngredientToList(this.handler.getImportItemInventory(), ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.itemInputs);
+            ItemStackHelper.extractFromItemHandlerByIngredientToList(itemHandlerModifiable, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.itemInputs);
         }
         for (FluidStack stack : recipe.getFluidInputs()) {
             FluidStack fluid = stack.copy();
-            fluid.amount = fluid.amount * parallels;
+            fluid.amount *= parallels;
             TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack, stack.amount * parallels, true);
             this.fluidInputs.add(fluid);
         }
@@ -118,7 +111,7 @@ public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> im
         }
         for (FluidStack stack : recipe.getFluidOutputs()) {
             FluidStack fluid = stack.copy();
-            fluid.amount = stack.amount * parallels;
+            fluid.amount *= parallels;
             this.fluidOutputs.add(fluid);
         }
         this.overclockManager.setParallel(parallels);
