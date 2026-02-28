@@ -20,7 +20,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 public class IndustrialFusionReactorInfo extends MultiblockInfoPage {
 
-    MetaTileEntityIndustrialFusionReactor fusionReactor;
+    private final MetaTileEntityIndustrialFusionReactor fusionReactor;
 
     public IndustrialFusionReactorInfo(MetaTileEntityIndustrialFusionReactor fusionReactor) {
         this.fusionReactor = fusionReactor;
@@ -64,7 +64,7 @@ public class IndustrialFusionReactorInfo extends MultiblockInfoPage {
                 I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(TJConfig.industrialFusionReactor.eutPercentage / 100.0)),
                 I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(TJConfig.industrialFusionReactor.durationPercentage / 100.0)),
                 I18n.format("tj.multiblock.universal.tooltip.2", TJConfig.industrialFusionReactor.maximumSlices),
-                I18n.format("tj.multiblock.industrial_fusion_reactor.energy", this.fusionReactor.getEnergyToStart())};
+                I18n.format("tj.multiblock.industrial_fusion_reactor.energy", 160_000_000 << this.fusionReactor.getTier() - 6)};
     }
 
     @Override

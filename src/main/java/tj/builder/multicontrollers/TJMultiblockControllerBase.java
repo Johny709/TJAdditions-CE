@@ -155,7 +155,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        return abilities.getOrDefault(MAINTENANCE_HATCH, Collections.emptyList()).size() == 1;
+        return !this.hasMaintenance || abilities.getOrDefault(MAINTENANCE_HATCH, Collections.emptyList()).size() == 1;
     }
 
     /**

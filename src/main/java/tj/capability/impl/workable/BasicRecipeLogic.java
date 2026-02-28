@@ -35,11 +35,16 @@ public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> im
     protected ItemStack[] lastItemInputs;
     protected FluidStack[] lastFluidInputs;
     private boolean recipeRecheck = true;
+    private boolean allowOverclocking = true;
     private int itemOutputIndex;
     private int fluidOutputIndex;
 
     public BasicRecipeLogic(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
+    }
+
+    public void setAllowOverclocking(boolean allowOverclocking) {
+        this.allowOverclocking = allowOverclocking;
     }
 
     @Override
@@ -178,6 +183,10 @@ public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> im
 
     @Override
     protected int calculateOverclock(long baseEnergy, int duration, float multiplier) {
+        if (!this.allowOverclocking) {
+            this.overclockManager.setEUtAndDuration(baseEnergy, duration);
+            return 0;
+        }
         long voltage = this.handler.getMaxVoltage();
         baseEnergy *= 4;
         while (duration > 1 && baseEnergy <= voltage) {

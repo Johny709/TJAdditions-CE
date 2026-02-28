@@ -8,6 +8,7 @@ import gregicadditions.Gregicality;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
+import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
@@ -25,7 +26,9 @@ import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.gui.TJGuiTextures;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public abstract class TJRecipeMapMultiblockController extends TJMultiblockControllerBase implements IRecipeHandler {
 
@@ -55,6 +58,11 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
 
     protected BasicRecipeLogic createRecipeLogic() {
         return new BasicRecipeLogic(this);
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        return !abilities.getOrDefault(MultiblockAbility.INPUT_ENERGY, Collections.emptyList()).isEmpty() && super.checkStructureComponents(parts, abilities);
     }
 
     @Override
@@ -107,6 +115,8 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.recipeLogic.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
+        this.maxVoltage = Math.max(this.inputEnergyContainer.getInputVoltage(), this.outputEnergyContainer.getOutputVoltage());
+        this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
     }
 
     @Override
