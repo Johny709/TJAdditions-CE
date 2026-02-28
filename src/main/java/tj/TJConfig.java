@@ -78,9 +78,9 @@ public class TJConfig {
     }
 
     @Config.Comment("Decay Chamber")
-    public static DecayChamber decayChamber = new DecayChamber();
+    public static LargeDecayChamber largeDecayChamber = new LargeDecayChamber();
 
-    public static class DecayChamber {
+    public static class LargeDecayChamber {
 
         @Config.Name("EU/t Percentage")
         @Config.RequiresMcRestart

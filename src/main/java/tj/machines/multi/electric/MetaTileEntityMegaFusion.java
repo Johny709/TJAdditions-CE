@@ -46,7 +46,6 @@ import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.*;
 import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
-import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -69,7 +68,6 @@ public class MetaTileEntityMegaFusion extends TJMultiblockRecipeController imple
     private long energyToStart;
     private long heat;
     private long maxHeat;
-    private long maxVoltage;
     private int parallels;
     private int tier;
     private int coilTier;
@@ -371,10 +369,5 @@ public class MetaTileEntityMegaFusion extends TJMultiblockRecipeController imple
     @Override
     public int getParallel() {
         return this.parallels;
-    }
-
-    @Override
-    public long getMaxVoltage() {
-        return this.maxVoltage;
     }
 }

@@ -6,6 +6,7 @@ import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
 import gregicadditions.Gregicality;
 import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.PatternMatchContext;
@@ -21,6 +22,7 @@ import tj.TJValues;
 import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
+import tj.gui.TJGuiTextures;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -28,7 +30,9 @@ import java.util.List;
 public abstract class TJMultiblockRecipeController extends TJMultiblockControllerBase implements IRecipeHandler {
 
     protected final BasicRecipeLogic recipeLogic = this.createRecipeLogic();
-    private final RecipeMap<?> recipeMap;
+    protected final RecipeMap<?> recipeMap;
+    protected long maxVoltage;
+    protected int tier;
 
     public TJMultiblockRecipeController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap) {
         this(metaTileEntityId, true, recipeMap);
@@ -43,10 +47,10 @@ public abstract class TJMultiblockRecipeController extends TJMultiblockControlle
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1", this.getRecipeMapNames()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandFormat.format(this.getEUtMultiplier() / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandFormat.format(this.getDurationMultiplier() / 100.0)));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(this.getEUtMultiplier() / 100.0)));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(this.getDurationMultiplier() / 100.0)));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", this.getParallel()));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", this.getBoostChance()));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", this.getChanceMultiplier()));
     }
 
     protected BasicRecipeLogic createRecipeLogic() {
@@ -66,10 +70,17 @@ public abstract class TJMultiblockRecipeController extends TJMultiblockControlle
 
     @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setChanceMultiplier(this.getBoostChance());
+        overclockManager.setChanceMultiplier(this.getChanceMultiplier());
         overclockManager.setEUt(overclockManager.getEUt() * this.getEUtMultiplier() / 100);
         overclockManager.setDuration(overclockManager.getDuration() * this.getDurationMultiplier() / 100);
         overclockManager.setParallel(this.getParallel() * (this.getTier() - GAUtility.getTierByVoltage(overclockManager.getEUt())));
+    }
+
+    @Override
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this.recipeLogic::isDistinct, this.recipeLogic::setDistinct)
+                .setTooltipText("machine.universal.toggle.distinct.mode"));
     }
 
     @Override
@@ -77,6 +88,7 @@ public abstract class TJMultiblockRecipeController extends TJMultiblockControlle
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.voltageInLine(this.inputEnergyContainer)
+                .voltageTierLine(this.tier)
                 .energyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
                 .addDistinctLine(this.recipeLogic.isDistinct())
                 .isWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress(), 998)
@@ -101,6 +113,8 @@ public abstract class TJMultiblockRecipeController extends TJMultiblockControlle
     public void invalidateStructure() {
         super.invalidateStructure();
         this.recipeLogic.invalidate();
+        this.maxVoltage = 0;
+        this.tier = 0;
     }
 
     @Override
@@ -108,6 +122,16 @@ public abstract class TJMultiblockRecipeController extends TJMultiblockControlle
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         this.getFrontOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive());
+    }
+
+    @Override
+    public long getMaxVoltage() {
+        return this.maxVoltage;
+    }
+
+    @Override
+    public int getTier() {
+        return this.tier;
     }
 
     @Override
@@ -142,7 +166,7 @@ public abstract class TJMultiblockRecipeController extends TJMultiblockControlle
         return 100;
     }
 
-    public int getBoostChance() {
+    public int getChanceMultiplier() {
         return 100;
     }
 }

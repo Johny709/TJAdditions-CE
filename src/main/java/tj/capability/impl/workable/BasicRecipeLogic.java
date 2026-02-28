@@ -7,6 +7,7 @@ import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
@@ -180,7 +181,7 @@ public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> im
         long voltage = this.handler.getMaxVoltage();
         baseEnergy *= 4;
         while (duration > 1 && baseEnergy <= voltage) {
-            duration /= multiplier;
+            duration /= (int) multiplier;
             baseEnergy *= 4;
         }
         this.overclockManager.setEUtAndDuration(baseEnergy / 4, duration);
@@ -216,6 +217,20 @@ public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> im
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound compound = super.serializeNBT();
+        NBTTagList itemInputList = new NBTTagList(), itemOutputList = new NBTTagList();
+        NBTTagList fluidInputList = new NBTTagList(), fluidOutputList = new NBTTagList();
+        for (ItemStack stack : this.itemInputs)
+            itemInputList.appendTag(stack.serializeNBT());
+        for (ItemStack stack : this.itemOutputs)
+            itemOutputList.appendTag(stack.serializeNBT());
+        for (FluidStack stack : this.fluidInputs)
+            fluidInputList.appendTag(stack.writeToNBT(new NBTTagCompound()));
+        for (FluidStack stack : this.fluidOutputs)
+            fluidOutputList.appendTag(stack.writeToNBT(new NBTTagCompound()));
+        compound.setTag("itemInputs", itemInputList);
+        compound.setTag("itemOutputs", itemOutputList);
+        compound.setTag("fluidInputs", fluidInputList);
+        compound.setTag("fluidOutputs", fluidOutputList);
         compound.setInteger("itemOutputIndex", this.itemOutputIndex);
         compound.setInteger("fluidOutputIndex", this.fluidOutputIndex);
         return compound;
@@ -224,6 +239,16 @@ public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> im
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
+        NBTTagList itemInputList = compound.getTagList("itemInputs", 10), itemOutputList = compound.getTagList("itemOutputs", 10);
+        NBTTagList fluidInputList = compound.getTagList("fluidInputs",10), fluidOutputList = compound.getTagList("fluidOutputs", 10);
+        for (int i = 0; i < itemInputList.tagCount(); i++)
+            this.itemInputs.add(new ItemStack(itemInputList.getCompoundTagAt(i)));
+        for (int i = 0; i < itemOutputList.tagCount(); i++)
+            this.itemOutputs.add(new ItemStack(itemOutputList.getCompoundTagAt(i)));
+        for (int i = 0; i < fluidInputList.tagCount(); i++)
+            this.fluidInputs.add(FluidStack.loadFluidStackFromNBT(fluidInputList.getCompoundTagAt(i)));
+        for (int i = 0; i < fluidOutputList.tagCount(); i++)
+            this.fluidOutputs.add(FluidStack.loadFluidStackFromNBT(fluidOutputList.getCompoundTagAt(i)));
         this.itemOutputIndex = compound.getInteger("itemOutputIndex");
         this.fluidOutputIndex = compound.getInteger("fluidOutputIndex");
     }
