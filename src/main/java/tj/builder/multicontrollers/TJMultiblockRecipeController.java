@@ -5,6 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
 import gregicadditions.Gregicality;
+import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.PatternMatchContext;
@@ -59,15 +60,29 @@ public abstract class TJMultiblockRecipeController extends TJMultiblockControlle
         if (!this.isStructureFormed()) return;
         builder.voltageInLine(this.inputEnergyContainer)
                 .energyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
+                .addDistinctLine(this.recipeLogic.isDistinct())
                 .isWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress(), 998)
                 .addRecipeInputLine(this.recipeLogic, 999)
                 .addRecipeOutputLine(this.recipeLogic, 1000);
     }
 
     @Override
+    protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
+        String[] data = componentData.split(":");
+        if (data[0].equals("distinct"))
+            this.recipeLogic.setDistinct(data[1].equals("true"));
+    }
+
+    @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.recipeLogic.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.recipeLogic.invalidate();
     }
 
     @Override

@@ -5,9 +5,11 @@ import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.AbstractRecipeLogic;
+import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.recipes.RecipeMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.*;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -122,7 +124,7 @@ public final class UIDisplayBuilder {
     }
 
     public UIDisplayBuilder energyStoredLine(long energyStored, long energyCapacity) {
-        return this.energyStoredLine(energyStored, energyCapacity, this.count);
+        return this.energyStoredLine(energyStored, energyCapacity, 0);
     }
 
     public UIDisplayBuilder energyStoredLine(long energyStored, long energyCapacity, int priority) {
@@ -133,12 +135,12 @@ public final class UIDisplayBuilder {
     }
 
     public UIDisplayBuilder energyInputLine(IEnergyContainer container, long amount) {
-        return this.energyInputLine(container, amount, 1, this.count);
+        return this.energyInputLine(container, amount, 1, 0);
     }
 
 
     public UIDisplayBuilder energyInputLine(IEnergyContainer container, long amount, int maxProgress) {
-        return this.energyInputLine(container, amount, maxProgress, this.count);
+        return this.energyInputLine(container, amount, maxProgress, 0);
     }
 
     public UIDisplayBuilder energyInputLine(IEnergyContainer container, long amount, int maxProgress, int priority) {
@@ -254,6 +256,23 @@ public final class UIDisplayBuilder {
                 this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)), priority);
             else this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)));
         }
+        return this;
+    }
+
+    public UIDisplayBuilder addDistinctLine(boolean isDistinct) {
+        return this.addDistinctLine(isDistinct, 0);
+    }
+
+    public UIDisplayBuilder addDistinctLine(boolean isDistinct, int priority) {
+        if (priority != 0) {
+            this.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
+                    .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("gtadditions.multiblock.universal.distinct.info"))))
+                    .appendText(" ")
+                    .appendSibling(AdvancedTextWidget.withButton(new TextComponentTranslation(isDistinct ? "gtadditions.multiblock.universal.distinct.yes" : "gtadditions.multiblock.universal.distinct.no"), isDistinct ? "distinct:false" : "distinct:true")), priority);
+        } else this.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
+                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("gtadditions.multiblock.universal.distinct.info"))))
+                .appendText(" ")
+                .appendSibling(AdvancedTextWidget.withButton(new TextComponentTranslation(isDistinct ? "gtadditions.multiblock.universal.distinct.yes" : "gtadditions.multiblock.universal.distinct.no"), isDistinct ? "distinct:false" : "distinct:true")));
         return this;
     }
 

@@ -48,6 +48,8 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
         this.busCount = busCount;
     }
 
+    public void invalidate() {}
+
     /**
      * @param activeConsumer isActive boolean consumer
      */

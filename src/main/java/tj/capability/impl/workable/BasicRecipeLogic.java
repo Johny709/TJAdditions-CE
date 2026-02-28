@@ -45,6 +45,11 @@ public class BasicRecipeLogic extends AbstractWorkableHandler<IRecipeHandler> im
     }
 
     @Override
+    public void invalidate() {
+        this.recipeRecheck = true;
+    }
+
+    @Override
     protected boolean startRecipe() {
         boolean start = false;
         IItemHandlerModifiable itemHandlerModifiable = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
