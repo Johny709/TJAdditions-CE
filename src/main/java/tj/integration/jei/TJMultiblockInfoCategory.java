@@ -133,7 +133,8 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("advanced_large_chunk_miner.3", new MultiblockInfoRecipeWrapper(new AdvancedLargeChunkMinerInfo(3)))
                             .put("advamced_large_chunk_miner.4", new MultiblockInfoRecipeWrapper(new AdvancedLargeChunkMinerInfo(4)))
                             .put("advanced_large_chunk_miner.5", new MultiblockInfoRecipeWrapper(new AdvancedLargeChunkMinerInfo(5)))
-                            .put("large_naming_machine", new MultiblockInfoRecipeWrapper(new LargeNamingMachineInfo()));
+                            .put("large_naming_machine", new MultiblockInfoRecipeWrapper(new LargeNamingMachineInfo()))
+                            .put("large_assembly_line", new MultiblockInfoRecipeWrapper(new LargeAssemblyLineInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;

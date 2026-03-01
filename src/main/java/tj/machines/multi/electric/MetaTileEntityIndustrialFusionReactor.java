@@ -77,7 +77,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     private final Set<BlockPos> activeStates = new HashSet<>();
     private final long energyToStart;
-    private int parallelLayer;
+    private int parallelLayer = 1;
     private long heat;
     private long maxHeat;
     private BatchMode batchMode = BatchMode.ONE;
@@ -115,12 +115,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             tip.add(I18n.format("tj.multiblock.universal.tooltip.2", TJConfig.industrialFusionReactor.maximumSlices));
             tip.add(I18n.format("tj.multiblock.industrial_fusion_reactor.energy", this.energyToStart));
         });
-    }
-
-    @Override
-    protected void reinitializeStructurePattern() {
-        this.parallelLayer = 1;
-        super.reinitializeStructurePattern();
     }
 
     @Override
@@ -332,7 +326,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (!this.getWorld().isRemote) {
             int lastParallelLayer = this.parallelLayer;
-            this.parallelLayer += MathHelper.clamp(playerIn.isSneaking() ? -1 : 1, 0, TJConfig.industrialFusionReactor.maximumSlices);
+            this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - 1 : this.parallelLayer + 1, 0, TJConfig.industrialFusionReactor.maximumSlices);
             if (this.parallelLayer != lastParallelLayer) {
                 playerIn.sendMessage(new TextComponentTranslation(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
             } else playerIn.sendMessage(new TextComponentTranslation(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.fail" : "tj.multiblock.parallel.layer.increment.fail", this.parallelLayer));

@@ -137,6 +137,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityCharcoalPit CHARCOAL_PIT_ADVANCED;
     public static MetaTileEntityPrimitiveWaterPump PRIMITIVE_WATER_PUMP;
     public static MetaTileEntityLargeNamingMachine LARGE_NAMING_MACHINE;
+    public static MetaTileEntityLargeAssemblyLine LARGE_ASSEMBLY_LINE;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -230,6 +231,7 @@ public class TJMetaTileEntities {
         LARGE_CHISEL_WORKBENCH = GregTechAPI.registerMetaTileEntity(5129, new MetaTileEntityLargeChiselWorkbench(TJId("large_chisel_workbench")));
         LARGE_ENCHANTER = GregTechAPI.registerMetaTileEntity(5130, new MetaTileEntityLargeEnchanter(TJId("large_enchanter")));
         LARGE_NAMING_MACHINE = GregTechAPI.registerMetaTileEntity(5131, new MetaTileEntityLargeNamingMachine(TJId("large_naming_machine")));
+        LARGE_ASSEMBLY_LINE = GregTechAPI.registerMetaTileEntity(5132, new MetaTileEntityLargeAssemblyLine(TJId("large_assembly_line")));
 
         // range 5300+ -> singleblocks
         COAL_BOILER[0] = GregTechAPI.registerMetaTileEntity(5300, new MetaTileEntityCoalBoiler(TJId("coal_boiler_bronze"), BRONZE));
