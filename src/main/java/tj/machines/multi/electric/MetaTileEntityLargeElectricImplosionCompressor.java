@@ -5,6 +5,7 @@ import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.PistonCasing;
 import gregicadditions.item.metal.MetalCasing1;
+import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -15,22 +16,21 @@ import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
-import gregtech.common.blocks.BlockBoilerCasing;
+import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 import tj.TJConfig;
-import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
+import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 
 import javax.annotation.Nonnull;
 
-public class MetaTileEntityLargeElectricImplosionCompressor extends TJLargeSimpleRecipeMapMultiblockControllerBase {
+public class MetaTileEntityLargeElectricImplosionCompressor extends TJRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
     public MetaTileEntityLargeElectricImplosionCompressor(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, GARecipeMaps.ELECTRIC_IMPLOSION_RECIPES, TJConfig.largeElectricImplosionCompressor.eutPercentage, TJConfig.largeElectricImplosionCompressor.durationPercentage,
-                TJConfig.largeElectricImplosionCompressor.chancePercentage, TJConfig.largeElectricImplosionCompressor.stack);
+        super(metaTileEntityId, GARecipeMaps.ELECTRIC_IMPLOSION_RECIPES);
     }
 
     @Override
@@ -41,17 +41,16 @@ public class MetaTileEntityLargeElectricImplosionCompressor extends TJLargeSimpl
     @Override
     protected BlockPattern createStructurePattern() {
         return FactoryBlockPattern.start()
-                .aisle("XXXXX", "~~C~~", "~CCC~", "~CCC~", "~CCC~", "~~C~~", "XXXXX")
-                .aisle("XPPPX", "~CCC~", "C###C", "C###C", "C###C", "~CCC~", "XPPPX")
-                .aisle("XPpPX", "CCCCC", "C###C", "C###C", "C###C", "CCCCC", "XPMPX")
-                .aisle("XPPPX", "~CCC~", "C###C", "C###C", "C###C", "~CCC~", "XPPPX")
-                .aisle("XXSXX", "~~C~~", "~CCC~", "~CCC~", "~CCC~", "~~C~~", "XXXXX")
+                .aisle("~C~C~", "~G~G~", "~G~G~", "~G~G~", "~G~G~", "~G~G~", "~C~C~", "XXXXX", "XXXXX", "XXXXX", "~C~C~", "~G~G~", "~G~G~", "~G~G~", "~G~G~", "~G~G~", "~C~C~")
+                .aisle("CCCCC", "GCGCG", "GCGCG", "GCGCG", "GCGCG", "GCGCG", "C#C#C", "X###X", "X###X", "X###X", "C#C#C", "GCGCG", "GCGCG", "GCGCG", "GCGCG", "GCGCG", "CCCCC")
+                .aisle("~CCC~", "~GPG~", "~GPG~", "~GPG~", "~GPG~", "~GPG~", "~C#C~", "X###X", "X###X", "X###X", "~C#C~", "~GPG~", "~GPG~", "~GPG~", "~GPG~", "~GPG~", "~CCC~")
+                .aisle("CCCCC", "GCGCG", "GCGCG", "GCGCG", "GCGCG", "GCGCG", "C#C#C", "X###X", "X###X", "X###X", "C#C#C", "GCGCG", "GCGCG", "GCGCG", "GCGCG", "GCGCG", "CCCCC")
+                .aisle("~C~C~", "~G~G~", "~G~G~", "~G~G~", "~G~G~", "~G~G~", "~C~C~", "XXXXX", "XXSXX", "XXXXX", "~C~C~", "~G~G~", "~G~G~", "~G~G~", "~G~G~", "~G~G~", "~C~C~")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
-                .where('p', pistonPredicate())
-                .where('M', abilityPartPredicate(GregicAdditionsCapabilities.MUFFLER_HATCH))
+                .where('G', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
+                .where('P', LargeSimpleRecipeMapMultiblockController.pistonPredicate())
                 .where('#', isAirPredicate())
                 .where('~', tile -> true)
                 .build();
@@ -64,8 +63,8 @@ public class MetaTileEntityLargeElectricImplosionCompressor extends TJLargeSimpl
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int min = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
-        this.maxVoltage = (long) (Math.pow(4, min) * 8);
+        this.tier = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
+        this.maxVoltage = 8L << this.tier * 2;
     }
 
     @Override
@@ -77,5 +76,25 @@ public class MetaTileEntityLargeElectricImplosionCompressor extends TJLargeSimpl
     @Override
     protected OrientedOverlayRenderer getFrontOverlay() {
         return ClientHandler.IMPLOSION_OVERLAY;
+    }
+
+    @Override
+    public int getEUtMultiplier() {
+        return TJConfig.largeElectricImplosionCompressor.eutPercentage;
+    }
+
+    @Override
+    public int getDurationMultiplier() {
+        return TJConfig.largeElectricImplosionCompressor.durationPercentage;
+    }
+
+    @Override
+    public int getChanceMultiplier() {
+        return TJConfig.largeElectricImplosionCompressor.chancePercentage;
+    }
+
+    @Override
+    public int getParallel() {
+        return TJConfig.largeElectricImplosionCompressor.stack;
     }
 }

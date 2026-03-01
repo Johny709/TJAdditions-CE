@@ -26,6 +26,7 @@ import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.items.MetaItems;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityMultiblockPart;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -152,7 +153,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 }
         factoryPattern.aisle("###############", "######ICI######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#I###########I#", "#C###########C#", "#I###########I#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######ICI######", "###############");
         factoryPattern.aisle("######OSO######", "####GGcccGG####", "###EccOGOccE###", "##EcEG###GEcE##", "#GcE#######EcG#", "#GcG#######GcG#", "OcO#########OcO", "GcG#########GcG", "OcO#########OcO", "#GcG#######GcG#", "#GcE#######EcG#", "##EcEG###GEcE##", "###EccOGOccE###", "####GGcccGG####", "######OGO######");
-        factoryPattern.aisle("###############", "######ICI######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#I###########I#", "#C###########C#", "#I###########I#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######ICI######", "###############")
+        return factoryPattern.aisle("###############", "######ICI######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#I###########I#", "#C###########C#", "#I###########I#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######ICI######", "###############")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
                 .where('G', statePredicate(this.getCasingState()).or(statePredicate(this.getGlassState())))
@@ -160,8 +161,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 .where('O', statePredicate(this.getCasingState()).or(statePredicate(this.getGlassState())).or(abilityPartPredicate(MultiblockAbility.EXPORT_FLUIDS)))
                 .where('E', statePredicate(this.getCasingState()).or(statePredicate(this.getGlassState())).or(tilePredicate(energyHatchPredicate(tier))).or(energyPortPredicate(tier)))
             .where('I', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS)))
-            .where('#', (tile) -> true);
-        return this.tier != 0 ? factoryPattern.build() : null;
+            .where('#', (tile) -> true).build();
     }
 
     public static BiFunction<BlockWorldState, MetaTileEntity, Boolean> energyHatchPredicate(int tier) {
@@ -324,6 +324,11 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
+    public boolean onRightClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
+        return !MetaItems.SCREWDRIVER.isItemEqual(playerIn.getHeldItem(hand)) && super.onRightClick(playerIn, hand, facing, hitResult);
+    }
+
+    @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (!this.getWorld().isRemote) {
             int lastParallelLayer = this.parallelLayer;
@@ -331,9 +336,10 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             if (this.parallelLayer != lastParallelLayer) {
                 playerIn.sendMessage(new TextComponentTranslation(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
             } else playerIn.sendMessage(new TextComponentTranslation(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.fail" : "tj.multiblock.parallel.layer.increment.fail", this.parallelLayer));
-            this.writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
             this.invalidateStructure();
             this.structurePattern = this.createStructurePattern();
+            this.writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
+            this.markDirty();
         }
         return true;
     }

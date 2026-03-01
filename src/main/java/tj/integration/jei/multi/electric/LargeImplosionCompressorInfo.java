@@ -33,10 +33,10 @@ public class LargeImplosionCompressorInfo extends TJMultiblockInfoPage {
     public List<MultiblockShapeInfo> getMatchingShapes() {
         List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT)
-                .aisle("CCECC", "F~~~F", "F~~~F", "F~~~F", "F~~~F", "F~~~F", "CCCCC")
+                .aisle("CCEMC", "F~~~F", "F~~~F", "F~~~F", "F~~~F", "F~~~F", "CCCCC")
                 .aisle("CCCCC", "~PGP~", "~PGP~", "~PGP~", "~PGP~", "~PGP~", "CCCCC")
                 .aisle("CCpCC", "~G#G~", "~G#G~", "~G#G~", "~G#G~", "~G#G~", "CCmCC")
-                .aisle("CCCCM", "~PGP~", "~PGP~", "~PGP~", "~PGP~", "~PGP~", "CCCCC")
+                .aisle("CCCCC", "~PGP~", "~PGP~", "~PGP~", "~PGP~", "~PGP~", "CCCCC")
                 .aisle("CISOC", "F~~~F", "F~~~F", "F~~~F", "F~~~F", "F~~~F", "CCCCC")
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
@@ -53,6 +53,11 @@ public class LargeImplosionCompressorInfo extends TJMultiblockInfoPage {
                     .build());
         }
         return shapeInfos;
+    }
+
+    @Override
+    public float getDefaultZoom() {
+        return 0.75F;
     }
 
     @Override

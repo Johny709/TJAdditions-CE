@@ -104,7 +104,6 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         builder.voltageInLine(this.inputEnergyContainer)
                 .voltageTierLine(this.tier)
                 .energyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
-                .addDistinctLine(this.recipeLogic.isDistinct())
                 .isWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress(), 998)
                 .addRecipeInputLine(this.recipeLogic, 999)
                 .addRecipeOutputLine(this.recipeLogic, 1000);

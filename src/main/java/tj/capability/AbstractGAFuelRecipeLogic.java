@@ -217,7 +217,7 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
     protected void progressRecipe(int progress) {
         if (this.importEnergySupplier.get().removeEnergy(this.energyPerTick) == -this.energyPerTick) {
             this.progress++;
-        } else if (this.progress > 0)
+        } else if (this.progress > 1)
             this.progress--;
     }
 

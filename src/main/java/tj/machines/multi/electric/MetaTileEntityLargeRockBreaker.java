@@ -72,7 +72,7 @@ public class MetaTileEntityLargeRockBreaker extends TJRecipeMapMultiblockControl
     protected void addDisplayText(UIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (this.isStructureFormed())
-            builder.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.4", this.getParallel() * this.slices));
+            builder.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.4", this.getParallel()));
     }
 
     @Override
