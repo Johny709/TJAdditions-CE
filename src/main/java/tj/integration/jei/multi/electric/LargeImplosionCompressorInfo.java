@@ -3,6 +3,7 @@ package tj.integration.jei.multi.electric;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.components.PistonCasing;
+import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.blocks.BlockBoilerCasing;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
 
 public class LargeImplosionCompressorInfo extends TJMultiblockInfoPage {
@@ -30,12 +32,12 @@ public class LargeImplosionCompressorInfo extends TJMultiblockInfoPage {
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
         List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        MultiblockShapeInfo.Builder builder = MultiblockShapeInfo.builder()
-                .aisle("CCCCC", "F~~~F", "F~~~F", "F~~~F", "F~~~F", "F~~~F", "CCCCC")
-                .aisle("ICCCC", "~PGP~", "~PGP~", "~PGP~", "~PGP~", "~PGP~", "CCCCC")
-                .aisle("SCpCE", "~G#G~", "~G#G~", "~G#G~", "~G#G~", "~G#G~", "CCmCC")
-                .aisle("OCCCM", "~PGP~", "~PGP~", "~PGP~", "~PGP~", "~PGP~", "CCCCC")
-                .aisle("CCCCC", "F~~~F", "F~~~F", "F~~~F", "F~~~F", "F~~~F", "CCCCC")
+        GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+                .aisle("CCECC", "F~~~F", "F~~~F", "F~~~F", "F~~~F", "F~~~F", "CCCCC")
+                .aisle("CCCCC", "~PGP~", "~PGP~", "~PGP~", "~PGP~", "~PGP~", "CCCCC")
+                .aisle("CCpCC", "~G#G~", "~G#G~", "~G#G~", "~G#G~", "~G#G~", "CCmCC")
+                .aisle("CCCCM", "~PGP~", "~PGP~", "~PGP~", "~PGP~", "~PGP~", "CCCCC")
+                .aisle("CISOC", "F~~~F", "F~~~F", "F~~~F", "F~~~F", "F~~~F", "CCCCC")
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
                 .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())

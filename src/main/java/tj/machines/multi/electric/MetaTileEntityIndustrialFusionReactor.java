@@ -331,10 +331,9 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             if (this.parallelLayer != lastParallelLayer) {
                 playerIn.sendMessage(new TextComponentTranslation(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
             } else playerIn.sendMessage(new TextComponentTranslation(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.fail" : "tj.multiblock.parallel.layer.increment.fail", this.parallelLayer));
-            this.structurePattern = this.createStructurePattern();
-            this.invalidateStructure();
             this.writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
-            this.markDirty();
+            this.invalidateStructure();
+            this.structurePattern = this.createStructurePattern();
         }
         return true;
     }
@@ -365,8 +364,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         super.receiveCustomData(dataId, buf);
         if (dataId == PARALLEL_LAYER) {
             this.parallelLayer = buf.readInt();
-            this.structurePattern = this.createStructurePattern();
             this.invalidateStructure();
+            this.structurePattern = this.createStructurePattern();
             this.scheduleRenderUpdate();
         } else if (dataId == 128) {
             this.readActiveBlockPacket(buf);
