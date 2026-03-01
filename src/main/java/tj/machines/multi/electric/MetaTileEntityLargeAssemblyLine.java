@@ -10,9 +10,11 @@ import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockContr
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
+import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.CountableIngredient;
@@ -24,15 +26,19 @@ import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
+import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityMultiblockPart;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
 import tj.TJRecipeMaps;
 import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockController;
@@ -41,12 +47,17 @@ import tj.util.ItemStackHelper;
 
 import javax.annotation.Nonnull;
 
+import java.util.*;
+import java.util.function.BiFunction;
+
+
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
 
 public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockController {
 
+    private final List<BlockPos> inputBusPos = new ArrayList<>();
     private int parallelLayer = 4;
 
     public MetaTileEntityLargeAssemblyLine(ResourceLocation metaTileEntityId) {
@@ -63,10 +74,12 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     public boolean checkRecipe(Recipe recipe) {
         for (int i = 0; i < recipe.getInputs().size(); i++) {
             CountableIngredient ingredient = recipe.getInputs().get(i);
+            IItemHandlerModifiable inputBus = this.getInputBusAt(i);
+            if (inputBus == null) continue;
             if (ingredient.getCount() > 0) {
-                if (ItemStackHelper.extractFromItemHandlerByIngredient(this.getInputBus(i), ingredient.getIngredient(), ingredient.getCount(), true) < ingredient.getCount())
+                if (ItemStackHelper.extractFromItemHandlerByIngredient(inputBus, ingredient.getIngredient(), ingredient.getCount(), true) < ingredient.getCount())
                     return false;
-            } else if (!ItemStackHelper.checkItemHandlerForIngredient(this.getInputBus(i), ingredient.getIngredient()))
+            } else if (!ItemStackHelper.checkItemHandlerForIngredient(inputBus, ingredient.getIngredient()))
                 return false;
         }
         return true;
@@ -93,7 +106,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
                 .where('A', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING)))
                 .where('a', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.ASSEMBLER_CASING)))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(GregicAdditionsCapabilities.MAINTENANCE_HATCH)))
-                .where('I', abilityPartPredicate(MultiblockAbility.IMPORT_ITEMS))
+                .where('I', tilePredicate(inputBusPredicate()))
                 .where('O', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.EXPORT_ITEMS)))
                 .where('F', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS)))
                 .where('e', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.INPUT_ENERGY)))
@@ -108,13 +121,36 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
         return MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID);
     }
 
+    public static BiFunction<BlockWorldState, MetaTileEntity, Boolean> inputBusPredicate() {
+        return (state, tile) -> {
+            if (tile instanceof MetaTileEntityMultiblockPart) {
+                MetaTileEntityMultiblockPart multiblockPart = (MetaTileEntityMultiblockPart) tile;
+                if (multiblockPart instanceof IMultiblockAbilityPart<?>) {
+                    IMultiblockAbilityPart<?> abilityPart = (IMultiblockAbilityPart<?>) multiblockPart;
+                    boolean isInputBus = abilityPart.getAbility() == MultiblockAbility.IMPORT_ITEMS;
+                    if (isInputBus) state.getMatchContext().getOrCreate("InputBuses", HashSet::new).add(state.getPos());
+                    return isInputBus;
+                }
+            }
+            return false;
+        };
+    }
+
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
         int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
+        this.inputBusPos.addAll(context.getOrDefault("InputBuses", new HashSet<>()));
+        this.inputBusPos.sort(Comparator.comparing(pos -> Math.abs(pos.getX() - this.getPos().getX()) + Math.abs(pos.getY() - this.getPos().getY()) + Math.abs(pos.getZ() - this.getPos().getZ())));
         this.tier = Math.min(conveyor, robotArm);
         this.maxVoltage = 8L << this.tier * 2;
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.inputBusPos.clear();
     }
 
     @Override
@@ -173,6 +209,14 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.parallelLayer = data.getInteger("slices");
+    }
+
+    private IItemHandlerModifiable getInputBusAt(int index) {
+        TileEntity tileEntity = this.getWorld().getTileEntity(this.inputBusPos.get(index));
+        if (!(tileEntity instanceof MetaTileEntityHolder))
+            return null;
+        MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) tileEntity).getMetaTileEntity();
+        return metaTileEntity != null ? metaTileEntity.getImportItems() : null;
     }
 
     @Override
