@@ -43,6 +43,9 @@ import tj.TJConfig;
 import tj.TJRecipeMaps;
 import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockController;
 import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.capability.OverclockManager;
+import tj.capability.impl.handler.IAssemblyHandler;
+import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.util.ItemStackHelper;
 
 import javax.annotation.Nonnull;
@@ -50,18 +53,18 @@ import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.BiFunction;
 
-
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
 
-public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockController {
+
+public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockController implements IAssemblyHandler {
 
     private final List<BlockPos> inputBusPos = new ArrayList<>();
     private int parallelLayer = 4;
 
     public MetaTileEntityLargeAssemblyLine(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, GARecipeMaps.ASSEMBLY_LINE_RECIPES, TJRecipeMaps.LARGE_ASSEMBLY_LINE_RECIPES);
+        super(metaTileEntityId, true, false, GARecipeMaps.ASSEMBLY_LINE_RECIPES, TJRecipeMaps.LARGE_ASSEMBLY_LINE_RECIPES);
         this.reinitializeStructurePattern();
     }
 
@@ -71,18 +74,15 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     }
 
     @Override
-    public boolean checkRecipe(Recipe recipe) {
-        for (int i = 0; i < recipe.getInputs().size(); i++) {
-            CountableIngredient ingredient = recipe.getInputs().get(i);
-            IItemHandlerModifiable inputBus = this.getInputBusAt(i);
-            if (inputBus == null) continue;
-            if (ingredient.getCount() > 0) {
-                if (ItemStackHelper.extractFromItemHandlerByIngredient(inputBus, ingredient.getIngredient(), ingredient.getCount(), true) < ingredient.getCount())
-                    return false;
-            } else if (!ItemStackHelper.checkItemHandlerForIngredient(inputBus, ingredient.getIngredient()))
-                return false;
-        }
-        return true;
+    protected BasicRecipeLogic<IAssemblyHandler> createRecipeLogic() {
+        return new AssemblyRecipeLogic(this);
+    }
+
+    @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        super.preOverclock(overclockManager, recipe);
+        if (this.recipeMapIndex > 0)
+            overclockManager.setParallel(1);
     }
 
     @Override
@@ -142,7 +142,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
         int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
         int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
         this.inputBusPos.addAll(context.getOrDefault("InputBuses", new HashSet<>()));
-        this.inputBusPos.sort(Comparator.comparing(pos -> Math.abs(pos.getX() - this.getPos().getX()) + Math.abs(pos.getY() - this.getPos().getY()) + Math.abs(pos.getZ() - this.getPos().getZ())));
+        this.inputBusPos.sort(Comparator.comparingInt(pos -> Math.abs(pos.getX() - this.getPos().getX()) + Math.abs(pos.getY() - this.getPos().getY()) + Math.abs(pos.getZ() - this.getPos().getZ())));
         this.tier = Math.min(conveyor, robotArm);
         this.maxVoltage = 8L << this.tier * 2;
     }
@@ -211,7 +211,8 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
         this.parallelLayer = data.getInteger("slices");
     }
 
-    private IItemHandlerModifiable getInputBusAt(int index) {
+    @Override
+    public IItemHandlerModifiable getInputBusAt(int index) {
         TileEntity tileEntity = this.getWorld().getTileEntity(this.inputBusPos.get(index));
         if (!(tileEntity instanceof MetaTileEntityHolder))
             return null;
@@ -248,5 +249,36 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     @Override
     public int getParallel() {
         return this.recipeMapIndex == 0 ? TJConfig.largeAssemblyLine.stack : super.getParallel();
+    }
+
+    private static class AssemblyRecipeLogic extends BasicRecipeLogic<IAssemblyHandler> {
+
+        public AssemblyRecipeLogic(MetaTileEntity metaTileEntity) {
+            super(metaTileEntity);
+        }
+
+        @Override
+        protected int checkItemInputsAmount(int parallels, Recipe recipe, IItemHandlerModifiable inputBus) {
+            for (int i = 0; i < recipe.getInputs().size(); i++) {
+                CountableIngredient ingredient = recipe.getInputs().get(i);
+                inputBus = this.handler.getInputBusAt(i);
+                if (inputBus == null) return 0;
+                if (ingredient.getCount() > 0) {
+                    parallels = Math.min(parallels, ItemStackHelper.extractFromItemHandlerByIngredient(inputBus, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
+                    if (parallels < 1) return 0;
+                } else if (!ItemStackHelper.checkItemHandlerForIngredient(inputBus, ingredient.getIngredient()))
+                    return 0;
+            }
+            return parallels;
+        }
+
+        @Override
+        protected void consumeItemInputs(int parallels, Recipe recipe, IItemHandlerModifiable inputBus) {
+            for (int i = 0; i < recipe.getInputs().size(); i++) {
+                CountableIngredient ingredient = recipe.getInputs().get(i);
+                inputBus = this.handler.getInputBusAt(i);
+                ItemStackHelper.extractFromItemHandlerByIngredientToList(inputBus, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.getItemInputs());
+            }
+        }
     }
 }

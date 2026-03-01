@@ -32,7 +32,7 @@ import java.util.Map;
 
 public abstract class TJRecipeMapMultiblockController extends TJMultiblockControllerBase implements IRecipeHandler {
 
-    protected final BasicRecipeLogic recipeLogic = this.createRecipeLogic();
+    protected final BasicRecipeLogic<? extends IRecipeHandler> recipeLogic = this.createRecipeLogic();
     protected final RecipeMap<?> recipeMap;
     protected long maxVoltage;
     protected int tier;
@@ -56,8 +56,8 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", this.getChanceMultiplier()));
     }
 
-    protected BasicRecipeLogic createRecipeLogic() {
-        return new BasicRecipeLogic(this);
+    protected BasicRecipeLogic<? extends IRecipeHandler> createRecipeLogic() {
+        return new BasicRecipeLogic<>(this);
     }
 
     @Override
