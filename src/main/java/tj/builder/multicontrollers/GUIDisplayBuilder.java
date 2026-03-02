@@ -118,9 +118,20 @@ public final class GUIDisplayBuilder {
     }
 
     public GUIDisplayBuilder addTranslationLine(int priority, String locale, Object... format) {
+        return this.addTranslationLine(null, priority, locale, format);
+    }
+
+    public GUIDisplayBuilder addTranslationLine(Consumer<TextComponentString> componentBuilder, String locale, Object... format) {
+        return this.addTranslationLine(componentBuilder, 0, locale, format);
+    }
+
+    public GUIDisplayBuilder addTranslationLine(Consumer<TextComponentString> componentBuilder, int priority, String locale, Object... format) {
+        TextComponentString component = new TextComponentString(I18n.translateToLocalFormatted(locale, format));
+        if (componentBuilder != null)
+            componentBuilder.accept(component);
         if (priority != 0)
-            return this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted(locale, format)), priority);
-        else return this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted(locale, format)));
+            return this.addTextComponent(component, priority);
+        else return this.addTextComponent(component);
     }
 
     public GUIDisplayBuilder addEmptyLine() {

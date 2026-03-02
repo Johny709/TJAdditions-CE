@@ -145,10 +145,10 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
 
     protected void addDebugDisplayText(GUIDisplayBuilder builder) {
         builder.addTranslationLine("tj.multiblock.parallel.debug.cache.capacity", this.recipeLogic.getRecipeLRUCache().getCapacity())
-                .addTextComponent(new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit", this.recipeLogic.getRecipeLRUCache().getCacheHit())
-                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))))
-                .addTextComponent(new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss", this.recipeLogic.getRecipeLRUCache().getCacheMiss())
-                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))))
+                .addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))),
+                        "tj.multiblock.parallel.debug.cache.hit", this.recipeLogic.getRecipeLRUCache().getCacheHit())
+                .addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))),
+                        "tj.multiblock.parallel.debug.cache.miss", this.recipeLogic.getRecipeLRUCache().getCacheMiss())
                 .addEmptyLine();
         int i = 1;
         for (Recipe recipe : this.recipeLogic.getRecipeLRUCache()) {
