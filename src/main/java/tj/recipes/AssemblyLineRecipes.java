@@ -2,6 +2,7 @@ package tj.recipes;
 
 import gregicadditions.item.metal.MetalCasing1;
 import gregtech.api.items.metaitem.MetaItem;
+import gregtech.api.recipes.RecipeBuilder;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidRegistry;
 import tj.blocks.BlockFusionCasings;
@@ -23,6 +24,7 @@ import net.minecraft.item.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
+import static tj.TJRecipeMaps.LARGE_ASSEMBLY_LINE_RECIPES;
 import static tj.items.TJMetaItems.*;
 import static tj.items.TJMetaItems.FLUID_REGULATOR_MAX;
 import static tj.machines.TJMetaTileEntities.*;
@@ -42,9 +44,11 @@ public class AssemblyLineRecipes {
         MetaItem<?>.MetaValueItem[] motors = {ELECTRIC_MOTOR_LV, ELECTRIC_MOTOR_MV, ELECTRIC_MOTOR_HV, ELECTRIC_MOTOR_EV, ELECTRIC_MOTOR_IV, ELECTRIC_MOTOR_LUV, ELECTRIC_MOTOR_ZPM, ELECTRIC_MOTOR_UV, ELECTRIC_MOTOR_UHV, ELECTRIC_MOTOR_UEV, ELECTRIC_MOTOR_UIV, ELECTRIC_MOTOR_UMV, ELECTRIC_MOTOR_UXV, ELECTRIC_MOTOR_MAX};
         MetaItem<?>.MetaValueItem[] emitters = {EMITTER_LV, EMITTER_MV, EMITTER_HV, EMITTER_EV, EMITTER_IV, EMITTER_LUV, EMITTER_ZPM, EMITTER_UV, EMITTER_UHV, EMITTER_UEV, EMITTER_UIV, EMITTER_UMV, EMITTER_UXV, EMITTER_MAX};
         MetaItem<?>.MetaValueItem[] sensors = {SENSOR_LV, SENSOR_MV, SENSOR_HV, SENSOR_EV, SENSOR_IV, SENSOR_LUV, SENSOR_ZPM, SENSOR_UV, SENSOR_UHV, SENSOR_UEV, SENSOR_UIV, SENSOR_UMV, SENSOR_UXV, SENSOR_MAX};
+        MetaItem<?>.MetaValueItem[] pistons = {ELECTRIC_PISTON_LV, ELECTRIC_PISTON_MV, ELECTRIC_PISTON_HV, ELECTRIC_PISTON_EV, ELECTRIC_PISTON_IV, ELECTRIC_PISTON_LUV, ELECTRIC_PISTON_ZPM, ELECTRIC_PISTON_UV, ELECTRIC_PISTON_UHV, ELECTRIC_PISTON_UEV, ELECTRIC_PISTON_UIV, ELECTRIC_PISTON_UMV, ELECTRIC_PISTON_UXV, ELECTRIC_PISTON_MAX};
         MetaItem<?>.MetaValueItem[] pumps = {ELECTRIC_PUMP_LV, ELECTRIC_PUMP_MV, ELECTRIC_PUMP_HV, ELECTRIC_PUMP_EV, ELECTRIC_PUMP_IV, ELECTRIC_PUMP_LUV, ELECTRIC_PUMP_ZPM, ELECTRIC_PUMP_UV, ELECTRIC_PUMP_UHV, ELECTRIC_PUMP_UEV, ELECTRIC_PUMP_UIV, ELECTRIC_PUMP_UMV, ELECTRIC_PUMP_UXV, ELECTRIC_PUMP_MAX};
         MetaItem<?>.MetaValueItem[] conveyors = {CONVEYOR_MODULE_LV, CONVEYOR_MODULE_MV, CONVEYOR_MODULE_HV, CONVEYOR_MODULE_EV, CONVEYOR_MODULE_IV, CONVEYOR_MODULE_LUV, CONVEYOR_MODULE_ZPM, CONVEYOR_MODULE_UV, CONVEYOR_MODULE_UHV, CONVEYOR_MODULE_UEV, CONVEYOR_MODULE_UIV, CONVEYOR_MODULE_UMV, CONVEYOR_MODULE_UXV, CONVEYOR_MODULE_MAX};
         MetaItem<?>.MetaValueItem[] robotArms = {ROBOT_ARM_LV, ROBOT_ARM_MV, ROBOT_ARM_HV, ROBOT_ARM_EV, ROBOT_ARM_IV, ROBOT_ARM_LUV, ROBOT_ARM_ZPM, ROBOT_ARM_UV, ROBOT_ARM_UHV, ROBOT_ARM_UEV, ROBOT_ARM_UIV, ROBOT_ARM_UMV, ROBOT_ARM_UXV, ROBOT_ARM_MAX};
+        MetaItem<?>.MetaValueItem[] fieldGens = {FIELD_GENERATOR_LV, FIELD_GENERATOR_MV, FIELD_GENERATOR_HV, FIELD_GENERATOR_EV, FIELD_GENERATOR_IV, FIELD_GENERATOR_LUV, FIELD_GENERATOR_ZPM, FIELD_GENERATOR_UV, FIELD_GENERATOR_UHV, FIELD_GENERATOR_UEV, FIELD_GENERATOR_UIV, FIELD_GENERATOR_UMV, FIELD_GENERATOR_UXV, FIELD_GENERATOR_MAX};
         MetaItem<?>.MetaValueItem[] regulators = {FLUID_REGULATOR_LV, FLUID_REGULATOR_MV, FLUID_REGULATOR_HV, FLUID_REGULATOR_EV, FLUID_REGULATOR_IV, FLUID_REGULATOR_LUV, FLUID_REGULATOR_ZPM, FLUID_REGULATOR_UV, FLUID_REGULATOR_UHV, null, null, FLUID_REGULATOR_UMV, null, FLUID_REGULATOR_MAX};
 
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
@@ -1142,6 +1146,13 @@ public class AssemblyLineRecipes {
                 .inputs(UHPIC.getStackForm(16), GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TALONITE, 16), UHPIC.getStackForm(16), UHPIC.getStackForm(16), GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TALONITE, 16))
                 .outputs(ENDER_BATTERY_TOWER.getStackForm())
                 .duration(2000).EUt(GAValues.VA[10])
+                .buildAndRegister();
+
+        RecipeBuilder<?> largeAssemblyRecipeBuilder = LARGE_ASSEMBLY_LINE_RECIPES.recipeBuilder();
+        for (int i = 0; i < 14; i++)
+            largeAssemblyRecipeBuilder.inputs(motors[i].getStackForm(64), emitters[i].getStackForm(64), sensors[i].getStackForm(64), pistons[i].getStackForm(64), pumps[i].getStackForm(64), conveyors[i].getStackForm(64), robotArms[i].getStackForm(64), fieldGens[i].getStackForm(64));
+        largeAssemblyRecipeBuilder.outputs(new ItemStack(Blocks.DIRT))
+                .duration(1200).EUt(GAValues.VA[14])
                 .buildAndRegister();
     }
 }

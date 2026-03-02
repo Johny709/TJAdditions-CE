@@ -1,7 +1,8 @@
 package tj;
 
 
-import tj.builder.SteamRecipeBuilder;
+import tj.builder.recipes.RecipeMapLargeAssemblyLine;
+import tj.builder.recipes.SteamRecipeBuilder;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.api.recipes.RecipeMap;
@@ -36,5 +37,5 @@ public final class TJRecipeMaps {
 
     public static final RecipeMap<SimpleRecipeBuilder> ROCK_BREAKER_RECIPES = new RecipeMap<>("rock_breaker", 1, 1, 1, 1, 0, 2, 0, 0, new SimpleRecipeBuilder()).setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL);
 
-    public static final RecipeMap<SimpleRecipeBuilder> LARGE_ASSEMBLY_LINE_RECIPES = new RecipeMap<>("large_assembly_line", 1, 256, 1, 1, 0, 64, 0, 0, new SimpleRecipeBuilder());
+    public static final RecipeMapLargeAssemblyLine LARGE_ASSEMBLY_LINE_RECIPES = new RecipeMapLargeAssemblyLine("large_assembly_line", 1, 256, 1, 1, 0, 64, 0, 0);
 }

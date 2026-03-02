@@ -12,7 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RecipeUtility {
+public final class RecipeUtility {
+
+    private RecipeUtility() {}
 
     public static NonNullList<CountableIngredient> mergeIngredients(NonNullList<Ingredient> ingredients) {
         NonNullList<CountableIngredient> countableIngredients = NonNullList.create();

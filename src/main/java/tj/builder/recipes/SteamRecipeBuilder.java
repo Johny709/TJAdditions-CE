@@ -1,4 +1,4 @@
-package tj.builder;
+package tj.builder.recipes;
 
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeBuilder;

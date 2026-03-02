@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class WidgetTabBuilder {
+public final class WidgetTabBuilder {
 
     private final LinkedHashMap<ItemTabInfo, AbstractWidgetGroup> tabs = new LinkedHashMap<>();
     private final List<Widget> widgetGroup = new ArrayList<>();
