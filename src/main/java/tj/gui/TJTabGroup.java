@@ -8,6 +8,7 @@ import gregtech.api.gui.widgets.tab.TabListRenderer;
 import gregtech.api.util.Position;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.fml.relauncher.Side;
@@ -139,6 +140,16 @@ public class TJTabGroup extends AbstractWidgetGroup {
                 setSelectedTab(tabIndex);
             }
         }
+    }
+
+    @Override
+    public Object getIngredientOverMouse(int mouseX, int mouseY) {
+        return this.tabWidgets.get(this.selectedTabIndex).getIngredientOverMouse(mouseX, mouseY);
+    }
+
+    @Override
+    public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
+        return this.tabWidgets.get(this.selectedTabIndex).getPhantomTargets(ingredient);
     }
 
     private Tuple<ITabInfo, int[]> getTabOnMouse(int mouseX, int mouseY) {

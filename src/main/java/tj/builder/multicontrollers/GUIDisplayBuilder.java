@@ -123,6 +123,16 @@ public final class GUIDisplayBuilder {
         else return this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted(locale, format)));
     }
 
+    public GUIDisplayBuilder addEmptyLine() {
+        return this.addEmptyLine(0);
+    }
+
+    public GUIDisplayBuilder addEmptyLine(int priority) {
+        if (priority != 0)
+            return this.addTextComponent(new TextComponentString(""), priority);
+        else return this.addTextComponent(new TextComponentString(""));
+    }
+
     public GUIDisplayBuilder addEnergyStoredLine(long energyStored, long energyCapacity) {
         return this.addEnergyStoredLine(energyStored, energyCapacity, 0);
     }

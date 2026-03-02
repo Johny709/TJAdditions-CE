@@ -11,6 +11,7 @@ import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.common.items.MetaItems;
@@ -19,10 +20,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
@@ -136,11 +137,31 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     }
 
     protected void addDebugDisplayText(GUIDisplayBuilder builder) {
-        builder.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.capacity", this.recipeLogic.getRecipeLRUCache().getCapacity())))
-                .addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.hit", this.recipeLogic.getRecipeLRUCache().getCacheHit()))
+        builder.addTranslationLine("tj.multiblock.parallel.debug.cache.capacity", this.recipeLogic.getRecipeLRUCache().getCapacity())
+                .addTextComponent(new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit", this.recipeLogic.getRecipeLRUCache().getCacheHit())
                         .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))))
-                .addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.miss", this.recipeLogic.getRecipeLRUCache().getCacheMiss()))
-                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))));
+                .addTextComponent(new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss", this.recipeLogic.getRecipeLRUCache().getCacheMiss())
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))))
+                .addEmptyLine();
+        int i = 1;
+        for (Recipe recipe : this.recipeLogic.getRecipeLRUCache()) {
+            builder.addTranslationLine("tj.multiblock.recipe_cache.slot", i++)
+                    .addTranslationLine("tj.multiblock.recipe_cache.inputs");
+            for (CountableIngredient ingredient : recipe.getInputs())
+                builder.addItemStack(ingredient.getIngredient().getMatchingStacks()[0]);
+            for (FluidStack stack : recipe.getFluidInputs())
+                builder.addFluidStack(stack);
+            if (!recipe.getOutputs().isEmpty() || !recipe.getFluidOutputs().isEmpty())
+                builder.addTranslationLine("tj.multiblock.recipe_cache.outputs");
+            for (ItemStack stack : recipe.getOutputs())
+                builder.addItemStack(stack);
+            for (FluidStack stack : recipe.getFluidOutputs())
+                builder.addFluidStack(stack);
+            if (!recipe.getChancedOutputs().isEmpty())
+                builder.addTranslationLine("tj.multiblock.recipe_cache.chanced_outputs");
+            for (Recipe.ChanceEntry entry : recipe.getChancedOutputs())
+                builder.addItemStack(entry.getItemStack());
+        }
     }
 
     @Override

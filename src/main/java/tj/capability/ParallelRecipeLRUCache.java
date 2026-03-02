@@ -4,11 +4,12 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.recipes.Recipe;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
+import javax.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public final class ParallelRecipeLRUCache {
+public final class ParallelRecipeLRUCache implements Iterable<Recipe> {
 
     private final int capacity;
     private long cacheHit;
@@ -23,10 +24,6 @@ public final class ParallelRecipeLRUCache {
         this.recipeList.clear();
         this.cacheHit = 0;
         this.cacheMiss = 0;
-    }
-
-    public Iterator<Recipe> recipeIterator() {
-        return this.recipeList.iterator();
     }
 
     public void put(Recipe recipe) {
@@ -78,5 +75,11 @@ public final class ParallelRecipeLRUCache {
 
     public long getCacheMiss() {
         return this.cacheMiss;
+    }
+
+    @Nonnull
+    @Override
+    public Iterator<Recipe> iterator() {
+        return this.recipeList.iterator();
     }
 }
