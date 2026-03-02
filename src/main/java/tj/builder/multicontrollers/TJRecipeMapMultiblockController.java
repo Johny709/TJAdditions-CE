@@ -36,6 +36,7 @@ import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 
 import javax.annotation.Nullable;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,12 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, boolean hasMaintenance, boolean hasDistinct) {
         super(metaTileEntityId, hasMaintenance, hasDistinct);
         this.recipeMap = recipeMap;
+        this.recipeLogic.setActive(active -> this.activeDate = active ? Instant.now() : null);
+        this.recipeLogic.setProblem(problem -> this.activeDate = null);
+        this.recipeLogic.setWorking(working -> {
+            if (this.recipeLogic.isActive())
+                this.activeDate = working ? Instant.now() : null;
+        });
     }
 
     @Override

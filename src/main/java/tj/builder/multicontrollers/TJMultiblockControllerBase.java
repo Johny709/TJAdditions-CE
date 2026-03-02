@@ -57,6 +57,8 @@ import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.multiblockpart.TJMultiblockAbility;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -103,7 +105,8 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     protected IEnergyContainer inputEnergyContainer;
     protected IEnergyContainer outputEnergyContainer;
 
-    private Date placedDown = new Date();
+    protected Instant placedDown = Instant.now();
+    protected Instant activeDate;
 
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId) {
         this(metaTileEntityId, true, true);
@@ -327,12 +330,20 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     }
 
     protected void addMaintenanceDisplayText(GUIDisplayBuilder builder) {
-        long timeElapsed = new Date().getTime() - this.placedDown.getTime();
-        builder.addTranslationLine("tj.multiblock.date.placed_down", this.placedDown.toString())
-                .addTranslationLine("tj.multiblock.date.ago", timeElapsed / 3_600_000, (timeElapsed % 3_600_000) / 60000, (timeElapsed % 60000) / 1000)
+        Instant now = Instant.now();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMMM d, yyyy hh:mm:ss aa");
+        long timeElapsed = now.getEpochSecond() - this.placedDown.getEpochSecond();
+        builder.addTranslationLine("tj.multiblock.date.placed_down", dateFormat.format(Date.from(this.placedDown)))
+                .addTranslationLine("tj.multiblock.date.ago", timeElapsed / 3600, (timeElapsed % 3600) / 60, timeElapsed % 60)
                 .addEmptyLine()
-                .addMufflerDisplayLine(!this.hasMufflerHatch() || this.isMufflerFaceFree())
-                .addMaintenanceDisplayLines(this.getProblems(), this.hasProblems());
+                .addMufflerDisplayLine(!this.hasMufflerHatch() || this.isMufflerFaceFree(), 999)
+                .addMaintenanceDisplayLines(this.getProblems(), this.hasProblems(), 1000);
+        if (this.activeDate != null) {
+            long activeTime = now.getEpochSecond() - this.activeDate.getEpochSecond();
+            builder.addTranslationLine("tj.multiblock.date.active", dateFormat.format(Date.from(this.activeDate)))
+                    .addTranslationLine("tj.multiblock.date.ago", activeTime / 3600, (activeTime % 3600) / 60, activeTime % 60)
+                    .addEmptyLine();
+        }
     }
 
     @Override
@@ -429,7 +440,9 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
         data.setByte("Maintenance", this.maintenance_problems);
         data.setInteger("ActiveTimer", this.timeActive);
         data.setBoolean("IsWorking", this.isWorkingEnabled);
-        data.setLong("placedDownDate", this.placedDown.getTime());
+        data.setLong("placedDownDate", this.placedDown.getEpochSecond());
+        if (this.activeDate != null)
+            data.setLong("activeTime", this.activeDate.getEpochSecond());
         return data;
     }
 
@@ -440,7 +453,9 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
         this.timeActive = data.getInteger("ActiveTimer");
         this.isWorkingEnabled = data.getBoolean("IsWorking");
         if (data.hasKey("placedDownDate"))
-            this.placedDown = new Date(data.getLong("placedDownDate"));
+            this.placedDown = Instant.ofEpochSecond(data.getLong("placedDownDate"));
+        if (data.hasKey("activeTime"))
+            this.activeDate = Instant.ofEpochSecond(data.getLong("activeTime"));
     }
 
     public boolean hasDistinct() {
