@@ -52,15 +52,15 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
 
     public void invalidate() {}
 
-    public void setActive(BooleanConsumer activeConsumer) {
+    public void setActiveConsumer(BooleanConsumer activeConsumer) {
         this.activeConsumer = activeConsumer;
     }
 
-    public void setProblem(BooleanConsumer problemConsumer) {
+    public void setProblemConsumer(BooleanConsumer problemConsumer) {
         this.problemConsumer = problemConsumer;
     }
 
-    public void setWorking(BooleanConsumer workingConsumer) {
+    public void setWorkingConsumer(BooleanConsumer workingConsumer) {
         this.workingConsumer = workingConsumer;
     }
 

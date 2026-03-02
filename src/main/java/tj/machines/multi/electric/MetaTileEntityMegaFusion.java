@@ -77,7 +77,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
 
     public MetaTileEntityMegaFusion(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GARecipeMaps.ADV_FUSION_RECIPES, false, false);
-        this.recipeLogic.setActive(this::replaceEnergyPortsAsActive);
+        this.recipeLogic.setActiveConsumer(this::replaceEnergyPortsAsActive);
     }
 
     @Override

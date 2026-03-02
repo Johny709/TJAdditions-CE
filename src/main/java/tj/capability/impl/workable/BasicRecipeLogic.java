@@ -34,8 +34,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     private final List<FluidStack> fluidOutputs = new ArrayList<>();
     protected ItemStack[] lastItemInputs;
     protected FluidStack[] lastFluidInputs;
-    private boolean recipeRecheck = true;
     private boolean allowOverclocking = true;
+    private boolean recipeRecheck = true;
     private int itemOutputIndex;
     private int fluidOutputIndex;
 

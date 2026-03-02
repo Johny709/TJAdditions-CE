@@ -57,9 +57,9 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, boolean hasMaintenance, boolean hasDistinct) {
         super(metaTileEntityId, hasMaintenance, hasDistinct);
         this.recipeMap = recipeMap;
-        this.recipeLogic.setActive(active -> this.activeDate = active ? Instant.now() : null);
-        this.recipeLogic.setProblem(problem -> this.activeDate = null);
-        this.recipeLogic.setWorking(working -> {
+        this.recipeLogic.setActiveConsumer(active -> this.activeDate = active ? Instant.now() : null);
+        this.recipeLogic.setProblemConsumer(problem -> this.activeDate = null);
+        this.recipeLogic.setWorkingConsumer(working -> {
             if (this.recipeLogic.isActive())
                 this.activeDate = working ? Instant.now() : null;
         });

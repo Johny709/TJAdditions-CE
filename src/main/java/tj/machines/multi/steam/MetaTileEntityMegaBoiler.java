@@ -81,7 +81,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
         super(metaTileEntityId);
         this.boilerType = boilerType;
         this.parallel = parallel;
-        this.boilerRecipeLogic.setActive(this::replaceFireboxAsActive);
+        this.boilerRecipeLogic.setActiveConsumer(this::replaceFireboxAsActive);
         this.reinitializeStructurePattern();
     }
 
