@@ -49,14 +49,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IGeneratorInfo;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.TJCapabilities;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.impl.handler.ISteamHandler;
-import tj.capability.impl.workable.TJFuelRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.util.TJFluidUtils;
@@ -97,7 +96,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!isStructureFormed()) return;
         builder.customLine(text -> {
@@ -116,7 +115,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
 
                     if (!this.workableHandler.isVoidEnergy() && this.outputEnergyContainer.getEnergyCanBeInserted() < this.workableHandler.getProduction())
                         text.addTextComponent(new TextComponentTranslation("machine.universal.output.full").setStyle(new Style().setColor(RED)));
-                }).isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                }).AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override

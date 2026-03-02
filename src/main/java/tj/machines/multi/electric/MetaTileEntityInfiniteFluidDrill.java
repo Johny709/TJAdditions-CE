@@ -33,7 +33,7 @@ import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.capability.impl.workable.InfiniteFluidDrillWorkableHandler;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.textures.TJTextures;
@@ -90,7 +90,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
 
@@ -98,11 +98,11 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
             builder.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.drilling_rig.no_fluid").setStyle(new Style().setColor(RED)));
             return;
         }
-        builder.voltageInLine(this.inputEnergyContainer)
-                .voltageTierLine(this.tier)
-                .energyInputLine(this.inputEnergyContainer, this.maxVoltage)
+        builder.addVoltageInLine(this.inputEnergyContainer)
+                .addVoltageTierLine(this.tier)
+                .addEnergyInputLine(this.inputEnergyContainer, this.maxVoltage)
                 .addTranslationLine("gtadditions.multiblock.drilling_rig.fluid", this.workableHandler.getVeinFluid().getName())
-                .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+                .AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
                 .addRecipeInputLine(this.workableHandler)
                 .addRecipeOutputLine(this.workableHandler);
     }

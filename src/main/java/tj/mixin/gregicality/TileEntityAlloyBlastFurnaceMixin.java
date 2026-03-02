@@ -4,7 +4,7 @@ import gregicadditions.machines.multi.TileEntityAlloyBlastFurnace;
 import net.minecraft.util.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 
 @Mixin(value = TileEntityAlloyBlastFurnace.class, remap = false)
 public abstract class TileEntityAlloyBlastFurnaceMixin extends GARecipeMapMultiblockControllerMixin {
@@ -19,7 +19,7 @@ public abstract class TileEntityAlloyBlastFurnaceMixin extends GARecipeMapMultib
     }
 
     @Override
-    protected void configureDisplayText(UIDisplayBuilder builder) {
+    protected void configureDisplayText(GUIDisplayBuilder builder) {
         super.configureDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.addTranslationLine("gregtech.multiblock.blast_furnace.max_temperature", this.blastFurnaceTemperature)

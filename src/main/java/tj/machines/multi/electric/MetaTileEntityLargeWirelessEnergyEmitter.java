@@ -11,7 +11,7 @@ import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.impl.workable.LargeWirelessEnergyWorkableHandler;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.AdvancedDisplayWidget;
@@ -122,15 +122,15 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockContro
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (isStructureFormed())
-           builder.voltageInLine(this.inputEnergyContainer)
-                    .voltageTierLine(this.tier)
-                    .energyStoredLine(this.getEnergyStored(), this.getEnergyCapacity())
-                    .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
-                    .fluidInputLine(this.importFluidTank, Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
-                    .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+           builder.addVoltageInLine(this.inputEnergyContainer)
+                    .addVoltageTierLine(this.tier)
+                    .addEnergyStoredLine(this.getEnergyStored(), this.getEnergyCapacity())
+                    .addEnergyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
+                    .addFluidInputLine(this.importFluidTank, Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
+                    .AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
 
     }
 
@@ -290,7 +290,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockContro
         return flag;
     }
 
-    private Consumer<UIDisplayBuilder> addDisplayLinkedEntitiesText(int[] searchResults, int[] flags, String[] search) {
+    private Consumer<GUIDisplayBuilder> addDisplayLinkedEntitiesText(int[] searchResults, int[] flags, String[] search) {
         return (builder) -> {
             builder.addTextComponent(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("tj.multiblock.large_world_accelerator.linked") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getEntityLinkName().length + "§r)"));
             int results = 0;

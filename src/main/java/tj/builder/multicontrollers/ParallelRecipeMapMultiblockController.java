@@ -304,14 +304,14 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.voltageInLine(this.inputEnergyContainer)
-                    .voltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInputLine(this.inputEnergyContainer, this.getTotalEnergyConsumption())
-                    .energyBonusLine(this.energyBonus, this.isStructureFormed() && this.energyBonus >= 0)
-                    .recipeMapLine(this.getMultiblockRecipe());
+        builder.addVoltageInLine(this.inputEnergyContainer)
+                    .addVoltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
+                    .addEnergyInputLine(this.inputEnergyContainer, this.getTotalEnergyConsumption())
+                    .addEnergyBonusLine(this.energyBonus, this.isStructureFormed() && this.energyBonus >= 0)
+                    .AddRecipeMapLine(this.getMultiblockRecipe());
     }
 
     @Override
@@ -378,7 +378,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                 .appendSibling(this.displayFluids(recipe.getFluidOutputs(), "tj.multiblock.parallel.advanced.fluidOutput", parallel));
     }
 
-    private void addWorkableDisplayText(UIDisplayBuilder builder) {
+    private void addWorkableDisplayText(GUIDisplayBuilder builder) {
         builder.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer)))
                 .addTextComponent(new TextComponentTranslation("tj.multiblock.parallel.distinct")
                         .appendText(" ")
@@ -445,7 +445,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         }
     }
 
-    private void addDebugDisplayText(UIDisplayBuilder builder) {
+    private void addDebugDisplayText(GUIDisplayBuilder builder) {
         builder.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.capacity", this.recipeMapWorkable.previousRecipe.getCapacity())))
                 .addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.hit", this.recipeMapWorkable.previousRecipe.getCacheHit()))
                         .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))))

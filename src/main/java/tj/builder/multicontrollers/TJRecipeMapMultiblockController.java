@@ -13,22 +13,33 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMap;
+import gregtech.common.items.MetaItems;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
+import tj.builder.WidgetTabBuilder;
 import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.gui.TJGuiTextures;
+import tj.gui.widgets.AdvancedDisplayWidget;
+import tj.gui.widgets.impl.ScrollableDisplayWidget;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static tj.gui.TJGuiTextures.*;
 
 public abstract class TJRecipeMapMultiblockController extends TJMultiblockControllerBase implements IRecipeHandler {
 
@@ -90,6 +101,19 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     }
 
     @Override
+    protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
+        super.addTabs(tabBuilder, player);
+        tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
+            debugTab.add(new ToggleButtonWidget(175, 133, 18, 18, RESET_BUTTON, () -> false, b -> this.recipeLogic.getRecipeLRUCache().clear())
+                    .setTooltipText("tj.multiblock.parallel.recipe.clear"));
+            debugTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
+                    .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addDebugDisplayText, 0xFFFFFF)
+                            .setMaxWidthLimit(180))
+                    .setScrollPanelWidth(3));
+        });
+    }
+
+    @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
         if (!this.hasDistinct()) return;
@@ -98,17 +122,25 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.voltageInLine(this.inputEnergyContainer)
-                .voltageTierLine(this.tier)
-                .energyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
-                .isWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress(), 998)
+        builder.addVoltageInLine(this.inputEnergyContainer)
+                .addVoltageTierLine(this.tier)
+                .addEnergyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
+                .AddIsWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress(), 998)
                 .addRecipeInputLine(this.recipeLogic, 999)
                 .addRecipeOutputLine(this.recipeLogic, 1000);
         if (this.hasDistinct())
             builder.addDistinctLine(this.recipeLogic.isDistinct(), 997);
+    }
+
+    protected void addDebugDisplayText(GUIDisplayBuilder builder) {
+        builder.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.capacity", this.recipeLogic.getRecipeLRUCache().getCapacity())))
+                .addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.hit", this.recipeLogic.getRecipeLRUCache().getCacheHit()))
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))))
+                .addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.miss", this.recipeLogic.getRecipeLRUCache().getCacheMiss()))
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))));
     }
 
     @Override

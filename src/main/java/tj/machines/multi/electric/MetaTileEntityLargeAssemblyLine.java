@@ -42,7 +42,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
 import tj.TJRecipeMaps;
 import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockController;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IAssemblyHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
@@ -86,7 +86,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         builder.addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer);
     }

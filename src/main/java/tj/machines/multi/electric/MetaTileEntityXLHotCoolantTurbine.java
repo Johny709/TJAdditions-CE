@@ -13,7 +13,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.WidgetTabBuilder;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.workable.XLHotCoolantTurbineWorkableHandler;
@@ -178,7 +178,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         return maintenanceCount == 1;
     }
 
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         if (this.isStructureFormed()) {
             builder.customLine(text -> {
                 text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.xlHotCoolantTurbineWorkableHandler.getConsumption(),
@@ -195,7 +195,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                 text.addTextComponent(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode").appendText(" ")
                         .appendSibling(this.xlHotCoolantTurbineWorkableHandler.isFastMode() ? withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true")
                                 : withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false")));
-            }).isWorkingLine(this.xlHotCoolantTurbineWorkableHandler.isWorkingEnabled(), this.xlHotCoolantTurbineWorkableHandler.isActive(), this.xlHotCoolantTurbineWorkableHandler.getProgress(), this.xlHotCoolantTurbineWorkableHandler.getMaxProgress())
+            }).AddIsWorkingLine(this.xlHotCoolantTurbineWorkableHandler.isWorkingEnabled(), this.xlHotCoolantTurbineWorkableHandler.isActive(), this.xlHotCoolantTurbineWorkableHandler.getProgress(), this.xlHotCoolantTurbineWorkableHandler.getMaxProgress())
                     .addRecipeInputLine(this.xlHotCoolantTurbineWorkableHandler)
                     .addRecipeOutputLine(this.xlHotCoolantTurbineWorkableHandler);
         } else {
@@ -207,7 +207,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         }
     }
 
-    private void addRotorDisplayText(UIDisplayBuilder builder) {
+    private void addRotorDisplayText(GUIDisplayBuilder builder) {
         builder.addTextComponent(new TextComponentString(":")
                 .appendText(" ")
                 .appendSibling(withButton(new TextComponentString("[<]"), "leftPage"))

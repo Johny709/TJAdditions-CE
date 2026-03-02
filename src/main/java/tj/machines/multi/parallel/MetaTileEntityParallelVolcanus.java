@@ -31,7 +31,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
 import tj.capability.impl.workable.ParallelVolcanusRecipeLogic;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.util.TJFluidUtils;
@@ -88,12 +88,12 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.blast_furnace.max_temperature", this.blastFurnaceTemperature))
                 .addTextComponent(new TextComponentTranslation("gtadditions.multiblock.blast_furnace.additional_temperature", this.bonusTemperature))
-                .fluidInputLine(this.importFluidTank, this.pyro);
+                .addFluidInputLine(this.importFluidTank, this.pyro);
     }
 
     @Override

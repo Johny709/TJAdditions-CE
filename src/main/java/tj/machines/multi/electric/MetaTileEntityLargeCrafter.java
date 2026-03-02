@@ -46,7 +46,7 @@ import tj.builder.WidgetTabBuilder;
 import tj.capability.impl.workable.CrafterRecipeLogic;
 import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
 import tj.util.Color;
@@ -99,19 +99,19 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (this.isStructureFormed())
-            builder.voltageInLine(this.inputEnergyContainer)
-                    .voltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
-                    .energyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
+            builder.addVoltageInLine(this.inputEnergyContainer)
+                    .addVoltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
+                    .addEnergyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
                     .addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
                     .customLine(text -> text.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")
                             .appendSibling(this.recipeLogic.isDistinct()
                                     ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
                                     : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
-                    .isWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress())
+                    .AddIsWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress())
                     .addRecipeInputLine(this.recipeLogic)
                     .addRecipeOutputLine(this.recipeLogic);
     }

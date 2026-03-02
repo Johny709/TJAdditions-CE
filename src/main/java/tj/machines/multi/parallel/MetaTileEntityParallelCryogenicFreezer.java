@@ -28,7 +28,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
@@ -86,10 +86,10 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.fluidInputLine(this.importFluidTank, this.cryotheum);
+        builder.addFluidInputLine(this.importFluidTank, this.cryotheum);
     }
 
     @Override

@@ -10,7 +10,7 @@ import net.minecraftforge.fluids.FluidStack;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.impl.workable.TeleporterWorkableHandler;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.AdvancedDisplayWidget;
@@ -180,7 +180,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         Pair<Integer, BlockPos> selectedPos = this.workableHandler.getPosMap().get(this.workableHandler.getSelectedPosName());
@@ -206,16 +206,16 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
             distance = 0;
             distanceEU = 0;
         }
-        builder.voltageInLine(this.inputEnergyContainer)
-                .voltageTierLine(this.tier)
+        builder.addVoltageInLine(this.inputEnergyContainer)
+                .addVoltageTierLine(this.tier)
                 .customLine(text -> {
                     if (selectedPos != null) {
                         text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.world", world != null ? world.provider.getDimensionType().getName() : "Null", worldID)));
                         text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
                         text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("metaitem.linking.device.range", distance)));
                     }
-                }).energyInputLine(this.inputEnergyContainer, distanceEU, this.workableHandler.getMaxProgress())
-                .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                }).addEnergyInputLine(this.inputEnergyContainer, distanceEU, this.workableHandler.getMaxProgress())
+                .AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override
@@ -247,7 +247,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 
-    private void addScrollWidgets(List<Widget> tab, Consumer<UIDisplayBuilder> displayText2, int[] patternFlags, String[] search) {
+    private void addScrollWidgets(List<Widget> tab, Consumer<GUIDisplayBuilder> displayText2, int[] patternFlags, String[] search) {
         NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setBackgroundText("machine.universal.toggle.rename.entry")
@@ -365,7 +365,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
         return false;
     }
 
-    private Consumer<UIDisplayBuilder> addPosDisplayText(int[] searchResults, int[] flags, String[] search) {
+    private Consumer<GUIDisplayBuilder> addPosDisplayText(int[] searchResults, int[] flags, String[] search) {
         return (builder) -> {
             builder.addTextComponent(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.pos") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getPosMap().size() + "§r)"));
             int results = 0;
@@ -408,7 +408,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
         };
     }
 
-    private Consumer<UIDisplayBuilder> addQueueDisplayText(int[] searchResults, int[] flags, String[] search) {
+    private Consumer<GUIDisplayBuilder> addQueueDisplayText(int[] searchResults, int[] flags, String[] search) {
         return (builder) -> {
             builder.addTextComponent(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.queue") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getQueueTeleport().size() + "§r)"));
             int results = 0;

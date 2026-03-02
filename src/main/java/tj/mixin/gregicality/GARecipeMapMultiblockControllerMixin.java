@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.gui.TJGuiTextures;
 import tj.mixin.gregtech.RecipeMapMultiblockControllerMixin;
 
@@ -44,7 +44,7 @@ public abstract class GARecipeMapMultiblockControllerMixin extends RecipeMapMult
     }
 
     @Override
-    protected void configureDisplayText(UIDisplayBuilder builder) {
+    protected void configureDisplayText(GUIDisplayBuilder builder) {
         super.configureDisplayText(builder);
         if (!this.isStructureFormed() || !this.canDistinct) return;
         ITextComponent buttonText = new TextComponentTranslation("gtadditions.multiblock.universal.distinct");

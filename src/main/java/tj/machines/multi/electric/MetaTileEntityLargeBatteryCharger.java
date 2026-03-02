@@ -47,7 +47,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.impl.workable.BatteryChargerWorkableHandler;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.AdvancedDisplayWidget;
@@ -109,14 +109,14 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockControllerBas
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (this.isStructureFormed())
-            builder.voltageInLine(this.inputEnergyContainer)
-                    .voltageTierLine(this.tier)
-                    .energyStoredLine(this.getEnergyStored(), this.getEnergyCapacity())
-                    .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
-                    .fluidInputLine(this.importFluidTank, Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
+            builder.addVoltageInLine(this.inputEnergyContainer)
+                    .addVoltageTierLine(this.tier)
+                    .addEnergyStoredLine(this.getEnergyStored(), this.getEnergyCapacity())
+                    .addEnergyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
+                    .addFluidInputLine(this.importFluidTank, Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
                     .customLine(text -> {
                         text.addTextComponent(new TextComponentTranslation("machine.universal.item.output.transfer")
                                 .appendText(" ")
@@ -126,7 +126,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockControllerBas
                                 .appendText(" ")
                                 .appendSibling(this.workableHandler.getTransferMode() == INPUT ? withButton(new TextComponentTranslation("machine.universal.mode.transfer.input"), "input")
                                         : withButton(new TextComponentTranslation("machine.universal.mode.transfer.output"), "output")));
-                    }).isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                    }).AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override
@@ -277,7 +277,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockControllerBas
         return false;
     }
 
-    private Consumer<UIDisplayBuilder> addDisplayLinkedPlayersText(int[] searchResults, int[] flags, String[] search) {
+    private Consumer<GUIDisplayBuilder> addDisplayLinkedPlayersText(int[] searchResults, int[] flags, String[] search) {
         return (builder) -> {
             builder.addTextComponent(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("machine.universal.linked.players") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getEntityLinkName().length + "§r)"));
             int results = 0;

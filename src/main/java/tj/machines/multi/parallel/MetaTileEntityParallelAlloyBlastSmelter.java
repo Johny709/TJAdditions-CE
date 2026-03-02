@@ -30,7 +30,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
 import tj.capability.impl.workable.ParallelElectricBlastFurnaceRecipeLogic;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
@@ -77,7 +77,7 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.blast_furnace.max_temperature", this.blastFurnaceTemperature))

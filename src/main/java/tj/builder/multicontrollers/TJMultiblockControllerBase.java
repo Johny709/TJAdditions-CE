@@ -296,10 +296,10 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.add(new AdvancedTextWidget(10, -13, textList -> {
-            MultiblockDisplaysUtility.mufflerDisplay(textList, !this.hasMufflerHatch() || this.isMufflerFaceFree());
-            MultiblockDisplaysUtility.maintenanceDisplay(textList, this.maintenance_problems, this.hasProblems());
-            }, 0xFFFFFF).setMaxWidthLimit(180)));
+                maintenanceTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
+                        .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addMaintenanceDisplayText, 0xFFFFFF)
+                                .setMaxWidthLimit(180))
+                        .setScrollPanelWidth(3)));
     }
 
     protected void mainDisplayTab(List<Widget> widgetGroup) {
@@ -314,7 +314,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         if (!this.isStructureFormed()) {
             ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
             tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
@@ -322,6 +322,11 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
                     .setStyle(new Style().setColor(TextFormatting.RED)
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
         }
+    }
+
+    protected void addMaintenanceDisplayText(GUIDisplayBuilder builder) {
+        builder.addMufflerDisplayLine(!this.hasMufflerHatch() || this.isMufflerFaceFree())
+                .addMaintenanceDisplayLines(this.getProblems(), this.hasProblems());
     }
 
     @Override

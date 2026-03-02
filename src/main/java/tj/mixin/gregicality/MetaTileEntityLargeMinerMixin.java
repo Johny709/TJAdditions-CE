@@ -11,7 +11,7 @@ import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -53,7 +53,7 @@ public abstract class MetaTileEntityLargeMinerMixin extends GAMultiblockWithDisp
     public abstract long getNbBlock();
 
     @Override
-    protected void configureDisplayText(UIDisplayBuilder builder) {
+    protected void configureDisplayText(GUIDisplayBuilder builder) {
         super.configureDisplayText(builder);
         if (!this.isStructureFormed()) return;
         if (this.x.get() == Long.MAX_VALUE) {

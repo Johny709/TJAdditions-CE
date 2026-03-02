@@ -28,7 +28,7 @@ public abstract class TJMultiRecipeMapMultiblockController extends TJRecipeMapMu
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.recipe", new TextComponentTranslation("recipemap." + this.recipeMaps[this.getRecipeMapIndex()].getUnlocalizedName() + ".name")

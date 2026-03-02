@@ -28,7 +28,7 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
 import tj.util.consumers.QuadConsumer;
@@ -54,7 +54,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     private WrapScreen wrapScreen;
 
     private final List<QuadConsumer<String, String, ClickData, EntityPlayer>> clickHandlers = new ArrayList<>();
-    private final Consumer<UIDisplayBuilder> textSupplier;
+    private final Consumer<GUIDisplayBuilder> textSupplier;
     private final int color;
 
     private List<TextComponentWrapper<?>> displayText = new ArrayList<>();
@@ -64,7 +64,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     private BiConsumer<String, ClickData> clickHandler;
     private String textId;
 
-    public AdvancedDisplayWidget(int x, int y, Consumer<UIDisplayBuilder> textSupplier, int color) {
+    public AdvancedDisplayWidget(int x, int y, Consumer<GUIDisplayBuilder> textSupplier, int color) {
         super(new Position(x, y), Size.ZERO);
         this.textSupplier = textSupplier;
         this.color = color;
@@ -132,7 +132,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     @Override
     public void detectAndSendChanges() {
         boolean areEqual = true;
-        UIDisplayBuilder displayBuilder = new UIDisplayBuilder(false);
+        GUIDisplayBuilder displayBuilder = new GUIDisplayBuilder(false);
         this.textSupplier.accept(displayBuilder);
         List<TextComponentWrapper<?>> displayText = displayBuilder.getTextComponentWrappers();
         if (this.displayText != null && this.displayText.size() == displayText.size()) {

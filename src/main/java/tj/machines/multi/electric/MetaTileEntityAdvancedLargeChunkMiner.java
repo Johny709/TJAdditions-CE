@@ -48,7 +48,7 @@ import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.handler.IMinerHandler;
@@ -126,21 +126,21 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.voltageInLine(this.getInputEnergyContainer())
-                .energyInputLine(this.getInputEnergyContainer(), this.workableHandler.getEnergyPerTick())
+        builder.addVoltageInLine(this.getInputEnergyContainer())
+                .addEnergyInputLine(this.getInputEnergyContainer(), this.workableHandler.getEnergyPerTick())
                 .addTranslationLine("tj.multiblock.advanced_large_miner.chunk_index", this.workableHandler.getChunkIndex(), this.workableHandler.getChunkSize())
                 .addTextComponent(AdvancedTextWidget.withButton(new TextComponentTranslation(this.workableHandler.isSilkTouch() ? "tj.multiblock.advanced_large_miner.silktouch_true" : "tj.multiblock.advanced_large_miner.silktouch_false")
                         .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.advanced_large_miner.silktouch")))), this.workableHandler.isSilkTouch() ? "silkTouch:True" : "silkTouch:False"))
-                .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), 999)
+                .AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), 999)
                 .addRecipeOutputLine(this.workableHandler, 1000);
         if (this.workableHandler.isActive())
             builder.addTranslationLine("metaitem.linking.device.x", this.workableHandler.getX())
                     .addTranslationLine("metaitem.linking.device.y", this.workableHandler.getY())
                     .addTranslationLine("metaitem.linking.device.z", this.workableHandler.getZ())
-                    .fluidInputLine(this.getImportFluidTank(), this.drillingFluid)
+                    .addFluidInputLine(this.getImportFluidTank(), this.drillingFluid)
                     .addTranslationLine("gtadditions.machine.miner.fluid_usage", this.drillingFluid.amount, this.drillingFluid.getLocalizedName())
                     .addTranslationLine("gregtech.multiblock.large_miner.block_per_tick", this.workableHandler.getMiningSpeed());
     }

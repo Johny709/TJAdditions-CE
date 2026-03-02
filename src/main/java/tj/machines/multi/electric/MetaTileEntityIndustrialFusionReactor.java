@@ -53,7 +53,7 @@ import tj.blocks.BlockFusionCasings;
 import tj.blocks.BlockFusionGlass;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
 import tj.gui.widgets.TJCycleButtonWidget;
 import tj.machines.multi.BatchMode;
@@ -302,11 +302,11 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         builder.addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer);
         if (!this.isStructureFormed()) return;
-        builder.energyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
+        builder.addEnergyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
                 .customLine(text -> {
                     text.addTranslationLine("tj.multiblock.industrial_fusion_reactor.heat", this.heat);
                     if (this.recipe != null) {

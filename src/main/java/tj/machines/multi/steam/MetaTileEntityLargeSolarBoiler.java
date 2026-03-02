@@ -46,7 +46,7 @@ import tj.TJValues;
 import tj.blocks.AbilityBlocks;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IHeatInfo;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
@@ -153,7 +153,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         FluidStack water = Water.getFluid(this.waterConsumption), distilledWater = DistilledWater.getFluid(this.waterConsumption);
@@ -161,8 +161,8 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
         } else if (this.hasEnoughWater(distilledWater, this.waterConsumption)) {
             water = distilledWater;
         }
-        builder.temperatureLine(this.heat(), this.maxHeat())
-                .fluidInputLine(this.waterTank, water)
+        builder.AddTemperatureLine(this.heat(), this.maxHeat())
+                .addFluidInputLine(this.waterTank, water)
                 .customLine(text -> {
                     text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.steamProduction, 900));
 
@@ -175,7 +175,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
                         text.addTextComponent(new TextComponentTranslation("tj.multiblock.large_solar_boiler.obstructed").setStyle(new Style().setColor(TextFormatting.RED)));
                     if (!this.areSolarCollectorsValid())
                         text.addTextComponent(new TextComponentTranslation("tj.multiblock.large_solar_boiler.invalid").setStyle(new Style().setColor(TextFormatting.RED)));
-                }).isWorkingLine(this.isWorkingEnabled(), this.isActive(), this.getProgress(), this.getMaxProgress());
+                }).AddIsWorkingLine(this.isWorkingEnabled(), this.isActive(), this.getProgress(), this.getMaxProgress());
     }
 
     @Override

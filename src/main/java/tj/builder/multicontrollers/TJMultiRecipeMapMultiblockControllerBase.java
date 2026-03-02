@@ -159,15 +159,15 @@ public abstract class TJMultiRecipeMapMultiblockControllerBase extends MultiReci
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         if (!this.isStructureFormed()) {
             ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
             tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
             builder.customLine(text -> text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
                     .setStyle(new Style().setColor(TextFormatting.RED)
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
-        } else builder.voltageInLine(this.energyContainer)
-                .energyInputLine(this.energyContainer, this.recipeMapWorkable.getRecipeEUt())
+        } else builder.addVoltageInLine(this.energyContainer)
+                .addEnergyInputLine(this.energyContainer, this.recipeMapWorkable.getRecipeEUt())
                 .customLine(text -> {
                     if (this.canDistinct) {
                         ITextComponent buttonText = new TextComponentTranslation("gtadditions.multiblock.universal.distinct");
@@ -186,7 +186,7 @@ public abstract class TJMultiRecipeMapMultiblockControllerBase extends MultiReci
                 }).addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.framework", this.maxVoltage))
                 .addTextComponent(new TextComponentTranslation("gregtech.multiblock.recipe", new TextComponentTranslation("recipemap." + this.recipeMaps[this.getRecipeMapIndex()].getUnlocalizedName() + ".name")
                         .setStyle(new Style().setColor(TextFormatting.AQUA))))
-                .isWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), 999)
+                .AddIsWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), 999)
                 .addRecipeOutputLine(this.recipeMapWorkable, 1000);
     }
 

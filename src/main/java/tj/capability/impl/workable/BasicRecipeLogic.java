@@ -26,7 +26,7 @@ import static net.minecraft.item.ItemStack.areItemStacksEqual;
 
 public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkableHandler<R> implements IItemFluidHandlerInfo {
 
-    private final ParallelRecipeLRUCache previousRecipe = new ParallelRecipeLRUCache(10);
+    private final ParallelRecipeLRUCache recipeLRUCache = new ParallelRecipeLRUCache(10);
     private final OverclockManager<?> overclockManager = new OverclockManager<>();
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
@@ -56,12 +56,12 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     protected boolean startRecipe() {
         boolean start = false;
         IItemHandlerModifiable itemHandlerModifiable = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
-        Recipe recipe = this.previousRecipe.get(itemHandlerModifiable, this.handler.getImportFluidTank());
+        Recipe recipe = this.recipeLRUCache.get(itemHandlerModifiable, this.handler.getImportFluidTank());
         if (recipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(itemHandlerModifiable, this.handler.getImportFluidTank()))) {
             this.recipeRecheck = false;
             recipe = this.handler.getRecipeMap().findRecipe(this.handler.getMaxVoltage(), itemHandlerModifiable, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
             if (recipe != null)
-                this.previousRecipe.put(recipe);
+                this.recipeLRUCache.put(recipe);
         }
         if (recipe != null) {
             this.overclockManager.setEUt(recipe.getEUt());
@@ -285,6 +285,10 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
             return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
         return super.getCapability(capability);
+    }
+
+    public ParallelRecipeLRUCache getRecipeLRUCache() {
+        return this.recipeLRUCache;
     }
 
     @Override

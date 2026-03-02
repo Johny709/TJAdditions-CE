@@ -33,7 +33,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.gui.TJGuiTextures;
@@ -92,14 +92,14 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.voltageInLine(this.inputEnergyContainer)
-                .voltageTierLine(this.tier)
-                .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
-                .temperatureLine(this.workableHandler.heat(), this.workableHandler.maxHeat())
-                .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+        builder.addVoltageInLine(this.inputEnergyContainer)
+                .addVoltageTierLine(this.tier)
+                .addEnergyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
+                .AddTemperatureLine(this.workableHandler.heat(), this.workableHandler.maxHeat())
+                .AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
                 .customLine(text -> {
                     if (this.workableHandler.isOverheat())
                         text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.overheat").setStyle(new Style().setColor(TextFormatting.RED)));

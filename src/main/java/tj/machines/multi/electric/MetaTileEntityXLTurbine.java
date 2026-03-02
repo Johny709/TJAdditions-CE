@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.WidgetTabBuilder;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.workable.XLTurbineWorkableHandler;
@@ -137,7 +137,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.customLine(text -> {
@@ -155,12 +155,12 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
             text.addTextComponent(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode").appendText(" ")
                     .appendSibling(this.xlTurbineWorkableHandler.isFastMode() ? withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true")
                             : withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false")));
-        }).isWorkingLine(this.xlTurbineWorkableHandler.isWorkingEnabled(), this.xlTurbineWorkableHandler.isActive(), this.xlTurbineWorkableHandler.getProgress(), this.xlTurbineWorkableHandler.getMaxProgress())
+        }).AddIsWorkingLine(this.xlTurbineWorkableHandler.isWorkingEnabled(), this.xlTurbineWorkableHandler.isActive(), this.xlTurbineWorkableHandler.getProgress(), this.xlTurbineWorkableHandler.getMaxProgress())
                 .addRecipeInputLine(this.xlTurbineWorkableHandler)
                 .addRecipeOutputLine(this.xlTurbineWorkableHandler);
     }
 
-    private void addRotorDisplayText(UIDisplayBuilder builder) {
+    private void addRotorDisplayText(GUIDisplayBuilder builder) {
         builder.addTextComponent(new TextComponentString(":")
                 .appendText(" ")
                 .appendSibling(withButton(new TextComponentString("[<]"), "leftPage"))

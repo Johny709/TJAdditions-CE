@@ -43,7 +43,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.blocks.AdvEnergyPortCasings;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
 import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
@@ -147,10 +147,10 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.energyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
+        builder.addEnergyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
                 .customLine(text -> {
                     text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.message", this.getParallel())));
                     text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.heat", this.heat)));
