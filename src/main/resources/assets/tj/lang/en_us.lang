@@ -454,6 +454,8 @@ tj.multiblock.recipe_cache.slot=Cache §b%,d:
 tj.multiblock.recipe_cache.inputs=────Inputs────
 tj.multiblock.recipe_cache.outputs=────Outputs────
 tj.multiblock.recipe_cache.chanced_outputs=────Chanced Outputs────
+tj.multiblock.date.ago=Hours: §a%,d§r Minutes: §a%,d§r Seconds: §a%,d
+tj.multiblock.date.placed_down=Placed Down in: §b%s
 
 tj.multiblock.bars.fuel=§7Fuel: (§6%s§7) §6%s / %s L §7(§6%s%%§7)
 tj.multiblock.bars.energy=§7Energy: §e%s / %s EU §7(§e%s%%§7)

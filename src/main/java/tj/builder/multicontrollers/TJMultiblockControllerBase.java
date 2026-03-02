@@ -103,6 +103,8 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     protected IEnergyContainer inputEnergyContainer;
     protected IEnergyContainer outputEnergyContainer;
 
+    private Date placedDown = new Date();
+
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId) {
         this(metaTileEntityId, true, true);
     }
@@ -325,7 +327,11 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     }
 
     protected void addMaintenanceDisplayText(GUIDisplayBuilder builder) {
-        builder.addMufflerDisplayLine(!this.hasMufflerHatch() || this.isMufflerFaceFree())
+        long timeElapsed = new Date().getTime() - this.placedDown.getTime();
+        builder.addTranslationLine("tj.multiblock.date.placed_down", this.placedDown.toString())
+                .addTranslationLine("tj.multiblock.date.ago", timeElapsed / 3_600_000, (timeElapsed % 3_600_000) / 60000, (timeElapsed % 60000) / 1000)
+                .addEmptyLine()
+                .addMufflerDisplayLine(!this.hasMufflerHatch() || this.isMufflerFaceFree())
                 .addMaintenanceDisplayLines(this.getProblems(), this.hasProblems());
     }
 
@@ -423,6 +429,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
         data.setByte("Maintenance", this.maintenance_problems);
         data.setInteger("ActiveTimer", this.timeActive);
         data.setBoolean("IsWorking", this.isWorkingEnabled);
+        data.setLong("placedDownDate", this.placedDown.getTime());
         return data;
     }
 
@@ -432,6 +439,8 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
         this.maintenance_problems = data.getByte("Maintenance");
         this.timeActive = data.getInteger("ActiveTimer");
         this.isWorkingEnabled = data.getBoolean("IsWorking");
+        if (data.hasKey("placedDownDate"))
+            this.placedDown = new Date(data.getLong("placedDownDate"));
     }
 
     public boolean hasDistinct() {

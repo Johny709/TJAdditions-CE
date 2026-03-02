@@ -18,6 +18,8 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
 
     protected final H handler;
     protected BooleanConsumer activeConsumer;
+    protected BooleanConsumer problemConsumer;
+    protected BooleanConsumer workingConsumer;
     protected boolean isWorking = true;
     protected boolean isActive;
     protected boolean wasActiveAndNeedsUpdate;
@@ -50,11 +52,16 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
 
     public void invalidate() {}
 
-    /**
-     * @param activeConsumer isActive boolean consumer
-     */
     public void setActive(BooleanConsumer activeConsumer) {
         this.activeConsumer = activeConsumer;
+    }
+
+    public void setProblem(BooleanConsumer problemConsumer) {
+        this.problemConsumer = problemConsumer;
+    }
+
+    public void setWorking(BooleanConsumer workingConsumer) {
+        this.workingConsumer = workingConsumer;
     }
 
     /**
@@ -293,6 +300,8 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
     public void setWorkingEnabled(boolean isWorking) {
         this.isWorking = isWorking;
         if (!this.metaTileEntity.getWorld().isRemote) {
+            if (this.workingConsumer != null)
+                this.workingConsumer.apply(isWorking);
             this.writeCustomData(3, buffer -> buffer.writeBoolean(isWorking));
             this.metaTileEntity.markDirty();
         }
@@ -301,6 +310,8 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
     public void setProblem(boolean hasProblem) {
         this.hasProblem = hasProblem;
         if (!this.metaTileEntity.getWorld().isRemote) {
+            if (this.problemConsumer != null)
+                this.problemConsumer.apply(hasProblem);
             this.writeCustomData(2, buffer -> buffer.writeBoolean(hasProblem));
             this.metaTileEntity.markDirty();
         }
