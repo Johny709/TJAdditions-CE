@@ -60,8 +60,10 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         if (recipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(itemHandlerModifiable, this.handler.getImportFluidTank()))) {
             this.recipeRecheck = false;
             recipe = this.handler.getRecipeMap().findRecipe(this.handler.getMaxVoltage(), itemHandlerModifiable, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
-            if (recipe != null)
+            if (recipe != null) {
+                ((IGTRecipe) recipe).mergeRecipeInputs();
                 this.recipeLRUCache.put(recipe);
+            }
         }
         if (recipe != null) {
             this.overclockManager.setEuMultiplier(2.8F);
@@ -117,7 +119,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     }
 
     protected int checkItemInputsAmount(int parallels, Recipe recipe, IItemHandlerModifiable itemHandlerModifiable) {
-        for (CountableIngredient ingredient : recipe.getInputs()) {
+        for (CountableIngredient ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
             if (ingredient.getCount() > 0) {
                 parallels = Math.min(parallels, ItemStackHelper.extractFromItemHandlerByIngredient(itemHandlerModifiable, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
                 if (parallels < 1) return 0;
@@ -128,13 +130,13 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     }
 
     protected void consumeItemInputs(int parallels, Recipe recipe, IItemHandlerModifiable itemHandlerModifiable) {
-        for (CountableIngredient ingredient : recipe.getInputs()) {
+        for (CountableIngredient ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
             ItemStackHelper.extractFromItemHandlerByIngredientToList(itemHandlerModifiable, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.itemInputs);
         }
     }
 
     protected int checkFluidInputsAmount(int parallels, Recipe recipe) {
-        for (FluidStack stack : recipe.getFluidInputs()) {
+        for (FluidStack stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
             if (stack.amount > 0) {
                 parallels = Math.min(parallels, TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack, stack.amount * parallels, false) / stack.amount);
                 if (parallels < 1) return 0;
@@ -145,7 +147,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     }
 
     protected void consumeFluidInputs(int parallels, Recipe recipe) {
-        for (FluidStack stack : recipe.getFluidInputs()) {
+        for (FluidStack stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
             FluidStack fluid = stack.copy();
             fluid.amount *= parallels;
             TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack, stack.amount * parallels, true);

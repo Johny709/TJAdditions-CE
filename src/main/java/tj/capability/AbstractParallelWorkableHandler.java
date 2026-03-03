@@ -301,6 +301,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
         for (int i = 0; i < parallelList.tagCount(); i++)
             this.parallel[i] = parallelList.getIntAt(i);
         this.isDistinct = compound.getBoolean("distinct");
+        Arrays.fill(this.sleepTime, 1);
     }
 
     @Override
