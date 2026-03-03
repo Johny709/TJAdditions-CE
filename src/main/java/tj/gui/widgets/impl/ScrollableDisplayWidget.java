@@ -90,7 +90,13 @@ public class ScrollableDisplayWidget extends ScrollableListWidget {
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
         if (!this.canScroll) {
             return this.widgets.stream().filter(this::isWidgetClickable).anyMatch(it -> it.mouseWheelMove(mouseX, mouseY, wheelDelta));
-        } else return super.mouseWheelMove(mouseX, mouseY, wheelDelta);
+        } else if (this.isMouseOverElement(mouseX, mouseY, true)) {
+            int direction = -MathHelper.clamp(wheelDelta, -10, 10);
+            int moveDelta = direction * 10;
+            this.setScrollOffset(moveDelta);
+            return true;
+        }
+        return false;
     }
 
     @Override
