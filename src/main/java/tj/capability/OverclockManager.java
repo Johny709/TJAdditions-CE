@@ -6,6 +6,7 @@ public final class OverclockManager<T> {
     private int duration;
     private int parallel;
     private int chanceMultiplier;
+    private float euMultiplier;
     private T recipeProperty;
 
     public void setEUtAndDuration(long EUt, int duration) {
@@ -19,6 +20,10 @@ public final class OverclockManager<T> {
 
     public void setEUt(long EUt) {
         this.EUt = EUt;
+    }
+
+    public void setEuMultiplier(float euMultiplier) {
+        this.euMultiplier = euMultiplier;
     }
 
     public void setDuration(int duration) {
@@ -39,6 +44,10 @@ public final class OverclockManager<T> {
 
     public long getEUt() {
         return this.EUt;
+    }
+
+    public float getEuMultiplier() {
+        return this.euMultiplier;
     }
 
     public int getDuration() {

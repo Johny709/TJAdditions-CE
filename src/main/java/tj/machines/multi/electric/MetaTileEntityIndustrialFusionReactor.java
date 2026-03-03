@@ -58,6 +58,7 @@ import tj.capability.*;
 import tj.gui.widgets.TJCycleButtonWidget;
 import tj.machines.multi.BatchMode;
 import tj.textures.TJTextures;
+import tj.util.TextUtils;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
@@ -328,8 +329,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             int lastParallelLayer = this.parallelLayer;
             this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - 1 : this.parallelLayer + 1, 0, TJConfig.industrialFusionReactor.maximumSlices);
             if (this.parallelLayer != lastParallelLayer) {
-                playerIn.sendMessage(new TextComponentTranslation(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
-            } else playerIn.sendMessage(new TextComponentTranslation(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.fail" : "tj.multiblock.parallel.layer.increment.fail", this.parallelLayer));
+                playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
+            } else playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.fail" : "tj.multiblock.parallel.layer.increment.fail", this.parallelLayer));
             this.invalidateStructure();
             this.structurePattern = this.createStructurePattern();
             this.writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
@@ -424,8 +425,9 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         this.heat = data.getLong("Heat");
         this.parallelLayer = data.getInteger("Parallel");
         this.batchMode = BatchMode.values()[data.getInteger("BatchMode")];
-        if (data.hasKey("Parallel"))
+        if (data.hasKey("Parallel")) {
             this.structurePattern = createStructurePattern();
+        }
     }
 
     @Override

@@ -47,11 +47,17 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
     private ItemStack[] lastItemInputs;
     private FluidStack[] lastFluidInputs;
     private boolean distinctRecipes;
+    private boolean voidingItems;
+    private boolean voidingFluids;
 
     public ParallelRecipeLogic(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
         Arrays.fill(this.recipeRecheck, true);
         this.occupiedRecipes.add(0, null);
+        this.itemInputs.put(0, new ArrayList<>());
+        this.itemOutputs.put(0, new ArrayList<>());
+        this.fluidInputs.put(0, new ArrayList<>());
+        this.fluidOutputs.put(0, new ArrayList<>());
     }
 
     @Override
@@ -69,6 +75,10 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
             this.occupiedRecipes.remove(i);
         } else {
             this.occupiedRecipes.add(this.size - 1, null);
+            this.itemInputs.put(this.size - 1, new ArrayList<>());
+            this.itemOutputs.put(this.size - 1, new ArrayList<>());
+            this.fluidInputs.put(this.size - 1, new ArrayList<>());
+            this.fluidOutputs.put(this.size - 1, new ArrayList<>());
         }
     }
 
@@ -94,12 +104,13 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
                 this.recipeLRUCache.put(recipe);
         }
         if (recipe != null) {
+            this.overclockManager.setEuMultiplier(2.8F);
             this.overclockManager.setEUt(recipe.getEUt());
             this.overclockManager.setDuration(recipe.getDuration());
             this.overclockManager.setParallel(this.handler.getParallel());
             this.handler.preOverclock(this.overclockManager, recipe, i);
             if (this.handler.checkRecipe(recipe, i) && this.consumeRecipe(recipe, itemHandlerModifiable, i)) {
-                this.calculateOverclock(this.overclockManager.getEUt(), this.overclockManager.getDuration(), 2.8F, i);
+                this.calculateOverclock(this.overclockManager.getEUt(), this.overclockManager.getDuration(), this.overclockManager.getEuMultiplier(), i);
                 this.handler.postOverclock(this.overclockManager, recipe, i);
                 this.energyPerTick[i] = this.overclockManager.getEUt();
                 this.setMaxProgress(this.overclockManager.getDuration(), i);
@@ -142,7 +153,7 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
             fluid.amount *= parallels;
             this.fluidOutputs.get(i).add(fluid);
         }
-        this.overclockManager.setParallel(parallels);
+        this.overclockManager.setParallel(this.parallel[i] = parallels);
         return true;
     }
 
@@ -247,7 +258,7 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
         List<ItemStack> itemStackList = this.itemOutputs.get(i);
         for (int j = this.itemOutputIndex[i]; j < itemStackList.size(); j++) {
             ItemStack stack = itemStackList.get(j);
-            if (ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
+            if (this.voidingItems || ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
                 ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
                 this.itemOutputIndex[i]++;
             } else return false;
@@ -255,7 +266,7 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
         List<FluidStack> fluidStackList = this.fluidOutputs.get(i);
         for (int j = this.fluidOutputIndex[i]; j < fluidStackList.size(); j++) {
             FluidStack stack = fluidStackList.get(j);
-            if (this.handler.getExportFluidTank().fill(stack, false) == stack.amount) {
+            if (this.voidingFluids || this.handler.getExportFluidTank().fill(stack, false) == stack.amount) {
                 this.handler.getExportFluidTank().fill(stack, true);
                 this.fluidOutputIndex[i]++;
             } else return false;
@@ -284,7 +295,7 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
             recipeLockList.appendTag(new NBTTagByte((byte) (recipeLock ? 1 : 0)));
         for (int i = 0; i < this.occupiedRecipes.size(); i++) {
             Recipe recipe = this.occupiedRecipes.get(i);
-            if (recipe == null) continue;
+            if (!this.recipeLock[i] || recipe == null) continue;
             NBTTagCompound recipeCompound = new NBTTagCompound();
             NBTTagList recipeItemInputList = new NBTTagList(), recipeChancedOutputList = new NBTTagList(), recipeItemOutputList = new NBTTagList();
             NBTTagList recipeFluidInputList = new NBTTagList(), recipeFluidOutputList = new NBTTagList();
@@ -331,6 +342,8 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
         compound.setTag("fluidInputs", this.writeFluidStacksMapNBT(this.fluidInputs));
         compound.setTag("fluidOutputs", this.writeFluidStacksMapNBT(this.fluidOutputs));
         compound.setBoolean("distinctRecipes", this.distinctRecipes);
+        compound.setBoolean("voidingItems", this.voidingItems);
+        compound.setBoolean("voidingFluids", this.voidingFluids);
         return compound;
     }
 
@@ -350,8 +363,13 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
             this.fluidOutputIndex[i] = fluidInputIndexList.getIntAt(i);
         for (int i = 0; i < recipeLockList.tagCount(); i++)
             this.recipeLock[i] = ((NBTTagByte) recipeLockList.get(i)).getByte() == 1;
-        for (int i = 0; i < this.size; i++)
+        for (int i = 0; i < this.size; i++) {
             this.occupiedRecipes.add(null);
+            this.itemInputs.put(i, new ArrayList<>());
+            this.itemOutputs.put(i, new ArrayList<>());
+            this.fluidInputs.put(i, new ArrayList<>());
+            this.fluidOutputs.put(i, new ArrayList<>());
+        }
         for (int i = 0; i < occupiedRecipeList.tagCount(); i++) {
             NBTTagCompound recipeCompound = occupiedRecipeList.getCompoundTagAt(i);
             NBTTagList recipeItemInputList = recipeCompound.getTagList("recipeItemInputs", 10), recipeChancedOutputList = recipeCompound.getTagList("recipeChancedOutputs", 10), recipeItemOutputList = recipeCompound.getTagList("recipeItemOutputs", 10);
@@ -388,6 +406,8 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
         this.fluidInputs.putAll(this.readFluidStackMapNBT(compound.getTagList("fluidInputs", 10)));
         this.fluidOutputs.putAll(this.readFluidStackMapNBT(compound.getTagList("fluidOutputs", 10)));
         this.distinctRecipes = compound.getBoolean("distinctRecipes");
+        this.voidingItems = compound.getBoolean("voidingItems");
+        this.voidingFluids = compound.getBoolean("voidingFluids");
     }
 
     private NBTTagList writeItemStacksMapNBT(Int2ObjectMap<List<ItemStack>> itemStackMap) {
@@ -444,5 +464,70 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
             fluidStackMap.put(compound.getInteger("index"), fluidStacks);
         }
         return fluidStackMap;
+    }
+
+    public List<ItemStack> getItemInputsAt(int i) {
+        return this.itemInputs.get(i);
+    }
+
+    public List<ItemStack> getItemOutputsAt(int i) {
+        return this.itemOutputs.get(i);
+    }
+
+    public List<FluidStack> getFluidInputsAt(int i) {
+        return this.fluidInputs.get(i);
+    }
+
+    public List<FluidStack> getFluidOutputsAt(int i) {
+        return this.fluidOutputs.get(i);
+    }
+
+    public ParallelRecipeLRUCache getRecipeLRUCache() {
+        return this.recipeLRUCache;
+    }
+
+    public boolean isRecipeLocked(int i) {
+        return this.recipeLock[i];
+    }
+
+    public boolean isDistinctRecipes() {
+        return this.distinctRecipes;
+    }
+
+    public void setDistinctRecipes(boolean distinctRecipes) {
+        this.distinctRecipes = distinctRecipes;
+        this.metaTileEntity.markDirty();
+    }
+
+    public void setRecipeLock(boolean recipeLock, int i) {
+        this.recipeLock[i] = recipeLock;
+        this.metaTileEntity.markDirty();
+    }
+
+    public void setRecipe(Recipe recipe, int i) {
+        this.occupiedRecipes.set(i, recipe);
+        this.metaTileEntity.markDirty();
+    }
+
+    public void setVoidingItems(boolean voidingItems) {
+        this.voidingItems = voidingItems;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isVoidingItems() {
+        return this.voidingItems;
+    }
+
+    public void setVoidingFluids(boolean voidingFluids) {
+        this.voidingFluids = voidingFluids;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isVoidingFluids() {
+        return this.voidingFluids;
+    }
+
+    public Recipe getRecipe(int i) {
+        return this.occupiedRecipes.get(i);
     }
 }

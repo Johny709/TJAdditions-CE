@@ -1,10 +1,10 @@
 package tj.machines.multi.parallel;
 
+import gregicadditions.GAUtility;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.recipes.Recipe;
 import tj.TJConfig;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 import gregicadditions.GAConfig;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
@@ -28,7 +28,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import tj.capability.impl.workable.ParallelMultiblockRecipeLogic;
+import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.capability.OverclockManager;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
@@ -42,29 +43,12 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Steel;
 
 
-public class MetaTileEntityParallelLargeChemicalReactor extends OldParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
     public MetaTileEntityParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_CHEMICAL_REACTOR.recipeMap);
-        this.recipeMapWorkable = new ParallelMultiblockRecipeLogic(this, TJConfig.machines.recipeCacheCapacity) {
-
-            @Override
-            public double getDurationOverclock() {
-                return 4;
-            }
-
-            @Override
-            protected void setupRecipe(Recipe recipe, int i) {
-                int energyBonus = this.controller.getEUBonus();
-                long resultOverclock = this.overclockManager.getEUt();
-                resultOverclock -= (long) (resultOverclock * energyBonus * 0.01f);
-                this.overclockManager.setEUt(resultOverclock);
-                super.setupRecipe(recipe, i);
-            }
-        };
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -83,6 +67,17 @@ public class MetaTileEntityParallelLargeChemicalReactor extends OldParallelRecip
             tip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.3"));
             super.addInformation(stack, player, tip, advanced);
         });
+    }
+
+    @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe, int i) {
+        overclockManager.setEuMultiplier(4);
+        overclockManager.setParallel(1);
+    }
+
+    @Override
+    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe, int i) {
+        overclockManager.setEUt(overclockManager.getEUt() * (100 - this.energyBonus) / 100);
     }
 
     @Override
@@ -172,6 +167,13 @@ public class MetaTileEntityParallelLargeChemicalReactor extends OldParallelRecip
             amps /= 4;
             this.maxVoltage *= 4;
         }
+        this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.energyBonus = -1;
     }
 
     @Override

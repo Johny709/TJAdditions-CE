@@ -6,7 +6,6 @@ import gregtech.common.ConfigHolder;
 import net.minecraft.nbt.*;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Arrays;
@@ -38,6 +37,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
         super(metaTileEntity);
         Arrays.fill(this.isWorking, true);
         Arrays.fill(this.sleepTime, 1);
+        Arrays.fill(this.parallel, 1);
         if (metaTileEntity instanceof IMachineHandler) {
             this.handler = (H) metaTileEntity;
         } else throw new IllegalArgumentException("MetaTileEntity must implement IMachineHandler to use this workable handler");
@@ -87,7 +87,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
         this.busCount = busCount;
     }
 
-    protected void update(int i) {
+    public void update(int i) {
         if (!this.isWorking[i]) {
             this.stopRecipe(i);
             return;
@@ -183,16 +183,6 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
         return Math.max(1, duration);
     }
 
-    public boolean hasEnoughFluid(FluidStack fluid, int amount) {
-        FluidStack fluidStack = this.handler.getImportFluidTank().drain(fluid, false);
-        return fluidStack != null && fluidStack.amount == amount || amount == 0;
-    }
-
-    public boolean canOutputFluid(FluidStack fluid, int amount) {
-        int fluidStack = this.handler.getExportFluidTank().fill(fluid, false);
-        return fluidStack == amount || amount == 0;
-    }
-
     @Override
     public void receiveCustomData(int id, PacketBuffer buffer) {
         switch (id) {
@@ -267,6 +257,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
         compound.setTag("maxProgress", maxProgressList);
         compound.setTag("parallel", parallelList);
         compound.setInteger("size", this.size);
+        compound.setBoolean("distinct", this.isDistinct);
         return compound;
     }
 
@@ -309,6 +300,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
             this.maxProgress[i] = maxProgressList.getIntAt(i);
         for (int i = 0; i < parallelList.tagCount(); i++)
             this.parallel[i] = parallelList.getIntAt(i);
+        this.isDistinct = compound.getBoolean("distinct");
     }
 
     @Override
@@ -316,6 +308,15 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
         if (capability == TJCapabilities.CAPABILITY_MULTI_CONTROLLABLE)
             return TJCapabilities.CAPABILITY_MULTI_CONTROLLABLE.cast(this);
         return capability == TJCapabilities.CAPABILITY_MULTIPLE_WORKABLE ? TJCapabilities.CAPABILITY_MULTIPLE_WORKABLE.cast(this) : null;
+    }
+
+    public void setDistinct(boolean distinct) {
+        this.isDistinct = distinct;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isDistinct() {
+        return this.isDistinct;
     }
 
     @Override
@@ -351,6 +352,10 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
     @Override
     public int getMaxProgress(int i) {
         return this.maxProgress[i];
+    }
+
+    public double getProgressPercent(int i) {
+        return this.getMaxProgress(i) == 0 ? 0.0 : this.getProgress(i) / (this.getMaxProgress(i) * 1.0);
     }
 
     public void setActive(boolean isActive, int i) {
@@ -397,6 +402,13 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
     @Override
     public boolean isWorkingEnabled(int i) {
         return this.isWorking[i];
+    }
+
+    public boolean isActive() {
+        for (int i = 0; i < this.size; i++)
+            if (this.isInstanceActive(i))
+                return true;
+        return false;
     }
 
     @Override
