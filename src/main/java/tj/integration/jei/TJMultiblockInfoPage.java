@@ -18,7 +18,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import tj.TJValues;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 
 import java.util.Collections;
 import java.util.List;
@@ -96,9 +96,9 @@ public abstract class TJMultiblockInfoPage extends MultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        if (!(this.getController() instanceof ParallelRecipeMapMultiblockController))
+        if (!(this.getController() instanceof OldParallelRecipeMapMultiblockController))
             return new String[]{""};
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.getController();
+        OldParallelRecipeMapMultiblockController controller = (OldParallelRecipeMapMultiblockController) this.getController();
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < controller.getRecipeMaps().length; i++) {
             builder.append(controller.getRecipeMaps()[i].getLocalizedName());

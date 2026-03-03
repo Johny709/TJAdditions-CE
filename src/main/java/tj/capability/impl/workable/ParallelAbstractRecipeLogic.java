@@ -23,7 +23,7 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 import tj.capability.IMultipleWorkable;
 import tj.capability.IRecipeMap;
 import tj.capability.OverclockManager;
@@ -39,7 +39,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
     private static final String ALLOW_OVERCLOCKING = "AllowOverclocking";
     private static final String OVERCLOCK_VOLTAGE = "OverclockVoltage";
 
-    protected final ParallelRecipeMapMultiblockController controller;
+    protected final OldParallelRecipeMapMultiblockController controller;
     protected final OverclockManager overclockManager = new OverclockManager();
     private int size = 1;
 
@@ -83,7 +83,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
 
     public ParallelAbstractRecipeLogic(MetaTileEntity metaTileEntity, int recipeCacheSize) {
         super(metaTileEntity);
-        this.controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
+        this.controller = (OldParallelRecipeMapMultiblockController) metaTileEntity;
         this.recipeCacheSize = recipeCacheSize;
         this.previousRecipe = new ParallelRecipeLRUCache(this.recipeCacheSize);
         this.occupiedRecipes.add(0, null);

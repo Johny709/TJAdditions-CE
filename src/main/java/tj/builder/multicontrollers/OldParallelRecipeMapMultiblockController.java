@@ -69,7 +69,8 @@ import static gregtech.common.blocks.BlockTurbineCasing.TurbineCasingType.STEEL_
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.gui.TJGuiTextures.*;
 
-public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockControllerBase implements IParallelController, IMultiRecipe, IMultiblockAbilityPart<IItemHandlerModifiable> {
+@Deprecated
+public abstract class OldParallelRecipeMapMultiblockController extends TJMultiblockControllerBase implements IParallelController, IMultiRecipe, IMultiblockAbilityPart<IItemHandlerModifiable> {
 
     public final RecipeMap<?>[] recipeMaps;
     public ParallelMultiblockRecipeLogic recipeMapWorkable;
@@ -84,7 +85,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected BatchMode batchMode = BatchMode.ONE;
     protected static final DecimalFormat FORMATTER = new DecimalFormat("#0.00");
 
-    public ParallelRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?>... recipeMaps) {
+    public OldParallelRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?>... recipeMaps) {
         super(metaTileEntityId);
         this.recipeMaps = recipeMaps;
     }

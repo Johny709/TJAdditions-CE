@@ -1,7 +1,7 @@
 package tj.machines.multi.parallel;
 
 import tj.TJConfig;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.GATileEntities;
@@ -40,7 +40,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.render.Textures.*;
 
 
-public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelLargeCanningMachine extends OldParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
 

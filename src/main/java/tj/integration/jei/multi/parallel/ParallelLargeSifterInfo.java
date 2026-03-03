@@ -13,7 +13,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
@@ -30,7 +30,7 @@ import static net.minecraft.util.EnumFacing.WEST;
 public class ParallelLargeSifterInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     @Override
-    public ParallelRecipeMapMultiblockController getController() {
+    public OldParallelRecipeMapMultiblockController getController() {
         return TJMetaTileEntities.PARALLEL_LARGE_SIFTER;
     }
 

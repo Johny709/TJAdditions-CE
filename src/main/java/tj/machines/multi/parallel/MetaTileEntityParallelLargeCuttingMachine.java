@@ -1,7 +1,7 @@
 package tj.machines.multi.parallel;
 
 import tj.TJConfig;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -41,7 +41,7 @@ import static gregtech.api.render.Textures.CUTTER_OVERLAY;
 import static gregtech.api.render.Textures.LATHE_OVERLAY;
 
 
-public class MetaTileEntityParallelLargeCuttingMachine extends ParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelLargeCuttingMachine extends OldParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
 

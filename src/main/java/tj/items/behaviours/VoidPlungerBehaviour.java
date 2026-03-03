@@ -15,7 +15,7 @@ import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 import tj.util.ItemStackHelper;
 
 import java.util.ArrayList;
@@ -46,8 +46,8 @@ public class VoidPlungerBehaviour implements IItemBehaviour {
                 importFluids = controller.getInputFluidInventory();
                 exportItems = controller.getOutputInventory();
                 exportFluids = controller.getOutputFluidInventory();
-            } else if (metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
-                ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) metaTileEntity;
+            } else if (metaTileEntity instanceof OldParallelRecipeMapMultiblockController) {
+                OldParallelRecipeMapMultiblockController controller = (OldParallelRecipeMapMultiblockController) metaTileEntity;
                 importItems = controller.getImportItemInventory();
                 importFluids = controller.getImportFluidTank();
                 exportItems = controller.getExportItemInventory();

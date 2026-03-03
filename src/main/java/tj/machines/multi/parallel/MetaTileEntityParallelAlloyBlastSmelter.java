@@ -29,7 +29,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
 import tj.capability.impl.workable.ParallelElectricBlastFurnaceRecipeLogic;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.util.TooltipHelper;
 
@@ -46,7 +46,7 @@ import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelter.heating
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
 
-public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelAlloyBlastSmelter extends OldParallelRecipeMapMultiblockController {
 
     private int blastFurnaceTemperature;
     private int bonusTemperature;

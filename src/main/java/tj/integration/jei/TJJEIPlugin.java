@@ -11,13 +11,8 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.ingredients.VanillaTypes;
 import net.minecraft.util.ResourceLocation;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.integration.jei.recipe.GTRecipeTransferGuiHandler;
-import tj.machines.multi.electric.MetaTileEntityAdvancedLargeChunkMiner;
-import tj.machines.multi.steam.MetaTileEntityMegaBoiler;
-
-import static tj.machines.TJMetaTileEntities.*;
 
 @mezz.jei.api.JEIPlugin
 public class TJJEIPlugin implements IModPlugin {
