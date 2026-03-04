@@ -1,8 +1,7 @@
 package tj.machines.multi.parallel;
 
 import tj.TJConfig;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
+import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.ConveyorCasing;
@@ -41,14 +40,12 @@ import static gregtech.api.render.Textures.PACKER_OVERLAY;
 import static gregtech.api.render.Textures.UNPACKER_OVERLAY;
 
 
-public class MetaTileEntityParallelLargePackager extends OldParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelLargePackager extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
 
     public MetaTileEntityParallelLargePackager(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_PACKAGER.getRecipeMaps());
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -90,8 +87,8 @@ public class MetaTileEntityParallelLargePackager extends OldParallelRecipeMapMul
         super.formStructure(context);
         int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
         int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
-        int min = Math.min(conveyor, robotArm);
-        this.maxVoltage = (long) (Math.pow(4, min) * 8);
+        this.tier = Math.min(conveyor, robotArm);
+        this.maxVoltage = 8L << this.tier * 2;
     }
 
     @Override
@@ -106,22 +103,22 @@ public class MetaTileEntityParallelLargePackager extends OldParallelRecipeMapMul
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelLargePackager.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelLargePackager.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelLargePackager.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelLargePackager.stack;
     }
 

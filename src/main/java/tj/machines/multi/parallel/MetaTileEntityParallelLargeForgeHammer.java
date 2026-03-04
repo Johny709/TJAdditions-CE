@@ -1,8 +1,7 @@
 package tj.machines.multi.parallel;
 
 import tj.TJConfig;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
+import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.PistonCasing;
@@ -39,14 +38,12 @@ import static gregtech.api.render.Textures.COMPRESSOR_OVERLAY;
 import static gregtech.api.render.Textures.FORGE_HAMMER_OVERLAY;
 
 
-public class MetaTileEntityParallelLargeForgeHammer extends OldParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelLargeForgeHammer extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
 
     public MetaTileEntityParallelLargeForgeHammer(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_FORGE_HAMMER.getRecipeMaps());
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -88,8 +85,8 @@ public class MetaTileEntityParallelLargeForgeHammer extends OldParallelRecipeMap
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int piston = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
-        this.maxVoltage = (long) (Math.pow(4, piston) * 8);
+        this.tier = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
+        this.maxVoltage = 8L << this.tier * 2;
     }
 
     @Override
@@ -104,22 +101,22 @@ public class MetaTileEntityParallelLargeForgeHammer extends OldParallelRecipeMap
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelLargeForgeHammer.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelLargeForgeHammer.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelLargeForgeHammer.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelLargeForgeHammer.stack;
     }
 

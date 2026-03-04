@@ -37,7 +37,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
 import tj.TJRecipeMaps;
@@ -47,6 +46,7 @@ import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IAssemblyHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.util.ItemStackHelper;
+import tj.util.TextUtils;
 
 import javax.annotation.Nonnull;
 
@@ -65,7 +65,6 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
 
     public MetaTileEntityLargeAssemblyLine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, true, false, GARecipeMaps.ASSEMBLY_LINE_RECIPES, TJRecipeMaps.LARGE_ASSEMBLY_LINE_RECIPES);
-        this.reinitializeStructurePattern();
     }
 
     @Override
@@ -164,10 +163,9 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
             int lastParallelLayer = this.parallelLayer;
             this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - 1 : this.parallelLayer + 1, 0, TJConfig.largeAssemblyLine.maximumSlices);
             if (this.parallelLayer != lastParallelLayer) {
-                playerIn.sendMessage(new TextComponentTranslation(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
-            } else playerIn.sendMessage(new TextComponentTranslation(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.fail" : "tj.multiblock.parallel.layer.increment.fail", this.parallelLayer));
-            this.invalidateStructure();
-            this.structurePattern = this.createStructurePattern();
+                playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
+            } else playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.fail" : "tj.multiblock.parallel.layer.increment.fail", this.parallelLayer));
+            this.resetStructure();
             this.writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
             this.markDirty();
         }
@@ -184,7 +182,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     public void receiveInitialSyncData(PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
         this.parallelLayer = buf.readInt();
-        this.structurePattern = this.createStructurePattern();
+        this.resetStructure();
     }
 
     @Override
@@ -192,8 +190,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
         super.receiveCustomData(dataId, buf);
         if (dataId == PARALLEL_LAYER) {
             this.parallelLayer = buf.readInt();
-            this.invalidateStructure();
-            this.structurePattern = this.createStructurePattern();
+            this.resetStructure();
             this.scheduleRenderUpdate();
         }
     }
@@ -209,6 +206,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.parallelLayer = data.getInteger("slices");
+        this.resetStructure();
     }
 
     @Override
@@ -249,6 +247,18 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     @Override
     public int getParallel() {
         return this.recipeMapIndex == 0 ? TJConfig.largeAssemblyLine.stack : super.getParallel();
+    }
+
+    @Override
+    protected void reinitializeStructurePattern() {
+        this.parallelLayer = 4;
+        super.reinitializeStructurePattern();
+    }
+
+    private void resetStructure() {
+        if (this.isStructureFormed())
+            this.invalidateStructure();
+        this.structurePattern = this.createStructurePattern();
     }
 
     private static class AssemblyRecipeLogic extends BasicRecipeLogic<IAssemblyHandler> {

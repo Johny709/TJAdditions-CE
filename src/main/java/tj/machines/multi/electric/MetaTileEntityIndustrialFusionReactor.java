@@ -96,7 +96,6 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 return "EnergyContainerInternal";
             }
         };
-        this.reinitializeStructurePattern();
     }
 
     @Override
@@ -331,8 +330,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             if (this.parallelLayer != lastParallelLayer) {
                 playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
             } else playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.fail" : "tj.multiblock.parallel.layer.increment.fail", this.parallelLayer));
-            this.invalidateStructure();
-            this.structurePattern = this.createStructurePattern();
+            this.resetStructure();
             this.writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
             this.markDirty();
         }
@@ -357,7 +355,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         super.receiveInitialSyncData(buf);
         this.parallelLayer = buf.readInt();
         this.readActiveBlockPacket(buf);
-        this.structurePattern = this.createStructurePattern();
+        this.resetStructure();
     }
 
     @Override
@@ -365,8 +363,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         super.receiveCustomData(dataId, buf);
         if (dataId == PARALLEL_LAYER) {
             this.parallelLayer = buf.readInt();
-            this.invalidateStructure();
-            this.structurePattern = this.createStructurePattern();
+            this.resetStructure();
             this.scheduleRenderUpdate();
         } else if (dataId == 128) {
             this.readActiveBlockPacket(buf);
@@ -425,9 +422,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         this.heat = data.getLong("Heat");
         this.parallelLayer = data.getInteger("Parallel");
         this.batchMode = BatchMode.values()[data.getInteger("BatchMode")];
-        if (data.hasKey("Parallel")) {
-            this.structurePattern = createStructurePattern();
-        }
+        this.resetStructure();
     }
 
     @Override
@@ -477,5 +472,17 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     public int getTierDifference(long recipeEUt) {
         return 0;
+    }
+
+    @Override
+    protected void reinitializeStructurePattern() {
+        this.parallelLayer = 4;
+        super.reinitializeStructurePattern();
+    }
+
+    private void resetStructure() {
+        if (this.isStructureFormed())
+            this.invalidateStructure();
+        this.structurePattern = this.createStructurePattern();
     }
 }

@@ -14,6 +14,8 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.recipeproperties.BlastTemperatureProperty;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -28,8 +30,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
-import tj.capability.impl.workable.ParallelElectricBlastFurnaceRecipeLogic;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.capability.OverclockManager;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.util.TooltipHelper;
 
@@ -46,7 +48,7 @@ import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelter.heating
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
 
-public class MetaTileEntityParallelAlloyBlastSmelter extends OldParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMultiblockController {
 
     private int blastFurnaceTemperature;
     private int bonusTemperature;
@@ -54,13 +56,29 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends OldParallelRecipeMa
 
     public MetaTileEntityParallelAlloyBlastSmelter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.ALLOY_BLAST_FURNACE.recipeMap);
-        this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, this::getBlastFurnaceTemperature);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityParallelAlloyBlastSmelter(this.metaTileEntityId);
+    }
+
+    @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe, int i) {
+        overclockManager.setParallel(1);
+        long recipeEUt = overclockManager.getEUt() * 4;
+        int duration = overclockManager.getDuration();
+        int heat = this.blastFurnaceTemperature + this.bonusTemperature - recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
+        // Apply EUt discount for every 900K above the base recipe temperature
+        recipeEUt *= (long) Math.pow(0.95, heat / 900D);
+        while (duration > 1 && recipeEUt <= this.maxVoltage) {
+            if (heat < 1800) break;
+            heat -= 1800;
+            duration /= 4;
+            recipeEUt *= 4;
+        }
+        overclockManager.setEUt(recipeEUt / 4);
+        overclockManager.setDuration(duration);
     }
 
     @Override
@@ -141,14 +159,10 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends OldParallelRecipeMa
             amps /= 4;
             this.maxVoltage *= 4;
         }
-        int energyTier = GAUtility.getTierByVoltage(this.maxVoltage);
-        this.bonusTemperature = Math.max(0, 100 * (energyTier - 2));
+        this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
+        this.bonusTemperature = Math.max(0, 100 * (this.tier - 2));
         this.blastFurnaceTemperature = context.getOrDefault("blastFurnaceTemperature", 0);
         this.blastFurnaceTemperature += this.bonusTemperature;
-    }
-
-    public int getBlastFurnaceTemperature() {
-        return this.blastFurnaceTemperature;
     }
 
     @Override

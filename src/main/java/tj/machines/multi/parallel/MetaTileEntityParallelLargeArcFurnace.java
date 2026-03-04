@@ -2,8 +2,7 @@ package tj.machines.multi.parallel;
 
 import gregicadditions.machines.GATileEntities;
 import tj.TJConfig;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
+import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregicadditions.item.components.PumpCasing;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -12,7 +11,6 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -44,24 +42,12 @@ import static gregtech.api.render.Textures.ARC_FURNACE_OVERLAY;
 import static gregtech.api.render.Textures.PLASMA_ARC_FURNACE_OVERLAY;
 
 
-public class MetaTileEntityParallelLargeArcFurnace extends OldParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
 
     public MetaTileEntityParallelLargeArcFurnace(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_ARC_FURNACE.getRecipeMaps());
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack) {
-
-            @Override
-            protected void setupRecipe(Recipe recipe, int i) {
-                int energyBonus = this.controller.getEUBonus();
-                long resultOverclock = this.overclockManager.getEUt();
-                resultOverclock -= (long) (resultOverclock * energyBonus * 0.01f);
-                this.overclockManager.setEUt(resultOverclock);
-                super.setupRecipe(recipe, i);
-            }
-        };
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -111,8 +97,8 @@ public class MetaTileEntityParallelLargeArcFurnace extends OldParallelRecipeMapM
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
-        this.maxVoltage = (long) (Math.pow(4, pump) * 8);
+        this.tier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
+        this.maxVoltage = 8L << this.tier * 2;
         this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
     }
 
@@ -128,22 +114,22 @@ public class MetaTileEntityParallelLargeArcFurnace extends OldParallelRecipeMapM
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelLargeArcFurnace.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelLargeArcFurnace.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelLargeArcFurnace.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelLargeArcFurnace.stack;
     }
 

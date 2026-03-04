@@ -2,8 +2,7 @@ package tj.machines.multi.parallel;
 
 import gregicadditions.machines.GATileEntities;
 import tj.TJConfig;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
+import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PistonCasing;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -40,14 +39,12 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 
-public class MetaTileEntityParallelLargeBendingAndForming extends OldParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelLargeBendingAndForming extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
 
     public MetaTileEntityParallelLargeBendingAndForming(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_BENDER_AND_FORMING.getRecipeMaps());
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -90,8 +87,8 @@ public class MetaTileEntityParallelLargeBendingAndForming extends OldParallelRec
         super.formStructure(context);
         int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         int piston = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
-        int min = Math.min(motor, piston);
-        this.maxVoltage = (long) (Math.pow(4, min) * 8);
+        this.tier = Math.min(motor, piston);
+        this.maxVoltage = 8L << this.tier * 2;
     }
 
     @Override
@@ -110,22 +107,22 @@ public class MetaTileEntityParallelLargeBendingAndForming extends OldParallelRec
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelLargeBendingAndForming.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelLargeBendingAndForming.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelLargeBendingAndForming.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelLargeBendingAndForming.stack;
     }
 

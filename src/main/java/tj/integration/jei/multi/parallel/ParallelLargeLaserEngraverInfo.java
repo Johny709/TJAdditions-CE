@@ -16,10 +16,10 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
+import tj.machines.multi.parallel.MetaTileEntityParallelLargeLaserEngraver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ import static net.minecraft.util.EnumFacing.WEST;
 public class ParallelLargeLaserEngraverInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     @Override
-    public OldParallelRecipeMapMultiblockController getController() {
+    public MetaTileEntityParallelLargeLaserEngraver getController() {
         return TJMetaTileEntities.PARALLEL_LARGE_LASER_ENGRAVER;
     }
 

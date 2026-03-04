@@ -3,7 +3,6 @@ package tj.machines;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityEnergyHatch;
 import gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine;
-import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.GregTechAPI;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.common.metatileentities.MetaTileEntities;

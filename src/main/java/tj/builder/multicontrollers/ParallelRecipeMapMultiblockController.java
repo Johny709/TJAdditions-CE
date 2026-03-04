@@ -361,8 +361,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                 playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
                 this.recipeLogic.setLayer(this.parallelLayer, playerIn.isSneaking());
             } else playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.fail" : "tj.multiblock.parallel.layer.increment.fail", this.parallelLayer));
-            this.invalidateStructure();
-            this.structurePattern = this.createStructurePattern();
+            this.resetStructure();
             this.writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
             this.markDirty();
         }
@@ -374,8 +373,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         super.receiveCustomData(dataId, buf);
         if (dataId == PARALLEL_LAYER) {
             this.parallelLayer = buf.readInt();
-            this.invalidateStructure();
-            this.structurePattern = this.createStructurePattern();
+            this.resetStructure();
             this.scheduleRenderUpdate();
         } else if (dataId == RECIPE_MAP_INDEX) {
             this.recipeMapIndex = buf.readInt();
@@ -395,7 +393,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         super.receiveInitialSyncData(buf);
         this.parallelLayer = buf.readInt();
         this.recipeMapIndex = buf.readInt();
-        this.structurePattern = this.createStructurePattern();
+        this.resetStructure();
     }
 
     @Override
@@ -413,7 +411,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         this.parallelLayer = data.getInteger("parallelLayer");
         this.recipeMapIndex = data.getInteger("recipeMapIndex");
         this.batchMode = BatchMode.values()[data.getInteger("batchMode")];
-        this.structurePattern = this.createStructurePattern();
+        this.resetStructure();
     }
 
     @Override
@@ -578,5 +576,17 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     public int getMaxParallel() {
         return 1;
+    }
+
+    @Override
+    protected void reinitializeStructurePattern() {
+        this.parallelLayer = 1;
+        super.reinitializeStructurePattern();
+    }
+
+    private void resetStructure() {
+        if (this.isStructureFormed())
+            this.invalidateStructure();
+        this.structurePattern = this.createStructurePattern();
     }
 }

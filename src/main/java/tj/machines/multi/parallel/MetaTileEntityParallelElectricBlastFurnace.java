@@ -9,6 +9,8 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.recipeproperties.BlastTemperatureProperty;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockBoilerCasing;
@@ -24,9 +26,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
-import tj.capability.impl.workable.ParallelElectricBlastFurnaceRecipeLogic;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.capability.OverclockManager;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
@@ -41,16 +43,14 @@ import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelter.heating
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
 
-public class MetaTileEntityParallelElectricBlastFurnace extends OldParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMapMultiblockController {
 
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
     private int blastFurnaceTemperature;
     private int bonusTemperature;
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
 
     public MetaTileEntityParallelElectricBlastFurnace(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, MetaTileEntities.ELECTRIC_BLAST_FURNACE.recipeMap);
-        this.recipeMapWorkable = new ParallelElectricBlastFurnaceRecipeLogic(this, this::getBlastFurnaceTemperature);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -69,6 +69,24 @@ public class MetaTileEntityParallelElectricBlastFurnace extends OldParallelRecip
             tip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.3"));
             super.addInformation(stack, player, tip, advanced);
         });
+    }
+
+    @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe, int i) {
+        overclockManager.setParallel(1);
+        long recipeEUt = overclockManager.getEUt() * 4;
+        int duration = overclockManager.getDuration();
+        int heat = this.blastFurnaceTemperature + this.bonusTemperature - recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
+        // Apply EUt discount for every 900K above the base recipe temperature
+        recipeEUt *= (long) Math.pow(0.95, heat / 900D);
+        while (duration > 1 && recipeEUt <= this.maxVoltage) {
+            if (heat < 1800) break;
+            heat -= 1800;
+            duration /= 4;
+            recipeEUt *= 4;
+        }
+        overclockManager.setEUt(recipeEUt / 4);
+        overclockManager.setDuration(duration);
     }
 
     @Override
@@ -122,8 +140,8 @@ public class MetaTileEntityParallelElectricBlastFurnace extends OldParallelRecip
             amps /= 4;
             this.maxVoltage *= 4;
         }
-        int energyTier = GAUtility.getTierByVoltage(this.maxVoltage);
-        this.bonusTemperature = Math.max(0, 100 * (energyTier - 2));
+        this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
+        this.bonusTemperature = Math.max(0, 100 * (this.tier - 2));
         this.blastFurnaceTemperature = context.getOrDefault("blastFurnaceTemperature", 0);
         this.blastFurnaceTemperature += this.bonusTemperature;
     }
@@ -131,10 +149,6 @@ public class MetaTileEntityParallelElectricBlastFurnace extends OldParallelRecip
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return Textures.HEAT_PROOF_CASING;
-    }
-
-    public int getBlastFurnaceTemperature() {
-        return this.blastFurnaceTemperature;
     }
 
     @Override

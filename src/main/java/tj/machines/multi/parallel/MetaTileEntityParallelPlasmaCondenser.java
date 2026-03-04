@@ -2,8 +2,7 @@ package tj.machines.multi.parallel;
 
 import gregicadditions.machines.GATileEntities;
 import tj.TJConfig;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
+import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.PumpCasing;
@@ -41,14 +40,12 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 
-public class MetaTileEntityParallelPlasmaCondenser extends OldParallelRecipeMapMultiblockController {
+public class MetaTileEntityParallelPlasmaCondenser extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
 
     public MetaTileEntityParallelPlasmaCondenser(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.PLASMA_CONDENSER.recipeMap);
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -97,8 +94,8 @@ public class MetaTileEntityParallelPlasmaCondenser extends OldParallelRecipeMapM
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
-        this.maxVoltage = (long) (Math.pow(4, pump) * 8);
+        this.tier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
+        this.maxVoltage = 8L << this.tier * 2;
     }
 
     @Override
@@ -113,22 +110,22 @@ public class MetaTileEntityParallelPlasmaCondenser extends OldParallelRecipeMapM
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelPlasmaCondenser.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelPlasmaCondenser.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelPlasmaCondenser.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelPlasmaCondenser.stack;
     }
 
