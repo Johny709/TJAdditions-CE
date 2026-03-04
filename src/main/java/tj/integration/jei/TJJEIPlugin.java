@@ -14,6 +14,7 @@ import net.minecraft.util.ResourceLocation;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.integration.jei.recipe.GTRecipeTransferGuiHandler;
 
+
 @mezz.jei.api.JEIPlugin
 public class TJJEIPlugin implements IModPlugin {
 
@@ -31,9 +32,10 @@ public class TJJEIPlugin implements IModPlugin {
                     GTRecipeTransferGuiHandler gtRecipeTransferGuiHandler = new GTRecipeTransferGuiHandler(jeiHelpers.recipeTransferHandlerHelper());
                     registry.getRecipeTransferRegistry().addRecipeTransferHandler(gtRecipeTransferGuiHandler, recipeName);
                 }
-            }
-            if (metaTileEntity instanceof TJMultiblockControllerBase) {
-                registry.addRecipeCatalyst(metaTileEntity.getStackForm(), ((TJMultiblockControllerBase) metaTileEntity).getRecipeUid());
+            } else if (metaTileEntity instanceof TJMultiblockControllerBase) {
+                String recipeUid = ((TJMultiblockControllerBase) metaTileEntity).getRecipeUid();
+                if (recipeUid != null)
+                    registry.addRecipeCatalyst(metaTileEntity.getStackForm(), ((TJMultiblockControllerBase) metaTileEntity).getRecipeUid());
             }
         }
 
