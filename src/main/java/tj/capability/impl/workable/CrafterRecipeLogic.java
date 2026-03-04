@@ -129,15 +129,12 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
 
     @Override
     protected boolean startRecipe() {
-        boolean canStart = false;
         IItemHandlerModifiable itemInputs = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
         if (this.trySearchForRecipe(itemInputs)) {
             this.maxProgress = this.calculateOverclock(30, 50, 2.8F);
-            canStart = true;
+            return true;
         }
-        if (++this.lastInputIndex == this.busCount)
-            this.lastInputIndex = 0;
-        return canStart;
+        return false;
     }
 
     @Override

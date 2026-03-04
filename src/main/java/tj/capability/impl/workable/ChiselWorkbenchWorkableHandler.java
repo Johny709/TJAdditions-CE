@@ -35,7 +35,6 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
 
     @Override
     protected boolean startRecipe() {
-        boolean canStart = false;
         IItemHandlerModifiable itemInputs = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
         if (this.findCircuit(itemInputs) && this.findInputs(itemInputs)) {
             List<ICarvingVariation> carvingGroups = CarvingUtils.getChiselRegistry().getGroup(this.input).getVariations();
@@ -43,11 +42,9 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
             this.output = carvingGroups.get(variation).getStack();
             this.output.setCount(this.input.getCount());
             this.maxProgress = this.calculateOverclock(30, 200, 2.8F);
-            canStart = true;
+            return true;
         }
-        if (++this.lastInputIndex == this.busCount)
-            this.lastInputIndex = 0;
-        return canStart;
+        return false;
     }
 
     @Override

@@ -13,7 +13,7 @@ public interface IRecipeHandler extends IMachineHandler {
         return true;
     }
 
-    default Recipe recreateRecipe(Recipe recipe) {
+    default Recipe createRecipe(Recipe recipe) {
         return recipe;
     }
 

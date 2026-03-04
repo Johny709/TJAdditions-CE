@@ -13,7 +13,7 @@ public interface IMultiRecipeHandler extends IMachineHandler {
         return true;
     }
 
-    default Recipe recreateRecipe(Recipe recipe, int i) {
+    default Recipe createRecipe(Recipe recipe, int i) {
         return recipe;
     }
 

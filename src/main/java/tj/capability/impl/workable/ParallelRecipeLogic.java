@@ -87,7 +87,6 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
     @Override
     protected boolean startRecipe(int i) {
         Recipe recipe;
-        boolean start = false;
         IItemHandlerModifiable itemHandlerModifiable = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex[i]) : this.handler.getImportItemInventory();
         if (this.recipeLock[i]) {
             recipe = this.occupiedRecipes.get(i);
@@ -104,7 +103,7 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
                 this.recipeLRUCache.put(recipe);
             }
         }
-        if ((recipe = this.handler.recreateRecipe(recipe, i)) != null) {
+        if (recipe != null && (recipe = this.handler.createRecipe(recipe, i)) != null) {
             this.overclockManager.setEuMultiplier(2.8F);
             this.overclockManager.setEUt(recipe.getEUt());
             this.overclockManager.setDuration(recipe.getDuration());
@@ -116,12 +115,10 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
                 this.energyPerTick[i] = this.overclockManager.getEUt();
                 this.setMaxProgress(this.overclockManager.getDuration(), i);
                 this.occupiedRecipes.set(i, recipe);
-                start = true;
+                return true;
             }
         }
-        if (++this.lastInputIndex[i] == this.busCount)
-            this.lastInputIndex[i] = 0;
-        return start;
+        return false;
     }
 
     protected boolean consumeRecipe(Recipe recipe, IItemHandlerModifiable itemHandlerModifiable, int i) {

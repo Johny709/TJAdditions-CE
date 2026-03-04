@@ -54,7 +54,6 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
 
     @Override
     protected boolean startRecipe() {
-        boolean start = false;
         IItemHandlerModifiable itemHandlerModifiable = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
         Recipe recipe = this.recipeLRUCache.get(itemHandlerModifiable, this.handler.getImportFluidTank());
         if (recipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(itemHandlerModifiable, this.handler.getImportFluidTank()))) {
@@ -65,7 +64,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
                 this.recipeLRUCache.put(recipe);
             }
         }
-        if ((recipe = this.handler.recreateRecipe(recipe)) != null) {
+        if (recipe != null && (recipe = this.handler.createRecipe(recipe)) != null) {
             this.overclockManager.setEuMultiplier(2.8F);
             this.overclockManager.setEUt(recipe.getEUt());
             this.overclockManager.setDuration(recipe.getDuration());
@@ -76,12 +75,10 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
                 this.handler.postOverclock(this.overclockManager, recipe);
                 this.energyPerTick = this.overclockManager.getEUt();
                 this.setMaxProgress(this.overclockManager.getDuration());
-                start = true;
+                return true;
             }
         }
-        if (++this.lastInputIndex == this.busCount)
-            this.lastInputIndex = 0;
-        return start;
+        return false;
     }
 
     protected boolean consumeRecipe(Recipe recipe, IItemHandlerModifiable itemHandlerModifiable) {

@@ -109,7 +109,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     }
 
     @Override
-    public Recipe recreateRecipe(Recipe recipe) {
+    public Recipe createRecipe(Recipe recipe) {
         int recipeTier = recipe.getIntegerProperty("coil_tier");
         int vacuumTierDifference = this.vacuumTier - recipeTier;
         int divertorTierDifference = this.divertorTier - recipeTier;
@@ -126,15 +126,15 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
             newOutput.amount = (int) (newOutput.amount * (1 + divertorTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease));
             builder.fluidOutputs(newOutput);
         }
-        return builder.euStart(recipe.getProperty("eu_to_start"))
-                .euReturn(recipe.getProperty("eu_return"))
-                .coilTier(recipe.getProperty("coil_tier"))
-                .fluidInputs(recipe.getFluidInputs())
-                .fluidOutputs(recipe.getFluidOutputs())
+        recipe = builder.euStart(recipe.getProperty("eu_to_start"))
+                .euReturn(recipe.getIntegerProperty("eu_return"))
+                .coilTier(recipeTier)
                 .duration(recipe.getDuration())
                 .EUt(recipe.getEUt())
                 .build()
                 .getResult();
+        ((IGTRecipe) recipe).getMergedFluidInputs();
+        return recipe;
     }
 
     @Override

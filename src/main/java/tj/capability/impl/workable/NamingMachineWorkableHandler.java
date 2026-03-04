@@ -54,8 +54,6 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
             availableParallels -= stack.getCount();
             this.itemOutputs.add(stack);
         }
-        if (++this.lastInputIndex == this.busCount)
-            this.lastInputIndex = 0;
         this.setMaxProgress(this.calculateOverclock(30L, 50, 2.8F));
         return availableParallels != this.handler.getParallel();
     }

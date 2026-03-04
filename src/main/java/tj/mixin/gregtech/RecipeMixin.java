@@ -48,7 +48,7 @@ public abstract class RecipeMixin implements IGTRecipe {
             CountableIngredient mergedIngredient = ingredientMap.get(key);
             if (mergedIngredient == null) {
                 ingredientMap.put(key, new CountableIngredient(ingredient, countableIngredient.getCount()));
-            } else ingredientMap.replace(key, new CountableIngredient(mergedIngredient.getIngredient(), mergedIngredient.getCount() + countableIngredient.getCount()));
+            } else ingredientMap.put(key, new CountableIngredient(mergedIngredient.getIngredient(), mergedIngredient.getCount() + countableIngredient.getCount()));
         }
         this.mergedItemInputs.addAll(ingredientMap.values());
         Object2IntMap<FluidStack> fluidStackMap = new Object2IntLinkedOpenHashMap<>();
@@ -57,7 +57,7 @@ public abstract class RecipeMixin implements IGTRecipe {
             int mergedAmount = fluidStackMap.getInt(stack);
             if (mergedAmount == Integer.MIN_VALUE) {
                 fluidStackMap.put(stack, stack.amount);
-            } else fluidStackMap.replace(stack, stack.amount + mergedAmount);
+            } else fluidStackMap.put(stack, stack.amount + mergedAmount);
         }
         for (Object2IntMap.Entry<FluidStack> entry : fluidStackMap.object2IntEntrySet()) {
             FluidStack stack = entry.getKey().copy();
