@@ -199,6 +199,21 @@ tj.machine.naming_machine.uiv.name=High-Tech Naming Machine III
 tj.machine.naming_machine.umv.name=High-Tech Naming Machine IV
 tj.machine.naming_machine.uxv.name=Ultimate Naming Machine
 tj.machine.naming_machine.max.name=Max Naming Machine
+tj.machine.gt_buffer.ulv.name=Buffer (ULV)
+tj.machine.gt_buffer.lv.name=Buffer (LV)
+tj.machine.gt_buffer.mv.name=Buffer (MV)
+tj.machine.gt_buffer.hv.name=Buffer (HV)
+tj.machine.gt_buffer.ev.name=Buffer (EV)
+tj.machine.gt_buffer.iv.name=Buffer (IV)
+tj.machine.gt_buffer.luv.name=Buffer (LuV)
+tj.machine.gt_buffer.zpm.name=Buffer (ZPM)
+tj.machine.gt_buffer.uv.name=Buffer (UV)
+tj.machine.gt_buffer.uhv.name=Buffer (UHV)
+tj.machine.gt_buffer.uev.name=Buffer (UEV)
+tj.machine.gt_buffer.uiv.name=Buffer (UIV)
+tj.machine.gt_buffer.umv.name=Buffer (UMV)
+tj.machine.gt_buffer.uxv.name=Buffer (UXV)
+tj.machine.gt_buffer.max.name=Buffer (MAX)
 tj.machine.compressed_chest.name=Compressed Chest
 tj.machine.compressed_crate.name=Compressed Crate
 tj.machine.infinity_chest.name=Infinity Chest
@@ -393,6 +408,8 @@ tj.machine.water_reservoir_hatch.description=Provides up to §b2,147,483,647L/t�
 tj.machine.crafter.tooltip=§fClick§7 on recipe output slot to §aadd§7 to recipe list on the right. §fLeft-Click§7 on recipe list slot to display ingredients on crafting grid. §fRight-Click§7 to §cremove§7 recipe.
 
 tj.machine.naming_machine.description=Changes the display name of items like an anvil would. Place in a nametag with the specified name as a catalyst. If there's no nametag then it'll use the name from the textbox.
+
+tj.machine.gt_buffer.description=A buffer to store items and fluids in a block.
 
 tj.machine.filtered_bus.warning=WARNING: Not compatible with TJ 1.4. Machines in 1.4 have outdated item handlers that will cause a crash loop.
 tj.machine.filtered_bus.description=§aIts recommended to drag items from JEI to set filter in slot. While in filter mode, item slot marked in green outline are ghost items from JEI. §bBlue slot outline are non-ghost items.

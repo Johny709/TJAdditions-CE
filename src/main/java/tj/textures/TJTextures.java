@@ -89,6 +89,8 @@ public class TJTextures {
     public static final TJSimpleOverlayRenderer ENCHANTING_TABLE = new TJSimpleOverlayRenderer("minecraft", "blocks/enchanting_table_top");
     public static final TJSimpleOverlayRenderer CRAFTER = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/overlay/crafter_overlay");
     public static final TJSimpleOverlayRenderer NAME_TAG = new TJSimpleOverlayRenderer("minecraft", "items/name_tag");
+    public static final TJSimpleOverlayRenderer BUFFER = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/overlay/automation_chestbuffer");
+    public static final TJSimpleOverlayRenderer SUPER_BUFFER = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/overlay/automation_superbuffer");
 
     @SideOnly(Side.CLIENT)
     public static void register(TextureMap textureMap) {
