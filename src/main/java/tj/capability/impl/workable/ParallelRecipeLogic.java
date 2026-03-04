@@ -91,7 +91,9 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
         IItemHandlerModifiable itemHandlerModifiable = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex[i]) : this.handler.getImportItemInventory();
         if (this.recipeLock[i]) {
             recipe = this.occupiedRecipes.get(i);
-        } else recipe = this.distinctRecipes ? this.recipeLRUCache.get(itemHandlerModifiable, this.handler.getImportFluidTank(), i, this.occupiedRecipes) : this.recipeLRUCache.get(itemHandlerModifiable, this.handler.getImportFluidTank());
+        } else if (this.distinctRecipes) {
+            recipe = this.recipeLRUCache.get(itemHandlerModifiable, this.handler.getImportFluidTank(), i, this.occupiedRecipes);
+        } else recipe = this.recipeLRUCache.get(itemHandlerModifiable, this.handler.getImportFluidTank());
         if (recipe == null && (this.recipeRecheck[i] || this.checkRecipeInputsDirty(itemHandlerModifiable, this.handler.getImportFluidTank()))) {
             this.recipeRecheck[i] = false;
             if (this.distinctRecipes) {
@@ -102,7 +104,7 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
                 this.recipeLRUCache.put(recipe);
             }
         }
-        if (recipe != null) {
+        if ((recipe = this.handler.recreateRecipe(recipe, i)) != null) {
             this.overclockManager.setEuMultiplier(2.8F);
             this.overclockManager.setEUt(recipe.getEUt());
             this.overclockManager.setDuration(recipe.getDuration());

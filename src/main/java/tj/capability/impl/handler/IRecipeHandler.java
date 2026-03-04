@@ -13,6 +13,10 @@ public interface IRecipeHandler extends IMachineHandler {
         return true;
     }
 
+    default Recipe recreateRecipe(Recipe recipe) {
+        return recipe;
+    }
+
     default void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {}
 
     default void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {}

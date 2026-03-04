@@ -65,7 +65,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
                 this.recipeLRUCache.put(recipe);
             }
         }
-        if (recipe != null) {
+        if ((recipe = this.handler.recreateRecipe(recipe)) != null) {
             this.overclockManager.setEuMultiplier(2.8F);
             this.overclockManager.setEUt(recipe.getEUt());
             this.overclockManager.setDuration(recipe.getDuration());
