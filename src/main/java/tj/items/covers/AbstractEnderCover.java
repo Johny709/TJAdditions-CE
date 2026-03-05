@@ -12,7 +12,7 @@ import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
-import gregtech.api.gui.widgets.tab.HorizontalTabListRenderer;
+import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import gregtech.common.covers.CoverPump;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
@@ -34,6 +34,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IEnderNotifiable;
+import tj.gui.TJGuiTextures;
 import tj.gui.widgets.*;
 import tj.gui.widgets.impl.ClickPopUpWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
@@ -49,8 +50,8 @@ import java.util.regex.Pattern;
 
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
-import static gregtech.api.gui.widgets.tab.HorizontalTabListRenderer.HorizontalStartCorner.LEFT;
-import static gregtech.api.gui.widgets.tab.HorizontalTabListRenderer.VerticalLocation.TOP;
+import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLocation.LEFT;
+import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
 import static net.minecraft.util.text.TextFormatting.GRAY;
 import static net.minecraft.util.text.TextFormatting.YELLOW;
 import static tj.gui.TJGuiTextures.*;
@@ -135,8 +136,9 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         String[] search = {"", "", ""};
         String[] playerName = {""};
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
-                .setTabListRenderer(() -> new HorizontalTabListRenderer(LEFT, TOP))
-                .addWidget(new LabelWidget(30, 4, this.getName()))
+                .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
+                .addWidget(new TJLabelWidget(7, -19, 162, 19, TJGuiTextures.MACHINE_LABEL_2)
+                        .setLocale(this.getName()))
                 .addTab(this.getName(), this.getPickItem(), tab -> {
                     NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
@@ -159,7 +161,6 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                 widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(3, 61, 170, 80, DISPLAY));
                                 widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
-                                widgetGroup.addWidget(new ImageWidget(-25, 33, 28, 28, BORDERED_BACKGROUND_RIGHT));
                                 widgetGroup.addWidget(new ScrollableDisplayWidget(3, 61, 182, 80)
                                         .addTextWidget(textWidget));
                                 widgetGroup.addWidget(new NewTextFieldWidget<>(32, 43, 112, 13, false)
@@ -198,7 +199,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                         .useToggleTexture(true)
                                         .setDisplayText("-"));
-                                widgetGroup.addWidget(new TJToggleButtonWidget(-20, 38, 18, 18)
+                                widgetGroup.addWidget(new TJToggleButtonWidget(7, 143, 18, 18)
                                         .setTooltipText("machine.universal.toggle.clear")
                                         .setButtonId(player.getUniqueID().toString())
                                         .setBackgroundTextures(BUTTON_CLEAR_GRID)
