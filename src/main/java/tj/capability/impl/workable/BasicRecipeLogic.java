@@ -64,7 +64,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
                 this.recipeLRUCache.put(recipe);
             }
         }
-        if (recipe != null && (recipe = this.handler.createRecipe(recipe)) != null) {
+        if (recipe != null) {
             this.overclockManager.setEuMultiplier(2.8F);
             this.overclockManager.setEUt(recipe.getEUt());
             this.overclockManager.setDuration(recipe.getDuration());
@@ -92,25 +92,9 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         this.consumeItemInputs(parallels, recipe, itemHandlerModifiable);
         this.consumeFluidInputs(parallels, recipe);
         // add item and fluid outputs to output list
-        for (ItemStack stack : recipe.getOutputs()) {
-            ItemStack item = stack.copy();
-            item.setCount(stack.getCount() * parallels);
-            this.itemOutputs.add(item);
-        }
-        int tier = this.handler.getTier() - GAUtility.getTierByVoltage(this.overclockManager.getEUt());
-        for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
-            int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
-            if (Math.random() * 10000 < chance) {
-                ItemStack stack = entry.getItemStack().copy();
-                stack.setCount(stack.getCount() * parallels);
-                this.itemOutputs.add(stack);
-            }
-        }
-        for (FluidStack stack : recipe.getFluidOutputs()) {
-            FluidStack fluid = stack.copy();
-            fluid.amount *= parallels;
-            this.fluidOutputs.add(fluid);
-        }
+        this.addItemOutputs(parallels, recipe);
+        this.addChancedOutputs(parallels, recipe);
+        this.addFluidOutputs(parallels, recipe);
         this.overclockManager.setParallel(parallels);
         return true;
     }
@@ -132,6 +116,26 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         }
     }
 
+    protected void addItemOutputs(int parallels, Recipe recipe) {
+        for (ItemStack stack : recipe.getOutputs()) {
+            ItemStack item = stack.copy();
+            item.setCount(stack.getCount() * parallels);
+            this.itemOutputs.add(item);
+        }
+    }
+
+    protected void addChancedOutputs(int parallels, Recipe recipe) {
+        int tier = this.handler.getTier() - GAUtility.getTierByVoltage(this.overclockManager.getEUt());
+        for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
+            int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
+            if (Math.random() * 10000 < chance) {
+                ItemStack stack = entry.getItemStack().copy();
+                stack.setCount(stack.getCount() * parallels);
+                this.itemOutputs.add(stack);
+            }
+        }
+    }
+
     protected int checkFluidInputsAmount(int parallels, Recipe recipe) {
         for (FluidStack stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
             if (stack.amount > 0) {
@@ -147,8 +151,16 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         for (FluidStack stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
             FluidStack fluid = stack.copy();
             fluid.amount *= parallels;
-            TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack, stack.amount * parallels, true);
+            TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack, fluid.amount, true);
             this.fluidInputs.add(fluid);
+        }
+    }
+
+    protected void addFluidOutputs(int parallels, Recipe recipe) {
+        for (FluidStack stack : recipe.getFluidOutputs()) {
+            FluidStack fluid = stack.copy();
+            fluid.amount *= parallels;
+            this.fluidOutputs.add(fluid);
         }
     }
 

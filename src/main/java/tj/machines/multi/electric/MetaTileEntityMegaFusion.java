@@ -10,7 +10,6 @@ import gregicadditions.item.fusion.GADivertorCasing;
 import gregicadditions.item.fusion.GAFusionCasing;
 import gregicadditions.item.fusion.GAVacuumCasing;
 import gregicadditions.recipes.GARecipeMaps;
-import gregicadditions.recipes.impl.AdvFusionRecipeBuilder;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.impl.EnergyContainerHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -47,8 +46,11 @@ import tj.blocks.AdvEnergyPortCasings;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
+import tj.capability.impl.handler.IFusionHandler;
+import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
+import tj.util.TJFluidUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -61,7 +63,7 @@ import static gregicadditions.machines.multi.advance.MetaTileEntityAdvFusionReac
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController implements IHeatInfo, IProgressBar {
+public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController implements IHeatInfo, IProgressBar, IFusionHandler {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private final Set<BlockPos> activeStates = new HashSet<>();
@@ -98,6 +100,11 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     }
 
     @Override
+    protected BasicRecipeLogic<IFusionHandler> createRecipeLogic() {
+        return new MegaFusionRecipeLogic(this);
+    }
+
+    @Override
     public boolean checkRecipe(Recipe recipe) {
         long energyCapacity = this.energyContainer.getEnergyCapacity();
         this.parallels = (int) (energyCapacity / (long) recipe.getProperty("eu_to_start"));
@@ -109,42 +116,15 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     }
 
     @Override
-    public Recipe createRecipe(Recipe recipe) {
-        int recipeTier = recipe.getIntegerProperty("coil_tier");
-        int vacuumTierDifference = this.vacuumTier - recipeTier;
-        int divertorTierDifference = this.divertorTier - recipeTier;
-        AdvFusionRecipeBuilder builder = (AdvFusionRecipeBuilder) this.recipeMap.recipeBuilder();
-        builder.fluidInputs(recipe.getFluidInputs().get(0), recipe.getFluidInputs().get(1));
-        FluidStack newOutput = recipe.getFluidOutputs().get(0).copy();
-        newOutput.amount = (int) (newOutput.amount * (1 + divertorTierDifference * GAConfig.multis.advFusion.divertorOutputIncrease));
-        builder.fluidOutputs(newOutput);
-        if (recipe.getFluidInputs().size() == 3) {
-            FluidStack newFluid = recipe.getFluidInputs().get(2).copy();
-            newFluid.amount = (int) (newFluid.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease));
-            builder.fluidInputs(newFluid);
-            newOutput = recipe.getFluidOutputs().get(1).copy();
-            newOutput.amount = (int) (newOutput.amount * (1 + divertorTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease));
-            builder.fluidOutputs(newOutput);
-        }
-        recipe = builder.euStart(recipe.getProperty("eu_to_start"))
-                .euReturn(recipe.getIntegerProperty("eu_return"))
-                .coilTier(recipeTier)
-                .duration(recipe.getDuration())
-                .EUt(recipe.getEUt())
-                .build()
-                .getResult();
-        ((IGTRecipe) recipe).getMergedFluidInputs();
-        return recipe;
-    }
-
-    @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {}
 
     @Override
     public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        int tier = recipe.getProperty("coil_tier");
-        overclockManager.setDuration((int) (overclockManager.getDuration() * (10.0 - (this.coilTier - tier)) / 10));
-        overclockManager.setEUt((long) (overclockManager.getEUt() * (10.0 - (this.vacuumTier - tier)) / 10));
+        int recipeTier = recipe.getProperty("coil_tier");
+        int coilTierDifference = this.coilTier - recipeTier;
+        int vacuumTierDifference = this.vacuumTier - recipeTier;
+        overclockManager.setDuration((int) Math.max(1.0, overclockManager.getDuration() * (1 - GAConfig.multis.advFusion.coilDurationDiscount * coilTierDifference)));
+        overclockManager.setEUt((long) Math.max(1, overclockManager.getEUt() * (1 - vacuumTierDifference * GAConfig.multis.advFusion.vacuumEnergyDecrease)));
         overclockManager.setEUt(overclockManager.getEUt() * overclockManager.getParallel());
     }
 
@@ -262,7 +242,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
         this.vacuumTier = context.getOrDefault("Vacuum", GAVacuumCasing.CasingType.VACUUM_1).getTier();
         int cryostat = context.getOrDefault("Cryostat", GACryostatCasing.CasingType.CRYOSTAT_1).getTier();
         this.tier = Math.min(this.divertorTier, Math.min(this.coilTier, Math.min(this.vacuumTier, cryostat)));
-        this.maxVoltage = (long) (Math.pow(4, this.tier + GAValues.UV) * 8);
+        this.maxVoltage = 8L << (this.tier + GAValues.UV) * 2;
         long energyCapacity = 0;
         for (int i = 0; i < energyPortAmps.size(); i++) {
             energyCapacity += (long) (100000000 * energyPortAmps.get(i) * Math.pow(2, energyPorts.get(i).getTier() - GAValues.UHV));
@@ -273,6 +253,11 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
         this.energyToStart = (long) (Math.pow(2, this.tier - 1) * 1_600_000_000);
         this.energyContainer = new EnergyContainerHandler(this, energyCapacity, GAValues.V[this.tier + GAValues.UV], 0, 0, 0);
         this.initialized = false;
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
     }
 
     @Nonnull
@@ -406,5 +391,68 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     @Override
     public IItemHandlerModifiable getInputBus(int index) {
         return this.getImportItemInventory();
+    }
+
+    @Override
+    public int getDiverterTier() {
+        return this.divertorTier;
+    }
+
+    @Override
+    public int getVacuumTier() {
+        return this.vacuumTier;
+    }
+
+    private static class MegaFusionRecipeLogic extends BasicRecipeLogic<IFusionHandler> {
+
+        public MegaFusionRecipeLogic(MetaTileEntity metaTileEntity) {
+            super(metaTileEntity);
+        }
+
+        @Override
+        protected int checkFluidInputsAmount(int parallels, Recipe recipe) {
+            int vacuumTierDifference = this.handler.getVacuumTier() - (int) recipe.getProperty("coil_tier");
+            int size = ((IGTRecipe) recipe).getMergedFluidInputs().size();
+            for (int i = 0; i < size; i++) {
+                FluidStack fluid = ((IGTRecipe) recipe).getMergedFluidInputs().get(i);
+                int amount = i == size - 1 ? (int) (fluid.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease)) : fluid.amount;
+                if (amount > 0) {
+                    parallels = Math.min(parallels, TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), fluid, amount * parallels, false) / amount);
+                    if (parallels < 1) return 0;
+                } else if (!TJFluidUtils.findFluidFromTanks(this.handler.getImportFluidTank(), fluid))
+                    return 0;
+            }
+            return parallels;
+        }
+
+        @Override
+        protected void consumeFluidInputs(int parallels, Recipe recipe) {
+            int vacuumTierDifference = this.handler.getVacuumTier() - (int) recipe.getProperty("coil_tier");
+            for (int i = 0; i < ((IGTRecipe) recipe).getMergedFluidInputs().size(); i++) {
+                FluidStack fluid = ((IGTRecipe) recipe).getMergedFluidInputs().get(i).copy();
+                if (recipe.getFluidInputs().size() == 3)
+                    fluid.amount = i == 1 ? (int) (fluid.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease)) : fluid.amount;
+                fluid.amount *= parallels;
+                TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), fluid, fluid.amount, true);
+                this.getFluidInputs().add(fluid);
+            }
+        }
+
+        @Override
+        protected void addFluidOutputs(int parallels, Recipe recipe) {
+            int recipeTier = recipe.getProperty("coil_tier");
+            int divertorTierDifference = this.handler.getDiverterTier() - recipeTier;
+            int vacuumTierDifference = this.handler.getVacuumTier() - recipeTier;
+            for (int i = 0; i < recipe.getFluidOutputs().size(); i++) {
+                FluidStack fluid = recipe.getFluidOutputs().get(i).copy();
+                if (i == 0) {
+                    fluid.amount = (int) (fluid.amount * (1 + divertorTierDifference * GAConfig.multis.advFusion.divertorOutputIncrease));
+                } else if (i == recipe.getFluidOutputs().size() - 1) {
+                    fluid.amount = (int) (fluid.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease));
+                }
+                fluid.amount *= parallels;
+                this.getFluidOutputs().add(fluid);
+            }
+        }
     }
 }

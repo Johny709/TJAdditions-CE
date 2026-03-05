@@ -42,7 +42,7 @@ import tj.capability.IParallelController;
 import tj.capability.IRecipeMap;
 import tj.capability.OverclockManager;
 import tj.capability.TJCapabilities;
-import tj.capability.impl.handler.IMultiRecipeHandler;
+import tj.capability.impl.handler.IRecipeHandler;
 import tj.capability.impl.workable.ParallelRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.AdvancedDisplayWidget;
@@ -69,10 +69,10 @@ import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.gui.TJGuiTextures.*;
 import static tj.gui.TJGuiTextures.FLUID_VOID_BUTTON;
 
-public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockControllerBase implements IParallelController, IMultiRecipe, IMultiRecipeHandler {
+public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockControllerBase implements IParallelController, IMultiRecipe, IRecipeHandler {
 
     private final RecipeMap<?>[] recipeMaps;
-    private final ParallelRecipeLogic<? extends IMultiRecipeHandler> recipeLogic = this.createRecipeLogic();
+    private final ParallelRecipeLogic<? extends IRecipeHandler> recipeLogic = this.createRecipeLogic();
     protected BatchMode batchMode = BatchMode.ONE;
     protected int recipeMapIndex;
     protected int parallelLayer = 1;
@@ -109,7 +109,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", this.getChanceMultiplier()));
     }
 
-    protected ParallelRecipeLogic<? extends IMultiRecipeHandler> createRecipeLogic() {
+    protected ParallelRecipeLogic<? extends IRecipeHandler> createRecipeLogic() {
         return new ParallelRecipeLogic<>(this);
     }
 
@@ -124,7 +124,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     @Override
-    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe, int i) {
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         overclockManager.setChanceMultiplier(this.getChanceMultiplier());
         overclockManager.setEUt(overclockManager.getEUt() * this.getEUtMultiplier() / 100);
         overclockManager.setDuration(overclockManager.getDuration() * this.getDurationMultiplier() / 100);

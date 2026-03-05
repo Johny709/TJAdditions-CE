@@ -88,7 +88,7 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     }
 
     @Override
-    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe, int i) {
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         overclockManager.setParallel(1);
         long recipeEUt = overclockManager.getEUt() * 4;
         int duration = overclockManager.getDuration();

@@ -18,7 +18,7 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.capability.*;
-import tj.capability.impl.handler.IMultiRecipeHandler;
+import tj.capability.impl.handler.IRecipeHandler;
 import tj.util.ItemStackHelper;
 import tj.util.TJFluidUtils;
 
@@ -28,7 +28,7 @@ import java.util.List;
 
 import static net.minecraft.item.ItemStack.areItemStacksEqual;
 
-public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends AbstractParallelWorkableHandler<R> {
+public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParallelWorkableHandler<R> {
 
     private final ParallelRecipeLRUCache recipeLRUCache = new ParallelRecipeLRUCache(10);
     private final OverclockManager<?> overclockManager = new OverclockManager<>();
@@ -103,15 +103,15 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
                 this.recipeLRUCache.put(recipe);
             }
         }
-        if (recipe != null && (recipe = this.handler.createRecipe(recipe, i)) != null) {
+        if (recipe != null) {
             this.overclockManager.setEuMultiplier(2.8F);
             this.overclockManager.setEUt(recipe.getEUt());
             this.overclockManager.setDuration(recipe.getDuration());
             this.overclockManager.setParallel(this.handler.getParallel());
-            this.handler.preOverclock(this.overclockManager, recipe, i);
-            if (this.handler.checkRecipe(recipe, i) && this.consumeRecipe(recipe, itemHandlerModifiable, i)) {
+            this.handler.preOverclock(this.overclockManager, recipe);
+            if (this.handler.checkRecipe(recipe) && this.consumeRecipe(recipe, itemHandlerModifiable, i)) {
                 this.calculateOverclock(this.overclockManager.getEUt(), this.overclockManager.getDuration(), this.overclockManager.getEuMultiplier(), i);
-                this.handler.postOverclock(this.overclockManager, recipe, i);
+                this.handler.postOverclock(this.overclockManager, recipe);
                 this.energyPerTick[i] = this.overclockManager.getEUt();
                 this.setMaxProgress(this.overclockManager.getDuration(), i);
                 this.occupiedRecipes.set(i, recipe);
@@ -132,25 +132,9 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
         this.consumeItemInputs(parallels, recipe, itemHandlerModifiable, i);
         this.consumeFluidInputs(parallels, recipe, i);
         // add item and fluid outputs to output list
-        for (ItemStack stack : recipe.getOutputs()) {
-            ItemStack item = stack.copy();
-            item.setCount(stack.getCount() * parallels);
-            this.itemOutputs.get(i).add(item);
-        }
-        int tier = this.handler.getTier() - GAUtility.getTierByVoltage(this.overclockManager.getEUt());
-        for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
-            int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
-            if (Math.random() * 10000 < chance) {
-                ItemStack stack = entry.getItemStack().copy();
-                stack.setCount(stack.getCount() * parallels);
-                this.itemOutputs.get(i).add(stack);
-            }
-        }
-        for (FluidStack stack : recipe.getFluidOutputs()) {
-            FluidStack fluid = stack.copy();
-            fluid.amount *= parallels;
-            this.fluidOutputs.get(i).add(fluid);
-        }
+        this.addItemOutputs(parallels, recipe, i);
+        this.addChancedOutputs(parallels, recipe, i);
+        this.addFluidOutputs(parallels, recipe, i);
         this.overclockManager.setParallel(this.parallel[i] = parallels);
         return true;
     }
@@ -172,6 +156,26 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
         }
     }
 
+    protected void addItemOutputs(int parallels, Recipe recipe, int i) {
+        for (ItemStack stack : recipe.getOutputs()) {
+            ItemStack item = stack.copy();
+            item.setCount(stack.getCount() * parallels);
+            this.itemOutputs.get(i).add(item);
+        }
+    }
+
+    protected void addChancedOutputs(int parallels, Recipe recipe, int i) {
+        int tier = this.handler.getTier() - GAUtility.getTierByVoltage(this.overclockManager.getEUt());
+        for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
+            int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
+            if (Math.random() * 10000 < chance) {
+                ItemStack stack = entry.getItemStack().copy();
+                stack.setCount(stack.getCount() * parallels);
+                this.itemOutputs.get(i).add(stack);
+            }
+        }
+    }
+
     protected int checkFluidInputsAmount(int parallels, Recipe recipe) {
         for (FluidStack stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
             if (stack.amount > 0) {
@@ -189,6 +193,14 @@ public class ParallelRecipeLogic<R extends IMultiRecipeHandler> extends Abstract
             fluid.amount *= parallels;
             TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack, stack.amount * parallels, true);
             this.fluidInputs.get(i).add(fluid);
+        }
+    }
+
+    protected void addFluidOutputs(int parallels, Recipe recipe, int i) {
+        for (FluidStack stack : recipe.getFluidOutputs()) {
+            FluidStack fluid = stack.copy();
+            fluid.amount *= parallels;
+            this.fluidOutputs.get(i).add(fluid);
         }
     }
 
