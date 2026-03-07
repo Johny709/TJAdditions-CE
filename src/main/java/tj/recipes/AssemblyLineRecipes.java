@@ -1148,6 +1148,48 @@ public class AssemblyLineRecipes {
                 .duration(2000).EUt(GAValues.VA[10])
                 .buildAndRegister();
 
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(14440), Lubricant.getFluid(16000))
+                .inputs(new ItemStack(Blocks.OBSIDIAN, 32), IMPLOSION_COMPRESSOR.getStackForm(16), pistons[6].getStackForm(16))
+                .input(OrePrefix.plateDense, RhodiumPlatedPalladium, 7)
+                .input(OrePrefix.wireGtSingle, LuVSuperconductor, 16)
+                .input(OrePrefix.stickLong, TungstenSteel, 32)
+                .input(OrePrefix.frameGt, IncoloyMA956, 16)
+                .input(OrePrefix.screw, TungstenSteel, 32)
+                .input(OrePrefix.gear, IncoloyMA956, 8)
+                .input(OrePrefix.circuit, Master, 16)
+                .outputs(LARGE_IMPLOSION_COMPRESSOR.getStackForm())
+                .duration(1200).EUt(GAValues.VA[7])
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(57600), Osmiridium.getFluid(57600), Fermium.getMaterial().getFluid(57600), Mendelevium.getMaterial().getFluid(57600))
+                .inputs(ELECTRIC_IMPLOSION.getStackForm(16), pistons[11].getStackForm(16))
+                .input(OrePrefix.wireGtSingle, UIVSuperconductor, 64)
+                .input(OrePrefix.stickLong, Osmiridium, 64)
+                .input(OrePrefix.block, Neutronium, 16)
+                .input(OrePrefix.ring, Osmiridium, 64)
+                .outputs(LARGE_ELECTRIC_IMPLOSION_COMPRESSOR.getStackForm())
+                .duration(48000).EUt(GAValues.VA[12])
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), Polyetheretherketone.getFluid(9216))
+                .inputs(ASSEMBLY_LINE.getStackForm(16), motors[9].getStackForm(32), sensors[9].getStackForm(16), conveyors[9].getStackForm(16), robotArms[9].getStackForm(16), GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING, 64))
+                .input(OrePrefix.cableGtQuadruple, EnrichedNaquadahAlloy, 64)
+                .input(OrePrefix.screw, TriniumTitanium, 64)
+                .input(OrePrefix.plate, Pikyonium, 48)
+                .input(OrePrefix.gear, TitanSteel, 16)
+                .input(OrePrefix.gear, Seaborgium, 16)
+                .input(OrePrefix.circuit, Infinite, 4)
+                .input(OrePrefix.circuit, Infinite, 4)
+                .input(OrePrefix.circuit, Infinite, 4)
+                .input(OrePrefix.circuit, Infinite, 4)
+                .input(OrePrefix.frameGt, HDCS, 24)
+                .outputs(LARGE_ASSEMBLY_LINE.getStackForm())
+                .duration(2000).EUt(GAValues.VA[10])
+                .buildAndRegister();
+
         RecipeBuilder<?> largeAssemblyRecipeBuilder = LARGE_ASSEMBLY_LINE_RECIPES.recipeBuilder();
         for (int i = 0; i < 14; i++)
             largeAssemblyRecipeBuilder.inputs(motors[i].getStackForm(64), emitters[i].getStackForm(64), sensors[i].getStackForm(64), pistons[i].getStackForm(64), pumps[i].getStackForm(64), conveyors[i].getStackForm(64), robotArms[i].getStackForm(64), fieldGens[i].getStackForm(64));
