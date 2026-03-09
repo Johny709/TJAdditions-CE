@@ -2,7 +2,6 @@ package tj.machines.multi.parallel;
 
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.FieldGenCasing;
@@ -46,8 +45,6 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
 
     public MetaTileEntityParallelLargeElectromagnet(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_ELECTROMAGNET.getRecipeMaps());
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -93,8 +90,8 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int fieldGen = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV).getTier();
-        this.maxVoltage = (long) (Math.pow(4, fieldGen) * 8);
+        this.tier = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV).getTier();
+        this.maxVoltage = 8L << this.tier * 2;
     }
 
     @Override
@@ -109,22 +106,22 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelLargeElectromagnet.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelLargeElectromagnet.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelLargeElectromagnet.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelLargeElectromagnet.stack;
     }
 

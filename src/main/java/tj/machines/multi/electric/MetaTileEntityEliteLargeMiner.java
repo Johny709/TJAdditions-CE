@@ -57,7 +57,7 @@ import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.PopUpWidgetGroup;
 import tj.machines.ExtendedItemFilter;
@@ -444,7 +444,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (this.isStructureFormed()) {
             if(this.x.get() == Long.MAX_VALUE) {

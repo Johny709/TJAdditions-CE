@@ -81,6 +81,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
     @Override
     protected void progressRecipe(int progress) {
         super.progressRecipe(progress);
+        progress--;
         if (!this.initialized) {
             this.initialized = true;
             BlockPos pos = this.metaTileEntity.getPos();

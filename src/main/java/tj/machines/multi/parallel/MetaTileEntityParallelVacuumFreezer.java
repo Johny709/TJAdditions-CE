@@ -1,5 +1,6 @@
 package tj.machines.multi.parallel;
 
+import gregicadditions.GAUtility;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -9,6 +10,7 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockBoilerCasing;
@@ -23,7 +25,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelMultiblockRecipeLogic;
+import tj.capability.OverclockManager;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
@@ -41,8 +43,6 @@ public class MetaTileEntityParallelVacuumFreezer extends ParallelRecipeMapMultib
 
     public MetaTileEntityParallelVacuumFreezer(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.VACUUM_FREEZER.recipeMap);
-        this.recipeMapWorkable = new ParallelMultiblockRecipeLogic(this, TJConfig.machines.recipeCacheCapacity);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -56,6 +56,11 @@ public class MetaTileEntityParallelVacuumFreezer extends ParallelRecipeMapMultib
         tooltip.add(I18n.format("tj.multiblock.parallel_vacuum_freezer.description"));
         tooltip.add(I18n.format("tj.multiblock.parallel.description"));
         TooltipHelper.shiftTextJEI(tooltip, tip -> super.addInformation(stack, player, tip, advanced));
+    }
+
+    @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        overclockManager.setParallel(1);
     }
 
     @Override
@@ -100,6 +105,7 @@ public class MetaTileEntityParallelVacuumFreezer extends ParallelRecipeMapMultib
             amps /= 4;
             this.maxVoltage *= 4;
         }
+        this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
     }
 
     @Override

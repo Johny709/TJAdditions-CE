@@ -31,7 +31,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.impl.handler.INameHandler;
 import tj.capability.impl.workable.NamingMachineWorkableHandler;
 import tj.textures.TJTextures;
@@ -85,19 +85,19 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.voltageInLine(this.getInputEnergyContainer())
-                .voltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
-                .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
+        builder.addVoltageInLine(this.getInputEnergyContainer())
+                .addVoltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
+                .addEnergyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
                 .addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
                 .customLine(text -> text.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                         .appendText(" ")
                         .appendSibling(this.workableHandler.isDistinct()
                                 ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
                                 : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
-                .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+                .AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
                 .addRecipeInputLine(this.workableHandler)
                 .addRecipeOutputLine(this.workableHandler);
     }

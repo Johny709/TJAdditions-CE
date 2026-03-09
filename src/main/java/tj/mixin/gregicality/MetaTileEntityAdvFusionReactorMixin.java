@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import tj.blocks.AdvEnergyPortCasings;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.gui.TJGuiTextures;
@@ -122,7 +122,7 @@ public abstract class MetaTileEntityAdvFusionReactorMixin extends RecipeMapMulti
     }
 
     @Override
-    protected void configureDisplayText(UIDisplayBuilder builder) {
+    protected void configureDisplayText(GUIDisplayBuilder builder) {
         super.configureDisplayText(builder);
         if (!this.isStructureFormed()) return;
         if (!this.canWork)

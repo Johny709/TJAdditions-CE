@@ -480,6 +480,13 @@ public class RecipeInit {
                     .duration(300).EUt(GAValues.VA[Math.min(11, i + 9)])
                     .buildAndRegister();
         }
+        for (int i = 1; i < BUFFERS.length; i++) {
+            ModHandler.addShapedRecipe("gt_buffers." + GAValues.VN[i], BUFFERS[i].getStackForm(), "HP", "CY",
+                    'Y', GACraftingComponents.CONVEYOR.getIngredient(i),
+                    'C', GACraftingComponents.CIRCUIT.getIngredient(i),
+                    'H', GACraftingComponents.HULL.getIngredient(i),
+                    'P', GACraftingComponents.PUMP.getIngredient(i));
+        }
 
         BlockFusionGlass.GlassType[] fusionGlass = BlockFusionGlass.GlassType.values();
         ItemStack[] fusionCasing = {MetaBlocks.MUTLIBLOCK_CASING.getItemVariant(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING), MetaBlocks.MUTLIBLOCK_CASING.getItemVariant(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING_MK2),

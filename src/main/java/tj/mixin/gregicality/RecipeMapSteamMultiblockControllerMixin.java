@@ -14,7 +14,7 @@ import net.minecraftforge.fluids.IFluidTank;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.mixin.gregtech.MultiblockWithDisplayBaseMixin;
 
 @Mixin(value = RecipeMapSteamMultiblockController.class, remap = false)
@@ -32,7 +32,7 @@ public abstract class RecipeMapSteamMultiblockControllerMixin extends Multiblock
     }
 
     @Override
-    protected void configureDisplayText(UIDisplayBuilder builder) {
+    protected void configureDisplayText(GUIDisplayBuilder builder) {
         super.configureDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.customLine(text -> {
@@ -48,7 +48,7 @@ public abstract class RecipeMapSteamMultiblockControllerMixin extends Multiblock
                         text.addTextComponent(new TextComponentString(String.format("Cache size (%s) hit (%s) miss (%s)", this.recipeMapWorkable.previousRecipe.getCachedRecipeCount(), this.recipeMapWorkable.previousRecipe.getCacheHit(), this.recipeMapWorkable.previousRecipe.getCacheMiss()))
                                 .setStyle(new Style().setColor(TextFormatting.WHITE)));
                     }
-                }).isWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), 999)
+                }).AddIsWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), 999)
                 .addRecipeOutputLine(this.recipeMapWorkable, 1000);
     }
 

@@ -3,7 +3,6 @@ package tj.machines.multi.parallel;
 import gregicadditions.machines.GATileEntities;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
@@ -48,8 +47,6 @@ public class MetaTileEntityParallelLargeExtruder extends ParallelRecipeMapMultib
 
     public MetaTileEntityParallelLargeExtruder(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_EXTRUDER.recipeMap);
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -98,8 +95,8 @@ public class MetaTileEntityParallelLargeExtruder extends ParallelRecipeMapMultib
         super.formStructure(context);
         int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         int piston = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
-        int min = Math.min(motor, piston);
-        this.maxVoltage = (long) (Math.pow(4, min) * 8);
+        this.tier = Math.min(motor, piston);
+        this.maxVoltage = 8L << this.tier * 2;
     }
 
     @Override
@@ -114,22 +111,22 @@ public class MetaTileEntityParallelLargeExtruder extends ParallelRecipeMapMultib
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelLargeExtruder.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelLargeExtruder.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelLargeExtruder.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelLargeExtruder.stack;
     }
 

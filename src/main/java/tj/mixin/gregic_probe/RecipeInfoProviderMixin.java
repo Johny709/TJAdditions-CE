@@ -28,7 +28,7 @@ public abstract class RecipeInfoProviderMixin {
         long recipeEUt;
         if ((capability instanceof AbstractRecipeLogic && (recipeEUt = ((AbstractRecipeLogic) capability).getRecipeEUt()) > 0) || (capability instanceof AbstractWorkableHandler && (recipeEUt = ((AbstractWorkableHandler<?>) capability).getEnergyPerTick()) > 0)) {
             IProbeInfo horizontalPane = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER));
-            int tier = GAUtility.getTierByVoltage(recipeEUt) + 1;
+            int tier = Math.min(GAValues.MAX, GAUtility.getTierByVoltage(recipeEUt) + 1);
             horizontalPane.text(TextStyleClass.INFO + "{*gregicprobe:top.eut*} ");
             horizontalPane.text(TextStyleClass.INFO + "§e" + TJValues.thousandFormat.format(recipeEUt) + " §rEU/t §7(" + TJValues.VCC[tier] + GAValues.VN[tier] + "§r§7)");
         }

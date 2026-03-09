@@ -6,7 +6,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.IMachineHandler;
 import tj.capability.TJCapabilities;
@@ -35,7 +34,6 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
 
     @Override
     protected boolean startRecipe() {
-        boolean canStart = false;
         IItemHandlerModifiable itemInputs = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
         if (this.findCatalyst(itemInputs) && this.findInputs(itemInputs)) {
             this.output = new ItemStack(Item.getByNameOrId("architecturecraft:shape"), this.input.getCount());
@@ -44,11 +42,9 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
             compound.setInteger("BaseData", this.input.getMetadata());
             this.output.setTagCompound(compound);
             this.maxProgress = this.calculateOverclock(30, 200, 2.8F);
-            canStart = true;
+            return true;
         }
-        if (++this.lastInputIndex == this.busCount)
-            this.lastInputIndex = 0;
-        return canStart;
+        return false;
     }
 
     @Override

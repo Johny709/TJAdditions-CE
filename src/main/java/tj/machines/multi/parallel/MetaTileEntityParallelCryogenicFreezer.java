@@ -27,11 +27,10 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.builder.multicontrollers.UIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
 import tj.util.TJFluidUtils;
 import tj.util.TooltipHelper;
 
@@ -56,17 +55,6 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
 
     public MetaTileEntityParallelCryogenicFreezer(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.VACUUM_FREEZER.recipeMap);
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack) {
-
-            @Override
-            protected boolean drawEnergy(long recipeEUt) {
-                FluidStack drained = this.getInputTank().drain(cryotheum, true);
-                if (drained == null || drained.amount != cryotheum.amount)
-                    return false;
-                return super.drawEnergy(recipeEUt);
-            }
-        };
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -86,10 +74,10 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.fluidInputLine(this.importFluidTank, this.cryotheum);
+        builder.addFluidInputLine(this.importFluidTank, this.cryotheum);
     }
 
     @Override
@@ -126,7 +114,8 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
                 .filter(voltage -> voltage <= GAValues.V[7])
                 .max()
                 .orElse(GAValues.V[7]);
-        this.cryotheum = Cryotheum.getFluid((int) Math.pow(2, GAUtility.getTierByVoltage(this.maxVoltage)));
+        this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
+        this.cryotheum = Cryotheum.getFluid((int) Math.pow(2, this.tier));
     }
 
     @Override
@@ -161,22 +150,22 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelCryogenicFreezer.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelCryogenicFreezer.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelCryogenicFreezer.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelCryogenicFreezer.stack;
     }
 

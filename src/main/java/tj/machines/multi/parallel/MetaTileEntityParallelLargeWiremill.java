@@ -3,7 +3,6 @@ package tj.machines.multi.parallel;
 import gregicadditions.machines.GATileEntities;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
@@ -46,8 +45,6 @@ public class MetaTileEntityParallelLargeWiremill extends ParallelRecipeMapMultib
 
     public MetaTileEntityParallelLargeWiremill(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_WIREMILL.recipeMap);
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -90,8 +87,8 @@ public class MetaTileEntityParallelLargeWiremill extends ParallelRecipeMapMultib
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        this.maxVoltage = (long) (Math.pow(4, motor) * 8);
+        this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        this.maxVoltage = 8L << this.tier * 2;
     }
 
     @Override
@@ -106,22 +103,22 @@ public class MetaTileEntityParallelLargeWiremill extends ParallelRecipeMapMultib
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelLargeWiremill.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelLargeWiremill.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelLargeWiremill.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelLargeWiremill.stack;
     }
 

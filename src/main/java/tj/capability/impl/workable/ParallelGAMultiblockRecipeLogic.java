@@ -14,7 +14,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 
 import java.util.*;
 import java.util.function.IntSupplier;
@@ -30,7 +30,7 @@ public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLog
     protected final IntSupplier chancePercentage;
     protected final IntSupplier stack;
 
-    public ParallelGAMultiblockRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, IntSupplier EUtPercentage, IntSupplier durationPercentage, IntSupplier chancePercentage, IntSupplier stack) {
+    public ParallelGAMultiblockRecipeLogic(OldParallelRecipeMapMultiblockController tileEntity, IntSupplier EUtPercentage, IntSupplier durationPercentage, IntSupplier chancePercentage, IntSupplier stack) {
         super(tileEntity, TJConfig.machines.recipeCacheCapacity);
         this.EUtPercentage = EUtPercentage;
         this.durationPercentage = durationPercentage;

@@ -260,37 +260,32 @@ public abstract class RecipeMapMixin implements IRecipeMap {
 
     @Override
     public Recipe findRecipe(Recipe recipe) {
-        for (Map.Entry<MapItemStackIngredient, Collection<Recipe>> map : this.recipeItemMap.entrySet()) {
-            if (map == null) continue;
-            for (Recipe foundRecipe : map.getValue()) {
-                if (foundRecipe == null) continue;
-                if (foundRecipe.getInputs().toString().equals(recipe.getInputs().toString()) &&
-                        getOutputCountMatches(recipe, foundRecipe) &&
-                        foundRecipe.getFluidInputs().equals(recipe.getFluidInputs()) &&
-                        foundRecipe.getFluidOutputs().equals(recipe.getFluidOutputs()) &&
-                        foundRecipe.getChancedOutputs().equals(recipe.getChancedOutputs()) &&
-                        foundRecipe.getEUt() == recipe.getEUt() &&
-                        foundRecipe.getDuration() == recipe.getDuration()) {
-                    return foundRecipe;
-                }
-            }
-        }
-        for (Map.Entry<MapFluidIngredient, Collection<Recipe>> map : this.recipeFluidMap.entrySet()) {
-            if (map == null) continue;
-            for (Recipe foundRecipe : map.getValue()) {
-                if (foundRecipe == null) continue;
-                if (foundRecipe.getInputs().toString().equals(recipe.getInputs().toString()) &&
-                        getOutputCountMatches(recipe, foundRecipe) &&
-                        foundRecipe.getFluidInputs().equals(recipe.getFluidInputs()) &&
-                        foundRecipe.getFluidOutputs().equals(recipe.getFluidOutputs()) &&
-                        foundRecipe.getChancedOutputs().equals(recipe.getChancedOutputs()) &&
-                        foundRecipe.getEUt() == recipe.getEUt() &&
-                        foundRecipe.getDuration() == recipe.getDuration()) {
-                    return foundRecipe;
-                }
+        for (Recipe foundRecipe : this.recipeList) {
+            if (foundRecipe == null) continue;
+            if (foundRecipe.getInputs().toString().equals(recipe.getInputs().toString()) &&
+                    getOutputCountMatches(recipe, foundRecipe) &&
+                    foundRecipe.getFluidInputs().equals(recipe.getFluidInputs()) &&
+                    foundRecipe.getFluidOutputs().equals(recipe.getFluidOutputs()) &&
+                    getChancedOutputMatches(recipe.getChancedOutputs(), foundRecipe.getChancedOutputs()) &&
+                    foundRecipe.getEUt() == recipe.getEUt() &&
+                    foundRecipe.getDuration() == recipe.getDuration()) {
+                return foundRecipe;
             }
         }
         return null;
+    }
+
+    @Unique
+    private static boolean getChancedOutputMatches(List<Recipe.ChanceEntry> entry, List<Recipe.ChanceEntry> otherEntry) {
+        int outputCountMatches = 0;
+        for (int i = 0; i < entry.size(); i++) {
+            Recipe.ChanceEntry a = entry.get(i);
+            Recipe.ChanceEntry b = otherEntry.get(i);
+            if (a.getChance() == b.getChance() && a.getBoostPerTier() == b.getBoostPerTier() &&
+            a.getItemStack().getItem() == b.getItemStack().getItem() && a.getItemStack().getCount() == b.getItemStack().getCount() &&
+            a.getItemStack().getMetadata() == b.getItemStack().getMetadata()) outputCountMatches++;
+        }
+        return outputCountMatches >= otherEntry.size();
     }
 
     @Unique
@@ -300,7 +295,7 @@ public abstract class RecipeMapMixin implements IRecipeMap {
             if (foundRecipe.getOutputs().isEmpty()) continue;
             ItemStack itemInput = foundRecipe.getOutputs().get(i);
             ItemStack newItemInput = recipe.getOutputs().get(i);
-            if (itemInput.getTranslationKey().equals(newItemInput.getTranslationKey()) &&
+            if (itemInput.getItem() == newItemInput.getItem() &&
                     itemInput.getCount() == newItemInput.getCount() &&
                     itemInput.getMetadata() == newItemInput.getMetadata()) outputCountMatches++;
         }

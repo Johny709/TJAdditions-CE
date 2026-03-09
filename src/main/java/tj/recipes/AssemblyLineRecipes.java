@@ -42,9 +42,11 @@ public class AssemblyLineRecipes {
         MetaItem<?>.MetaValueItem[] motors = {ELECTRIC_MOTOR_LV, ELECTRIC_MOTOR_MV, ELECTRIC_MOTOR_HV, ELECTRIC_MOTOR_EV, ELECTRIC_MOTOR_IV, ELECTRIC_MOTOR_LUV, ELECTRIC_MOTOR_ZPM, ELECTRIC_MOTOR_UV, ELECTRIC_MOTOR_UHV, ELECTRIC_MOTOR_UEV, ELECTRIC_MOTOR_UIV, ELECTRIC_MOTOR_UMV, ELECTRIC_MOTOR_UXV, ELECTRIC_MOTOR_MAX};
         MetaItem<?>.MetaValueItem[] emitters = {EMITTER_LV, EMITTER_MV, EMITTER_HV, EMITTER_EV, EMITTER_IV, EMITTER_LUV, EMITTER_ZPM, EMITTER_UV, EMITTER_UHV, EMITTER_UEV, EMITTER_UIV, EMITTER_UMV, EMITTER_UXV, EMITTER_MAX};
         MetaItem<?>.MetaValueItem[] sensors = {SENSOR_LV, SENSOR_MV, SENSOR_HV, SENSOR_EV, SENSOR_IV, SENSOR_LUV, SENSOR_ZPM, SENSOR_UV, SENSOR_UHV, SENSOR_UEV, SENSOR_UIV, SENSOR_UMV, SENSOR_UXV, SENSOR_MAX};
+        MetaItem<?>.MetaValueItem[] pistons = {ELECTRIC_PISTON_LV, ELECTRIC_PISTON_MV, ELECTRIC_PISTON_HV, ELECTRIC_PISTON_EV, ELECTRIC_PISTON_IV, ELECTRIC_PISTON_LUV, ELECTRIC_PISTON_ZPM, ELECTRIC_PISTON_UV, ELECTRIC_PISTON_UHV, ELECTRIC_PISTON_UEV, ELECTRIC_PISTON_UIV, ELECTRIC_PISTON_UMV, ELECTRIC_PISTON_UXV, ELECTRIC_PISTON_MAX};
         MetaItem<?>.MetaValueItem[] pumps = {ELECTRIC_PUMP_LV, ELECTRIC_PUMP_MV, ELECTRIC_PUMP_HV, ELECTRIC_PUMP_EV, ELECTRIC_PUMP_IV, ELECTRIC_PUMP_LUV, ELECTRIC_PUMP_ZPM, ELECTRIC_PUMP_UV, ELECTRIC_PUMP_UHV, ELECTRIC_PUMP_UEV, ELECTRIC_PUMP_UIV, ELECTRIC_PUMP_UMV, ELECTRIC_PUMP_UXV, ELECTRIC_PUMP_MAX};
         MetaItem<?>.MetaValueItem[] conveyors = {CONVEYOR_MODULE_LV, CONVEYOR_MODULE_MV, CONVEYOR_MODULE_HV, CONVEYOR_MODULE_EV, CONVEYOR_MODULE_IV, CONVEYOR_MODULE_LUV, CONVEYOR_MODULE_ZPM, CONVEYOR_MODULE_UV, CONVEYOR_MODULE_UHV, CONVEYOR_MODULE_UEV, CONVEYOR_MODULE_UIV, CONVEYOR_MODULE_UMV, CONVEYOR_MODULE_UXV, CONVEYOR_MODULE_MAX};
         MetaItem<?>.MetaValueItem[] robotArms = {ROBOT_ARM_LV, ROBOT_ARM_MV, ROBOT_ARM_HV, ROBOT_ARM_EV, ROBOT_ARM_IV, ROBOT_ARM_LUV, ROBOT_ARM_ZPM, ROBOT_ARM_UV, ROBOT_ARM_UHV, ROBOT_ARM_UEV, ROBOT_ARM_UIV, ROBOT_ARM_UMV, ROBOT_ARM_UXV, ROBOT_ARM_MAX};
+        MetaItem<?>.MetaValueItem[] fieldGens = {FIELD_GENERATOR_LV, FIELD_GENERATOR_MV, FIELD_GENERATOR_HV, FIELD_GENERATOR_EV, FIELD_GENERATOR_IV, FIELD_GENERATOR_LUV, FIELD_GENERATOR_ZPM, FIELD_GENERATOR_UV, FIELD_GENERATOR_UHV, FIELD_GENERATOR_UEV, FIELD_GENERATOR_UIV, FIELD_GENERATOR_UMV, FIELD_GENERATOR_UXV, FIELD_GENERATOR_MAX};
         MetaItem<?>.MetaValueItem[] regulators = {FLUID_REGULATOR_LV, FLUID_REGULATOR_MV, FLUID_REGULATOR_HV, FLUID_REGULATOR_EV, FLUID_REGULATOR_IV, FLUID_REGULATOR_LUV, FLUID_REGULATOR_ZPM, FLUID_REGULATOR_UV, FLUID_REGULATOR_UHV, null, null, FLUID_REGULATOR_UMV, null, FLUID_REGULATOR_MAX};
 
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
@@ -1141,6 +1143,49 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UEV, 16)
                 .inputs(UHPIC.getStackForm(16), GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TALONITE, 16), UHPIC.getStackForm(16), UHPIC.getStackForm(16), GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TALONITE, 16))
                 .outputs(ENDER_BATTERY_TOWER.getStackForm())
+                .duration(2000).EUt(GAValues.VA[10])
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(14440), Lubricant.getFluid(16000))
+                .inputs(new ItemStack(Blocks.OBSIDIAN, 32), IMPLOSION_COMPRESSOR.getStackForm(16), pistons[5].getStackForm(16))
+                .input(OrePrefix.plateDense, RhodiumPlatedPalladium, 7)
+                .input(OrePrefix.wireGtSingle, LuVSuperconductor, 16)
+                .input(OrePrefix.stickLong, TungstenSteel, 32)
+                .input(OrePrefix.frameGt, IncoloyMA956, 16)
+                .input(OrePrefix.screw, TungstenSteel, 32)
+                .input(OrePrefix.gear, IncoloyMA956, 8)
+                .input(OrePrefix.circuit, Master, 16)
+                .outputs(LARGE_IMPLOSION_COMPRESSOR.getStackForm())
+                .duration(1200).EUt(GAValues.VA[7])
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(57600), Osmiridium.getFluid(57600), Fermium.getMaterial().getFluid(57600), Mendelevium.getMaterial().getFluid(57600))
+                .inputs(ELECTRIC_IMPLOSION.getStackForm(16), pistons[10].getStackForm(64), pistons[10].getStackForm(64), pistons[10].getStackForm(64), pistons[10].getStackForm(64))
+                .input(OrePrefix.wireGtSingle, UIVSuperconductor, 64)
+                .input(OrePrefix.stickLong, Osmiridium, 64)
+                .input(OrePrefix.block, Neutronium, 16)
+                .input(OrePrefix.ring, Osmium, 64)
+                .input(OrePrefix.circuit, UIV, 64)
+                .outputs(LARGE_ELECTRIC_IMPLOSION_COMPRESSOR.getStackForm())
+                .duration(48000).EUt(GAValues.VA[12])
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), Polyetheretherketone.getFluid(9216))
+                .inputs(ASSEMBLY_LINE.getStackForm(16), motors[8].getStackForm(32), sensors[8].getStackForm(16), conveyors[8].getStackForm(16), robotArms[8].getStackForm(16), GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING, 64))
+                .input(OrePrefix.cableGtQuadruple, EnrichedNaquadahAlloy, 64)
+                .input(OrePrefix.screw, TriniumTitanium, 64)
+                .input(OrePrefix.plate, Pikyonium, 48)
+                .input(OrePrefix.gear, TitanSteel, 16)
+                .input(OrePrefix.gear, Seaborgium, 16)
+                .input(OrePrefix.circuit, Infinite, 4)
+                .input(OrePrefix.circuit, Infinite, 4)
+                .input(OrePrefix.circuit, Infinite, 4)
+                .input(OrePrefix.circuit, Infinite, 4)
+                .input(OrePrefix.frameGt, HDCS, 24)
+                .outputs(LARGE_ASSEMBLY_LINE.getStackForm())
                 .duration(2000).EUt(GAValues.VA[10])
                 .buildAndRegister();
     }

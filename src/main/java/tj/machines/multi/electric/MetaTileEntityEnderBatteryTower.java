@@ -53,7 +53,7 @@ import tj.builder.WidgetTabBuilder;
 import tj.capability.impl.handler.IBatteryHandler;
 import tj.capability.impl.workable.BasicEnergyHandler;
 import tj.builder.multicontrollers.ExtendableMultiblockController;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IEnderNotifiable;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
@@ -652,7 +652,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         return flag;
     }
 
-    private Consumer<UIDisplayBuilder> addChannelDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
+    private Consumer<GUIDisplayBuilder> addChannelDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
         return (builder) -> {
             int results = 0;
             builder.addTextComponent(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.channels") + "§r(§e" + searchResults[0] + "§r/§e" + this.getEnderProfile().getChannels().size() + "§r)"));
@@ -675,7 +675,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         };
     }
 
-    private Consumer<UIDisplayBuilder> addFrequencyDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
+    private Consumer<GUIDisplayBuilder> addFrequencyDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
         return (builder) -> {
             int results = 0;
             builder.addTextComponent(new TextComponentString("§l" + I18n.translateToLocal("tj.multiblock.tab.frequencies") + "§r(§e" + searchResults[1] + "§r/§e" + this.getPlayerMap().size() + "§r)"));
@@ -724,10 +724,10 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.energyStoredLine(this.inputEnergyContainer.getEnergyStored(), this.inputEnergyContainer.getEnergyCapacity())
+        builder.addEnergyStoredLine(this.inputEnergyContainer.getEnergyStored(), this.inputEnergyContainer.getEnergyCapacity())
                 .customLine(text -> {
                     text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.ender_battery_tower.energy_inserted", this.workableHandler.getEnergyInserted()))
                             .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.ender_battery_tower.energy_inserted.tooltip")))));
@@ -737,7 +737,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                             .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.ender_battery_tower.last_energy_inserted.tooltip")))));
                     text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.ender_battery_tower.last_energy_extracted", this.workableHandler.getLastEnergyExtracted()))
                             .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.ender_battery_tower.last_energy_extracted.tooltip")))));
-                }).isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                }).AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     private String[] getTooltipFormat() {

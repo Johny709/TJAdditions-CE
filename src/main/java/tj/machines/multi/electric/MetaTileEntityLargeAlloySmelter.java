@@ -19,24 +19,29 @@ import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockWireCoil;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
-import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
+import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Predicate;
 
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 
-public class MetaTileEntityLargeAlloySmelter extends TJLargeSimpleRecipeMapMultiblockControllerBase {
-
-    private int tier;
+public class MetaTileEntityLargeAlloySmelter extends TJRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
     public MetaTileEntityLargeAlloySmelter(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, RecipeMaps.ALLOY_SMELTER_RECIPES, TJConfig.largeAlloySmelter.eutPercentage, TJConfig.largeAlloySmelter.durationPercentage, TJConfig.largeAlloySmelter.chancePercentage, TJConfig.largeAlloySmelter.stack);
+        super(metaTileEntityId, RecipeMaps.ALLOY_SMELTER_RECIPES);
     }
 
     @Override
@@ -45,60 +50,22 @@ public class MetaTileEntityLargeAlloySmelter extends TJLargeSimpleRecipeMapMulti
     }
 
     @Override
-    protected void formStructure(PatternMatchContext context) {
-        super.formStructure(context);
-        int temperature = context.getOrDefault("blastFurnaceTemperature", 0);
-
-        switch (temperature) {
-            case 2700:
-                tier = 2;
-                break;
-            case 3600:
-                tier = 3;
-                break;
-            case 4500:
-                tier = 4;
-                break;
-            case 5400:
-                tier = 5;
-                break;
-            case 7200:
-                tier = 6;
-                break;
-            case 8600:
-                tier = 7;
-                break;
-            case 9600:
-                tier = 8;
-                break;
-            case 10700:
-                tier = 9;
-                break;
-            case 11200:
-                tier = 10;
-                break;
-            case 12600:
-                tier = 11;
-                break;
-            case 14200:
-                tier = 12;
-                break;
-            case 28400:
-                tier = 13;
-                break;
-            case 56800:
-                tier = 14;
-                break;
-            default:
-                tier = 1;
-        }
-        maxVoltage = (long) (Math.pow(4, tier) * 8);
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("tj.multiblock.large_alloy_smelter.description"));
+        super.addInformation(stack, player, tooltip, advanced);
     }
 
     @Override
-    public void invalidateStructure() {
-        super.invalidateStructure();
-        this.tier = 0;
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        BlockWireCoil.CoilType coilType;
+        GAHeatingCoil.CoilType gaCoilType;
+        if ((coilType = context.getOrDefault("coilType", BlockWireCoil.CoilType.CUPRONICKEL)) != null)
+            this.tier = coilType.ordinal() + 1;
+        else if ((gaCoilType = context.getOrDefault("gaCoilType", GAHeatingCoil.CoilType.TITAN_STEEL_COIL)) != null)
+            this.tier = gaCoilType.ordinal() + 8;
+        this.maxVoltage = 8L << this.tier * 2;
     }
 
     @Override
@@ -174,4 +141,18 @@ public class MetaTileEntityLargeAlloySmelter extends TJLargeSimpleRecipeMapMulti
         return Textures.BLAST_FURNACE_OVERLAY;
     }
 
+    @Override
+    public int getEUtMultiplier() {
+        return TJConfig.largeAlloySmelter.eutPercentage;
+    }
+
+    @Override
+    public int getDurationMultiplier() {
+        return TJConfig.largeAlloySmelter.durationPercentage;
+    }
+
+    @Override
+    public int getParallel() {
+        return TJConfig.largeAlloySmelter.stack;
+    }
 }

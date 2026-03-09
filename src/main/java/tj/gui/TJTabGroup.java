@@ -8,8 +8,11 @@ import gregtech.api.gui.widgets.tab.TabListRenderer;
 import gregtech.api.util.Position;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Tuple;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.gui.widgets.PopUpWidgetGroup;
 
 import java.util.ArrayList;
@@ -38,15 +41,15 @@ public class TJTabGroup extends AbstractWidgetGroup {
 
     @Override
     public List<Widget> getContainedWidgets(boolean includeHidden) {
-        ArrayList<Widget> containedWidgets = new ArrayList<>(widgets.size());
+        ArrayList<Widget> containedWidgets = new ArrayList<>(this.widgets.size());
 
         if (includeHidden) {
-            for (Widget widget : tabWidgets.values()) {
+            for (AbstractWidgetGroup widget : this.tabWidgets.values()) {
                 containedWidgets.add(widget);
                 if (widget instanceof PopUpWidgetGroup)
                     continue;
                 if (widget instanceof AbstractWidgetGroup)
-                    containedWidgets.addAll(((AbstractWidgetGroup) widget).getContainedWidgets(true));
+                    containedWidgets.addAll(widget.getContainedWidgets(true));
             }
         } else {
             AbstractWidgetGroup widgetGroup = tabWidgets.get(selectedTabIndex);
@@ -58,14 +61,16 @@ public class TJTabGroup extends AbstractWidgetGroup {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        super.drawInBackground(mouseX, mouseY, context);
+        this.tabWidgets.get(this.selectedTabIndex).drawInBackground(mouseX, mouseY, context);
         this.tabListRenderer.renderTabs(getPosition(), tabInfos, sizes.getWidth(), sizes.getHeight(), selectedTabIndex);
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        super.drawInForeground(mouseX, mouseY);
+        this.tabWidgets.get(this.selectedTabIndex).drawInForeground(mouseX, mouseY);
         Tuple<ITabInfo, int[]> tabOnMouse = getTabOnMouse(mouseX, mouseY);
         if (tabOnMouse != null) {
             int[] tabSizes = tabOnMouse.getSecond();
@@ -77,7 +82,6 @@ public class TJTabGroup extends AbstractWidgetGroup {
 
     @Override
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        super.mouseClicked(mouseX, mouseY, button);
         Tuple<ITabInfo, int[]> tabOnMouse = getTabOnMouse(mouseX, mouseY);
         if (tabOnMouse != null) {
             ITabInfo tabInfo = tabOnMouse.getFirst();
@@ -89,13 +93,42 @@ public class TJTabGroup extends AbstractWidgetGroup {
                 return true;
             }
         }
-        return false;
+        return this.tabWidgets.get(this.selectedTabIndex).mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
+        return this.tabWidgets.get(this.selectedTabIndex).mouseDragged(mouseX, mouseY, button, timeDragged);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
+        return this.tabWidgets.get(this.selectedTabIndex).mouseWheelMove(mouseX, mouseY, wheelDelta);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean mouseReleased(int mouseX, int mouseY, int button) {
+        return this.tabWidgets.get(this.selectedTabIndex).mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void updateScreen() {
+        this.tabWidgets.get(this.selectedTabIndex).updateScreen();
     }
 
     private void setSelectedTab(int tabIndex) {
         this.tabWidgets.get(selectedTabIndex).setVisible(false);
         this.tabWidgets.get(tabIndex).setVisible(true);
         this.selectedTabIndex = tabIndex;
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        this.tabWidgets.get(this.selectedTabIndex).detectAndSendChanges();
     }
 
     @Override
@@ -107,6 +140,16 @@ public class TJTabGroup extends AbstractWidgetGroup {
                 setSelectedTab(tabIndex);
             }
         }
+    }
+
+    @Override
+    public Object getIngredientOverMouse(int mouseX, int mouseY) {
+        return this.tabWidgets.get(this.selectedTabIndex).getIngredientOverMouse(mouseX, mouseY);
+    }
+
+    @Override
+    public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
+        return this.tabWidgets.get(this.selectedTabIndex).getPhantomTargets(ingredient);
     }
 
     private Tuple<ITabInfo, int[]> getTabOnMouse(int mouseX, int mouseY) {

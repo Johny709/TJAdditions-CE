@@ -11,7 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -29,7 +29,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     protected int[] lastRecipeIndex;
     protected ItemStack[][] lastItemInputsMatrix;
 
-    public ParallelMultiblockRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, int recipeCacheSize) {
+    public ParallelMultiblockRecipeLogic(OldParallelRecipeMapMultiblockController tileEntity, int recipeCacheSize) {
         super(tileEntity, recipeCacheSize);
         this.lastRecipeIndex = new int[1];
     }
@@ -41,37 +41,37 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     }
 
     public IEnergyContainer getEnergyContainer() {
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
+        OldParallelRecipeMapMultiblockController controller = (OldParallelRecipeMapMultiblockController) this.metaTileEntity;
         return controller.getInputEnergyContainer();
     }
 
     @Override
     protected IItemHandlerModifiable getInputInventory() {
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
+        OldParallelRecipeMapMultiblockController controller = (OldParallelRecipeMapMultiblockController) this.metaTileEntity;
         return controller.getImportItemInventory();
     }
 
     @Override
     protected IItemHandlerModifiable getOutputInventory() {
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
+        OldParallelRecipeMapMultiblockController controller = (OldParallelRecipeMapMultiblockController) this.metaTileEntity;
         return controller.getExportItemInventory();
     }
 
     @Override
     protected IMultipleTankHandler getInputTank() {
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
+        OldParallelRecipeMapMultiblockController controller = (OldParallelRecipeMapMultiblockController) this.metaTileEntity;
         return controller.getImportFluidTank();
     }
 
     @Override
     protected IMultipleTankHandler getOutputTank() {
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
+        OldParallelRecipeMapMultiblockController controller = (OldParallelRecipeMapMultiblockController) this.metaTileEntity;
         return controller.getExportFluidTank();
     }
 
     @Override
     protected boolean setupAndConsumeRecipeInputs(Recipe recipe) {
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
+        OldParallelRecipeMapMultiblockController controller = (OldParallelRecipeMapMultiblockController) this.metaTileEntity;
         if (controller.checkRecipe(recipe, false) &&
                 super.setupAndConsumeRecipeInputs(recipe)) {
             controller.checkRecipe(recipe, true);
@@ -117,8 +117,8 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     @Override
     protected boolean calculateOverclock(long EUt, int duration) {
         super.calculateOverclock(EUt, duration);
-        int numMaintenanceProblems = (this.metaTileEntity instanceof ParallelRecipeMapMultiblockController) ?
-                ((ParallelRecipeMapMultiblockController) this.metaTileEntity).getNumProblems() : 0;
+        int numMaintenanceProblems = (this.metaTileEntity instanceof OldParallelRecipeMapMultiblockController) ?
+                ((OldParallelRecipeMapMultiblockController) this.metaTileEntity).getNumProblems() : 0;
 
         double maintenanceDurationMultiplier = 1.0 + (0.2 * numMaintenanceProblems);
         int durationModified = (int) (this.overclockManager.getDuration() * maintenanceDurationMultiplier);
@@ -133,8 +133,8 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
 
     @Override
     protected boolean completeRecipe(int i) {
-        if (this.metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
-            ParallelRecipeMapMultiblockController gaController = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
+        if (this.metaTileEntity instanceof OldParallelRecipeMapMultiblockController) {
+            OldParallelRecipeMapMultiblockController gaController = (OldParallelRecipeMapMultiblockController) this.metaTileEntity;
             //if (gaController.hasMufflerHatch()) {
             //    gaController.outputRecoveryItems();
             //}
@@ -147,8 +147,8 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
 
     @Override
     protected boolean trySearchNewRecipe(int i) {
-        if (this.metaTileEntity instanceof ParallelRecipeMapMultiblockController) {
-            ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
+        if (this.metaTileEntity instanceof OldParallelRecipeMapMultiblockController) {
+            OldParallelRecipeMapMultiblockController controller = (OldParallelRecipeMapMultiblockController) this.metaTileEntity;
             if (controller.getNumProblems() > 5)
                 return false;
 
@@ -272,7 +272,7 @@ public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
     }
 
     protected boolean setupAndConsumeRecipeInputs(Recipe recipe, int index) {
-        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.metaTileEntity;
+        OldParallelRecipeMapMultiblockController controller = (OldParallelRecipeMapMultiblockController) this.metaTileEntity;
         if (controller.checkRecipe(recipe, false)) {
 
             this.calculateOverclock(recipe.getEUt(), recipe.getDuration());

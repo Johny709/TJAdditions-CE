@@ -35,7 +35,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.blocks.AbilityBlocks;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.IMachineHandler;
@@ -87,10 +87,10 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+        builder.AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
                 .addRecipeOutputLine(this.workableHandler);
     }
 

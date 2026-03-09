@@ -12,13 +12,12 @@ import gregtech.common.ConfigHolder;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 
 import java.util.List;
 
@@ -67,17 +66,17 @@ public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithD
     }
 
     @Override
-    protected void configureDisplayText(UIDisplayBuilder builder) {
+    protected void configureDisplayText(GUIDisplayBuilder builder) {
         super.configureDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.voltageInLine(this.energyContainer)
-                .energyInputLine(this.getEnergyContainer(), this.recipeMapWorkable.getRecipeEUt())
+        builder.addVoltageInLine(this.energyContainer)
+                .addEnergyInputLine(this.getEnergyContainer(), this.recipeMapWorkable.getRecipeEUt())
                 .customLine(text -> {
                     if (ConfigHolder.debug_options_for_caching) {
                         text.addTextComponent(new TextComponentString(String.format("Cache size (%s) hit (%s) miss (%s)", this.recipeMapWorkable.previousRecipe.getCachedRecipeCount(), this.recipeMapWorkable.previousRecipe.getCacheHit(), this.recipeMapWorkable.previousRecipe.getCacheMiss()))
                                 .setStyle(new Style().setColor(TextFormatting.WHITE)));
                     }
-                }).isWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), 999)
+                }).AddIsWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), 999)
                 .addRecipeOutputLine(this.recipeMapWorkable, 1000);
     }
 

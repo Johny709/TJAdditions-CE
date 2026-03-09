@@ -32,7 +32,6 @@ import tj.capability.ProgressBar;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
 import tj.gui.widgets.AdvancedDisplayWidget;
-import tj.gui.widgets.IRecipeClickArea;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
@@ -153,7 +152,7 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         if (!this.isStructureFormed()) {
             ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
             tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));

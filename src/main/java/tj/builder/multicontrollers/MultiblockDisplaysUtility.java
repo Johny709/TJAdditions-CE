@@ -5,15 +5,16 @@ import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.capability.impl.MultiblockRecipeLogic;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.util.text.translation.I18n;
 
 import java.util.List;
+import java.util.function.Consumer;
 
-public class MultiblockDisplaysUtility {
+public final class MultiblockDisplaysUtility {
+
+    private MultiblockDisplaysUtility() {}
 
     public static void maintenanceDisplay(List<ITextComponent> textList, byte maintenanceProblems, boolean hasProblems) {
         if (hasProblems) {

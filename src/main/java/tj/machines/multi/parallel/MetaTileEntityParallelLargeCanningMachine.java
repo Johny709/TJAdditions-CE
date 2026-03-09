@@ -2,7 +2,6 @@ package tj.machines.multi.parallel;
 
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -46,8 +45,6 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
 
     public MetaTileEntityParallelLargeCanningMachine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_CANNING_MACHINE.getRecipeMaps());
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -90,8 +87,8 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
-        this.maxVoltage = (long) (Math.pow(4, pump) * 8);
+        this.tier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
+        this.maxVoltage = 8L << this.tier * 2;
     }
 
     @Override
@@ -110,22 +107,22 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelLargeCanningMachine.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelLargeCanningMachine.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelLargeCanningMachine.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelLargeCanningMachine.stack;
     }
 

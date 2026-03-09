@@ -16,7 +16,7 @@ import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.impl.workable.AcceleratorWorkableHandler;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.AdvancedDisplayWidget;
@@ -124,19 +124,19 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockControllerB
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         boolean randomTick = this.workableHandler.getAcceleratorMode() == AcceleratorWorkableHandler.AcceleratorMode.RANDOM_TICK;
         boolean tileEntity = this.workableHandler.getAcceleratorMode() == AcceleratorWorkableHandler.AcceleratorMode.TILE_ENTITY;
-        builder.voltageInLine(this.inputEnergyContainer)
-                .voltageTierLine(this.tier)
-                .energyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
-                .fluidInputLine(this.importFluidTank, UUMatter.getFluid(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
+        builder.addVoltageInLine(this.inputEnergyContainer)
+                .addVoltageTierLine(this.tier)
+                .addEnergyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
+                .addFluidInputLine(this.importFluidTank, UUMatter.getFluid(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
                 .customLine(text -> text.addTextComponent(randomTick ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.entity")
                         : tileEntity ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.tile")
                         : new TextComponentTranslation("tj.multiblock.large_world_accelerator.mode.GT")))
-                .isWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                .AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override
@@ -285,7 +285,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockControllerB
         return false;
     }
 
-    private Consumer<UIDisplayBuilder> addDisplayLinkedEntities(int[] searchResults, int[] flags, String[] search) {
+    private Consumer<GUIDisplayBuilder> addDisplayLinkedEntities(int[] searchResults, int[] flags, String[] search) {
         return (builder) -> {
             builder.addTextComponent(new TextComponentString("§l" + net.minecraft.util.text.translation.I18n.translateToLocal("tj.multiblock.large_world_accelerator.linked") + "§r(§e" + searchResults[0] + "§r/§e" + this.workableHandler.getEntityLinkName().length + "§r)"));
             int results = 0;

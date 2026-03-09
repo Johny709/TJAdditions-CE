@@ -3,12 +3,11 @@ package tj.machines.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
 import tj.TJRecipeMaps;
-import tj.builder.multicontrollers.TJLargeSimpleRecipeMapMultiblockControllerBase;
-import gregicadditions.GAUtility;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -16,20 +15,14 @@ import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.item.metal.MetalCasing2;
-import gregicadditions.utils.GALog;
-import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
-import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.CountableIngredient;
-import gregtech.api.recipes.Recipe;
-import gregtech.api.recipes.RecipeBuilder;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -43,27 +36,24 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 
-public class MetaTileEntityLargeRockBreaker extends TJLargeSimpleRecipeMapMultiblockControllerBase {
+public class MetaTileEntityLargeRockBreaker extends TJRecipeMapMultiblockController {
 
-    private int slices;
     public static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private int slices;
 
     public MetaTileEntityLargeRockBreaker(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, TJRecipeMaps.ROCK_BREAKER_RECIPES, TJConfig.largeRockBreaker.eutPercentage, TJConfig.largeRockBreaker.durationPercentage, TJConfig.largeRockBreaker.chancePercentage, TJConfig.largeRockBreaker.stack);
-        this.recipeMapWorkable = new LargeRockBreakerRecipeLogic(this, EUtPercentage, durationPercentage, chancePercentage, stack);
+        super(metaTileEntityId, TJRecipeMaps.ROCK_BREAKER_RECIPES);
     }
 
     @Override
@@ -72,16 +62,17 @@ public class MetaTileEntityLargeRockBreaker extends TJLargeSimpleRecipeMapMultib
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.large_rock_breaker.description"));
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (this.isStructureFormed())
-            builder.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.4", this.stack * this.slices));
+            builder.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.4", this.getParallel()));
     }
 
     @Override
@@ -106,7 +97,7 @@ public class MetaTileEntityLargeRockBreaker extends TJLargeSimpleRecipeMapMultib
                 .where('H', statePredicate(MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF)))
                 .where('G', statePredicate(MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.TITANIUM_GEARBOX)))
                 .where('T', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE)))
-                .where('M', motorPredicate())
+                .where('M', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('P', pumpPredicateList())
                 .where('~', state -> true)
                 .where('#', isAirPredicate())
@@ -134,15 +125,9 @@ public class MetaTileEntityLargeRockBreaker extends TJLargeSimpleRecipeMapMultib
         super.formStructure(context);
         MotorCasing.CasingType motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV);
         PumpCasing.CasingType pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV);
-        int min = Math.min(motor.getTier(), pump.getTier());
-        this.maxVoltage = (long) (Math.pow(4, min) * 8);
-        this.slices = Collections.unmodifiableList(context.getOrDefault("Pumps", Collections.emptyList())).size() / 2;
-    }
-
-    @Override
-    protected void updateFormedValid() {
-        if (this.slices != 0)
-            super.updateFormedValid();
+        this.tier = Math.min(motor.getTier(), pump.getTier());
+        this.maxVoltage = 8L << this.tier * 2;
+        this.slices = context.getOrDefault("Pumps", new ArrayList<>()).size() / 2;
     }
 
     @Override
@@ -163,100 +148,31 @@ public class MetaTileEntityLargeRockBreaker extends TJLargeSimpleRecipeMapMultib
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         Textures.ROCK_CRUSHER_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
-        if (this.recipeMapWorkable.isActive())
+        if (this.recipeLogic.isActive())
             Textures.ROCK_CRUSHER_ACTIVE_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
     }
 
+    @Override
+    public int getEUtMultiplier() {
+        return TJConfig.largeRockBreaker.eutPercentage;
+    }
 
+    @Override
+    public int getDurationMultiplier() {
+        return TJConfig.largeRockBreaker.durationPercentage;
+    }
 
+    @Override
+    public int getChanceMultiplier() {
+        return TJConfig.largeRockBreaker.chancePercentage;
+    }
 
-
-
-
-
-
-    private class LargeRockBreakerRecipeLogic extends LargeSimpleMultiblockRecipeLogic {
-
-        public LargeRockBreakerRecipeLogic(RecipeMapMultiblockController tileEntity, int EUtPercentage, int durationPercentage, int chancePercentage, int stack) {
-            super(tileEntity, EUtPercentage, durationPercentage, chancePercentage, stack);
-        }
-
-        @Override
-        public int getStack() {
-            return super.getStack() * slices;
-        }
-
-        @Override
-        protected Recipe createRecipe(long maxVoltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, Recipe matchingRecipe) {
-            int maxItemsLimit = this.getStack();
-            int EUt;
-            int duration;
-            int currentTier = getOverclockingTier(maxVoltage);
-            int tierNeeded;
-            int minMultiplier = Integer.MAX_VALUE;
-
-            tierNeeded = Math.max(1, GAUtility.getTierByVoltage(matchingRecipe.getEUt()));
-            maxItemsLimit *= currentTier - tierNeeded;
-            maxItemsLimit = Math.max(1, maxItemsLimit);
-            if (maxItemsLimit == 1) {
-                return matchingRecipe;
-            }
-
-            Set<ItemStack> countIngredients = new HashSet<>();
-            if (!matchingRecipe.getInputs().isEmpty()) {
-                this.findIngredients(countIngredients, inputs);
-                minMultiplier = Math.min(maxItemsLimit, this.getMinRatioItem(countIngredients, matchingRecipe, maxItemsLimit));
-            }
-
-            Object2IntMap<String> countFluid = new Object2IntOpenHashMap<>();
-            if (!matchingRecipe.getFluidInputs().isEmpty()) {
-
-                this.findFluid(countFluid, fluidInputs);
-                minMultiplier = Math.min(minMultiplier, this.getMinRatioFluid(countFluid, matchingRecipe, maxItemsLimit));
-            }
-
-            if (minMultiplier == Integer.MAX_VALUE) {
-                GALog.logger.error("Cannot calculate ratio of items for large multiblocks");
-                return null;
-            }
-
-            EUt = matchingRecipe.getEUt();
-            duration = matchingRecipe.getDuration();
-
-            int tierDiff = currentTier - tierNeeded;
-            for (int i = 0; i < tierDiff; i++) {
-                int attemptItemsLimit = this.getStack();
-                attemptItemsLimit *= tierDiff - i;
-                attemptItemsLimit = Math.max(1, attemptItemsLimit);
-                attemptItemsLimit = Math.min(minMultiplier, attemptItemsLimit);
-                List<CountableIngredient> newRecipeInputs = new ArrayList<>();
-                List<FluidStack> newFluidInputs = new ArrayList<>();
-                List<ItemStack> outputI = new ArrayList<>();
-                List<FluidStack> outputF = new ArrayList<>();
-                this.multiplyInputsAndOutputs(newRecipeInputs, newFluidInputs, outputI, outputF, matchingRecipe, attemptItemsLimit);
-
-
-                RecipeBuilder<?> newRecipe = recipeMap.recipeBuilder();
-                copyChancedItemOutputs(newRecipe, matchingRecipe, attemptItemsLimit);
-
-                // determine if there is enough room in the output to fit all of this
-                // if there isn't, we can't process this recipe.
-                List<ItemStack> totalOutputs = newRecipe.getChancedOutputs().stream().map(Recipe.ChanceEntry::getItemStack).collect(Collectors.toList());
-                totalOutputs.addAll(outputI);
-
-                newRecipe.inputsIngredients(newRecipeInputs)
-                        .fluidInputs(newFluidInputs)
-                        .outputs(outputI)
-                        .fluidOutputs(outputF)
-                        .EUt((int) Math.min(Integer.MAX_VALUE, Math.max(1, (long) EUt * this.getEUtPercentage() / 100)))
-                        .duration((int) Math.max(3, duration * (this.getDurationPercentage() / 100.0)));
-
-                return newRecipe.build().getResult();
-            }
-            return matchingRecipe;
-        }
+    @Override
+    public int getParallel() {
+        return this.slices;
     }
 }

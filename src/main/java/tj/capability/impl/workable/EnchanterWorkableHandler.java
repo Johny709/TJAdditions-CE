@@ -34,7 +34,6 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
 
     @Override
     protected boolean startRecipe() {
-        boolean canStart = false;
         IItemHandlerModifiable itemInputs = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
         int catalystSlotIndex = this.findCatalyst(itemInputs);
         if (catalystSlotIndex > -1 && this.findInputs(itemInputs, catalystSlotIndex, true)) {
@@ -43,12 +42,10 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
                 this.findInputs(itemInputs, catalystSlotIndex, false);
                 this.handler.getImportFluidTank().drain(fluid, true);
                 this.maxProgress = this.calculateOverclock(30, 2000, 2.8F);
-                canStart = true;
+                return true;
             }
         }
-        if (++this.lastInputIndex == this.busCount)
-            this.lastInputIndex = 0;
-        return canStart;
+        return false;
     }
 
     @Override

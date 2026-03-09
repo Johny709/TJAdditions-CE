@@ -9,7 +9,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.mixin.gregtech.MultiblockWithDisplayBaseMixin;
 
 @Mixin(value = MetaTileEntityCosmicRayDetector.class, remap = false)
@@ -34,7 +34,7 @@ public abstract class MetaTileEntityCosmicRayDetectorMixin extends MultiblockWit
     }
 
     @Override
-    protected void configureDisplayText(UIDisplayBuilder builder) {
+    protected void configureDisplayText(GUIDisplayBuilder builder) {
         super.configureDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.addTranslationLine("gregtech.multiblock.universal.framework", this.maxVoltage);

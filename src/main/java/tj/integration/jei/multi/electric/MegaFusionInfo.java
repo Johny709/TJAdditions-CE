@@ -59,7 +59,7 @@ public class MegaFusionInfo extends TJMultiblockInfoPage {
                 .where('B', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_BLANKET))
                 .where('e', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_BLANKET))
                 .where('T', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_BLANKET))
-                .where('M', GATileEntities.MAINTENANCE_HATCH[2], EnumFacing.SOUTH)
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.SOUTH)
                 .where('I', TJMetaTileEntities.QUADRUPLE_QUADRUPLE_INPUT_HATCH, EnumFacing.SOUTH)
                 .where('O', TJMetaTileEntities.QUADRUPLE_QUADRUPLE_OUTPUT_HATCH, EnumFacing.SOUTH);
         return Arrays.stream(GADivertorCasing.CasingType.values())

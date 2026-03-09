@@ -78,9 +78,9 @@ public class TJConfig {
     }
 
     @Config.Comment("Decay Chamber")
-    public static DecayChamber decayChamber = new DecayChamber();
+    public static LargeDecayChamber largeDecayChamber = new LargeDecayChamber();
 
-    public static class DecayChamber {
+    public static class LargeDecayChamber {
 
         @Config.Name("EU/t Percentage")
         @Config.RequiresMcRestart
@@ -1030,5 +1030,31 @@ public class TJConfig {
         @Config.Name("Stack Size")
         @Config.RequiresMcRestart
         public int stack = 16;
+    }
+
+    @Config.Comment("Large Assembly Line")
+    public static LargeAssemblyLine largeAssemblyLine = new LargeAssemblyLine();
+
+    public static class LargeAssemblyLine {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
+
+        @Config.Name("Slice Limit")
+        @Config.Comment("Adjust the maximum number of slices the large assembly line can have")
+        @Config.RequiresMcRestart
+        public int maximumSlices = 256;
     }
 }

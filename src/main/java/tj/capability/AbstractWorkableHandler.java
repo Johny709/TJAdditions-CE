@@ -18,6 +18,8 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
 
     protected final H handler;
     protected BooleanConsumer activeConsumer;
+    protected BooleanConsumer problemConsumer;
+    protected BooleanConsumer workingConsumer;
     protected boolean isWorking = true;
     protected boolean isActive;
     protected boolean wasActiveAndNeedsUpdate;
@@ -25,7 +27,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
     protected boolean hasProblem;
     protected long energyPerTick;
     protected int progress;
-    protected int maxProgress = 1;
+    protected int maxProgress;
     protected int lastInputIndex;
     protected int busCount;
     protected int sleepTimer;
@@ -48,11 +50,18 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
         this.busCount = busCount;
     }
 
-    /**
-     * @param activeConsumer isActive boolean consumer
-     */
-    public void setActive(BooleanConsumer activeConsumer) {
+    public void invalidate() {}
+
+    public void setActiveConsumer(BooleanConsumer activeConsumer) {
         this.activeConsumer = activeConsumer;
+    }
+
+    public void setProblemConsumer(BooleanConsumer problemConsumer) {
+        this.problemConsumer = problemConsumer;
+    }
+
+    public void setWorkingConsumer(BooleanConsumer workingConsumer) {
+        this.workingConsumer = workingConsumer;
     }
 
     /**
@@ -66,7 +75,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
         }
         if (this.wasActiveAndNeedsUpdate && this.isActive)
             this.setActive(false);
-        if (this.progress >= this.maxProgress) {
+        if (this.progress > this.maxProgress) {
             if (this.completeRecipe()) {
                 this.progress = 0;
                 this.energyPerTick = 0;
@@ -88,11 +97,14 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
             boolean canStart = this.startRecipe();
             if (canStart) {
                 this.sleepTime = 1;
+                this.progress = 1;
                 this.progressRecipe(this.progress);
                 if (!this.isActive)
                     this.setActive(true);
             } else this.failRecipe();
             this.wasActiveAndNeedsUpdate = !canStart;
+            if (++this.lastInputIndex == this.busCount)
+                this.lastInputIndex = 0;
         } else this.progressRecipe(this.progress);
     }
 
@@ -132,7 +144,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
     protected void progressRecipe(int progress) {
         if (this.handler.getInputEnergyContainer().removeEnergy(this.energyPerTick) == -this.energyPerTick) {
             this.progress++;
-        } else if (this.progress > 0)
+        } else if (this.progress > 1)
             this.progress--;
     }
 
@@ -290,6 +302,8 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
     public void setWorkingEnabled(boolean isWorking) {
         this.isWorking = isWorking;
         if (!this.metaTileEntity.getWorld().isRemote) {
+            if (this.workingConsumer != null)
+                this.workingConsumer.apply(isWorking);
             this.writeCustomData(3, buffer -> buffer.writeBoolean(isWorking));
             this.metaTileEntity.markDirty();
         }
@@ -298,6 +312,8 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
     public void setProblem(boolean hasProblem) {
         this.hasProblem = hasProblem;
         if (!this.metaTileEntity.getWorld().isRemote) {
+            if (this.problemConsumer != null)
+                this.problemConsumer.apply(hasProblem);
             this.writeCustomData(2, buffer -> buffer.writeBoolean(hasProblem));
             this.metaTileEntity.markDirty();
         }

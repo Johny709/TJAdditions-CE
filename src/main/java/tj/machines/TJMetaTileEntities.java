@@ -3,7 +3,6 @@ package tj.machines;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityEnergyHatch;
 import gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine;
-import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.GregTechAPI;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.common.metatileentities.MetaTileEntities;
@@ -55,6 +54,7 @@ public class TJMetaTileEntities {
     public static final MetaTileEntityFilteredBus[] FILTERED_OUTPUT_BUSES = new MetaTileEntityFilteredBus[15];
     public static final MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
     public static final MetaTileEntityAdvancedLargeChunkMiner[] ADVANCED_LARGE_CHUNK_MINERS = new MetaTileEntityAdvancedLargeChunkMiner[6];
+    public static final MetaTileEntityBuffer[] BUFFERS = new MetaTileEntityBuffer[15];
     public static MetaTileEntityPrimitiveAlloy PRIMITIVE_ALLOY;
     public static MetaTileEntityCokeOven COKE_OVEN;
     public static MetaTileEntityMegaCokeOven MEGA_COKE_OVEN;
@@ -137,6 +137,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityCharcoalPit CHARCOAL_PIT_ADVANCED;
     public static MetaTileEntityPrimitiveWaterPump PRIMITIVE_WATER_PUMP;
     public static MetaTileEntityLargeNamingMachine LARGE_NAMING_MACHINE;
+    public static MetaTileEntityLargeAssemblyLine LARGE_ASSEMBLY_LINE;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -162,7 +163,7 @@ public class TJMetaTileEntities {
         XL_PLASMA_TURBINE = GregTechAPI.registerMetaTileEntity(4208, new MetaTileEntityXLTurbine(TJId("xl_turbine.plasma"), MetaTileEntityLargeTurbine.TurbineType.PLASMA));
         XL_COOLANT_TURBINE = GregTechAPI.registerMetaTileEntity(4209, new MetaTileEntityXLHotCoolantTurbine(TJId("xl_turbine.coolant"), MetaTileEntityHotCoolantTurbine.TurbineType.HOT_COOLANT));
 
-        LARGE_GREENHOUSE = GregTechAPI.registerMetaTileEntity(5000, new MetaTileEntityLargeGreenhouse(TJId("large_greenhouse"), GARecipeMaps.GREEN_HOUSE_RECIPES));
+        LARGE_GREENHOUSE = GregTechAPI.registerMetaTileEntity(5000, new MetaTileEntityLargeGreenhouse(TJId("large_greenhouse")));
         LARGE_DECAY_CHAMBER = GregTechAPI.registerMetaTileEntity(5001, new MetaTileEntityLargeDecayChamber(TJId("large_decay_chamber")));
         LARGE_ALLOY_SMELTER = GregTechAPI.registerMetaTileEntity(5002, new MetaTileEntityLargeAlloySmelter(TJId("large_alloy_smelter")));
 
@@ -230,6 +231,7 @@ public class TJMetaTileEntities {
         LARGE_CHISEL_WORKBENCH = GregTechAPI.registerMetaTileEntity(5129, new MetaTileEntityLargeChiselWorkbench(TJId("large_chisel_workbench")));
         LARGE_ENCHANTER = GregTechAPI.registerMetaTileEntity(5130, new MetaTileEntityLargeEnchanter(TJId("large_enchanter")));
         LARGE_NAMING_MACHINE = GregTechAPI.registerMetaTileEntity(5131, new MetaTileEntityLargeNamingMachine(TJId("large_naming_machine")));
+        LARGE_ASSEMBLY_LINE = GregTechAPI.registerMetaTileEntity(5132, new MetaTileEntityLargeAssemblyLine(TJId("large_assembly_line")));
 
         // range 5300+ -> singleblocks
         COAL_BOILER[0] = GregTechAPI.registerMetaTileEntity(5300, new MetaTileEntityCoalBoiler(TJId("coal_boiler_bronze"), BRONZE));
@@ -255,6 +257,8 @@ public class TJMetaTileEntities {
             ADVANCED_CHUNK_MINERS[i] = GregTechAPI.registerMetaTileEntity(5379 + i, new MetaTileEntityAdvancedChunkMiner(TJId("advanced_chunk_miner." + GAValues.VN[tier]), tier));
         for (int i = 0, tier = 1; i < NAMING_MACHINES.length; i++, tier++) // occupies ID range 5393 - 5406
             NAMING_MACHINES[i] = GregTechAPI.registerMetaTileEntity(5393 + i, new MetaTileEntityNamingMachine(TJId("naming_machine." + GAValues.VN[tier]), tier));
+        for (int i = 0; i < BUFFERS.length; i++)
+            BUFFERS[i] = GregTechAPI.registerMetaTileEntity(5407 + i, new MetaTileEntityBuffer(TJId("gt_buffer." + GAValues.VN[i]), i));
 
         // range 5500+ -> misc
         ACCELERATOR_ANCHOR_POINT = GregTechAPI.registerMetaTileEntity(5500, new MetaTileEntityAcceleratorAnchorPoint(TJId("accelerator_anchor_point")));

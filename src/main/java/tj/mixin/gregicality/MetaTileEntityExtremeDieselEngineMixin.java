@@ -1,6 +1,5 @@
 package tj.mixin.gregicality;
 
-import gregicadditions.GAMaterials;
 import gregicadditions.machines.multi.MetaTileEntityExtremeDieselEngine;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -19,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.MultiblockDisplaysUtility;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.workable.TJBoostableFuelRecipeLogic;
@@ -94,7 +93,7 @@ public abstract class MetaTileEntityExtremeDieselEngineMixin extends FueledMulti
     }
 
     @Override
-    protected void configureDisplayText(UIDisplayBuilder builder) {
+    protected void configureDisplayText(GUIDisplayBuilder builder) {
         super.configureDisplayText(builder);
         TJCycleFuelRecipeLogic workableHandler = (TJCycleFuelRecipeLogic) this.workableHandler;
         FluidStack fuelStack = workableHandler.getFuelStack();
@@ -105,7 +104,7 @@ public abstract class MetaTileEntityExtremeDieselEngineMixin extends FueledMulti
         boolean isBoosted = workableHandler.isBoosted();
         int boosterAmount = booster == null ? 0 : booster.amount;
         int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
-        builder.fluidInputLine(this.importFluidHandler, fuelConsumed, workableHandler.getMaxProgress())
+        builder.addFluidInputLine(this.importFluidHandler, fuelConsumed, workableHandler.getMaxProgress())
                 .customLine(text -> {
                     if (fuelStack == null)
                         text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_rocket_engine.no_fuel").setStyle(new Style().setColor(TextFormatting.RED)));
@@ -118,7 +117,7 @@ public abstract class MetaTileEntityExtremeDieselEngineMixin extends FueledMulti
                     }
                     text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", workableHandler.getProduction())))
                             .addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.large_combustion_engine.cycles", 20 - workableHandler.getCurrentCycle())));
-                }).isWorkingLine(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress())
+                }).AddIsWorkingLine(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress())
                 .addRecipeInputLine(workableHandler)
                 .addRecipeOutputLine(workableHandler);
     }

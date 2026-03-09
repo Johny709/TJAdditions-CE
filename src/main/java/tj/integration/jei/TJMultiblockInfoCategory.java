@@ -123,7 +123,7 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("large_solar_boiler", new MultiblockInfoRecipeWrapper(new LargeSolarBoilerInfo(false)))
                             .put("mega_solar_boiler", new MultiblockInfoRecipeWrapper(new LargeSolarBoilerInfo(true)))
                             .put("large_implosion_compressor", new MultiblockInfoRecipeWrapper(new LargeImplosionCompressorInfo()))
-                            .put("large_electric_implosion_compressor", new MultiblockInfoRecipeWrapper(new LargeElectricImplosionCompressor()))
+                            .put("large_electric_implosion_compressor", new MultiblockInfoRecipeWrapper(new LargeElectricImplosionCompressorInfo()))
                             .put("charcoal_pit", new MultiblockInfoRecipeWrapper(new CharcoalPitInfo(false)))
                             .put("charcoal_pit_advanced", new MultiblockInfoRecipeWrapper(new CharcoalPitInfo(true)))
                             .put("primitive_water_pump", new MultiblockInfoRecipeWrapper(new PrimitiveWaterPumpInfo()))
@@ -133,7 +133,8 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("advanced_large_chunk_miner.3", new MultiblockInfoRecipeWrapper(new AdvancedLargeChunkMinerInfo(3)))
                             .put("advamced_large_chunk_miner.4", new MultiblockInfoRecipeWrapper(new AdvancedLargeChunkMinerInfo(4)))
                             .put("advanced_large_chunk_miner.5", new MultiblockInfoRecipeWrapper(new AdvancedLargeChunkMinerInfo(5)))
-                            .put("large_naming_machine", new MultiblockInfoRecipeWrapper(new LargeNamingMachineInfo()));
+                            .put("large_naming_machine", new MultiblockInfoRecipeWrapper(new LargeNamingMachineInfo()))
+                            .put("large_assembly_line", new MultiblockInfoRecipeWrapper(new LargeAssemblyLineInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;

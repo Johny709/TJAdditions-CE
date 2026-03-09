@@ -62,6 +62,7 @@
     "gregtech.MultiblockWithDisplayBaseMixin",
     "gregtech.RecipeMapMixin",
     "gregtech.RecipeMapMultiblockControllerMixin",
+    "gregtech.RecipeMixin",
     "gregtech.RotorHolderMultiblockControllerMixin",
     "gregtech.SimpleMachineMetaTileEntityMixin",
     "gregtech.SteamMetaTileEntityMixin",

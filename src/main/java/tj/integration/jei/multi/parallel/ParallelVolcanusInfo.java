@@ -13,10 +13,10 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
+import tj.machines.multi.parallel.MetaTileEntityParallelVolcanus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ import static net.minecraft.util.EnumFacing.WEST;
 public class ParallelVolcanusInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
 
     @Override
-    public ParallelRecipeMapMultiblockController getController() {
+    public MetaTileEntityParallelVolcanus getController() {
         return TJMetaTileEntities.PARALLEL_VOLCANUS;
     }
 

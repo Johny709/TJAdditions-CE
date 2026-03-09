@@ -3,7 +3,6 @@ package tj.machines.multi.parallel;
 import gregicadditions.machines.GATileEntities;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
@@ -47,8 +46,6 @@ public class MetaTileEntityParallelLargeMixer extends ParallelRecipeMapMultibloc
 
     public MetaTileEntityParallelLargeMixer(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_MIXER.recipeMap);
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -94,8 +91,8 @@ public class MetaTileEntityParallelLargeMixer extends ParallelRecipeMapMultibloc
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        this.maxVoltage = (long) (Math.pow(4, motor) * 8);
+        this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        this.maxVoltage = 8L << this.tier * 2;
     }
 
     @Override
@@ -110,22 +107,22 @@ public class MetaTileEntityParallelLargeMixer extends ParallelRecipeMapMultibloc
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelLargeMixer.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelLargeMixer.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelLargeMixer.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelLargeMixer.stack;
     }
 

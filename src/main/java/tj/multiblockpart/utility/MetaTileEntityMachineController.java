@@ -3,7 +3,7 @@ package tj.multiblockpart.utility;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 import tj.multiblockpart.TJMultiblockAbility;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -105,21 +105,21 @@ public class MetaTileEntityMachineController extends MetaTileEntityMultiblockPar
         if (!getWorld().isRemote && getOffsetTimer() % 5 == 0) {
             this.redstonePowered = getInputRedstoneSignal(getFrontFacing(), false) > 0;
             if (this.controller != null) {
-                if (this.controller instanceof ParallelRecipeMapMultiblockController) {
-                    ((ParallelRecipeMapMultiblockController) this.controller).recipeMapWorkable.setWorkingEnabled(isInverted() == getRedstonePowered(), Id);
+                if (this.controller instanceof OldParallelRecipeMapMultiblockController) {
+                    ((OldParallelRecipeMapMultiblockController) this.controller).recipeMapWorkable.setWorkingEnabled(isInverted() == getRedstonePowered(), Id);
                 }
             }
         }
     }
 
     private void onIncrement(Widget.ClickData clickData) {
-        if (this.controller instanceof ParallelRecipeMapMultiblockController)
-            setID(MathHelper.clamp(Id +1, 0, ((ParallelRecipeMapMultiblockController) this.controller).recipeMapWorkable.getSize() -1));
+        if (this.controller instanceof OldParallelRecipeMapMultiblockController)
+            setID(MathHelper.clamp(Id +1, 0, ((OldParallelRecipeMapMultiblockController) this.controller).recipeMapWorkable.getSize() -1));
     }
 
     private void onDecrement(Widget.ClickData clickData) {
-        if (this.controller instanceof ParallelRecipeMapMultiblockController)
-            setID(MathHelper.clamp(Id -1, 0, ((ParallelRecipeMapMultiblockController) this.controller).recipeMapWorkable.getSize() -1));
+        if (this.controller instanceof OldParallelRecipeMapMultiblockController)
+            setID(MathHelper.clamp(Id -1, 0, ((OldParallelRecipeMapMultiblockController) this.controller).recipeMapWorkable.getSize() -1));
     }
 
     public boolean isInverted() {

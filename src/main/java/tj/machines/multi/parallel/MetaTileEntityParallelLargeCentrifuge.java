@@ -1,10 +1,10 @@
 package tj.machines.multi.parallel;
 
 import gregicadditions.recipes.GARecipeMaps;
+import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMaps;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
@@ -17,7 +17,6 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
-import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -31,6 +30,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.capability.OverclockManager;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
@@ -49,18 +49,6 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
 
     public MetaTileEntityParallelLargeCentrifuge(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GARecipeMaps.LARGE_CENTRIFUGE_RECIPES, RecipeMaps.THERMAL_CENTRIFUGE_RECIPES, GARecipeMaps.GAS_CENTRIFUGE_RECIPES);
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack) {
-
-            @Override
-            protected void setupRecipe(Recipe recipe, int i) {
-                int energyBonus = this.controller.getEUBonus();
-                long resultOverclock = this.overclockManager.getEUt();
-                resultOverclock -= (long) (resultOverclock * energyBonus * 0.01f);
-                this.overclockManager.setEUt(resultOverclock);
-                super.setupRecipe(recipe, i);
-            }
-        };
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -77,6 +65,11 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
             tip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.2"));
             super.addInformation(stack, player, tip, advanced);
         });
+    }
+
+    @Override
+    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        overclockManager.setEUt(overclockManager.getEUt() * (100 - this.energyBonus) / 100);
     }
 
     @Override
@@ -127,28 +120,28 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int min = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        this.maxVoltage = (long) (Math.pow(4, min) * 8);
+        this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        this.maxVoltage = 8L << this.tier * 2;
         this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelLargeCentrifuge.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelLargeCentrifuge.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelLargeCentrifuge.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelLargeCentrifuge.stack;
     }
 

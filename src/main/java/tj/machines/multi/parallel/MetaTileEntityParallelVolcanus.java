@@ -14,6 +14,8 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.recipeproperties.BlastTemperatureProperty;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
@@ -29,10 +31,10 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
-import tj.capability.impl.workable.ParallelVolcanusRecipeLogic;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
+import tj.capability.OverclockManager;
 import tj.capability.ProgressBar;
 import tj.util.TJFluidUtils;
 import tj.util.TooltipHelper;
@@ -64,8 +66,6 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
 
     public MetaTileEntityParallelVolcanus(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.VOLCANUS.recipeMap);
-        this.recipeMapWorkable = new ParallelVolcanusRecipeLogic(this, this::getBlastFurnaceTemperature, this::getPyroConsumeAmount, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -88,12 +88,30 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        overclockManager.setParallel(1);
+        long recipeEUt = overclockManager.getEUt() * 4;
+        int duration = overclockManager.getDuration();
+        int heat = this.blastFurnaceTemperature + this.bonusTemperature - recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
+        // Apply EUt discount for every 900K above the base recipe temperature
+        recipeEUt *= (long) Math.pow(0.95, heat / 900D);
+        while (duration > 1 && recipeEUt <= this.maxVoltage) {
+            if (heat < 1800) break;
+            heat -= 1800;
+            duration /= 4;
+            recipeEUt *= 4;
+        }
+        overclockManager.setEUt(recipeEUt / 4);
+        overclockManager.setDuration(duration);
+    }
+
+    @Override
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.blast_furnace.max_temperature", this.blastFurnaceTemperature))
                 .addTextComponent(new TextComponentTranslation("gtadditions.multiblock.blast_furnace.additional_temperature", this.bonusTemperature))
-                .fluidInputLine(this.importFluidTank, this.pyro);
+                .addFluidInputLine(this.importFluidTank, this.pyro);
     }
 
     @Override
@@ -131,8 +149,8 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
                 .filter(voltage -> voltage <= GAValues.V[7])
                 .max()
                 .orElse(GAValues.V[7]);
-        int energyTier = GAUtility.getTierByVoltage(this.maxVoltage);
-        this.bonusTemperature = Math.max(0, 100 * (energyTier - 2));
+        this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
+        this.bonusTemperature = Math.max(0, 100 * (this.tier - 2));
         this.blastFurnaceTemperature = context.getOrDefault("blastFurnaceTemperature", 0);
         this.blastFurnaceTemperature += this.bonusTemperature;
         this.pyro = Pyrotheum.getFluid((int) Math.pow(2, GAUtility.getTierByVoltage(this.maxVoltage)));
@@ -169,31 +187,23 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
         return TJFluidUtils.getFluidCapacityFromTanks(PYROTHEUM, this.getImportFluidTank());
     }
 
-    public int getBlastFurnaceTemperature() {
-        return this.blastFurnaceTemperature;
-    }
-
-    public FluidStack getPyroConsumeAmount() {
-        return this.pyro;
-    }
-
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelVolcanus.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelVolcanus.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelVolcanus.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelVolcanus.stack;
     }
 

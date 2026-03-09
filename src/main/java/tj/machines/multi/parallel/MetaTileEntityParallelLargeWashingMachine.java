@@ -2,7 +2,6 @@ package tj.machines.multi.parallel;
 
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
@@ -47,8 +46,6 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
 
     public MetaTileEntityParallelLargeWashingMachine(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_WASHING_PLANT.getRecipeMaps());
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -112,27 +109,27 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int min = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        this.maxVoltage = (long) (Math.pow(4, min) * 8);
+        this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        this.maxVoltage = 8L << this.tier * 2;
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelLargeWashingMachine.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelLargeWashingMachine.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelLargeWashingMachine.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelLargeWashingMachine.stack;
     }
 

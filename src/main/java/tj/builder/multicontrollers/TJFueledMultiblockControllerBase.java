@@ -112,7 +112,7 @@ public abstract class TJFueledMultiblockControllerBase extends GAFueledMultibloc
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         TJBoostableFuelRecipeLogic workableHandler = (TJBoostableFuelRecipeLogic) this.workableHandler;
         if (!this.isStructureFormed()) {
             ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
@@ -120,8 +120,8 @@ public abstract class TJFueledMultiblockControllerBase extends GAFueledMultibloc
             builder.customLine(text -> text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
                     .setStyle(new Style().setColor(TextFormatting.RED)
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
-        } else builder.voltageInLine(this.energyContainer)
-                .isWorkingLine(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress());
+        } else builder.addVoltageInLine(this.energyContainer)
+                .AddIsWorkingLine(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress());
     }
 
     public boolean isWorkingEnabled() {

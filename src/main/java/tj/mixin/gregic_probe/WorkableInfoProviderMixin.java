@@ -25,6 +25,8 @@ public abstract class WorkableInfoProviderMixin {
         if (!TJConfig.machines.theOneProbeInfoProviderOverrides) return;
         double currentProgress = capability.getProgress();
         double maxProgress = capability.getMaxProgress();
+        if (capability.isActive())
+            currentProgress--;
         if (maxProgress > 0) {
             int progressPercent = (int) Math.floor(currentProgress / (maxProgress) * 100);
             String displayProgress = String.format("%ss / %ss | ", TJValues.thousandTwoPlaceFormat.format(currentProgress / 20), TJValues.thousandTwoPlaceFormat.format(maxProgress / 20));

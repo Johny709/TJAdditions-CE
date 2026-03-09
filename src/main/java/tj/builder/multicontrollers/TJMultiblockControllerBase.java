@@ -57,6 +57,8 @@ import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.multiblockpart.TJMultiblockAbility;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -76,6 +78,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
 
     private final boolean hasMuffler;
     private final boolean hasMaintenance;
+    private final boolean hasDistinct;
 
     public static final XSTR XSTR_RAND = new XSTR();
 
@@ -102,15 +105,24 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     protected IEnergyContainer inputEnergyContainer;
     protected IEnergyContainer outputEnergyContainer;
 
+    protected Instant placedDown = Instant.now();
+    protected Instant activeDate;
+
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId) {
-        this(metaTileEntityId, true);
+        this(metaTileEntityId, true, true);
     }
 
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance) {
+        this(metaTileEntityId, hasMaintenance, true);
+    }
+
+    public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance, boolean hasDistinct) {
         super(metaTileEntityId);
         this.hasMuffler = false;
+        this.hasDistinct = hasDistinct;
         this.hasMaintenance = hasMaintenance;
         this.maintenance_problems = 0b000000;
+        if (!hasMaintenance) this.maintenance_problems = 0b111111;
     }
 
     /**
@@ -155,7 +167,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        return abilities.getOrDefault(MAINTENANCE_HATCH, Collections.emptyList()).size() == 1;
+        return !this.hasMaintenance || abilities.getOrDefault(MAINTENANCE_HATCH, Collections.emptyList()).size() == 1;
     }
 
     /**
@@ -289,10 +301,10 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.add(new AdvancedTextWidget(10, -13, textList -> {
-            MultiblockDisplaysUtility.mufflerDisplay(textList, !this.hasMufflerHatch() || this.isMufflerFaceFree());
-            MultiblockDisplaysUtility.maintenanceDisplay(textList, this.maintenance_problems, this.hasProblems());
-            }, 0xFFFFFF).setMaxWidthLimit(180)));
+                maintenanceTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
+                        .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addMaintenanceDisplayText, 0xFFFFFF)
+                                .setMaxWidthLimit(180))
+                        .setScrollPanelWidth(3)));
     }
 
     protected void mainDisplayTab(List<Widget> widgetGroup) {
@@ -307,7 +319,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         if (!this.isStructureFormed()) {
             ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
             tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
@@ -315,6 +327,17 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
                     .setStyle(new Style().setColor(TextFormatting.RED)
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
         }
+    }
+
+    protected void addMaintenanceDisplayText(GUIDisplayBuilder builder) {
+        Instant now = Instant.now();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMMM d, yyyy hh:mm:ss aa");
+        long timeElapsed = now.getEpochSecond() - this.placedDown.getEpochSecond();
+        builder.addTranslationLine("tj.multiblock.date.placed_down", dateFormat.format(Date.from(this.placedDown)))
+                .addTranslationLine("tj.multiblock.date.ago", timeElapsed / 3600, (timeElapsed % 3600) / 60, timeElapsed % 60)
+                .addEmptyLine()
+                .addMufflerDisplayLine(!this.hasMufflerHatch() || this.isMufflerFaceFree(), 999)
+                .addMaintenanceDisplayLines(this.getProblems(), this.hasProblems(), 1000);
     }
 
     @Override
@@ -411,6 +434,9 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
         data.setByte("Maintenance", this.maintenance_problems);
         data.setInteger("ActiveTimer", this.timeActive);
         data.setBoolean("IsWorking", this.isWorkingEnabled);
+        data.setLong("placedDownDate", this.placedDown.getEpochSecond());
+        if (this.activeDate != null)
+            data.setLong("activeTime", this.activeDate.getEpochSecond());
         return data;
     }
 
@@ -420,6 +446,14 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
         this.maintenance_problems = data.getByte("Maintenance");
         this.timeActive = data.getInteger("ActiveTimer");
         this.isWorkingEnabled = data.getBoolean("IsWorking");
+        if (data.hasKey("placedDownDate"))
+            this.placedDown = Instant.ofEpochSecond(data.getLong("placedDownDate"));
+        if (data.hasKey("activeTime"))
+            this.activeDate = Instant.ofEpochSecond(data.getLong("activeTime"));
+    }
+
+    public boolean hasDistinct() {
+        return this.hasDistinct;
     }
 
     @Override

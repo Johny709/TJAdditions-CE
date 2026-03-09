@@ -8,7 +8,7 @@ import gregtech.api.recipes.builders.BlastRecipeBuilder;
 import gregtech.api.recipes.recipeproperties.BlastTemperatureProperty;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 
 import java.util.Collection;
 import java.util.function.IntSupplier;
@@ -19,7 +19,7 @@ public class ParallelVolcanusRecipeLogic extends ParallelGAMultiblockRecipeLogic
     private final IntSupplier temperature;
     private final Supplier<FluidStack> pyrotheum;
 
-    public ParallelVolcanusRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, IntSupplier temperature, Supplier<FluidStack> pyrotheum, IntSupplier EUtPercentage, IntSupplier durationPercentage, IntSupplier chancePercentage, IntSupplier stack) {
+    public ParallelVolcanusRecipeLogic(OldParallelRecipeMapMultiblockController tileEntity, IntSupplier temperature, Supplier<FluidStack> pyrotheum, IntSupplier EUtPercentage, IntSupplier durationPercentage, IntSupplier chancePercentage, IntSupplier stack) {
         super(tileEntity, EUtPercentage, durationPercentage, chancePercentage, stack);
         this.temperature = temperature;
         this.pyrotheum = pyrotheum;

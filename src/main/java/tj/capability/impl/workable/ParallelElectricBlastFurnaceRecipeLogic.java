@@ -4,7 +4,7 @@ import gregicadditions.GAValues;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.recipeproperties.BlastTemperatureProperty;
 import tj.TJConfig;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 
 import java.util.function.IntSupplier;
 
@@ -12,7 +12,7 @@ public class ParallelElectricBlastFurnaceRecipeLogic extends ParallelMultiblockR
 
     private final IntSupplier temperature;
 
-    public ParallelElectricBlastFurnaceRecipeLogic(ParallelRecipeMapMultiblockController tileEntity, IntSupplier temperature) {
+    public ParallelElectricBlastFurnaceRecipeLogic(OldParallelRecipeMapMultiblockController tileEntity, IntSupplier temperature) {
         super(tileEntity, TJConfig.machines.recipeCacheCapacity);
         this.temperature = temperature;
     }

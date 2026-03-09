@@ -43,7 +43,7 @@ import tj.blocks.BlockPipeCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.capability.impl.workable.LargeAtmosphereCollectorWorkableHandler;
 import tj.builder.multicontrollers.TJRotorHolderMultiblockControllerBase;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -103,7 +103,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         MetaTileEntityRotorHolder rotorHolder = this.getRotorHolder();
@@ -135,7 +135,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
                 text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.turbine.obstructed")
                         .setStyle(new Style().setColor(TextFormatting.RED)));
                    }
-        }).isWorkingLine(this.airCollectorHandler.isWorkingEnabled(), this.airCollectorHandler.isActive(), this.airCollectorHandler.getProgress(), this.airCollectorHandler.getMaxProgress());
+        }).AddIsWorkingLine(this.airCollectorHandler.isWorkingEnabled(), this.airCollectorHandler.isActive(), this.airCollectorHandler.getProgress(), this.airCollectorHandler.getMaxProgress());
     }
 
     @Override

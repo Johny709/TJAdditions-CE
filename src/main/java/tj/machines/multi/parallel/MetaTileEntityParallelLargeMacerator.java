@@ -3,7 +3,6 @@ package tj.machines.multi.parallel;
 import gregicadditions.machines.GATileEntities;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
@@ -46,8 +45,6 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
 
     public MetaTileEntityParallelLargeMacerator(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_MACERATOR.recipeMap);
-        this.recipeMapWorkable = new ParallelGAMultiblockRecipeLogic(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -103,27 +100,27 @@ public class MetaTileEntityParallelLargeMacerator extends ParallelRecipeMapMulti
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int min = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        this.maxVoltage = (long) (Math.pow(4, min) * 8);
+        this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        this.maxVoltage = 8L << this.tier * 2;
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.parallelLargeMacerator.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.parallelLargeMacerator.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.parallelLargeMacerator.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.parallelLargeMacerator.stack;
     }
 

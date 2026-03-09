@@ -2,7 +2,7 @@ package tj.machines.multi.parallel;
 
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.capability.impl.workable.ParallelGAMultiblockRecipeLogic;
+import tj.capability.OverclockManager;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -34,7 +34,6 @@ import tj.util.TooltipHelper;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.IntSupplier;
 
 import static tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate;
 import static tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate2;
@@ -52,8 +51,6 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
 
     public MetaTileEntityParallelAdvancedLargeChemicalReactor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.CHEMICAL_PLANT.getRecipeMaps());
-        this.recipeMapWorkable = new AdvancedParallelMultiblockChemicalReactorWorkableHandler(this, this::getEUPercentage, this::getDurationPercentage, this::getChancePercentage, this::getStack);
-        this.recipeMapWorkable.setMaxVoltage(this::getMaxVoltage);
     }
 
     @Override
@@ -73,6 +70,17 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
             tip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.3"));
             super.addInformation(stack, player, tip, advanced);
         });
+    }
+
+    @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        super.preOverclock(overclockManager, recipe);
+        overclockManager.setEuMultiplier(4);
+    }
+
+    @Override
+    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        overclockManager.setEUt(overclockManager.getEUt() * (100 - this.energyBonus) / 100);
     }
 
     @Override
@@ -135,59 +143,33 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
         super.formStructure(context);
         int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         int pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
-        int min = Math.min(motor, pump);
-        this.maxVoltage = (long) (Math.pow(4, min) * 8);
+        this.tier = Math.min(motor, pump);
+        this.maxVoltage = 8L << this.tier * 2;
         this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
     }
 
     @Override
-    public int getEUPercentage() {
+    public int getEUtMultiplier() {
         return TJConfig.advancedParallelChemicalReactor.eutPercentage;
     }
 
     @Override
-    public int getDurationPercentage() {
+    public int getDurationMultiplier() {
         return TJConfig.advancedParallelChemicalReactor.durationPercentage;
     }
 
     @Override
-    public int getChancePercentage() {
+    public int getChanceMultiplier() {
         return TJConfig.advancedParallelChemicalReactor.chancePercentage;
     }
 
     @Override
-    public int getStack() {
+    public int getParallel() {
         return TJConfig.advancedParallelChemicalReactor.stack;
     }
 
     @Override
     public int getMaxParallel() {
         return TJConfig.advancedParallelChemicalReactor.maximumParallel;
-    }
-
-    private static class AdvancedParallelMultiblockChemicalReactorWorkableHandler extends ParallelGAMultiblockRecipeLogic {
-
-        public AdvancedParallelMultiblockChemicalReactorWorkableHandler(ParallelRecipeMapMultiblockController tileEntity, IntSupplier EUtPercentage, IntSupplier durationPercentage, IntSupplier chancePercentage, IntSupplier stack) {
-            super(tileEntity, EUtPercentage, durationPercentage, chancePercentage, stack);
-        }
-
-        @Override
-        public boolean isBatching() {
-            return ((MetaTileEntityParallelAdvancedLargeChemicalReactor) this.controller).recipeMapIndex == 0;
-        }
-
-        @Override
-        public double getDurationOverclock() {
-            return 4;
-        }
-
-        @Override
-        protected void setupRecipe(Recipe recipe, int i) {
-            int energyBonus = this.controller.getEUBonus();
-            long resultOverclock = this.overclockManager.getEUt();
-            resultOverclock -= (long) (resultOverclock * energyBonus * 0.01f);
-            this.overclockManager.setEUt(resultOverclock);
-            super.setupRecipe(recipe, i);
-        }
     }
 }

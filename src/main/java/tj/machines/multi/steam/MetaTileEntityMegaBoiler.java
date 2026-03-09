@@ -14,7 +14,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.capability.impl.handler.IBoilerHandler;
 import tj.capability.impl.workable.MegaBoilerRecipeLogic;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
-import tj.builder.multicontrollers.UIDisplayBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.gui.TJGuiTextures;
@@ -81,7 +81,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
         super(metaTileEntityId);
         this.boilerType = boilerType;
         this.parallel = parallel;
-        this.boilerRecipeLogic.setActive(this::replaceFireboxAsActive);
+        this.boilerRecipeLogic.setActiveConsumer(this::replaceFireboxAsActive);
         this.reinitializeStructurePattern();
     }
 
@@ -126,13 +126,13 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
     }
 
     @Override
-    protected void addDisplayText(UIDisplayBuilder builder) {
+    protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         int amount = (int) this.boilerRecipeLogic.getConsumption();
         FluidStack water = Water.getFluid(amount);
-        builder.temperatureLine(this.boilerRecipeLogic.heat(), this.boilerType.maxTemperature)
-                .fluidInputLine(this.importFluidTank, water)
+        builder.AddTemperatureLine(this.boilerRecipeLogic.heat(), this.boilerType.maxTemperature)
+                .addFluidInputLine(this.importFluidTank, water)
                 .customLine(text -> {
                     text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.boilerRecipeLogic.getProduction(), this.boilerType.baseSteamOutput));
 
@@ -150,7 +150,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
                     buttonText.appendText(" ");
                     buttonText.appendSibling(withButton(new TextComponentString("[+]"), "add"));
                     text.addTextComponent(buttonText);
-                }).isWorkingLine(this.boilerRecipeLogic.isWorkingEnabled(), this.boilerRecipeLogic.isActive(), this.boilerRecipeLogic.getProgress(), this.boilerRecipeLogic.getMaxProgress())
+                }).AddIsWorkingLine(this.boilerRecipeLogic.isWorkingEnabled(), this.boilerRecipeLogic.isActive(), this.boilerRecipeLogic.getProgress(), this.boilerRecipeLogic.getMaxProgress())
                 .addRecipeInputLine(this.boilerRecipeLogic)
                 .addRecipeOutputLine(this.boilerRecipeLogic);
     }
