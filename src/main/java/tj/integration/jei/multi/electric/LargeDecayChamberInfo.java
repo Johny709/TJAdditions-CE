@@ -13,6 +13,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import org.apache.commons.lang3.ArrayUtils;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.machines.TJMetaTileEntities;
 
@@ -63,7 +64,8 @@ public class LargeDecayChamberInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[] {I18n.format("tj.multiblock.large_decay_chamber.description").replace("§7", "§r")};
+        return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.large_decay_chamber.description").replace("§7", "§r")},
+                super.getDescription());
     }
 
     @Override

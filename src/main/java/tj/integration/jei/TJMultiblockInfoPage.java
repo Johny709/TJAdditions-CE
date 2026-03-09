@@ -18,7 +18,8 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import tj.TJValues;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
+import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 
 import java.util.Collections;
 import java.util.List;
@@ -96,9 +97,17 @@ public abstract class TJMultiblockInfoPage extends MultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        if (!(this.getController() instanceof OldParallelRecipeMapMultiblockController))
+        if (this.getController() instanceof TJRecipeMapMultiblockController) {
+            TJRecipeMapMultiblockController controller = (TJRecipeMapMultiblockController) this.getController();
+            return new String[]{I18n.format("gtadditions.multiblock.universal.tooltip.1", controller.getRecipeMapNames()),
+                    I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(controller.getEUtMultiplier() / 100.0)),
+                    I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(controller.getDurationMultiplier() / 100.0)),
+                    I18n.format("gtadditions.multiblock.universal.tooltip.4", controller.getParallel()).replace("§7", "§r"),
+                    I18n.format("gtadditions.multiblock.universal.tooltip.5", controller.getChanceMultiplier())};
+        }
+        if (!(this.getController() instanceof ParallelRecipeMapMultiblockController))
             return new String[]{""};
-        OldParallelRecipeMapMultiblockController controller = (OldParallelRecipeMapMultiblockController) this.getController();
+        ParallelRecipeMapMultiblockController controller = (ParallelRecipeMapMultiblockController) this.getController();
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < controller.getRecipeMaps().length; i++) {
             builder.append(controller.getRecipeMaps()[i].getLocalizedName());
@@ -107,10 +116,10 @@ public abstract class TJMultiblockInfoPage extends MultiblockInfoPage {
         }
         return new String[]{I18n.format("tj.multiblock.parallel.extend.tooltip").replace("§7", "§r"),
                 I18n.format("gtadditions.multiblock.universal.tooltip.1", builder.toString()),
-                I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(controller.getEUPercentage() / 100.0)),
-                I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(controller.getDurationPercentage() / 100.0)),
-                I18n.format("tj.multiblock.parallel.tooltip.1", controller.getStack()).replace("§7", "§0").replace("§r", "§r§0"),
+                I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(controller.getEUtMultiplier() / 100.0)),
+                I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(controller.getDurationMultiplier() / 100.0)),
+                I18n.format("tj.multiblock.parallel.tooltip.1", controller.getParallel()).replace("§7", "§0").replace("§r", "§r§0"),
                 I18n.format("tj.multiblock.parallel.tooltip.2", controller.getMaxParallel()),
-                I18n.format("gtadditions.multiblock.universal.tooltip.5", controller.getChancePercentage())};
+                I18n.format("gtadditions.multiblock.universal.tooltip.5", controller.getChanceMultiplier())};
     }
 }
