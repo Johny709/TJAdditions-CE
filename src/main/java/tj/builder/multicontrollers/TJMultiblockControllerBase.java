@@ -338,12 +338,6 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
                 .addEmptyLine()
                 .addMufflerDisplayLine(!this.hasMufflerHatch() || this.isMufflerFaceFree(), 999)
                 .addMaintenanceDisplayLines(this.getProblems(), this.hasProblems(), 1000);
-        if (this.activeDate != null) {
-            long activeTime = now.getEpochSecond() - this.activeDate.getEpochSecond();
-            builder.addTranslationLine("tj.multiblock.date.active", dateFormat.format(Date.from(this.activeDate)))
-                    .addTranslationLine("tj.multiblock.date.ago", activeTime / 3600, (activeTime % 3600) / 60, activeTime % 60)
-                    .addEmptyLine();
-        }
     }
 
     @Override
