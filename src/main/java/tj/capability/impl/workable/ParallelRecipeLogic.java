@@ -97,7 +97,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
             this.recipeRecheck[i] = false;
             if (this.distinctRecipes) {
                 recipe = ((IRecipeMap) this.handler.getRecipeMap()).findRecipeDistinct(this.handler.getMaxVoltage(), itemHandlerModifiable, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true, this.occupiedRecipes, this.distinctRecipes);
-            } else recipe = this.handler.getRecipeMap().findRecipe(this.handler.getMaxVoltage(), itemHandlerModifiable, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
+            } else recipe = this.handler.getRecipeMap().searchRecipe(this.handler.getMaxVoltage(), itemHandlerModifiable, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
             if (recipe != null) {
                 ((IGTRecipe) recipe).mergeRecipeInputs();
                 this.recipeLRUCache.put(recipe);

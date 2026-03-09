@@ -58,7 +58,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         Recipe recipe = this.recipeLRUCache.get(itemHandlerModifiable, this.handler.getImportFluidTank());
         if (recipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(itemHandlerModifiable, this.handler.getImportFluidTank()))) {
             this.recipeRecheck = false;
-            recipe = this.handler.getRecipeMap().findRecipe(this.handler.getMaxVoltage(), itemHandlerModifiable, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
+            recipe = this.handler.getRecipeMap().searchRecipe(this.handler.getMaxVoltage(), itemHandlerModifiable, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
             if (recipe != null) {
                 ((IGTRecipe) recipe).mergeRecipeInputs();
                 this.recipeLRUCache.put(recipe);
