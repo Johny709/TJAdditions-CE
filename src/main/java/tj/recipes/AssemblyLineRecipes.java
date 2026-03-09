@@ -2,7 +2,6 @@ package tj.recipes;
 
 import gregicadditions.item.metal.MetalCasing1;
 import gregtech.api.items.metaitem.MetaItem;
-import gregtech.api.recipes.RecipeBuilder;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidRegistry;
 import tj.blocks.BlockFusionCasings;
@@ -24,7 +23,6 @@ import net.minecraft.item.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-import static tj.TJRecipeMaps.LARGE_ASSEMBLY_LINE_RECIPES;
 import static tj.items.TJMetaItems.*;
 import static tj.items.TJMetaItems.FLUID_REGULATOR_MAX;
 import static tj.machines.TJMetaTileEntities.*;
@@ -1189,13 +1187,6 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.frameGt, HDCS, 24)
                 .outputs(LARGE_ASSEMBLY_LINE.getStackForm())
                 .duration(2000).EUt(GAValues.VA[10])
-                .buildAndRegister();
-
-        RecipeBuilder<?> largeAssemblyRecipeBuilder = LARGE_ASSEMBLY_LINE_RECIPES.recipeBuilder();
-        for (int i = 0; i < 14; i++)
-            largeAssemblyRecipeBuilder.inputs(motors[i].getStackForm(64), emitters[i].getStackForm(64), sensors[i].getStackForm(64), pistons[i].getStackForm(64), pumps[i].getStackForm(64), conveyors[i].getStackForm(64), robotArms[i].getStackForm(64), fieldGens[i].getStackForm(64));
-        largeAssemblyRecipeBuilder.outputs(new ItemStack(Blocks.DIRT))
-                .duration(1200).EUt(GAValues.VA[14])
                 .buildAndRegister();
     }
 }

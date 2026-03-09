@@ -39,7 +39,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
-import tj.TJRecipeMaps;
 import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.OverclockManager;
@@ -64,7 +63,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     private int parallelLayer = 4;
 
     public MetaTileEntityLargeAssemblyLine(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, true, false, GARecipeMaps.ASSEMBLY_LINE_RECIPES, TJRecipeMaps.LARGE_ASSEMBLY_LINE_RECIPES);
+        super(metaTileEntityId, true, false, GARecipeMaps.ASSEMBLY_LINE_RECIPES);
     }
 
     @Override
