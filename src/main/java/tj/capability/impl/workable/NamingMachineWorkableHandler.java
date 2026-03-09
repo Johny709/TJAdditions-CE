@@ -33,6 +33,7 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
     protected boolean startRecipe() {
         this.itemInputs.clear();
         this.itemOutputs.clear();
+        this.catalyst = ItemStack.EMPTY;
         int catalystIndex = -1;
         int availableParallels = this.handler.getParallel();
         IItemHandlerModifiable itemHandlerModifiable = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
@@ -45,11 +46,13 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
                 break;
             }
         }
+        if (this.catalyst.isEmpty() && this.handler.getName().isEmpty())
+            return false;
         for (int i = 0; i < itemHandlerModifiable.getSlots() && availableParallels > 0; i++) {
             if (i == catalystIndex) continue;
-            ItemStack stack = itemHandlerModifiable.extractItem(i, availableParallels, false);
+            ItemStack stack = itemHandlerModifiable.extractItem(i, availableParallels, false).copy();
             if (stack.isEmpty()) continue;
-            this.itemInputs.add(stack.copy());
+            this.itemInputs.add(stack);
             stack.setStackDisplayName(this.catalyst.isEmpty() ? this.handler.getName() : this.catalyst.getDisplayName());
             availableParallels -= stack.getCount();
             this.itemOutputs.add(stack);
