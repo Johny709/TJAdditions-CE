@@ -256,7 +256,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
         long voltage = this.handler.getMaxVoltage();
         baseEnergy *= 4;
         while (duration > 1 && baseEnergy <= voltage) {
-            duration /= (int) multiplier;
+            duration /= multiplier;
             baseEnergy *= 4;
         }
         this.overclockManager.setEUtAndDuration(baseEnergy / 4, duration);
