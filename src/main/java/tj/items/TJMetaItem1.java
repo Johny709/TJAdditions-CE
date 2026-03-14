@@ -14,6 +14,7 @@ public class TJMetaItem1 extends MaterialMetaItem {
 
     @Override
     public void registerSubItems() {
+        VOID_ITEM_COVER = addItem(996, "void_item_cover").setMaxStackSize(1);
         TOOLBOX = addItem(999, "toolbox").addComponents(new ToolboxBehaviour()).setMaxStackSize(1);
         CREATIVE_FLUID_COVER = addItem(1000, "creative.fluid.cover").addComponents(new CreativeFluidCoverBehaviour());
         CREATIVE_ITEM_COVER = addItem(1001, "creative.item.cover").addComponents(new CreativeItemCoverBehaviour());

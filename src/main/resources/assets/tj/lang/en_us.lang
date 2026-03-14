@@ -757,6 +757,7 @@ metaitem.creative_energy_cover.set.energy_rate=Set Energy Rate
 metaitem.creative_energy_cover.set.voltage=Set Voltage
 metaitem.creative_energy_cover.set.amps=Set Amps
 metaitem.creative_energy_cover.simulate_voltage=§fSimulate Voltage: §1%b
+metaitem.void_item_cover.name=Void Item Cover
 metaitem.item.linking.device.name=Linking Device
 metaitem.item.copy.config.name=Copy Config Tool
 metaitem.item.linking.device.link.from=Use Linking device to Link from this.
