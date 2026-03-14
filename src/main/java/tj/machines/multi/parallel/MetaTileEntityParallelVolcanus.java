@@ -36,6 +36,9 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.OverclockManager;
 import tj.capability.ProgressBar;
+import tj.capability.impl.handler.IFluidSupplyHandler;
+import tj.capability.impl.workable.FluidRecipeLogic;
+import tj.capability.impl.workable.ParallelRecipeLogic;
 import tj.util.TJFluidUtils;
 import tj.util.TooltipHelper;
 
@@ -56,7 +59,7 @@ import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.PYROTHEUM;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
 
-public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockController implements IProgressBar {
+public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockController implements IProgressBar, IFluidSupplyHandler {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
 
@@ -85,6 +88,11 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
             tip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.3"));
             super.addInformation(stack, player, tip, advanced);
         });
+    }
+
+    @Override
+    protected ParallelRecipeLogic<IFluidSupplyHandler> createRecipeLogic() {
+        return new FluidRecipeLogic(this);
     }
 
     @Override
@@ -209,5 +217,10 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelVolcanus.maximumParallel;
+    }
+
+    @Override
+    public FluidStack getFluidStack() {
+        return this.pyro;
     }
 }
