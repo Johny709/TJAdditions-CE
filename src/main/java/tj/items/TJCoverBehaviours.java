@@ -33,6 +33,7 @@ public class TJCoverBehaviours {
             registerBehavior(enderCoverID++, new ResourceLocation(TJ.MODID, "ender_energy_cover_" + GAValues.VN[i + 3].toLowerCase()), ENDER_ENERGY_COVERS[i], (cover, face) -> new EnderCoverEnergy(cover, face, finalI));
         }
         registerBehavior(166, new ResourceLocation(TJ.MODID, "void_item_cover"), VOID_ITEM_COVER, VoidCoverItem::new);
+        registerBehavior(167, new ResourceLocation(TJ.MODID, "void_fluid_cover"), VOID_FLUID_COVER, VoidCoverFluid::new);
     }
 
     public static void registerBehavior(int coverNetworkId, ResourceLocation coverId, MetaItem<?>.MetaValueItem placerItem, BiFunction<ICoverable, EnumFacing, CoverBehavior> behaviorCreator) {

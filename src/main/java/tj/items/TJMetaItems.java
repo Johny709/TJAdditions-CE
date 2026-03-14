@@ -22,6 +22,7 @@ public class TJMetaItems {
     public static MetaItem<?>.MetaValueItem CREATIVE_ITEM_COVER;
     public static MetaItem<?>.MetaValueItem CREATIVE_ENERGY_COVER;
     public static MetaItem<?>.MetaValueItem VOID_ITEM_COVER;
+    public static MetaItem<?>.MetaValueItem VOID_FLUID_COVER;
     public static MetaItem<?>.MetaValueItem LINKING_DEVICE;
     public static MetaItem<?>.MetaValueItem VOID_PLUNGER;
     public static MetaItem<?>.MetaValueItem NBT_READER;
