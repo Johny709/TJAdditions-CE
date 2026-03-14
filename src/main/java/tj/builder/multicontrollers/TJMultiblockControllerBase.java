@@ -235,9 +235,9 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     @Override
     public void invalidateStructure() {
         super.invalidateStructure();
-        this.importItemInventory = new ItemStackHandler(0);
+        this.importItemInventory = new ItemHandlerList(Collections.emptyList());
         this.importFluidTank = new FluidTankList(true);
-        this.exportItemInventory = new ItemStackHandler(0);
+        this.exportItemInventory = new ItemHandlerList(Collections.emptyList());
         this.exportFluidTank = new FluidTankList(true);
         this.inputEnergyContainer = new EnergyContainerList(Collections.emptyList());
         this.outputEnergyContainer = new EnergyContainerList(Collections.emptyList());

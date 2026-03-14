@@ -2,6 +2,8 @@ package tj.machines.multi.electric;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
+import gregicadditions.capabilities.IQubitContainer;
+import gregicadditions.capabilities.impl.QubitContainerList;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.ConveyorCasing;
@@ -60,6 +62,7 @@ import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPred
 public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockController implements IAssemblyHandler {
 
     private final List<BlockPos> inputBusPos = new ArrayList<>();
+    private IQubitContainer qubitContainer;
     private int parallelLayer = 4;
 
     public MetaTileEntityLargeAssemblyLine(ResourceLocation metaTileEntityId) {
@@ -74,6 +77,12 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     @Override
     protected BasicRecipeLogic<IAssemblyHandler> createRecipeLogic() {
         return new AssemblyRecipeLogic(this);
+    }
+
+    @Override
+    public boolean checkRecipe(Recipe recipe) {
+        ((AssemblyRecipeLogic) this.recipeLogic).setRecipeQubit(recipe.getIntegerProperty("qubitConsume"));
+        return super.checkRecipe(recipe);
     }
 
     @Override
@@ -107,7 +116,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
                 .where('I', tilePredicate(inputBusPredicate()))
                 .where('O', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.EXPORT_ITEMS)))
                 .where('F', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS)))
-                .where('e', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.INPUT_ENERGY)))
+                .where('e', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.INPUT_QBIT)))
                 .where('c', LargeSimpleRecipeMapMultiblockController.conveyorPredicate())
                 .where('r', LargeSimpleRecipeMapMultiblockController.robotArmPredicate())
                 .where('#', isAirPredicate())
@@ -139,6 +148,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
         super.formStructure(context);
         int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
         int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
+        this.qubitContainer = new QubitContainerList(this.getAbilities(GregicAdditionsCapabilities.INPUT_QBIT));
         this.inputBusPos.addAll(context.getOrDefault("InputBuses", new HashSet<>()));
         this.inputBusPos.sort(Comparator.comparingInt(pos -> Math.abs(pos.getX() - this.getPos().getX()) + Math.abs(pos.getY() - this.getPos().getY()) + Math.abs(pos.getZ() - this.getPos().getZ())));
         this.tier = Math.min(conveyor, robotArm);
@@ -149,6 +159,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     public void invalidateStructure() {
         super.invalidateStructure();
         this.inputBusPos.clear();
+        this.qubitContainer = new QubitContainerList(Collections.emptyList());
     }
 
     @Override
@@ -218,6 +229,11 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     }
 
     @Override
+    public IQubitContainer getQubitContainer() {
+        return this.qubitContainer;
+    }
+
+    @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return Textures.SOLID_STEEL_CASING;
     }
@@ -262,8 +278,28 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
 
     private static class AssemblyRecipeLogic extends BasicRecipeLogic<IAssemblyHandler> {
 
+        private int recipeQubit;
+
         public AssemblyRecipeLogic(MetaTileEntity metaTileEntity) {
             super(metaTileEntity);
+        }
+
+        public void setRecipeQubit(int recipeQubit) {
+            this.recipeQubit = recipeQubit;
+        }
+
+        @Override
+        protected void progressRecipe(int progress) {
+            if (this.recipeQubit < 1 || this.handler.getQubitContainer().removeQubit(this.recipeQubit) == -this.recipeQubit) {
+                super.progressRecipe(progress);
+            } else if (this.progress > 1)
+                this.progress--;
+        }
+
+        @Override
+        protected boolean completeRecipe() {
+            this.recipeQubit = 0;
+            return super.completeRecipe();
         }
 
         @Override
@@ -288,6 +324,19 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
                 inputBus = this.handler.getInputBusAt(i);
                 ItemStackHelper.extractFromItemHandlerByIngredientToList(inputBus, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.getItemInputs());
             }
+        }
+
+        @Override
+        public NBTTagCompound serializeNBT() {
+            NBTTagCompound compound = super.serializeNBT();
+            compound.setInteger("qubit", this.recipeQubit);
+            return compound;
+        }
+
+        @Override
+        public void deserializeNBT(NBTTagCompound compound) {
+            super.deserializeNBT(compound);
+            this.recipeQubit = compound.getInteger("qubit");
         }
     }
 }
