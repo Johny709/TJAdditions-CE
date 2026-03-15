@@ -101,11 +101,11 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     @Override
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK)
-                .aisle("FOIOF", "CCCCC", "C###C", "CCCCC", "CXXXC", "~CXC~", "~~e~~");
+                .aisle("FOCOF", "CCCCC", "C###C", "CCCCC", "EXXXE", "~EXE~", "~~e~~");
         for (int i = 0; i < this.parallelLayer; i++) {
             factoryPattern.aisle("FCICF", "G#c#G", "G###G", "G#r#G", "EAaAE", "~EAE~", "~~e~~");
         }
-        return factoryPattern.aisle("FCICF", "CCCCC", "C###C", "CCCCC", "CXSXC", "~CXC~", "~~e~~")
+        return factoryPattern.aisle("FCCCF", "CCCCC", "C###C", "CCCCC", "EXSXE", "~EXE~", "~~e~~")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
                 .where('E', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))

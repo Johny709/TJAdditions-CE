@@ -34,11 +34,11 @@ public class LargeAssemblyLineInfo extends TJMultiblockInfoPage implements IPara
         List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
         for (int layer = 1; layer < 5; layer++) {
             TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
-                    .aisle("FOICf", "CCCCC", "C###C", "CCCCC", "CCCCC", "~CCC~", "~~e~~");
+                    .aisle("FCOCf", "CCCCC", "C###C", "CCCCC", "ECCCE", "~ECE~", "~~e~~");
             for (int i = 0; i < 4 * layer; i++) {
                 builder.aisle("FCICf", "G#c#G", "G###G", "G#r#G", "EAaAE", "~EAE~", "~~C~~");
             }
-            builder.aisle("FCICf", "CCCCC", "C###C", "CCCCC", "CCSCC", "~CMC~", "~~C~~")
+            builder.aisle("FCCCf", "CCCCC", "C###C", "CCCCC", "ECSCE", "~EME~", "~~C~~")
                     .where('S', this.getController(), EnumFacing.WEST)
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                     .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
