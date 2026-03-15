@@ -167,7 +167,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                                         .setPutItemsPredicate(this.workableHandler::addItemToFilter)
                                         .setAreGhostItems(this.ghostSlotHandler.getAreGhostItems()));
                             }
-                            widgetGroup.addWidget(new ToggleButtonWidget(144, 57, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
+                            widgetGroup.addWidget(new ToggleButtonWidget(144, 57, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
                                     .setTooltipText("tj.multiblock.advanced_large_miner.blacklist_block"));
                             return false;
                         }).addPopup(30, 20, 0, 0, new TJToggleButtonWidget(133, 172, 18, 18)
