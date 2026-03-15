@@ -11,7 +11,9 @@ import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import org.apache.commons.lang3.ArrayUtils;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
@@ -34,11 +36,11 @@ public class LargeAssemblyLineInfo extends TJMultiblockInfoPage implements IPara
         List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
         for (int layer = 1; layer < 5; layer++) {
             TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
-                    .aisle("FCOCf", "CCCCC", "C###C", "CCCCC", "ECCCE", "~ECE~", "~~e~~");
+                    .aisle("CCCCC", "CCOCC", "C###C", "CCCCC", "ECCCE", "~ECE~", "~~e~~");
             for (int i = 0; i < 4 * layer; i++) {
                 builder.aisle("FCICf", "G#c#G", "G###G", "G#r#G", "EAaAE", "~EAE~", "~~C~~");
             }
-            builder.aisle("FCCCf", "CCCCC", "C###C", "CCCCC", "ECSCE", "~EME~", "~~C~~")
+            builder.aisle("CCCCC", "CCCCC", "C###C", "CCCCC", "ECSCE", "~EME~", "~~C~~")
                     .where('S', this.getController(), EnumFacing.WEST)
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                     .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
@@ -65,5 +67,12 @@ public class LargeAssemblyLineInfo extends TJMultiblockInfoPage implements IPara
     @Override
     public float getDefaultZoom() {
         return 0.5F;
+    }
+
+    @Override
+    public String[] getDescription() {
+        return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.large_assembly_line.description").replace("§7", "§r"),
+                        I18n.format("tj.multiblock.large_assembly_line.tooltip")},
+                super.getDescription());
     }
 }

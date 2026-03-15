@@ -1057,4 +1057,30 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public int maximumSlices = 256;
     }
+
+    @Config.Comment("Parallel Circuit Assembly Line")
+    public static ParallelCircuitAssemblyLine parallelCircuitAssemblyLine = new ParallelCircuitAssemblyLine();
+
+    public static class ParallelCircuitAssemblyLine {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
+
+        @Config.Name("Slice Limit")
+        @Config.Comment("Adjust the maximum number of slices the parallel circuit assembly line can have")
+        @Config.RequiresMcRestart
+        public int maximumSlices = 256;
+    }
 }
