@@ -158,7 +158,6 @@ public final class GUIDisplayBuilder {
         return this.addEnergyInputLine(container, amount, 1, 0);
     }
 
-
     public GUIDisplayBuilder addEnergyInputLine(IEnergyContainer container, long amount, int maxProgress) {
         return this.addEnergyInputLine(container, amount, maxProgress, 0);
     }

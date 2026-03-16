@@ -41,6 +41,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -110,6 +113,11 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         builder.addTranslationLine("tj.multiblock.slices", this.parallelLayer);
+        int qubit = ((AssemblyRecipeLogic) this.recipeLogic).getRecipeQubit();
+        if (!this.isStructureFormed() || qubit < 1) return;
+        if (this.qubitContainer.getQubitStored() >= qubit)
+            builder.addTranslationLine(2, "tj.multiblock.large_assembly_line.qubit", qubit);
+        else builder.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.not_enough_qubit").setStyle(new Style().setColor(TextFormatting.RED)), 2);
     }
 
     @Override
@@ -353,6 +361,10 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
         public void deserializeNBT(NBTTagCompound compound) {
             super.deserializeNBT(compound);
             this.recipeQubit = compound.getInteger("qubit");
+        }
+
+        public int getRecipeQubit() {
+            return this.recipeQubit;
         }
     }
 }
