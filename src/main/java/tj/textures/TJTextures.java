@@ -42,6 +42,7 @@ public class TJTextures {
     public static final TJSimpleCubeRenderer STAINLESS_PIPE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/pipe/machine_casing_pipe_stainless");
     public static final TJSimpleCubeRenderer TUNGSTEN_TITANIUM_CARBIDE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/tungsten_titanium_carbide");
     public static final TJSimpleCubeRenderer RUTHERFORDIUM = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/rutherfordium");
+    public static final TJSimpleCubeRenderer ASSEMBLER = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/assembler_casing");
     public static final TJSimpleSidedCubeRenderer PRIMITIVE_PUMP = new TJSimpleSidedCubeRenderer(TJ.MODID, "blocks/casings/pump_deck");
 
     public static final TJSimpleOverlayRenderer COVER_CREATIVE_FLUID = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/creative_fluid_cover_overlay");

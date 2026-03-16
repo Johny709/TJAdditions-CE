@@ -135,7 +135,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
                 text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.turbine.obstructed")
                         .setStyle(new Style().setColor(TextFormatting.RED)));
                    }
-        }).AddIsWorkingLine(this.airCollectorHandler.isWorkingEnabled(), this.airCollectorHandler.isActive(), this.airCollectorHandler.getProgress(), this.airCollectorHandler.getMaxProgress());
+        }).addIsWorkingLine(this.airCollectorHandler.isWorkingEnabled(), this.airCollectorHandler.isActive(), this.airCollectorHandler.getProgress(), this.airCollectorHandler.getMaxProgress());
     }
 
     @Override

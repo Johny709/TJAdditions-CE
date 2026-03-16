@@ -158,7 +158,6 @@ public final class GUIDisplayBuilder {
         return this.addEnergyInputLine(container, amount, 1, 0);
     }
 
-
     public GUIDisplayBuilder addEnergyInputLine(IEnergyContainer container, long amount, int maxProgress) {
         return this.addEnergyInputLine(container, amount, maxProgress, 0);
     }
@@ -255,14 +254,23 @@ public final class GUIDisplayBuilder {
         else return this.addTextComponent(fluidInputText);
     }
 
-    public GUIDisplayBuilder AddIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress) {
-        return this.AddIsWorkingLine(isWorkingEnabled, isActive, progress, maxProgress, 0);
+    public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress) {
+        return this.addIsWorkingLine(isWorkingEnabled, isActive, progress, maxProgress, false, 0);
     }
 
-    public GUIDisplayBuilder AddIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, int priority) {
+    public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, int priority) {
+        return this.addIsWorkingLine(isWorkingEnabled, isActive, progress, maxProgress, false, priority);
+    }
+
+    public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, boolean hasProblem) {
+        return this.addIsWorkingLine(isWorkingEnabled, isActive, progress, maxProgress, hasProblem, 0);
+    }
+
+    public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, boolean hasProblems, int priority) {
         if (isActive) progress--;
         int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
         ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentString(I18n.translateToLocal("machine.universal.work_paused"))
+                : hasProblems ? new TextComponentString(I18n.translateToLocal("machine.universal.has_problems"))
                 : !isActive ? new TextComponentString(I18n.translateToLocal("machine.universal.idling"))
                 : new TextComponentString(I18n.translateToLocal("machine.universal.running"));
         if (priority != 0)
@@ -368,16 +376,16 @@ public final class GUIDisplayBuilder {
         return this;
     }
 
-    public GUIDisplayBuilder AddRecipeMapLine(RecipeMap<?> recipeMap) {
+    public GUIDisplayBuilder addRecipeMapLine(RecipeMap<?> recipeMap) {
         return this.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
                 .appendSibling(withButton(new TextComponentString("[" + I18n.translateToLocal("recipemap." + recipeMap.getUnlocalizedName() + ".name") + "]"), recipeMap.getUnlocalizedName())));
     }
 
-    public GUIDisplayBuilder AddTemperatureLine(long current, long max) {
-        return this.AddTemperatureLine(current, max, 0);
+    public GUIDisplayBuilder addTemperatureLine(long current, long max) {
+        return this.addTemperatureLine(current, max, 0);
     }
 
-    public GUIDisplayBuilder AddTemperatureLine(long current, long max, int priority) {
+    public GUIDisplayBuilder addTemperatureLine(long current, long max, int priority) {
         if (priority != 0)
             return this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.temperature", current, max)), priority);
         else return this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.temperature", current, max)));

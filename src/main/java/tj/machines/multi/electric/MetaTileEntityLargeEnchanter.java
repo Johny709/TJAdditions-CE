@@ -93,7 +93,7 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockControllerBase {
                             .appendSibling(this.workableHandler.isDistinct()
                                     ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
                                     : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
-                    .AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+                    .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.hasProblem())
                     .addRecipeInputLine(this.workableHandler)
                     .addRecipeOutputLine(this.workableHandler);
     }

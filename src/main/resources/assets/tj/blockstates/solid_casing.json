@@ -59,6 +59,11 @@
         "textures": {
           "all": "tj:blocks/casings/solid/rutherfordium"
         }
+      },
+      "assembler": {
+        "textures": {
+          "all": "tj:blocks/casings/solid/assembler_casing"
+        }
       }
     }
   }

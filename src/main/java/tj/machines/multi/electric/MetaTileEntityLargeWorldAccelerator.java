@@ -136,7 +136,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockControllerB
                 .customLine(text -> text.addTextComponent(randomTick ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.entity")
                         : tileEntity ? new TextComponentTranslation("gregtech.machine.world_accelerator.mode.tile")
                         : new TextComponentTranslation("tj.multiblock.large_world_accelerator.mode.GT")))
-                .AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override

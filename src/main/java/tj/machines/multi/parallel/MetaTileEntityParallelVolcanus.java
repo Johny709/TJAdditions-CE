@@ -36,6 +36,9 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.OverclockManager;
 import tj.capability.ProgressBar;
+import tj.capability.impl.handler.IFluidSupplyHandler;
+import tj.capability.impl.workable.FluidRecipeLogic;
+import tj.capability.impl.workable.ParallelRecipeLogic;
 import tj.util.TJFluidUtils;
 import tj.util.TooltipHelper;
 
@@ -56,7 +59,7 @@ import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.PYROTHEUM;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
 
-public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockController implements IProgressBar {
+public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockController implements IProgressBar, IFluidSupplyHandler {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
 
@@ -88,13 +91,17 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     }
 
     @Override
+    protected ParallelRecipeLogic<IFluidSupplyHandler> createRecipeLogic() {
+        return new FluidRecipeLogic(this);
+    }
+
+    @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setParallel(1);
         long recipeEUt = overclockManager.getEUt() * 4;
         int duration = overclockManager.getDuration();
-        int heat = this.blastFurnaceTemperature + this.bonusTemperature - recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
+        int heat = this.blastFurnaceTemperature - recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
         // Apply EUt discount for every 900K above the base recipe temperature
-        recipeEUt *= (long) Math.pow(0.95, heat / 900D);
+        recipeEUt /= (long) (1.00 + 0.05 * (heat / 900D));
         while (duration > 1 && recipeEUt <= this.maxVoltage) {
             if (heat < 1800) break;
             heat -= 1800;
@@ -210,5 +217,10 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelVolcanus.maximumParallel;
+    }
+
+    @Override
+    public FluidStack getFluidStack() {
+        return this.pyro;
     }
 }

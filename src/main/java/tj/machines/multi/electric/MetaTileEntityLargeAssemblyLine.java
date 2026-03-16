@@ -2,6 +2,8 @@ package tj.machines.multi.electric;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
+import gregicadditions.capabilities.IQubitContainer;
+import gregicadditions.capabilities.impl.QubitContainerList;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.ConveyorCasing;
@@ -20,15 +22,14 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.api.render.OrientedOverlayRenderer;
-import gregtech.api.render.Textures;
-import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityMultiblockPart;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
@@ -37,17 +38,27 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
+import tj.blocks.BlockSolidCasings;
+import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IAssemblyHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
+import tj.textures.TJOrientedOverlayRenderer;
+import tj.textures.TJTextures;
 import tj.util.ItemStackHelper;
 import tj.util.TextUtils;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -60,6 +71,7 @@ import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPred
 public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockController implements IAssemblyHandler {
 
     private final List<BlockPos> inputBusPos = new ArrayList<>();
+    private IQubitContainer qubitContainer;
     private int parallelLayer = 4;
 
     public MetaTileEntityLargeAssemblyLine(ResourceLocation metaTileEntityId) {
@@ -72,8 +84,23 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("tj.multiblock.large_assembly_line.description"));
+        tooltip.add(I18n.format("tj.multiblock.large_assembly_line.tooltip"));
+        tooltip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+        super.addInformation(stack, player, tooltip, advanced);
+    }
+
+    @Override
     protected BasicRecipeLogic<IAssemblyHandler> createRecipeLogic() {
         return new AssemblyRecipeLogic(this);
+    }
+
+    @Override
+    public boolean checkRecipe(Recipe recipe) {
+        ((AssemblyRecipeLogic) this.recipeLogic).setRecipeQubit(recipe.getIntegerProperty("qubitConsume"));
+        return super.checkRecipe(recipe);
     }
 
     @Override
@@ -86,17 +113,22 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     @Override
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
-        builder.addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer);
+        builder.addTranslationLine("tj.multiblock.slices", this.parallelLayer);
+        int qubit = ((AssemblyRecipeLogic) this.recipeLogic).getRecipeQubit();
+        if (!this.isStructureFormed() || qubit < 1) return;
+        if (this.qubitContainer.getQubitStored() >= qubit)
+            builder.addTranslationLine(2, "tj.multiblock.large_assembly_line.qubit", qubit);
+        else builder.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.not_enough_qubit").setStyle(new Style().setColor(TextFormatting.RED)), 2);
     }
 
     @Override
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK)
-                .aisle("FOIOF", "CCCCC", "C###C", "CCCCC", "CXXXC", "~CXC~", "~~e~~");
+                .aisle("CCCCC", "COOOC", "C###C", "COOOC", "EXXXE", "~EXE~", "~~e~~");
         for (int i = 0; i < this.parallelLayer; i++) {
             factoryPattern.aisle("FCICF", "G#c#G", "G###G", "G#r#G", "EAaAE", "~EAE~", "~~e~~");
         }
-        return factoryPattern.aisle("FCICF", "CCCCC", "C###C", "CCCCC", "CXSXC", "~CXC~", "~~e~~")
+        return factoryPattern.aisle("CCCCC", "CCCCC", "C###C", "CCCCC", "EXSXE", "~EXE~", "~~e~~")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
                 .where('E', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
@@ -106,8 +138,8 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(GregicAdditionsCapabilities.MAINTENANCE_HATCH)))
                 .where('I', tilePredicate(inputBusPredicate()))
                 .where('O', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.EXPORT_ITEMS)))
-                .where('F', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS)))
-                .where('e', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.INPUT_ENERGY)))
+                .where('F', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH)))
+                .where('e', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.INPUT_QBIT)))
                 .where('c', LargeSimpleRecipeMapMultiblockController.conveyorPredicate())
                 .where('r', LargeSimpleRecipeMapMultiblockController.robotArmPredicate())
                 .where('#', isAirPredicate())
@@ -116,7 +148,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     }
 
     private IBlockState getCasingState() {
-        return MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID);
+        return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.ASSEMBLER_CASING);
     }
 
     public static BiFunction<BlockWorldState, MetaTileEntity, Boolean> inputBusPredicate() {
@@ -139,6 +171,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
         super.formStructure(context);
         int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
         int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
+        this.qubitContainer = new QubitContainerList(this.getAbilities(GregicAdditionsCapabilities.INPUT_QBIT));
         this.inputBusPos.addAll(context.getOrDefault("InputBuses", new HashSet<>()));
         this.inputBusPos.sort(Comparator.comparingInt(pos -> Math.abs(pos.getX() - this.getPos().getX()) + Math.abs(pos.getY() - this.getPos().getY()) + Math.abs(pos.getZ() - this.getPos().getZ())));
         this.tier = Math.min(conveyor, robotArm);
@@ -149,6 +182,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     public void invalidateStructure() {
         super.invalidateStructure();
         this.inputBusPos.clear();
+        this.qubitContainer = new QubitContainerList(Collections.emptyList());
     }
 
     @Override
@@ -210,6 +244,8 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
 
     @Override
     public IItemHandlerModifiable getInputBusAt(int index) {
+        if (index >= this.inputBusPos.size())
+            return null;
         TileEntity tileEntity = this.getWorld().getTileEntity(this.inputBusPos.get(index));
         if (!(tileEntity instanceof MetaTileEntityHolder))
             return null;
@@ -218,14 +254,18 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     }
 
     @Override
-    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return Textures.SOLID_STEEL_CASING;
+    public IQubitContainer getQubitContainer() {
+        return this.qubitContainer;
     }
 
-    @Nonnull
     @Override
-    protected OrientedOverlayRenderer getFrontOverlay() {
-        return Textures.ASSEMBLER_OVERLAY;
+    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
+        return TJTextures.ASSEMBLER;
+    }
+
+    @Override
+    public TJOrientedOverlayRenderer getFrontalOverlay() {
+        return TJTextures.TJ_ASSEMBLER_OVERLAY;
     }
 
     @Override
@@ -262,8 +302,28 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
 
     private static class AssemblyRecipeLogic extends BasicRecipeLogic<IAssemblyHandler> {
 
+        private int recipeQubit;
+
         public AssemblyRecipeLogic(MetaTileEntity metaTileEntity) {
             super(metaTileEntity);
+        }
+
+        public void setRecipeQubit(int recipeQubit) {
+            this.recipeQubit = recipeQubit;
+        }
+
+        @Override
+        protected void progressRecipe(int progress) {
+            if (this.recipeQubit < 1 || this.handler.getQubitContainer().removeQubit(this.recipeQubit) == -this.recipeQubit) {
+                super.progressRecipe(progress);
+            } else if (this.progress > 1)
+                this.progress--;
+        }
+
+        @Override
+        protected boolean completeRecipe() {
+            this.recipeQubit = 0;
+            return super.completeRecipe();
         }
 
         @Override
@@ -288,6 +348,23 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
                 inputBus = this.handler.getInputBusAt(i);
                 ItemStackHelper.extractFromItemHandlerByIngredientToList(inputBus, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.getItemInputs());
             }
+        }
+
+        @Override
+        public NBTTagCompound serializeNBT() {
+            NBTTagCompound compound = super.serializeNBT();
+            compound.setInteger("qubit", this.recipeQubit);
+            return compound;
+        }
+
+        @Override
+        public void deserializeNBT(NBTTagCompound compound) {
+            super.deserializeNBT(compound);
+            this.recipeQubit = compound.getInteger("qubit");
+        }
+
+        public int getRecipeQubit() {
+            return this.recipeQubit;
         }
     }
 }

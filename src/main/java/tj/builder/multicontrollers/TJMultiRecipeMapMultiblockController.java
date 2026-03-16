@@ -1,17 +1,13 @@
 package tj.builder.multicontrollers;
 
-import codechicken.lib.raytracer.CuboidRayTraceResult;
 import gregicadditions.capabilities.IMultiRecipe;
+import gregtech.api.gui.Widget;
 import gregtech.api.recipes.RecipeMap;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
+
+import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
 
 public abstract class TJMultiRecipeMapMultiblockController extends TJRecipeMapMultiblockController implements IMultiRecipe {
 
@@ -31,20 +27,19 @@ public abstract class TJMultiRecipeMapMultiblockController extends TJRecipeMapMu
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.recipe", new TextComponentTranslation("recipemap." + this.recipeMaps[this.getRecipeMapIndex()].getUnlocalizedName() + ".name")
-                .setStyle(new Style().setColor(TextFormatting.AQUA))));
+        builder.addRecipeMapLine(this.getRecipeMap());
     }
 
     @Override
-    public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        if (!this.getWorld().isRemote && !this.recipeLogic.isActive()) {
-            if (++this.recipeMapIndex == this.recipeMaps.length)
-                this.recipeMapIndex = 0;
-            playerIn.sendMessage(new TextComponentTranslation("tj.multiblock.multi_recipemap.switched", new TextComponentTranslation("recipemap." + this.recipeMaps[this.getRecipeMapIndex()].getUnlocalizedName() + ".name")));
-            this.writeCustomData(10, buffer -> buffer.writeInt(this.recipeMapIndex));
+    protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
+        super.handleDisplayClick(componentData, clickData);
+        if (this.recipeLogic.isActive() || !componentData.equals(this.getRecipeMap().getUnlocalizedName())) return;
+        this.recipeLogic.getRecipeLRUCache().clear();
+        this.recipeMapIndex = this.recipeMapIndex >= this.recipeMaps.length - 1 ? 0 : this.recipeMapIndex + 1;
+        if (!this.getWorld().isRemote) {
+            this.writeCustomData(RECIPE_MAP_INDEX, buf -> buf.writeInt(this.recipeMapIndex));
             this.markDirty();
         }
-        return true;
     }
 
     @Override

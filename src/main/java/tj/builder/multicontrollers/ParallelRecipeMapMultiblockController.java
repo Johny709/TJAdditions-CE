@@ -193,12 +193,12 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                 .addVoltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
                 .addEnergyInputLine(this.inputEnergyContainer, this.getTotalEnergyConsumption())
                 .addEnergyBonusLine(this.energyBonus, this.isStructureFormed() && this.energyBonus >= 0)
-                .AddRecipeMapLine(this.getMultiblockRecipe());
+                .addRecipeMapLine(this.getMultiblockRecipe());
     }
 
     @Override
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
-        if (this.recipeLogic.isActive()) return;
+        if (this.recipeLogic.isActive() || !componentData.equals(this.getMultiblockRecipe().getUnlocalizedName())) return;
         this.recipeLogic.getRecipeLRUCache().clear();
         this.recipeMapIndex = this.recipeMapIndex >= this.recipeMaps.length - 1 ? 0 : this.recipeMapIndex + 1;
         if (!this.getWorld().isRemote) {

@@ -6,6 +6,7 @@ import gregtech.common.ConfigHolder;
 import net.minecraft.nbt.*;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.capabilities.Capability;
+import tj.TJConfig;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Arrays;
@@ -103,7 +104,9 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
                 if (this.hasProblem[i])
                     this.setProblem(false, i);
             } else {
-                this.progress[i]--;
+                this.progress[i] = 1;
+                this.maxProgress[i] = TJConfig.machines.recipeCooldown;
+                this.energyPerTick[i] = 0;
                 if (!this.hasProblem[i])
                     this.setProblem(true, i);
             }
@@ -324,7 +327,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
 
     @Override
     public String getName() {
-        return "RecipeMapWorkable";
+        return "RecipeWorkable";
     }
 
     @Override

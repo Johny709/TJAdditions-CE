@@ -5,6 +5,7 @@ import gregtech.api.items.metaitem.MetaItem;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidRegistry;
 import tj.blocks.BlockFusionCasings;
+import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import gregicadditions.GAValues;
 import gregicadditions.item.CellCasing;
@@ -1173,19 +1174,48 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
 
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
-                .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), Polyetheretherketone.getFluid(9216))
+                .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), Polyetheretherketone.getFluid(9216), CarbonNanotubes.getFluid(1440))
                 .inputs(ASSEMBLY_LINE.getStackForm(16), motors[8].getStackForm(32), sensors[8].getStackForm(16), conveyors[8].getStackForm(16), robotArms[8].getStackForm(16), GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING, 64))
                 .input(OrePrefix.cableGtQuadruple, EnrichedNaquadahAlloy, 64)
                 .input(OrePrefix.screw, TriniumTitanium, 64)
                 .input(OrePrefix.plate, Pikyonium, 48)
                 .input(OrePrefix.gear, TitanSteel, 16)
                 .input(OrePrefix.gear, Seaborgium, 16)
-                .input(OrePrefix.circuit, Infinite, 4)
-                .input(OrePrefix.circuit, Infinite, 4)
-                .input(OrePrefix.circuit, Infinite, 4)
-                .input(OrePrefix.circuit, Infinite, 4)
+                .input(OrePrefix.circuit, UEV, 4)
+                .input(OrePrefix.circuit, UEV, 4)
+                .input(OrePrefix.circuit, UEV, 4)
+                .input(OrePrefix.circuit, UEV, 4)
                 .input(OrePrefix.frameGt, HDCS, 24)
                 .outputs(LARGE_ASSEMBLY_LINE.getStackForm())
+                .duration(2000).EUt(GAValues.VA[10])
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), Zylon.getFluid(9216), CarbonNanotubes.getFluid(2880))
+                .inputs(LARGE_CIRCUIT_ASSEMBLY_LINE.getStackForm(16), motors[9].getStackForm(32), sensors[9].getStackForm(16), conveyors[9].getStackForm(16), robotArms[9].getStackForm(16), GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING, 64))
+                .input(OrePrefix.cableGtQuadruple, Pikyonium, 64)
+                .input(OrePrefix.screw, HastelloyK243, 64)
+                .input(OrePrefix.gear, HastelloyX78, 16)
+                .input(OrePrefix.plate, Vibranium, 48)
+                .input(OrePrefix.gear, Quantum, 16)
+                .input(OrePrefix.circuit, UIV, 4)
+                .input(OrePrefix.circuit, UIV, 4)
+                .input(OrePrefix.circuit, UIV, 4)
+                .input(OrePrefix.circuit, UIV, 4)
+                .input(OrePrefix.frameGt, HDCS, 24)
+                .outputs(PARALLEL_CIRCUIT_ASSEMBLY_LINE.getStackForm())
+                .duration(2000).EUt(GAValues.VA[11])
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(9216))
+                .inputs(robotArms[8].getStackForm(2))
+                .input(OrePrefix.circuit, Infinite, 8)
+                .input(OrePrefix.plate, Seaborgium, 6)
+                .input(OrePrefix.plate, Tritanium, 6)
+                .input(OrePrefix.plate, Duranium, 6)
+                .input(OrePrefix.frameGt, HDCS, 1)
+                .outputs(TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.ASSEMBLER_CASING, 2))
                 .duration(2000).EUt(GAValues.VA[10])
                 .buildAndRegister();
     }

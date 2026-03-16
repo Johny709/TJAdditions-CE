@@ -220,7 +220,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         long voltage = this.handler.getMaxVoltage();
         baseEnergy *= 4;
         while (duration > 1 && baseEnergy <= voltage) {
-            duration /= (int) multiplier;
+            duration /= multiplier;
             baseEnergy *= 4;
         }
         this.overclockManager.setEUtAndDuration(baseEnergy / 4, duration);

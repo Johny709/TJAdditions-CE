@@ -104,7 +104,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
         builder.addTranslationLine("tj.multiblock.charcoal_pit.burn_time", this.charcoalPos.size() * 60)
                 .addTranslationLine("tj.multiblock.charcoal_pit.width_height", this.widthHeight)
                 .addTranslationLine("tj.multiblock.charcoal_pit.depth", this.depth)
-                .AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
                 .addRecipeInputLine(this.workableHandler)
                 .addRecipeOutputLine(this.workableHandler);
     }

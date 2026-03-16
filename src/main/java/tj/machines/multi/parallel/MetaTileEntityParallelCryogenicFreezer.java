@@ -31,6 +31,9 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
+import tj.capability.impl.handler.IFluidSupplyHandler;
+import tj.capability.impl.workable.FluidRecipeLogic;
+import tj.capability.impl.workable.ParallelRecipeLogic;
 import tj.util.TJFluidUtils;
 import tj.util.TooltipHelper;
 
@@ -48,7 +51,7 @@ import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.CRYOTHEUM;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
 
-public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMultiblockController implements IProgressBar {
+public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMultiblockController implements IProgressBar, IFluidSupplyHandler {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
     private FluidStack cryotheum;
@@ -71,6 +74,11 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
             tip.add(I18n.format("gregtech.multiblock.vol_cryo.description"));
             super.addInformation(stack, player, tip, advanced);
         });
+    }
+
+    @Override
+    protected ParallelRecipeLogic<IFluidSupplyHandler> createRecipeLogic() {
+        return new FluidRecipeLogic(this);
     }
 
     @Override
@@ -172,5 +180,10 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelCryogenicFreezer.maximumParallel;
+    }
+
+    @Override
+    public FluidStack getFluidStack() {
+        return this.cryotheum;
     }
 }

@@ -186,7 +186,7 @@ public abstract class TJMultiRecipeMapMultiblockControllerBase extends MultiReci
                 }).addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.framework", this.maxVoltage))
                 .addTextComponent(new TextComponentTranslation("gregtech.multiblock.recipe", new TextComponentTranslation("recipemap." + this.recipeMaps[this.getRecipeMapIndex()].getUnlocalizedName() + ".name")
                         .setStyle(new Style().setColor(TextFormatting.AQUA))))
-                .AddIsWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), 999)
+                .addIsWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), 999)
                 .addRecipeOutputLine(this.recipeMapWorkable, 1000);
     }
 

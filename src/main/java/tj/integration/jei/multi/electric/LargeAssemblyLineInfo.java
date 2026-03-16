@@ -7,11 +7,14 @@ import gregicadditions.item.components.ConveyorCasing;
 import gregicadditions.item.components.RobotArmCasing;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
-import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import org.apache.commons.lang3.ArrayUtils;
+import tj.blocks.BlockSolidCasings;
+import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
@@ -34,14 +37,14 @@ public class LargeAssemblyLineInfo extends TJMultiblockInfoPage implements IPara
         List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
         for (int layer = 1; layer < 5; layer++) {
             TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
-                    .aisle("FOICf", "CCCCC", "C###C", "CCCCC", "CCCCC", "~CCC~", "~~e~~");
+                    .aisle("CCCCC", "CCOCC", "C###C", "CCCCC", "ECCCE", "~ECE~", "~~e~~");
             for (int i = 0; i < 4 * layer; i++) {
                 builder.aisle("FCICf", "G#c#G", "G###G", "G#r#G", "EAaAE", "~EAE~", "~~C~~");
             }
-            builder.aisle("FCICf", "CCCCC", "C###C", "CCCCC", "CCSCC", "~CMC~", "~~C~~")
+            builder.aisle("CCCCC", "CCCCC", "C###C", "CCCCC", "ECSCE", "~EME~", "~~C~~")
                     .where('S', this.getController(), EnumFacing.WEST)
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                    .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
+                    .where('C', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.ASSEMBLER_CASING))
                     .where('E', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
                     .where('A', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING))
                     .where('a', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.ASSEMBLER_CASING));
@@ -65,5 +68,13 @@ public class LargeAssemblyLineInfo extends TJMultiblockInfoPage implements IPara
     @Override
     public float getDefaultZoom() {
         return 0.5F;
+    }
+
+    @Override
+    public String[] getDescription() {
+        return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.large_assembly_line.description").replace("§7", "§r"),
+                        I18n.format("tj.multiblock.large_assembly_line.tooltip"),
+                        I18n.format("tj.multiblock.parallel.extend.tooltip").replace("§7", "§r")},
+                super.getDescription());
     }
 }

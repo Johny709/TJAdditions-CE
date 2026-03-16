@@ -121,7 +121,7 @@ public abstract class TJFueledMultiblockControllerBase extends GAFueledMultibloc
                     .setStyle(new Style().setColor(TextFormatting.RED)
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
         } else builder.addVoltageInLine(this.energyContainer)
-                .AddIsWorkingLine(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress());
+                .addIsWorkingLine(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress());
     }
 
     public boolean isWorkingEnabled() {

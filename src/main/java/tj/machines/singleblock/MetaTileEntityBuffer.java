@@ -81,7 +81,7 @@ public class MetaTileEntityBuffer extends GATieredMetaTileEntity {
                 .setScrollWidth(5);
         for (int i = 0, itemI = 0, fluidI = 0; i < this.importItems.getSlots() + this.importFluids.getTanks(); i++) {
             Widget slotWidget = i % tier == 0 || itemI >= this.importItems.getSlots()
-                    ? new TankWidget(this.importFluids.getTankAt(fluidI++), startX + (18 * (i % tier)), 18 * (i / tier), 18, 18).setBackgroundTexture(GuiTextures.FLUID_SLOT)
+                    ? new TankWidget(this.importFluids.getTankAt(fluidI++), startX + (18 * (i % tier)), 18 * (i / tier), 18, 18).setBackgroundTexture(GuiTextures.FLUID_SLOT).setAlwaysShowFull(true).setContainerClicking(true, true)
                     : new SlotWidget(this.importItems, itemI++, startX + (18 * (i % tier)), 18 * (i / tier)).setBackgroundTexture(GuiTextures.SLOT);
             if (this.getTier() > 9)
                 slotScrollGroup.addWidget(slotWidget);

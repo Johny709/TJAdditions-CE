@@ -126,7 +126,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockControllerBas
                                 .appendText(" ")
                                 .appendSibling(this.workableHandler.getTransferMode() == INPUT ? withButton(new TextComponentTranslation("machine.universal.mode.transfer.input"), "input")
                                         : withButton(new TextComponentTranslation("machine.universal.mode.transfer.output"), "output")));
-                    }).AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                    }).addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override
