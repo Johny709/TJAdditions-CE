@@ -5,6 +5,7 @@ import gregtech.api.items.metaitem.MetaItem;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidRegistry;
 import tj.blocks.BlockFusionCasings;
+import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import gregicadditions.GAValues;
 import gregicadditions.item.CellCasing;
@@ -1204,6 +1205,18 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.frameGt, HDCS, 24)
                 .outputs(PARALLEL_CIRCUIT_ASSEMBLY_LINE.getStackForm())
                 .duration(2000).EUt(GAValues.VA[11])
+                .buildAndRegister();
+
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(9216))
+                .inputs(robotArms[8].getStackForm(2))
+                .input(OrePrefix.circuit, Infinite, 8)
+                .input(OrePrefix.plate, Seaborgium, 6)
+                .input(OrePrefix.plate, Tritanium, 6)
+                .input(OrePrefix.plate, Duranium, 6)
+                .input(OrePrefix.frameGt, HDCS, 1)
+                .outputs(TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.ASSEMBLER_CASING, 2))
+                .duration(2000).EUt(GAValues.VA[10])
                 .buildAndRegister();
     }
 }

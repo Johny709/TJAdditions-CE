@@ -24,7 +24,6 @@ import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
-import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
@@ -49,11 +48,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
+import tj.blocks.BlockSolidCasings;
+import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IAssemblyHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
+import tj.textures.TJTextures;
 import tj.util.ItemStackHelper;
 import tj.util.TextUtils;
 
@@ -147,7 +149,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     }
 
     private IBlockState getCasingState() {
-        return MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID);
+        return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.ASSEMBLER_CASING);
     }
 
     public static BiFunction<BlockWorldState, MetaTileEntity, Boolean> inputBusPredicate() {
@@ -259,7 +261,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return Textures.SOLID_STEEL_CASING;
+        return TJTextures.ASSEMBLER;
     }
 
     @Nonnull

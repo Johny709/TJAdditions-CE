@@ -5,7 +5,6 @@ import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.components.ConveyorCasing;
 import gregicadditions.item.components.RobotArmCasing;
 import gregicadditions.machines.GATileEntities;
-import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
@@ -13,6 +12,8 @@ import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.blocks.BlockSolidCasings;
+import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
@@ -44,7 +45,7 @@ public class ParallelCircuitAssemblyLineInfo extends TJMultiblockInfoPage {
                 .aisle("CCCCC", "GCCCG", "GC#CG", "EASAE", "~EAE~")
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.SOUTH)
-                .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
+                .where('C', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.ASSEMBLER_CASING))
                 .where('E', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
                 .where('a', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.ASSEMBLER_CASING));
         for (int tier = 0; tier < 15; tier++) {
