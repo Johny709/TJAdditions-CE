@@ -11,6 +11,7 @@ import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.util.Position;
 import gregtech.common.covers.filter.SimpleItemFilter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -18,6 +19,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.gui.TJGuiTextures;
+import tj.gui.widgets.TJLabelWidget;
 import tj.textures.TJTextures;
 
 public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickable {
@@ -49,9 +52,11 @@ public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickab
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        WidgetGroup widgetGroup = new WidgetGroup();
+        WidgetGroup widgetGroup = new WidgetGroup(new Position(53, 27));
         this.itemFilter.initUI(widgetGroup::addWidget);
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+                        .setItemLabel(this.getPickItem()).setLocale("metaitem.void_item_cover.name"))
                 .widget(widgetGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
                 .build(this, player);

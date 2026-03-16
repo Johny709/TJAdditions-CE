@@ -15,6 +15,8 @@ import gregtech.api.gui.ModularUI;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.*;
+import tj.gui.TJGuiTextures;
+import tj.gui.widgets.TJLabelWidget;
 import tj.textures.TJTextures;
 
 public class VoidCoverEnergy extends CoverBehavior implements CoverWithUI, ITickable {
@@ -46,6 +48,8 @@ public class VoidCoverEnergy extends CoverBehavior implements CoverWithUI, ITick
     @Override
     public ModularUI createUI(EntityPlayer player) {
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+                        .setItemLabel(this.getPickItem()).setLocale("metaitem.void_energy_cover.name"))
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
                 .build(this, player);
     }
