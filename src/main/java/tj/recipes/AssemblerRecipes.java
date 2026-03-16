@@ -402,5 +402,28 @@ public class AssemblerRecipes {
                     .EUt(GAValues.VA[10])
                     .buildAndRegister();
         }
+        for (int i = 0; i < 2; i++) {
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .fluidInputs(i == 0 ? Tin.getFluid(144) : SolderingAlloy.getFluid(72))
+                    .inputs(new ItemStack(Item.getByNameOrId("trashcans:item_trash_can")))
+                    .input(OrePrefix.plate, Iron)
+                    .outputs(VOID_ITEM_COVER.getStackForm())
+                    .duration(400).EUt(16)
+                    .buildAndRegister();
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .fluidInputs(i == 0 ? Tin.getFluid(144) : SolderingAlloy.getFluid(72))
+                    .inputs(new ItemStack(Item.getByNameOrId("trashcans:liquid_trash_can")))
+                    .input(OrePrefix.plate, Iron)
+                    .outputs(VOID_FLUID_COVER.getStackForm())
+                    .duration(400).EUt(16)
+                    .buildAndRegister();
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .fluidInputs(i == 0 ? Tin.getFluid(144) : SolderingAlloy.getFluid(72))
+                    .inputs(new ItemStack(Item.getByNameOrId("trashcans:energy_trash_can")))
+                    .input(OrePrefix.plate, Iron)
+                    .outputs(VOID_ENERGY_COVER.getStackForm())
+                    .duration(400).EUt(16)
+                    .buildAndRegister();
+        }
     }
 }
