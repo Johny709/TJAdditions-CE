@@ -161,7 +161,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
         } else if (this.hasEnoughWater(distilledWater, this.waterConsumption)) {
             water = distilledWater;
         }
-        builder.AddTemperatureLine(this.heat(), this.maxHeat())
+        builder.addTemperatureLine(this.heat(), this.maxHeat())
                 .addFluidInputLine(this.waterTank, water)
                 .customLine(text -> {
                     text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.steamProduction, 900));

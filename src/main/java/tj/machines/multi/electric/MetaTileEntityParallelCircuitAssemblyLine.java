@@ -79,6 +79,7 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.parallel_circuit_assembly_line.description"));
         tooltip.add(I18n.format("tj.multiblock.large_assembly_line.tooltip"));
+        tooltip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
         super.addInformation(stack, player, tooltip, advanced);
     }
 
@@ -96,7 +97,7 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
     @Override
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK)
-                .aisle("CCCCC", "GCOCG", "GC#CG", "EAeAE", "~EAE~");
+                .aisle("CCCCC", "GOOOG", "GO#OG", "EAeAE", "~EAE~");
         for (int i = 0; i < this.parallelLayer; i++) {
             factoryPattern.aisle("FCICF", "G#c#G", "Gr#rG", "EAaAE", "~EAE~");
         }

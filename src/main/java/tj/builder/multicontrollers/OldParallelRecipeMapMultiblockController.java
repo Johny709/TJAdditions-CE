@@ -312,7 +312,7 @@ public abstract class OldParallelRecipeMapMultiblockController extends TJMultibl
                     .addVoltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
                     .addEnergyInputLine(this.inputEnergyContainer, this.getTotalEnergyConsumption())
                     .addEnergyBonusLine(this.energyBonus, this.isStructureFormed() && this.energyBonus >= 0)
-                    .AddRecipeMapLine(this.getMultiblockRecipe());
+                    .addRecipeMapLine(this.getMultiblockRecipe());
     }
 
     @Override

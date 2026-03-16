@@ -131,7 +131,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
         if (!this.isStructureFormed()) return;
         int amount = (int) this.boilerRecipeLogic.getConsumption();
         FluidStack water = Water.getFluid(amount);
-        builder.AddTemperatureLine(this.boilerRecipeLogic.heat(), this.boilerType.maxTemperature)
+        builder.addTemperatureLine(this.boilerRecipeLogic.heat(), this.boilerType.maxTemperature)
                 .addFluidInputLine(this.importFluidTank, water)
                 .customLine(text -> {
                     text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.boilerRecipeLogic.getProduction(), this.boilerType.baseSteamOutput));

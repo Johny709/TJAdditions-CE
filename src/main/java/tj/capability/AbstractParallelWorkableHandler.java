@@ -327,7 +327,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
 
     @Override
     public String getName() {
-        return "RecipeMapWorkable";
+        return "RecipeWorkable";
     }
 
     @Override

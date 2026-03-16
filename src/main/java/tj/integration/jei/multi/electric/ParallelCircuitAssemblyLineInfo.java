@@ -71,7 +71,8 @@ public class ParallelCircuitAssemblyLineInfo extends TJMultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.parallel_circuit_assembly_line.description").replace("§7", "§r"),
-                        I18n.format("tj.multiblock.large_assembly_line.tooltip")},
+                        I18n.format("tj.multiblock.large_assembly_line.tooltip"),
+                        I18n.format("tj.multiblock.parallel.extend.tooltip").replace("§7", "§r")},
                 super.getDescription());
     }
 }

@@ -88,6 +88,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.large_assembly_line.description"));
         tooltip.add(I18n.format("tj.multiblock.large_assembly_line.tooltip"));
+        tooltip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
         super.addInformation(stack, player, tooltip, advanced);
     }
 
@@ -123,7 +124,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     @Override
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK)
-                .aisle("CCCCC", "CCOCC", "C###C", "CCCCC", "EXXXE", "~EXE~", "~~e~~");
+                .aisle("CCCCC", "COOOC", "C###C", "COOOC", "EXXXE", "~EXE~", "~~e~~");
         for (int i = 0; i < this.parallelLayer; i++) {
             factoryPattern.aisle("FCICF", "G#c#G", "G###G", "G#r#G", "EAaAE", "~EAE~", "~~e~~");
         }

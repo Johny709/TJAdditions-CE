@@ -376,16 +376,16 @@ public final class GUIDisplayBuilder {
         return this;
     }
 
-    public GUIDisplayBuilder AddRecipeMapLine(RecipeMap<?> recipeMap) {
+    public GUIDisplayBuilder addRecipeMapLine(RecipeMap<?> recipeMap) {
         return this.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
                 .appendSibling(withButton(new TextComponentString("[" + I18n.translateToLocal("recipemap." + recipeMap.getUnlocalizedName() + ".name") + "]"), recipeMap.getUnlocalizedName())));
     }
 
-    public GUIDisplayBuilder AddTemperatureLine(long current, long max) {
-        return this.AddTemperatureLine(current, max, 0);
+    public GUIDisplayBuilder addTemperatureLine(long current, long max) {
+        return this.addTemperatureLine(current, max, 0);
     }
 
-    public GUIDisplayBuilder AddTemperatureLine(long current, long max, int priority) {
+    public GUIDisplayBuilder addTemperatureLine(long current, long max, int priority) {
         if (priority != 0)
             return this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.temperature", current, max)), priority);
         else return this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.temperature", current, max)));
