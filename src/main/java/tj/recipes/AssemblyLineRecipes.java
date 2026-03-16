@@ -1173,7 +1173,7 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
 
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
-                .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), Polyetheretherketone.getFluid(9216))
+                .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), Polyetheretherketone.getFluid(9216), CarbonNanotubes.getFluid(1440))
                 .inputs(ASSEMBLY_LINE.getStackForm(16), motors[8].getStackForm(32), sensors[8].getStackForm(16), conveyors[8].getStackForm(16), robotArms[8].getStackForm(16), GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING, 64))
                 .input(OrePrefix.cableGtQuadruple, EnrichedNaquadahAlloy, 64)
                 .input(OrePrefix.screw, TriniumTitanium, 64)
@@ -1190,7 +1190,7 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
 
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
-                .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), Zylon.getFluid(9216))
+                .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), Zylon.getFluid(9216), CarbonNanotubes.getFluid(2880))
                 .inputs(LARGE_CIRCUIT_ASSEMBLY_LINE.getStackForm(16), motors[9].getStackForm(32), sensors[9].getStackForm(16), conveyors[9].getStackForm(16), robotArms[9].getStackForm(16), GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING, 64))
                 .input(OrePrefix.cableGtQuadruple, Pikyonium, 64)
                 .input(OrePrefix.screw, HastelloyK243, 64)
