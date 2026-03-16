@@ -175,7 +175,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
                         text.addTextComponent(new TextComponentTranslation("tj.multiblock.large_solar_boiler.obstructed").setStyle(new Style().setColor(TextFormatting.RED)));
                     if (!this.areSolarCollectorsValid())
                         text.addTextComponent(new TextComponentTranslation("tj.multiblock.large_solar_boiler.invalid").setStyle(new Style().setColor(TextFormatting.RED)));
-                }).AddIsWorkingLine(this.isWorkingEnabled(), this.isActive(), this.getProgress(), this.getMaxProgress());
+                }).addIsWorkingLine(this.isWorkingEnabled(), this.isActive(), this.getProgress(), this.getMaxProgress());
     }
 
     @Override

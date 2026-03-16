@@ -22,8 +22,6 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.api.render.OrientedOverlayRenderer;
-import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
@@ -55,11 +53,11 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IAssemblyHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
+import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.ItemStackHelper;
 import tj.util.TextUtils;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.util.*;
@@ -264,10 +262,9 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
         return TJTextures.ASSEMBLER;
     }
 
-    @Nonnull
     @Override
-    protected OrientedOverlayRenderer getFrontOverlay() {
-        return Textures.ASSEMBLER_OVERLAY;
+    public TJOrientedOverlayRenderer getFrontalOverlay() {
+        return TJTextures.TJ_ASSEMBLER_OVERLAY;
     }
 
     @Override

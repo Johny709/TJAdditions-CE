@@ -184,7 +184,7 @@ public abstract class TJLargeSimpleRecipeMapMultiblockControllerBase extends Lar
                                 .setStyle(new Style().setColor(TextFormatting.WHITE)));
                     }
                 }).addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.framework", this.maxVoltage))
-                .AddIsWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), 999)
+                .addIsWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), 999)
                 .addRecipeOutputLine(this.recipeMapWorkable, 1000);
     }
 

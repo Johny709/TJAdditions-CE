@@ -115,7 +115,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
 
                     if (!this.workableHandler.isVoidEnergy() && this.outputEnergyContainer.getEnergyCanBeInserted() < this.workableHandler.getProduction())
                         text.addTextComponent(new TextComponentTranslation("machine.universal.output.full").setStyle(new Style().setColor(RED)));
-                }).AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                }).addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override

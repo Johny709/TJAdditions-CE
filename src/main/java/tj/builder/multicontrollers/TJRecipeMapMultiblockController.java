@@ -34,6 +34,8 @@ import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
+import tj.textures.TJOrientedOverlayRenderer;
+import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -136,7 +138,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         builder.addVoltageInLine(this.inputEnergyContainer)
                 .addVoltageTierLine(this.tier)
                 .addEnergyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
-                .AddIsWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress(), 998)
+                .addIsWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress(), this.recipeLogic.hasProblem(), 998)
                 .addRecipeInputLine(this.recipeLogic, 999)
                 .addRecipeOutputLine(this.recipeLogic, 1000);
         if (this.hasDistinct())
@@ -198,7 +200,11 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        this.getFrontOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive());
+        this.getFrontalOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive(), this.recipeLogic.hasProblem(), this.recipeLogic.isWorkingEnabled());
+    }
+
+    public TJOrientedOverlayRenderer getFrontalOverlay() {
+        return TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY;
     }
 
     @Override

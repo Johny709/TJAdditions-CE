@@ -19,8 +19,6 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.api.render.OrientedOverlayRenderer;
-import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
@@ -47,11 +45,11 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.impl.handler.IAssemblyHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
+import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.ItemStackHelper;
 import tj.util.TextUtils;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -224,10 +222,9 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
         return TJTextures.ASSEMBLER;
     }
 
-    @Nonnull
     @Override
-    protected OrientedOverlayRenderer getFrontOverlay() {
-        return Textures.ASSEMBLER_OVERLAY;
+    public TJOrientedOverlayRenderer getFrontalOverlay() {
+        return TJTextures.TJ_ASSEMBLER_OVERLAY;
     }
 
     @Override
@@ -237,7 +234,7 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
 
     @Override
     public int getDurationMultiplier() {
-        return TJConfig.parallelLargeMixer.durationPercentage;
+        return TJConfig.parallelCircuitAssemblyLine.durationPercentage;
     }
 
     @Override
@@ -247,7 +244,7 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
 
     @Override
     public int getParallel() {
-        return TJConfig.largeAssemblyLine.stack;
+        return TJConfig.parallelCircuitAssemblyLine.stack;
     }
 
     @Override

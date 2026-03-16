@@ -130,7 +130,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockContro
                     .addEnergyStoredLine(this.getEnergyStored(), this.getEnergyCapacity())
                     .addEnergyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick(), this.workableHandler.getMaxProgress())
                     .addFluidInputLine(this.importFluidTank, Nitrogen.getPlasma(this.workableHandler.getFluidConsumption()), this.workableHandler.getMaxProgress())
-                    .AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                    .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
 
     }
 

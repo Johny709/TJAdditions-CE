@@ -215,7 +215,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
                         text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("metaitem.linking.device.range", distance)));
                     }
                 }).addEnergyInputLine(this.inputEnergyContainer, distanceEU, this.workableHandler.getMaxProgress())
-                .AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
     }
 
     @Override

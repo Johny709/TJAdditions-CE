@@ -254,14 +254,23 @@ public final class GUIDisplayBuilder {
         else return this.addTextComponent(fluidInputText);
     }
 
-    public GUIDisplayBuilder AddIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress) {
-        return this.AddIsWorkingLine(isWorkingEnabled, isActive, progress, maxProgress, 0);
+    public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress) {
+        return this.addIsWorkingLine(isWorkingEnabled, isActive, progress, maxProgress, false, 0);
     }
 
-    public GUIDisplayBuilder AddIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, int priority) {
+    public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, int priority) {
+        return this.addIsWorkingLine(isWorkingEnabled, isActive, progress, maxProgress, false, priority);
+    }
+
+    public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, boolean hasProblem) {
+        return this.addIsWorkingLine(isWorkingEnabled, isActive, progress, maxProgress, hasProblem, 0);
+    }
+
+    public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, boolean hasProblems, int priority) {
         if (isActive) progress--;
         int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
         ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentString(I18n.translateToLocal("machine.universal.work_paused"))
+                : hasProblems ? new TextComponentString(I18n.translateToLocal("machine.universal.has_problems"))
                 : !isActive ? new TextComponentString(I18n.translateToLocal("machine.universal.idling"))
                 : new TextComponentString(I18n.translateToLocal("machine.universal.running"));
         if (priority != 0)

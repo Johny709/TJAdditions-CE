@@ -99,7 +99,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
                 .addVoltageTierLine(this.tier)
                 .addEnergyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
                 .AddTemperatureLine(this.workableHandler.heat(), this.workableHandler.maxHeat())
-                .AddIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.hasProblem())
                 .customLine(text -> {
                     if (this.workableHandler.isOverheat())
                         text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.overheat").setStyle(new Style().setColor(TextFormatting.RED)));

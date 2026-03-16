@@ -150,7 +150,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
                     buttonText.appendText(" ");
                     buttonText.appendSibling(withButton(new TextComponentString("[+]"), "add"));
                     text.addTextComponent(buttonText);
-                }).AddIsWorkingLine(this.boilerRecipeLogic.isWorkingEnabled(), this.boilerRecipeLogic.isActive(), this.boilerRecipeLogic.getProgress(), this.boilerRecipeLogic.getMaxProgress())
+                }).addIsWorkingLine(this.boilerRecipeLogic.isWorkingEnabled(), this.boilerRecipeLogic.isActive(), this.boilerRecipeLogic.getProgress(), this.boilerRecipeLogic.getMaxProgress())
                 .addRecipeInputLine(this.boilerRecipeLogic)
                 .addRecipeOutputLine(this.boilerRecipeLogic);
     }
