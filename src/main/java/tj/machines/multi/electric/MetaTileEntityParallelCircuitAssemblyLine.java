@@ -203,6 +203,8 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
 
     @Override
     public IItemHandlerModifiable getInputBusAt(int index) {
+        if (index >= this.inputBusPos.size())
+            return null;
         TileEntity tileEntity = this.getWorld().getTileEntity(this.inputBusPos.get(index));
         if (!(tileEntity instanceof MetaTileEntityHolder))
             return null;
