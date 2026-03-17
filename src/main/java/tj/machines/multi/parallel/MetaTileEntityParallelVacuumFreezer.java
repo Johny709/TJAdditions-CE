@@ -64,6 +64,9 @@ public class MetaTileEntityParallelVacuumFreezer extends ParallelRecipeMapMultib
     }
 
     @Override
+    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {}
+
+    @Override
     protected BlockPattern createStructurePattern() {
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {

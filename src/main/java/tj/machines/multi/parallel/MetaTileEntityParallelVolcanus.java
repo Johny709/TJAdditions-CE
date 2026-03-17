@@ -97,6 +97,7 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
 
     @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        super.preOverclock(overclockManager, recipe);
         long recipeEUt = overclockManager.getEUt() * 4;
         int duration = overclockManager.getDuration();
         int heat = this.blastFurnaceTemperature - recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);

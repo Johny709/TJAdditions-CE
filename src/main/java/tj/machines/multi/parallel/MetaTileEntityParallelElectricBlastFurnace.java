@@ -90,6 +90,9 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
     }
 
     @Override
+    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {}
+
+    @Override
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
