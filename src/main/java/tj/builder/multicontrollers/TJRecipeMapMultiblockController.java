@@ -116,6 +116,10 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
             debugTab.add(new ToggleButtonWidget(175, 133, 18, 18, RESET_BUTTON, () -> false, b -> this.recipeLogic.getRecipeLRUCache().clear())
                     .setTooltipText("tj.multiblock.parallel.recipe.clear"));
+            debugTab.add(new ToggleButtonWidget(175, 151, 18, 18, ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
+                    .setTooltipText("machine.universal.toggle.item_voiding"));
+            debugTab.add(new ToggleButtonWidget(175, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
+                    .setTooltipText("machine.universal.toggle.fluid_voiding"));
             debugTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
                     .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addDebugDisplayText, 0xFFFFFF)
                             .setMaxWidthLimit(180))
