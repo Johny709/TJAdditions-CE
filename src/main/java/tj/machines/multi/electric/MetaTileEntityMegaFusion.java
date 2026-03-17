@@ -22,7 +22,6 @@ import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.api.render.OrientedOverlayRenderer;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import net.minecraft.block.Block;
@@ -49,10 +48,10 @@ import tj.capability.*;
 import tj.capability.impl.handler.IFusionHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.gui.TJGuiTextures;
+import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
@@ -258,12 +257,15 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     @Override
     public void invalidateStructure() {
         super.invalidateStructure();
+        this.divertorTier = 0;
+        this.coilTier = 0;
+        this.vacuumTier = 0;
+        this.energyToStart = 0;
     }
 
-    @Nonnull
     @Override
-    protected OrientedOverlayRenderer getFrontOverlay() {
-        return ClientHandler.FUSION_REACTOR_OVERLAY;
+    public TJOrientedOverlayRenderer getFrontalOverlay() {
+        return TJTextures.TJ_FUSION_REACTOR_OVERLAY;
     }
 
     @Override
