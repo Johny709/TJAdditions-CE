@@ -131,8 +131,9 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
                 .setTooltipText("machine.universal.toggle.reset"));
         for (int i = 0; i < tank.getTanks(); i++) {
             widgetGroup.addWidget(new TankWidget(tank.getTankAt(i), 61 + (getTier() == 3 ? 18 : 0) + 18 * (i % (tier + 1)), 15 + 18 * (i / (tier + 1)), 18, 18)
+                    .setContainerClicking(!isExport, true)
                     .setBackgroundTexture(GuiTextures.FLUID_SLOT)
-                    .setContainerClicking(!isExport, true));
+                    .setAlwaysShowFull(true));
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 144 + 18 * (tier - 1))
                 .bindPlayerInventory(player.inventory, 63 + 18 * (tier - 1))
