@@ -2,7 +2,6 @@ package tj.machines.multi.electric;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import gregicadditions.GAValues;
-import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.fusion.GAFusionCasing;
 import gregtech.api.capability.IEnergyContainer;
@@ -22,7 +21,6 @@ import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.recipeproperties.FusionEUToStartProperty;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
@@ -57,11 +55,11 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
 import tj.gui.widgets.TJCycleButtonWidget;
 import tj.machines.multi.BatchMode;
+import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.TextUtils;
 import tj.util.TooltipHelper;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -337,10 +335,9 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         return true;
     }
 
-    @Nonnull
     @Override
-    protected OrientedOverlayRenderer getFrontOverlay() {
-        return ClientHandler.FUSION_REACTOR_OVERLAY;
+    public TJOrientedOverlayRenderer getFrontalOverlay() {
+        return TJTextures.TJ_FUSION_REACTOR_OVERLAY;
     }
 
     @Override

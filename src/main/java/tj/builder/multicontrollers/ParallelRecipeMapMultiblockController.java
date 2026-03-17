@@ -128,7 +128,12 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         overclockManager.setChanceMultiplier(this.getChanceMultiplier());
         overclockManager.setEUt(overclockManager.getEUt() * this.getEUtMultiplier() / 100);
         overclockManager.setDuration(overclockManager.getDuration() * this.getDurationMultiplier() / 100);
-        overclockManager.setParallel(this.getParallel() * this.getTierDifference(overclockManager.getEUt()));
+        overclockManager.setParallel(this.getParallel() * this.getTierDifference(overclockManager.getEUt()) * this.batchMode.getAmount());
+    }
+
+    @Override
+    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        overclockManager.setDuration(overclockManager.getDuration() * this.batchMode.getAmount());
     }
 
     @Override

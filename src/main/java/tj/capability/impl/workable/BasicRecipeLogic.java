@@ -36,6 +36,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     protected FluidStack[] lastFluidInputs;
     private boolean allowOverclocking = true;
     private boolean recipeRecheck = true;
+    private boolean voidingItems;
+    private boolean voidingFluids;
     private int itemOutputIndex;
     private int fluidOutputIndex;
 
@@ -231,14 +233,14 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     protected boolean completeRecipe() {
         for (int i = this.itemOutputIndex; i < this.itemOutputs.size(); i++) {
             ItemStack stack = this.itemOutputs.get(i);
-            if (ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
+            if (this.voidingItems || ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
                 ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
                 this.itemOutputIndex++;
             } else return false;
         }
         for (int i = this.fluidOutputIndex; i < this.fluidOutputs.size(); i++) {
             FluidStack stack = this.fluidOutputs.get(i);
-            if (this.handler.getExportFluidTank().fill(stack, false) == stack.amount) {
+            if (this.voidingFluids || this.handler.getExportFluidTank().fill(stack, false) == stack.amount) {
                 this.handler.getExportFluidTank().fill(stack, true);
                 this.fluidOutputIndex++;
             } else return false;
@@ -272,6 +274,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         compound.setTag("fluidOutputs", fluidOutputList);
         compound.setInteger("itemOutputIndex", this.itemOutputIndex);
         compound.setInteger("fluidOutputIndex", this.fluidOutputIndex);
+        compound.setBoolean("voidingItems", this.voidingItems);
+        compound.setBoolean("voidingFluids", this.voidingFluids);
         return compound;
     }
 
@@ -290,6 +294,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             this.fluidOutputs.add(FluidStack.loadFluidStackFromNBT(fluidOutputList.getCompoundTagAt(i)));
         this.itemOutputIndex = compound.getInteger("itemOutputIndex");
         this.fluidOutputIndex = compound.getInteger("fluidOutputIndex");
+        this.voidingItems = compound.getBoolean("voidingItems");
+        this.voidingFluids = compound.getBoolean("voidingFluids");
     }
 
     @Override
@@ -321,5 +327,23 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     @Override
     public List<FluidStack> getFluidOutputs() {
         return this.fluidOutputs;
+    }
+
+    public void setVoidingItems(boolean voidingItems) {
+        this.voidingItems = voidingItems;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isVoidingItems() {
+        return this.voidingItems;
+    }
+
+    public void setVoidingFluids(boolean voidingFluids) {
+        this.voidingFluids = voidingFluids;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isVoidingFluids() {
+        return this.voidingFluids;
     }
 }
