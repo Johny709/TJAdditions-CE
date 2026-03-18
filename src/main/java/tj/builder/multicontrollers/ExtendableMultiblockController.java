@@ -8,59 +8,37 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.math.MathHelper;
+import tj.TJConfig;
+import tj.util.TextUtils;
 
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 
 public abstract class ExtendableMultiblockController extends TJMultiblockControllerBase {
 
-    protected int parallelLayer;
+    protected int parallelLayer = 1;
 
     public ExtendableMultiblockController(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
     }
 
-    public void resetStructure() {
-        this.invalidateStructure();
-        this.structurePattern = createStructurePattern();
-    }
-
-    @Override
-    protected void reinitializeStructurePattern() {
-        this.parallelLayer = 1;
-        super.reinitializeStructurePattern();
-    }
-
     @Override
     public boolean onRightClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        if (playerIn.getHeldItemMainhand().isItemEqual(MetaItems.SCREWDRIVER.getStackForm()))
-            return false;
-        return super.onRightClick(playerIn, hand, facing, hitResult);
+        return !MetaItems.SCREWDRIVER.isItemEqual(playerIn.getHeldItem(hand)) && super.onRightClick(playerIn, hand, facing, hitResult);
     }
 
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        ITextComponent textComponent;
-        if (!playerIn.isSneaking()) {
-            if (parallelLayer < this.getMaxParallel()) {
-                this.parallelLayer++;
-                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.increment.success").appendSibling(new TextComponentString(" " + this.parallelLayer));
-            } else
-                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.increment.fail").appendSibling(new TextComponentString(" " + this.parallelLayer));
-        } else {
-            if (parallelLayer > 1) {
-                this.parallelLayer--;
-                textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.success").appendSibling(new TextComponentString(" " + this.parallelLayer));
-            } else textComponent = new TextComponentTranslation("tj.multiblock.parallel.layer.decrement.fail").appendSibling(new TextComponentString(" " + this.parallelLayer));
+        if (!this.getWorld().isRemote) {
+            int lastParallelLayer = this.parallelLayer;
+            this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - 1 : this.parallelLayer + 1, 1, TJConfig.largeAssemblyLine.maximumSlices);
+            if (this.parallelLayer != lastParallelLayer) {
+                playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
+            } else playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.fail" : "tj.multiblock.parallel.layer.increment.fail", this.parallelLayer));
+            this.resetStructure();
+            this.writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
+            this.markDirty();
         }
-        if (getWorld().isRemote)
-            playerIn.sendMessage(textComponent);
-        else {
-            writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
-        }
-        this.resetStructure();
         return true;
     }
 
@@ -104,5 +82,17 @@ public abstract class ExtendableMultiblockController extends TJMultiblockControl
         this.parallelLayer = data.getInteger("Parallel");
         if (data.hasKey("Parallel"))
             this.structurePattern = createStructurePattern();
+    }
+
+    @Override
+    protected void reinitializeStructurePattern() {
+        this.parallelLayer = 1;
+        super.reinitializeStructurePattern();
+    }
+
+    private void resetStructure() {
+        if (this.isStructureFormed())
+            this.invalidateStructure();
+        this.structurePattern = this.createStructurePattern();
     }
 }

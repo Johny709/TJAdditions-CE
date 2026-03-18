@@ -156,7 +156,7 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
         long amps = this.getAbilities(INPUT_ENERGY).stream()
                 .filter(energy -> energy.getInputVoltage() == this.maxVoltage)
                 .mapToLong(IEnergyContainer::getInputAmperage)
-                .sum() / this.parallelLayer;
+                .sum() / Math.max(1, this.parallelLayer);
         amps = Math.min(1024, amps);
         while (amps >= 4) {
             amps /= 4;

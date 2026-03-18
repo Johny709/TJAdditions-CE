@@ -35,7 +35,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
-import tj.TJConfig;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IParallelController;
@@ -361,7 +360,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (!this.getWorld().isRemote) {
             int lastParallelLayer = this.parallelLayer;
-            this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - 1 : this.parallelLayer + 1, 0, TJConfig.industrialFusionReactor.maximumSlices);
+            this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - 1 : this.parallelLayer + 1, 1, this.getMaxParallel());
             if (this.parallelLayer != lastParallelLayer) {
                 playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
                 this.recipeLogic.setLayer(this.parallelLayer, playerIn.isSneaking());
