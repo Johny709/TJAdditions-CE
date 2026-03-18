@@ -154,7 +154,7 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (!this.getWorld().isRemote) {
             int lastParallelLayer = this.parallelLayer;
-            this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - 1 : this.parallelLayer + 1, 0, TJConfig.parallelCircuitAssemblyLine.maximumSlices);
+            this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - 1 : this.parallelLayer + 1, 1, TJConfig.parallelCircuitAssemblyLine.maximumSlices);
             if (this.parallelLayer != lastParallelLayer) {
                 playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
             } else playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.fail" : "tj.multiblock.parallel.layer.increment.fail", this.parallelLayer));
