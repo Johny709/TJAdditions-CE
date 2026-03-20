@@ -106,7 +106,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
                     this.setActive(true);
             } else this.failRecipe();
             this.wasActiveAndNeedsUpdate = !canStart;
-            if (++this.lastInputIndex == this.busCount)
+            if (++this.lastInputIndex >= this.busCount)
                 this.lastInputIndex = 0;
         } else this.progressRecipe(this.progress);
     }

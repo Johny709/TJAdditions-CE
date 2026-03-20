@@ -125,7 +125,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
                     this.setActive(true, i);
             } else this.failRecipe(i);
             this.wasActiveAndNeedsUpdate[i] = !canStart;
-            if (++this.lastInputIndex[i] == this.busCount)
+            if (++this.lastInputIndex[i] >= this.busCount)
                 this.lastInputIndex[i] = 0;
         } else this.progressRecipe(this.progress[i], i);
     }

@@ -327,8 +327,9 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         int size = this.recipeLogic.getSize();
-        for (int i = 0; i < getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).size(); i++) {
-            MetaTileEntityMachineController controller = getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).get(i);
+        this.recipeLogic.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
+        for (int i = 0; i < this.getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).size(); i++) {
+            MetaTileEntityMachineController controller = this.getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).get(i);
             if (controller.isAutomatic() || controller.getId() >= size)
                 controller.setID(Math.min(i, size - 1)).setController(this);
         }
