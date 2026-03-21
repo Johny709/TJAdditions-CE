@@ -10,7 +10,9 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.PistonCasing;
 import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.TextFieldWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -22,6 +24,7 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -34,12 +37,16 @@ import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.impl.handler.INameHandler;
 import tj.capability.impl.workable.NamingMachineWorkableHandler;
+import tj.gui.widgets.impl.ButtonPopUpWidget;
+import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.gui.widgets.impl.WindowsWidgetGroup;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
@@ -82,6 +89,24 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
     protected void updateFormedValid() {
         if (((this.getProblems() >> 5) & 1) != 0)
             this.workableHandler.update();
+    }
+
+    @Override
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.add(new ButtonPopUpWidget<>()
+                .addPopup(widgetGroup1 -> true)
+                .addPopup(new TJToggleButtonWidget(175, 152, 18, 18)
+                        .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
+                        .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                        .setTooltipText("tj.multiblock.tab.settings")
+                        .useToggleTexture(true), widgetGroup1 -> {
+                    widgetGroup1.addWidget(new WindowsWidgetGroup(12, 60, 160, 40, GuiTextures.BORDERED_BACKGROUND)
+                            .addSubWidget(new TextFieldWidget(4, 15, 152, 18, true, this::getName, this::setName)
+                                    .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                                    .setMaxStringLength(1024)));
+                    return false;
+                }));
     }
 
     @Override
@@ -188,6 +213,11 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
     @Override
     public int getParallel() {
         return this.parallel;
+    }
+
+    private void setName(String name) {
+        this.name = name;
+        this.markDirty();
     }
 
     @Override

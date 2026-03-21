@@ -72,7 +72,6 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
             } else return false;
         }
         this.outputIndex = 0;
-        this.catalystIndex = 0;
         this.itemInputs.clear();
         this.itemOutputs.clear();
         this.catalyst = ItemStack.EMPTY;
@@ -88,12 +87,11 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
                 return true;
             }
         }
-        return false;
+        this.catalystIndex = -1;
+        return !this.handler.getName().isEmpty();
     }
 
     private boolean findInputs(IItemHandlerModifiable itemInputs) {
-        if (this.catalyst.isEmpty() && this.handler.getName().isEmpty())
-            return false;
         int availableParallels = this.handler.getParallel();
         for (int i = 0; i < itemInputs.getSlots() && availableParallels > 0; i++) {
             if (i == this.catalystIndex) continue;
