@@ -157,9 +157,10 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         FluidStack water = Water.getFluid(this.waterConsumption), distilledWater = DistilledWater.getFluid(this.waterConsumption);
-        if (this.hasEnoughWater(water, this.waterConsumption)) {
-        } else if (this.hasEnoughWater(distilledWater, this.waterConsumption)) {
-            water = distilledWater;
+        if (!this.hasEnoughWater(water, this.waterConsumption)) {
+            if (this.hasEnoughWater(distilledWater, this.waterConsumption)) {
+                water = distilledWater;
+            }
         }
         builder.addTemperatureLine(this.heat(), this.maxHeat())
                 .addFluidInputLine(this.waterTank, water)
@@ -216,12 +217,9 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
     public Predicate<BlockWorldState> fireboxStatePredicate(IBlockState... allowedStates) {
         return (blockWorldState) -> {
             IBlockState state = blockWorldState.getBlockState();
-            if (ArrayUtils.contains(allowedStates, state)) {
-                if (blockWorldState.getWorld() != null)
-                    this.activeStates.add(blockWorldState.getPos());
-                return true;
-            }
-            return false;
+            Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
+            activeStates.add(blockWorldState.getPos());
+            return ArrayUtils.contains(allowedStates, state);
         };
     }
 
@@ -244,6 +242,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
         fluidTanks.addAll(this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
         fluidTanks.addAll(this.getAbilities(TJMultiblockAbility.STEAM_OUTPUT));
 
+        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
         this.waterTank = new FluidTankList(true, this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         this.steamTank = new FluidTankList(true, fluidTanks);
         this.offSetPos = this.getPos().offset(this.getFrontFacing().getOpposite(), this.mega ? 7 : 1);
@@ -253,9 +252,10 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
     @Override
     public void invalidateStructure() {
         super.invalidateStructure();
+        this.activeStates.clear();
+        this.solarCollectorPos.clear();
         this.waterTank = new FluidTankList(true);
         this.steamTank = new FluidTankList(true);
-        this.solarCollectorPos.clear();
     }
 
     @Override

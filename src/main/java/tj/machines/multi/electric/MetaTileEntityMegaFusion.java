@@ -219,13 +219,12 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
                 abilityCasings.setController(this);
                 AdvEnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
                 List<AdvEnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
+                Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
                 LongList amps = blockWorldState.getMatchContext().getOrCreate("EnergyAmps", LongArrayList::new);
                 currentCasing.add(tieredCasingType);
                 amps.add(abilityCasings.getAmps());
-                if (currentCasing.get(0).getName().equals(tieredCasingType.getName()) && blockWorldState.getWorld() != null) {
-                    this.activeStates.add(blockWorldState.getPos());
-                    return true;
-                }
+                activeStates.add(blockWorldState.getPos());
+                return currentCasing.get(0).getName().equals(tieredCasingType.getName());
             }
             return false;
         };
@@ -236,6 +235,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
         super.formStructure(context);
         LongList energyPortAmps = context.getOrDefault("EnergyAmps", new LongArrayList());
         List<AdvEnergyPortCasings.AbilityType> energyPorts = context.getOrDefault("EnergyPort", new ArrayList<>());
+        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
         this.divertorTier = context.getOrDefault("Divertor", GADivertorCasing.CasingType.DIVERTOR_1).getTier();
         this.coilTier = context.getOrDefault("Coil", GAFusionCasing.CasingType.ADV_FUSION_COIL_1).ordinal() - 3;
         this.vacuumTier = context.getOrDefault("Vacuum", GAVacuumCasing.CasingType.VACUUM_1).getTier();
@@ -257,6 +257,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     @Override
     public void invalidateStructure() {
         super.invalidateStructure();
+        this.activeStates.clear();
         this.divertorTier = 0;
         this.coilTier = 0;
         this.vacuumTier = 0;
