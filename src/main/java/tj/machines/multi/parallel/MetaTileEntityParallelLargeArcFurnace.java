@@ -52,7 +52,7 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
 
     public MetaTileEntityParallelLargeArcFurnace(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_ARC_FURNACE.getRecipeMaps());
-        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(b));
+        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(this.recipeLogic.isActive()));
     }
 
     @Override

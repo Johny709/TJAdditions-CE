@@ -64,7 +64,7 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
 
     public MetaTileEntityParallelAlloyBlastSmelter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.ALLOY_BLAST_FURNACE.recipeMap);
-        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(b));
+        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(this.recipeLogic.isActive()));
     }
 
     @Override

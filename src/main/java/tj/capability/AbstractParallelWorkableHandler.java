@@ -364,11 +364,14 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
 
     public void setActive(boolean isActive, int i) {
         this.isActive[i] = isActive;
-        if (!this.metaTileEntity.getWorld().isRemote)
+        if (!this.metaTileEntity.getWorld().isRemote) {
+            if (this.activeConsumer != null)
+                this.activeConsumer.accept(isActive, i);
             this.writeCustomData(1, buffer -> {
                 buffer.writeInt(i);
                 buffer.writeBoolean(isActive);
             });
+        }
         this.metaTileEntity.markDirty();
     }
 
@@ -379,11 +382,14 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
 
     public void setProblem(boolean hasProblem, int i) {
         this.hasProblem[i] = hasProblem;
-        if (!this.metaTileEntity.getWorld().isRemote)
+        if (!this.metaTileEntity.getWorld().isRemote) {
+            if (this.problemConsumer != null)
+                this.problemConsumer.accept(hasProblem, i);
             this.writeCustomData(2, buffer -> {
                 buffer.writeInt(i);
                 buffer.writeBoolean(hasProblem);
             });
+        }
         this.metaTileEntity.markDirty();
     }
 
@@ -395,11 +401,14 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
     @Override
     public void setWorkingEnabled(boolean isActivationAllowed, int i) {
         this.isWorking[i] = isActivationAllowed;
-        if (!this.metaTileEntity.getWorld().isRemote)
+        if (!this.metaTileEntity.getWorld().isRemote) {
+            if (this.workingConsumer != null)
+                this.workingConsumer.accept(isActivationAllowed, i);
             this.writeCustomData(3, buffer -> {
                 buffer.writeInt(i);
                 buffer.writeBoolean(isActivationAllowed);
             });
+        }
         this.metaTileEntity.markDirty();
     }
 

@@ -77,7 +77,7 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
 
     public MetaTileEntityParallelVolcanus(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.VOLCANUS.recipeMap);
-        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(b));
+        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(this.recipeLogic.isActive()));
     }
 
     @Override

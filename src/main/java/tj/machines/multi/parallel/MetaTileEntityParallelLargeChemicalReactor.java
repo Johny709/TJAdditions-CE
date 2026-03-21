@@ -55,7 +55,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
 
     public MetaTileEntityParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_CHEMICAL_REACTOR.recipeMap);
-        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(b));
+        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(this.recipeLogic.isActive()));
     }
 
     @Override

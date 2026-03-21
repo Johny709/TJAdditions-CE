@@ -57,7 +57,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
 
     public MetaTileEntityParallelLargeCentrifuge(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GARecipeMaps.LARGE_CENTRIFUGE_RECIPES, RecipeMaps.THERMAL_CENTRIFUGE_RECIPES, GARecipeMaps.GAS_CENTRIFUGE_RECIPES);
-        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(b));
+        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(this.recipeLogic.isActive()));
     }
 
     @Override
@@ -187,7 +187,8 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     }
 
     public void replaceCoilsAsActive(boolean isActive) {
-        this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+        if (this.recipeLogic.isActive() != isActive)
+            this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
     }
 
     @Override

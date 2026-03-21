@@ -59,7 +59,7 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
 
     public MetaTileEntityParallelAdvancedLargeChemicalReactor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.CHEMICAL_PLANT.getRecipeMaps());
-        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(b));
+        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(this.recipeLogic.isActive()));
     }
 
     @Override
@@ -210,7 +210,8 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
     }
 
     public void replaceCoilsAsActive(boolean isActive) {
-        this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+        if (this.recipeLogic.isActive() != isActive)
+            this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
     }
 
     @Override

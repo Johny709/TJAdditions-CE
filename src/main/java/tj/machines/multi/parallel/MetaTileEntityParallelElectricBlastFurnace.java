@@ -59,7 +59,7 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
 
     public MetaTileEntityParallelElectricBlastFurnace(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, MetaTileEntities.ELECTRIC_BLAST_FURNACE.recipeMap);
-        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(b));
+        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(this.recipeLogic.isActive()));
     }
 
     @Override
