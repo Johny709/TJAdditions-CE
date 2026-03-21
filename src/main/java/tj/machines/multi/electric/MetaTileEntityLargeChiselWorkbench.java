@@ -144,6 +144,12 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
     }
 
     @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.workableHandler.invalidate();
+    }
+
+    @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return ClientHandler.MARAGING_STEEL_250_CASING;
     }

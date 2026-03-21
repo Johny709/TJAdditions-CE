@@ -116,16 +116,6 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
     }
 
     @Override
-    protected void formStructure(PatternMatchContext context) {
-        super.formStructure(context);
-        List<IFluidTank> fluidTanks = new ArrayList<>();
-        fluidTanks.addAll(this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
-        fluidTanks.addAll(this.getAbilities(TJMultiblockAbility.STEAM_OUTPUT));
-
-        this.exportFluidTank = new FluidTankList(true, fluidTanks);
-    }
-
-    @Override
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
@@ -207,13 +197,27 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
     public Predicate<BlockWorldState> fireboxStatePredicate(IBlockState... allowedStates) {
         return (blockWorldState) -> {
             IBlockState state = blockWorldState.getBlockState();
-            if (ArrayUtils.contains(allowedStates, state)) {
-                if (blockWorldState.getWorld() != null)
-                    this.activeStates.add(blockWorldState.getPos());
-                return true;
-            }
-            return false;
+            Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
+            activeStates.add(blockWorldState.getPos());
+            return ArrayUtils.contains(allowedStates, state);
         };
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        List<IFluidTank> fluidTanks = new ArrayList<>();
+        fluidTanks.addAll(this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
+        fluidTanks.addAll(this.getAbilities(TJMultiblockAbility.STEAM_OUTPUT));
+
+        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
+        this.exportFluidTank = new FluidTankList(true, fluidTanks);
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.activeStates.clear();
     }
 
     @Override

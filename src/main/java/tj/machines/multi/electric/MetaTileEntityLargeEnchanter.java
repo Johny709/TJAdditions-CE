@@ -161,6 +161,12 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockControllerBase {
     }
 
     @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.workableHandler.invalidate();
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return ClientHandler.BLACK_STEEL_CASING;

@@ -21,25 +21,47 @@ import java.util.List;
 
 public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IItemFluidHandlerInfo {
 
-    private ItemStack catalyst;
-    private int outputIndex;
-    private int experience;
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     private final List<FluidStack> fluidInputs = new ArrayList<>();
+    private ItemStack catalyst;
+    private int catalystIndex;
+    private int outputIndex;
+    private int experience;
 
     public EnchanterWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
     }
 
     @Override
+    public void invalidate() {
+        this.lastInputIndex = 0;
+    }
+
+    @Override
     protected boolean startRecipe() {
-        IItemHandlerModifiable itemInputs = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
-        int catalystSlotIndex = this.findCatalyst(itemInputs);
-        if (catalystSlotIndex > -1 && this.findInputs(itemInputs, catalystSlotIndex, true)) {
+        boolean foundRecipe;
+        IItemHandlerModifiable itemInputs;
+        if (this.isDistinct) {
+            itemInputs = this.handler.getInputBus(this.lastInputIndex);
+            foundRecipe = this.findCatalyst(itemInputs) && this.findInputs(itemInputs, true);
+            if (!foundRecipe) for (int i = 0; i < this.busCount; i++) {
+                if (i == this.lastInputIndex) continue;
+                itemInputs = this.handler.getInputBus(i);
+                foundRecipe = this.findCatalyst(itemInputs) && this.findInputs(itemInputs, true);
+                if (foundRecipe) {
+                    this.lastInputIndex = i;
+                    break;
+                }
+            }
+        } else {
+            itemInputs = this.handler.getImportItemInventory();
+            foundRecipe = this.findCatalyst(itemInputs) && this.findInputs(itemInputs, true);
+        }
+        if (foundRecipe) {
             FluidStack fluid = FluidRegistry.getFluidStack("xpjuice", this.experience);
             if (this.hasEnoughFluid(fluid, this.experience)) {
-                this.findInputs(itemInputs, catalystSlotIndex, false);
+                this.findInputs(itemInputs, false);
                 this.handler.getImportFluidTank().drain(fluid, true);
                 this.maxProgress = this.calculateOverclock(30, 2000, 2.8F);
                 return true;
@@ -57,31 +79,33 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
                 this.outputIndex++;
             } else return false;
         }
-        this.outputIndex = 0;
         this.experience = 0;
+        this.outputIndex = 0;
+        this.catalystIndex = 0;
         this.itemInputs.clear();
         this.itemOutputs.clear();
         this.fluidInputs.clear();
         return true;
     }
 
-    private int findCatalyst(IItemHandlerModifiable itemInputs) {
+    private boolean findCatalyst(IItemHandlerModifiable itemInputs) {
         for (int i = 0; i < itemInputs.getSlots(); i++) {
             ItemStack stack = itemInputs.getStackInSlot(i);
             if (!stack.isEmpty() && this.isEnchanted(stack.getTagCompound())) {
+                this.catalystIndex = i;
                 this.catalyst = stack;
-                return i;
+                return true;
             }
         }
-        return -1;
+        return false;
     }
 
-    private boolean findInputs(IItemHandlerModifiable itemInputs, int catalystSlotIndex, boolean simulate) {
+    private boolean findInputs(IItemHandlerModifiable itemInputs, boolean simulate) {
         int applied = 0;
         for (int i = 0; i < itemInputs.getSlots(); i++) {
             ItemStack stack = itemInputs.getStackInSlot(i);
             ItemStack catalystStack = null;
-            if (i != catalystSlotIndex && !stack.isEmpty()) {
+            if (i != this.catalystIndex && !stack.isEmpty()) {
                 catalystStack = this.catalyst.copy();
                 catalystStack.setCount(1);
                 if (!simulate) {

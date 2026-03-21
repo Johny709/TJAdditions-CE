@@ -23,6 +23,7 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     @Nonnull
     private ItemStack catalyst = ItemStack.EMPTY;
+    private int catalystIndex;
     private int outputIndex;
 
     public NamingMachineWorkableHandler(MetaTileEntity metaTileEntity) {
@@ -30,35 +31,35 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
     }
 
     @Override
+    public void invalidate() {
+        this.lastInputIndex = 0;
+    }
+
+    @Override
     protected boolean startRecipe() {
-        this.itemInputs.clear();
-        this.itemOutputs.clear();
-        this.catalyst = ItemStack.EMPTY;
-        int catalystIndex = -1;
-        int availableParallels = this.handler.getParallel();
-        IItemHandlerModifiable itemHandlerModifiable = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
-        for (int i = 0; i < itemHandlerModifiable.getSlots(); i++) {
-            ItemStack stack = itemHandlerModifiable.getStackInSlot(i);
-            if (stack.getItem() == Items.NAME_TAG) {
-                if (this.catalyst.isEmpty())
-                    this.itemInputs.add(this.catalyst = stack);
-                catalystIndex = i;
-                break;
+        boolean foundRecipe;
+        IItemHandlerModifiable itemInputs;
+        if (this.isDistinct) {
+            itemInputs = this.handler.getInputBus(this.lastInputIndex);
+            foundRecipe = this.findNameTag(itemInputs) && this.findInputs(itemInputs);
+            if (!foundRecipe) for (int i = 0; i < this.busCount; i++) {
+                if (i == this.lastInputIndex) continue;
+                itemInputs = this.handler.getInputBus(i);
+                foundRecipe = this.findNameTag(itemInputs) && this.findInputs(itemInputs);
+                if (foundRecipe) {
+                    this.lastInputIndex = i;
+                    break;
+                }
             }
+        } else {
+            itemInputs = this.handler.getImportItemInventory();
+            foundRecipe = this.findNameTag(itemInputs) && this.findInputs(itemInputs);
         }
-        if (this.catalyst.isEmpty() && this.handler.getName().isEmpty())
-            return false;
-        for (int i = 0; i < itemHandlerModifiable.getSlots() && availableParallels > 0; i++) {
-            if (i == catalystIndex) continue;
-            ItemStack stack = itemHandlerModifiable.extractItem(i, availableParallels, false).copy();
-            if (stack.isEmpty()) continue;
-            this.itemInputs.add(stack);
-            stack.setStackDisplayName(this.catalyst.isEmpty() ? this.handler.getName() : this.catalyst.getDisplayName());
-            availableParallels -= stack.getCount();
-            this.itemOutputs.add(stack);
+        if (foundRecipe) {
+            this.setMaxProgress(this.calculateOverclock(30L, 50, 2.8F));
+            return true;
         }
-        this.setMaxProgress(this.calculateOverclock(30L, 50, 2.8F));
-        return availableParallels != this.handler.getParallel();
+        return false;
     }
 
     @Override
@@ -71,10 +72,39 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
             } else return false;
         }
         this.outputIndex = 0;
+        this.catalystIndex = 0;
         this.itemInputs.clear();
         this.itemOutputs.clear();
         this.catalyst = ItemStack.EMPTY;
         return true;
+    }
+
+    private boolean findNameTag(IItemHandlerModifiable itemInputs) {
+        for (int i = 0; i < itemInputs.getSlots(); i++) {
+            ItemStack stack = itemInputs.getStackInSlot(i);
+            if (stack.getItem() == Items.NAME_TAG) {
+                this.catalystIndex = i;
+                this.catalyst = stack;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean findInputs(IItemHandlerModifiable itemInputs) {
+        if (this.catalyst.isEmpty() && this.handler.getName().isEmpty())
+            return false;
+        int availableParallels = this.handler.getParallel();
+        for (int i = 0; i < itemInputs.getSlots() && availableParallels > 0; i++) {
+            if (i == this.catalystIndex) continue;
+            ItemStack stack = itemInputs.extractItem(i, availableParallels, false).copy();
+            if (stack.isEmpty()) continue;
+            this.itemInputs.add(stack);
+            stack.setStackDisplayName(this.catalyst.isEmpty() ? this.handler.getName() : this.catalyst.getDisplayName());
+            availableParallels -= stack.getCount();
+            this.itemOutputs.add(stack);
+        }
+        return availableParallels != this.handler.getParallel();
     }
 
     @Override

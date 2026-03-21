@@ -116,6 +116,14 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
+    public boolean checkRecipe(Recipe recipe) {
+        long energyToStart = recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * this.getParallel();
+        this.recipe = recipe;
+        this.maxHeat = Math.min(this.energyContainer.getEnergyCapacity(), energyToStart);
+        return this.heat >= energyToStart;
+    }
+
+    @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         super.preOverclock(overclockManager, recipe);
         long recipeEnergy = Math.max(160_000_000, recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L));
@@ -176,11 +184,10 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 EnergyPortCasings abilityCasings = (EnergyPortCasings) blockState.getBlock();
                 EnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
                 List<EnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
+                Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
                 currentCasing.add(tieredCasingType);
-                if (currentCasing.get(0).getName().equals(tieredCasingType.getName()) && currentCasing.get(0).getTier() >= tier && blockWorldState.getWorld() != null) {
-                    this.activeStates.add(blockWorldState.getPos());
-                    return true;
-                }
+                activeStates.add(blockWorldState.getPos());
+                return currentCasing.get(0).getName().equals(tieredCasingType.getName()) && currentCasing.get(0).getTier() >= tier;
             }
             return false;
         };
@@ -227,10 +234,10 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         }
     }
 
-
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
+        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
         long euCapacity = 0;
         long energyStored = this.energyContainer.getEnergyStored();
         int energyPortAmount = Collections.unmodifiableList(context.getOrDefault("EnergyPort", Collections.emptyList())).size();
@@ -249,11 +256,10 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
-    public boolean checkRecipe(Recipe recipe) {
-        long energyToStart = recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * this.getParallel();
-        this.recipe = recipe;
-        this.maxHeat = Math.min(this.energyContainer.getEnergyCapacity(), energyToStart);
-        return this.heat >= energyToStart;
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.activeStates.clear();
+        this.inputEnergyContainer = new EnergyContainerList(Collections.emptyList());
     }
 
     @Override
