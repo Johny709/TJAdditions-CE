@@ -86,6 +86,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     public MetaTileEntityIndustrialFusionReactor(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, RecipeMaps.FUSION_RECIPES, false, false);
         this.recipeLogic.setAllowOverclocking(false);
+        this.recipeLogic.setActiveConsumer(this::replaceEnergyPortsAsActive);
         this.tier = tier;
         this.energyToStart = 160_000_000L << tier - 6;
         this.energyContainer = new EnergyContainerHandler(this, Integer.MAX_VALUE, 0, 0 ,0, 0) {
@@ -479,7 +480,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     @Override
     protected void reinitializeStructurePattern() {
-        this.parallelLayer = 4;
+        this.parallelLayer = 1;
         super.reinitializeStructurePattern();
     }
 
