@@ -34,6 +34,7 @@ import tj.util.ItemStackHelper;
 import java.util.*;
 import java.util.function.LongSupplier;
 
+@Deprecated
 public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IMultipleWorkable {
 
     private static final String ALLOW_OVERCLOCKING = "AllowOverclocking";

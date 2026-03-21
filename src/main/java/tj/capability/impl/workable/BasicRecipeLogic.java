@@ -33,6 +33,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     private final List<FluidStack> fluidInputs = new ArrayList<>();
     private final List<FluidStack> fluidOutputs = new ArrayList<>();
     protected ItemStack[] lastItemInputs;
+    protected ItemStack[][] lastItemInputsMatrix;
     protected FluidStack[] lastFluidInputs;
     private boolean allowOverclocking = true;
     private boolean recipeRecheck = true;
@@ -51,19 +52,35 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
 
     @Override
     public void invalidate() {
+        this.lastInputIndex = 0;
         this.recipeRecheck = true;
     }
 
     @Override
     protected boolean startRecipe() {
-        IItemHandlerModifiable itemHandlerModifiable = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
-        Recipe recipe = this.recipeLRUCache.get(itemHandlerModifiable, this.handler.getImportFluidTank());
-        if (recipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(itemHandlerModifiable, this.handler.getImportFluidTank()))) {
-            this.recipeRecheck = false;
-            recipe = this.handler.getRecipeMap().findRecipe(this.handler.getMaxVoltage(), itemHandlerModifiable, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
-            if (recipe != null) {
-                ((IGTRecipe) recipe).mergeRecipeInputs();
-                this.recipeLRUCache.put(recipe);
+        Recipe recipe;
+        IItemHandlerModifiable itemInputs;
+        if (this.isDistinct) {
+            itemInputs = this.handler.getInputBus(this.lastInputIndex);
+            recipe = this.trySearchForRecipeDistinct(itemInputs, this.lastInputIndex);
+            if (recipe == null) for (int i = 0; i < this.busCount; i++) {
+                if (i == this.lastInputIndex) continue;
+                itemInputs = this.handler.getInputBus(i);
+                if ((recipe = this.trySearchForRecipeDistinct(itemInputs, i)) != null) {
+                    this.lastInputIndex = i;
+                    break;
+                }
+            }
+        } else {
+            itemInputs = this.handler.getImportItemInventory();
+            recipe = this.recipeLRUCache.get(itemInputs, this.handler.getImportFluidTank());
+            if (recipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(itemInputs, this.handler.getImportFluidTank()))) {
+                this.recipeRecheck = false;
+                recipe = this.handler.getRecipeMap().findRecipe(this.handler.getMaxVoltage(), itemInputs, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
+                if (recipe != null) {
+                    ((IGTRecipe) recipe).mergeRecipeInputs();
+                    this.recipeLRUCache.put(recipe);
+                }
             }
         }
         if (recipe != null) {
@@ -72,7 +89,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             this.overclockManager.setDuration(recipe.getDuration());
             this.overclockManager.setParallel(this.handler.getParallel());
             this.handler.preOverclock(this.overclockManager, recipe);
-            if (this.handler.checkRecipe(recipe) && this.consumeRecipe(recipe, itemHandlerModifiable)) {
+            if (this.handler.checkRecipe(recipe) && this.consumeRecipe(recipe, itemInputs)) {
                 this.calculateOverclock(this.overclockManager.getEUt(), this.overclockManager.getDuration(), this.overclockManager.getEuMultiplier());
                 this.handler.postOverclock(this.overclockManager, recipe);
                 this.energyPerTick = this.overclockManager.getEUt();
@@ -81,6 +98,62 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             }
         }
         return false;
+    }
+
+    @Override
+    protected boolean completeRecipe() {
+        for (int i = this.itemOutputIndex; i < this.itemOutputs.size(); i++) {
+            ItemStack stack = this.itemOutputs.get(i);
+            if (this.voidingItems || ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
+                ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
+                this.itemOutputIndex++;
+            } else return false;
+        }
+        for (int i = this.fluidOutputIndex; i < this.fluidOutputs.size(); i++) {
+            FluidStack stack = this.fluidOutputs.get(i);
+            if (this.voidingFluids || this.handler.getExportFluidTank().fill(stack, false) == stack.amount) {
+                this.handler.getExportFluidTank().fill(stack, true);
+                this.fluidOutputIndex++;
+            } else return false;
+        }
+        this.recipeRecheck = true;
+        this.itemOutputIndex = 0;
+        this.fluidOutputIndex = 0;
+        this.itemInputs.clear();
+        this.itemOutputs.clear();
+        this.fluidInputs.clear();
+        this.fluidOutputs.clear();
+        return true;
+    }
+
+    @Override
+    protected int calculateOverclock(long baseEnergy, int duration, float multiplier) {
+        if (!this.allowOverclocking) {
+            this.overclockManager.setEUtAndDuration(baseEnergy, duration);
+            return 0;
+        }
+        long voltage = this.handler.getMaxVoltage();
+        baseEnergy *= 4;
+        while (duration > 1 && baseEnergy <= voltage) {
+            duration /= multiplier;
+            baseEnergy *= 4;
+        }
+        this.overclockManager.setEUtAndDuration(baseEnergy / 4, duration);
+        return 0;
+    }
+
+    private Recipe trySearchForRecipeDistinct(IItemHandlerModifiable itemInputs, int index) {
+        Recipe recipe;
+        recipe = this.recipeLRUCache.get(itemInputs, this.handler.getImportFluidTank());
+        if (recipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(itemInputs, this.handler.getImportFluidTank(), index))) {
+            this.recipeRecheck = false;
+            recipe = this.handler.getRecipeMap().findRecipe(this.handler.getMaxVoltage(), itemInputs, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
+            if (recipe != null) {
+                ((IGTRecipe) recipe).mergeRecipeInputs();
+                this.recipeLRUCache.put(recipe);
+            }
+        }
+        return recipe;
     }
 
     protected boolean consumeRecipe(Recipe recipe, IItemHandlerModifiable itemHandlerModifiable) {
@@ -101,20 +174,20 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         return true;
     }
 
-    protected int checkItemInputsAmount(int parallels, Recipe recipe, IItemHandlerModifiable itemHandlerModifiable) {
+    protected int checkItemInputsAmount(int parallels, Recipe recipe, IItemHandlerModifiable itemInputs) {
         for (CountableIngredient ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
             if (ingredient.getCount() > 0) {
-                parallels = Math.min(parallels, ItemStackHelper.extractFromItemHandlerByIngredient(itemHandlerModifiable, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
+                parallels = Math.min(parallels, ItemStackHelper.extractFromItemHandlerByIngredient(itemInputs, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
                 if (parallels < 1) return 0;
-            } else if (!ItemStackHelper.checkItemHandlerForIngredient(itemHandlerModifiable, ingredient.getIngredient()))
+            } else if (!ItemStackHelper.checkItemHandlerForIngredient(itemInputs, ingredient.getIngredient()))
                 return 0;
         }
         return parallels;
     }
 
-    protected void consumeItemInputs(int parallels, Recipe recipe, IItemHandlerModifiable itemHandlerModifiable) {
+    protected void consumeItemInputs(int parallels, Recipe recipe, IItemHandlerModifiable itemInputs) {
         for (CountableIngredient ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
-            ItemStackHelper.extractFromItemHandlerByIngredientToList(itemHandlerModifiable, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.itemInputs);
+            ItemStackHelper.extractFromItemHandlerByIngredientToList(itemInputs, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.itemInputs);
         }
     }
 
@@ -166,17 +239,17 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         }
     }
 
-    protected boolean checkRecipeInputsDirty(IItemHandler inputs, IMultipleTankHandler fluidInputs) {
+    private boolean checkRecipeInputsDirty(IItemHandler itemInputs, IMultipleTankHandler fluidInputs) {
         boolean shouldRecheckRecipe = false;
-        if (lastItemInputs == null || lastItemInputs.length != inputs.getSlots()) {
-            this.lastItemInputs = new ItemStack[inputs.getSlots()];
-            Arrays.fill(lastItemInputs, ItemStack.EMPTY);
+        if (this.lastItemInputs == null || this.lastItemInputs.length != itemInputs.getSlots()) {
+            this.lastItemInputs = new ItemStack[itemInputs.getSlots()];
+            Arrays.fill(this.lastItemInputs, ItemStack.EMPTY);
         }
-        if (lastFluidInputs == null || lastFluidInputs.length != fluidInputs.getTanks()) {
+        if (this.lastFluidInputs == null || this.lastFluidInputs.length != fluidInputs.getTanks()) {
             this.lastFluidInputs = new FluidStack[fluidInputs.getTanks()];
         }
-        for (int i = 0; i < lastItemInputs.length; i++) {
-            ItemStack currentStack = inputs.getStackInSlot(i);
+        for (int i = 0; i < this.lastItemInputs.length; i++) {
+            ItemStack currentStack = itemInputs.getStackInSlot(i);
             ItemStack lastStack = lastItemInputs[i];
             if (!areItemStacksEqual(currentStack, lastStack)) {
                 this.lastItemInputs[i] = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
@@ -186,9 +259,49 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
                 shouldRecheckRecipe = true;
             }
         }
-        for (int i = 0; i < lastFluidInputs.length; i++) {
+        for (int i = 0; i < this.lastFluidInputs.length; i++) {
             FluidStack currentStack = fluidInputs.getTankAt(i).getFluid();
-            FluidStack lastStack = lastFluidInputs[i];
+            FluidStack lastStack = this.lastFluidInputs[i];
+            if ((currentStack == null && lastStack != null) ||
+                    (currentStack != null && !currentStack.isFluidEqual(lastStack))) {
+                this.lastFluidInputs[i] = currentStack == null ? null : currentStack.copy();
+                shouldRecheckRecipe = true;
+            } else if (currentStack != null && lastStack != null &&
+                    currentStack.amount != lastStack.amount) {
+                lastStack.amount = currentStack.amount;
+                shouldRecheckRecipe = true;
+            }
+        }
+        return shouldRecheckRecipe;
+    }
+
+    private boolean checkRecipeInputsDirty(IItemHandler itemInputs, IMultipleTankHandler fluidInputs, int index) {
+        boolean shouldRecheckRecipe = false;
+
+        if (this.lastItemInputsMatrix == null || this.lastItemInputsMatrix.length != this.busCount) {
+            this.lastItemInputsMatrix = new ItemStack[this.busCount][];
+        }
+        if (this.lastItemInputsMatrix[index] == null || lastItemInputsMatrix[index].length != itemInputs.getSlots()) {
+            this.lastItemInputsMatrix[index] = new ItemStack[itemInputs.getSlots()];
+            Arrays.fill(this.lastItemInputsMatrix[index], ItemStack.EMPTY);
+        }
+        if (this.lastFluidInputs == null || this.lastFluidInputs.length != fluidInputs.getTanks()) {
+            this.lastFluidInputs = new FluidStack[fluidInputs.getTanks()];
+        }
+        for (int i = 0; i < this.lastItemInputsMatrix[index].length; i++) {
+            ItemStack currentStack = itemInputs.getStackInSlot(i);
+            ItemStack lastStack = this.lastItemInputsMatrix[index][i];
+            if (!areItemStacksEqual(currentStack, lastStack)) {
+                this.lastItemInputsMatrix[index][i] = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
+                shouldRecheckRecipe = true;
+            } else if (currentStack.getCount() != lastStack.getCount()) {
+                lastStack.setCount(currentStack.getCount());
+                shouldRecheckRecipe = true;
+            }
+        }
+        for (int i = 0; i < this.lastFluidInputs.length; i++) {
+            FluidStack currentStack = fluidInputs.getTankAt(i).getFluid();
+            FluidStack lastStack = this.lastFluidInputs[i];
             if ((currentStack == null && lastStack != null) ||
                     (currentStack != null && !currentStack.isFluidEqual(lastStack))) {
                 this.lastFluidInputs[i] = currentStack == null ? null : currentStack.copy();
@@ -211,48 +324,6 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             result = Math.min(fluidTank.getCapacity(), result);
         }
         return result;
-    }
-
-    @Override
-    protected int calculateOverclock(long baseEnergy, int duration, float multiplier) {
-        if (!this.allowOverclocking) {
-            this.overclockManager.setEUtAndDuration(baseEnergy, duration);
-            return 0;
-        }
-        long voltage = this.handler.getMaxVoltage();
-        baseEnergy *= 4;
-        while (duration > 1 && baseEnergy <= voltage) {
-            duration /= multiplier;
-            baseEnergy *= 4;
-        }
-        this.overclockManager.setEUtAndDuration(baseEnergy / 4, duration);
-        return 0;
-    }
-
-    @Override
-    protected boolean completeRecipe() {
-        for (int i = this.itemOutputIndex; i < this.itemOutputs.size(); i++) {
-            ItemStack stack = this.itemOutputs.get(i);
-            if (this.voidingItems || ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
-                this.itemOutputIndex++;
-            } else return false;
-        }
-        for (int i = this.fluidOutputIndex; i < this.fluidOutputs.size(); i++) {
-            FluidStack stack = this.fluidOutputs.get(i);
-            if (this.voidingFluids || this.handler.getExportFluidTank().fill(stack, false) == stack.amount) {
-                this.handler.getExportFluidTank().fill(stack, true);
-                this.fluidOutputIndex++;
-            } else return false;
-        }
-        this.recipeRecheck = true;
-        this.itemInputs.clear();
-        this.itemOutputs.clear();
-        this.fluidInputs.clear();
-        this.fluidOutputs.clear();
-        this.itemOutputIndex = 0;
-        this.fluidOutputIndex = 0;
-        return true;
     }
 
     @Override

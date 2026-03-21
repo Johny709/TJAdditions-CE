@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 /**
  * Parallel Recipe Logic for parallel multiblocks that implement more advanced features like recipe multiplication/parallels and attributes.
  */
+@Deprecated
 public class ParallelGAMultiblockRecipeLogic extends ParallelMultiblockRecipeLogic {
 
     protected final IntSupplier EUtPercentage;

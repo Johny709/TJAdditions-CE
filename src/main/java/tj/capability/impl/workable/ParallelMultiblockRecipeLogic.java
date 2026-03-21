@@ -20,6 +20,7 @@ import java.util.List;
 /**
  * Parallel Recipe Logic for Parallel Multiblocks. Implements distinct bus feature and uses containers from multiblock parts in the form of buses and hatches
  */
+@Deprecated
 public class ParallelMultiblockRecipeLogic extends ParallelAbstractRecipeLogic {
 
     // Field used for maintenance
