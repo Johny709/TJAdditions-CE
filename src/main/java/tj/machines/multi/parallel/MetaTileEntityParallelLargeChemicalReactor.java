@@ -4,6 +4,9 @@ import gregicadditions.GAUtility;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.recipes.Recipe;
+import net.minecraft.block.Block;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.math.BlockPos;
 import tj.TJConfig;
 import gregicadditions.GAConfig;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
@@ -34,7 +37,9 @@ import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
@@ -46,9 +51,11 @@ import static gregtech.api.unification.material.Materials.Steel;
 public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private final Set<BlockPos> activeStates = new HashSet<>();
 
     public MetaTileEntityParallelLargeChemicalReactor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GATileEntities.LARGE_CHEMICAL_REACTOR.recipeMap);
+        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(b));
     }
 
     @Override
@@ -126,6 +133,8 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
             int currentLevel = blockWorldState.getMatchContext().getOrPut("coilLevel", coilLevel);
 
             BlockWireCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("coilType", coilType);
+            Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
+            activeStates.add(blockWorldState.getPos());
 
             return currentLevel == coilLevel && coilType.equals(currentCoilType);
         };
@@ -145,6 +154,8 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
             int currentLevel = blockWorldState.getMatchContext().getOrPut("coilLevel", coilLevel);
 
             GAHeatingCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("gaCoilType", coilType);
+            Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
+            activeStates.add(blockWorldState.getPos());
 
             return currentLevel == coilLevel && coilType.equals(currentCoilType);
         };
@@ -153,6 +164,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
+        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
         this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
         this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                 .mapToLong(IEnergyContainer::getInputVoltage)
@@ -173,7 +185,66 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
     @Override
     public void invalidateStructure() {
         super.invalidateStructure();
+        this.activeStates.clear();
         this.energyBonus = -1;
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        this.writeActiveBlockPacket(buf, this.recipeLogic.isActive());
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.readActiveBlockPacket(buf);
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 128) {
+            this.readActiveBlockPacket(buf);
+        }
+    }
+
+    private void writeActiveBlockPacket(PacketBuffer buffer, boolean isActive) {
+        buffer.writeBoolean(isActive);
+        buffer.writeInt(this.activeStates.size());
+        for (BlockPos pos : this.activeStates) {
+            buffer.writeBlockPos(pos);
+        }
+    }
+
+    private void readActiveBlockPacket(PacketBuffer buffer) {
+        boolean isActive = buffer.readBoolean();
+        int size = buffer.readInt();
+        for (int i = 0; i < size; i++) {
+            BlockPos pos = buffer.readBlockPos();
+            IBlockState state = this.getWorld().getBlockState(pos);
+            Block block = state.getBlock();
+            if (block instanceof BlockWireCoil) {
+                state = state.withProperty(BlockWireCoil.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            } else if (block instanceof GAHeatingCoil) {
+                state = state.withProperty(GAHeatingCoil.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            }
+        }
+    }
+
+    public void replaceCoilsAsActive(boolean isActive) {
+        this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (!this.getWorld().isRemote) {
+            this.replaceCoilsAsActive(false);
+            this.markDirty();
+        }
     }
 
     @Override

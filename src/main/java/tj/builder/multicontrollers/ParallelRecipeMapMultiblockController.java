@@ -71,7 +71,7 @@ import static tj.gui.TJGuiTextures.FLUID_VOID_BUTTON;
 public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockControllerBase implements IParallelController, IMultiRecipe, IRecipeHandler {
 
     private final RecipeMap<?>[] recipeMaps;
-    private final ParallelRecipeLogic<? extends IRecipeHandler> recipeLogic = this.createRecipeLogic();
+    protected final ParallelRecipeLogic<? extends IRecipeHandler> recipeLogic = this.createRecipeLogic();
     protected BatchMode batchMode = BatchMode.ONE;
     protected int recipeMapIndex;
     protected int parallelLayer = 1;

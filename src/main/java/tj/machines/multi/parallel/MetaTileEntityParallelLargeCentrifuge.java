@@ -1,8 +1,13 @@
 package tj.machines.multi.parallel;
 
+import gregicadditions.item.GAHeatingCoil;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMaps;
+import gregtech.common.blocks.BlockWireCoil;
+import net.minecraft.block.Block;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.math.BlockPos;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregicadditions.client.ClientHandler;
@@ -35,7 +40,9 @@ import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
@@ -46,9 +53,11 @@ import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH, IMPORT_FLUIDS, EXPORT_FLUIDS, REDSTONE_CONTROLLER};
+    private final Set<BlockPos> activeStates = new HashSet<>();
 
     public MetaTileEntityParallelLargeCentrifuge(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GARecipeMaps.LARGE_CENTRIFUGE_RECIPES, RecipeMaps.THERMAL_CENTRIFUGE_RECIPES, GARecipeMaps.GAS_CENTRIFUGE_RECIPES);
+        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(b));
     }
 
     @Override
@@ -123,6 +132,71 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
         this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         this.maxVoltage = 8L << this.tier * 2;
         this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
+        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.activeStates.clear();
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        this.writeActiveBlockPacket(buf, this.recipeLogic.isActive());
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.readActiveBlockPacket(buf);
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 128) {
+            this.readActiveBlockPacket(buf);
+        }
+    }
+
+    private void writeActiveBlockPacket(PacketBuffer buffer, boolean isActive) {
+        buffer.writeBoolean(isActive);
+        buffer.writeInt(this.activeStates.size());
+        for (BlockPos pos : this.activeStates) {
+            buffer.writeBlockPos(pos);
+        }
+    }
+
+    private void readActiveBlockPacket(PacketBuffer buffer) {
+        boolean isActive = buffer.readBoolean();
+        int size = buffer.readInt();
+        for (int i = 0; i < size; i++) {
+            BlockPos pos = buffer.readBlockPos();
+            IBlockState state = this.getWorld().getBlockState(pos);
+            Block block = state.getBlock();
+            if (block instanceof BlockWireCoil) {
+                state = state.withProperty(BlockWireCoil.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            } else if (block instanceof GAHeatingCoil) {
+                state = state.withProperty(GAHeatingCoil.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            }
+        }
+    }
+
+    public void replaceCoilsAsActive(boolean isActive) {
+        this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (!this.getWorld().isRemote) {
+            this.replaceCoilsAsActive(false);
+            this.markDirty();
+        }
     }
 
     @Override

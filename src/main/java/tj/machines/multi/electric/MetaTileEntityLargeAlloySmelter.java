@@ -18,10 +18,13 @@ import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockWireCoil;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -31,7 +34,9 @@ import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
@@ -39,9 +44,11 @@ import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 public class MetaTileEntityLargeAlloySmelter extends TJRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private final Set<BlockPos> activeStates = new HashSet<>();
 
     public MetaTileEntityLargeAlloySmelter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, RecipeMaps.ALLOY_SMELTER_RECIPES);
+        this.recipeLogic.setActiveConsumer(this::replaceCoilsAsActive);
     }
 
     @Override
@@ -54,18 +61,6 @@ public class MetaTileEntityLargeAlloySmelter extends TJRecipeMapMultiblockContro
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.large_alloy_smelter.description"));
         super.addInformation(stack, player, tooltip, advanced);
-    }
-
-    @Override
-    protected void formStructure(PatternMatchContext context) {
-        super.formStructure(context);
-        BlockWireCoil.CoilType coilType;
-        GAHeatingCoil.CoilType gaCoilType;
-        if ((coilType = context.getOrDefault("coilType", BlockWireCoil.CoilType.CUPRONICKEL)) != null)
-            this.tier = coilType.ordinal() + 1;
-        else if ((gaCoilType = context.getOrDefault("gaCoilType", GAHeatingCoil.CoilType.TITAN_STEEL_COIL)) != null)
-            this.tier = gaCoilType.ordinal() + 8;
-        this.maxVoltage = 8L << this.tier * 2;
     }
 
     @Override
@@ -102,6 +97,8 @@ public class MetaTileEntityLargeAlloySmelter extends TJRecipeMapMultiblockContro
             int currentTemperature = blockWorldState.getMatchContext().getOrPut("blastFurnaceTemperature", blastFurnaceTemperature);
 
             BlockWireCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("coilType", coilType);
+            Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
+            activeStates.add(blockWorldState.getPos());
 
             return currentTemperature == blastFurnaceTemperature && coilType.equals(currentCoilType);
         };
@@ -121,9 +118,88 @@ public class MetaTileEntityLargeAlloySmelter extends TJRecipeMapMultiblockContro
             int currentTemperature = blockWorldState.getMatchContext().getOrPut("blastFurnaceTemperature", blastFurnaceTemperature);
 
             GAHeatingCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("gaCoilType", coilType);
+            Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
+            activeStates.add(blockWorldState.getPos());
 
             return currentTemperature == blastFurnaceTemperature && coilType.equals(currentCoilType);
         };
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        BlockWireCoil.CoilType coilType;
+        GAHeatingCoil.CoilType gaCoilType;
+        if ((coilType = context.getOrDefault("coilType", BlockWireCoil.CoilType.CUPRONICKEL)) != null)
+            this.tier = coilType.ordinal() + 1;
+        else if ((gaCoilType = context.getOrDefault("gaCoilType", GAHeatingCoil.CoilType.TITAN_STEEL_COIL)) != null)
+            this.tier = gaCoilType.ordinal() + 8;
+        this.maxVoltage = 8L << this.tier * 2;
+        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.activeStates.clear();
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        this.writeActiveBlockPacket(buf, this.recipeLogic.isActive());
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.readActiveBlockPacket(buf);
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 128) {
+            this.readActiveBlockPacket(buf);
+        }
+    }
+
+    private void writeActiveBlockPacket(PacketBuffer buffer, boolean isActive) {
+        buffer.writeBoolean(isActive);
+        buffer.writeInt(this.activeStates.size());
+        for (BlockPos pos : this.activeStates) {
+            buffer.writeBlockPos(pos);
+        }
+    }
+
+    private void readActiveBlockPacket(PacketBuffer buffer) {
+        boolean isActive = buffer.readBoolean();
+        int size = buffer.readInt();
+        for (int i = 0; i < size; i++) {
+            BlockPos pos = buffer.readBlockPos();
+            IBlockState state = this.getWorld().getBlockState(pos);
+            Block block = state.getBlock();
+            if (block instanceof BlockWireCoil) {
+                state = state.withProperty(BlockWireCoil.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            } else if (block instanceof GAHeatingCoil) {
+                state = state.withProperty(GAHeatingCoil.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            }
+        }
+    }
+
+    public void replaceCoilsAsActive(boolean isActive) {
+        this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (!this.getWorld().isRemote) {
+            this.replaceCoilsAsActive(false);
+            this.markDirty();
+        }
     }
 
     public IBlockState getCasingState() {

@@ -1,6 +1,7 @@
 package tj.machines.multi.parallel;
 
 import gregicadditions.GAUtility;
+import gregicadditions.item.GAHeatingCoil;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -15,12 +16,16 @@ import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.BlockMetalCasing;
+import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -32,7 +37,9 @@ import tj.capability.OverclockManager;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
@@ -46,11 +53,13 @@ import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
+    private final Set<BlockPos> activeStates = new HashSet<>();
     private int blastFurnaceTemperature;
     private int bonusTemperature;
 
     public MetaTileEntityParallelElectricBlastFurnace(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, MetaTileEntities.ELECTRIC_BLAST_FURNACE.recipeMap);
+        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(b));
     }
 
     @Override
@@ -130,6 +139,7 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
+        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
         this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                 .mapToLong(IEnergyContainer::getInputVoltage)
                 .max()
@@ -147,6 +157,70 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
         this.bonusTemperature = Math.max(0, 100 * (this.tier - 2));
         this.blastFurnaceTemperature = context.getOrDefault("blastFurnaceTemperature", 0);
         this.blastFurnaceTemperature += this.bonusTemperature;
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.activeStates.clear();
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        this.writeActiveBlockPacket(buf, this.recipeLogic.isActive());
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.readActiveBlockPacket(buf);
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 128) {
+            this.readActiveBlockPacket(buf);
+        }
+    }
+
+    private void writeActiveBlockPacket(PacketBuffer buffer, boolean isActive) {
+        buffer.writeBoolean(isActive);
+        buffer.writeInt(this.activeStates.size());
+        for (BlockPos pos : this.activeStates) {
+            buffer.writeBlockPos(pos);
+        }
+    }
+
+    private void readActiveBlockPacket(PacketBuffer buffer) {
+        boolean isActive = buffer.readBoolean();
+        int size = buffer.readInt();
+        for (int i = 0; i < size; i++) {
+            BlockPos pos = buffer.readBlockPos();
+            IBlockState state = this.getWorld().getBlockState(pos);
+            Block block = state.getBlock();
+            if (block instanceof BlockWireCoil) {
+                state = state.withProperty(BlockWireCoil.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            } else if (block instanceof GAHeatingCoil) {
+                state = state.withProperty(GAHeatingCoil.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            }
+        }
+    }
+
+    public void replaceCoilsAsActive(boolean isActive) {
+        this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (!this.getWorld().isRemote) {
+            this.replaceCoilsAsActive(false);
+            this.markDirty();
+        }
     }
 
     @Override
