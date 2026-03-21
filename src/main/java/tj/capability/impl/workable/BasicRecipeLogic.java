@@ -76,7 +76,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             recipe = this.recipeLRUCache.get(itemInputs, this.handler.getImportFluidTank());
             if (recipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(itemInputs, this.handler.getImportFluidTank()))) {
                 this.recipeRecheck = false;
-                recipe = this.handler.getRecipeMap().findRecipe(this.handler.getMaxVoltage(), itemInputs, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
+                recipe = this.handler.getRecipeMap().searchRecipe(this.handler.getMaxVoltage(), itemInputs, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
                 if (recipe != null) {
                     ((IGTRecipe) recipe).mergeRecipeInputs();
                     this.recipeLRUCache.put(recipe);
@@ -147,7 +147,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         recipe = this.recipeLRUCache.get(itemInputs, this.handler.getImportFluidTank());
         if (recipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(itemInputs, this.handler.getImportFluidTank(), index))) {
             this.recipeRecheck = false;
-            recipe = this.handler.getRecipeMap().findRecipe(this.handler.getMaxVoltage(), itemInputs, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
+            recipe = this.handler.getRecipeMap().searchRecipe(this.handler.getMaxVoltage(), itemInputs, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
             if (recipe != null) {
                 ((IGTRecipe) recipe).mergeRecipeInputs();
                 this.recipeLRUCache.put(recipe);
