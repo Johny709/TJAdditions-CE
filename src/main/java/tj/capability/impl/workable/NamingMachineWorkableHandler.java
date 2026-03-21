@@ -72,7 +72,6 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
             } else return false;
         }
         this.outputIndex = 0;
-        this.catalystIndex = 0;
         this.itemInputs.clear();
         this.itemOutputs.clear();
         this.catalyst = ItemStack.EMPTY;
@@ -88,6 +87,7 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
                 return true;
             }
         }
+        this.catalystIndex = -1;
         return !this.handler.getName().isEmpty();
     }
 
