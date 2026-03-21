@@ -144,6 +144,12 @@ public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockC
     }
 
     @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.workableHandler.invalidate();
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return Textures.SOLID_STEEL_CASING;

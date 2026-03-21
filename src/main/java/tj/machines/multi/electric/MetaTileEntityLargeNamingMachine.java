@@ -147,6 +147,12 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
     }
 
     @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.workableHandler.invalidate();
+    }
+
+    @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         data.setString("tagName", this.name);

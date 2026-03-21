@@ -52,6 +52,11 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
         }
     }
 
+    @Override
+    public void invalidate() {
+        this.lastInputIndex = 0;
+    }
+
     public void clearCache() {
         this.previousRecipe.clear();
     }
@@ -129,8 +134,25 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
 
     @Override
     protected boolean startRecipe() {
-        IItemHandlerModifiable itemInputs = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
-        if (this.trySearchForRecipe(itemInputs)) {
+        boolean foundRecipe;
+        IItemHandlerModifiable itemInputs;
+        if (this.isDistinct) {
+            itemInputs = this.handler.getInputBus(this.lastInputIndex);
+            foundRecipe = this.trySearchForRecipe(itemInputs);
+            if (!foundRecipe) for (int i = 0; i < this.busCount; i++) {
+                if (i == this.lastInputIndex) continue;
+                itemInputs = this.handler.getInputBus(i);
+                foundRecipe = this.trySearchForRecipe(itemInputs);
+                if (foundRecipe) {
+                    this.lastInputIndex = i;
+                    break;
+                }
+            }
+        } else {
+            itemInputs = this.handler.getImportItemInventory();
+            foundRecipe = this.trySearchForRecipe(itemInputs);
+        }
+        if (foundRecipe) {
             this.maxProgress = this.calculateOverclock(30, 50, 2.8F);
             return true;
         }

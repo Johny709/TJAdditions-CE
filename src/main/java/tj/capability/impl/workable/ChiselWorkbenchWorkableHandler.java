@@ -34,9 +34,31 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
     }
 
     @Override
+    public void invalidate() {
+        this.lastInputIndex = 0;
+    }
+
+    @Override
     protected boolean startRecipe() {
-        IItemHandlerModifiable itemInputs = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
-        if (this.findCircuit(itemInputs) && this.findInputs(itemInputs)) {
+        boolean foundRecipe;
+        IItemHandlerModifiable itemInputs;
+        if (this.isDistinct) {
+            itemInputs = this.handler.getInputBus(this.lastInputIndex);
+            foundRecipe = this.findCircuit(itemInputs) && this.findInputs(itemInputs);
+            if (!foundRecipe) for (int i = 0; i < this.busCount; i++) {
+                if (i == this.lastInputIndex) continue;
+                itemInputs = this.handler.getInputBus(i);
+                foundRecipe = this.findCircuit(itemInputs) && this.findInputs(itemInputs);
+                if (foundRecipe) {
+                    this.lastInputIndex = i;
+                    break;
+                }
+            }
+        } else {
+            itemInputs = this.handler.getImportItemInventory();
+            foundRecipe = this.findCircuit(itemInputs) && this.findInputs(itemInputs);
+        }
+        if (foundRecipe) {
             List<ICarvingVariation> carvingGroups = CarvingUtils.getChiselRegistry().getGroup(this.input).getVariations();
             int variation = Math.min(this.circuitNumber, carvingGroups.size() - 1);
             this.output = carvingGroups.get(variation).getStack();

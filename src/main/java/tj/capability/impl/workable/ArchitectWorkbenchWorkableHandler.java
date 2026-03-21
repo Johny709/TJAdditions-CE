@@ -33,9 +33,31 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
     }
 
     @Override
+    public void invalidate() {
+        this.lastInputIndex = 0;
+    }
+
+    @Override
     protected boolean startRecipe() {
-        IItemHandlerModifiable itemInputs = this.isDistinct ? this.handler.getInputBus(this.lastInputIndex) : this.handler.getImportItemInventory();
-        if (this.findCatalyst(itemInputs) && this.findInputs(itemInputs)) {
+        boolean foundRecipe;
+        IItemHandlerModifiable itemInputs;
+        if (this.isDistinct) {
+            itemInputs = this.handler.getInputBus(this.lastInputIndex);
+            foundRecipe = this.findCatalyst(itemInputs) && this.findInputs(itemInputs);
+            if (!foundRecipe) for (int i = 0; i < this.busCount; i++) {
+                if (i == this.lastInputIndex) continue;
+                itemInputs = this.handler.getInputBus(i);
+                foundRecipe = this.findCatalyst(itemInputs) && this.findInputs(itemInputs);
+                if (foundRecipe) {
+                    this.lastInputIndex = i;
+                    break;
+                }
+            }
+        } else {
+            itemInputs = this.handler.getImportItemInventory();
+            foundRecipe = this.findCatalyst(itemInputs) && this.findInputs(itemInputs);
+        }
+        if (foundRecipe) {
             this.output = new ItemStack(Item.getByNameOrId("architecturecraft:shape"), this.input.getCount());
             NBTTagCompound compound = this.catalyst.getTagCompound().copy();
             compound.setString("BaseName", Item.REGISTRY.getNameForObject(this.input.getItem()).toString());
