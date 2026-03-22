@@ -1,8 +1,9 @@
-package tj.mixin.gregtech;
+package tj.mixin.gregicality;
 
-import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
-import gregtech.common.metatileentities.multi.electric.generator.LargeTurbineWorkableHandler;
-import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
+import gregicadditions.machines.multi.impl.HotCoolantTurbineWorkableHandler;
+import gregicadditions.machines.multi.impl.MetaTileEntityRotorHolderForNuclearCoolant;
+import gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine;
+import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
@@ -21,14 +22,18 @@ import tj.util.TJFluidUtils;
 import java.util.Queue;
 import java.util.function.UnaryOperator;
 
-@Mixin(value = MetaTileEntityLargeTurbine.class, remap = false)
-public abstract class MetaTileEntityLargeTurbineMixin extends RotorHolderMultiblockControllerMixin implements IProgressBar {
+@Mixin(value = MetaTileEntityHotCoolantTurbine.class, remap = false)
+public abstract class MetaTileEntityHotCoolantTurbineMixin extends HotCoolantMultiblockControllerMixin implements IProgressBar {
+
+    @Shadow
+    @Final
+    public static MultiblockAbility<MetaTileEntityRotorHolderForNuclearCoolant> ABILITY_ROTOR_HOLDER;
 
     @Shadow
     @Final
     private static int MIN_DURABILITY_TO_WARN;
 
-    public MetaTileEntityLargeTurbineMixin(ResourceLocation metaTileEntityId) {
+    public MetaTileEntityHotCoolantTurbineMixin(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
     }
 
@@ -36,30 +41,25 @@ public abstract class MetaTileEntityLargeTurbineMixin extends RotorHolderMultibl
     protected void configureDisplayText(GUIDisplayBuilder builder) {
         super.configureDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        MetaTileEntityRotorHolder rotorHolder = this.getRotorHolder();
-        FluidStack fuelStack = ((LargeTurbineWorkableHandler) this.workableHandler).getFuelStack();
+        MetaTileEntityRotorHolderForNuclearCoolant rotorHolder = getAbilities(ABILITY_ROTOR_HOLDER).get(0);
+        FluidStack fuelStack = ((HotCoolantTurbineWorkableHandler) this.workableHandler).getFuelStack();
         int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
         ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
         builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.turbine.fuel_amount", fuelAmount, fuelName));
 
         if (rotorHolder.getRotorEfficiency() > 0.0) {
-            builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.turbine.rotor_speed", rotorHolder.getCurrentRotorSpeed(), rotorHolder.getMaxRotorSpeed()))
-                    .addTextComponent(new TextComponentTranslation("gregtech.multiblock.turbine.rotor_efficiency", (int) (rotorHolder.getRotorEfficiency() * 100)));
+            builder.addTranslationLine("gregtech.multiblock.turbine.rotor_speed", rotorHolder.getCurrentRotorSpeed(), rotorHolder.getMaxRotorSpeed())
+                    .addTranslationLine("gregtech.multiblock.turbine.rotor_efficiency", (int) (rotorHolder.getRotorEfficiency() * 100));
             int rotorDurability = (int) (rotorHolder.getRotorDurability() * 100);
             if (rotorDurability > MIN_DURABILITY_TO_WARN) {
-                builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.turbine.rotor_durability", rotorDurability));
+                builder.addTranslationLine("gregtech.multiblock.turbine.rotor_durability", rotorDurability);
             } else {
                 builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.turbine.low_rotor_durability",
                         MIN_DURABILITY_TO_WARN, rotorDurability).setStyle(new Style().setColor(TextFormatting.RED)));
             }
         }
         builder.addTranslationLine("gregtech.multiblock.generation_eu", this.workableHandler.getRecipeOutputVoltage());
-
-        if (!this.isRotorFaceFree()) {
-            builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.turbine.obstructed")
-                    .setStyle(new Style().setColor(TextFormatting.RED)));
-        }
     }
 
     @Override
@@ -69,14 +69,14 @@ public abstract class MetaTileEntityLargeTurbineMixin extends RotorHolderMultibl
 
     @Override
     public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
-        LargeTurbineWorkableHandler workableHandler = ((gregicadditions.machines.multi.override.MetaTileEntityLargeTurbine.LargeTurbineWorkableHandler) this.workableHandler);
-        FluidStack stack = workableHandler.getFuelStack();
+        HotCoolantTurbineWorkableHandler turbineWorkableHandler = (HotCoolantTurbineWorkableHandler) this.workableHandler;
+        FluidStack stack = turbineWorkableHandler.getFuelStack();
         bars.add(bar -> bar.setProgress(this::getEnergyStored).setMaxProgress(this::getEnergyCapacity)
                 .setLocale("tj.multiblock.bars.energy")
                 .setColor(0xFFF6FF00));
         bars.add(bar -> bar.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
                 .setLocale("tj.multiblock.bars.fuel").setParams(() -> new Object[]{stack != null ? stack.getLocalizedName() : ""})
-                .setFluidStackSupplier(workableHandler::getFuelStack));
+                .setFluidStackSupplier(turbineWorkableHandler::getFuelStack));
     }
 
     @Unique
@@ -91,13 +91,13 @@ public abstract class MetaTileEntityLargeTurbineMixin extends RotorHolderMultibl
 
     @Unique
     private long getFuelAmount() {
-        LargeTurbineWorkableHandler workableHandler = ((gregicadditions.machines.multi.override.MetaTileEntityLargeTurbine.LargeTurbineWorkableHandler) this.workableHandler);
-        return TJFluidUtils.getFluidAmountFromTanks(workableHandler.getFuelStack(), this.importFluidHandler);
+        HotCoolantTurbineWorkableHandler turbineWorkableHandler = (HotCoolantTurbineWorkableHandler) this.workableHandler;
+        return TJFluidUtils.getFluidAmountFromTanks(turbineWorkableHandler.getFuelStack(), this.importFluidHandler);
     }
 
     @Unique
     private long getFuelCapacity() {
-        LargeTurbineWorkableHandler workableHandler = ((gregicadditions.machines.multi.override.MetaTileEntityLargeTurbine.LargeTurbineWorkableHandler) this.workableHandler);
-        return TJFluidUtils.getFluidCapacityFromTanks(workableHandler.getFuelStack(), this.importFluidHandler);
+        HotCoolantTurbineWorkableHandler turbineWorkableHandler = (HotCoolantTurbineWorkableHandler) this.workableHandler;
+        return TJFluidUtils.getFluidCapacityFromTanks(turbineWorkableHandler.getFuelStack(), this.importFluidHandler);
     }
 }
