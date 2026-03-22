@@ -13,10 +13,17 @@ import net.minecraftforge.fluids.FluidStack;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
+import tj.util.TJFluidUtils;
+
+import java.util.Queue;
+import java.util.function.UnaryOperator;
 
 @Mixin(value = MetaTileEntityHotCoolantTurbine.class, remap = false)
-public abstract class MetaTileEntityHotCoolantTurbineMixin extends HotCoolantMultiblockControllerMixin {
+public abstract class MetaTileEntityHotCoolantTurbineMixin extends HotCoolantMultiblockControllerMixin implements IProgressBar {
 
     @Shadow
     @Final
@@ -53,5 +60,34 @@ public abstract class MetaTileEntityHotCoolantTurbineMixin extends HotCoolantMul
             }
         }
         builder.addTranslationLine("gregtech.multiblock.generation_eu", this.workableHandler.getRecipeOutputVoltage());
+    }
+
+    @Override
+    public int[][] getBarMatrix() {
+        return new int[2][1];
+    }
+
+    @Override
+    public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
+        HotCoolantTurbineWorkableHandler turbineWorkableHandler = (HotCoolantTurbineWorkableHandler) this.workableHandler;
+        FluidStack stack = turbineWorkableHandler.getFuelStack();
+        bars.add(bar -> bar.setProgress(this.energyContainer::getEnergyStored).setMaxProgress(this.energyContainer::getEnergyCapacity)
+                .setLocale("tj.multiblock.bars.energy")
+                .setColor(0xFFF6FF00));
+        bars.add(bar -> bar.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
+                .setLocale("tj.multiblock.bars.fuel").setParams(() -> new Object[]{stack != null ? stack.getLocalizedName() : ""})
+                .setFluidStackSupplier(turbineWorkableHandler::getFuelStack));
+    }
+
+    @Unique
+    private long getFuelAmount() {
+        HotCoolantTurbineWorkableHandler turbineWorkableHandler = (HotCoolantTurbineWorkableHandler) this.workableHandler;
+        return TJFluidUtils.getFluidAmountFromTanks(turbineWorkableHandler.getFuelStack(), this.importFluidHandler);
+    }
+
+    @Unique
+    private long getFuelCapacity() {
+        HotCoolantTurbineWorkableHandler turbineWorkableHandler = (HotCoolantTurbineWorkableHandler) this.workableHandler;
+        return TJFluidUtils.getFluidCapacityFromTanks(turbineWorkableHandler.getFuelStack(), this.importFluidHandler);
     }
 }

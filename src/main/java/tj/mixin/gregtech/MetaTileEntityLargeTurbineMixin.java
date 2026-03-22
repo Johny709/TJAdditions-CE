@@ -64,13 +64,16 @@ public abstract class MetaTileEntityLargeTurbineMixin extends RotorHolderMultibl
 
     @Override
     public int[][] getBarMatrix() {
-        return new int[1][1];
+        return new int[2][1];
     }
 
     @Override
     public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
         LargeTurbineWorkableHandler workableHandler = ((gregicadditions.machines.multi.override.MetaTileEntityLargeTurbine.LargeTurbineWorkableHandler) this.workableHandler);
         FluidStack stack = workableHandler.getFuelStack();
+        bars.add(bar -> bar.setProgress(this.energyContainer::getEnergyStored).setMaxProgress(this.energyContainer::getEnergyCapacity)
+                .setLocale("tj.multiblock.bars.energy")
+                .setColor(0xFFF6FF00));
         bars.add(bar -> bar.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
                 .setLocale("tj.multiblock.bars.fuel").setParams(() -> new Object[]{stack != null ? stack.getLocalizedName() : ""})
                 .setFluidStackSupplier(workableHandler::getFuelStack));
