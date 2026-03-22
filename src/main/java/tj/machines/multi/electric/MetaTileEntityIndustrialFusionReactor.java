@@ -76,6 +76,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     private final Set<BlockPos> activeStates = new HashSet<>();
     private final long energyToStart;
+    private final int fusionTier;
     private int parallelLayer = 1;
     private long heat;
     private long maxHeat;
@@ -87,7 +88,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         super(metaTileEntityId, RecipeMaps.FUSION_RECIPES, false, false);
         this.recipeLogic.setAllowOverclocking(false);
         this.recipeLogic.setActiveConsumer(this::replaceEnergyPortsAsActive);
-        this.tier = tier;
+        this.fusionTier = tier;
         this.energyToStart = 160_000_000L << tier - 6;
         this.energyContainer = new EnergyContainerHandler(this, Integer.MAX_VALUE, 0, 0 ,0, 0) {
             @Override
@@ -95,11 +96,12 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 return "EnergyContainerInternal";
             }
         };
+        this.reinitializeStructurePattern();
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityIndustrialFusionReactor(this.metaTileEntityId, this.tier);
+        return new MetaTileEntityIndustrialFusionReactor(this.metaTileEntityId, this.fusionTier);
     }
 
     @Override
@@ -160,7 +162,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
                 .where('G', statePredicate(this.getCasingState()).or(statePredicate(this.getGlassState())))
                 .where('c', statePredicate(this.getCoilState()))
                 .where('O', statePredicate(this.getCasingState()).or(statePredicate(this.getGlassState())).or(abilityPartPredicate(MultiblockAbility.EXPORT_FLUIDS)))
-                .where('E', statePredicate(this.getCasingState()).or(statePredicate(this.getGlassState())).or(tilePredicate(energyHatchPredicate(tier))).or(energyPortPredicate(tier)))
+                .where('E', statePredicate(this.getCasingState()).or(statePredicate(this.getGlassState())).or(tilePredicate(energyHatchPredicate(this.fusionTier))).or(energyPortPredicate(this.fusionTier)))
             .where('I', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS)))
             .where('#', (tile) -> true).build();
     }
@@ -196,7 +198,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        switch (tier) {
+        switch (this.fusionTier) {
             case 6: return this.recipeLogic.isActive() ? TJTextures.FUSION_PORT_LUV_ACTIVE : TJTextures.FUSION_PORT_LUV;
             case 7: return this.recipeLogic.isActive() ? TJTextures.FUSION_PORT_ZPM_ACTIVE : TJTextures.FUSION_PORT_ZPM;
             case 8: return this.recipeLogic.isActive() ? TJTextures.FUSION_PORT_UV_ACTIVE : TJTextures.FUSION_PORT_UV;
@@ -206,7 +208,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     public IBlockState getCasingState() {
-        switch (tier) {
+        switch (this.fusionTier) {
             case 6: return MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING);
             case 7: return MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING_MK2);
             case 8: return GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_3);
@@ -216,7 +218,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     public IBlockState getGlassState() {
-        switch (tier) {
+        switch (this.fusionTier) {
             case 6: return TJMetaBlocks.FUSION_GLASS.getState(BlockFusionGlass.GlassType.FUSION_GLASS_LUV);
             case 7: return TJMetaBlocks.FUSION_GLASS.getState(BlockFusionGlass.GlassType.FUSION_GLASS_ZPM);
             case 8: return TJMetaBlocks.FUSION_GLASS.getState(BlockFusionGlass.GlassType.FUSION_GLASS_UV);
@@ -226,7 +228,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     public IBlockState getCoilState() {
-        switch (tier) {
+        switch (this.fusionTier) {
             case 6: return MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.FUSION_COIL);
             case 7: return GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_COIL_2);
             case 8: return GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_COIL_3);
@@ -242,12 +244,12 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         long euCapacity = 0;
         long energyStored = this.energyContainer.getEnergyStored();
         int energyPortAmount = Collections.unmodifiableList(context.getOrDefault("EnergyPort", Collections.emptyList())).size();
-        euCapacity += energyPortAmount * 10000000L * (long) Math.pow(2, tier - 6);
+        euCapacity += energyPortAmount * 10000000L * (long) Math.pow(2, this.fusionTier - 6);
 
         List<IEnergyContainer> energyInputs = getAbilities(INPUT_ENERGY);
         this.inputEnergyContainer = new EnergyContainerList(energyInputs);
-        euCapacity += energyInputs.size() * 10000000L * (long) Math.pow(2, tier - 6);
-        this.energyContainer = new EnergyContainerHandler(this, euCapacity, GAValues.V[tier], 0, 0, 0) {
+        euCapacity += energyInputs.size() * 10000000L * (long) Math.pow(2, this.fusionTier - 6);
+        this.energyContainer = new EnergyContainerHandler(this, euCapacity, GAValues.V[this.fusionTier], 0, 0, 0) {
             @Override
             public String getName() {
                 return "EnergyContainerInternal";
@@ -476,6 +478,11 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     public int getTierDifference(long recipeEUt) {
         return 0;
+    }
+
+    @Override
+    public int getTier() {
+        return this.fusionTier;
     }
 
     @Override

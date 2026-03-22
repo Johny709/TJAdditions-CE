@@ -46,7 +46,7 @@ public abstract class MetaTileEntityHotCoolantTurbineMixin extends HotCoolantMul
         int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
         ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
-        builder.addTranslationLine("gregtech.multiblock.turbine.fuel_amount", fuelAmount, fuelName);
+        builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.turbine.fuel_amount", fuelAmount, fuelName));
 
         if (rotorHolder.getRotorEfficiency() > 0.0) {
             builder.addTranslationLine("gregtech.multiblock.turbine.rotor_speed", rotorHolder.getCurrentRotorSpeed(), rotorHolder.getMaxRotorSpeed())
@@ -71,12 +71,22 @@ public abstract class MetaTileEntityHotCoolantTurbineMixin extends HotCoolantMul
     public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
         HotCoolantTurbineWorkableHandler turbineWorkableHandler = (HotCoolantTurbineWorkableHandler) this.workableHandler;
         FluidStack stack = turbineWorkableHandler.getFuelStack();
-        bars.add(bar -> bar.setProgress(this.energyContainer::getEnergyStored).setMaxProgress(this.energyContainer::getEnergyCapacity)
+        bars.add(bar -> bar.setProgress(this::getEnergyStored).setMaxProgress(this::getEnergyCapacity)
                 .setLocale("tj.multiblock.bars.energy")
                 .setColor(0xFFF6FF00));
         bars.add(bar -> bar.setProgress(this::getFuelAmount).setMaxProgress(this::getFuelCapacity)
                 .setLocale("tj.multiblock.bars.fuel").setParams(() -> new Object[]{stack != null ? stack.getLocalizedName() : ""})
                 .setFluidStackSupplier(turbineWorkableHandler::getFuelStack));
+    }
+
+    @Unique
+    private long getEnergyStored() {
+        return this.energyContainer != null ? this.energyContainer.getEnergyStored() : 0;
+    }
+
+    @Unique
+    private long getEnergyCapacity() {
+        return this.energyContainer != null ? this.energyContainer.getEnergyCapacity() : 0;
     }
 
     @Unique
