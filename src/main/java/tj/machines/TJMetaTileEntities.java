@@ -139,6 +139,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityLargeNamingMachine LARGE_NAMING_MACHINE;
     public static MetaTileEntityLargeAssemblyLine LARGE_ASSEMBLY_LINE;
     public static MetaTileEntityParallelCircuitAssemblyLine PARALLEL_CIRCUIT_ASSEMBLY_LINE;
+    public static MetaTileEntityProcessingArray PROCESSING_ARRAY;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -234,6 +235,7 @@ public class TJMetaTileEntities {
         LARGE_NAMING_MACHINE = GregTechAPI.registerMetaTileEntity(5131, new MetaTileEntityLargeNamingMachine(TJId("large_naming_machine")));
         LARGE_ASSEMBLY_LINE = GregTechAPI.registerMetaTileEntity(5132, new MetaTileEntityLargeAssemblyLine(TJId("large_assembly_line")));
         PARALLEL_CIRCUIT_ASSEMBLY_LINE = GregTechAPI.registerMetaTileEntity(5133, new MetaTileEntityParallelCircuitAssemblyLine(TJId("parallel_circuit_assembly_line")));
+        PROCESSING_ARRAY = GregTechAPI.registerMetaTileEntity(5134, new MetaTileEntityProcessingArray(TJId("processing_array")));
 
         // range 5300+ -> singleblocks
         COAL_BOILER[0] = GregTechAPI.registerMetaTileEntity(5300, new MetaTileEntityCoalBoiler(TJId("coal_boiler_bronze"), BRONZE));

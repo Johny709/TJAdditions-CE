@@ -204,7 +204,8 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        this.getFrontalOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive(), this.recipeLogic.hasProblem(), this.recipeLogic.isWorkingEnabled());
+        if (this.getFrontalOverlay() != null)
+            this.getFrontalOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive(), this.recipeLogic.hasProblem(), this.recipeLogic.isWorkingEnabled());
     }
 
     public TJOrientedOverlayRenderer getFrontalOverlay() {
