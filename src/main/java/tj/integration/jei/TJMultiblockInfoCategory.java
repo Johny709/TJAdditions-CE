@@ -136,7 +136,9 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("large_naming_machine", new MultiblockInfoRecipeWrapper(new LargeNamingMachineInfo()))
                             .put("large_assembly_line", new MultiblockInfoRecipeWrapper(new LargeAssemblyLineInfo()))
                             .put("parallel_circuit_assembly_line", new MultiblockInfoRecipeWrapper(new ParallelCircuitAssemblyLineInfo()))
-                            .put("processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo()));
+                            .put("processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.PROCESSING_ARRAY)))
+                            .put("advanced_processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.ADVANCED_PROCESSING_ARRAY)))
+                            .put("super_processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.SUPER_PROCESSING_ARRAY)));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;

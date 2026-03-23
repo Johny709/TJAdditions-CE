@@ -8,4 +8,6 @@ public interface IProcessorProvider {
     RecipeMap<?> getRecipeMap();
 
     OrientedOverlayRenderer getRendererOverlay();
+
+    int getMachineTier();
 }

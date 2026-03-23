@@ -34,4 +34,9 @@ public abstract class GAWorkableTieredMetaTileEntityMixin extends GATieredMetaTi
     public OrientedOverlayRenderer getRendererOverlay() {
         return this.renderer;
     }
+
+    @Override
+    public int getMachineTier() {
+        return this.getTier();
+    }
 }

@@ -34,4 +34,9 @@ public abstract class WorkableTieredMetaTileEntityMixin extends TieredMetaTileEn
     public OrientedOverlayRenderer getRendererOverlay() {
         return this.renderer;
     }
+
+    @Override
+    public int getMachineTier() {
+        return this.getTier();
+    }
 }

@@ -140,6 +140,8 @@ public class TJMetaTileEntities {
     public static MetaTileEntityLargeAssemblyLine LARGE_ASSEMBLY_LINE;
     public static MetaTileEntityParallelCircuitAssemblyLine PARALLEL_CIRCUIT_ASSEMBLY_LINE;
     public static MetaTileEntityProcessingArray PROCESSING_ARRAY;
+    public static MetaTileEntityProcessingArray.MetaTileEntityAdvancedProcessingArray ADVANCED_PROCESSING_ARRAY;
+    public static MetaTileEntityProcessingArray.MetaTileEntitySuperProcessingArray SUPER_PROCESSING_ARRAY;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -236,6 +238,8 @@ public class TJMetaTileEntities {
         LARGE_ASSEMBLY_LINE = GregTechAPI.registerMetaTileEntity(5132, new MetaTileEntityLargeAssemblyLine(TJId("large_assembly_line")));
         PARALLEL_CIRCUIT_ASSEMBLY_LINE = GregTechAPI.registerMetaTileEntity(5133, new MetaTileEntityParallelCircuitAssemblyLine(TJId("parallel_circuit_assembly_line")));
         PROCESSING_ARRAY = GregTechAPI.registerMetaTileEntity(5134, new MetaTileEntityProcessingArray(TJId("processing_array")));
+        ADVANCED_PROCESSING_ARRAY = GregTechAPI.registerMetaTileEntity(5135, new MetaTileEntityProcessingArray.MetaTileEntityAdvancedProcessingArray(TJId("advanced_processing_array")));
+        SUPER_PROCESSING_ARRAY = GregTechAPI.registerMetaTileEntity(5136, new MetaTileEntityProcessingArray.MetaTileEntitySuperProcessingArray(TJId("super_processing_array")));
 
         // range 5300+ -> singleblocks
         COAL_BOILER[0] = GregTechAPI.registerMetaTileEntity(5300, new MetaTileEntityCoalBoiler(TJId("coal_boiler_bronze"), BRONZE));
