@@ -1,44 +1,46 @@
 package tj.machines.multi.electric;
 
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
-import gregicadditions.capabilities.impl.GAMultiblockRecipeLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
+import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.api.render.OrientedOverlayRenderer;
-import gregtech.api.render.Textures;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 import tj.TJRecipeMaps;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
-import tj.builder.multicontrollers.TJGARecipeMapMultiblockControllerBase;
+import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
+import tj.capability.OverclockManager;
 import tj.textures.TJTextures;
 
-import javax.annotation.Nonnull;
 
-public class MetaTileEntityChaosReplicator extends TJGARecipeMapMultiblockControllerBase {
+public class MetaTileEntityChaosReplicator extends TJRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = new MultiblockAbility[]{MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
     public MetaTileEntityChaosReplicator(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, TJRecipeMaps.CHAOS_REPLICATOR_RECIPES, false, true, false);
-        this.recipeMapWorkable = new GAMultiblockRecipeLogic(this);
+        super(metaTileEntityId, TJRecipeMaps.CHAOS_REPLICATOR_RECIPES);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityChaosReplicator(this.metaTileEntityId);/*(3)!*/
+        return new MetaTileEntityChaosReplicator(this.metaTileEntityId);
+    }
+
+    @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        overclockManager.setParallel(1);
     }
 
     @Override
     protected BlockPattern createStructurePattern() {
-        return FactoryBlockPattern.start() /*(4)!*/
+        return FactoryBlockPattern.start()
                 .aisle("CCCCCCC", "CHHHHHC", "CQQCQQC", "CQQCQQC", "CQQCQQC", "CQQQQQC", "CQQQQQC", "CHHHHHC", "CCCCCCC")
                 .aisle("CCCCCCC", "HDDDDDH", "QF~~~FQ", "QF~~~FQ", "QF~A~FQ", "QF~~~FQ", "QF~~~FQ", "HDDDDDH", "CCCCCCC")
                 .aisle("CCCCCCC", "HDDDDDH", "Q~DDD~Q", "Q~~~~~Q", "Q~~~~~Q", "Q~~~~~Q", "Q~DDD~Q", "HDDDDDH", "CCCCCCC")
@@ -68,11 +70,5 @@ public class MetaTileEntityChaosReplicator extends TJGARecipeMapMultiblockContro
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return TJTextures.CHOATIC;
-    }
-
-    @Nonnull
-    @Override
-    protected OrientedOverlayRenderer getFrontOverlay() {
-        return Textures.PYROLYSE_OVEN_OVERLAY;
     }
 }

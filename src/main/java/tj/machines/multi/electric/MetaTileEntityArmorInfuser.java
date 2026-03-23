@@ -1,7 +1,6 @@
 package tj.machines.multi.electric;
 
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
-import gregicadditions.capabilities.impl.GAMultiblockRecipeLogic;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.fusion.GAFusionCasing;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -10,9 +9,8 @@ import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
+import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.api.render.OrientedOverlayRenderer;
-import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
@@ -22,23 +20,26 @@ import net.minecraft.util.ResourceLocation;
 import tj.TJRecipeMaps;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
-import tj.builder.multicontrollers.TJGARecipeMapMultiblockControllerBase;
+import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
+import tj.capability.OverclockManager;
 import tj.textures.TJTextures;
 
-import javax.annotation.Nonnull;
 
-
-public class MetaTileEntityArmorInfuser extends TJGARecipeMapMultiblockControllerBase {
+public class MetaTileEntityArmorInfuser extends TJRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
     public MetaTileEntityArmorInfuser(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, TJRecipeMaps.ARMOR_INFUSER_RECIPES, false, true, false);
-        this.recipeMapWorkable = new GAMultiblockRecipeLogic(this);
+        super(metaTileEntityId, TJRecipeMaps.ARMOR_INFUSER_RECIPES);
     }
 
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityArmorInfuser(this.metaTileEntityId);
+    }
+
+    @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        overclockManager.setParallel(1);
     }
 
     @Override
@@ -66,11 +67,5 @@ public class MetaTileEntityArmorInfuser extends TJGARecipeMapMultiblockControlle
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return TJTextures.DRACONIC;
-    }
-
-    @Nonnull
-    @Override
-    protected OrientedOverlayRenderer getFrontOverlay() {
-        return Textures.PYROLYSE_OVEN_OVERLAY;
     }
 }

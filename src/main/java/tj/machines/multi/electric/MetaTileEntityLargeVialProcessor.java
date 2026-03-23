@@ -1,12 +1,13 @@
 package tj.machines.multi.electric;
 
+import gregtech.api.recipes.Recipe;
 import tj.TJRecipeMaps;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
-import tj.builder.multicontrollers.TJGARecipeMapMultiblockControllerBase;
+import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
+import tj.capability.OverclockManager;
 import tj.textures.TJTextures;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
-import gregicadditions.capabilities.impl.GAMultiblockRecipeLogic;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -16,8 +17,6 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.api.render.OrientedOverlayRenderer;
-import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
@@ -25,19 +24,22 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 
-import javax.annotation.Nonnull;
 
-public class MetaTileEntityLargeVialProcessor extends TJGARecipeMapMultiblockControllerBase {
+public class MetaTileEntityLargeVialProcessor extends TJRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
 
     public MetaTileEntityLargeVialProcessor(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, TJRecipeMaps.LARGE_VIAL_PROCESSOR_RECIPES, false, true, false);
-        this.recipeMapWorkable = new GAMultiblockRecipeLogic(this);
+        super(metaTileEntityId, TJRecipeMaps.LARGE_VIAL_PROCESSOR_RECIPES);
     }
 
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityLargeVialProcessor(this.metaTileEntityId);
+    }
+
+    @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        overclockManager.setParallel(1);
     }
 
     @Override
@@ -66,11 +68,5 @@ public class MetaTileEntityLargeVialProcessor extends TJGARecipeMapMultiblockCon
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return TJTextures.SOUL;
-    }
-
-    @Nonnull
-    @Override
-    protected OrientedOverlayRenderer getFrontOverlay() {
-        return Textures.PYROLYSE_OVEN_OVERLAY;
     }
 }
