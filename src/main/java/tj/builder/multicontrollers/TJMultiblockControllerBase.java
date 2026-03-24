@@ -42,7 +42,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IMachineHandler;
 import tj.capability.IMuffler;
