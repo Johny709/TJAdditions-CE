@@ -5,6 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
 import gregicadditions.Gregicality;
+import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.metal.MetalCasing2;
 import gregtech.api.GregTechAPI;
@@ -84,15 +85,15 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
         return new FilteredItemStackHandler(this, 1, this.getMaxParallel())
-                .setItemStackPredicate((slot, itemStack) -> !this.recipeLogic.isActive() && this.getMetaTileEntityFromStack(itemStack) != null)
+                .setItemStackPredicate((slot, itemStack) -> !this.recipeLogic.isActive() && this.getMetaTileEntityFromStack(itemStack) instanceof IProcessorProvider)
                 .setOnContentsChangedPre((slot, stack, insert) -> {
                     if (insert) {
                         MetaTileEntity metaTileEntity = this.getMetaTileEntityFromStack(stack);
                         if (!(metaTileEntity instanceof IProcessorProvider)) return;
-                        this.recipeLogic.getRecipeLRUCache().clear();
-                        this.recipeLogic.invalidate();
                         this.currentRecipeMap = ((IProcessorProvider) metaTileEntity).getRecipeMap();
                         this.machineTier = ((IProcessorProvider) metaTileEntity).getMachineTier();
+                        this.recipeLogic.getRecipeLRUCache().clear();
+                        this.recipeLogic.invalidate();
                         this.machineVoltage = GAValues.V[this.machineTier];
                         this.maxVoltage = this.machineVoltage;
                         this.metaId = stack.getMetadata();
@@ -114,6 +115,11 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
     }
 
     @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        overclockManager.setParallel(this.getParallel());
+    }
+
+    @Override
     public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         overclockManager.setEUt(overclockManager.getEUt() * this.getParallel());
     }
@@ -122,7 +128,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
         widgetGroup.add(new TJSlotWidget<>(this.importItems, 0, 174, 190)
-                .setPutItemsPredicate(stack -> !this.recipeLogic.isActive() && this.getMetaTileEntityFromStack(stack) != null)
+                .setPutItemsPredicate(stack -> !this.recipeLogic.isActive() && this.getMetaTileEntityFromStack(stack) instanceof IProcessorProvider)
                 .setTakeItemsPredicate(stack -> !this.recipeLogic.isActive())
                 .setBackgroundTexture(GuiTextures.SLOT));
     }
@@ -141,7 +147,9 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
                 .aisle("XXX", "XXX", "XXX")
                 .aisle("XXX", "X#X", "XXX")
                 .aisle("XXX", "XSX", "XXX")
+                .setAmountAtLeast('L', 5)
                 .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('#', isAirPredicate())
                 .build();
@@ -229,6 +237,10 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
         return null;
     }
 
+    public ItemStack getCasingItem() {
+        return MetaBlocks.METAL_CASING.getItemVariant(BlockMetalCasing.MetalCasingType.TUNGSTENSTEEL_ROBUST);
+    }
+
     @Override
     public RecipeMap<?> getRecipeMap() {
         return this.currentRecipeMap;
@@ -246,11 +258,6 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
 
     public int getMaxParallel() {
         return 16;
-    }
-
-    @Override
-    public int getTierDifference(long recipeEUt) {
-        return 1;
     }
 
     @Override
@@ -287,6 +294,16 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
         }
 
         @Override
+        public ItemStack getCasingItem() {
+            return GAMetaBlocks.METAL_CASING_2.getItemVariant(MetalCasing2.CasingType.HSS_G);
+        }
+
+        @Override
+        public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
+            return ClientHandler.HSS_G_CASING;
+        }
+
+        @Override
         public int getMaxParallel() {
             return 64;
         }
@@ -306,6 +323,16 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
         @Override
         public IBlockState getCasingState() {
             return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.HSS_S);
+        }
+
+        @Override
+        public ItemStack getCasingItem() {
+            return GAMetaBlocks.METAL_CASING_2.getItemVariant(MetalCasing2.CasingType.HSS_S);
+        }
+
+        @Override
+        public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
+            return ClientHandler.HSS_S_CASING;
         }
 
         @Override
