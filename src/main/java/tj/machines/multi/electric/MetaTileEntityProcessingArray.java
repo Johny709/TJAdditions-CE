@@ -85,27 +85,31 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
     protected IItemHandlerModifiable createImportItemHandler() {
         return new FilteredItemStackHandler(this, 1, this.getMaxParallel())
                 .setItemStackPredicate((slot, itemStack) -> !this.recipeLogic.isActive() && this.getMetaTileEntityFromStack(itemStack) != null)
-                .setOnContentsChanged((slot, stack, insert) -> {
+                .setOnContentsChangedPre((slot, stack, insert) -> {
                     if (insert) {
                         MetaTileEntity metaTileEntity = this.getMetaTileEntityFromStack(stack);
                         if (!(metaTileEntity instanceof IProcessorProvider)) return;
                         this.recipeLogic.getRecipeLRUCache().clear();
+                        this.recipeLogic.invalidate();
                         this.currentRecipeMap = ((IProcessorProvider) metaTileEntity).getRecipeMap();
                         this.machineTier = ((IProcessorProvider) metaTileEntity).getMachineTier();
                         this.machineVoltage = GAValues.V[this.machineTier];
                         this.maxVoltage = this.machineVoltage;
                         this.metaId = stack.getMetadata();
                         this.tier = this.machineTier;
-                    } else {
+                        this.writeCustomData(100, buffer -> buffer.writeInt(this.metaId));
+                        this.markDirty();
+                    }
+                }).setOnContentsChangedPost((slot, stack) -> {
+                    if (stack.isEmpty()) {
                         this.currentRecipeMap = RecipeMaps.FURNACE_RECIPES;
                         this.machineVoltage = 0;
                         this.machineTier = 0;
                         this.maxVoltage = 0;
                         this.metaId = -1;
                         this.tier = 0;
+                        this.writeCustomData(100, buffer -> buffer.writeInt(this.metaId));
                     }
-                    this.writeCustomData(100, buffer -> buffer.writeInt(this.metaId));
-                    this.markDirty();
                 });
     }
 

@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import javax.annotation.Nonnull;
+import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
 /**
@@ -13,7 +14,8 @@ import java.util.function.BiPredicate;
 public class FilteredItemStackHandler extends LargeItemStackHandler {
 
     private final MetaTileEntity tileEntity;
-    private TriConsumer<Integer, ItemStack, Boolean> onContentsChanged;
+    private TriConsumer<Integer, ItemStack, Boolean> onContentsChangedPre;
+    private BiConsumer<Integer, ItemStack> onContentsChangedPost;
     private BiPredicate<Integer, ItemStack> itemStackPredicate;
 
     public FilteredItemStackHandler(MetaTileEntity tileEntity) {
@@ -33,8 +35,17 @@ public class FilteredItemStackHandler extends LargeItemStackHandler {
      * Listener to detect items going to be inserted or extracted. Not detected on simulation.
      * @param onContentsChanged (slot, ItemStack, isInsert) ->
      */
-    public FilteredItemStackHandler setOnContentsChanged(TriConsumer<Integer, ItemStack, Boolean> onContentsChanged) {
-        this.onContentsChanged = onContentsChanged;
+    public FilteredItemStackHandler setOnContentsChangedPre(TriConsumer<Integer, ItemStack, Boolean> onContentsChanged) {
+        this.onContentsChangedPre = onContentsChanged;
+        return this;
+    }
+
+    /**
+     * Listener to detect items after they've been inserted or extracted. Not detected on simulation.
+     * @param onContentsChangedPost (slot, ItemStack) ->
+     */
+    public FilteredItemStackHandler setOnContentsChangedPost(BiConsumer<Integer, ItemStack> onContentsChangedPost) {
+        this.onContentsChangedPost = onContentsChangedPost;
         return this;
     }
 
@@ -51,8 +62,8 @@ public class FilteredItemStackHandler extends LargeItemStackHandler {
     public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
         if (this.itemStackPredicate != null && !this.itemStackPredicate.test(slot, stack))
             return stack;
-        if (!simulate && this.onContentsChanged != null)
-            this.onContentsChanged.accept(slot, stack, true);
+        if (!simulate && this.onContentsChangedPre != null)
+            this.onContentsChangedPre.accept(slot, stack, true);
         return super.insertItem(slot, stack, simulate);
     }
 
@@ -60,13 +71,15 @@ public class FilteredItemStackHandler extends LargeItemStackHandler {
     @Nonnull
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
         ItemStack upgradeStack = this.getStackInSlot(slot);
-        if (!simulate && this.onContentsChanged != null)
-            this.onContentsChanged.accept(slot, upgradeStack, false);
+        if (!simulate && this.onContentsChangedPre != null)
+            this.onContentsChangedPre.accept(slot, upgradeStack, false);
         return super.extractItem(slot, amount, simulate);
     }
 
     @Override
     protected void onContentsChanged(int slot) {
+        if (this.onContentsChangedPost != null)
+            this.onContentsChangedPost.accept(slot, this.getStackInSlot(slot));
         if (this.tileEntity != null)
             this.tileEntity.markDirty();
     }
