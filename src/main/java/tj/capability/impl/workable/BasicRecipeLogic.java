@@ -26,21 +26,21 @@ import static net.minecraft.item.ItemStack.areItemStacksEqual;
 
 public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkableHandler<R> implements IItemFluidHandlerInfo {
 
-    private final ParallelRecipeLRUCache recipeLRUCache = new ParallelRecipeLRUCache(10);
-    private final OverclockManager<?> overclockManager = new OverclockManager<>();
-    private final List<ItemStack> itemInputs = new ArrayList<>();
-    private final List<ItemStack> itemOutputs = new ArrayList<>();
-    private final List<FluidStack> fluidInputs = new ArrayList<>();
-    private final List<FluidStack> fluidOutputs = new ArrayList<>();
+    protected final ParallelRecipeLRUCache recipeLRUCache = new ParallelRecipeLRUCache(10);
+    protected final OverclockManager<?> overclockManager = new OverclockManager<>();
+    protected final List<ItemStack> itemInputs = new ArrayList<>();
+    protected final List<ItemStack> itemOutputs = new ArrayList<>();
+    protected final List<FluidStack> fluidInputs = new ArrayList<>();
+    protected final List<FluidStack> fluidOutputs = new ArrayList<>();
     protected ItemStack[] lastItemInputs;
     protected ItemStack[][] lastItemInputsMatrix;
     protected FluidStack[] lastFluidInputs;
-    private boolean allowOverclocking = true;
-    private boolean recipeRecheck = true;
-    private boolean voidingItems;
-    private boolean voidingFluids;
-    private int itemOutputIndex;
-    private int fluidOutputIndex;
+    protected boolean allowOverclocking = true;
+    protected boolean recipeRecheck = true;
+    protected boolean voidingItems;
+    protected boolean voidingFluids;
+    protected int itemOutputIndex;
+    protected int fluidOutputIndex;
 
     public BasicRecipeLogic(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);

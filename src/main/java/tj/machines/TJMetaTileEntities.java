@@ -142,6 +142,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityProcessingArray PROCESSING_ARRAY;
     public static MetaTileEntityProcessingArray.MetaTileEntityAdvancedProcessingArray ADVANCED_PROCESSING_ARRAY;
     public static MetaTileEntityProcessingArray.MetaTileEntitySuperProcessingArray SUPER_PROCESSING_ARRAY;
+    public static MetaTileEntityTJDistillationTower DISTILLATION_TOWER;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -240,6 +241,7 @@ public class TJMetaTileEntities {
         PROCESSING_ARRAY = GregTechAPI.registerMetaTileEntity(5134, new MetaTileEntityProcessingArray(TJId("processing_array")));
         ADVANCED_PROCESSING_ARRAY = GregTechAPI.registerMetaTileEntity(5135, new MetaTileEntityProcessingArray.MetaTileEntityAdvancedProcessingArray(TJId("advanced_processing_array")));
         SUPER_PROCESSING_ARRAY = GregTechAPI.registerMetaTileEntity(5136, new MetaTileEntityProcessingArray.MetaTileEntitySuperProcessingArray(TJId("super_processing_array")));
+        DISTILLATION_TOWER = GregTechAPI.registerMetaTileEntity(5137, new MetaTileEntityTJDistillationTower(TJId("tj_distillation_tower")));
 
         // range 5300+ -> singleblocks
         COAL_BOILER[0] = GregTechAPI.registerMetaTileEntity(5300, new MetaTileEntityCoalBoiler(TJId("coal_boiler_bronze"), BRONZE));

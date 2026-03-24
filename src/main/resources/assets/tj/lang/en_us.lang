@@ -99,6 +99,7 @@ tj.machine.parallel_circuit_assembly_line.name=Parallel Circuit Assembly Line
 tj.machine.processing_array.name=Processing Array
 tj.machine.advanced_processing_array.name=Advanced Processing Array
 tj.machine.super_processing_array.name=Super Processing Array
+tj.machine.tj_distillation_tower.name=Distillation Tower (DT)
 tj.machine.advanced_large_chunk_miner.ev.name=Advanced Large Chunk Miner (EV)
 tj.machine.advanced_large_chunk_miner.iv.name=Advanced Large Chunk Miner (IV)
 tj.machine.advanced_large_chunk_miner.luv.name=Advanced Large Chunk Miner (LuV)
