@@ -139,7 +139,8 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.PROCESSING_ARRAY)))
                             .put("advanced_processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.ADVANCED_PROCESSING_ARRAY)))
                             .put("super_processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.SUPER_PROCESSING_ARRAY)))
-                            .put("tj_distillation_tower", new MultiblockInfoRecipeWrapper(new TJDistillationTowerInfo()));
+                            .put("tj_distillation_tower", new MultiblockInfoRecipeWrapper(new TJDistillationTowerInfo()))
+                            .put("tj_advanced_distillation_tower", new MultiblockInfoRecipeWrapper(new TJAdvancedDistillationTowerInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;

@@ -1,7 +1,9 @@
 package tj.util;
 
 import gregtech.api.capability.IMultipleTankHandler;
+import gregtech.api.capability.impl.FluidTankList;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
 
 import java.util.function.BiConsumer;
@@ -9,6 +11,13 @@ import java.util.function.BiConsumer;
 public final class TJFluidUtils {
 
     private TJFluidUtils() {}
+
+    public static final IMultipleTankHandler VOID_TANK = new FluidTankList(true,  new FluidTank(Integer.MAX_VALUE) {
+        @Override
+        public int fill(FluidStack resource, boolean doFill) {
+            return resource.amount;
+        }
+    });
 
     public static long getFluidAmountFromTanks(FluidStack fluidStack, IMultipleTankHandler tanks) {
         if (fluidStack == null || tanks == null)

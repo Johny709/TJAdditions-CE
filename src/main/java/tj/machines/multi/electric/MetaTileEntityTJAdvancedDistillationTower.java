@@ -1,28 +1,25 @@
 package tj.machines.multi.electric;
 
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
+import gregicadditions.client.ClientHandler;
+import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.metal.MetalCasing1;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
-import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
-import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.api.render.Textures;
-import gregtech.common.blocks.BlockMetalCasing;
-import gregtech.common.blocks.MetaBlocks;
-import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityMultiblockPart;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
+import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockController;
 import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IDistillationHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
@@ -34,21 +31,21 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.function.BiFunction;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static tj.machines.multi.electric.MetaTileEntityTJDistillationTower.outputHatchPredicate;
 
-public class MetaTileEntityTJDistillationTower extends TJRecipeMapMultiblockController implements IDistillationHandler {
+public class MetaTileEntityTJAdvancedDistillationTower extends TJMultiRecipeMapMultiblockController implements IDistillationHandler {
 
     private final List<BlockPos> outputHatchPos = new ArrayList<>();
 
-    public MetaTileEntityTJDistillationTower(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, RecipeMaps.DISTILLATION_RECIPES);
+    public MetaTileEntityTJAdvancedDistillationTower(ResourceLocation metaTileEntityId) {
+        super(metaTileEntityId, RecipeMaps.DISTILLATION_RECIPES, RecipeMaps.DISTILLERY_RECIPES, RecipeMaps.FLUID_HEATER_RECIPES);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityTJDistillationTower(this.metaTileEntityId);
+        return new MetaTileEntityTJAdvancedDistillationTower(this.metaTileEntityId);
     }
 
     @Override
@@ -58,19 +55,19 @@ public class MetaTileEntityTJDistillationTower extends TJRecipeMapMultiblockCont
 
     @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setParallel(1);
+        super.preOverclock(overclockManager, recipe);
+        overclockManager.setParallel(Math.min(this.getRecipeMapIndex() == 0 ? 16 : 64, overclockManager.getParallel()));
     }
 
     @Override
     protected BlockPattern createStructurePattern() {
         return FactoryBlockPattern.start(RIGHT, FRONT, DOWN)
-                .aisle("XXX", "XMX", "XXX")
+                .aisle("XXX", "XXX", "XXX")
                 .aisle("XXX", "X#X", "XXX").setRepeatable(0, 11)
                 .aisle("ZSZ", "ZZZ", "ZZZ")
                 .where('S', this.selfPredicate())
                 .where('Z', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY)))
                 .where('X', this.countMatch("outputHatchCount", tilePredicate(outputHatchPredicate())).or(statePredicate(this.getCasingState())).or(abilityPartPredicate(GregicAdditionsCapabilities.MAINTENANCE_HATCH, MultiblockAbility.INPUT_ENERGY)))
-                .where('M', abilityPartPredicate(GregicAdditionsCapabilities.MUFFLER_HATCH))
                 .where('#', isAirPredicate())
                 .validateLayer(0, context -> context.getOrDefault("outputHatchCount", 0) == 1)
                 .validateLayer(1, context -> context.getOrDefault("outputHatchCount", 0) == 1)
@@ -78,22 +75,7 @@ public class MetaTileEntityTJDistillationTower extends TJRecipeMapMultiblockCont
     }
 
     private IBlockState getCasingState() {
-        return MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STAINLESS_CLEAN);
-    }
-
-    public static BiFunction<BlockWorldState, MetaTileEntity, Boolean> outputHatchPredicate() {
-        return (state, tile) -> {
-            if (tile instanceof MetaTileEntityMultiblockPart) {
-                MetaTileEntityMultiblockPart multiblockPart = (MetaTileEntityMultiblockPart) tile;
-                if (multiblockPart instanceof IMultiblockAbilityPart<?>) {
-                    IMultiblockAbilityPart<?> abilityPart = (IMultiblockAbilityPart<?>) multiblockPart;
-                    boolean isOutputHatch = abilityPart.getAbility() == MultiblockAbility.EXPORT_FLUIDS;
-                    if (isOutputHatch) state.getMatchContext().getOrCreate("outputHatches", HashSet::new).add(state.getPos());
-                    return isOutputHatch;
-                }
-            }
-            return false;
-        };
+        return GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.BABBITT_ALLOY);
     }
 
     @Override
@@ -110,13 +92,18 @@ public class MetaTileEntityTJDistillationTower extends TJRecipeMapMultiblockCont
     }
 
     @Override
-    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return Textures.CLEAN_STAINLESS_STEEL_CASING;
+    public TJOrientedOverlayRenderer getFrontalOverlay() {
+        return TJTextures.TJ_DISTILLERY_OVERLAY;
     }
 
     @Override
-    public TJOrientedOverlayRenderer getFrontalOverlay() {
-        return TJTextures.TJ_DISTILLERY_OVERLAY;
+    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
+        return ClientHandler.BABBITT_ALLOY_CASING;
+    }
+
+    @Override
+    public int getParallel() {
+        return this.getRecipeMapIndex() == 0 ? 4 : 8;
     }
 
     @Override
