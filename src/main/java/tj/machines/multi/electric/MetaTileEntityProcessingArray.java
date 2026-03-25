@@ -3,12 +3,9 @@ package tj.machines.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import gregicadditions.GAValues;
 import gregicadditions.Gregicality;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.item.GAMultiblockCasing;
-import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.item.metal.MetalCasing2;
 import gregtech.api.GregTechAPI;
 import gregtech.api.block.machines.BlockMachine;
@@ -19,7 +16,6 @@ import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
-import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
@@ -56,7 +52,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
@@ -99,7 +94,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
                         this.machineTier = Math.min(this.maxTier, ((IProcessorProvider) metaTileEntity).getMachineTier());
                         this.recipeLogic.getRecipeLRUCache().clear();
                         this.recipeLogic.invalidate();
-                        this.machineVoltage = GAValues.V[this.machineTier];
+                        this.machineVoltage = 8L << this.machineTier * 2;
                         this.maxVoltage = this.machineVoltage;
                         this.metaId = stack.getMetadata();
                         this.tier = this.machineTier;
@@ -142,7 +137,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.addTranslationLine(1, "gregtech.multiblock.universal.framework", GAValues.V[this.machineTier])
+        builder.addTranslationLine(1, "gregtech.multiblock.universal.framework", 8L << this.machineTier * 2)
                 .addTextComponent(new TextComponentTranslation("gregtech.multiblock.recipe", new TextComponentTranslation("recipemap." + this.getRecipeMap().getUnlocalizedName() + ".name")
                         .setStyle(new Style().setColor(TextFormatting.AQUA))));
     }
@@ -166,29 +161,12 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
         return MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.TUNGSTENSTEEL_ROBUST);
     }
 
-    public static Predicate<BlockWorldState> frameworkPredicate() {
-        return blockWorldState -> {
-            IBlockState state = blockWorldState.getBlockState();
-            Block block = state.getBlock();
-            if (block instanceof GAMultiblockCasing) {
-                int tier = GAMetaBlocks.MUTLIBLOCK_CASING.getState(state).getTier();
-                if (tier < 0) return false;
-                return blockWorldState.getMatchContext().getOrPut("frameworkTier", tier) == tier;
-            } else if (block instanceof GAMultiblockCasing2) {
-                int tier = GAMetaBlocks.MUTLIBLOCK_CASING2.getState(state).getTier();
-                if (tier < 0) return false;
-                return blockWorldState.getMatchContext().getOrPut("frameworkTier", tier) == tier;
-            }
-            return false;
-        };
-    }
-
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.maxTier = context.getOrDefault("frameworkTier", 0);
         this.machineTier = Math.min(this.machineTier, this.maxTier);
-        this.machineVoltage = Math.min(this.machineVoltage, GAValues.V[this.machineTier]);
+        this.machineVoltage = Math.min(this.machineVoltage, 8L << this.machineTier * 2);
         this.maxVoltage = this.machineVoltage;
         this.tier = this.machineTier;
     }

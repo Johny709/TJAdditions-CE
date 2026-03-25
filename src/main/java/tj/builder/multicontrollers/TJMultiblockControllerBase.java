@@ -2,6 +2,9 @@ package tj.builder.multicontrollers;
 
 import gregicadditions.GAConfig;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
+import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.GAMultiblockCasing;
+import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.IMaintenance;
 import gregicadditions.machines.multi.multiblockpart.MetaTileEntityMaintenanceHatch;
@@ -20,11 +23,14 @@ import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
+import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.unification.OreDictUnifier;
 import gregtech.api.unification.material.Materials;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.util.XSTR;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -59,6 +65,7 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -488,6 +495,23 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     @Override
     public IEnergyContainer getOutputEnergyContainer() {
         return this.outputEnergyContainer;
+    }
+
+    public static Predicate<BlockWorldState> frameworkPredicate() {
+        return blockWorldState -> {
+            IBlockState state = blockWorldState.getBlockState();
+            Block block = state.getBlock();
+            if (block instanceof GAMultiblockCasing) {
+                int tier = GAMetaBlocks.MUTLIBLOCK_CASING.getState(state).getTier();
+                if (tier < 0) return false;
+                return blockWorldState.getMatchContext().getOrPut("frameworkTier", tier) == tier;
+            } else if (block instanceof GAMultiblockCasing2) {
+                int tier = GAMetaBlocks.MUTLIBLOCK_CASING2.getState(state).getTier();
+                if (tier < 0) return false;
+                return blockWorldState.getMatchContext().getOrPut("frameworkTier", tier) == tier;
+            }
+            return false;
+        };
     }
 
     /**
