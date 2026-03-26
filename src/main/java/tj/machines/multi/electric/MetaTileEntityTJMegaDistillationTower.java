@@ -19,15 +19,21 @@ import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IDistillationHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.capability.impl.workable.DistillationRecipeLogic;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -52,6 +58,14 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
     @Override
     protected BasicRecipeLogic<IDistillationHandler> createRecipeLogic() {
         return new DistillationRecipeLogic(this);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("tj.multiblock.temporary"));
+        tooltip.add(I18n.format("tj.multiblock.distillation_tower.layers", 3, 14));
+        super.addInformation(stack, player, tooltip, advanced);
     }
 
     @Override

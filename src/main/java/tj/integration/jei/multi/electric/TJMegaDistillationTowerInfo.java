@@ -8,7 +8,9 @@ import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import org.apache.commons.lang3.ArrayUtils;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
@@ -56,6 +58,13 @@ public class TJMegaDistillationTowerInfo extends TJMultiblockInfoPage {
                     .build());
         }
         return shapeInfos;
+    }
+
+    @Override
+    public String[] getDescription() {
+        return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.temporary"),
+                I18n.format("tj.multiblock.distillation_tower.layers", 3, 14).replace("§7", "§r")},
+                super.getDescription());
     }
 
     @Override

@@ -6,7 +6,9 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import org.apache.commons.lang3.ArrayUtils;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
@@ -43,5 +45,16 @@ public class TJAdvancedDistillationTowerInfo extends TJMultiblockInfoPage {
                     .build());
         }
         return shapeInfos;
+    }
+
+    @Override
+    public String[] getDescription() {
+        return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.temporary"),
+                        I18n.format("tj.multiblock.distillation_tower.layers", 2, 13).replace("§7", "§r"),
+                        I18n.format("gregtech.multiblock.advanced_distillation_tower.description1"),
+                        I18n.format("gregtech.multiblock.advanced_distillation_tower.description2"),
+                        I18n.format("gregtech.multiblock.advanced_distillation_tower.description3"),
+                        I18n.format("gregtech.multiblock.advanced_distillation_tower.description4")},
+                super.getDescription());
     }
 }

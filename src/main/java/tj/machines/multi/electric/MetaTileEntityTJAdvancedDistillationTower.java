@@ -16,9 +16,14 @@ import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockController;
 import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IDistillationHandler;
@@ -27,6 +32,7 @@ import tj.capability.impl.workable.DistillationRecipeLogic;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -46,6 +52,14 @@ public class MetaTileEntityTJAdvancedDistillationTower extends TJMultiRecipeMapM
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityTJAdvancedDistillationTower(this.metaTileEntityId);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("tj.multiblock.temporary"));
+        tooltip.add(I18n.format("tj.multiblock.distillation_tower.layers", 2, 13));
+        super.addInformation(stack, player, tooltip, advanced);
     }
 
     @Override

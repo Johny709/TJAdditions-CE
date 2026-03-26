@@ -485,6 +485,7 @@ tj.multiblock.recipe_cache.chanced_outputs=────Chanced Outputs───�
 tj.multiblock.date.ago=Hours: §a%,d§r Minutes: §a%,d§r Seconds: §a%,d
 tj.multiblock.date.placed_down=Placed down in: §b%s
 tj.multiblock.date.active=Running since: §b%s
+tj.multiblock.temporary=§eTemporary multiblock. Maybe subject to be removed.
 
 tj.multiblock.bars.fuel=§7Fuel: (§6%s§7) §6%s / %s L §7(§6%s%%§7)
 tj.multiblock.bars.energy=§7Energy: §e%s / %s EU §7(§e%s%%§7)
@@ -571,6 +572,8 @@ tj.multiblock.charcoal_pit.depth=Depth: §9%,d
 tj.multiblock.charcoal_pit.set_depth=Depth:
 
 tj.multiblock.primitive_water_pump.description=Pumps §b%,dL§7 of §bwater§7 every second. Pump blocks are optional with each adding §b%,dL/s§7 to pump rate, quadrupled with every tier. §fRight-Click§7 controller with screwdriver to change structure layout. All available structure layouts can be viewed in JEI preview.
+
+tj.multiblock.distillation_tower.layers=Height can be built from §b%,d§7 to §b%,d§7 blocks.
 
 tj.multiblock.advanced_large_miner.description=More advanced version of §5Chunk Miner§7 with more stability and functions. §aMining level starts right below the miner.
 tj.multiblock.advanced_large_miner.crushed=§dThis Large Chunk Miner outputs crushed ores with much higher yield than macerator. Affected by fortune.
