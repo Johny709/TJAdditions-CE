@@ -71,7 +71,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
 
     @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setEuMultiplier(4);
+        overclockManager.setDurationMultiplier(4);
         overclockManager.setParallel(1);
     }
 
