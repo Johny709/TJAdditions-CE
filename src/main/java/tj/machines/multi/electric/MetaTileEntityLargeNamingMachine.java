@@ -116,7 +116,7 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
         builder.addVoltageInLine(this.getInputEnergyContainer())
                 .addVoltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
                 .addEnergyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
-                .addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
+                .addTranslationLine("tj.multiblock.max_parallel", this.parallel)
                 .customLine(text -> text.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                         .appendText(" ")
                         .appendSibling(this.workableHandler.isDistinct()

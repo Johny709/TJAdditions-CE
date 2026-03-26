@@ -380,6 +380,10 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         return this.recipeLRUCache;
     }
 
+    public int getParallel() {
+        return this.overclockManager.getParallel();
+    }
+
     @Override
     public List<ItemStack> getItemInputs() {
         return this.itemInputs;

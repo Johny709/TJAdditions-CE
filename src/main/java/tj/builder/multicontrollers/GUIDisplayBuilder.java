@@ -214,6 +214,16 @@ public final class GUIDisplayBuilder {
         return this;
     }
 
+    public GUIDisplayBuilder addParallelLine(int parallel) {
+        return this.addParallelLine(parallel, 0);
+    }
+
+    public GUIDisplayBuilder addParallelLine(int parallel, int priority) {
+        if (parallel < 1)
+            return this;
+        return priority != 0 ? this.addTranslationLine(priority, "tj.multiblock.parallel", parallel) : this.addTranslationLine("tj.multiblock.parallel", parallel);
+    }
+
     public GUIDisplayBuilder addFluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack) {
         return this.addFluidInputLine(tanks, fluidStack, 1);
     }
