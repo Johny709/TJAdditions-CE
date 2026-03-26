@@ -73,7 +73,6 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     private long heat;
     private long maxHeat;
     private int parallels;
-    private int tier;
     private int coilTier;
     private int vacuumTier;
     private int divertorTier;
@@ -239,8 +238,9 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
         this.coilTier = context.getOrDefault("Coil", GAFusionCasing.CasingType.ADV_FUSION_COIL_1).ordinal() - 3;
         this.vacuumTier = context.getOrDefault("Vacuum", GAVacuumCasing.CasingType.VACUUM_1).getTier();
         int cryostat = context.getOrDefault("Cryostat", GACryostatCasing.CasingType.CRYOSTAT_1).getTier();
-        this.tier = Math.min(this.divertorTier, Math.min(this.coilTier, Math.min(this.vacuumTier, cryostat)));
-        this.maxVoltage = 8L << (this.tier + GAValues.UV) * 2;
+        int fusionTier = Math.min(this.divertorTier, Math.min(this.coilTier, Math.min(this.vacuumTier, cryostat)));
+        this.tier = fusionTier + GAValues.UV;
+        this.maxVoltage = 8L << this.tier * 2;
         long energyCapacity = 0;
         for (int i = 0; i < energyPortAmps.size(); i++) {
             energyCapacity += (long) (100000000 * energyPortAmps.get(i) * Math.pow(2, energyPorts.get(i).getTier() - GAValues.UHV));
@@ -248,8 +248,8 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
         for (IEnergyContainer container : this.getAbilities(INPUT_ENERGY)) {
             energyCapacity += (long) (100000000 * container.getInputAmperage() * Math.pow(2, GAUtility.getTierByVoltage(container.getInputVoltage()) - GAValues.UHV));
         }
-        this.energyToStart = (long) (Math.pow(2, this.tier - 1) * 1_600_000_000);
-        this.energyContainer = new EnergyContainerHandler(this, energyCapacity, GAValues.V[this.tier + GAValues.UV], 0, 0, 0);
+        this.energyToStart = 1_600_000_000L << fusionTier - 1;
+        this.energyContainer = new EnergyContainerHandler(this, energyCapacity, GAValues.V[this.tier], 0, 0, 0);
         this.initialized = false;
     }
 
