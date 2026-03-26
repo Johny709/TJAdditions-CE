@@ -50,7 +50,7 @@ public class MetaTileEntityTJDistillationTower extends TJRecipeMapMultiblockCont
     private final List<BlockPos> outputHatchPos = new ArrayList<>();
 
     public MetaTileEntityTJDistillationTower(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, RecipeMaps.DISTILLATION_RECIPES);
+        super(metaTileEntityId, RecipeMaps.DISTILLATION_RECIPES, true, false);
     }
 
     @Override
@@ -63,10 +63,6 @@ public class MetaTileEntityTJDistillationTower extends TJRecipeMapMultiblockCont
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.temporary"));
         tooltip.add(I18n.format("tj.multiblock.distillation_tower.layers", 2, 13));
-        tooltip.add(I18n.format("gregtech.multiblock.advanced_distillation_tower.description1"));
-        tooltip.add(I18n.format("gregtech.multiblock.advanced_distillation_tower.description2"));
-        tooltip.add(I18n.format("gregtech.multiblock.advanced_distillation_tower.description3"));
-        tooltip.add(I18n.format("gregtech.multiblock.advanced_distillation_tower.description4"));
         super.addInformation(stack, player, tooltip, advanced);
     }
 

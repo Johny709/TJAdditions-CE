@@ -315,6 +315,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
     }
 
     public void setDistinct(boolean distinct) {
+        if (distinct && this.busCount < 1) return;
         this.isDistinct = distinct;
         this.metaTileEntity.markDirty();
     }

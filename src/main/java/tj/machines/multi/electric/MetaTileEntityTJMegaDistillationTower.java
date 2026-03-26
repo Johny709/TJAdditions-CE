@@ -47,7 +47,7 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
     private final List<BlockPos> outputHatchPos = new ArrayList<>();
 
     public MetaTileEntityTJMegaDistillationTower(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, RecipeMaps.DISTILLATION_RECIPES);
+        super(metaTileEntityId, RecipeMaps.DISTILLATION_RECIPES, true, false);
     }
 
     @Override
