@@ -74,7 +74,8 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1", this.getRecipeMapNames()));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(this.getEUtMultiplier() / 100.0)));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(this.getDurationMultiplier() / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", this.getParallel()));
+        if (this.getParallel() > 0)
+            tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", this.getParallel()));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", this.getChanceMultiplier()));
     }
 
@@ -84,7 +85,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        return !abilities.getOrDefault(MultiblockAbility.INPUT_ENERGY, Collections.emptyList()).isEmpty() &&
+        return (!this.usesEnergy() || !abilities.getOrDefault(MultiblockAbility.INPUT_ENERGY, Collections.emptyList()).isEmpty()) &&
                 abilities.getOrDefault(MultiblockAbility.IMPORT_ITEMS, Collections.emptyList()).size() >= Math.min(1, this.recipeMap.getMinInputs()) &&
                 abilities.getOrDefault(MultiblockAbility.EXPORT_ITEMS, Collections.emptyList()).size() >= Math.min(1, this.recipeMap.getMinOutputs()) &&
                 abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size() >= Math.min(1, this.recipeMap.getMinFluidInputs()) &&
@@ -222,6 +223,10 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         return false;
     }
 
+    public boolean usesEnergy() {
+        return true;
+    }
+
     @Override
     public long getMaxVoltage() {
         return this.maxVoltage;
@@ -253,11 +258,11 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
 
     @Override
     public String getRecipeUid() {
-        return Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName();
+        return this.recipeMap != null ? Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName() : null;
     }
 
     public String getRecipeMapNames() {
-        return this.recipeMap.getLocalizedName();
+        return this.recipeMap != null ? this.recipeMap.getLocalizedName() : "Null";
     }
 
     public int getEUtMultiplier() {

@@ -1,5 +1,6 @@
 package tj.machines.multi.electric;
 
+import gregicadditions.GAMaterials;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -43,28 +44,38 @@ public class MetaTileEntityLargePoweredSpawner extends TJRecipeMapMultiblockCont
     @Override
     protected BlockPattern createStructurePattern() {
         return FactoryBlockPattern.start()
-                .aisle("CCCCC", "F~~~F", "F~~~F", "F~~~F", "CCCCC")
-                .aisle("CCCCC", "~TMT~", "~TMT~", "~TMT~", "CGGGC")
-                .aisle("CCCCC", "~MEM~", "~MEM~", "~MEM~", "CGGGC")
-                .aisle("CCCCC", "~TMT~", "~TMT~", "~TMT~", "CGGGC")
-                .aisle("CCSCC", "F~~~F", "F~~~F", "F~~~F", "CCCCC")
-                .where('S', selfPredicate())
-                .where('C', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(blockPredicate(Block.getBlockFromName("contenttweaker:soulcasing"))))
-                .where('F', blockPredicate(Block.getBlockFromName("gregtech:frame_protactinium")))
+                .aisle("XXXXX", "F~~~F", "F~~~F", "F~~~F", "XXXXX")
+                .aisle("XXXXX", "~TmT~", "~TmT~", "~TmT~", "XGGGX")
+                .aisle("XXXXX", "~mem~", "~mem~", "~mem~", "XGGGX")
+                .aisle("XXXXX", "~TmT~", "~TmT~", "~TmT~", "XGGGX")
+                .aisle("XXSXX", "F~~~F", "F~~~F", "F~~~F", "XXXXX")
+                .where('S', this.selfPredicate())
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(blockPredicate(Block.getBlockFromName("contenttweaker:soulcasing"))))
+                .where('F', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.Protactinium.getMaterial()).getDefaultState()))
                 .where('T', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
-                .where('M', blockPredicate(Block.getBlockFromName("enderio:block_decoration1")))
-                .where('E', state -> state.getBlockState() == Block.getBlockFromName("enderio:block_alloy").getStateFromMeta(8))
+                .where('m', blockPredicate(Block.getBlockFromName("enderio:block_decoration1")))
+                .where('e', state -> state.getBlockState() == Block.getBlockFromName("enderio:block_alloy").getStateFromMeta(8))
                 .where('G', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
                 .where('~', state -> true)
                 .build();
     }
 
-    protected IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SOUL_CASING);
     }
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return TJTextures.SOUL;
+    }
+
+    @Override
+    public boolean renderTJLogoOverlay() {
+        return true;
+    }
+
+    @Override
+    public int getParallel() {
+        return 0; // don't display parallel overclocking per tier on tooltip
     }
 }

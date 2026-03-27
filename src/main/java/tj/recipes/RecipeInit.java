@@ -30,7 +30,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import tj.TJConfig;
 import tj.blocks.*;
 import tj.integration.appeng.IApiItems;
 import tj.integration.appeng.IApiMaterials;
@@ -64,15 +63,6 @@ public class RecipeInit {
         RockBreakerRecipes.init();
         CokeOvenRecipes.init();
 
-        if (TJConfig.machines.replaceCTMultis) {
-            PrimitiveAlloySmelterRecipes.init();
-            HeatExchangerRecipes.init();
-            LargePoweredSpawnerRecipes.init();
-            LargeVialProcessorRecipes.init();
-            ArmorInfuserRecipes.init();
-            DragonEggReplicatorRecipes.init();
-            ChaosReplicatorRecipes.init();
-        }
     }
     private static void craftingRecipes() {
         ApiBlocks aeBlocks = Api.INSTANCE.definitions().blocks();

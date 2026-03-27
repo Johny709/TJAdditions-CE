@@ -41,21 +41,31 @@ public class MetaTileEntityDragonReplicator extends TJRecipeMapMultiblockControl
     @Override
     protected BlockPattern createStructurePattern() {
         return FactoryBlockPattern.start()
-                .aisle("DDD", "DDD", "DDD")
-                .aisle("DDD", "DED", "DDD")
-                .aisle("DDD", "DSD", "DDD")
-                .where('S', selfPredicate())
-                .where('D', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(blockPredicate(Block.getBlockFromName("contenttweaker:awakenedcasing"))))
-                .where('E', statePredicate(Blocks.DRAGON_EGG.getDefaultState()))
+                .aisle("XXX", "XXX", "XXX")
+                .aisle("XXX", "XDX", "XXX")
+                .aisle("XXX", "XSX", "XXX")
+                .where('S', this.selfPredicate())
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(blockPredicate(Block.getBlockFromName("contenttweaker:awakenedcasing"))))
+                .where('D', statePredicate(Blocks.DRAGON_EGG.getDefaultState()))
                 .build();
     }
 
-    protected IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.AWAKENED_CASING);
     }
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return TJTextures.AWAKENED;
+    }
+
+    @Override
+    public boolean renderTJLogoOverlay() {
+        return true;
+    }
+
+    @Override
+    public int getParallel() {
+        return 0; // don't display parallel overclocking per tier on tooltip
     }
 }

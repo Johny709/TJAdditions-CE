@@ -149,4 +149,9 @@ public class MetaTileEntityTJDistillationTower extends TJRecipeMapMultiblockCont
         MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) tileEntity).getMetaTileEntity();
         return metaTileEntity != null ? metaTileEntity.getExportFluids() : null;
     }
+
+    @Override
+    public int getParallel() {
+        return 0; // don't display parallel overclocking per tier on tooltip
+    }
 }

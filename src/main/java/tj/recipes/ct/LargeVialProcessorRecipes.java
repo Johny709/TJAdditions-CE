@@ -9,7 +9,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import java.util.HashMap;
 import java.util.Map;
 
-import static tj.TJRecipeMaps.LARGE_VIAL_PROCESSOR_RECIPES;
+import static tj.TJRecipeMaps.TJ_LARGE_VIAL_PROCESSOR_RECIPES;
 import static gregtech.api.unification.material.Materials.Milk;
 
 public class LargeVialProcessorRecipes {
@@ -44,7 +44,7 @@ public class LargeVialProcessorRecipes {
             ItemStack stack = new ItemStack(Item.getByNameOrId("enderio:item_soul_vial"), 16, 1);
             stack.setTagCompound(compound);
             if (mob.equals("minecraft:cow")) {
-                LARGE_VIAL_PROCESSOR_RECIPES.recipeBuilder()
+                TJ_LARGE_VIAL_PROCESSOR_RECIPES.recipeBuilder()
                         .inputs(stack)
                         .outputs(drops)
                         .outputs(new ItemStack(Item.getByNameOrId("enderio:item_soul_vial"), 16), new ItemStack(Item.getByNameOrId("actuallyadditions:item_solidified_experience"), 128))
@@ -53,7 +53,7 @@ public class LargeVialProcessorRecipes {
                         .duration(20)
                         .buildAndRegister();
             } else {
-                LARGE_VIAL_PROCESSOR_RECIPES.recipeBuilder()
+                TJ_LARGE_VIAL_PROCESSOR_RECIPES.recipeBuilder()
                         .inputs(stack)
                         .outputs(drops)
                         .outputs(new ItemStack(Item.getByNameOrId("enderio:item_soul_vial"), 16), new ItemStack(Item.getByNameOrId("actuallyadditions:item_solidified_experience"), 128))

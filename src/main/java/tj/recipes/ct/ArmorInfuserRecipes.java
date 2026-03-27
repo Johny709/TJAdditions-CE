@@ -8,7 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import java.util.HashMap;
 import java.util.Map;
 
-import static tj.TJRecipeMaps.ARMOR_INFUSER_RECIPES;
+import static tj.TJRecipeMaps.TJ_ARMOR_INFUSER_RECIPES;
 import static gregicadditions.GAMaterials.Cryotheum;
 import static gregicadditions.GAMaterials.SupercooledCryotheum;
 
@@ -42,7 +42,7 @@ public class ArmorInfuserRecipes {
                 compound.setBoolean("isStable", true);
                 ItemStack stack = new ItemStack(Item.getByNameOrId(output));
                 stack.setTagCompound(compound);
-                ARMOR_INFUSER_RECIPES.recipeBuilder()
+                TJ_ARMOR_INFUSER_RECIPES.recipeBuilder()
                         .inputs(new ItemStack(Item.getByNameOrId("contenttweaker:refinedchaoscrystal"), 4), new ItemStack(Item.getByNameOrId("draconicevolution:chaotic_core"), 2),
                                 new ItemStack(Item.getByNameOrId("draconicadditions:chaotic_energy_core"), 2))
                         .inputs(input)
@@ -53,7 +53,7 @@ public class ArmorInfuserRecipes {
                         .duration(150)
                         .buildAndRegister();
             } else {
-                ARMOR_INFUSER_RECIPES.recipeBuilder()
+                TJ_ARMOR_INFUSER_RECIPES.recipeBuilder()
                         .inputs(new ItemStack(Item.getByNameOrId("draconicevolution:awakened_core"), output.contains("capacitor") ? 4 : 2),
                                 new ItemStack(Item.getByNameOrId("draconicevolution:draconic_energy_core"), output.contains("capacitor") ? 4 : 2))
                         .inputs(input)

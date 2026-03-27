@@ -6,7 +6,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-import static tj.TJRecipeMaps.DRAGON_REPLICATOR_RECIPES;
+import static tj.TJRecipeMaps.TJ_DRAGON_REPLICATOR_RECIPES;
 import static gregicadditions.GAMaterials.DepletedGrowthMedium;
 import static gregicadditions.GAMaterials.SterileGrowthMedium;
 
@@ -17,7 +17,7 @@ public class DragonEggReplicatorRecipes {
         compound.setInteger("Energy", 4000000);
         ItemStack stack = new ItemStack(Item.getByNameOrId("draconicevolution:wyvern_sword"), 1);
         stack.setTagCompound(compound);
-        DRAGON_REPLICATOR_RECIPES.recipeBuilder()
+        TJ_DRAGON_REPLICATOR_RECIPES.recipeBuilder()
                 .inputs(new ItemStack(Items.EGG, 16), stack)
                 .outputs(new ItemStack(Item.getByNameOrId("draconicevolution:dragon_heart"), 2), new ItemStack(Item.getByNameOrId("draconicevolution:wyvern_sword")),
                         new ItemStack(Blocks.DRAGON_EGG))

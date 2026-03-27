@@ -1,5 +1,6 @@
 package tj.machines.multi.steam;
 
+import gregtech.api.capability.IEnergyContainer;
 import tj.TJRecipeMaps;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -13,6 +14,7 @@ import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
+import tj.TJValues;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 
 
@@ -20,8 +22,9 @@ public class MetaTileEntityMegaCokeOven extends TJRecipeMapMultiblockController 
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = new MultiblockAbility[]{MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_ITEMS};
 
-    public MetaTileEntityMegaCokeOven (ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, TJRecipeMaps.COKE_OVEN_RECIPES, false, true);
+    public MetaTileEntityMegaCokeOven(ResourceLocation metaTileEntityId) {
+        super(metaTileEntityId, TJRecipeMaps.TJ_COKE_OVEN_RECIPES, false, true);
+        this.recipeLogic.setAllowOverclocking(false);
     }
 
     @Override
@@ -60,6 +63,11 @@ public class MetaTileEntityMegaCokeOven extends TJRecipeMapMultiblockController 
     }
 
     @Override
+    public int getEUtMultiplier() {
+        return 0;
+    }
+
+    @Override
     public int getParallel() {
         return 512;
     }
@@ -67,5 +75,15 @@ public class MetaTileEntityMegaCokeOven extends TJRecipeMapMultiblockController 
     @Override
     public int getTierDifference(long recipeEUt) {
         return 1;
+    }
+
+    @Override
+    public IEnergyContainer getInputEnergyContainer() {
+        return TJValues.DUMMY_ENERGY;
+    }
+
+    @Override
+    public boolean usesEnergy() {
+        return false;
     }
 }

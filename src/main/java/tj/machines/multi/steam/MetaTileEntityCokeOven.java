@@ -1,7 +1,9 @@
 package tj.machines.multi.steam;
 
+import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.recipes.Recipe;
 import tj.TJRecipeMaps;
+import tj.TJValues;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -21,8 +23,9 @@ import tj.capability.OverclockManager;
 public class MetaTileEntityCokeOven extends TJRecipeMapMultiblockController {
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = new MultiblockAbility[]{MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_ITEMS};
 
-    public MetaTileEntityCokeOven (ResourceLocation metaTileEntityId) {
+    public MetaTileEntityCokeOven(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, TJRecipeMaps.COKE_OVEN_RECIPES, false, true);
+        this.recipeLogic.setAllowOverclocking(false);
     }
 
     @Override
@@ -38,21 +41,46 @@ public class MetaTileEntityCokeOven extends TJRecipeMapMultiblockController {
     @Override
     protected BlockPattern createStructurePattern() {
         return FactoryBlockPattern.start()
-                .aisle("FFF", "FFF", "FFF")
-                .aisle("FFF", "F#F", "FFF")
-                .aisle("FFF", "FSF", "FFF")
-                .where('S', selfPredicate())
-                .where('F', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .aisle("XXX", "XXX", "XXX")
+                .aisle("XXX", "X#X", "XXX")
+                .aisle("XXX", "XSX", "XXX")
+                .where('S', this.selfPredicate())
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('#', isAirPredicate())
                 .build();
     }
 
-    protected IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.COKE_BRICKS);
     }
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return Textures.COKE_BRICKS;
+    }
+
+    @Override
+    public int getEUtMultiplier() {
+        return 0;
+    }
+
+    @Override
+    public int getParallel() {
+        return 0; // don't display parallel overclocking per tier on tooltip
+    }
+
+    @Override
+    public boolean renderTJLogoOverlay() {
+        return true;
+    }
+
+    @Override
+    public IEnergyContainer getInputEnergyContainer() {
+        return TJValues.DUMMY_ENERGY;
+    }
+
+    @Override
+    public boolean usesEnergy() {
+        return false;
     }
 }

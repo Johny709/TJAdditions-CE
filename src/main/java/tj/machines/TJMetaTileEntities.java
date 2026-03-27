@@ -10,7 +10,6 @@ import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import net.minecraft.util.ResourceLocation;
 import tj.TJ;
-import tj.TJConfig;
 import tj.machines.multi.electric.*;
 import tj.machines.multi.parallel.*;
 import tj.machines.multi.steam.*;
@@ -153,16 +152,6 @@ public class TJMetaTileEntities {
 
     public static void init() {
 
-        if (TJConfig.machines.replaceCTMultis) {
-            COKE_OVEN = GregTechAPI.registerMetaTileEntity(1000, new MetaTileEntityCokeOven(multiblockTweakerId("coke_oven_2")));
-            PRIMITIVE_ALLOY = GregTechAPI.registerMetaTileEntity(1002, new MetaTileEntityPrimitiveAlloy(multiblockTweakerId("primitive_alloy")));
-            HEAT_EXCHANGER = GregTechAPI.registerMetaTileEntity(1003, new MetaTileEntityHeatExchanger(multiblockTweakerId("heat_exchanger")));
-            ARMOR_INFUSER = GregTechAPI.registerMetaTileEntity(1004, new MetaTileEntityArmorInfuser(multiblockTweakerId("armor_infuser")));
-            CHAOS_REPLICATOR = GregTechAPI.registerMetaTileEntity(1005, new MetaTileEntityChaosReplicator(multiblockTweakerId("chaos_replicator")));
-            DRAGON_REPLICATOR = GregTechAPI.registerMetaTileEntity(1006, new MetaTileEntityDragonReplicator(multiblockTweakerId("dragon_egg_replicator")));
-            LARGE_POWERED_SPAWNER = GregTechAPI.registerMetaTileEntity(4201, new MetaTileEntityLargePoweredSpawner(multiblockTweakerId("large_powered_spawner")));
-            LARGE_VIAL_PROCESSOR = GregTechAPI.registerMetaTileEntity(4202, new MetaTileEntityLargeVialProcessor(multiblockTweakerId("large_vial_processor")));
-        }
         MEGA_COKE_OVEN = GregTechAPI.registerMetaTileEntity(4205, new MetaTileEntityMegaCokeOven(TJId("mega_coke_oven")));
 
         XL_STEAM_TURBINE = GregTechAPI.registerMetaTileEntity(4206, new MetaTileEntityXLTurbine(TJId("xl_turbine.steam"), MetaTileEntityLargeTurbine.TurbineType.STEAM));
@@ -246,6 +235,16 @@ public class TJMetaTileEntities {
         DISTILLATION_TOWER = GregTechAPI.registerMetaTileEntity(5137, new MetaTileEntityTJDistillationTower(TJId("tj_distillation_tower")));
         ADVANCED_DISTILLATION_TOWER = GregTechAPI.registerMetaTileEntity(5138, new MetaTileEntityTJAdvancedDistillationTower(TJId("tj_advanced_distillation_tower")));
         MEGA_DISTILLATION_TOWER = GregTechAPI.registerMetaTileEntity(5139, new MetaTileEntityTJMegaDistillationTower(TJId("tj_mega_distillation_tower")));
+        // reserved for Mega EBF and Freezer
+
+        COKE_OVEN = GregTechAPI.registerMetaTileEntity(5142, new MetaTileEntityCokeOven(TJId("tj_coke_oven")));
+        PRIMITIVE_ALLOY = GregTechAPI.registerMetaTileEntity(5143, new MetaTileEntityPrimitiveAlloy(TJId("tj_primitive_alloy")));
+        HEAT_EXCHANGER = GregTechAPI.registerMetaTileEntity(5144, new MetaTileEntityHeatExchanger(TJId("tj_heat_exchanger")));
+        ARMOR_INFUSER = GregTechAPI.registerMetaTileEntity(5145, new MetaTileEntityArmorInfuser(TJId("tj_armor_infuser")));
+        CHAOS_REPLICATOR = GregTechAPI.registerMetaTileEntity(5146, new MetaTileEntityChaosReplicator(TJId("tj_chaos_replicator")));
+        DRAGON_REPLICATOR = GregTechAPI.registerMetaTileEntity(5147, new MetaTileEntityDragonReplicator(TJId("tj_dragon_egg_replicator")));
+        LARGE_POWERED_SPAWNER = GregTechAPI.registerMetaTileEntity(5148, new MetaTileEntityLargePoweredSpawner(TJId("tj_large_powered_spawner")));
+        LARGE_VIAL_PROCESSOR = GregTechAPI.registerMetaTileEntity(5149, new MetaTileEntityLargeVialProcessor(TJId("tj_large_vial_processor")));
 
         // range 5300+ -> singleblocks
         COAL_BOILER[0] = GregTechAPI.registerMetaTileEntity(5300, new MetaTileEntityCoalBoiler(TJId("coal_boiler_bronze"), BRONZE));
@@ -375,10 +374,6 @@ public class TJMetaTileEntities {
             case 13: return GA_HULLS[tier - 9];
             default: return MetaTileEntities.HULL[9];
         }
-    }
-
-    private static ResourceLocation multiblockTweakerId(String name) {
-        return new ResourceLocation("multiblocktweaker", name);
     }
 
     private static ResourceLocation TJId(String name) {
