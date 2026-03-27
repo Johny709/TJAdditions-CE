@@ -127,18 +127,18 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.PROCESSING_ARRAY)))
                             .put("advanced_processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.ADVANCED_PROCESSING_ARRAY)))
                             .put("super_processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.SUPER_PROCESSING_ARRAY)))
-                            .put("tj_distillation_tower", new MultiblockInfoRecipeWrapper(new TJDistillationTowerInfo()))
-                            .put("tj_advanced_distillation_tower", new MultiblockInfoRecipeWrapper(new TJAdvancedDistillationTowerInfo()))
-                            .put("tj_mega_distillation_tower", new MultiblockInfoRecipeWrapper(new TJMegaDistillationTowerInfo()))
-                            .put("tj_mega_blast_furnace", new MultiblockInfoRecipeWrapper(new TJMegaBlastFurnaceInfo()))
-                            .put("tj_primitive_alloy", new MultiblockInfoRecipeWrapper(new PrimitiveAlloyInfo()))
-                            .put("tj_coke_oven", new MultiblockInfoRecipeWrapper(new CokeOvenInfo()))
-                            .put("tj_heat_exchanger", new MultiblockInfoRecipeWrapper(new HeatExchangerInfo()))
-                            .put("tj_armor_infuser", new MultiblockInfoRecipeWrapper(new ArmorInfuserInfo()))
-                            .put("tj_dragon_egg_replicator", new MultiblockInfoRecipeWrapper(new DragonReplicatorInfo()))
-                            .put("tj_chaos_replicator", new MultiblockInfoRecipeWrapper(new ChaosReplicatorInfo()))
-                            .put("tj_large_powered_spawner", new MultiblockInfoRecipeWrapper(new LargePoweredSpawnerInfo()))
-                            .put("tj_large_vial_processor", new MultiblockInfoRecipeWrapper(new LargeVialProcessorInfo()));
+                            .put("distillation_tower", new MultiblockInfoRecipeWrapper(new TJDistillationTowerInfo()))
+                            .put("advanced_distillation_tower", new MultiblockInfoRecipeWrapper(new TJAdvancedDistillationTowerInfo()))
+                            .put("mega_distillation_tower", new MultiblockInfoRecipeWrapper(new TJMegaDistillationTowerInfo()))
+                            .put("mega_blast_furnace", new MultiblockInfoRecipeWrapper(new TJMegaBlastFurnaceInfo()))
+                            .put("primitive_alloy", new MultiblockInfoRecipeWrapper(new PrimitiveAlloyInfo()))
+                            .put("coke_oven", new MultiblockInfoRecipeWrapper(new CokeOvenInfo()))
+                            .put("heat_exchanger", new MultiblockInfoRecipeWrapper(new HeatExchangerInfo()))
+                            .put("armor_infuser", new MultiblockInfoRecipeWrapper(new ArmorInfuserInfo()))
+                            .put("dragon_egg_replicator", new MultiblockInfoRecipeWrapper(new DragonReplicatorInfo()))
+                            .put("chaos_replicator", new MultiblockInfoRecipeWrapper(new ChaosReplicatorInfo()))
+                            .put("large_powered_spawner", new MultiblockInfoRecipeWrapper(new LargePoweredSpawnerInfo()))
+                            .put("large_vial_processor", new MultiblockInfoRecipeWrapper(new LargeVialProcessorInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;

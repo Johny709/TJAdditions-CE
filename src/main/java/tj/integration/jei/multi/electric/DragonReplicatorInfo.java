@@ -4,8 +4,10 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
+import org.apache.commons.lang3.ArrayUtils;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockInfoPage;
@@ -42,5 +44,11 @@ public class DragonReplicatorInfo extends TJMultiblockInfoPage {
                     .build());
         }
         return shapeInfos;
+    }
+
+    @Override
+    public String[] getDescription() {
+        return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.temporary")},
+                super.getDescription());
     }
 }

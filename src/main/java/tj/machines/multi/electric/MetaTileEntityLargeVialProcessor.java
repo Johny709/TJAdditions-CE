@@ -2,6 +2,11 @@ package tj.machines.multi.electric;
 
 import gregicadditions.GAMaterials;
 import gregtech.api.recipes.Recipe;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJRecipeMaps;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
@@ -25,6 +30,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nullable;
+import java.util.List;
+
 
 public class MetaTileEntityLargeVialProcessor extends TJRecipeMapMultiblockController {
 
@@ -36,6 +44,13 @@ public class MetaTileEntityLargeVialProcessor extends TJRecipeMapMultiblockContr
 
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityLargeVialProcessor(this.metaTileEntityId);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("tj.multiblock.temporary"));
+        super.addInformation(stack, player, tooltip, advanced);
     }
 
     @Override

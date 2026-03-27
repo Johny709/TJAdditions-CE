@@ -233,19 +233,19 @@ public class TJMetaTileEntities {
         PROCESSING_ARRAY = GregTechAPI.registerMetaTileEntity(5134, new MetaTileEntityProcessingArray(TJId("processing_array")));
         ADVANCED_PROCESSING_ARRAY = GregTechAPI.registerMetaTileEntity(5135, new MetaTileEntityProcessingArray.MetaTileEntityAdvancedProcessingArray(TJId("advanced_processing_array")));
         SUPER_PROCESSING_ARRAY = GregTechAPI.registerMetaTileEntity(5136, new MetaTileEntityProcessingArray.MetaTileEntitySuperProcessingArray(TJId("super_processing_array")));
-        DISTILLATION_TOWER = GregTechAPI.registerMetaTileEntity(5137, new MetaTileEntityTJDistillationTower(TJId("tj_distillation_tower")));
-        ADVANCED_DISTILLATION_TOWER = GregTechAPI.registerMetaTileEntity(5138, new MetaTileEntityTJAdvancedDistillationTower(TJId("tj_advanced_distillation_tower")));
-        MEGA_DISTILLATION_TOWER = GregTechAPI.registerMetaTileEntity(5139, new MetaTileEntityTJMegaDistillationTower(TJId("tj_mega_distillation_tower")));
+        DISTILLATION_TOWER = GregTechAPI.registerMetaTileEntity(5137, new MetaTileEntityTJDistillationTower(TJId("distillation_tower")));
+        ADVANCED_DISTILLATION_TOWER = GregTechAPI.registerMetaTileEntity(5138, new MetaTileEntityTJAdvancedDistillationTower(TJId("advanced_distillation_tower")));
+        MEGA_DISTILLATION_TOWER = GregTechAPI.registerMetaTileEntity(5139, new MetaTileEntityTJMegaDistillationTower(TJId("mega_distillation_tower")));
         // reserved for Mega EBF and Freezer
-        MEGA_BLAST_FURNACE = GregTechAPI.registerMetaTileEntity(5140, new MetaTileEntityTJMegaBlastFurnace(TJId("tj_mega_blast_furnace")));
-        COKE_OVEN = GregTechAPI.registerMetaTileEntity(5142, new MetaTileEntityCokeOven(TJId("tj_coke_oven")));
-        PRIMITIVE_ALLOY = GregTechAPI.registerMetaTileEntity(5143, new MetaTileEntityPrimitiveAlloy(TJId("tj_primitive_alloy")));
-        HEAT_EXCHANGER = GregTechAPI.registerMetaTileEntity(5144, new MetaTileEntityHeatExchanger(TJId("tj_heat_exchanger")));
-        ARMOR_INFUSER = GregTechAPI.registerMetaTileEntity(5145, new MetaTileEntityArmorInfuser(TJId("tj_armor_infuser")));
-        CHAOS_REPLICATOR = GregTechAPI.registerMetaTileEntity(5146, new MetaTileEntityChaosReplicator(TJId("tj_chaos_replicator")));
-        DRAGON_REPLICATOR = GregTechAPI.registerMetaTileEntity(5147, new MetaTileEntityDragonReplicator(TJId("tj_dragon_egg_replicator")));
-        LARGE_POWERED_SPAWNER = GregTechAPI.registerMetaTileEntity(5148, new MetaTileEntityLargePoweredSpawner(TJId("tj_large_powered_spawner")));
-        LARGE_VIAL_PROCESSOR = GregTechAPI.registerMetaTileEntity(5149, new MetaTileEntityLargeVialProcessor(TJId("tj_large_vial_processor")));
+        MEGA_BLAST_FURNACE = GregTechAPI.registerMetaTileEntity(5140, new MetaTileEntityTJMegaBlastFurnace(TJId("mega_blast_furnace")));
+        COKE_OVEN = GregTechAPI.registerMetaTileEntity(5142, new MetaTileEntityCokeOven(TJId("coke_oven")));
+        PRIMITIVE_ALLOY = GregTechAPI.registerMetaTileEntity(5143, new MetaTileEntityPrimitiveAlloy(TJId("primitive_alloy")));
+        HEAT_EXCHANGER = GregTechAPI.registerMetaTileEntity(5144, new MetaTileEntityHeatExchanger(TJId("heat_exchanger")));
+        ARMOR_INFUSER = GregTechAPI.registerMetaTileEntity(5145, new MetaTileEntityArmorInfuser(TJId("armor_infuser")));
+        CHAOS_REPLICATOR = GregTechAPI.registerMetaTileEntity(5146, new MetaTileEntityChaosReplicator(TJId("chaos_replicator")));
+        DRAGON_REPLICATOR = GregTechAPI.registerMetaTileEntity(5147, new MetaTileEntityDragonReplicator(TJId("dragon_egg_replicator")));
+        LARGE_POWERED_SPAWNER = GregTechAPI.registerMetaTileEntity(5148, new MetaTileEntityLargePoweredSpawner(TJId("large_powered_spawner")));
+        LARGE_VIAL_PROCESSOR = GregTechAPI.registerMetaTileEntity(5149, new MetaTileEntityLargeVialProcessor(TJId("large_vial_processor")));
 
         // range 5300+ -> singleblocks
         COAL_BOILER[0] = GregTechAPI.registerMetaTileEntity(5300, new MetaTileEntityCoalBoiler(TJId("coal_boiler_bronze"), BRONZE));
