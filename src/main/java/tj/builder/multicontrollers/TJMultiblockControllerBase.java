@@ -2,6 +2,7 @@ package tj.builder.multicontrollers;
 
 import gregicadditions.GAConfig;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
+import gregicadditions.item.GAHeatingCoil;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.GAMultiblockCasing2;
@@ -29,6 +30,7 @@ import gregtech.api.unification.OreDictUnifier;
 import gregtech.api.unification.material.Materials;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.util.XSTR;
+import gregtech.common.blocks.BlockWireCoil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -497,6 +499,13 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
         return this.outputEnergyContainer;
     }
 
+    /**
+     * Recipe Uid for JEI recipe click area.
+     */
+    public String getRecipeUid() {
+        return null;
+    }
+
     public static Predicate<BlockWorldState> frameworkPredicate() {
         return blockWorldState -> {
             IBlockState state = blockWorldState.getBlockState();
@@ -514,10 +523,28 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
         };
     }
 
-    /**
-     * Recipe Uid for JEI recipe click area.
-     */
-    public String getRecipeUid() {
-        return null;
+    public static Predicate<BlockWorldState> coilPredicate() {
+        return blockWorldState -> {
+            IBlockState state = blockWorldState.getBlockState();
+            Block block = state.getBlock();
+            if (block instanceof BlockWireCoil) {
+                BlockWireCoil.CoilType coilType = ((BlockWireCoil) block).getState(state);
+                String name = blockWorldState.getMatchContext().getOrPut("coilName", coilType.getName());
+                if (!coilType.getName().equals(name)) return false;
+                blockWorldState.getMatchContext().getOrPut("coilLevel", coilType.getLevel());
+                blockWorldState.getMatchContext().getOrPut("coilTemperature", coilType.getCoilTemperature());
+                blockWorldState.getMatchContext().getOrPut("coilEnergyDiscount", coilType.getEnergyDiscount());
+                return true;
+            } else if (block instanceof GAHeatingCoil) {
+                GAHeatingCoil.CoilType coilType = ((GAHeatingCoil) block).getState(state);
+                String name = blockWorldState.getMatchContext().getOrPut("coilName", coilType.getName());
+                if (!coilType.getName().equals(name)) return false;
+                blockWorldState.getMatchContext().getOrPut("coilLevel", coilType.getLevel());
+                blockWorldState.getMatchContext().getOrPut("coilTemperature", coilType.getCoilTemperature());
+                blockWorldState.getMatchContext().getOrPut("coilEnergyDiscount", coilType.getEnergyDiscount());
+                return true;
+            }
+            return false;
+        };
     }
 }

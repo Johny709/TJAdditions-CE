@@ -116,6 +116,11 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
     }
 
     @Override
+    public int getDurationMultiplier() {
+        return 200;
+    }
+
+    @Override
     public int getParallel() {
         return Math.max(0, this.getTier() - GTValues.LuV);
     }

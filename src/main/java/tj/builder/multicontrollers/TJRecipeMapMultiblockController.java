@@ -210,6 +210,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         if (this.renderTJLogoOverlay() && !this.isStructureFormed()) {
             TJTextures.TJ_LOGO.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
             TJTextures.TJ_LOGO.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
+            TJTextures.TJ_LOGO.renderSided(this.getFrontFacing().getOpposite(), renderState, translation, pipeline);
         }
         if (this.getFrontalOverlay() != null)
             this.getFrontalOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive(), this.recipeLogic.hasProblem(), this.recipeLogic.isWorkingEnabled());
