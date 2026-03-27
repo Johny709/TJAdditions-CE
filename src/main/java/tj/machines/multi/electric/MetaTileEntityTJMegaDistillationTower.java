@@ -121,6 +121,11 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
     }
 
     @Override
+    public boolean renderTJLogoOverlay() {
+        return true;
+    }
+
+    @Override
     public IMultipleTankHandler getOutputHatchAt(int index) {
         if (index >= this.outputHatchPos.size())
             return null;

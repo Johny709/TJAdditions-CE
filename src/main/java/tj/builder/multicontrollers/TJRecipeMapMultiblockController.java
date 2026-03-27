@@ -36,6 +36,7 @@ import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
+import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -205,12 +206,20 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
+        if (this.renderTJLogoOverlay() && !this.isStructureFormed()) {
+            TJTextures.TJ_LOGO.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
+            TJTextures.TJ_LOGO.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
+        }
         if (this.getFrontalOverlay() != null)
             this.getFrontalOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive(), this.recipeLogic.hasProblem(), this.recipeLogic.isWorkingEnabled());
     }
 
     public TJOrientedOverlayRenderer getFrontalOverlay() {
         return TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY;
+    }
+
+    public boolean renderTJLogoOverlay() {
+        return false;
     }
 
     @Override

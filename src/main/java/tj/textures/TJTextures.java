@@ -84,6 +84,7 @@ public class TJTextures {
     public static final TJSimpleCubeRenderer ADV_FUSION_PORT_MAX = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_max");
     public static final TJSimpleCubeRenderer ADV_FUSION_PORT_MAX_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_max_active");
 
+    public static final TJSimpleOverlayRenderer TJ_LOGO = new TJSimpleOverlayRenderer(GTValues.MODID, "tj_logo");
     public static final TJSimpleOverlayRenderer CHISEL_ARCHITECTURE = new TJSimpleOverlayRenderer("architecturecraft", "items/chisel");
     public static final TJSimpleOverlayRenderer HAMMER = new TJSimpleOverlayRenderer("architecturecraft", "items/hammer");
     public static final TJSimpleOverlayRenderer SAW_BLADE = new TJSimpleOverlayRenderer("architecturecraft", "items/sawblade");
