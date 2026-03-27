@@ -131,6 +131,7 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("advanced_distillation_tower", new MultiblockInfoRecipeWrapper(new TJAdvancedDistillationTowerInfo()))
                             .put("mega_distillation_tower", new MultiblockInfoRecipeWrapper(new TJMegaDistillationTowerInfo()))
                             .put("mega_blast_furnace", new MultiblockInfoRecipeWrapper(new TJMegaBlastFurnaceInfo()))
+                            .put("mega_vacuum_freezer", new MultiblockInfoRecipeWrapper(new TJMegaVacuumFreezerInfo()))
                             .put("primitive_alloy", new MultiblockInfoRecipeWrapper(new PrimitiveAlloyInfo()))
                             .put("coke_oven", new MultiblockInfoRecipeWrapper(new CokeOvenInfo()))
                             .put("heat_exchanger", new MultiblockInfoRecipeWrapper(new HeatExchangerInfo()))

@@ -145,6 +145,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityTJAdvancedDistillationTower ADVANCED_DISTILLATION_TOWER;
     public static MetaTileEntityTJMegaDistillationTower MEGA_DISTILLATION_TOWER;
     public static MetaTileEntityTJMegaBlastFurnace MEGA_BLAST_FURNACE;
+    public static MetaTileEntityTJMegaVacuumFreezer MEGA_VACUUM_FREEZER;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -236,8 +237,8 @@ public class TJMetaTileEntities {
         DISTILLATION_TOWER = GregTechAPI.registerMetaTileEntity(5137, new MetaTileEntityTJDistillationTower(TJId("distillation_tower")));
         ADVANCED_DISTILLATION_TOWER = GregTechAPI.registerMetaTileEntity(5138, new MetaTileEntityTJAdvancedDistillationTower(TJId("advanced_distillation_tower")));
         MEGA_DISTILLATION_TOWER = GregTechAPI.registerMetaTileEntity(5139, new MetaTileEntityTJMegaDistillationTower(TJId("mega_distillation_tower")));
-        // reserved for Mega EBF and Freezer
         MEGA_BLAST_FURNACE = GregTechAPI.registerMetaTileEntity(5140, new MetaTileEntityTJMegaBlastFurnace(TJId("mega_blast_furnace")));
+        MEGA_VACUUM_FREEZER = GregTechAPI.registerMetaTileEntity(5141, new MetaTileEntityTJMegaVacuumFreezer(TJId("mega_vacuum_freezer")));
         COKE_OVEN = GregTechAPI.registerMetaTileEntity(5142, new MetaTileEntityCokeOven(TJId("coke_oven")));
         PRIMITIVE_ALLOY = GregTechAPI.registerMetaTileEntity(5143, new MetaTileEntityPrimitiveAlloy(TJId("primitive_alloy")));
         HEAT_EXCHANGER = GregTechAPI.registerMetaTileEntity(5144, new MetaTileEntityHeatExchanger(TJId("heat_exchanger")));
