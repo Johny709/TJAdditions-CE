@@ -9,6 +9,7 @@ import gregicadditions.item.fusion.GACryostatCasing;
 import gregicadditions.item.fusion.GADivertorCasing;
 import gregicadditions.item.fusion.GAFusionCasing;
 import gregicadditions.item.fusion.GAVacuumCasing;
+import gregicadditions.machines.multi.advance.MetaTileEntityAdvFusionReactor;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.impl.EnergyContainerHandler;
@@ -197,8 +198,8 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
                 .where('B', statePredicate(GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_BLANKET)))
                 .where('e', statePredicate(GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_BLANKET)))
                 .where('H', divertorPredicate().or(abilityPartPredicate(ALLOWED_ABILITIES)).or(this.energyPortPredicate()))
-                .where('s', coilPredicate())
-                .where('c', coilPredicate())
+                .where('s', MetaTileEntityAdvFusionReactor.coilPredicate())
+                .where('c', MetaTileEntityAdvFusionReactor.coilPredicate())
                 .where('V', vacuumPredicate())
                 .where('R', cryostatPredicate())
                 .where('D', divertorPredicate())
