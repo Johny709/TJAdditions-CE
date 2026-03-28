@@ -18,8 +18,6 @@ import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJAdvancedTextWidget;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
-import gregicadditions.item.GAMultiblockCasing;
-import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.gui.Widget;
@@ -78,8 +76,6 @@ import static net.minecraft.util.text.TextFormatting.YELLOW;
 import static tj.textures.TJTextures.FUSION_MK2;
 import static tj.textures.TJTextures.TELEPORTER_OVERLAY;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
-import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
-import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
@@ -127,15 +123,8 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int framework = 0, framework2 = 0;
-        if (context.get("framework") instanceof GAMultiblockCasing.CasingType) {
-            framework = ((GAMultiblockCasing.CasingType) context.get("framework")).getTier();
-        }
-        if (context.get("framework2") instanceof GAMultiblockCasing2.CasingType) {
-            framework2 = ((GAMultiblockCasing2.CasingType) context.get("framework2")).getTier();
-        }
         int fieldGen = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV).getTier();
-        this.tier = Math.min(fieldGen, Math.max(framework, framework2));
+        this.tier = Math.min(fieldGen, context.getOrDefault("frameworkTier", 0));
         boolean energyHatchTierMatches = this.getAbilities(INPUT_ENERGY).stream()
                 .allMatch(energyContainer -> GAUtility.getTierByVoltage(energyContainer.getInputVoltage()) <= this.tier);
         if (!energyHatchTierMatches) {
@@ -156,7 +145,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
                 .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('F', frameworkPredicate().or(frameworkPredicate2()))
+                .where('F', frameworkPredicate())
                 .where('f', LargeSimpleRecipeMapMultiblockController.fieldGenPredicate())
                 .where('#', isAirPredicate())
                 .where('~', tile -> true)

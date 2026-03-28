@@ -22,8 +22,6 @@ import tj.TJValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.item.GAMultiblockCasing;
-import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
@@ -64,8 +62,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
-import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
-import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
 import static gregtech.api.unification.material.Materials.DistilledWater;
 import static net.minecraft.util.text.TextFormatting.AQUA;
 import static net.minecraft.util.text.TextFormatting.RED;
@@ -156,15 +152,8 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
         fluidTanks.addAll(this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         fluidTanks.addAll(this.getAbilities(GregicAdditionsCapabilities.STEAM));
 
-        int framework = 0, framework2 = 0;
-        if (context.get("framework") instanceof GAMultiblockCasing.CasingType) {
-            framework = ((GAMultiblockCasing.CasingType) context.get("framework")).getTier();
-        }
-        if (context.get("framework2") instanceof GAMultiblockCasing2.CasingType) {
-            framework2 = ((GAMultiblockCasing2.CasingType) context.get("framework2")).getTier();
-        }
         int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        this.tier = Math.min(motor, Math.max(framework, framework2));
+        this.tier = Math.min(motor, context.getOrDefault("frameworkTier", 0));
         this.maxVoltage = (long) (Math.pow(4, this.tier) * 8);
         this.efficiency = Math.max(0.1F, (1.0F - ((this.tier - 1) / 10.0F)));
     }
@@ -189,7 +178,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
                 .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('E', abilityPartPredicate(MultiblockAbility.OUTPUT_ENERGY))
-                .where('F', frameworkPredicate().or(frameworkPredicate2()))
+                .where('F', frameworkPredicate())
                 .where('R', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('~', tile -> true)
                 .build();

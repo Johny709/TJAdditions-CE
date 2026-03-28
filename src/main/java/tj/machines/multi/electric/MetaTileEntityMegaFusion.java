@@ -148,7 +148,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
             long energyToRemove = Math.min(remainingHeat, this.inputEnergyContainer.getInputAmperage() * this.inputEnergyContainer.getInputVoltage());
             this.heat += Math.abs(this.energyContainer.removeEnergy(energyToRemove));
         }
-        if (this.getOffsetTimer() > 20 && !this.initialized) {
+        if (!this.initialized && this.getOffsetTimer() > 50) {
             this.initialized = true;
             this.writeCustomData(10, buffer -> buffer.writeInt(this.tier));
             this.markDirty();
