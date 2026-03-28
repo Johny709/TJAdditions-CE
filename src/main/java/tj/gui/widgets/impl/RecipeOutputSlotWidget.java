@@ -66,19 +66,19 @@ public class RecipeOutputSlotWidget extends Widget implements IIngredientSlot {
         }
         FluidStack fluidStack = this.fluidOutputs != null ? this.fluidOutputs.apply(this.slotIndex) : null;
         if (fluidStack != null) {
-            FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-            GlStateManager.disableBlend();
-            TJGuiUtils.drawFluidForGui(fluidStack, fluidStack.amount, fluidStack.amount, pos.getX() + 1, pos.getY() + 1, 17, 17);
-            GlStateManager.pushMatrix();
-            GlStateManager.scale(0.5, 0.5, 1);
-            String s = TextFormattingUtil.formatLongToCompactString(fluidStack.amount, 4) + "L";
-            fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + 12) * 2, 0xFFFFFF);
-            GlStateManager.popMatrix();
-            GlStateManager.enableBlend();
-            GlStateManager.color(1.0f, 1.0f, 1.0f);
-            if (fluidStack.amount < 1) {
-                TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
-            } else TJGuiTextures.SELECTION_BOX_2.draw(pos.getX(), pos.getY(), 18, 18);
+            if (fluidStack.amount > 0) {
+                FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+                GlStateManager.disableBlend();
+                TJGuiUtils.drawFluidForGui(fluidStack, fluidStack.amount, fluidStack.amount, pos.getX() + 1, pos.getY() + 1, 17, 17);
+                GlStateManager.pushMatrix();
+                GlStateManager.scale(0.5, 0.5, 1);
+                String s = TextFormattingUtil.formatLongToCompactString(fluidStack.amount, 4) + "L";
+                fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + 12) * 2, 0xFFFFFF);
+                GlStateManager.popMatrix();
+                GlStateManager.enableBlend();
+                GlStateManager.color(1.0f, 1.0f, 1.0f);
+                TJGuiTextures.SELECTION_BOX_2.draw(pos.getX(), pos.getY(), 18, 18);
+            } else TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
         }
     }
 
