@@ -496,6 +496,7 @@ tj.multiblock.date.ago=Hours: §a%,d§r Minutes: §a%,d§r Seconds: §a%,d
 tj.multiblock.date.placed_down=Placed down in: §b%s
 tj.multiblock.date.active=Running since: §b%s
 tj.multiblock.temporary=§eTemporary multiblock. Maybe subject to be removed.
+tj.multiblock.mega=Starts at §b1§7 parallel in §dLuV§7 and below. Parallels quadruple for each voltage tier above §dLuV.
 
 tj.multiblock.bars.fuel=§7Fuel: (§6%s§7) §6%s / %s L §7(§6%s%%§7)
 tj.multiblock.bars.energy=§7Energy: §e%s / %s EU §7(§e%s%%§7)

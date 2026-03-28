@@ -63,7 +63,8 @@ public class TJMegaDistillationTowerInfo extends TJMultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.temporary"),
-                I18n.format("tj.multiblock.distillation_tower.layers", 3, 14).replace("§7", "§r")},
+                        I18n.format("tj.multiblock.mega").replace("§7", "§r"),
+                        I18n.format("tj.multiblock.distillation_tower.layers", 3, 14).replace("§7", "§r")},
                 super.getDescription());
     }
 

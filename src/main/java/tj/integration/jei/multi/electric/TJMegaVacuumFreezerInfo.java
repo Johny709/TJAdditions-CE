@@ -66,7 +66,8 @@ public class TJMegaVacuumFreezerInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.temporary")},
+        return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.temporary"),
+                        I18n.format("tj.multiblock.mega").replace("§7", "§r")},
                 super.getDescription());
     }
 
