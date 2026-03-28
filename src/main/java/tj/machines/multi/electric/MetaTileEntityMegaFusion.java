@@ -72,13 +72,12 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     private long energyToStart;
     private long heat;
     private long maxHeat;
-    private int parallels;
     private int coilTier;
     private int vacuumTier;
     private int divertorTier;
 
     public MetaTileEntityMegaFusion(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, GARecipeMaps.ADV_FUSION_RECIPES, false, false);
+        super(metaTileEntityId, GARecipeMaps.ADV_FUSION_RECIPES, true, false);
         this.recipeLogic.setActiveConsumer(this::replaceEnergyPortsAsActive);
     }
 
@@ -104,25 +103,25 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
 
     @Override
     public boolean checkRecipe(Recipe recipe) {
-        long energyCapacity = this.energyContainer.getEnergyCapacity();
-        this.parallels = (int) (energyCapacity / (long) recipe.getProperty("eu_to_start"));
         this.recipe = recipe;
-        this.maxHeat = energyCapacity;
+        this.maxHeat = this.energyContainer.getEnergyCapacity();
         long energyToStart = recipe.getProperty("eu_to_start");
         int tier = recipe.getProperty("coil_tier");
         return this.energyToStart >= energyToStart && this.tier >= tier && this.heat >= energyToStart;
     }
 
     @Override
-    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {}
-
-    @Override
-    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         int recipeTier = recipe.getProperty("coil_tier");
         int coilTierDifference = this.coilTier - recipeTier;
         int vacuumTierDifference = this.vacuumTier - recipeTier;
         overclockManager.setDuration((int) Math.max(1.0, overclockManager.getDuration() * (1 - GAConfig.multis.advFusion.coilDurationDiscount * coilTierDifference)));
         overclockManager.setEUt((long) Math.max(1, overclockManager.getEUt() * (1 - vacuumTierDifference * GAConfig.multis.advFusion.vacuumEnergyDecrease)));
+        overclockManager.setParallel((int) (this.energyContainer.getEnergyCapacity() / (long) recipe.getProperty("eu_to_start")));
+    }
+
+    @Override
+    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         overclockManager.setEUt(overclockManager.getEUt() * overclockManager.getParallel());
     }
 
@@ -160,8 +159,8 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.addEnergyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity(), 2)
+                .addTranslationLine("tj.multiblock.industrial_fusion_reactor.heat", this.heat)
                 .customLine(text -> {
-                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.industrial_fusion_reactor.heat", this.heat)));
                     if (this.recipe != null) {
                         long energyToStart = this.recipe.getProperty("eu_to_start");
                         text.addTextComponent(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart))
@@ -271,12 +270,12 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         switch (this.tier) {
-            case 1: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UHV_ACTIVE : TJTextures.ADV_FUSION_PORT_UHV;
-            case 2: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UEV_ACTIVE : TJTextures.ADV_FUSION_PORT_UEV;
-            case 3: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UIV_ACTIVE : TJTextures.ADV_FUSION_PORT_UIV;
-            case 4: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UMV_ACTIVE : TJTextures.ADV_FUSION_PORT_UMV;
-            case 5: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UXV_ACTIVE : TJTextures.ADV_FUSION_PORT_UXV;
-            case 6: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_MAX_ACTIVE : TJTextures.ADV_FUSION_PORT_MAX;
+            case 9: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UHV_ACTIVE : TJTextures.ADV_FUSION_PORT_UHV;
+            case 10: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UEV_ACTIVE : TJTextures.ADV_FUSION_PORT_UEV;
+            case 11: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UIV_ACTIVE : TJTextures.ADV_FUSION_PORT_UIV;
+            case 12: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UMV_ACTIVE : TJTextures.ADV_FUSION_PORT_UMV;
+            case 13: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UXV_ACTIVE : TJTextures.ADV_FUSION_PORT_UXV;
+            case 14: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_MAX_ACTIVE : TJTextures.ADV_FUSION_PORT_MAX;
             default: return ClientHandler.FUSION_TEXTURE;
         }
     }
@@ -387,7 +386,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
 
     @Override
     public int getParallel() {
-        return this.parallels;
+        return 0; // don't display parallel overclocking per tier on tooltip
     }
 
     @Override
