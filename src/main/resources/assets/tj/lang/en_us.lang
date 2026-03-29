@@ -99,6 +99,7 @@ tj.machine.parallel_circuit_assembly_line.name=Parallel Circuit Assembly Line (P
 tj.machine.processing_array.name=Processing Array (PA)
 tj.machine.advanced_processing_array.name=Advanced Processing Array (APA)
 tj.machine.super_processing_array.name=Super Processing Array (SPA)
+tj.machine.interstellar_forge.name=InterStellar Forge (ISF)
 tj.machine.distillation_tower.name=Distillation Tower (DT)
 tj.machine.advanced_distillation_tower.name=Advanced Distillation Tower (ADT)
 tj.machine.mega_distillation_tower.name=Mega Distillation Tower (MDT)
