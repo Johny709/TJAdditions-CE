@@ -434,6 +434,9 @@ tj.machine.filtered_bus.description=§aIts recommended to drag items from JEI to
 
 tj.multiblock.large_solar_boiler.description=Produces steam from the sun. Cannot produce steam at night and while raining. Can accept either water or distilled water however doing water will make the boiler calcify over time. Once calcification reaches 100%%, then the boiler will stop working completely.
 
+tj.multiblock.processing_array.description=Put singleblocks inside of controller slot to set recipes. Voltage tier depends on the singleblock's tier. Parallels are determined on how many machines are in the slot.
+tj.multiblock.processing_array.eut=EU/t Usage: §eParallel Amount * Recipe EU/t
+
 tj.multiblock.large_assembly_line.tooltip=Item Inputs must be in order.
 tj.multiblock.large_assembly_line.qubit=Qubit Consumption: §9%,d§7 qubit/t
 

@@ -91,6 +91,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.mega_fusion.description"));
+        tooltip.add(I18n.format("tj.multiblock.processing_array.eut"));
         tooltip.add(I18n.format("tj.multiblock.mega_fusion.coil_duration", TJValues.thousandTwoPlaceFormat.format(GAConfig.multis.advFusion.coilDurationDiscount)));
         tooltip.add(I18n.format("tj.multiblock.mega_fusion.coolant_increase", TJValues.thousandTwoPlaceFormat.format(GAConfig.multis.advFusion.vacuumCoolantIncrease)));
         tooltip.add(I18n.format("tj.multiblock.mega_fusion.energy_decrease", TJValues.thousandTwoPlaceFormat.format(GAConfig.multis.advFusion.vacuumEnergyDecrease)));

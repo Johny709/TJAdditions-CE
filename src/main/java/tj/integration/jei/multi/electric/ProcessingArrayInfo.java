@@ -62,6 +62,8 @@ public class ProcessingArrayInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return ArrayUtils.addAll(super.getDescription(), I18n.format("tj.multiblock.universal.tooltip.2", this.getController().getMaxParallel()));
+        return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.processing_array.description"),
+                        I18n.format("tj.multiblock.processing_array.eut")},
+                ArrayUtils.addAll(super.getDescription(), I18n.format("tj.multiblock.universal.tooltip.2", this.getController().getMaxParallel())));
     }
 }

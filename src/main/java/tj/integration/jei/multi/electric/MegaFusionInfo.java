@@ -76,6 +76,7 @@ public class MegaFusionInfo extends TJMultiblockInfoPage {
     @Override
     public String[] getDescription() {
         return new String[]{I18n.format("tj.multiblock.mega_fusion.description"),
+                I18n.format("tj.multiblock.processing_array.eut"),
                 I18n.format("tj.multiblock.mega_fusion.coil_duration", GAConfig.multis.advFusion.coilDurationDiscount).replace("§7", "§0").replace("§r", "§r§0"),
                 I18n.format("tj.multiblock.mega_fusion.coolant_increase", GAConfig.multis.advFusion.vacuumCoolantIncrease).replace("§7", "§0").replace("§r", "§r§0"),
                 I18n.format("tj.multiblock.mega_fusion.energy_decrease", GAConfig.multis.advFusion.vacuumEnergyDecrease).replace("§7", "§0").replace("§r", "§r§0"),
