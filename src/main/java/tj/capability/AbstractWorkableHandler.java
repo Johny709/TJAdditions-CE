@@ -282,6 +282,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
         this.metaTileEntity.markDirty();
     }
 
+    @Override
     public long getEnergyPerTick() {
         return this.energyPerTick;
     }

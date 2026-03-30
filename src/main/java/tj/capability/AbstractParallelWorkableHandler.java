@@ -437,4 +437,12 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
     public int getSize() {
         return this.size;
     }
+
+    @Override
+    public long getEnergyPerTick() {
+        long eut = 0;
+        for (int i = 0; i < this.size; i++)
+            eut += this.energyPerTick[i];
+        return eut;
+    }
 }
