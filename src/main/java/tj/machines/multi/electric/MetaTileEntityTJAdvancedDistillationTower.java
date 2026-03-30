@@ -15,6 +15,8 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
+import gregtech.common.blocks.BlockBoilerCasing;
+import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
@@ -81,12 +83,12 @@ public class MetaTileEntityTJAdvancedDistillationTower extends TJMultiRecipeMapM
     protected BlockPattern createStructurePattern() {
         return FactoryBlockPattern.start(RIGHT, FRONT, DOWN)
                 .aisle("XXX", "XXX", "XXX")
-                .aisle("XXX", "X#X", "XXX").setRepeatable(0, 11)
+                .aisle("XXX", "XPX", "XXX").setRepeatable(0, 11)
                 .aisle("ZSZ", "ZZZ", "ZZZ")
                 .where('S', this.selfPredicate())
                 .where('Z', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY)))
                 .where('X', this.countMatch("outputHatchCount", tilePredicate(outputHatchPredicate())).or(statePredicate(this.getCasingState())).or(abilityPartPredicate(GregicAdditionsCapabilities.MAINTENANCE_HATCH, MultiblockAbility.INPUT_ENERGY)))
-                .where('#', isAirPredicate())
+                .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE)))
                 .validateLayer(0, context -> context.getOrDefault("outputHatchCount", 0) == 1)
                 .validateLayer(1, context -> context.getOrDefault("outputHatchCount", 0) == 1)
                 .build();

@@ -4,6 +4,8 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
+import gregtech.common.blocks.BlockBoilerCasing;
+import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
@@ -29,14 +31,15 @@ public class TJAdvancedDistillationTowerInfo extends TJMultiblockInfoPage {
         List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN)
                 .aisle("oCC", "CCC", "CCC")
-                .aisle("oCC", "C#C", "CCC")
-                .aisle("oCC", "C#C", "CCC")
-                .aisle("oCC", "C#C", "CCC")
-                .aisle("oMC", "C#C", "CCC")
+                .aisle("oCC", "CPC", "CCC")
+                .aisle("oCC", "CPC", "CCC")
+                .aisle("oCC", "CPC", "CCC")
+                .aisle("oMC", "CPC", "CCC")
                 .aisle("ISO", "CCC", "CEC")
                 .where('S', this.getController(), EnumFacing.WEST)
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.BABBITT_ALLOY))
-                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
+                .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE));
         for (int tier = 0; tier < 15; tier++) {
             shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
                     .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)

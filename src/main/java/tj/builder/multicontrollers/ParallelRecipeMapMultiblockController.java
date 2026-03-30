@@ -234,7 +234,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                 hoverBuilder.addTranslationLine("tj.multiblock.parallel.status", isRunning)
                         .addTranslationLine("tj.multiblock.handler", finalI + 1)
                         .addTranslationLine("tj.multiblock.eu", this.recipeLogic.getRecipeEUt(finalI))
-                        .addTranslationLine("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) (this.recipeLogic.getProgress(finalI) - (this.recipeLogic.isInstanceActive(finalI) ? -1 : 0)) / 20), TJValues.thousandTwoPlaceFormat.format((double) this.recipeLogic.getMaxProgress(finalI) / 20), (int) progressPercent)
+                        .addTranslationLine("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) (this.recipeLogic.getProgress(finalI) - (this.recipeLogic.isInstanceActive(finalI) ? 1 : 0)) / 20), TJValues.thousandTwoPlaceFormat.format((double) this.recipeLogic.getMaxProgress(finalI) / 20), (int) progressPercent)
                         .addTranslationLine("tj.multiblock.parallel", parallel);
                 List<ItemStack> itemInputs = this.recipeLogic.getItemInputsAt(finalI);
                 List<FluidStack> fluidInputs = this.recipeLogic.getFluidInputsAt(finalI);
