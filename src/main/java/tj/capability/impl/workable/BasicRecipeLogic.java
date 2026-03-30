@@ -26,21 +26,21 @@ import static net.minecraft.item.ItemStack.areItemStacksEqual;
 
 public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkableHandler<R> implements IItemFluidHandlerInfo {
 
-    private final ParallelRecipeLRUCache recipeLRUCache = new ParallelRecipeLRUCache(10);
-    private final OverclockManager<?> overclockManager = new OverclockManager<>();
-    private final List<ItemStack> itemInputs = new ArrayList<>();
-    private final List<ItemStack> itemOutputs = new ArrayList<>();
-    private final List<FluidStack> fluidInputs = new ArrayList<>();
-    private final List<FluidStack> fluidOutputs = new ArrayList<>();
+    protected final ParallelRecipeLRUCache recipeLRUCache = new ParallelRecipeLRUCache(10);
+    protected final OverclockManager<?> overclockManager = new OverclockManager<>();
+    protected final List<ItemStack> itemInputs = new ArrayList<>();
+    protected final List<ItemStack> itemOutputs = new ArrayList<>();
+    protected final List<FluidStack> fluidInputs = new ArrayList<>();
+    protected final List<FluidStack> fluidOutputs = new ArrayList<>();
     protected ItemStack[] lastItemInputs;
     protected ItemStack[][] lastItemInputsMatrix;
     protected FluidStack[] lastFluidInputs;
-    private boolean allowOverclocking = true;
-    private boolean recipeRecheck = true;
-    private boolean voidingItems;
-    private boolean voidingFluids;
-    private int itemOutputIndex;
-    private int fluidOutputIndex;
+    protected boolean allowOverclocking = true;
+    protected boolean recipeRecheck = true;
+    protected boolean voidingItems;
+    protected boolean voidingFluids;
+    protected int itemOutputIndex;
+    protected int fluidOutputIndex;
 
     public BasicRecipeLogic(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -84,13 +84,13 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             }
         }
         if (recipe != null) {
-            this.overclockManager.setEuMultiplier(2.8F);
+            this.overclockManager.setDurationMultiplier(2.8F);
             this.overclockManager.setEUt(recipe.getEUt());
             this.overclockManager.setDuration(recipe.getDuration());
             this.overclockManager.setParallel(this.handler.getParallel());
             this.handler.preOverclock(this.overclockManager, recipe);
             if (this.handler.checkRecipe(recipe) && this.consumeRecipe(recipe, itemInputs)) {
-                this.calculateOverclock(this.overclockManager.getEUt(), this.overclockManager.getDuration(), this.overclockManager.getEuMultiplier());
+                this.calculateOverclock(this.overclockManager.getEUt(), this.overclockManager.getDuration(), this.overclockManager.getDurationMultiplier());
                 this.handler.postOverclock(this.overclockManager, recipe);
                 this.energyPerTick = this.overclockManager.getEUt();
                 this.setMaxProgress(this.overclockManager.getDuration());
@@ -378,6 +378,10 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
 
     public ParallelRecipeLRUCache getRecipeLRUCache() {
         return this.recipeLRUCache;
+    }
+
+    public int getParallel() {
+        return this.overclockManager.getParallel();
     }
 
     @Override

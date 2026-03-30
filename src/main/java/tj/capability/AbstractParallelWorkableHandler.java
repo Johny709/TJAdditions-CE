@@ -12,7 +12,7 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 
-public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler> extends MTETrait implements IMultipleWorkable {
+public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler> extends MTETrait implements IMultipleWorkable, IRecipeInfo {
 
     protected final H handler;
     protected BiConsumer<Boolean, Integer> activeConsumer;
@@ -315,6 +315,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
     }
 
     public void setDistinct(boolean distinct) {
+        if (distinct && this.busCount < 1) return;
         this.isDistinct = distinct;
         this.metaTileEntity.markDirty();
     }
@@ -394,6 +395,14 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
     }
 
     @Override
+    public boolean hasProblem() {
+        for (int i = 0; i < this.size; i++)
+            if (this.hasProblems(i))
+                return true;
+        return false;
+    }
+
+    @Override
     public boolean hasProblems(int i) {
         return this.hasProblem[i];
     }
@@ -427,5 +436,13 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
     @Override
     public int getSize() {
         return this.size;
+    }
+
+    @Override
+    public long getEnergyPerTick() {
+        long eut = 0;
+        for (int i = 0; i < this.size; i++)
+            eut += this.energyPerTick[i];
+        return eut;
     }
 }

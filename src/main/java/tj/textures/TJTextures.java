@@ -58,6 +58,7 @@ public class TJTextures {
     public static final TJOrientedOverlayRenderer TJ_MULTIBLOCK_WORKABLE_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/multiblock_workable", FRONT);
     public static final TJOrientedOverlayRenderer TJ_ASSEMBLER_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/assembler", FRONT, TOP);
     public static final TJOrientedOverlayRenderer TJ_FUSION_REACTOR_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/fusion_reactor", FRONT);
+    public static final TJOrientedOverlayRenderer TJ_DISTILLERY_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/distillery", FRONT);
 
     public static final TJSimpleCubeRenderer FUSION_MK2 = new TJSimpleCubeRenderer(GTValues.MODID, "blocks/casings/fusion/machine_casing_fusion_2");
     public static final TJSimpleCubeRenderer FUSION_PORT_LUV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_luv");
@@ -83,6 +84,7 @@ public class TJTextures {
     public static final TJSimpleCubeRenderer ADV_FUSION_PORT_MAX = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_max");
     public static final TJSimpleCubeRenderer ADV_FUSION_PORT_MAX_ACTIVE = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/adv_fusion_energy_port_max_active");
 
+    public static final TJSimpleOverlayRenderer TJ_LOGO = new TJSimpleOverlayRenderer(GTValues.MODID, "tj_logo");
     public static final TJSimpleOverlayRenderer CHISEL_ARCHITECTURE = new TJSimpleOverlayRenderer("architecturecraft", "items/chisel");
     public static final TJSimpleOverlayRenderer HAMMER = new TJSimpleOverlayRenderer("architecturecraft", "items/hammer");
     public static final TJSimpleOverlayRenderer SAW_BLADE = new TJSimpleOverlayRenderer("architecturecraft", "items/sawblade");

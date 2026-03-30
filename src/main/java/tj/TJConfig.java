@@ -10,11 +10,6 @@ public class TJConfig {
 
     public static class Machines {
 
-        @Config.Name("Replace CT Multis")
-        @Config.Comment("replaces Multis registered by MultiblockTweaker")
-        @Config.RequiresMcRestart
-        public boolean replaceCTMultis = false;
-
         @Config.Name("Parallel Recipe Cache Capacity")
         @Config.Comment("Recipe LRU Caching for Parallel Multiblock Recipe Logic. Recommended not to make this too large.")
         @Config.RequiresMcRestart

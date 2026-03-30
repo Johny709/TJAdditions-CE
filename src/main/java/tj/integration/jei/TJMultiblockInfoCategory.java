@@ -15,7 +15,6 @@ import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.gui.recipes.RecipeLayout;
 import net.minecraft.client.resources.I18n;
 import tj.TJ;
-import tj.TJConfig;
 import tj.integration.jei.multi.electric.*;
 import tj.integration.jei.multi.parallel.*;
 import tj.integration.jei.multi.electric.XLHotCoolantTurbineInfo;
@@ -43,17 +42,6 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
     public static ImmutableMap<String, MultiblockInfoRecipeWrapper> getMultiblockRecipes() {
         if (multiblockRecipes == null) {
             ImmutableMap.Builder<String, MultiblockInfoRecipeWrapper> multiblockRecipes = new ImmutableMap.Builder<>();
-
-                    if (TJConfig.machines.replaceCTMultis) {
-                    multiblockRecipes.put("primitive_alloy", new MultiblockInfoRecipeWrapper(new PrimitiveAlloyInfo()))
-                                .put("coke_oven", new MultiblockInfoRecipeWrapper(new CokeOvenInfo()))
-                                .put("heat_exchanger", new MultiblockInfoRecipeWrapper(new HeatExchangerInfo()))
-                                .put("armor_infuser", new MultiblockInfoRecipeWrapper(new ArmorInfuserInfo()))
-                                .put("dragon_egg_replicator", new MultiblockInfoRecipeWrapper(new DragonReplicatorInfo()))
-                                .put("chaos_replicator", new MultiblockInfoRecipeWrapper(new ChaosReplicatorInfo()))
-                                .put("large_powered_spawner", new MultiblockInfoRecipeWrapper(new LargePoweredSpawnerInfo()))
-                                .put("large_vial_processor", new MultiblockInfoRecipeWrapper(new LargeVialProcessorInfo()));
-                    }
 
                     multiblockRecipes.put("mega_coke_oven", new MultiblockInfoRecipeWrapper(new MegaCokeOvenInfo()))
                             .put("mega_bronze_boiler", new MultiblockInfoRecipeWrapper(new MegaBoilerInfo(BoilerType.BRONZE, TJMetaTileEntities.MEGA_BOILER[0])))
@@ -135,7 +123,23 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("advanced_large_chunk_miner.5", new MultiblockInfoRecipeWrapper(new AdvancedLargeChunkMinerInfo(5)))
                             .put("large_naming_machine", new MultiblockInfoRecipeWrapper(new LargeNamingMachineInfo()))
                             .put("large_assembly_line", new MultiblockInfoRecipeWrapper(new LargeAssemblyLineInfo()))
-                            .put("parallel_circuit_assembly_line", new MultiblockInfoRecipeWrapper(new ParallelCircuitAssemblyLineInfo()));
+                            .put("parallel_circuit_assembly_line", new MultiblockInfoRecipeWrapper(new ParallelCircuitAssemblyLineInfo()))
+                            .put("processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.PROCESSING_ARRAY)))
+                            .put("advanced_processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.ADVANCED_PROCESSING_ARRAY)))
+                            .put("super_processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.SUPER_PROCESSING_ARRAY)))
+                            .put("distillation_tower", new MultiblockInfoRecipeWrapper(new TJDistillationTowerInfo()))
+                            .put("advanced_distillation_tower", new MultiblockInfoRecipeWrapper(new TJAdvancedDistillationTowerInfo()))
+                            .put("mega_distillation_tower", new MultiblockInfoRecipeWrapper(new TJMegaDistillationTowerInfo()))
+                            .put("mega_blast_furnace", new MultiblockInfoRecipeWrapper(new TJMegaBlastFurnaceInfo()))
+                            .put("mega_vacuum_freezer", new MultiblockInfoRecipeWrapper(new TJMegaVacuumFreezerInfo()))
+                            .put("primitive_alloy", new MultiblockInfoRecipeWrapper(new PrimitiveAlloyInfo()))
+                            .put("coke_oven", new MultiblockInfoRecipeWrapper(new CokeOvenInfo()))
+                            .put("heat_exchanger", new MultiblockInfoRecipeWrapper(new HeatExchangerInfo()))
+                            .put("armor_infuser", new MultiblockInfoRecipeWrapper(new ArmorInfuserInfo()))
+                            .put("dragon_egg_replicator", new MultiblockInfoRecipeWrapper(new DragonReplicatorInfo()))
+                            .put("chaos_replicator", new MultiblockInfoRecipeWrapper(new ChaosReplicatorInfo()))
+                            .put("large_powered_spawner", new MultiblockInfoRecipeWrapper(new LargePoweredSpawnerInfo()))
+                            .put("large_vial_processor", new MultiblockInfoRecipeWrapper(new LargeVialProcessorInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;

@@ -5,7 +5,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-import static tj.TJRecipeMaps.LARGE_POWERED_SPAWNER_RECIPES;
+import static tj.TJRecipeMaps.TJ_LARGE_POWERED_SPAWNER_RECIPES;
 
 public class LargePoweredSpawnerRecipes {
 
@@ -19,7 +19,7 @@ public class LargePoweredSpawnerRecipes {
                 compound.setString("entityId", entity[i]);
                 ItemStack stack = new ItemStack(Item.getByNameOrId("enderio:item_soul_vial"), 16, 1);
                 stack.setTagCompound(compound);
-                LARGE_POWERED_SPAWNER_RECIPES.recipeBuilder()
+                TJ_LARGE_POWERED_SPAWNER_RECIPES.recipeBuilder()
                         .inputs(new ItemStack(Item.getByNameOrId("enderio:item_soul_vial"), 16))
                         .notConsumable(IntCircuitIngredient.getIntegratedCircuit(i))
                         .outputs(stack)
@@ -30,7 +30,7 @@ public class LargePoweredSpawnerRecipes {
                 compound.setString("entityId", entity[i - 16]);
                 ItemStack stack = new ItemStack(Item.getByNameOrId("enderio:item_soul_vial"), 64, 1);
                 stack.setTagCompound(compound);
-                LARGE_POWERED_SPAWNER_RECIPES.recipeBuilder()
+                TJ_LARGE_POWERED_SPAWNER_RECIPES.recipeBuilder()
                         .inputs(new ItemStack(Item.getByNameOrId("enderio:item_soul_vial"), 64))
                         .notConsumable(IntCircuitIngredient.getIntegratedCircuit(i))
                         .outputs(stack)

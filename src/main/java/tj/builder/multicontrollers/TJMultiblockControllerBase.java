@@ -2,6 +2,10 @@ package tj.builder.multicontrollers;
 
 import gregicadditions.GAConfig;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
+import gregicadditions.item.GAHeatingCoil;
+import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.GAMultiblockCasing;
+import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.machines.GATileEntities;
 import gregicadditions.machines.multi.IMaintenance;
 import gregicadditions.machines.multi.multiblockpart.MetaTileEntityMaintenanceHatch;
@@ -20,11 +24,15 @@ import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
+import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.unification.OreDictUnifier;
 import gregtech.api.unification.material.Materials;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.util.XSTR;
+import gregtech.common.blocks.BlockWireCoil;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -42,7 +50,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IMachineHandler;
 import tj.capability.IMuffler;
@@ -60,6 +67,7 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -496,5 +504,47 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
      */
     public String getRecipeUid() {
         return null;
+    }
+
+    public static Predicate<BlockWorldState> frameworkPredicate() {
+        return blockWorldState -> {
+            IBlockState state = blockWorldState.getBlockState();
+            Block block = state.getBlock();
+            if (block instanceof GAMultiblockCasing) {
+                int tier = GAMetaBlocks.MUTLIBLOCK_CASING.getState(state).getTier();
+                if (tier < 0) return false;
+                return blockWorldState.getMatchContext().getOrPut("frameworkTier", tier) == tier;
+            } else if (block instanceof GAMultiblockCasing2) {
+                int tier = GAMetaBlocks.MUTLIBLOCK_CASING2.getState(state).getTier();
+                if (tier < 0) return false;
+                return blockWorldState.getMatchContext().getOrPut("frameworkTier", tier) == tier;
+            }
+            return false;
+        };
+    }
+
+    public static Predicate<BlockWorldState> coilPredicate() {
+        return blockWorldState -> {
+            IBlockState state = blockWorldState.getBlockState();
+            Block block = state.getBlock();
+            if (block instanceof BlockWireCoil) {
+                BlockWireCoil.CoilType coilType = ((BlockWireCoil) block).getState(state);
+                String name = blockWorldState.getMatchContext().getOrPut("coilName", coilType.getName());
+                if (!coilType.getName().equals(name)) return false;
+                blockWorldState.getMatchContext().getOrPut("coilLevel", coilType.getLevel());
+                blockWorldState.getMatchContext().getOrPut("coilTemperature", coilType.getCoilTemperature());
+                blockWorldState.getMatchContext().getOrPut("coilEnergyDiscount", coilType.getEnergyDiscount());
+                return true;
+            } else if (block instanceof GAHeatingCoil) {
+                GAHeatingCoil.CoilType coilType = ((GAHeatingCoil) block).getState(state);
+                String name = blockWorldState.getMatchContext().getOrPut("coilName", coilType.getName());
+                if (!coilType.getName().equals(name)) return false;
+                blockWorldState.getMatchContext().getOrPut("coilLevel", coilType.getLevel());
+                blockWorldState.getMatchContext().getOrPut("coilTemperature", coilType.getCoilTemperature());
+                blockWorldState.getMatchContext().getOrPut("coilEnergyDiscount", coilType.getEnergyDiscount());
+                return true;
+            }
+            return false;
+        };
     }
 }

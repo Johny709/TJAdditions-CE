@@ -15,7 +15,7 @@ import tj.TJConfig;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 
-public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends MTETrait implements IWorkable {
+public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends MTETrait implements IWorkable, IRecipeInfo {
 
     protected final H handler;
     protected BooleanConsumer activeConsumer;
@@ -245,6 +245,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
     }
 
     public void setDistinct(boolean distinct) {
+        if (distinct && this.busCount < 1) return;
         this.isDistinct = distinct;
         this.metaTileEntity.markDirty();
     }
@@ -281,6 +282,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
         this.metaTileEntity.markDirty();
     }
 
+    @Override
     public long getEnergyPerTick() {
         return this.energyPerTick;
     }
@@ -290,6 +292,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
         return this.isActive;
     }
 
+    @Override
     public boolean hasProblem() {
         return this.hasProblem;
     }

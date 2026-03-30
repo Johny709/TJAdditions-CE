@@ -105,7 +105,7 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
             builder.addVoltageInLine(this.inputEnergyContainer)
                     .addVoltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
                     .addEnergyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
-                    .addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallel)
+                    .addTranslationLine("tj.multiblock.max_parallel", this.parallel)
                     .customLine(text -> text.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")
                             .appendSibling(this.recipeLogic.isDistinct()

@@ -370,7 +370,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                     FluidStack fluidStack = (FluidStack) component.getValue();
                     GuiTextures.FLUID_SLOT.draw(x + widthApplied, y + heightApplied, 18, 18);
                     GlStateManager.disableBlend();
-                    TJGuiUtils.drawFluidForGui(fluidStack, fluidStack.amount, fluidStack.amount, x + widthApplied + 1, y + heightApplied + 1, 17, 17);
+                    TJGuiUtils.drawFluidForGui(fluidStack, Math.max(1, fluidStack.amount), Math.max(1, fluidStack.amount), x + widthApplied + 1, y + heightApplied + 1, 17, 17);
                     GlStateManager.pushMatrix();
                     GlStateManager.scale(0.5, 0.5, 1);
                     String s = TextFormattingUtil.formatLongToCompactString(fluidStack.amount, 4) + "L";

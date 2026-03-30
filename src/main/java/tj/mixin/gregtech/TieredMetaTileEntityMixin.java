@@ -13,6 +13,8 @@ public abstract class TieredMetaTileEntityMixin extends MetaTileEntity {
     @Shadow
     protected IEnergyContainer energyContainer;
 
+    @Shadow public abstract int getTier();
+
     public TieredMetaTileEntityMixin(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
     }

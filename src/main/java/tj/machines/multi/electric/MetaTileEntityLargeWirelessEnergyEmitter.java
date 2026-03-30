@@ -23,8 +23,6 @@ import tj.items.TJMetaItems;
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.item.GAMultiblockCasing;
-import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.item.metal.MetalCasing2;
 import gregtech.api.block.machines.BlockMachine;
@@ -78,8 +76,6 @@ import java.util.regex.Pattern;
 
 import static gregicadditions.GAMaterials.Talonite;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
-import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
-import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
 import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
@@ -409,7 +405,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockContro
                 .where('C', statePredicate(this.getCasingState(this.transferType)))
                 .where('H', statePredicate(this.getCasingState(this.transferType)).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('F', statePredicate(this.getFrameState(this.transferType)))
-                .where('I', frameworkPredicate().or(frameworkPredicate2()))
+                .where('I', frameworkPredicate())
                 .where('~', tile -> true)
                 .build();
     }
@@ -429,14 +425,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockContro
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int framework = 0, framework2 = 0;
-        if (context.get("framework") instanceof GAMultiblockCasing.CasingType) {
-            framework = ((GAMultiblockCasing.CasingType) context.get("framework")).getTier();
-        }
-        if (context.get("framework2") instanceof GAMultiblockCasing2.CasingType) {
-            framework2 = ((GAMultiblockCasing2.CasingType) context.get("framework2")).getTier();
-        }
-        this.tier = Math.max(framework, framework2);
+        this.tier = context.getOrDefault("frameworkTier", 0);
         this.inputEnergyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
         this.importFluidTank = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         this.workableHandler.initialize(this.transferType.ordinal());

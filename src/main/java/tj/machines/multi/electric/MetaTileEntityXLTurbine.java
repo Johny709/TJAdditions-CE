@@ -107,7 +107,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
                         }
                     }
                     return false;
-                }).setOnContentsChanged((slot, stack, insert) -> {
+                }).setOnContentsChangedPre((slot, stack, insert) -> {
                     if (this.getWorld() != null && !this.getWorld().isRemote) {
                         this.parallels = BASE_PARALLEL;
                         Item item = stack.getItem();

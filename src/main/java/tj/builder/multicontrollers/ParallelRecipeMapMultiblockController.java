@@ -212,14 +212,15 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     private void addWorkableDisplayText(GUIDisplayBuilder builder) {
-        builder.addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer)
+        builder.addTranslationLine("tj.multiblock.parallel", this.parallelLayer)
                 .addTextComponent(new TextComponentTranslation("tj.multiblock.parallel.distinct").appendText(" ")
                         .appendSibling(this.recipeLogic.isDistinctRecipes() ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "isDistinct")
                                 : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "notDistinct")));
         if (!this.isStructureFormed()) return;
         for (int i = 0; i < this.recipeLogic.getSize(); i++) {
             int parallel = this.recipeLogic.getParallel(i);
-            double progressPercent = this.recipeLogic.getProgressPercent(i) * 100;
+            int progressOffset = this.recipeLogic.isInstanceActive(i) ? 1 : 0;
+            double progressPercent = (this.recipeLogic.getProgressPercent(i) - progressOffset) * 100;
             String isRunning = !this.recipeLogic.isWorkingEnabled(i) ? TextUtils.translate("machine.universal.work_paused")
                     : this.recipeLogic.hasProblems(i) ? TextUtils.translate("machine.universal.has_problems")
                     : !this.recipeLogic.isInstanceActive(i) ? TextUtils.translate("machine.universal.idling")
@@ -234,7 +235,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                 hoverBuilder.addTranslationLine("tj.multiblock.parallel.status", isRunning)
                         .addTranslationLine("tj.multiblock.handler", finalI + 1)
                         .addTranslationLine("tj.multiblock.eu", this.recipeLogic.getRecipeEUt(finalI))
-                        .addTranslationLine("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) this.recipeLogic.getProgress(finalI) / 20), TJValues.thousandTwoPlaceFormat.format((double) this.recipeLogic.getMaxProgress(finalI) / 20), (int) progressPercent)
+                        .addTranslationLine("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) (this.recipeLogic.getProgress(finalI) - progressOffset) / 20), TJValues.thousandTwoPlaceFormat.format((double) this.recipeLogic.getMaxProgress(finalI) / 20), (int) progressPercent)
                         .addTranslationLine("tj.multiblock.parallel", parallel);
                 List<ItemStack> itemInputs = this.recipeLogic.getItemInputsAt(finalI);
                 List<FluidStack> fluidInputs = this.recipeLogic.getFluidInputsAt(finalI);

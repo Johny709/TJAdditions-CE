@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tj.TJConfig;
 import tj.TJValues;
+import tj.capability.IRecipeInfo;
 import vfyjxf.gregicprobe.config.GregicProbeConfig;
 import vfyjxf.gregicprobe.integration.gregtech.WorkableInforProvider;
 
@@ -40,6 +41,13 @@ public abstract class WorkableInfoProviderMixin {
                     .backgroundColor(GregicProbeConfig.backgroundColorProgress)
                     .filledColor(GregicProbeConfig.filledColorProgress)
                     .alternateFilledColor(GregicProbeConfig.alternateFilledColorProgress));
+        }
+        if (!capability.isWorkingEnabled()) {
+            ci.cancel();
+        } else if (capability instanceof IRecipeInfo && ((IRecipeInfo) capability).hasProblem()) {
+            probeInfo.text(TextStyleClass.INFOIMP + "{*machine.universal.has_problems*}");
+        } else if (capability instanceof IWorkable && capability.isActive()) {
+            probeInfo.text(TextStyleClass.INFOIMP + "{*machine.universal.running*}");
         }
         ci.cancel();
     }

@@ -36,6 +36,7 @@ import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
+import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -73,7 +74,8 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1", this.getRecipeMapNames()));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(this.getEUtMultiplier() / 100.0)));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(this.getDurationMultiplier() / 100.0)));
-        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", this.getParallel()));
+        if (this.getParallel() > 0)
+            tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", this.getParallel()));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", this.getChanceMultiplier()));
     }
 
@@ -83,7 +85,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        return !abilities.getOrDefault(MultiblockAbility.INPUT_ENERGY, Collections.emptyList()).isEmpty() &&
+        return (!this.usesEnergy() || !abilities.getOrDefault(MultiblockAbility.INPUT_ENERGY, Collections.emptyList()).isEmpty()) &&
                 abilities.getOrDefault(MultiblockAbility.IMPORT_ITEMS, Collections.emptyList()).size() >= Math.min(1, this.recipeMap.getMinInputs()) &&
                 abilities.getOrDefault(MultiblockAbility.EXPORT_ITEMS, Collections.emptyList()).size() >= Math.min(1, this.recipeMap.getMinOutputs()) &&
                 abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size() >= Math.min(1, this.recipeMap.getMinFluidInputs()) &&
@@ -142,6 +144,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         builder.addVoltageInLine(this.inputEnergyContainer)
                 .addVoltageTierLine(this.tier)
                 .addEnergyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
+                .addParallelLine(this.recipeLogic.getParallel())
                 .addIsWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress(), this.recipeLogic.hasProblem(), 998)
                 .addRecipeInputLine(this.recipeLogic, 999)
                 .addRecipeOutputLine(this.recipeLogic, 1000);
@@ -204,11 +207,25 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        this.getFrontalOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive(), this.recipeLogic.hasProblem(), this.recipeLogic.isWorkingEnabled());
+        if (this.renderTJLogoOverlay() && !this.isStructureFormed()) {
+            TJTextures.TJ_LOGO.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
+            TJTextures.TJ_LOGO.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
+            TJTextures.TJ_LOGO.renderSided(this.getFrontFacing().getOpposite(), renderState, translation, pipeline);
+        }
+        if (this.getFrontalOverlay() != null)
+            this.getFrontalOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive(), this.recipeLogic.hasProblem(), this.recipeLogic.isWorkingEnabled());
     }
 
     public TJOrientedOverlayRenderer getFrontalOverlay() {
         return TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY;
+    }
+
+    public boolean renderTJLogoOverlay() {
+        return false;
+    }
+
+    public boolean usesEnergy() {
+        return true;
     }
 
     @Override
@@ -242,11 +259,11 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
 
     @Override
     public String getRecipeUid() {
-        return Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName();
+        return this.recipeMap != null ? Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName() : null;
     }
 
     public String getRecipeMapNames() {
-        return this.recipeMap.getLocalizedName();
+        return this.recipeMap != null ? this.recipeMap.getLocalizedName() : "Null";
     }
 
     public int getEUtMultiplier() {

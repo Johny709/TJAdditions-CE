@@ -49,7 +49,6 @@ public class AssemblyLineRecipes {
         MetaItem<?>.MetaValueItem[] robotArms = {ROBOT_ARM_LV, ROBOT_ARM_MV, ROBOT_ARM_HV, ROBOT_ARM_EV, ROBOT_ARM_IV, ROBOT_ARM_LUV, ROBOT_ARM_ZPM, ROBOT_ARM_UV, ROBOT_ARM_UHV, ROBOT_ARM_UEV, ROBOT_ARM_UIV, ROBOT_ARM_UMV, ROBOT_ARM_UXV, ROBOT_ARM_MAX};
         MetaItem<?>.MetaValueItem[] fieldGens = {FIELD_GENERATOR_LV, FIELD_GENERATOR_MV, FIELD_GENERATOR_HV, FIELD_GENERATOR_EV, FIELD_GENERATOR_IV, FIELD_GENERATOR_LUV, FIELD_GENERATOR_ZPM, FIELD_GENERATOR_UV, FIELD_GENERATOR_UHV, FIELD_GENERATOR_UEV, FIELD_GENERATOR_UIV, FIELD_GENERATOR_UMV, FIELD_GENERATOR_UXV, FIELD_GENERATOR_MAX};
         MetaItem<?>.MetaValueItem[] regulators = {FLUID_REGULATOR_LV, FLUID_REGULATOR_MV, FLUID_REGULATOR_HV, FLUID_REGULATOR_EV, FLUID_REGULATOR_IV, FLUID_REGULATOR_LUV, FLUID_REGULATOR_ZPM, FLUID_REGULATOR_UV, FLUID_REGULATOR_UHV, null, null, FLUID_REGULATOR_UMV, null, FLUID_REGULATOR_MAX};
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -70,10 +69,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
                 .outputs(XL_STEAM_TURBINE.getStackForm())
-                .EUt(491520)
-                .duration(2400)
+                .EUt(491520).duration(2400)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -94,10 +91,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
                 .outputs(XL_GAS_TURBINE.getStackForm())
-                .EUt(491520)
-                .duration(2400)
+                .EUt(491520).duration(2400)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -118,10 +113,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UEV)
                 .input(OrePrefix.circuit, UEV)
                 .outputs(XL_COOLANT_TURBINE.getStackForm())
-                .EUt(1966080)
-                .duration(2400)
+                .EUt(1966080).duration(2400)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -142,10 +135,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UEV)
                 .input(OrePrefix.circuit, UEV)
                 .outputs(XL_PLASMA_TURBINE.getStackForm())
-                .EUt(1966080)
-                .duration(2400)
+                .EUt(1966080).duration(2400)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(5760))
                 .fluidInputs(Lubricant.getFluid(16000))
@@ -164,10 +155,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Ultimate)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Ultimate)
                 .outputs(INDUSTRIAL_FUSION_REACTOR_LUV.getStackForm())
-                .EUt(60000)
-                .duration(1000)
+                .EUt(60000).duration(1000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(5760))
                 .fluidInputs(Lubricant.getFluid(16000))
@@ -187,10 +176,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor, 4)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor, 4)
                 .outputs(INDUSTRIAL_FUSION_REACTOR_ZPM.getStackForm())
-                .EUt(120000)
-                .duration(1000)
+                .EUt(120000).duration(1000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(5760))
                 .fluidInputs(Lubricant.getFluid(16000))
@@ -210,10 +197,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite, 16)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite,16)
                 .outputs(INDUSTRIAL_FUSION_REACTOR_UV.getStackForm())
-                .EUt(180000)
-                .duration(1000)
+                .EUt(180000).duration(1000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(Helium.getFluid(4000))
                 .inputs(MetaItems.NEUTRON_REFLECTOR.getStackForm(8))
@@ -222,10 +207,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.plate, Bohrium, 2)
                 .input(OrePrefix.circuit, UEV, 1)
                 .outputs(TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_COIL_UHV))
-                .duration(400)
-                .EUt(GAValues.VA[9])
+                .EUt(GAValues.VA[9]).duration(400)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(Helium.getFluid(4000))
                 .fluidInputs(Neon.getFluid(4000))
@@ -237,10 +220,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.plate, Periodicium, 4)
                 .input(OrePrefix.circuit, UIV, 1)
                 .outputs(TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_COIL_UEV))
-                .duration(400)
-                .EUt(GAValues.VA[10])
+                .EUt(GAValues.VA[10]).duration(400)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(11520))
                 .fluidInputs(Lubricant.getFluid(16000))
@@ -260,10 +241,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UIV, 16)
                 .input(OrePrefix.circuit, UIV,16)
                 .outputs(INDUSTRIAL_FUSION_REACTOR_UHV.getStackForm())
-                .EUt(1800000)
-                .duration(1000)
+                .EUt(1800000).duration(1000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -283,10 +262,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UXV, 16)
                 .input(OrePrefix.circuit, UXV, 16)
                 .outputs(INDUSTRIAL_FUSION_REACTOR_UEV.getStackForm())
-                .EUt(180000000)
-                .duration(1000)
+                .EUt(180000000).duration(1000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(4608))
                 .fluidInputs(Polybenzimidazole.getFluid(9216))
@@ -307,10 +284,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.wireFine, ThoriumDopedTungsten, 64)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite, 4)
                 .outputs(LARGE_WORLD_ACCELERATOR.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(2400)
+                .EUt(GAValues.VA[9]).duration(2400)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(4608))
                 .fluidInputs(Polyetheretherketone.getFluid(9216))
@@ -330,10 +305,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.wireGtSingle, UHVSuperconductor, 64)
                 .input(OrePrefix.frameGt, HDCS, 16)
                 .outputs(INFINITE_FLUID_DRILL.getStackForm())
-                .EUt(GAValues.VA[10])
-                .duration(2400)
+                .EUt(GAValues.VA[10]).duration(2400)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(Plastic.getFluid(9216))
                 .fluidInputs(PolyvinylChloride.getFluid(4608))
@@ -352,10 +325,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, Master)
                 .input(OrePrefix.circuit, Master)
                 .outputs(PARALLEL_CHEMICAL_REACTOR.getStackForm())
-                .EUt(GAValues.VA[6])
-                .duration(3000)
+                .EUt(GAValues.VA[6]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -373,10 +344,8 @@ public class AssemblyLineRecipes {
                 .inputs(GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.PTFE_PIPE, 64))
                 .inputs(GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.CHEMICALLY_INERT, 64))
                 .outputs(ADVANCED_PARALLEL_CHEMICAL_REACTOR.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -395,10 +364,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_MACERATOR.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -417,10 +384,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_WASHING_MACHINE.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -439,10 +404,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_CENTRIFUGE.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -461,10 +424,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_ELECTROLYZER.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -483,10 +444,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_SIFTER.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -505,10 +464,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_BREWERY.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -527,10 +484,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UEV)
                 .input(OrePrefix.circuit, UEV)
                 .outputs(PARALLEL_LARGE_ARC_FURNACE.getStackForm())
-                .EUt(GAValues.VA[10])
-                .duration(3000)
+                .EUt(GAValues.VA[10]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -550,10 +505,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UIV)
                 .input(OrePrefix.circuit, UIV)
                 .outputs(PARALLEL_LARGE_ASSEMBLER.getStackForm())
-                .EUt(GAValues.VA[11])
-                .duration(3000)
+                .EUt(GAValues.VA[11]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -572,10 +525,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_BENDING_AND_FORMING.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -594,10 +545,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_CANNING_MACHINE.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -616,10 +565,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_CUTTING_MACHINE.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -638,10 +585,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_ELECTROMAGNET.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -660,10 +605,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_EXTRACTOR.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -682,10 +625,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_EXTRUDER.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -704,10 +645,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_FORGE_HAMMER.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -728,10 +667,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UIV)
                 .input(OrePrefix.circuit, UIV)
                 .outputs(PARALLEL_LARGE_LASER_ENGRAVER.getStackForm())
-                .EUt(GAValues.VA[11])
-                .duration(3000)
+                .EUt(GAValues.VA[11]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -750,10 +687,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_MIXER.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -772,10 +707,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_PACKAGER.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -794,10 +727,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .outputs(PARALLEL_LARGE_WIREMILL.getStackForm())
-                .EUt(GAValues.VA[9])
-                .duration(3000)
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -817,10 +748,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UIV)
                 .input(OrePrefix.circuit, UIV)
                 .outputs(PARALLEL_PLASMA_CONDENSER.getStackForm())
-                .EUt(GAValues.VA[11])
-                .duration(3000)
+                .EUt(GAValues.VA[11]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -838,10 +767,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, Ultimate)
                 .input(OrePrefix.circuit, Ultimate)
                 .outputs(PARALLEL_ALLOY_BLAST_FURNACE.getStackForm())
-                .EUt(GAValues.VA[7])
-                .duration(3000)
+                .EUt(GAValues.VA[7]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -859,10 +786,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, Master)
                 .input(OrePrefix.circuit, Master)
                 .outputs(PARALLEL_ELECTRIC_BLAST_FURNACE.getStackForm())
-                .EUt(GAValues.VA[6])
-                .duration(3000)
+                .EUt(GAValues.VA[6]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -880,10 +805,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, Master)
                 .input(OrePrefix.circuit, Master)
                 .outputs(PARALLEL_VACUUM_FREEZER.getStackForm())
-                .EUt(GAValues.VA[6])
-                .duration(3000)
+                .EUt(GAValues.VA[6]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -902,10 +825,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, Superconductor)
                 .input(OrePrefix.circuit, Superconductor)
                 .outputs(PARALLEL_CRYOGENIC_FREEZER.getStackForm())
-                .EUt(GAValues.VA[8])
-                .duration(3000)
+                .EUt(GAValues.VA[8]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -924,10 +845,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, Superconductor)
                 .input(OrePrefix.circuit, Superconductor)
                 .outputs(PARALLEL_VOLCANUS.getStackForm())
-                .EUt(GAValues.VA[8])
-                .duration(3000)
+                .EUt(GAValues.VA[8]).duration(3000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(16000))
@@ -945,10 +864,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
                 .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
                 .outputs(LARGE_WIRELESS_ENERGY_EMITTER.getStackForm())
-                .EUt(GAValues.VA[8])
-                .duration(2000)
+                .EUt(GAValues.VA[8]).duration(2000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(16000))
@@ -966,10 +883,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
                 .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
                 .outputs(LARGE_WIRELESS_ENERGY_RECEIVER.getStackForm())
-                .EUt(GAValues.VA[8])
-                .duration(2000)
+                .EUt(GAValues.VA[8]).duration(2000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(16000))
@@ -987,10 +902,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, Infinite, 4)
                 .input(OrePrefix.wireGtQuadruple, UVSuperconductor, 64)
                 .outputs(LARGE_BATTERY_CHARGER.getStackForm())
-                .EUt(GAValues.VA[8])
-                .duration(2000)
+                .EUt(GAValues.VA[8]).duration(2000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(7776))
                 .fluidInputs(FullerenePolymerMatrix.getFluid(2592))
@@ -1008,10 +921,8 @@ public class AssemblyLineRecipes {
                 .inputs(SENSOR_UMV.getStackForm(2))
                 .inputs(VOID_MINER[2].getStackForm())
                 .outputs(VOID_MORE_MINER.getStackForm())
-                .EUt(64000000)
-                .duration(600)
+                .EUt(64000000).duration(600)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(4608))
                 .fluidInputs(EnderPearl.getFluid(10000))
@@ -1027,10 +938,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.wireGtSingle, Naquadah, 16)
                 .input(OrePrefix.screw, Enderium, 64)
                 .outputs(TELEPORTER.getStackForm())
-                .EUt(GAValues.VA[7])
-                .duration(600)
+                .EUt(GAValues.VA[7]).duration(600)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(4608))
                 .fluidInputs(FluidRegistry.getFluidStack("xpjuice", 61440))
@@ -1046,10 +955,8 @@ public class AssemblyLineRecipes {
                 .inputs(ELECTRIC_MOTOR_UV.getStackForm(4))
                 .inputs(EMITTER_UV.getStackForm(4))
                 .outputs(LARGE_ENCHANTER.getStackForm())
-                .EUt(GAValues.VA[8])
-                .duration(600)
+                .EUt(GAValues.VA[8]).duration(600)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(4608))
                 .fluidInputs(Lubricant.getFluid(16000))
@@ -1068,10 +975,8 @@ public class AssemblyLineRecipes {
                 .inputs(SENSOR_LUV.getStackForm(8))
                 .inputs(EMITTER_LUV.getStackForm(8))
                 .outputs(LARGE_CRAFTER.getStackForm())
-                .EUt(GAValues.VA[6])
-                .duration(2000)
+                .EUt(GAValues.VA[6]).duration(2000)
                 .buildAndRegister();
-
         List<ItemStack> turbineUpgrade = new ArrayList<>();
         for (int i = 0; i < TURBINE_UPGRADES.length; i++) {
             if (i > 0)
@@ -1089,8 +994,7 @@ public class AssemblyLineRecipes {
                     .inputs(pumps[i + GAValues.UV].getStackForm(4))
                     .inputs(robotArms[i + GAValues.UV].getStackForm(4))
                     .outputs(TURBINE_UPGRADES[i].getStackForm())
-                    .EUt(GAValues.VA[i + GAValues.UHV])
-                    .duration(1500)
+                    .EUt(GAValues.VA[i + GAValues.UHV]).duration(1500)
                     .buildAndRegister();
         }
         ItemStack sodiumPotassiumCell = LARGE_FLUID_CELL_STEEL.getStackForm(), sodiumPotassiumCell2 = LARGE_FLUID_CELL_TUNGSTEN_STEEL.getStackForm();
@@ -1103,7 +1007,6 @@ public class AssemblyLineRecipes {
         fluidCompound2.setInteger("Amount", 256000);
         cellCompound2.setTag("Fluid", fluidCompound2);
         sodiumPotassiumCell2.setTagCompound(cellCompound2);
-
         for (int i = 0, count = 1; i < ENDER_ENERGY_INPUT_HATCHES.length; i++, count++) {
             ItemStack stack = i > 7 ? sodiumPotassiumCell2 : sodiumPotassiumCell;
             stack.setCount(count - (i > 7 ? 7 : 0));
@@ -1112,7 +1015,7 @@ public class AssemblyLineRecipes {
                     .inputs(stack, UHPIC.getStackForm(16), RecipeInit.getEnergyHatch(i + 1, false), ENDER_ENERGY_COVERS[Math.max(0, i - 2)].getStackForm(), EMITTER_UHV.getStackForm(), SENSOR_UHV.getStackForm())
                     .input(OrePrefix.circuit, UEV, 2)
                     .outputs(ENDER_ENERGY_INPUT_HATCHES[i].getStackForm())
-                    .duration(1000).EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1]))
+                    .EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1])).duration(1000)
                     .buildAndRegister();
 
             ASSEMBLY_LINE_RECIPES.recipeBuilder()
@@ -1120,10 +1023,9 @@ public class AssemblyLineRecipes {
                     .inputs(stack, UHPIC.getStackForm(16), RecipeInit.getEnergyHatch(i + 1, true), ENDER_ENERGY_COVERS[Math.max(0, i - 2)].getStackForm(), EMITTER_UHV.getStackForm(), SENSOR_UHV.getStackForm())
                     .input(OrePrefix.circuit, UEV, 2)
                     .outputs(ENDER_ENERGY_OUTPUT_HATCHES[i].getStackForm())
-                    .duration(1000).EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1]))
+                    .EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1])).duration(1000)
                     .buildAndRegister();
         }
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(57600), Lubricant.getFluid(64000), Bohrium.getFluid(57600), Adamantium.getFluid(57600))
                 .inputs(ADVANCED_FUSION_REACTOR.getStackForm(64), ADVANCED_FUSION_REACTOR.getStackForm(64), ADVANCED_FUSION_REACTOR.getStackForm(64), ADVANCED_FUSION_REACTOR.getStackForm(64), UHPIC_WAFER.getStackForm(64), UHPIC_WAFER.getStackForm(64), FIELD_GENERATOR_UHV.getStackForm(64), EMITTER_UHV.getStackForm(64), SENSOR_UHV.getStackForm(64))
@@ -1133,9 +1035,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.gear, Adamantium, 16)
                 .input(OrePrefix.plateDense, Mendelevium.getMaterial(), 7)
                 .outputs(MEGA_FUSION.getStackForm())
-                .duration(2000).EUt(GAValues.VA[10])
+                .EUt(GAValues.VA[10]).duration(2000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(14400), Lubricant.getFluid(16000), EnderPearl.getFluid(57600), EnderPearl.getFluid(57600))
                 .inputs(BATTERY_TOWER.getStackForm(16), SENSOR_UHV.getStackForm(16), EMITTER_UHV.getStackForm(16), FIELD_GENERATOR_UHV.getStackForm(16))
@@ -1144,9 +1045,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UEV, 16)
                 .inputs(UHPIC.getStackForm(16), GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TALONITE, 16), UHPIC.getStackForm(16), UHPIC.getStackForm(16), GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TALONITE, 16))
                 .outputs(ENDER_BATTERY_TOWER.getStackForm())
-                .duration(2000).EUt(GAValues.VA[10])
+                .EUt(GAValues.VA[10]).duration(2000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(14440), Lubricant.getFluid(16000))
                 .inputs(new ItemStack(Blocks.OBSIDIAN, 32), IMPLOSION_COMPRESSOR.getStackForm(16), pistons[5].getStackForm(16))
@@ -1158,9 +1058,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.gear, IncoloyMA956, 8)
                 .input(OrePrefix.circuit, Master, 16)
                 .outputs(LARGE_IMPLOSION_COMPRESSOR.getStackForm())
-                .duration(1200).EUt(GAValues.VA[7])
+                .EUt(GAValues.VA[7]).duration(1200)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(57600), Osmiridium.getFluid(57600), Fermium.getMaterial().getFluid(57600), Mendelevium.getMaterial().getFluid(57600))
                 .inputs(ELECTRIC_IMPLOSION.getStackForm(16), pistons[10].getStackForm(64), pistons[10].getStackForm(64), pistons[10].getStackForm(64), pistons[10].getStackForm(64))
@@ -1170,9 +1069,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.ring, Osmium, 64)
                 .input(OrePrefix.circuit, UIV, 64)
                 .outputs(LARGE_ELECTRIC_IMPLOSION_COMPRESSOR.getStackForm())
-                .duration(48000).EUt(GAValues.VA[12])
+                .EUt(GAValues.VA[12]).duration(48000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), Polyetheretherketone.getFluid(9216), CarbonNanotubes.getFluid(1440))
                 .inputs(ASSEMBLY_LINE.getStackForm(16), motors[8].getStackForm(32), sensors[8].getStackForm(16), conveyors[8].getStackForm(16), robotArms[8].getStackForm(16), GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING, 64))
@@ -1187,9 +1085,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UEV, 4)
                 .input(OrePrefix.frameGt, HDCS, 24)
                 .outputs(LARGE_ASSEMBLY_LINE.getStackForm())
-                .duration(2000).EUt(GAValues.VA[10])
+                .EUt(GAValues.VA[10]).duration(2000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), Zylon.getFluid(9216), CarbonNanotubes.getFluid(2880))
                 .inputs(LARGE_CIRCUIT_ASSEMBLY_LINE.getStackForm(16), motors[9].getStackForm(32), sensors[9].getStackForm(16), conveyors[9].getStackForm(16), robotArms[9].getStackForm(16), GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING, 64))
@@ -1204,9 +1101,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UIV, 4)
                 .input(OrePrefix.frameGt, HDCS, 24)
                 .outputs(PARALLEL_CIRCUIT_ASSEMBLY_LINE.getStackForm())
-                .duration(2000).EUt(GAValues.VA[11])
+                .EUt(GAValues.VA[11]).duration(2000)
                 .buildAndRegister();
-
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .inputs(robotArms[8].getStackForm(2))
@@ -1216,7 +1112,17 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.plate, Duranium, 6)
                 .input(OrePrefix.frameGt, HDCS, 1)
                 .outputs(TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.ASSEMBLER_CASING, 2))
-                .duration(2000).EUt(GAValues.VA[10])
+                .EUt(GAValues.VA[10]).duration(2000)
+                .buildAndRegister();
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(9216), Lubricant.getFluid(16000))
+                .inputs(robotArms[5].getStackForm(4), sensors[5].getStackForm(4), emitters[5].getStackForm(4), MetaItems.TOOL_DATA_ORB.getStackForm(), ENERGY_LAPOTRONIC_ORB2.getStackForm(), PROCESSING_ARRAY.getStackForm(), ADVANCED_PROCESSING_ARRAY.getStackForm())
+                .input(OrePrefix.wireGtSingle, LuVSuperconductor, 64)
+                .input(OrePrefix.gear, RhodiumPlatedPalladium, 8)
+                .input(OrePrefix.circuit, Ultimate, 8)
+                .input(OrePrefix.plate, HSSS, 40)
+                .outputs(SUPER_PROCESSING_ARRAY.getStackForm())
+                .EUt(GAValues.VA[7]).duration(1000)
                 .buildAndRegister();
     }
 }

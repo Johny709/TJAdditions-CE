@@ -1,8 +1,15 @@
 package tj.machines.multi.steam;
 
+import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.recipes.Recipe;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJRecipeMaps;
-import tj.builder.multicontrollers.TJRecipeMapMultiblockControllerBase;
-import gregtech.api.capability.impl.MultiblockRecipeLogic;
+import tj.TJValues;
+import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -10,58 +17,55 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.render.ICubeRenderer;
-import gregtech.api.render.OrientedOverlayRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.items.IItemHandler;
+import tj.capability.OverclockManager;
 
-import javax.annotation.Nonnull;
-import java.util.Collections;
+import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Map;
 
-public class MetaTileEntityCokeOven extends TJRecipeMapMultiblockControllerBase {
+
+public class MetaTileEntityCokeOven extends TJRecipeMapMultiblockController {
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = new MultiblockAbility[]{MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_ITEMS};
 
-    public MetaTileEntityCokeOven (ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, TJRecipeMaps.COKE_OVEN_RECIPES);
-        this.recipeMapWorkable = new MultiblockRecipeLogic(this);
+    public MetaTileEntityCokeOven(ResourceLocation metaTileEntityId) {
+        super(metaTileEntityId, TJRecipeMaps.COKE_OVEN_RECIPES, false, true);
+        this.recipeLogic.setAllowOverclocking(false);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityCokeOven(this.metaTileEntityId);/*(3)!*/
+        return new MetaTileEntityCokeOven(this.metaTileEntityId);
     }
 
     @Override
-    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        //basically check minimal requirements for inputs count
-        //noinspection SuspiciousMethodCalls
-        int itemInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_ITEMS, Collections.emptyList())
-                .stream().map(it -> (IItemHandler) it).mapToInt(IItemHandler::getSlots).sum();
-        //noinspection SuspiciousMethodCalls
-        int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
-        //noinspection SuspiciousMethodCalls
-        return itemInputsCount >= recipeMap.getMinInputs() &&
-                fluidInputsCount >= recipeMap.getMinFluidInputs();
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("tj.multiblock.temporary"));
+        super.addInformation(stack, player, tooltip, advanced);
+    }
+
+    @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        overclockManager.setParallel(1);
     }
 
     @Override
     protected BlockPattern createStructurePattern() {
-        return FactoryBlockPattern.start() /*(4)!*/
-                .aisle("FFF", "FFF", "FFF")
-                .aisle("FFF", "F#F", "FFF")
-                .aisle("FFF", "FSF", "FFF")
-                .where('S', selfPredicate())
-                .where('F', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+        return FactoryBlockPattern.start()
+                .aisle("XXX", "XXX", "XXX")
+                .aisle("XXX", "X#X", "XXX")
+                .aisle("XXX", "XSX", "XXX")
+                .where('S', this.selfPredicate())
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('#', isAirPredicate())
                 .build();
     }
 
-    protected IBlockState getCasingState() {
+    private IBlockState getCasingState() {
         return MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.COKE_BRICKS);
     }
 
@@ -70,9 +74,28 @@ public class MetaTileEntityCokeOven extends TJRecipeMapMultiblockControllerBase 
         return Textures.COKE_BRICKS;
     }
 
-    @Nonnull
     @Override
-    protected OrientedOverlayRenderer getFrontOverlay() {
-        return Textures.PYROLYSE_OVEN_OVERLAY;
+    public int getEUtMultiplier() {
+        return 0;
+    }
+
+    @Override
+    public int getParallel() {
+        return 0; // don't display parallel overclocking per tier on tooltip
+    }
+
+    @Override
+    public boolean renderTJLogoOverlay() {
+        return true;
+    }
+
+    @Override
+    public IEnergyContainer getInputEnergyContainer() {
+        return TJValues.DUMMY_ENERGY;
+    }
+
+    @Override
+    public boolean usesEnergy() {
+        return false;
     }
 }

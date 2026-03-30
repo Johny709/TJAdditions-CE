@@ -311,7 +311,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
-        builder.addTranslationLine("tj.multiblock.industrial_fusion_reactor.message", this.parallelLayer);
+        builder.addTranslationLine("tj.multiblock.max_parallel", this.parallelLayer);
         if (!this.isStructureFormed()) return;
         builder.addEnergyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
                 .customLine(text -> {

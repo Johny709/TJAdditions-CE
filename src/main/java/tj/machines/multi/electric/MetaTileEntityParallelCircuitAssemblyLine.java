@@ -3,8 +3,6 @@ package tj.machines.multi.electric;
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.capabilities.IQubitContainer;
-import gregicadditions.item.GAMultiblockCasing;
-import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.item.components.ConveyorCasing;
 import gregicadditions.item.components.RobotArmCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
@@ -53,8 +51,6 @@ import tj.util.TextUtils;
 import javax.annotation.Nullable;
 import java.util.*;
 
-import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate;
-import static gregicadditions.machines.multi.mega.MegaMultiblockRecipeMapController.frameworkPredicate2;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.machines.multi.electric.MetaTileEntityLargeAssemblyLine.inputBusPredicate;
@@ -106,7 +102,7 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
                 .where('C', statePredicate(this.getCasingState()))
                 .where('E', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
                 .where('G', glassPredicate())
-                .where('A', frameworkPredicate().or(frameworkPredicate2()))
+                .where('A', frameworkPredicate())
                 .where('a', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.ASSEMBLER_CASING)))
                 .where('I', tilePredicate(inputBusPredicate()))
                 .where('O', statePredicate(this.getCasingState()).or(abilityPartPredicate(MultiblockAbility.EXPORT_ITEMS)))
@@ -126,16 +122,11 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int framework = 0, framework2 = 0;
-        if (context.get("framework") instanceof GAMultiblockCasing.CasingType)
-            framework = ((GAMultiblockCasing.CasingType) context.get("framework")).getTier();
-        if (context.get("framework2") instanceof GAMultiblockCasing2.CasingType)
-            framework2 = ((GAMultiblockCasing2.CasingType) context.get("framework2")).getTier();
         int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
         int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
         this.inputBusPos.addAll(context.getOrDefault("InputBuses", new HashSet<>()));
         this.inputBusPos.sort(Comparator.comparingInt(pos -> Math.abs(pos.getX() - this.getPos().getX()) + Math.abs(pos.getY() - this.getPos().getY()) + Math.abs(pos.getZ() - this.getPos().getZ())));
-        this.tier = Math.min(conveyor, Math.min(robotArm, Math.max(framework, framework2)));
+        this.tier = Math.min(conveyor, Math.min(robotArm, context.getOrDefault("frameworkTier", 0)));
         this.maxVoltage = 8L << this.tier * 2;
     }
 

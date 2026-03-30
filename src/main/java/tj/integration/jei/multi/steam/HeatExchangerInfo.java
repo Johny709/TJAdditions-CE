@@ -1,23 +1,24 @@
 package tj.integration.jei.multi.steam;
 
-import com.google.common.collect.Lists;
 import gregicadditions.item.metal.MetalCasing1;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
-import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import org.apache.commons.lang3.ArrayUtils;
+import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class HeatExchangerInfo extends MultiblockInfoPage {
-    public  HeatExchangerInfo() {
-    }
+public class HeatExchangerInfo extends TJMultiblockInfoPage {
 
     @Override
     public MultiblockControllerBase getController() {
@@ -26,21 +27,26 @@ public class HeatExchangerInfo extends MultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        MultiblockShapeInfo shapeInfo = MultiblockShapeInfo.builder()
-                .aisle("IIF", "FFF", "FFF")
-                .aisle("WFF", "S#F", "FFF")
-                .aisle("WFF", "FFF", "FFF")
-                .where('S', TJMetaTileEntities.HEAT_EXCHANGER, EnumFacing.WEST)
-                .where('F', METAL_CASING_1.getState(MetalCasing1.CasingType.ZIRCONIUM_CARBIDE))
-                .where('W', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], EnumFacing.WEST)
-                .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], EnumFacing.NORTH)
-                .build();
-        return Lists.newArrayList(shapeInfo);
+        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+                .aisle("CCC", "CCC", "CCC")
+                .aisle("CCC", "C#C", "CCC")
+                .aisle("ICO", "ISO", "CCC")
+                .where('S', this.getController(), EnumFacing.WEST)
+                .where('C', METAL_CASING_1.getState(MetalCasing1.CasingType.ZIRCONIUM_CARBIDE))
+                .where('I', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.IV], EnumFacing.WEST)
+                .where('O', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.IV], EnumFacing.NORTH);
+        for (int tier = 0; tier < 15; tier++) {
+            shapeInfos.add(builder.where('I', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
+                    .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.WEST)
+                    .build());
+        }
+        return shapeInfos;
     }
 
     @Override
     public String[] getDescription() {
-        return new String[] {
-                I18n.format("tj.multiblock.heat_exchanger.description")};
+        return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.temporary")},
+                super.getDescription());
     }
 }

@@ -124,7 +124,7 @@ public class RecipeOutputDisplayWidget extends Widget {
             }
             GuiTextures.FLUID_SLOT.draw(x + offsetX, y + offsetY, 18, 18);
             GlStateManager.disableBlend();
-            TJGuiUtils.drawFluidForGui(stack, stack.amount, stack.amount, x + offsetX + 1, y + offsetY + 1, 17, 17);
+            TJGuiUtils.drawFluidForGui(stack, Math.max(1, stack.amount), Math.max(1, stack.amount), x + offsetX + 1, y + offsetY + 1, 17, 17);
             GlStateManager.pushMatrix();
             GlStateManager.scale(0.5, 0.5, 1);
             String s = TextFormattingUtil.formatLongToCompactString(stack.amount, 4) + "L";
