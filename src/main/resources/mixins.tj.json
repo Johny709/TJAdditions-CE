@@ -59,6 +59,7 @@
     "gregicality.TileEntityFusionReactorMixin",
     "gregicality.TileEntityLargeChemicalReactorMixin",
     "gregicality.TileEntityLargeThermalCentrifugeMixin",
+    "gregtech.ControllableInfoProviderMixin",
     "gregtech.FuelableInfoProviderMixin",
     "gregtech.FueledMultiblockControllerMixin",
     "gregtech.IAbstractRecipeLogicMixin",

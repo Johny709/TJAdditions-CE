@@ -12,7 +12,7 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 
-public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler> extends MTETrait implements IMultipleWorkable {
+public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler> extends MTETrait implements IMultipleWorkable, IRecipeInfo {
 
     protected final H handler;
     protected BiConsumer<Boolean, Integer> activeConsumer;
@@ -392,6 +392,14 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
             });
         }
         this.metaTileEntity.markDirty();
+    }
+
+    @Override
+    public boolean hasProblem() {
+        for (int i = 0; i < this.size; i++)
+            if (this.hasProblems(i))
+                return true;
+        return false;
     }
 
     @Override

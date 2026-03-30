@@ -15,7 +15,7 @@ import tj.TJConfig;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 
-public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends MTETrait implements IWorkable {
+public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends MTETrait implements IWorkable, IRecipeInfo {
 
     protected final H handler;
     protected BooleanConsumer activeConsumer;
@@ -291,6 +291,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
         return this.isActive;
     }
 
+    @Override
     public boolean hasProblem() {
         return this.hasProblem;
     }
