@@ -341,7 +341,6 @@ public class RecipeInit {
                 'G', GACraftingComponents.GEAR.getIngredient(5),
                 'H', NAMING_MACHINES[4].getStackForm(),
                 'A', new ItemStack(Blocks.ANVIL));
-
         for (int i = 0; i < 2; i++) {
             ModHandler.addShapedRecipe("charcoal_pit." + i, i == 0 ? CHARCOAL_PIT.getStackForm() : CHARCOAL_PIT_ADVANCED.getStackForm(), "PRP", "PHP", "FFF",
                     'H', i == 0 ? MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.BRONZE_BRICKS_HULL) : MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.STEEL_BRICKS_HULL),
@@ -477,7 +476,6 @@ public class RecipeInit {
                     'H', GACraftingComponents.HULL.getIngredient(i),
                     'P', GACraftingComponents.PUMP.getIngredient(i));
         }
-
         BlockFusionGlass.GlassType[] fusionGlass = BlockFusionGlass.GlassType.values();
         ItemStack[] fusionCasing = {MetaBlocks.MUTLIBLOCK_CASING.getItemVariant(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING), MetaBlocks.MUTLIBLOCK_CASING.getItemVariant(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING_MK2),
                 GAMetaBlocks.FUSION_CASING.getItemVariant(GAFusionCasing.CasingType.FUSION_3), TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_CASING_UHV),
@@ -486,6 +484,41 @@ public class RecipeInit {
             ModHandler.addShapelessRecipe("fusion_glass" + fusionCasing[i].getTranslationKey(), TJMetaBlocks.FUSION_GLASS.getItemVariant(fusionGlass[i]), fusionCasing[i], new ItemStack(Blocks.GLASS));
             ModHandler.addShapelessRecipe("fusion_casing" + fusionCasing[i].getTranslationKey(), fusionCasing[i], TJMetaBlocks.FUSION_GLASS.getItemVariant(fusionGlass[i]));
         }
+        // temporary multiblocks
+        ModHandler.addShapelessRecipe("tj_distillation_tower", TJMetaTileEntities.DISTILLATION_TOWER.getStackForm(), GATileEntities.DISTILLATION_TOWER.getStackForm());
+        ModHandler.addShapelessRecipe("tj_distillation_tower.back", GATileEntities.DISTILLATION_TOWER.getStackForm(), TJMetaTileEntities.DISTILLATION_TOWER.getStackForm());
+        ModHandler.addShapelessRecipe("tj_advanced_distillation_tower", ADVANCED_DISTILLATION_TOWER.getStackForm(), GATileEntities.ADVANCED_DISTILLATION_TOWER.getStackForm());
+        ModHandler.addShapelessRecipe("tj_advanced_distillation_tower.back", GATileEntities.ADVANCED_DISTILLATION_TOWER.getStackForm(), ADVANCED_DISTILLATION_TOWER.getStackForm());
+        ModHandler.addShapelessRecipe("tj_mega_distillation_tower", MEGA_DISTILLATION_TOWER.getStackForm(), GATileEntities.MEGA_DISTILLATION_TOWER.getStackForm());
+        ModHandler.addShapelessRecipe("tj_mega_distillation_tower.back", GATileEntities.MEGA_DISTILLATION_TOWER.getStackForm(), MEGA_DISTILLATION_TOWER.getStackForm());
+        ModHandler.addShapelessRecipe("tj_mega_blast_furnace", MEGA_BLAST_FURNACE.getStackForm(), GATileEntities.MEGA_BLAST_FURNACE.getStackForm());
+        ModHandler.addShapelessRecipe("tj_mega_blast_furnace.back", GATileEntities.MEGA_BLAST_FURNACE.getStackForm(), MEGA_BLAST_FURNACE.getStackForm());
+        ModHandler.addShapelessRecipe("tj_mega_vacuum_freezer", MEGA_VACUUM_FREEZER.getStackForm(), GATileEntities.MEGA_VACUUM_FREEZER.getStackForm());
+        ModHandler.addShapelessRecipe("tj_mega_vacuum_freezer.back", GATileEntities.MEGA_VACUUM_FREEZER.getStackForm(), MEGA_VACUUM_FREEZER.getStackForm());
+        ItemStack cokeOven = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1000);
+        ModHandler.addShapelessRecipe("tj_coke_oven", TJMetaTileEntities.COKE_OVEN.getStackForm(), cokeOven);
+        ModHandler.addShapelessRecipe("tj_coke_oven.back", cokeOven, TJMetaTileEntities.COKE_OVEN.getStackForm());
+        ItemStack primitiveAlloy = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1002);
+        ModHandler.addShapelessRecipe("tj_primitive_alloy", PRIMITIVE_ALLOY.getStackForm(), primitiveAlloy);
+        ModHandler.addShapelessRecipe("tj_primitive_alloy.back", primitiveAlloy, PRIMITIVE_ALLOY.getStackForm());
+        ItemStack heatExchanger = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1003);
+        ModHandler.addShapelessRecipe("tj_heat_exchanger", HEAT_EXCHANGER.getStackForm(), heatExchanger);
+        ModHandler.addShapelessRecipe("tj_heat_exchanger.back", heatExchanger, HEAT_EXCHANGER.getStackForm());
+        ItemStack armorInfuser = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1004);
+        ModHandler.addShapelessRecipe("tj_armor_infuser", ARMOR_INFUSER.getStackForm(), armorInfuser);
+        ModHandler.addShapelessRecipe("tj_armor_infuser.back", armorInfuser, ARMOR_INFUSER.getStackForm());
+        ItemStack chaosReplicator = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1005);
+        ModHandler.addShapelessRecipe("tj_chaos_replicator", CHAOS_REPLICATOR.getStackForm(), chaosReplicator);
+        ModHandler.addShapelessRecipe("tj_chaos_replicator.back", chaosReplicator, CHAOS_REPLICATOR.getStackForm());
+        ItemStack dragonReplicator = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1006);
+        ModHandler.addShapelessRecipe("tj_dragon_egg_replicator", DRAGON_REPLICATOR.getStackForm(), dragonReplicator);
+        ModHandler.addShapelessRecipe("tj_dragon_egg_replicator.back", dragonReplicator, DRAGON_REPLICATOR.getStackForm());
+        ItemStack largePoweredSpawner = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 4201);
+        ModHandler.addShapelessRecipe("tj_large_powered_spawner", LARGE_POWERED_SPAWNER.getStackForm(), largePoweredSpawner);
+        ModHandler.addShapelessRecipe("tj_large_powered_spawner.back", largePoweredSpawner, LARGE_POWERED_SPAWNER.getStackForm());
+        ItemStack largeVialProcessor = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 4202);
+        ModHandler.addShapelessRecipe("tj_large_vial_processor", LARGE_VIAL_PROCESSOR.getStackForm(), largeVialProcessor);
+        ModHandler.addShapelessRecipe("tj_large_vial_processor.back", largeVialProcessor, LARGE_VIAL_PROCESSOR.getStackForm());
     }
 
     public static ItemStack getEnergyHatch(int tier, boolean isOutput) {
