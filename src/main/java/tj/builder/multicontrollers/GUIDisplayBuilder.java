@@ -277,8 +277,13 @@ public final class GUIDisplayBuilder {
     }
 
     public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, boolean hasProblems, int priority) {
-        if (isActive) progress--;
-        int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
+        if (isActive) {
+            progress--;
+            int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
+            if (priority != 0)
+                this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)), priority);
+            else this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)));
+        }
         ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentString(I18n.translateToLocal("machine.universal.work_paused"))
                 : hasProblems ? new TextComponentString(I18n.translateToLocal("machine.universal.has_problems"))
                 : !isActive ? new TextComponentString(I18n.translateToLocal("machine.universal.idling"))
@@ -286,11 +291,6 @@ public final class GUIDisplayBuilder {
         if (priority != 0)
             this.addTextComponent(isWorkingText, priority);
         else this.addTextComponent(isWorkingText);
-        if (isActive) {
-            if (priority != 0)
-                this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)), priority);
-            else this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)));
-        }
         return this;
     }
 
