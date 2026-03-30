@@ -3,6 +3,7 @@ package tj.multiblockpart.utility;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.capability.impl.ItemHandlerList;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -38,6 +39,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.EXPORT_ITEMS;
@@ -46,6 +48,7 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_IT
 public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IItemHandlerModifiable> {
 
     private final IItemHandlerModifiable ghostCircuitSlot = new ItemStackHandler(1);
+    private final IItemHandlerModifiable combinedInventory;
     private final boolean isExport;
     private int ticks = 5;
 
@@ -53,6 +56,7 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
         super(metaTileEntityId, tier);
         this.isExport = isExport;
         this.initializeInventory();
+        this.combinedInventory = new ItemHandlerList(Arrays.asList(this.ghostCircuitSlot, this.importItems));
     }
 
     @Override
@@ -180,9 +184,7 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
 
     @Override
     public void registerAbilities(List<IItemHandlerModifiable> list) {
-        if (!this.isExport)
-            list.add(this.ghostCircuitSlot);
-        list.add(this.isExport ? this.exportItems : this.importItems);
+        list.add(this.isExport ? this.exportItems : this.combinedInventory);
     }
 
     @Override
