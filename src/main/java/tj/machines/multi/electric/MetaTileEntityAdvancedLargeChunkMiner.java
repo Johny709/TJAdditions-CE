@@ -139,7 +139,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         if (!this.isStructureFormed()) return;
         builder.addVoltageInLine(this.getInputEnergyContainer())
                 .addEnergyInputLine(this.getInputEnergyContainer(), this.workableHandler.getEnergyPerTick())
-                .addTranslationLine("tj.multiblock.advanced_large_miner.chunk_index", this.workableHandler.getChunkIndex(), this.workableHandler.getChunkSize())
+                .addTranslationLine("tj.multiblock.advanced_large_miner.chunk_index", this.workableHandler.getChunkIndex() + 1, this.workableHandler.getChunkSize())
                 .addTextComponent(AdvancedTextWidget.withButton(new TextComponentTranslation(this.workableHandler.isSilkTouch() ? "tj.multiblock.advanced_large_miner.silktouch_true" : "tj.multiblock.advanced_large_miner.silktouch_false")
                         .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.advanced_large_miner.silktouch")))), this.workableHandler.isSilkTouch() ? "silkTouch:true" : "silkTouch:false"))
                 .addTextComponent(AdvancedTextWidget.withButton(new TextComponentTranslation(this.workableHandler.isReset() ? "tj.multiblock.advanced_large_miner.reset_true" : "tj.multiblock.advanced_large_miner.reset_false")

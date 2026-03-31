@@ -99,8 +99,9 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
+        BlockPos offsetPos = this.getPos().offset(this.getFrontFacing().getOpposite(), 2);
         this.outputHatchPos.addAll(context.getOrDefault("outputHatches", new HashSet<>()));
-        this.outputHatchPos.sort(Comparator.comparingInt(pos -> Math.abs(pos.getX() - this.getPos().getX()) + Math.abs(pos.getY() - this.getPos().getY()) + Math.abs(pos.getZ() - this.getPos().getZ())));
+        this.outputHatchPos.sort(Comparator.comparingInt(pos -> Math.abs(pos.getX() - offsetPos.getX()) + Math.abs(pos.getY() - offsetPos.getY()) + Math.abs(pos.getZ() - offsetPos.getZ())));
         this.tier = context.getOrDefault("frameworkTier", 0);
         this.maxVoltage = 8L << this.tier * 2;
     }

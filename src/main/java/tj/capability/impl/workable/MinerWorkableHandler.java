@@ -143,7 +143,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         this.itemType.clear();
         this.outputIndex = 0;
         this.chunkIndex++;
-        if (!this.reset && chunkIndex >= this.chunks.size()) {
+        if (!this.reset && this.chunkIndex >= this.chunks.size()) {
             this.done = true;
             this.writeCustomData(4, buffer -> buffer.writeBoolean(this.done));
         }

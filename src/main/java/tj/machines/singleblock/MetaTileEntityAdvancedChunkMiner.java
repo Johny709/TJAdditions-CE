@@ -142,10 +142,8 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                         .setItemDisplay(new ItemStack(Blocks.WEB))
                         .useToggleTexture(true))
-                .widget(new TJToggleButtonWidget(133, 175, 18, 18, this.workableHandler::isSilkTouch, (bool, str) -> this.workableHandler.setReset(bool))
-                        .setDynamicTooltipText(() -> this.workableHandler.isReset() ? "tj.multiblock.advanced_large_miner.reset_true" : "tj.multiblock.advanced_large_miner.reset_false")
-                        .setToggleTexture(TJGuiTextures.RESET_BUTTON)
-                        .useToggleTexture(true))
+                .widget(new ToggleButtonWidget(97, 172, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setDone)
+                        .setTooltipText("machine.universal.toggle.reset"))
                 .widget(new ButtonPopUpWidget<>()
                         .addPopup(widgetGroup -> {
                             widgetGroup.addWidget(new ProgressWidget(this.workableHandler::getProgressPercent, 90, 33, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL));
@@ -154,7 +152,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                             widgetGroup.addWidget(new LabelWidget(11, 10, "gregtech.gui.fluid_amount", 0xFFFFFF));
                             widgetGroup.addWidget(new DynamicLabelWidget(11, 20, tankWidget::getFormattedFluidAmount, 0xFFFFFF));
                             widgetGroup.addWidget(new DynamicLabelWidget(11, 30, tankWidget::getFluidLocalizedName, 0xFFFFFF));
-                            widgetGroup.addWidget(new DynamicLabelWidget(11, 55, this::getDoneText, 0x55FF55));
+                            widgetGroup.addWidget(new DynamicLabelWidget(11, 65, this::getDoneText, 0x55FF55));
                             widgetGroup.addWidget(new FluidContainerSlotWidget(this.getImportItemInventory(), 0, 90, 8, true)
                                     .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.IN_SLOT_OVERLAY));
                             widgetGroup.addWidget(new SlotWidget(this.getImportItemInventory(), 1, 90, 60, true, false)
@@ -243,7 +241,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     }
 
     private String getDoneText() {
-        return FMLCommonHandler.instance().getSide().isClient() && this.workableHandler.isDone() ? I18n.format("gregtech.multiblock.large_miner.done") : "";
+        return this.workableHandler.isDone() ? I18n.format("gregtech.multiblock.large_miner.done") : "";
     }
 
     @Override
