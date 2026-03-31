@@ -431,10 +431,10 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
         @Override
         protected void consumeFluidInputs(int parallels, Recipe recipe) {
             int vacuumTierDifference = this.handler.getVacuumTier() - (int) recipe.getProperty("coil_tier");
-            for (int i = 0; i < ((IGTRecipe) recipe).getMergedFluidInputs().size(); i++) {
+            int size = ((IGTRecipe) recipe).getMergedFluidInputs().size();
+            for (int i = 0; i < size; i++) {
                 FluidStack fluid = ((IGTRecipe) recipe).getMergedFluidInputs().get(i).copy();
-                if (recipe.getFluidInputs().size() == 3)
-                    fluid.amount = i == 1 ? (int) (fluid.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease)) : fluid.amount;
+                fluid.amount = i == size - 1 ? (int) (fluid.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease)) : fluid.amount;
                 fluid.amount *= parallels;
                 TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), fluid, fluid.amount, true);
                 this.getFluidInputs().add(fluid);
