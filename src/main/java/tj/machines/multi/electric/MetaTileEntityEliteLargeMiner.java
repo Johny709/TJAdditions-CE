@@ -91,7 +91,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
     protected List<Chunk> chunks = new ArrayList<>();
     protected boolean isActive = false;
     protected boolean done = false;
-    protected boolean silktouch = false;
+    protected boolean silkTouch = false;
     protected boolean canRestart = false;
     protected final ExtendedItemFilter blockFilter;
     protected BooleanConsumer enableBlockPopUp;
@@ -243,7 +243,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
                                 return;
                         }
 
-                        if (!this.silktouch) {
+                        if (!this.silkTouch) {
                             if (getType() != Type.DESTROYER) {
                                 GAUtility.applyHammerDrops(world.rand, blockState, itemStacks, this.type.fortune, null, this.energyContainer.getInputVoltage());
                             } else {
@@ -268,7 +268,6 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
                             if (this.currentChunk.get() >= this.chunks.size()) {
                                 if (this.canRestart) {
                                     this.currentChunk.set(0);
-                                    this.chunks.clear();
                                     this.x.set(this.chunks.get(this.currentChunk.intValue()).getPos().getXStart());
                                     this.z.set(this.chunks.get(this.currentChunk.intValue()).getPos().getZStart());
                                     this.y.set(this.maxY.get());
@@ -460,7 +459,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
             builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.nb_chunk", this.chunks.size()));
             builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.block_per_tick", getNbBlock()));
             if (this.type != Type.CREATIVE) {
-                builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.silktouch", this.silktouch));
+                builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.silktouch", this.silkTouch));
                 builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.mode"));
             }
             ITextComponent toggleContinous = new TextComponentTranslation("tj.multiblock.elite_large_miner.restart");
@@ -490,7 +489,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (this.type != Type.CREATIVE) {
-            this.silktouch = !this.silktouch;
+            this.silkTouch = !this.silkTouch;
             return true;
         }
         return false;
@@ -511,7 +510,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
         data.setTag("zPos", new NBTTagLong(this.z.get()));
         data.setTag("chunk", new NBTTagInt(this.currentChunk.get()));
         data.setTag("done", new NBTTagInt(this.done ? 1 : 0));
-        data.setTag("silktouch", new NBTTagInt(this.silktouch ? 1 : 0));
+        data.setTag("silktouch", new NBTTagInt(this.silkTouch ? 1 : 0));
         data.setTag("restart", new NBTTagInt(this.canRestart ? 1 : 0));
         data.setTag("working", new NBTTagInt(this.isWorkingEnabled ? 1 : 0));
         data.setTag("minY", new NBTTagInt(this.minY.get()));
@@ -530,7 +529,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
         this.z.set(data.getLong("zPos"));
         this.currentChunk.set(data.getInteger("chunk"));
         this.done = data.getInteger("done") != 0;
-        this.silktouch = data.getInteger("silktouch") != 0;
+        this.silkTouch = data.getInteger("silktouch") != 0;
         this.canRestart = data.getInteger("restart") != 0;
         this.isWorkingEnabled = data.getInteger("working") != 0;
         this.minY.set(data.getInteger("minY"));

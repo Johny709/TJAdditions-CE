@@ -418,7 +418,9 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
             int size = ((IGTRecipe) recipe).getMergedFluidInputs().size();
             for (int i = 0; i < size; i++) {
                 FluidStack fluid = ((IGTRecipe) recipe).getMergedFluidInputs().get(i);
-                int amount = i == size - 1 ? (int) (fluid.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease)) : fluid.amount;
+                int amount = recipe.getFluidInputs().size() == 3 && i == size - 1
+                        ? (int) (fluid.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease))
+                        : fluid.amount;
                 if (amount > 0) {
                     parallels = Math.min(parallels, TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), fluid, amount * parallels, false) / amount);
                     if (parallels < 1) return 0;
@@ -434,7 +436,8 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
             int size = ((IGTRecipe) recipe).getMergedFluidInputs().size();
             for (int i = 0; i < size; i++) {
                 FluidStack fluid = ((IGTRecipe) recipe).getMergedFluidInputs().get(i).copy();
-                fluid.amount = i == size - 1 ? (int) (fluid.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease)) : fluid.amount;
+                if (recipe.getFluidInputs().size() == 3)
+                    fluid.amount = i == size - 1 ? (int) (fluid.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease)) : fluid.amount;
                 fluid.amount *= parallels;
                 TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), fluid, fluid.amount, true);
                 this.getFluidInputs().add(fluid);
