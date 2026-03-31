@@ -97,7 +97,6 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
                         this.recipeLogic.getRecipeLRUCache().clear();
                         this.recipeLogic.invalidate();
                         this.machineVoltage = 8L << this.machineTier * 2;
-                        this.maxVoltage = this.machineVoltage;
                         this.metaId = stack.getMetadata();
                         this.tier = this.machineTier;
                         this.writeCustomData(100, buffer -> buffer.writeInt(this.metaId));
@@ -108,7 +107,6 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
                         this.currentRecipeMap = RecipeMaps.FURNACE_RECIPES;
                         this.machineVoltage = 0;
                         this.machineTier = 0;
-                        this.maxVoltage = 0;
                         this.metaId = -1;
                         this.tier = 0;
                         this.writeCustomData(100, buffer -> buffer.writeInt(this.metaId));
@@ -139,7 +137,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.addTranslationLine(1, "gregtech.multiblock.universal.framework", 8L << this.machineTier * 2)
+        builder.addTranslationLine(1, "gregtech.multiblock.universal.framework", this.maxVoltage)
                 .addTextComponent(new TextComponentTranslation("gregtech.multiblock.recipe", new TextComponentTranslation("recipemap." + this.getRecipeMap().getUnlocalizedName() + ".name")
                         .setStyle(new Style().setColor(TextFormatting.AQUA))));
     }
@@ -169,7 +167,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
         this.maxTier = context.getOrDefault("frameworkTier", 0);
         this.machineTier = Math.min(this.machineTier, this.maxTier);
         this.machineVoltage = Math.min(this.machineVoltage, 8L << this.machineTier * 2);
-        this.maxVoltage = this.machineVoltage;
+        this.maxVoltage = 8L << this.maxTier * 2;
         this.tier = this.machineTier;
     }
 
