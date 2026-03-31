@@ -252,7 +252,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
                         } else {
                             itemStacks.add(stack);
                         }
-                        if (addItemsToItemHandler(this.outputInventory, true, itemStacks)) {
+                        if (this.isItemInfSink() || addItemsToItemHandler(this.outputInventory, true, itemStacks)) {
                             addItemsToItemHandler(this.outputInventory, false, itemStacks);
                             if (this.getType() != Type.DESTROYER) {
                                 world.setBlockState(blockPos1, Blocks.COBBLESTONE.getDefaultState());
