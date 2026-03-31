@@ -98,9 +98,9 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                 this.chunkIndex = 0;
             this.currentChunk = this.chunks.get(this.chunkIndex);
         }
-        if (this.progress > progress && this.progress < this.maxProgress) {
+        if (this.progress > progress) {
             if (!this.handler.getDrillingFluid().isFluidStackIdentical(this.handler.getImportFluidTank().drain(this.handler.getDrillingFluid(), true))) {
-                if (this.progress > 0) this.progress--;
+                if (this.progress > 1) this.progress--;
                 return;
             }
             int progressed = -1;
@@ -109,7 +109,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                 this.miningPos.setPos(this.currentChunk.x + (progress % 16), this.levelY, this.currentChunk.z + (progress / 16));
                 IBlockState state = this.metaTileEntity.getWorld().getBlockState(this.miningPos);
                 Block block = state.getBlock();
-                if (this.blacklistBlock == (this.itemFilterType.get(Item.getItemFromBlock(block)) == null)) {
+                if (this.levelY > 0 && this.blacklistBlock == (this.itemFilterType.get(Item.getItemFromBlock(block)) == null)) {
                     if (block != Blocks.AIR) {
                         if (this.silkTouch ? this.addItemDrop(block, 1, block.getMetaFromState(state)) : this.addItemDrop(block.getItemDropped(state, this.metaTileEntity.getWorld().rand, this.handler.getFortuneLvl()), 1, block.damageDropped(state))) {
                             this.metaTileEntity.getWorld().playEvent(2001, this.miningPos, Block.getStateId(state));
@@ -117,8 +117,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                         }
                     }
                 }
-                if (this.progress + ++progressed == this.maxProgress) break;
                 if (progress == 255) this.levelY--;
+                if (this.progress + ++progressed >= this.maxProgress) break;
             }
             this.progress += progressed;
         }
