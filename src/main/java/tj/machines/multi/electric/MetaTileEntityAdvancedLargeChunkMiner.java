@@ -38,6 +38,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
@@ -126,6 +127,13 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     }
 
     @Override
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setDone)
+                .setTooltipText("machine.universal.toggle.reset"));
+    }
+
+    @Override
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
@@ -133,9 +141,14 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
                 .addEnergyInputLine(this.getInputEnergyContainer(), this.workableHandler.getEnergyPerTick())
                 .addTranslationLine("tj.multiblock.advanced_large_miner.chunk_index", this.workableHandler.getChunkIndex(), this.workableHandler.getChunkSize())
                 .addTextComponent(AdvancedTextWidget.withButton(new TextComponentTranslation(this.workableHandler.isSilkTouch() ? "tj.multiblock.advanced_large_miner.silktouch_true" : "tj.multiblock.advanced_large_miner.silktouch_false")
-                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.advanced_large_miner.silktouch")))), this.workableHandler.isSilkTouch() ? "silkTouch:True" : "silkTouch:False"))
-                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), 999)
-                .addRecipeOutputLine(this.workableHandler, 1000);
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.advanced_large_miner.silktouch")))), this.workableHandler.isSilkTouch() ? "silkTouch:true" : "silkTouch:false"))
+                .addTextComponent(AdvancedTextWidget.withButton(new TextComponentTranslation(this.workableHandler.isReset() ? "tj.multiblock.advanced_large_miner.reset_true" : "tj.multiblock.advanced_large_miner.reset_false")
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.advanced_large_miner.reset")))), this.workableHandler.isReset() ? "reset:true" : "reset:false"))
+                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), 998)
+                .addRecipeOutputLine(this.workableHandler, 999);
+        if (this.workableHandler.isDone())
+            builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.done")
+                    .setStyle(new Style().setColor(TextFormatting.GREEN)), 1000);
         if (this.workableHandler.isActive())
             builder.addTranslationLine("metaitem.linking.device.x", this.workableHandler.getX())
                     .addTranslationLine("metaitem.linking.device.y", this.workableHandler.getY())
@@ -147,7 +160,12 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
 
     @Override
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
-        this.workableHandler.setSilkTouch(!componentData.contains("silkTouch:True"));
+        String[] data = componentData.split(":");
+        if (data[0].equals("silkTouch")) {
+            this.workableHandler.setSilkTouch(!data[1].equals("true"));
+        } else if (data[0].equals("reset")) {
+            this.workableHandler.setReset(!data[1].equals("true"));
+        }
     }
 
     @Override

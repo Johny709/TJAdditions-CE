@@ -20,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
@@ -61,6 +62,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     private boolean blacklist = true;
     private boolean blacklistBlock;
     private boolean silkTouch;
+    private boolean reset;
+    private boolean done;
     private Chunk currentChunk;
     private int miningSpeed;
     private int outputIndex;
@@ -82,6 +85,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         this.initializeChunks();
         if (this.chunkIndex >= this.chunks.size())
             this.chunkIndex = 0;
+        if (this.done)
+            return false;
         this.currentChunk = this.chunks.get(this.chunkIndex);
         this.energyPerTick = GAValues.VA[this.handler.getTier()];
         this.levelY = this.metaTileEntity.getPos().offset(EnumFacing.DOWN).getY();
@@ -134,10 +139,14 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                 this.outputIndex++;
             } else return false;
         }
-        this.chunkIndex++;
-        this.outputIndex = 0;
-        this.itemType.clear();
         this.itemOutputs.clear();
+        this.itemType.clear();
+        this.outputIndex = 0;
+        this.chunkIndex++;
+        if (!this.reset && chunkIndex >= this.chunks.size()) {
+            this.done = true;
+            this.writeCustomData(4, buffer -> buffer.writeBoolean(this.done));
+        }
         return true;
     }
 
@@ -213,6 +222,25 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     }
 
     @Override
+    public void receiveCustomData(int id, PacketBuffer buffer) {
+        super.receiveCustomData(id, buffer);
+        if (id == 4)
+            this.done = buffer.readBoolean();
+    }
+
+    @Override
+    public void writeInitialData(PacketBuffer buffer) {
+        super.writeInitialData(buffer);
+        buffer.writeBoolean(this.done);
+    }
+
+    @Override
+    public void receiveInitialData(PacketBuffer buffer) {
+        super.receiveInitialData(buffer);
+        this.done = buffer.readBoolean();
+    }
+
+    @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound compound = super.serializeNBT();
         NBTTagList itemOutputList = new NBTTagList(), itemTypeCountList = new NBTTagList(), filterItemList = new NBTTagList();
@@ -228,6 +256,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         compound.setInteger("x", this.miningPos.getX());
         compound.setInteger("y", this.miningPos.getY());
         compound.setInteger("z", this.miningPos.getZ());
+        compound.setBoolean("done", this.done);
+        compound.setBoolean("reset", this.reset);
         compound.setBoolean("blacklist", this.blacklist);
         compound.setBoolean("silkTouch", this.silkTouch);
         compound.setBoolean("blacklistBlock", this.blacklistBlock);
@@ -254,6 +284,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         this.chunkIndex = compound.getInteger("chunkIndex");
         this.levelY = compound.getInteger("levelY");
         this.miningPos.setPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
+        this.done = compound.getBoolean("done");
+        this.reset = compound.getBoolean("reset");
         this.blacklist = compound.getBoolean("blacklist");
         this.silkTouch = compound.getBoolean("silkTouch");
         this.blacklistBlock = compound.getBoolean("blacklistBlock");
@@ -325,5 +357,27 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
 
     public OreDictionaryItemFilter getOreDictFilter() {
         return this.oreDictFilter;
+    }
+
+    public void setDone(boolean done) {
+        this.done = done;
+        if (this.done) {
+            this.done = false;
+            this.writeCustomData(4, buffer -> buffer.writeBoolean(this.done));
+        }
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isDone() {
+        return this.done;
+    }
+
+    public void setReset(boolean reset) {
+        this.reset = reset;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isReset() {
+        return this.reset;
     }
 }
