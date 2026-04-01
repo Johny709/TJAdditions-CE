@@ -1,5 +1,6 @@
 package tj.machines.multi.electric;
 
+import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.components.PistonCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
@@ -77,8 +78,11 @@ public class MetaTileEntityLargeImplosionCompressor extends TJRecipeMapMultibloc
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.tier = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
-        this.maxVoltage = 8L << this.tier * 2;
+        int tier = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
+        if (tier < GAValues.MAX) {
+            this.maxVoltage = 8L << tier * 2;
+            this.tier = tier;
+        }
     }
 
     @Override

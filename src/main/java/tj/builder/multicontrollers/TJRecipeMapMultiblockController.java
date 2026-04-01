@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregicadditions.Gregicality;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
@@ -37,6 +38,7 @@ import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
+import tj.util.TJUtility;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -192,7 +194,11 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         super.formStructure(context);
         this.recipeLogic.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
         this.maxVoltage = Math.max(this.inputEnergyContainer.getInputVoltage(), this.outputEnergyContainer.getOutputVoltage());
-        this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
+        this.tier = TJUtility.getTierByVoltage(this.maxVoltage); // tier is slightly off for post MAX but can still determine if it's MAX tier or not.
+        if (this.tier >= GAValues.MAX) {
+            this.maxVoltage += 1L << (this.tier - GAValues.MAX) * 2;
+            this.tier = TJUtility.getTierByVoltage(this.maxVoltage); // correct tier for post MAX
+        }
     }
 
     @Override

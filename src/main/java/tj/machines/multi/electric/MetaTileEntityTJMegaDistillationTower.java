@@ -1,5 +1,6 @@
 package tj.machines.multi.electric;
 
+import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregtech.api.GTValues;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -102,8 +103,11 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
         BlockPos offsetPos = this.getPos().offset(this.getFrontFacing().getOpposite(), 2);
         this.outputHatchPos.addAll(context.getOrDefault("outputHatches", new HashSet<>()));
         this.outputHatchPos.sort(Comparator.comparingInt(pos -> Math.abs(pos.getX() - offsetPos.getX()) + Math.abs(pos.getY() - offsetPos.getY()) + Math.abs(pos.getZ() - offsetPos.getZ())));
-        this.tier = context.getOrDefault("frameworkTier", 0);
-        this.maxVoltage = 8L << this.tier * 2;
+        int tier = context.getOrDefault("frameworkTier", 0);
+        if (tier < GAValues.MAX) {
+            this.maxVoltage = 8L << tier * 2;
+            this.tier = tier;
+        }
     }
 
     @Override

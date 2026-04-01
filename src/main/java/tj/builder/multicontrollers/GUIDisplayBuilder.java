@@ -1,6 +1,5 @@
 package tj.builder.multicontrollers;
 
-import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -18,6 +17,7 @@ import tj.TJValues;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.mixin.gregtech.IAbstractRecipeLogicMixin;
+import tj.util.TJUtility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -174,27 +174,37 @@ public final class GUIDisplayBuilder {
     }
 
     public GUIDisplayBuilder addVoltageTierLine(int tier) {
+        return this.addVoltageTierLine(tier, 0);
+    }
+
+    public GUIDisplayBuilder addVoltageTierLine(int tier, int priority) {
         if (tier > 0) {
-            String color = TJValues.VCC[tier];
-            this.addTextComponent(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
-                    .appendText(" §7(")
-                    .appendSibling(new TextComponentString(color + GAValues.VN[tier] + "§r"))
-                    .appendText("§7)"));
+            String text = tier > 14 ? "§c§lM§e§lA§a§lX§b§l+" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier] + "§r";
+            if (priority != 0) {
+                this.addTextComponent(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
+                        .appendText(" §7(").appendSibling(new TextComponentString(text)).appendText("§7)"), priority);
+            } else this.addTextComponent(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
+                    .appendText(" §7(").appendSibling(new TextComponentString(text)).appendText("§7)"));
         }
         return this;
     }
 
     public GUIDisplayBuilder addVoltageInLine(IEnergyContainer energyContainer) {
+        return this.addVoltageInLine(energyContainer, 0);
+    }
+
+    public GUIDisplayBuilder addVoltageInLine(IEnergyContainer energyContainer, int priority) {
         if (energyContainer != null && energyContainer.getEnergyCapacity() > 0) {
             long maxVoltage = energyContainer.getInputVoltage();
-            int tier = GAUtility.getTierByVoltage(maxVoltage);
-            String color = TJValues.VCC[tier];
-            this.addTextComponent(new TextComponentTranslation("tj.multiblock.max_energy_per_tick")
-                    .appendText(" ")
-                    .appendSibling(new TextComponentString("§e" + TJValues.thousandFormat.format(maxVoltage) + "§r"))
-                    .appendText(" §7(")
-                    .appendSibling(new TextComponentString(color + GAValues.VN[tier] + "§r"))
-                    .appendText("§7)"));
+            int tier = TJUtility.getTierByVoltage(maxVoltage);
+            String text = tier > 14 ? "§c§lM§e§lA§a§lX§b§l+" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier] + "§r";
+            if (priority != 0) {
+                this.addTextComponent(new TextComponentTranslation("tj.multiblock.max_energy_per_tick").appendText(" ")
+                        .appendSibling(new TextComponentString("§e" + TJValues.thousandFormat.format(maxVoltage) + "§r")).appendText(" §7(")
+                        .appendSibling(new TextComponentString(text)).appendText("§7)"), priority);
+            } else this.addTextComponent(new TextComponentTranslation("tj.multiblock.max_energy_per_tick").appendText(" ")
+                    .appendSibling(new TextComponentString("§e" + TJValues.thousandFormat.format(maxVoltage) + "§r")).appendText(" §7(")
+                    .appendSibling(new TextComponentString(text)).appendText("§7)"));
         }
         return this;
     }

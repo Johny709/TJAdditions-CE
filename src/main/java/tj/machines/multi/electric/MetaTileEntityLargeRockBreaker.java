@@ -3,6 +3,7 @@ package tj.machines.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregicadditions.GAValues;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -123,11 +124,14 @@ public class MetaTileEntityLargeRockBreaker extends TJRecipeMapMultiblockControl
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
+        this.slices = context.getOrDefault("Pumps", new ArrayList<>()).size() / 2;
         MotorCasing.CasingType motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV);
         PumpCasing.CasingType pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV);
-        this.tier = Math.min(motor.getTier(), pump.getTier());
-        this.maxVoltage = 8L << this.tier * 2;
-        this.slices = context.getOrDefault("Pumps", new ArrayList<>()).size() / 2;
+        int tier = Math.min(motor.getTier(), pump.getTier());
+        if (tier < GAValues.MAX) {
+            this.maxVoltage = 8L << tier * 2;
+            this.tier = tier;
+        }
     }
 
     @Override

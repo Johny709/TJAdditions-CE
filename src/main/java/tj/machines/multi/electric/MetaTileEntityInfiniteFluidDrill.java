@@ -38,6 +38,7 @@ import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
+import tj.util.TJUtility;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -112,8 +113,11 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
         super.formStructure(context);
         int motorTier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         int pumpTier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
-        this.tier = Math.min(motorTier, pumpTier);
-        this.maxVoltage = GAValues.VA[this.tier];
+        int tier = Math.min(motorTier, pumpTier);
+        if (tier >= GAValues.MAX) {
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage() + 1L << (tier - GAValues.MAX) * 2;
+        } else this.maxVoltage = 8L << tier * 2;
+        this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
         this.workableHandler.initialize(this.tier);
     }
 

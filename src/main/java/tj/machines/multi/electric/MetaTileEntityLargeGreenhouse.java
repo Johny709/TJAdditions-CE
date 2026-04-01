@@ -1,5 +1,6 @@
 package tj.machines.multi.electric;
 
+import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.components.PumpCasing;
@@ -102,8 +103,11 @@ public class MetaTileEntityLargeGreenhouse extends TJMultiRecipeMapMultiblockCon
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.tier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
-        this.maxVoltage = 8L << this.tier * 2;
+        int tier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
+        if (tier < GAValues.MAX) {
+            this.maxVoltage = 8L << tier * 2;
+            this.tier = tier;
+        }
     }
 
     @Override

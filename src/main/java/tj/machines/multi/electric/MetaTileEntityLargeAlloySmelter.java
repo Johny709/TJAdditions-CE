@@ -1,6 +1,7 @@
 package tj.machines.multi.electric;
 
 import gregicadditions.GAConfig;
+import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAHeatingCoil;
@@ -59,13 +60,17 @@ public class MetaTileEntityLargeAlloySmelter extends TJRecipeMapMultiblockContro
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
+        int tier = 0;
         BlockWireCoil.CoilType coilType;
         GAHeatingCoil.CoilType gaCoilType;
         if ((coilType = context.getOrDefault("coilType", BlockWireCoil.CoilType.CUPRONICKEL)) != null)
-            this.tier = coilType.ordinal() + 1;
+            tier = coilType.ordinal() + 1;
         else if ((gaCoilType = context.getOrDefault("gaCoilType", GAHeatingCoil.CoilType.TITAN_STEEL_COIL)) != null)
-            this.tier = gaCoilType.ordinal() + 8;
-        this.maxVoltage = 8L << this.tier * 2;
+            tier = gaCoilType.ordinal() + 8;
+        if (tier < GAValues.MAX) {
+            this.maxVoltage = 8L << tier * 2;
+            this.tier = tier;
+        }
     }
 
     @Override

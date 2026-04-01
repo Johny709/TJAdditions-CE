@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
@@ -51,6 +52,7 @@ import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
 import tj.util.Color;
 import tj.util.EnumFacingHelper;
+import tj.util.TJUtility;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
@@ -151,9 +153,12 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
         this.recipeLogic.initialize(this.getAbilities(IMPORT_ITEMS).size());
         int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
         int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
-        int min = Math.min(conveyor, robotArm);
-        this.maxVoltage = (long) (Math.pow(4, min) * 8);
-        this.parallel = TJConfig.largeCrafter.stack * min;
+        int tier = Math.min(conveyor, robotArm);
+        if (tier >= GAValues.MAX) {
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage() + 1L << (tier - GAValues.MAX) * 2;
+            tier = TJUtility.getTierByVoltage(this.maxVoltage);
+        } else this.maxVoltage = 8L << tier * 2;
+        this.parallel = TJConfig.largeCrafter.stack * tier;
     }
 
     @Override

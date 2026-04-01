@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -42,6 +43,7 @@ import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.gui.widgets.impl.WindowsWidgetGroup;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
+import tj.util.TJUtility;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -55,7 +57,7 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private final NamingMachineWorkableHandler workableHandler = new NamingMachineWorkableHandler(this);
-    private int maxVoltage;
+    private long maxVoltage;
     private int parallel;
     private String name = "";
 
@@ -166,7 +168,10 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         int tier = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
-        this.maxVoltage = 8 << tier * 2;
+        if (tier >= GAValues.MAX) {
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage() + 1L << (tier - GAValues.MAX) * 2;
+            tier = TJUtility.getTierByVoltage(this.maxVoltage);
+        } else this.maxVoltage = 8L << tier * 2;
         this.parallel = TJConfig.largeNamingMachine.stack * tier;
         this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
     }

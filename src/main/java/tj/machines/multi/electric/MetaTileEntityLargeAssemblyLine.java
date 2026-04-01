@@ -1,6 +1,7 @@
 package tj.machines.multi.electric;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
+import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.capabilities.IQubitContainer;
 import gregicadditions.capabilities.impl.QubitContainerList;
@@ -174,8 +175,11 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
         this.qubitContainer = new QubitContainerList(this.getAbilities(GregicAdditionsCapabilities.INPUT_QBIT));
         this.inputBusPos.addAll(context.getOrDefault("InputBuses", new HashSet<>()));
         this.inputBusPos.sort(Comparator.comparingInt(pos -> Math.abs(pos.getX() - this.getPos().getX()) + Math.abs(pos.getY() - this.getPos().getY()) + Math.abs(pos.getZ() - this.getPos().getZ())));
-        this.tier = Math.min(conveyor, robotArm);
-        this.maxVoltage = 8L << this.tier * 2;
+        int tier = Math.min(conveyor, robotArm);
+        if (tier < GAValues.MAX) {
+            this.maxVoltage = 8L << tier * 2;
+            this.tier = tier;
+        }
     }
 
     @Override

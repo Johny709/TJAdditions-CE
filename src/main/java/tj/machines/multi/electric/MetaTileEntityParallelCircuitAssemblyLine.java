@@ -1,6 +1,7 @@
 package tj.machines.multi.electric;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
+import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.capabilities.IQubitContainer;
 import gregicadditions.item.components.ConveyorCasing;
@@ -126,8 +127,11 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
         int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
         this.inputBusPos.addAll(context.getOrDefault("InputBuses", new HashSet<>()));
         this.inputBusPos.sort(Comparator.comparingInt(pos -> Math.abs(pos.getX() - this.getPos().getX()) + Math.abs(pos.getY() - this.getPos().getY()) + Math.abs(pos.getZ() - this.getPos().getZ())));
-        this.tier = Math.min(conveyor, Math.min(robotArm, context.getOrDefault("frameworkTier", 0)));
-        this.maxVoltage = 8L << this.tier * 2;
+        int tier = Math.min(conveyor, Math.min(robotArm, context.getOrDefault("frameworkTier", 0)));
+        if (tier < GAValues.MAX) {
+            this.maxVoltage = 8L << tier * 2;
+            this.tier = tier;
+        }
     }
 
     @Override

@@ -1,6 +1,7 @@
 package tj.machines.multi.electric;
 
 import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
@@ -72,7 +73,7 @@ public class MetaTileEntityTJMegaBlastFurnace extends TJRecipeMapMultiblockContr
         int duration = overclockManager.getDuration();
         int heat = this.blastFurnaceTemperature - recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
         // Apply EUt discount for every 900K above the base recipe temperature
-        recipeEUt /= (long) (1.00 + 0.05 * (heat / 900D));
+        recipeEUt *= (long) Math.pow(0.95, heat / 900D);
         while (duration > 1 && recipeEUt <= this.maxVoltage) {
             if (heat < 1800) break;
             heat -= 1800;
@@ -134,12 +135,15 @@ public class MetaTileEntityTJMegaBlastFurnace extends TJRecipeMapMultiblockContr
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.tier = context.getOrDefault("frameworkTier", 0);
-        this.maxVoltage = 8L << this.tier * 2;
+        int tier = context.getOrDefault("frameworkTier", 0);
         this.blastFurnaceTemperature = context.getOrDefault("coilTemperature", 0);
         int energyTier = GAUtility.getTierByVoltage(this.getInputEnergyContainer().getInputVoltage());
         this.bonusTemperature = Math.max(0, 100 * Math.min(GAUtility.getTierByVoltage(this.maxVoltage), energyTier - 2));
         this.blastFurnaceTemperature += this.bonusTemperature;
+        if (tier < GAValues.MAX) {
+            this.maxVoltage = 8L << tier * 2;
+            this.tier = tier;
+        }
     }
 
     @Override

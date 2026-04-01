@@ -39,6 +39,7 @@ import tj.capability.ProgressBar;
 import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
+import tj.util.TJUtility;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -121,8 +122,11 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        this.maxVoltage = GAValues.VA[this.tier];
+        int tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        if (tier >= GAValues.MAX) {
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage() + 1L << (tier - GAValues.MAX) * 2;
+        } else this.maxVoltage = 8L << tier * 2;
+        this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
         this.workableHandler.initialize(this.tier);
     }
 

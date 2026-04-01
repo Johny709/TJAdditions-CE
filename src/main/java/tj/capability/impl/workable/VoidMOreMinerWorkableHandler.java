@@ -104,7 +104,7 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
                 Collections.shuffle(ores);
                 this.oreOutputs.addAll(ores.stream()
                         .limit(10)
-                        .peek(itemStack -> itemStack.setCount(this.metaTileEntity.getWorld().rand.nextInt((int) (nbOres * nbOres)) + 1))
+                        .peek(itemStack -> itemStack.setCount((int) Math.min(Integer.MAX_VALUE, (long) this.metaTileEntity.getWorld().rand.nextInt((int) (nbOres * nbOres)) + 1)))
                         .collect(Collectors.toCollection(ArrayList::new)));
             }
         } else return false;
