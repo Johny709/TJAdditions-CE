@@ -72,6 +72,11 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
     }
 
     @Override
+    public boolean checkRecipe(Recipe recipe) {
+        return this.blastFurnaceTemperature >= recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
+    }
+
+    @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         overclockManager.setParallel(1);
         long recipeEUt = overclockManager.getEUt() * 4;

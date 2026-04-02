@@ -66,6 +66,11 @@ public class MetaTileEntityTJMegaBlastFurnace extends TJRecipeMapMultiblockContr
     }
 
     @Override
+    public boolean checkRecipe(Recipe recipe) {
+        return this.blastFurnaceTemperature >= recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
+    }
+
+    @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         overclockManager.setParallel(1 << overclockManager.getParallel() * 2);
         long recipeEUt = overclockManager.getEUt() * 4;
