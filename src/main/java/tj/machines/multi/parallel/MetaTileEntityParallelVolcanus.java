@@ -105,13 +105,18 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     }
 
     @Override
+    public boolean checkRecipe(Recipe recipe) {
+        return this.blastFurnaceTemperature >= recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
+    }
+
+    @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         super.preOverclock(overclockManager, recipe);
         long recipeEUt = overclockManager.getEUt() * 4;
         int duration = overclockManager.getDuration();
         int heat = this.blastFurnaceTemperature - recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
         // Apply EUt discount for every 900K above the base recipe temperature
-        recipeEUt /= (long) (1.00 + 0.05 * (heat / 900D));
+        recipeEUt *= (long) Math.pow(0.95, heat / 900D);
         while (duration > 1 && recipeEUt <= this.maxVoltage) {
             if (heat < 1800) break;
             heat -= 1800;
