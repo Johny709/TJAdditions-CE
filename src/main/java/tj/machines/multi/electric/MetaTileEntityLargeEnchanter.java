@@ -159,7 +159,8 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockControllerBase {
         int tier = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV).getTier();
         this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
         if (tier >= GAValues.MAX) {
-            this.maxVoltage = this.inputEnergyContainer.getInputVoltage() + 1L << (tier - GAValues.MAX) * 2;
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
         } else this.maxVoltage = 8L << tier * 2;
         this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
         this.parallel = TJConfig.largeEnchanter.stack * this.tier;

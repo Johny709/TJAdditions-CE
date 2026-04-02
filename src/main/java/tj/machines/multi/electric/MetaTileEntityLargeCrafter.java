@@ -155,7 +155,8 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
         int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
         int tier = Math.min(conveyor, robotArm);
         if (tier >= GAValues.MAX) {
-            this.maxVoltage = this.inputEnergyContainer.getInputVoltage() + 1L << (tier - GAValues.MAX) * 2;
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
             tier = TJUtility.getTierByVoltage(this.maxVoltage);
         } else this.maxVoltage = 8L << tier * 2;
         this.parallel = TJConfig.largeCrafter.stack * tier;

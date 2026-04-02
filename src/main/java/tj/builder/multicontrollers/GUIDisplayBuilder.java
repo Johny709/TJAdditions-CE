@@ -4,6 +4,7 @@ import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.AbstractRecipeLogic;
+import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.common.items.MetaItems;
@@ -196,6 +197,8 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addVoltageInLine(IEnergyContainer energyContainer, int priority) {
         if (energyContainer != null && energyContainer.getEnergyCapacity() > 0) {
             long maxVoltage = energyContainer.getInputVoltage();
+            if (maxVoltage >= Integer.MAX_VALUE)
+                maxVoltage += maxVoltage / Integer.MAX_VALUE;
             int tier = TJUtility.getTierByVoltage(maxVoltage);
             String text = tier > 14 ? "§c§lM§e§lA§a§lX§b§l+" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier] + "§r";
             if (priority != 0) {

@@ -1,6 +1,5 @@
 package tj.machines.multi.electric;
 
-import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.GAMetaBlocks;
@@ -73,20 +72,19 @@ public class MetaTileEntityTJMegaBlastFurnace extends TJRecipeMapMultiblockContr
 
     @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setParallel(1 << overclockManager.getParallel() * 2);
         long recipeEUt = overclockManager.getEUt() * 4;
         int duration = overclockManager.getDuration();
         int heat = this.blastFurnaceTemperature - recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
         // Apply EUt discount for every 900K above the base recipe temperature
-        recipeEUt *= (long) Math.pow(0.95, heat / 900D);
+        recipeEUt /= (long) Math.max(1.00, (1.00 + 0.05 * (heat / 900D)));
         while (duration > 1 && recipeEUt <= this.maxVoltage) {
             if (heat < 1800) break;
             heat -= 1800;
             duration /= 4;
             recipeEUt *= 4;
         }
-        overclockManager.setEUt(recipeEUt / 4);
-        overclockManager.setDuration(duration);
+        overclockManager.setParallel(1 << overclockManager.getParallel() * 2);
+        overclockManager.setEUtAndDuration(recipeEUt / 4, duration);
     }
 
     @Override
@@ -142,13 +140,12 @@ public class MetaTileEntityTJMegaBlastFurnace extends TJRecipeMapMultiblockContr
         super.formStructure(context);
         int tier = context.getOrDefault("frameworkTier", 0);
         this.blastFurnaceTemperature = context.getOrDefault("coilTemperature", 0);
-        int energyTier = GAUtility.getTierByVoltage(this.getInputEnergyContainer().getInputVoltage());
-        this.bonusTemperature = Math.max(0, 100 * Math.min(GAUtility.getTierByVoltage(this.maxVoltage), energyTier - 2));
-        this.blastFurnaceTemperature += this.bonusTemperature;
         if (tier < GAValues.MAX) {
             this.maxVoltage = 8L << tier * 2;
             this.tier = tier;
         }
+        this.bonusTemperature = Math.max(0, 100 * (this.tier - 2));
+        this.blastFurnaceTemperature += this.bonusTemperature;
     }
 
     @Override

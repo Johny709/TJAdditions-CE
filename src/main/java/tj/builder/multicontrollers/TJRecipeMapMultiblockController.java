@@ -194,9 +194,9 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         super.formStructure(context);
         this.recipeLogic.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
         this.maxVoltage = Math.max(this.inputEnergyContainer.getInputVoltage(), this.outputEnergyContainer.getOutputVoltage());
-        this.tier = TJUtility.getTierByVoltage(this.maxVoltage); // tier is slightly off for post MAX but can still determine if it's MAX tier or not.
+        this.tier = this.maxVoltage >= Integer.MAX_VALUE ? 14 : TJUtility.getTierByVoltage(this.maxVoltage);
         if (this.tier >= GAValues.MAX) {
-            this.maxVoltage += 1L << (this.tier - GAValues.MAX) * 2;
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
             this.tier = TJUtility.getTierByVoltage(this.maxVoltage); // correct tier for post MAX
         }
     }

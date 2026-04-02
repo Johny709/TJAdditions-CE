@@ -1,6 +1,5 @@
 package tj.machines.multi.parallel;
 
-import gregicadditions.GAUtility;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -29,6 +28,7 @@ import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.OverclockManager;
+import tj.util.TJUtility;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
@@ -78,20 +78,19 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
 
     @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setParallel(1);
         long recipeEUt = overclockManager.getEUt() * 4;
         int duration = overclockManager.getDuration();
         int heat = this.blastFurnaceTemperature - recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
         // Apply EUt discount for every 900K above the base recipe temperature
-        recipeEUt *= (long) Math.pow(0.95, heat / 900D);
+        recipeEUt /= (long) Math.max(1.00, (1.00 + 0.05 * (heat / 900D)));
         while (duration > 1 && recipeEUt <= this.maxVoltage) {
             if (heat < 1800) break;
             heat -= 1800;
             duration /= 4;
             recipeEUt *= 4;
         }
-        overclockManager.setEUt(recipeEUt / 4);
-        overclockManager.setDuration(duration);
+        overclockManager.setParallel(1);
+        overclockManager.setEUtAndDuration(recipeEUt / 4, duration);
     }
 
     @Override
@@ -148,7 +147,9 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
             amps /= 4;
             this.maxVoltage *= 4;
         }
-        this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
+        if (this.maxVoltage >= Integer.MAX_VALUE)
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
+        this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
         this.bonusTemperature = Math.max(0, 100 * (this.tier - 2));
         this.blastFurnaceTemperature = context.getOrDefault("blastFurnaceTemperature", 0);
         this.blastFurnaceTemperature += this.bonusTemperature;

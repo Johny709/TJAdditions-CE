@@ -169,7 +169,8 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
         super.formStructure(context);
         int tier = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
         if (tier >= GAValues.MAX) {
-            this.maxVoltage = this.inputEnergyContainer.getInputVoltage() + 1L << (tier - GAValues.MAX) * 2;
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
             tier = TJUtility.getTierByVoltage(this.maxVoltage);
         } else this.maxVoltage = 8L << tier * 2;
         this.parallel = TJConfig.largeNamingMachine.stack * tier;

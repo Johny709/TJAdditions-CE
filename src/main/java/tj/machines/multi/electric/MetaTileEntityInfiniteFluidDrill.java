@@ -115,7 +115,8 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
         int pumpTier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
         int tier = Math.min(motorTier, pumpTier);
         if (tier >= GAValues.MAX) {
-            this.maxVoltage = this.inputEnergyContainer.getInputVoltage() + 1L << (tier - GAValues.MAX) * 2;
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
         } else this.maxVoltage = 8L << tier * 2;
         this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
         this.workableHandler.initialize(this.tier);

@@ -142,7 +142,8 @@ public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockC
         int tier = Math.min(conveyor.getTier(), robotArm.getTier());
         this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
         if (tier >= GAValues.MAX) {
-            this.maxVoltage = this.inputEnergyContainer.getInputVoltage() + 1L << (tier - GAValues.MAX) * 2;
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
             tier = TJUtility.getTierByVoltage(this.maxVoltage);
         } else this.maxVoltage = 8L << tier * 2;
         this.parallel = TJConfig.largeArchitectWorkbench.stack * tier;
