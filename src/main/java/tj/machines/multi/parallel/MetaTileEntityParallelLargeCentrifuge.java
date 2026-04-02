@@ -1,6 +1,8 @@
 package tj.machines.multi.parallel;
 
+import gregicadditions.GAValues;
 import gregicadditions.recipes.GARecipeMaps;
+import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMaps;
 import tj.TJConfig;
@@ -31,6 +33,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.capability.OverclockManager;
+import tj.util.TJUtility;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
@@ -120,8 +123,25 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        this.maxVoltage = 8L << this.tier * 2;
+        int tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        if (tier >= GAValues.MAX) {
+            this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
+                    .mapToLong(IEnergyContainer::getInputVoltage)
+                    .max()
+                    .orElse(0);
+            long amps = this.getAbilities(INPUT_ENERGY).stream()
+                    .filter(energy -> energy.getInputVoltage() == this.maxVoltage)
+                    .mapToLong(IEnergyContainer::getInputAmperage)
+                    .sum() / Math.max(1, this.parallelLayer);
+            amps = Math.min(1024, amps);
+            while (amps >= 4) {
+                amps /= 4;
+                this.maxVoltage *= 4;
+            }
+            if (this.maxVoltage >= Integer.MAX_VALUE)
+                this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
+        } else this.maxVoltage = 8L << tier * 2;
+        this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
         this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
     }
 

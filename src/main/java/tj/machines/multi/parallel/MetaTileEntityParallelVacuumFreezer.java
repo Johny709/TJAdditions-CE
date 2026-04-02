@@ -108,6 +108,8 @@ public class MetaTileEntityParallelVacuumFreezer extends ParallelRecipeMapMultib
             amps /= 4;
             this.maxVoltage *= 4;
         }
+        if (this.maxVoltage >= Integer.MAX_VALUE)
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
         this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
     }
 

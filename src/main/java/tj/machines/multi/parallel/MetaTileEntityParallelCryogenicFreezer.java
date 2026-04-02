@@ -122,6 +122,8 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
                 .filter(voltage -> voltage <= GAValues.V[7])
                 .max()
                 .orElse(GAValues.V[7]);
+        if (this.maxVoltage >= Integer.MAX_VALUE)
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
         this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
         this.cryotheum = Cryotheum.getFluid((int) Math.pow(2, this.tier));
     }
