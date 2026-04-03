@@ -1,0 +1,10 @@
+{
+  "ctm": {
+    "ctm_version": 1,
+    "type": "CTM",
+    "layer": "CUTOUT",
+    "textures": [
+      "tj:blocks/casings/glass/fusion_glass_uv_ctm"
+    ]
+  }
+}
