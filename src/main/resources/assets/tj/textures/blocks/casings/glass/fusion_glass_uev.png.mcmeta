@@ -2,5 +2,13 @@
   "animation": {
     "interpolate": true,
     "frametime": 4
+  },
+  "ctm": {
+    "ctm_version": 1,
+    "type": "CTM",
+    "layer": "CUTOUT",
+    "textures": [
+      "tj:blocks/casings/glass/fusion_glass_uev_ctm"
+    ]
   }
 }
