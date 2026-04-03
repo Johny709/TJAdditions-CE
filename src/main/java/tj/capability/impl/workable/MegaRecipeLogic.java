@@ -13,6 +13,7 @@ import tj.util.TJFluidUtils;
 import tj.util.TJUtility;
 
 public class MegaRecipeLogic<R extends IRecipeHandler> extends BasicRecipeLogic<R> {
+
     public MegaRecipeLogic(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
     }
