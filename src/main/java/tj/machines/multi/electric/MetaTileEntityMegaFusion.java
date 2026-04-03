@@ -436,7 +436,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
             int size = ((IGTRecipe) recipe).getMergedFluidInputs().size();
             for (int i = 0; i < size; i++) {
                 FluidStack fluidStack = ((IGTRecipe) recipe).getMergedFluidInputs().get(i);
-                long amount = 0;
+                long amount = fluidStack.amount;
                 if (recipe.getFluidInputs().size() == 3)
                     amount = i == size - 1 ? (int) (fluidStack.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease)) : fluidStack.amount;
                 amount *= parallels;
@@ -456,7 +456,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
             int vacuumTierDifference = this.handler.getVacuumTier() - recipeTier;
             for (int i = 0; i < recipe.getFluidOutputs().size(); i++) {
                 FluidStack fluidStack = recipe.getFluidOutputs().get(i);
-                long amount = 0;
+                long amount = fluidStack.amount;
                 if (i == 0) {
                     amount = (int) (fluidStack.amount * (1 + divertorTierDifference * GAConfig.multis.advFusion.divertorOutputIncrease));
                 } else if (i == recipe.getFluidOutputs().size() - 1) {
