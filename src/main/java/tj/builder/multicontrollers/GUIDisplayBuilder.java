@@ -180,7 +180,7 @@ public final class GUIDisplayBuilder {
 
     public GUIDisplayBuilder addVoltageTierLine(int tier, int priority) {
         if (tier > 0) {
-            String text = tier > 14 ? "§c§lM§e§lA§a§lX§b§l+" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier] + "§r";
+            String text = tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier] + "§r";
             if (priority != 0) {
                 this.addTextComponent(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
                         .appendText(" §7(").appendSibling(new TextComponentString(text)).appendText("§7)"), priority);
@@ -200,7 +200,7 @@ public final class GUIDisplayBuilder {
             if (maxVoltage >= Integer.MAX_VALUE)
                 maxVoltage += maxVoltage / Integer.MAX_VALUE;
             int tier = TJUtility.getTierByVoltage(maxVoltage);
-            String text = tier > 14 ? "§c§lM§e§lA§a§lX§b§l+" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier] + "§r";
+            String text = tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier] + "§r";
             if (priority != 0) {
                 this.addTextComponent(new TextComponentTranslation("tj.multiblock.max_energy_per_tick").appendText(" ")
                         .appendSibling(new TextComponentString("§e" + TJValues.thousandFormat.format(maxVoltage) + "§r")).appendText(" §7(")

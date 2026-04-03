@@ -1,6 +1,5 @@
 package tj.mixin.gregic_probe;
 
-import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregtech.api.capability.IWorkable;
 import gregtech.api.capability.impl.AbstractRecipeLogic;
@@ -16,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tj.TJConfig;
 import tj.TJValues;
 import tj.capability.IRecipeInfo;
+import tj.util.TJUtility;
 import vfyjxf.gregicprobe.integration.gregtech.RecipeInfoProvider;
 
 @Mixin(value = RecipeInfoProvider.class, remap = false)
@@ -28,9 +28,9 @@ public abstract class RecipeInfoProviderMixin {
         long recipeEUt;
         if ((capability instanceof AbstractRecipeLogic && (recipeEUt = ((AbstractRecipeLogic) capability).getRecipeEUt()) > 0) || (capability instanceof IRecipeInfo && (recipeEUt = ((IRecipeInfo) capability).getEnergyPerTick()) > 0)) {
             IProbeInfo horizontalPane = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER));
-            int tier = Math.min(GAValues.MAX, GAUtility.getTierByVoltage(recipeEUt) + 1);
+            int tier = TJUtility.getTierFromVoltage(recipeEUt);
             horizontalPane.text(TextStyleClass.INFO + "{*gregicprobe:top.eut*} ");
-            horizontalPane.text(TextStyleClass.INFO + "§e" + TJValues.thousandFormat.format(recipeEUt) + " §rEU/t §7(" + TJValues.VCC[tier] + GAValues.VN[tier] + "§r§7)");
+            horizontalPane.text(TextStyleClass.INFO + "§e" + TJValues.thousandFormat.format(recipeEUt) + " §rEU/t §7(" + (tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier]) + "§r§7)");
         }
         ci.cancel();
     }
