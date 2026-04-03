@@ -243,6 +243,32 @@ public final class ItemStackHelper {
     }
 
     /**
+     * Tries to extract from container inventory or item handler with ingredients
+     * @param itemHandler container inventory
+     * @param ingredient the ItemStack to extract
+     * @param amount the amount of items to extract and will be added to ItemStack count
+     * @param simulate test to see if the item can be extracted without actually extracting the item for real.
+     * @return The amount extracted
+     */
+    public static long extractFromItemHandlerByIngredientLong(IItemHandler itemHandler, @Nonnull Ingredient ingredient, long amount, boolean simulate) {
+        if (itemHandler == null)
+            return 0;
+
+        int count = 0;
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            ItemStack slotStack = itemHandler.getStackInSlot(i);
+            if (ingredient.apply(slotStack)) {
+                int extracted = itemHandler.extractItem(i, (int) Math.min(Integer.MAX_VALUE, amount), simulate).getCount();
+                count += extracted;
+                amount -= extracted;
+                if (amount < 1)
+                    break;
+            }
+        }
+        return count;
+    }
+
+    /**
      * Tries to extract from container inventory or item handler with ingredients and adds the extracted items to list
      * @param itemHandler container inventory
      * @param ingredient the ItemStack to extract
@@ -259,6 +285,35 @@ public final class ItemStackHelper {
             ItemStack slotStack = itemHandler.getStackInSlot(i);
             if (ingredient.apply(slotStack)) {
                 ItemStack extract = itemHandler.extractItem(i, amount, simulate);
+                int extracted = extract.getCount();
+                count += extracted;
+                amount -= extracted;
+                if (!extract.isEmpty())
+                    stacks.add(extract);
+                if (amount < 1)
+                    break;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Tries to extract from container inventory or item handler with ingredients and adds the extracted items to list
+     * @param itemHandler container inventory
+     * @param ingredient the ItemStack to extract
+     * @param amount the amount of items to extract and will be added to ItemStack count
+     * @param simulate test to see if the item can be extracted without actually extracting the item for real.
+     * @return The amount extracted
+     */
+    public static int extractFromItemHandlerByIngredientToListLong(IItemHandler itemHandler, @Nonnull Ingredient ingredient, long amount, boolean simulate, List<ItemStack> stacks) {
+        if (itemHandler == null)
+            return 0;
+
+        int count = 0;
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            ItemStack slotStack = itemHandler.getStackInSlot(i);
+            if (ingredient.apply(slotStack)) {
+                ItemStack extract = itemHandler.extractItem(i, (int) Math.min(Integer.MAX_VALUE, amount), simulate);
                 int extracted = extract.getCount();
                 count += extracted;
                 amount -= extracted;
