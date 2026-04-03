@@ -89,7 +89,7 @@ public final class TJFluidUtils {
     public static long drainFromTanksLong(IMultipleTankHandler tanks, FluidStack fluidStack, long amount, boolean doDrain) {
         if (fluidStack == null || tanks == null)
             return 0;
-        int amountDrained = 0;
+        long amountDrained = 0;
         for (int i = 0; i < tanks.getTanks(); i++) {
             IFluidTank tank = tanks.getTankAt(i);
             FluidStack slotStack = tank.getFluid();

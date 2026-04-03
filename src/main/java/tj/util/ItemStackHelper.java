@@ -254,7 +254,7 @@ public final class ItemStackHelper {
         if (itemHandler == null)
             return 0;
 
-        int count = 0;
+        long count = 0;
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             ItemStack slotStack = itemHandler.getStackInSlot(i);
             if (ingredient.apply(slotStack)) {
@@ -305,11 +305,11 @@ public final class ItemStackHelper {
      * @param simulate test to see if the item can be extracted without actually extracting the item for real.
      * @return The amount extracted
      */
-    public static int extractFromItemHandlerByIngredientToListLong(IItemHandler itemHandler, @Nonnull Ingredient ingredient, long amount, boolean simulate, List<ItemStack> stacks) {
+    public static long extractFromItemHandlerByIngredientToListLong(IItemHandler itemHandler, @Nonnull Ingredient ingredient, long amount, boolean simulate, List<ItemStack> stacks) {
         if (itemHandler == null)
             return 0;
 
-        int count = 0;
+        long count = 0;
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             ItemStack slotStack = itemHandler.getStackInSlot(i);
             if (ingredient.apply(slotStack)) {
