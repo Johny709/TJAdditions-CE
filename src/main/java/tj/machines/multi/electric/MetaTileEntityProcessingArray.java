@@ -121,7 +121,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
 
     @Override
     public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setEUt(overclockManager.getEUt() * this.getParallel());
+        overclockManager.setEUt(overclockManager.getEUt() * overclockManager.getParallel());
     }
 
     @Override
@@ -277,9 +277,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
 
     private MetaTileEntity getMetaTileEntityFromStack(ItemStack stack) {
         Block block = Block.getBlockFromItem(stack.getItem());
-        if (!(block instanceof BlockMachine))
-            return null;
-        return GregTechAPI.META_TILE_ENTITY_REGISTRY.getObjectById(stack.getMetadata());
+        return block instanceof BlockMachine ? GregTechAPI.META_TILE_ENTITY_REGISTRY.getObjectById(stack.getMetadata()) : null;
     }
 
     public static class MetaTileEntityAdvancedProcessingArray extends MetaTileEntityProcessingArray {

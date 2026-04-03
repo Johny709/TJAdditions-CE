@@ -157,7 +157,7 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
                     .filter(energy -> energy.getInputVoltage() == this.maxVoltage)
                     .mapToLong(IEnergyContainer::getInputAmperage)
                     .sum() / Math.max(1, this.parallelLayer);
-            amps = Math.min(1024, amps);
+            amps = Math.min(4096, amps);
             while (amps >= 4) {
                 amps /= 4;
                 this.maxVoltage *= 4;
