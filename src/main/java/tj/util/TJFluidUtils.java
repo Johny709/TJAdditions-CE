@@ -57,6 +57,7 @@ public final class TJFluidUtils {
      * @param fluidStack the FluidStack to search and drain. the passed in FluidStack doesn't get modified.
      * @param amount the amount to drain.
      * @param doDrain if the fluid should actually be drained from tanks.
+     * @return amount drained.
      */
     public static int drainFromTanks(IMultipleTankHandler tanks, FluidStack fluidStack, int amount, boolean doDrain) {
         if (fluidStack == null || tanks == null)
@@ -85,6 +86,7 @@ public final class TJFluidUtils {
      * @param fluidStack the FluidStack to search and drain. the passed in FluidStack doesn't get modified.
      * @param amount the amount to drain.
      * @param doDrain if the fluid should actually be drained from tanks.
+     * @return amount drained.
      */
     public static long drainFromTanksLong(IMultipleTankHandler tanks, FluidStack fluidStack, long amount, boolean doDrain) {
         if (fluidStack == null || tanks == null)
@@ -133,6 +135,41 @@ public final class TJFluidUtils {
             }
         }
         return fluidStack;
+    }
+
+    /**
+     * Tries to insert into fluid tanks or fluid handler.
+     * @param tanks fluid container inventory
+     * @param fluidStack the FluidStack to insert. the passed in FluidStack doesn't get modified.
+     * @param amount the amount of fluid to insert.
+     * @param doFill test to see if the item can be inserted without actually inserting the item for real.
+     * @return amount drained.
+     */
+    public static long fillIntoTanksLong(IMultipleTankHandler tanks, FluidStack fluidStack, long amount, boolean doFill) {
+        if (fluidStack == null || tanks == null)
+            return 0;
+        long filled = 0;
+        for (int i = 0; i < tanks.getTanks(); i++) {
+            IFluidTank tank = tanks.getTankAt(i);
+            FluidStack slotStack = tank.getFluid();
+            if (slotStack == null) {
+                slotStack = fluidStack.copy();
+                slotStack.amount = (int) Math.min(Integer.MAX_VALUE, amount);
+                int inserted = tank.fill(slotStack, doFill);
+                filled += inserted;
+                amount -= inserted;
+            } else if (slotStack.isFluidEqual(fluidStack)) {
+                int reminder = Math.max(0, tank.getCapacity() - slotStack.amount);
+                int inserted = (int) Math.min(amount, reminder);
+                filled += inserted;
+                amount -= inserted;
+                if (doFill) {
+                    slotStack.amount += inserted;
+                }
+            }
+            if (amount < 1) break;
+        }
+        return filled;
     }
 
     /**
