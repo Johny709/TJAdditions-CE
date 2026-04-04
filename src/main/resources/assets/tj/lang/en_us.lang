@@ -715,7 +715,7 @@ tj.multiblock.tab.frequencies=Frequencies
 tj.multiblock.tab.players=Players
 
 tj.multiblock.structure_formed=Structure Formed.
-tj.multiblock.not_enough_fluid=§cWARNING: not enough fluid %s. Required: %dL
+tj.multiblock.not_enough_fluid=§cWARNING: not enough fluid %s. Required: %,dL
 tj.multiblock.not_enough_fluid.space=§cWARNING: not enough space for fluid %s Required: %dL
 tj.multiblock.enough_fluid=Consuming:
 tj.multiblock.turbine.tooltip.efficiency=[Fuel Efficiency]

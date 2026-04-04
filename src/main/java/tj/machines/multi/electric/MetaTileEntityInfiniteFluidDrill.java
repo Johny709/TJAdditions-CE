@@ -52,6 +52,7 @@ import java.util.function.UnaryOperator;
 
 import static gregicadditions.GAMaterials.*;
 import static net.minecraft.util.text.TextFormatting.RED;
+import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.DRILLING_MUD;
 
 
 public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase implements IProgressBar {
@@ -123,6 +124,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
         builder.addVoltageInLine(this.inputEnergyContainer)
                 .addVoltageTierLine(this.tier)
                 .addEnergyInputLine(this.inputEnergyContainer, this.maxVoltage)
+                .addFluidInputLine(this.importFluidTank, DRILLING_MUD, this.workableHandler.getDrillingMudAmount())
                 .addTranslationLine("gtadditions.multiblock.drilling_rig.fluid", this.workableHandler.getVeinFluid().getName())
                 .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.hasProblem())
                 .addRecipeInputLine(this.workableHandler)
@@ -192,16 +194,16 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
     @Override
     public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
         bars.add(bar -> bar.setProgress(this::getDrillingMudAmount).setMaxProgress(this::getDrillingMudCapacity)
-                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{MetaTileEntityVoidMOreMiner.DRILLING_MUD.getLocalizedName()})
-                .setFluidStackSupplier(() -> MetaTileEntityVoidMOreMiner.DRILLING_MUD));
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{DRILLING_MUD.getLocalizedName()})
+                .setFluidStackSupplier(() -> DRILLING_MUD));
     }
 
     private long getDrillingMudAmount() {
-        return TJFluidUtils.getFluidAmountFromTanks(MetaTileEntityVoidMOreMiner.DRILLING_MUD, this.getImportFluidTank());
+        return TJFluidUtils.getFluidAmountFromTanks(DRILLING_MUD, this.getImportFluidTank());
     }
 
     private long getDrillingMudCapacity() {
-        return TJFluidUtils.getFluidCapacityFromTanks(MetaTileEntityVoidMOreMiner.DRILLING_MUD, this.getImportFluidTank());
+        return TJFluidUtils.getFluidCapacityFromTanks(DRILLING_MUD, this.getImportFluidTank());
     }
 
     @Override

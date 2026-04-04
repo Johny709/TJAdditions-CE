@@ -117,6 +117,10 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
         return this.veinFluid;
     }
 
+    public long getDrillingMudAmount() {
+        return this.drillingMudAmount;
+    }
+
     public boolean isVoidingFluids() {
         return this.voidingFluids;
     }

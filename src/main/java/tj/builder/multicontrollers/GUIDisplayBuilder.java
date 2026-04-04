@@ -4,7 +4,6 @@ import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.AbstractRecipeLogic;
-import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.common.items.MetaItems;
@@ -18,6 +17,7 @@ import tj.TJValues;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.mixin.gregtech.IAbstractRecipeLogicMixin;
+import tj.util.TJFluidUtils;
 import tj.util.TJUtility;
 
 import java.util.ArrayList;
@@ -238,18 +238,23 @@ public final class GUIDisplayBuilder {
     }
 
     public GUIDisplayBuilder addFluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack) {
-        return this.addFluidInputLine(tanks, fluidStack, 1);
-    }
-    public GUIDisplayBuilder addFluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack, int ticks) {
-        return this.addFluidInputLine(tanks, fluidStack, ticks, 0);
+        return this.addFluidInputLine(tanks, fluidStack, 0, 1);
     }
 
-    public GUIDisplayBuilder addFluidInputLine(IFluidHandler tanks, FluidStack fluidStack, int ticks, int priority) {
+    public GUIDisplayBuilder addFluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack, long amount) {
+        return this.addFluidInputLine(tanks, fluidStack, amount, 1);
+    }
+
+    public GUIDisplayBuilder addFluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack, long amount, int ticks) {
+        return this.addFluidInputLine(tanks, fluidStack, amount, ticks, 0);
+    }
+
+    public GUIDisplayBuilder addFluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack, long amount, int ticks, int priority) {
         if (fluidStack == null)
             return this;
         String fluidName = fluidStack.getLocalizedName();
-        int amount = fluidStack.amount;
-        boolean hasEnoughFluid = fluidStack.isFluidStackIdentical(tanks.drain(fluidStack, false)) || amount == 0;
+        amount = amount > 0 ? amount : fluidStack.amount;
+        boolean hasEnoughFluid = amount < 1 || TJFluidUtils.drainFromTanksLong(tanks, fluidStack, amount, false) == amount;
         ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid", fluidName, amount))
                 : ticks == 1 ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.tick", fluidName, amount))
                 : ticks % 20 != 0 ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.ticks", amount, fluidName, ticks))

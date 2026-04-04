@@ -213,6 +213,10 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
         return this.voidingFluids;
     }
 
+    public double getCurrentDrillingFluid() {
+        return this.currentDrillingFluid;
+    }
+
     @Override
     public long heat() {
         return this.temperature;

@@ -122,6 +122,9 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
                 .addVoltageTierLine(this.tier)
                 .addEnergyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
                 .addTemperatureLine(this.workableHandler.heat(), this.workableHandler.maxHeat())
+                .addFluidInputLine(this.importFluidTank, DRILLING_MUD, (long) this.workableHandler.getCurrentDrillingFluid())
+                .addFluidInputLine(this.importFluidTank, PYROTHEUM, (long) this.workableHandler.getCurrentDrillingFluid())
+                .addFluidInputLine(this.importFluidTank, CRYOTHEUM, (long) this.workableHandler.getCurrentDrillingFluid())
                 .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.hasProblem())
                 .customLine(text -> {
                     if (this.workableHandler.isOverheat())
