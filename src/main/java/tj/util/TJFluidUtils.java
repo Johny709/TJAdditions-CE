@@ -113,7 +113,7 @@ public final class TJFluidUtils {
      * Tries to insert into fluid tanks or fluid handler.
      * @param tanks fluid container inventory
      * @param fluidStack the FluidStack to insert
-     * @param doFill test to see if the item can be inserted without actually inserting the item for real.
+     * @param doFill test to see if the fluid can be inserted without actually inserting the fluid for real.
      * @return FluidStack reminder. returns with 0 amount when FluidStack is fully inserted. returns the stack unmodified when unable to insert at all.
      */
     public static FluidStack fillIntoTanks(IMultipleTankHandler tanks, FluidStack fluidStack, boolean doFill) {
@@ -142,8 +142,8 @@ public final class TJFluidUtils {
      * @param tanks fluid container inventory
      * @param fluidStack the FluidStack to insert. the passed in FluidStack doesn't get modified.
      * @param amount the amount of fluid to insert.
-     * @param doFill test to see if the item can be inserted without actually inserting the item for real.
-     * @return amount drained.
+     * @param doFill test to see if the fluid can be inserted without actually inserting the fluid for real.
+     * @return amount filled.
      */
     public static long fillIntoTanksLong(IMultipleTankHandler tanks, FluidStack fluidStack, long amount, boolean doFill) {
         if (fluidStack == null || tanks == null)
