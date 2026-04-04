@@ -99,10 +99,10 @@ public class MetaTileEntityTJDistillationTower extends TJRecipeMapMultiblockCont
     public static BiFunction<BlockWorldState, MetaTileEntity, Boolean> outputHatchPredicate() {
         return (state, tile) -> {
             if (tile instanceof MetaTileEntityMultiblockPart) {
-                MetaTileEntityMultiblockPart multiblockPart = (MetaTileEntityMultiblockPart) tile;
+                final MetaTileEntityMultiblockPart multiblockPart = (MetaTileEntityMultiblockPart) tile;
                 if (multiblockPart instanceof IMultiblockAbilityPart<?>) {
-                    IMultiblockAbilityPart<?> abilityPart = (IMultiblockAbilityPart<?>) multiblockPart;
-                    boolean isOutputHatch = abilityPart.getAbility() == MultiblockAbility.EXPORT_FLUIDS;
+                    final IMultiblockAbilityPart<?> abilityPart = (IMultiblockAbilityPart<?>) multiblockPart;
+                    final boolean isOutputHatch = abilityPart.getAbility() == MultiblockAbility.EXPORT_FLUIDS;
                     if (isOutputHatch) state.getMatchContext().getOrCreate("outputHatches", HashSet::new).add(state.getPos());
                     return isOutputHatch;
                 }

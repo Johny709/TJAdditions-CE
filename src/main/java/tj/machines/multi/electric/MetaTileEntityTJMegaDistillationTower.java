@@ -107,10 +107,10 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        BlockPos offsetPos = this.getPos().offset(this.getFrontFacing().getOpposite(), 2);
+        final int tier = context.getOrDefault("frameworkTier", 0);
+        final BlockPos offsetPos = this.getPos().offset(this.getFrontFacing().getOpposite(), 2);
         this.outputHatchPos.addAll(context.getOrDefault("outputHatches", new HashSet<>()));
         this.outputHatchPos.sort(Comparator.comparingInt(pos -> Math.abs(pos.getX() - offsetPos.getX()) + Math.abs(pos.getY() - offsetPos.getY()) + Math.abs(pos.getZ() - offsetPos.getZ())));
-        int tier = context.getOrDefault("frameworkTier", 0);
         if (tier < GAValues.MAX) {
             this.maxVoltage = 8L << tier * 2;
             this.tier = tier;
@@ -147,10 +147,10 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
     public IMultipleTankHandler getOutputHatchAt(int index) {
         if (index >= this.outputHatchPos.size())
             return null;
-        TileEntity tileEntity = this.getWorld().getTileEntity(this.outputHatchPos.get(index));
+        final TileEntity tileEntity = this.getWorld().getTileEntity(this.outputHatchPos.get(index));
         if (!(tileEntity instanceof MetaTileEntityHolder))
             return null;
-        MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) tileEntity).getMetaTileEntity();
+        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) tileEntity).getMetaTileEntity();
         return metaTileEntity != null ? metaTileEntity.getExportFluids() : null;
     }
 
