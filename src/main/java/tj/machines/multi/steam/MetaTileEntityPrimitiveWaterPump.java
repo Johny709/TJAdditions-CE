@@ -49,6 +49,7 @@ import java.util.function.Predicate;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Water;
 import static gregtech.api.unification.material.Materials.Wood;
+import static tj.util.TJFluidUtils.VOID_TANK;
 
 public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase {
 
@@ -90,7 +91,8 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+        builder.addFluidOutputLine(VOID_TANK, Water.getFluid(1), this.workableHandler.getLastAmount())
+                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
                 .addRecipeOutputLine(this.workableHandler);
     }
 
@@ -262,6 +264,10 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
             for (int i = 0; i < fluidOutputsList.tagCount(); i++) {
                 this.fluidOutputs.add(FluidStack.loadFluidStackFromNBT(fluidOutputsList.getCompoundTagAt(i)));
             }
+        }
+
+        public long getLastAmount() {
+            return this.lastAmount;
         }
     }
 }
