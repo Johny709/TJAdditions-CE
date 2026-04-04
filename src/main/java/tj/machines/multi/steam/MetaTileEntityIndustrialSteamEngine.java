@@ -8,6 +8,7 @@ import gregicadditions.GAValues;
 import gregtech.api.GTValues;
 import gregtech.api.capability.*;
 import gregtech.api.capability.impl.FluidFuelInfo;
+import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MTETrait;
@@ -153,10 +154,11 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
         fluidTanks.addAll(this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         fluidTanks.addAll(this.getAbilities(GregicAdditionsCapabilities.STEAM));
 
-        int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        final int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         this.tier = Math.min(motor, context.getOrDefault("frameworkTier", 0));
         this.maxVoltage = (long) (Math.pow(4, this.tier) * 8);
         this.efficiency = Math.max(0.1F, (1.0F - ((this.tier - 1) / 10.0F)));
+        this.importFluidTank = new FluidTankList(true, fluidTanks);
     }
 
     @Override
