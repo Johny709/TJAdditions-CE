@@ -82,7 +82,7 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
 
         factoryPattern.aisle("XXXXX", "XXXXX", "XXXXX", "XXXXX", "XXXXX");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
@@ -114,18 +114,18 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
 
     public static Predicate<BlockWorldState> heatingCoilPredicate() {
         return blockWorldState -> {
-            IBlockState blockState = blockWorldState.getBlockState();
+            final IBlockState blockState = blockWorldState.getBlockState();
             if (!(blockState.getBlock() instanceof BlockWireCoil))
                 return false;
-            BlockWireCoil blockWireCoil = (BlockWireCoil) blockState.getBlock();
-            BlockWireCoil.CoilType coilType = blockWireCoil.getState(blockState);
+            final BlockWireCoil blockWireCoil = (BlockWireCoil) blockState.getBlock();
+            final BlockWireCoil.CoilType coilType = blockWireCoil.getState(blockState);
             if (Arrays.asList(GAConfig.multis.heatingCoils.gtceHeatingCoilsBlacklist).contains(coilType.getName()))
                 return false;
 
-            int coilLevel = coilType.ordinal();
-            int currentLevel = blockWorldState.getMatchContext().getOrPut("coilLevel", coilLevel);
+            final int coilLevel = coilType.ordinal();
+            final int currentLevel = blockWorldState.getMatchContext().getOrPut("coilLevel", coilLevel);
 
-            BlockWireCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("coilType", coilType);
+            final BlockWireCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("coilType", coilType);
 
             return currentLevel == coilLevel && coilType.equals(currentCoilType);
         };
@@ -133,18 +133,18 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
 
     public static Predicate<BlockWorldState> heatingCoilPredicate2() {
         return blockWorldState -> {
-            IBlockState blockState = blockWorldState.getBlockState();
+            final IBlockState blockState = blockWorldState.getBlockState();
             if (!(blockState.getBlock() instanceof GAHeatingCoil))
                 return false;
-            GAHeatingCoil blockWireCoil = (GAHeatingCoil) blockState.getBlock();
-            GAHeatingCoil.CoilType coilType = blockWireCoil.getState(blockState);
+            final GAHeatingCoil blockWireCoil = (GAHeatingCoil) blockState.getBlock();
+            final GAHeatingCoil.CoilType coilType = blockWireCoil.getState(blockState);
             if (Arrays.asList(GAConfig.multis.heatingCoils.gregicalityheatingCoilsBlacklist).contains(coilType.getName()))
                 return false;
 
-            int coilLevel = coilType.ordinal() + 8;
-            int currentLevel = blockWorldState.getMatchContext().getOrPut("coilLevel", coilLevel);
+            final int coilLevel = coilType.ordinal() + 8;
+            final int currentLevel = blockWorldState.getMatchContext().getOrPut("coilLevel", coilLevel);
 
-            GAHeatingCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("gaCoilType", coilType);
+            final GAHeatingCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("gaCoilType", coilType);
 
             return currentLevel == coilLevel && coilType.equals(currentCoilType);
         };

@@ -8,7 +8,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.capability.IGTRecipe;
 import tj.capability.impl.handler.IRecipeHandler;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 import tj.util.TJFluidUtils;
 import tj.util.TJUtility;
 
@@ -22,9 +22,9 @@ public class MegaRecipeLogic<R extends IRecipeHandler> extends BasicRecipeLogic<
     protected int checkItemInputsAmount(int parallels, Recipe recipe, IItemHandlerModifiable itemInputs) {
         for (CountableIngredient ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
             if (ingredient.getCount() > 0) {
-                parallels = (int) Math.min(parallels, ItemStackHelper.extractFromItemHandlerByIngredientLong(itemInputs, ingredient.getIngredient(), (long) ingredient.getCount() * parallels, true) / ingredient.getCount());
+                parallels = (int) Math.min(parallels, TJItemUtils.extractFromItemHandlerByIngredientLong(itemInputs, ingredient.getIngredient(), (long) ingredient.getCount() * parallels, true) / ingredient.getCount());
                 if (parallels < 1) return 0;
-            } else if (!ItemStackHelper.checkItemHandlerForIngredient(itemInputs, ingredient.getIngredient()))
+            } else if (!TJItemUtils.checkItemHandlerForIngredient(itemInputs, ingredient.getIngredient()))
                 return 0;
         }
         return parallels;
@@ -45,7 +45,7 @@ public class MegaRecipeLogic<R extends IRecipeHandler> extends BasicRecipeLogic<
     @Override
     protected void consumeItemInputs(int parallels, Recipe recipe, IItemHandlerModifiable itemInputs) {
         for (CountableIngredient ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
-            ItemStackHelper.extractFromItemHandlerByIngredientToListLong(itemInputs, ingredient.getIngredient(), (long) ingredient.getCount() * parallels, false, this.itemInputs);
+            TJItemUtils.extractFromItemHandlerByIngredientToListLong(itemInputs, ingredient.getIngredient(), (long) ingredient.getCount() * parallels, false, this.itemInputs);
         }
     }
 
@@ -76,9 +76,9 @@ public class MegaRecipeLogic<R extends IRecipeHandler> extends BasicRecipeLogic<
 
     @Override
     protected void addChancedOutputs(int parallels, Recipe recipe) {
-        int tier = this.handler.getTier() - TJUtility.getTierFromVoltage(this.overclockManager.getEUt());
+        final int tier = this.handler.getTier() - TJUtility.getTierFromVoltage(this.overclockManager.getEUt());
         for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
-            int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
+            final int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
             if (this.metaTileEntity.getWorld().rand.nextInt(10000) < chance) {
                 ItemStack stack = entry.getItemStack();
                 long amount = (long) stack.getCount() * parallels;

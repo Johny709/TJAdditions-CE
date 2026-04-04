@@ -25,7 +25,7 @@ public class MetaTileEntityGAFluidHatch extends MetaTileEntityFluidHatch {
 
     @Override
     public ICubeRenderer getBaseTexture() {
-        MultiblockControllerBase controller = getController();
+        final MultiblockControllerBase controller = getController();
         if (controller != null) {
             this.hatchTexture = controller.getBaseTexture(this);
         }

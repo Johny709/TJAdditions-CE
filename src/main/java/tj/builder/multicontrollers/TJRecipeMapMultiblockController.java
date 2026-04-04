@@ -184,7 +184,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
 
     @Override
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
-        String[] data = componentData.split(":");
+        final String[] data = componentData.split(":");
         if (data[0].equals("distinct"))
             this.recipeLogic.setDistinct(data[1].equals("true"));
     }

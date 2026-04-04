@@ -112,10 +112,10 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             if (layer % 4 == 0) {
-                String mufflerMM = layer == 0 ? "XXXMXXX" : "XXXPXXX";
+                final String mufflerMM = layer == 0 ? "XXXMXXX" : "XXXPXXX";
                 factoryPattern.aisle("~XXXXX~", "XXXXXXX", "XXXXXXX", mufflerMM, "XXXXXXX", "XXXXXXX", "~XXXXX~");
                 factoryPattern.aisle("~AAAAA~", "AcccccA", "Ac#c#cA", "AccPccA", "Ac#c#cA", "AcccccA", "~AAAAA~");
                 factoryPattern.aisle("~AAAAA~", "AcccccA", "Ac#c#cA", "AccPccA", "Ac#c#cA", "AcccccA", "~AAAAA~");

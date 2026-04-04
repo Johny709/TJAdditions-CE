@@ -116,7 +116,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
                 this.sleepRecipe(i);
                 return;
             }
-            boolean canStart = this.startRecipe(i);
+            final boolean canStart = this.startRecipe(i);
             if (canStart) {
                 this.sleepTime[i] = 1;
                 this.progress[i] = 1;
@@ -176,7 +176,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
     }
 
     protected int calculateOverclock(long baseEnergy, int duration, float multiplier, int i) {
-        long voltage = this.handler.getMaxVoltage();
+        final long voltage = this.handler.getMaxVoltage();
         baseEnergy *= 4;
         while (duration > 1 && baseEnergy <= voltage) {
             duration /= multiplier;
@@ -217,7 +217,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
     }
 
     private boolean[] readBoolArrayFromBuffer(PacketBuffer buffer) {
-        int size = buffer.readInt();
+        final int size = buffer.readInt();
         boolean[] booleans = new boolean[size];
         for (int i = 0; i < booleans.length; i++)
             booleans[i] = buffer.readBoolean();
@@ -226,15 +226,15 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound compound = new NBTTagCompound();
-        NBTTagList isWorkingList = new NBTTagList();
-        NBTTagList isActiveList = new NBTTagList();
-        NBTTagList hasProblemList = new NBTTagList();
-        NBTTagList wasActiveAndNeedsUpdateList = new NBTTagList();
-        NBTTagList energyPerTickList = new NBTTagList();
-        NBTTagList progressList = new NBTTagList();
-        NBTTagList maxProgressList = new NBTTagList();
-        NBTTagList parallelList = new NBTTagList();
+        final NBTTagCompound compound = new NBTTagCompound();
+        final NBTTagList isWorkingList = new NBTTagList();
+        final NBTTagList isActiveList = new NBTTagList();
+        final NBTTagList hasProblemList = new NBTTagList();
+        final NBTTagList wasActiveAndNeedsUpdateList = new NBTTagList();
+        final NBTTagList energyPerTickList = new NBTTagList();
+        final NBTTagList progressList = new NBTTagList();
+        final NBTTagList maxProgressList = new NBTTagList();
+        final NBTTagList parallelList = new NBTTagList();
         for (boolean isWorking : this.isWorking)
             isWorkingList.appendTag(new NBTTagByte((byte) (isWorking ? 1 : 0)));
         for (boolean isActive : this.isActive)
@@ -266,14 +266,14 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
 
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
-        NBTTagList isWorkingList = compound.getTagList("isWorking", 1);
-        NBTTagList isActiveList = compound.getTagList("isActive", 1);
-        NBTTagList hasProblemList = compound.getTagList("hasProblem", 1);
-        NBTTagList wasActiveAndNeedsUpdate = compound.getTagList("wasActiveAndNeedsUpdate", 1);
-        NBTTagList energyPerTickList = compound.getTagList("energyPerTick", 4);
-        NBTTagList progressList = compound.getTagList("progress", 3);
-        NBTTagList maxProgressList = compound.getTagList("maxProgress", 3);
-        NBTTagList parallelList = compound.getTagList("parallel", 3);
+        final NBTTagList isWorkingList = compound.getTagList("isWorking", 1);
+        final NBTTagList isActiveList = compound.getTagList("isActive", 1);
+        final NBTTagList hasProblemList = compound.getTagList("hasProblem", 1);
+        final NBTTagList wasActiveAndNeedsUpdate = compound.getTagList("wasActiveAndNeedsUpdate", 1);
+        final NBTTagList energyPerTickList = compound.getTagList("energyPerTick", 4);
+        final NBTTagList progressList = compound.getTagList("progress", 3);
+        final NBTTagList maxProgressList = compound.getTagList("maxProgress", 3);
+        final NBTTagList parallelList = compound.getTagList("parallel", 3);
         this.size = compound.getInteger("size");
         this.isWorking = new boolean[this.size];
         this.isActive = new boolean[this.size];

@@ -51,6 +51,7 @@ import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.machines.multi.BatchMode;
 import tj.multiblockpart.TJMultiblockAbility;
 import tj.multiblockpart.utility.MetaTileEntityMachineController;
+import tj.util.TJUtility;
 import tj.util.TextUtils;
 
 import javax.annotation.Nullable;
@@ -93,7 +94,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         for (int i = 0; i < this.getRecipeMaps().length; i++) {
             builder.append(this.getRecipeMaps()[i].getLocalizedName());
             if (i < this.getRecipeMaps().length - 1)
@@ -218,14 +219,14 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                                 : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "notDistinct")));
         if (!this.isStructureFormed()) return;
         for (int i = 0; i < this.recipeLogic.getSize(); i++) {
-            int parallel = this.recipeLogic.getParallel(i);
-            int progressOffset = this.recipeLogic.isInstanceActive(i) ? 1 : 0;
-            double progressPercent = (this.recipeLogic.getProgressPercent(i) - progressOffset) * 100;
-            String isRunning = !this.recipeLogic.isWorkingEnabled(i) ? TextUtils.translate("machine.universal.work_paused")
+            final int parallel = this.recipeLogic.getParallel(i);
+            final int progressOffset = this.recipeLogic.isInstanceActive(i) ? 1 : 0;
+            final double progressPercent = (this.recipeLogic.getProgressPercent(i) - progressOffset) * 100;
+            final String isRunning = !this.recipeLogic.isWorkingEnabled(i) ? TextUtils.translate("machine.universal.work_paused")
                     : this.recipeLogic.hasProblems(i) ? TextUtils.translate("machine.universal.has_problems")
                     : !this.recipeLogic.isInstanceActive(i) ? TextUtils.translate("machine.universal.idling")
                     : TextUtils.translate("machine.universal.running");
-            int finalI = i;
+            final int finalI = i;
             builder.addTextComponentWithHover(new TextComponentString(": [§a" + (i + 1) + "§r] " + isRunning)
                     .appendText(" ")
                     .appendSibling(this.recipeLogic.isRecipeLocked(i) ? withButton(new TextComponentTranslation("tj.multiblock.parallel.lock"), "lock:" + i)
@@ -237,8 +238,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                         .addTranslationLine("tj.multiblock.eu", this.recipeLogic.getRecipeEUt(finalI))
                         .addTranslationLine("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) (this.recipeLogic.getProgress(finalI) - progressOffset) / 20), TJValues.thousandTwoPlaceFormat.format((double) this.recipeLogic.getMaxProgress(finalI) / 20), (int) progressPercent)
                         .addTranslationLine("tj.multiblock.parallel", parallel);
-                List<ItemStack> itemInputs = this.recipeLogic.getItemInputsAt(finalI);
-                List<FluidStack> fluidInputs = this.recipeLogic.getFluidInputsAt(finalI);
+                final List<ItemStack> itemInputs = this.recipeLogic.getItemInputsAt(finalI);
+                final List<FluidStack> fluidInputs = this.recipeLogic.getFluidInputsAt(finalI);
                 if (itemInputs != null && !itemInputs.isEmpty() || fluidInputs != null && !fluidInputs.isEmpty())
                     hoverBuilder.addTranslationLine("machine.universal.consumption");
                 if (itemInputs != null) {
@@ -251,8 +252,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                         hoverBuilder.addFluidStack(stack);
                     }
                 }
-                List<ItemStack> itemOutputs = this.recipeLogic.getItemOutputsAt(finalI);
-                List<FluidStack> fluidOutputs = this.recipeLogic.getFluidOutputsAt(finalI);
+                final List<ItemStack> itemOutputs = this.recipeLogic.getItemOutputsAt(finalI);
+                final List<FluidStack> fluidOutputs = this.recipeLogic.getFluidOutputsAt(finalI);
                 if (itemOutputs != null && !itemOutputs.isEmpty() || fluidOutputs != null && !fluidOutputs.isEmpty())
                     hoverBuilder.addTranslationLine("machine.universal.producing");
                 if (itemOutputs != null) {
@@ -307,18 +308,18 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                 return;
             default:
                 if (componentData.startsWith("lock")) {
-                    String[] lock = componentData.split(":");
-                    int index = Integer.parseInt(lock[1]);
+                    final String[] lock = componentData.split(":");
+                    final int index = Integer.parseInt(lock[1]);
                     this.recipeLogic.setRecipeLock(false, index);
 
                 } else if (componentData.startsWith("unlock")) {
-                    String[] unlock = componentData.split(":");
-                    int index = Integer.parseInt(unlock[1]);
+                    final String[] unlock = componentData.split(":");
+                    final int index = Integer.parseInt(unlock[1]);
                     this.recipeLogic.setRecipeLock(true, index);
 
                 } else if (componentData.startsWith("remove")) {
-                    String[] remove = componentData.split(":");
-                    int index = Integer.parseInt(remove[1]);
+                    final String[] remove = componentData.split(":");
+                    final int index = Integer.parseInt(remove[1]);
                     this.recipeLogic.setRecipe(null, index);
                 }
         }
@@ -327,10 +328,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int size = this.recipeLogic.getSize();
+        final int size = this.recipeLogic.getSize();
         this.recipeLogic.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
         for (int i = 0; i < this.getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).size(); i++) {
-            MetaTileEntityMachineController controller = this.getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).get(i);
+            final MetaTileEntityMachineController controller = this.getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).get(i);
             if (controller.isAutomatic() || controller.getId() >= size)
                 controller.setID(Math.min(i, size - 1)).setController(this);
         }
@@ -361,7 +362,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (!this.getWorld().isRemote) {
-            int lastParallelLayer = this.parallelLayer;
+            final int lastParallelLayer = this.parallelLayer;
             this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - 1 : this.parallelLayer + 1, 1, this.getMaxParallel());
             if (this.parallelLayer != lastParallelLayer) {
                 playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
@@ -430,7 +431,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     private void setRecipe(List<ItemStack> itemInputs, List<ItemStack> itemOutputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutput, EntityPlayer player) {
         for (int i = 0; i < this.recipeLogic.getSize(); i++) {
             if (this.recipeLogic.getRecipe(i) == null) {
-                Recipe newRecipe = ((IRecipeMap) this.recipeMaps[this.getRecipeMapIndex()]).findByInputsAndOutputs(this.maxVoltage, itemInputs, itemOutputs, fluidInputs, fluidOutput);
+                final Recipe newRecipe = ((IRecipeMap) this.recipeMaps[this.getRecipeMapIndex()]).findByInputsAndOutputs(this.maxVoltage, itemInputs, itemOutputs, fluidInputs, fluidOutput);
                 this.recipeLogic.setRecipe(newRecipe, i);
                 player.sendMessage(newRecipe != null ? this.displayRecipe(TextUtils.addTranslationText("tj.multiblock.recipe.transfer.success", i + 1), newRecipe)
                         : TextUtils.addTranslationText("tj.multiblock.recipe.transfer.fail_2", i + 1));
@@ -452,7 +453,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     private ITextComponent displayItemInputs(Recipe recipe) {
-        ITextComponent itemInputs = TextUtils.addTranslationText("tj.multiblock.parallel.advanced.itemInputs");
+        final ITextComponent itemInputs = TextUtils.addTranslationText("tj.multiblock.parallel.advanced.itemInputs");
         for (CountableIngredient item : recipe.getInputs()) {
             itemInputs.appendText("\n-");
             itemInputs.appendSibling(new TextComponentString("§6" + item.getIngredient().getMatchingStacks()[0].getDisplayName()));
@@ -463,7 +464,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     private ITextComponent displayItemOutputs(Recipe recipe) {
-        ITextComponent itemOutputs = TextUtils.addTranslationText("tj.multiblock.parallel.advanced.itemOutputs");
+        final ITextComponent itemOutputs = TextUtils.addTranslationText("tj.multiblock.parallel.advanced.itemOutputs");
         for (ItemStack item : recipe.getOutputs()) {
             itemOutputs.appendText("\n-");
             itemOutputs.appendSibling(new TextComponentString("§6" + item.getDisplayName()));
@@ -482,7 +483,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     private ITextComponent displayFluids(List<FluidStack> fluidStacks, String fluidTextLocale) {
-        ITextComponent fluidInputs = TextUtils.addTranslationText(fluidTextLocale);
+        final ITextComponent fluidInputs = TextUtils.addTranslationText(fluidTextLocale);
         for (FluidStack fluid : fluidStacks) {
             fluidInputs.appendText("\n-");
             fluidInputs.appendSibling(new TextComponentString("§b" + fluid.getLocalizedName()));
@@ -543,7 +544,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     public int getTierDifference(long recipeEUt) {
-        return this.getTier() - GAUtility.getTierByVoltage(recipeEUt);
+        return this.getTier() - TJUtility.getTierFromVoltage(recipeEUt);
     }
 
     @Override

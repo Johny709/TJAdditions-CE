@@ -27,7 +27,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 
 import java.util.List;
 
@@ -157,7 +157,7 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
         if (this.isWorking && ++this.timer % this.speed == 0) {
             for (int i = 0; i < 9; i++) {
                 ItemStack filterStack = this.itemFilter.getItemFilterSlots().getStackInSlot(i).copy();
-                ItemStackHelper.insertIntoItemHandler(this.itemHandler, filterStack, false);
+                TJItemUtils.insertIntoItemHandler(this.itemHandler, filterStack, false);
             }
         }
     }

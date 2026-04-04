@@ -46,7 +46,7 @@ import tj.capability.impl.handler.IAssemblyHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 import tj.util.TextUtils;
 
 import javax.annotation.Nullable;
@@ -93,7 +93,7 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK)
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK)
                 .aisle("CCCCC", "GOOOG", "GO#OG", "EAeAE", "~EAE~");
         for (int i = 0; i < this.parallelLayer; i++) {
             factoryPattern.aisle("FCICF", "G#c#G", "Gr#rG", "EAaAE", "~EAE~");
@@ -123,11 +123,11 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
-        int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
+        final int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
+        final int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
+        final int tier = Math.min(conveyor, Math.min(robotArm, context.getOrDefault("frameworkTier", 0)));
         this.inputBusPos.addAll(context.getOrDefault("InputBuses", new HashSet<>()));
         this.inputBusPos.sort(Comparator.comparingInt(pos -> Math.abs(pos.getX() - this.getPos().getX()) + Math.abs(pos.getY() - this.getPos().getY()) + Math.abs(pos.getZ() - this.getPos().getZ())));
-        int tier = Math.min(conveyor, Math.min(robotArm, context.getOrDefault("frameworkTier", 0)));
         if (tier < GAValues.MAX) {
             this.maxVoltage = 8L << tier * 2;
             this.tier = tier;
@@ -148,7 +148,7 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (!this.getWorld().isRemote) {
-            int lastParallelLayer = this.parallelLayer;
+            final int lastParallelLayer = this.parallelLayer;
             this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - 1 : this.parallelLayer + 1, 1, TJConfig.parallelCircuitAssemblyLine.maximumSlices);
             if (this.parallelLayer != lastParallelLayer) {
                 playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
@@ -201,7 +201,7 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
     public IItemHandlerModifiable getInputBusAt(int index) {
         if (index >= this.inputBusPos.size())
             return null;
-        TileEntity tileEntity = this.getWorld().getTileEntity(this.inputBusPos.get(index));
+        final TileEntity tileEntity = this.getWorld().getTileEntity(this.inputBusPos.get(index));
         if (!(tileEntity instanceof MetaTileEntityHolder))
             return null;
         MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) tileEntity).getMetaTileEntity();
@@ -264,13 +264,13 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
         @Override
         protected int checkItemInputsAmount(int parallels, Recipe recipe, IItemHandlerModifiable inputBus) {
             for (int i = 0; i < recipe.getInputs().size(); i++) {
-                CountableIngredient ingredient = recipe.getInputs().get(i);
+                final CountableIngredient ingredient = recipe.getInputs().get(i);
                 inputBus = this.handler.getInputBusAt(i);
                 if (inputBus == null) return 0;
                 if (ingredient.getCount() > 0) {
-                    parallels = Math.min(parallels, ItemStackHelper.extractFromItemHandlerByIngredient(inputBus, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
+                    parallels = Math.min(parallels, TJItemUtils.extractFromItemHandlerByIngredient(inputBus, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
                     if (parallels < 1) return 0;
-                } else if (!ItemStackHelper.checkItemHandlerForIngredient(inputBus, ingredient.getIngredient()))
+                } else if (!TJItemUtils.checkItemHandlerForIngredient(inputBus, ingredient.getIngredient()))
                     return 0;
             }
             return parallels;
@@ -279,9 +279,9 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
         @Override
         protected void consumeItemInputs(int parallels, Recipe recipe, IItemHandlerModifiable inputBus) {
             for (int i = 0; i < recipe.getInputs().size(); i++) {
-                CountableIngredient ingredient = recipe.getInputs().get(i);
+                final CountableIngredient ingredient = recipe.getInputs().get(i);
                 inputBus = this.handler.getInputBusAt(i);
-                ItemStackHelper.extractFromItemHandlerByIngredientToList(inputBus, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.getItemInputs());
+                TJItemUtils.extractFromItemHandlerByIngredientToList(inputBus, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.getItemInputs());
             }
         }
     }

@@ -68,7 +68,7 @@ public class MetaTileEntityParallelLargeAssembler extends ParallelRecipeMapMulti
 
     @Override
     protected BlockPattern createStructurePattern() {
-        StringBuilder aisleC = new StringBuilder(), aisleG = new StringBuilder(), aisleP = new StringBuilder(),
+        final StringBuilder aisleC = new StringBuilder(), aisleG = new StringBuilder(), aisleP = new StringBuilder(),
                 aisleA = new StringBuilder(), aislec = new StringBuilder(), aisleR = new StringBuilder();
         for (int layer = 1; layer < this.parallelLayer; layer++) {
             aisleC.append("XXX");
@@ -111,9 +111,9 @@ public class MetaTileEntityParallelLargeAssembler extends ParallelRecipeMapMulti
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
-        int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
-        int tier = Math.min(conveyor, robotArm);
+        final int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
+        final int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
+        final int tier = Math.min(conveyor, robotArm);
         if (tier >= GAValues.MAX) {
             this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                     .mapToLong(IEnergyContainer::getInputVoltage)

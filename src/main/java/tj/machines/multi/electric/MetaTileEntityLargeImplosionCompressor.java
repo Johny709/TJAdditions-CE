@@ -78,7 +78,7 @@ public class MetaTileEntityLargeImplosionCompressor extends TJRecipeMapMultibloc
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int tier = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
+        final int tier = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
         if (tier < GAValues.MAX) {
             this.maxVoltage = 8L << tier * 2;
             this.tier = tier;

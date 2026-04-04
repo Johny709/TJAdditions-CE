@@ -16,7 +16,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import tj.capability.*;
 import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.multiblockpart.TJMultiblockAbility;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,7 +103,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
                     for (int k = 0; k < countableIngredients.size(); k++) {
                         CountableIngredient ingredient = countableIngredients.get(k);
                         int size = ingredient.getCount();
-                        int extracted = ItemStackHelper.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), size, true);
+                        int extracted = TJItemUtils.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), size, true);
                         if (extracted < size)
                             continue recipeMap;
                     }
@@ -116,12 +116,12 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
             int amountToExtract = parallels;
             for (CountableIngredient ingredient : currentRecipe.getMiddle()) { // calculate and simulate parallels
                 int size = ingredient.getCount();
-                int extracted = ItemStackHelper.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), parallels * size, true);
+                int extracted = TJItemUtils.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), parallels * size, true);
                 amountToExtract = Math.min(amountToExtract, extracted / size);
             }
             for (CountableIngredient ingredient : currentRecipe.getMiddle()) { // consume recipe inputs
                 int size = ingredient.getCount();
-                ItemStackHelper.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), amountToExtract * size, false);
+                TJItemUtils.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), amountToExtract * size, false);
             }
             ItemStack output = currentRecipe.getLeft().getRecipeOutput().copy();
             output.setCount(output.getCount() * amountToExtract);
@@ -163,8 +163,8 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
     protected boolean completeRecipe() {
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
             ItemStack stack = this.itemOutputs.get(i);
-            if (ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
+            if (TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
+                TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
                 this.outputIndex++;
             } else return false;
         }

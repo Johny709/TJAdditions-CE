@@ -66,7 +66,7 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("XXGXX", "XXGXX", "XXGXX", "CC#CC");
             factoryPattern.aisle("XXGXX", "XP#mX", "XXGXX", "C###C");
@@ -102,9 +102,9 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        int pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
-        int tier = Math.min(motor, pump);
+        final int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        final int pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
+        final int tier = Math.min(motor, pump);
         if (tier >= GAValues.MAX) {
             this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                     .mapToLong(IEnergyContainer::getInputVoltage)

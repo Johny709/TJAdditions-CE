@@ -26,7 +26,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
 import tj.items.handlers.LargeItemStackHandler;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 import tj.util.TJFluidUtils;
 import tj.util.references.BooleanReference;
 import tj.util.references.IntegerReference;
@@ -356,7 +356,7 @@ public class RecipeOutputDisplayWidget extends Widget {
                     IntegerReference previousCount = new IntegerReference();
                     BooleanReference previouslyFilled = new BooleanReference();
                     ObjectReference<ItemStack> inserted = new ObjectReference<>();
-                    stack = ItemStackHelper.insertIntoItemHandlerWithCallback(this.itemInputInventory, stack, false, (slot, itemStack) -> {
+                    stack = TJItemUtils.insertIntoItemHandlerWithCallback(this.itemInputInventory, stack, false, (slot, itemStack) -> {
                         previouslyFilled.setValue(!this.itemInputInventory.getStackInSlot(slot).isEmpty());
                         previousCount.setValue(itemStack.getCount());
                         inserted.setValue(itemStack.copy());
@@ -366,7 +366,7 @@ public class RecipeOutputDisplayWidget extends Widget {
                             this.itemInputIndex.put(slot, inserted.getValue());
                         }
                     });
-                    ItemStackHelper.insertIntoItemHandlerWithCallback(this.itemOutputInventory, stack, false, (slot, itemStack) -> {
+                    TJItemUtils.insertIntoItemHandlerWithCallback(this.itemOutputInventory, stack, false, (slot, itemStack) -> {
                         previouslyFilled.setValue(!this.itemOutputInventory.getStackInSlot(slot).isEmpty());
                         previousCount.setValue(itemStack.getCount());
                         inserted.setValue(itemStack.copy());

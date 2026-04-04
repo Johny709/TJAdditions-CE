@@ -103,8 +103,8 @@ public class MetaTileEntityWaterReservoirHatch extends MetaTileEntityMultiblockP
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         if (this.getController() == null) {
-            int oldBaseColor = renderState.baseColour;
-            int oldAlphaOverride = renderState.alphaOverride;
+            final int oldBaseColor = renderState.baseColour;
+            final int oldAlphaOverride = renderState.alphaOverride;
 
             renderState.baseColour = TJValues.VC[10] << 8;
             renderState.alphaOverride = 0xFF;

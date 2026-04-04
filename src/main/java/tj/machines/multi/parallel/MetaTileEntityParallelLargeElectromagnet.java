@@ -65,7 +65,7 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         factoryPattern.aisle("~~~~~", "~XXX~", "~XXX~", "~XXX~", "~~~~~");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("~C~C~", "X#X#X", "G###G", "X#X#X", "~C~C~");
@@ -93,7 +93,7 @@ public class MetaTileEntityParallelLargeElectromagnet extends ParallelRecipeMapM
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int tier = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV).getTier();
+        final int tier = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV).getTier();
         if (tier >= GAValues.MAX) {
             this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                     .mapToLong(IEnergyContainer::getInputVoltage)

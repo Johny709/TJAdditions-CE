@@ -66,7 +66,7 @@ public class MetaTileEntityParallelLargeExtractor extends ParallelRecipeMapMulti
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 1; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("XXXXX", "XXXXX", "XXXXX", "XXXXX", "XXXXX");
             factoryPattern.aisle("~PpP~", "P#P#P", "pPPPp", "P#P#P", "~PpP~");
@@ -93,7 +93,7 @@ public class MetaTileEntityParallelLargeExtractor extends ParallelRecipeMapMulti
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int tier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
+        final int tier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
         if (tier >= GAValues.MAX) {
             this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                     .mapToLong(IEnergyContainer::getInputVoltage)

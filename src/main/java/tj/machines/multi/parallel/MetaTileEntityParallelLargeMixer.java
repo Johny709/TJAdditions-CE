@@ -66,7 +66,7 @@ public class MetaTileEntityParallelLargeMixer extends ParallelRecipeMapMultibloc
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         factoryPattern.aisle("~~F~~", "~~F~~", "FFFFF", "~~F~~", "~~F~~");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             String entityS = layer == this.parallelLayer - 1 ? "~XSX~" : "~XXX~";
@@ -94,7 +94,7 @@ public class MetaTileEntityParallelLargeMixer extends ParallelRecipeMapMultibloc
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        final int tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         if (tier >= GAValues.MAX) {
             this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                     .mapToLong(IEnergyContainer::getInputVoltage)

@@ -11,10 +11,9 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
-import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.IMachineHandler;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 import tj.util.PlayerWorldIDData;
 
 import java.util.Arrays;
@@ -154,8 +153,8 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<IMach
                 int energyExtracted = RFContainer.extractEnergy((int) Math.min(Integer.MAX_VALUE, Math.min(energyToAdd * 4L, energyRemainingToFill)), false);
                 this.handler.getOutputEnergyContainer().addEnergy(energyExtracted / 4);
             }
-            if (transferToOutput && RFContainer.getEnergyStored() < 1 && ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty())
-                ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
+            if (transferToOutput && RFContainer.getEnergyStored() < 1 && TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty())
+                TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
         }
     }
 
@@ -174,8 +173,8 @@ public class BatteryChargerWorkableHandler extends AbstractWorkableHandler<IMach
                 long energyExtracted = EUContainer.discharge(Math.min(energyRemainingToFill, energyToAdd), this.handler.getTier(), true, true,false);
                 this.handler.getOutputEnergyContainer().addEnergy(energyExtracted);
             }
-            if (transferToOutput && EUContainer.getCharge() < 1 && ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty())
-                ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
+            if (transferToOutput && EUContainer.getCharge() < 1 && TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty())
+                TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
         }
     }
 

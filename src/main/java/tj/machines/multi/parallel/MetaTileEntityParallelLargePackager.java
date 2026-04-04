@@ -66,7 +66,7 @@ public class MetaTileEntityParallelLargePackager extends ParallelRecipeMapMultib
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         factoryPattern.aisle("XXX", "XXX", "XXX");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("XXX", "XCX", "XRX");
@@ -88,9 +88,9 @@ public class MetaTileEntityParallelLargePackager extends ParallelRecipeMapMultib
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
-        int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
-        int tier = Math.min(conveyor, robotArm);
+        final int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
+        final int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
+        final int tier = Math.min(conveyor, robotArm);
         if (tier >= GAValues.MAX) {
             this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                     .mapToLong(IEnergyContainer::getInputVoltage)

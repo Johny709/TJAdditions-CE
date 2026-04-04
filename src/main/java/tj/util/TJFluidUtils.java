@@ -24,7 +24,7 @@ public final class TJFluidUtils {
             return 0;
         long amount = 0;
         for (int i = 0; i < tanks.getTanks(); i++) {
-            FluidStack stack = tanks.getTankAt(i).getFluid();
+            final FluidStack stack = tanks.getTankAt(i).getFluid();
             if (stack != null && stack.isFluidEqual(fluidStack))
                 amount += stack.amount;
         }
@@ -36,8 +36,8 @@ public final class TJFluidUtils {
             return 0;
         long capacity = 0;
         for (int i = 0; i < tanks.getTanks(); i++) {
-            IFluidTank tank = tanks.getTankAt(i);
-            FluidStack stack = tank.getFluid();
+            final IFluidTank tank = tanks.getTankAt(i);
+            final FluidStack stack = tank.getFluid();
             if (stack == null || stack.isFluidEqual(fluidStack))
                 capacity += tank.getCapacity();
         }
@@ -64,11 +64,11 @@ public final class TJFluidUtils {
             return 0;
         int amountDrained = 0;
         for (int i = 0; i < tanks.getTanks(); i++) {
-            IFluidTank tank = tanks.getTankAt(i);
-            FluidStack slotStack = tank.getFluid();
+            final IFluidTank tank = tanks.getTankAt(i);
+            final FluidStack slotStack = tank.getFluid();
             if (slotStack == null) continue;
             if (slotStack.isFluidEqual(fluidStack)) {
-                FluidStack drained = tank.drain(amount, doDrain);
+                final FluidStack drained = tank.drain(amount, doDrain);
                 if (drained != null) {
                     amountDrained += drained.amount;
                     amount -= amountDrained;
@@ -93,11 +93,11 @@ public final class TJFluidUtils {
             return 0;
         long amountDrained = 0;
         for (int i = 0; i < tanks.getTanks(); i++) {
-            IFluidTank tank = tanks.getTankAt(i);
-            FluidStack slotStack = tank.getFluid();
+            final IFluidTank tank = tanks.getTankAt(i);
+            final FluidStack slotStack = tank.getFluid();
             if (slotStack == null) continue;
             if (slotStack.isFluidEqual(fluidStack)) {
-                FluidStack drained = tank.drain((int) Math.min(Integer.MAX_VALUE, amount), doDrain);
+                final FluidStack drained = tank.drain((int) Math.min(Integer.MAX_VALUE, amount), doDrain);
                 if (drained != null) {
                     amountDrained += drained.amount;
                     amount -= amountDrained;
@@ -121,13 +121,13 @@ public final class TJFluidUtils {
             return fluidStack;
         fluidStack = doFill ? fluidStack : fluidStack.copy();
         for (int i = 0; i < tanks.getTanks() && fluidStack.amount > 0; i++) {
-            IFluidTank tank = tanks.getTankAt(i);
-            FluidStack slotStack = tank.getFluid();
+            final IFluidTank tank = tanks.getTankAt(i);
+            final FluidStack slotStack = tank.getFluid();
             if (slotStack == null) {
                 fluidStack.amount -= tank.fill(fluidStack, doFill);
             } else if (slotStack.isFluidEqual(fluidStack)) {
-                int reminder = Math.max(0, tank.getCapacity() - slotStack.amount);
-                int inserted = Math.min(fluidStack.amount, reminder);
+                final int reminder = Math.max(0, tank.getCapacity() - slotStack.amount);
+                final int inserted = Math.min(fluidStack.amount, reminder);
                 fluidStack.amount -= inserted;
                 if (doFill) {
                     slotStack.amount += inserted;
@@ -150,17 +150,17 @@ public final class TJFluidUtils {
             return 0;
         long filled = 0;
         for (int i = 0; i < tanks.getTanks(); i++) {
-            IFluidTank tank = tanks.getTankAt(i);
+            final IFluidTank tank = tanks.getTankAt(i);
             FluidStack slotStack = tank.getFluid();
             if (slotStack == null) {
                 slotStack = fluidStack.copy();
                 slotStack.amount = (int) Math.min(Integer.MAX_VALUE, amount);
-                int inserted = tank.fill(slotStack, doFill);
+                final int inserted = tank.fill(slotStack, doFill);
                 filled += inserted;
                 amount -= inserted;
             } else if (slotStack.isFluidEqual(fluidStack)) {
-                int reminder = Math.max(0, tank.getCapacity() - slotStack.amount);
-                int inserted = (int) Math.min(amount, reminder);
+                final int reminder = Math.max(0, tank.getCapacity() - slotStack.amount);
+                final int inserted = (int) Math.min(amount, reminder);
                 filled += inserted;
                 amount -= inserted;
                 if (doFill) {
@@ -186,16 +186,16 @@ public final class TJFluidUtils {
             return fluidStack;
         fluidStack = doFill ? fluidStack : fluidStack.copy();
         for (int i = 0; i < tanks.getTanks() && fluidStack.amount > 0; i++) {
-            IFluidTank tank = tanks.getTankAt(i);
-            FluidStack slotStack = tank.getFluid();
+            final IFluidTank tank = tanks.getTankAt(i);
+            final FluidStack slotStack = tank.getFluid();
             if (slotStack == null) {
                 beforeInsertedCallback.accept(i, fluidStack);
                 fluidStack.amount -= tank.fill(fluidStack, doFill);
                 afterInsertedCallback.accept(i, fluidStack);
             } else if (slotStack.isFluidEqual(fluidStack)) {
                 beforeInsertedCallback.accept(i, fluidStack);
-                int reminder = Math.max(0, tank.getCapacity() - slotStack.amount);
-                int inserted = Math.min(fluidStack.amount, reminder);
+                final int reminder = Math.max(0, tank.getCapacity() - slotStack.amount);
+                final int inserted = Math.min(fluidStack.amount, reminder);
                 fluidStack.amount -= inserted;
                 if (doFill) {
                     slotStack.amount += inserted;
@@ -208,7 +208,7 @@ public final class TJFluidUtils {
 
     public static boolean findFluidFromTanks(IMultipleTankHandler tanks, FluidStack fluidStack) {
         for (int i = 0; i < tanks.getTanks(); i++) {
-            IFluidTank tank = tanks.getTankAt(i);
+            final IFluidTank tank = tanks.getTankAt(i);
             if (tank.getFluid() != null && tank.getFluid().isFluidEqual(fluidStack))
                 return true;
         }

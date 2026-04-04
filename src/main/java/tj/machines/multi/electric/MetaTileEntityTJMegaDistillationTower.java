@@ -37,7 +37,7 @@ import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IDistillationHandler;
 import tj.capability.impl.workable.MegaRecipeLogic;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 import tj.util.TJFluidUtils;
 
 import javax.annotation.Nullable;
@@ -181,15 +181,15 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
         @Override
         protected boolean completeRecipe() {
             for (int i = this.itemOutputIndex; i < this.itemOutputs.size(); i++) {
-                ItemStack stack = this.itemOutputs.get(i);
-                if (this.voidingItems || ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
-                    ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
+                final ItemStack stack = this.itemOutputs.get(i);
+                if (this.voidingItems || TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
+                    TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
                     this.itemOutputIndex++;
                 } else return false;
             }
             for (int i = this.fluidOutputIndex; i < this.fluidOutputsOrdered.size(); i++) {
-                long amount = this.fluidOutputAmount.get(i);
-                FluidStack stack = this.fluidOutputsOrdered.get(i);
+                final long amount = this.fluidOutputAmount.get(i);
+                final FluidStack stack = this.fluidOutputsOrdered.get(i);
                 IMultipleTankHandler fluidTank = this.handler.getOutputHatchAt(i);
                 if (fluidTank == null)
                     fluidTank = VOID_TANK;
@@ -211,12 +211,12 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
 
         @Override
         public NBTTagCompound serializeNBT() {
-            NBTTagCompound compound = super.serializeNBT();
-            NBTTagList fluidOutputOrderedList = new NBTTagList(), fluidOutputIndexList = new NBTTagList();
+            final NBTTagCompound compound = super.serializeNBT();
+            final NBTTagList fluidOutputOrderedList = new NBTTagList(), fluidOutputIndexList = new NBTTagList();
             for (FluidStack stack : this.fluidOutputsOrdered)
                 fluidOutputOrderedList.appendTag(stack.writeToNBT(new NBTTagCompound()));
             for (Int2LongMap.Entry entry : this.fluidOutputAmount.int2LongEntrySet()) {
-                NBTTagCompound subCompound = new NBTTagCompound();
+                final NBTTagCompound subCompound = new NBTTagCompound();
                 subCompound.setInteger("i", entry.getIntKey());
                 subCompound.setLong("amount", entry.getIntKey());
                 fluidOutputIndexList.appendTag(subCompound);
@@ -229,11 +229,11 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
         @Override
         public void deserializeNBT(NBTTagCompound compound) {
             super.deserializeNBT(compound);
-            NBTTagList fluidOutputOrderedList = compound.getTagList("fluidOutputsOrdered", 10), fluidOutputIndexList = compound.getTagList("fluidOutputsDT", 10);
+            final NBTTagList fluidOutputOrderedList = compound.getTagList("fluidOutputsOrdered", 10), fluidOutputIndexList = compound.getTagList("fluidOutputsDT", 10);
             for (int i = 0; i < fluidOutputOrderedList.tagCount(); i++)
                 this.fluidOutputsOrdered.add(FluidStack.loadFluidStackFromNBT(fluidOutputOrderedList.getCompoundTagAt(i)));
             for (int i = 0; i < fluidOutputIndexList.tagCount(); i++) {
-                NBTTagCompound subCompound = fluidOutputIndexList.getCompoundTagAt(i);
+                final NBTTagCompound subCompound = fluidOutputIndexList.getCompoundTagAt(i);
                 this.fluidOutputAmount.put(subCompound.getInteger("i"), subCompound.getLong("amount"));
             }
         }

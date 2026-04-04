@@ -40,8 +40,8 @@ public class MetaTileEntityTJMultiFluidHatch extends MetaTileEntityMultiFluidHat
 
     @Override
     protected void initializeInventory() {
-        FluidTank[] fluidsHandlers = new FluidTank[(int) Math.pow(this.getTier(), 2)];
-        for (int i = 0; i <fluidsHandlers.length; i++) {
+        final FluidTank[] fluidsHandlers = new FluidTank[(int) Math.pow(this.getTier(), 2)];
+        for (int i = 0; i < fluidsHandlers.length; i++) {
             fluidsHandlers[i] = new FluidTank(TANK_SIZE);
         }
         this.fluidTanks = new FluidTankList(false, fluidsHandlers);
@@ -63,7 +63,7 @@ public class MetaTileEntityTJMultiFluidHatch extends MetaTileEntityMultiFluidHat
 
     @Override
     public ICubeRenderer getBaseTexture() {
-        MultiblockControllerBase controller = getController();
+        final MultiblockControllerBase controller = getController();
         if (controller != null) {
             this.hatchTexture = controller.getBaseTexture(this);
         }

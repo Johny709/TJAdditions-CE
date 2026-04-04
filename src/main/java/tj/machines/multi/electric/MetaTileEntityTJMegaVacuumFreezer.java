@@ -96,7 +96,7 @@ public class MetaTileEntityTJMegaVacuumFreezer extends TJRecipeMapMultiblockCont
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int tier = context.getOrDefault("frameworkTier", 0);
+        final int tier = context.getOrDefault("frameworkTier", 0);
         if (tier < GAValues.MAX) {
             this.maxVoltage = 8L << tier * 2;
             this.tier = tier;

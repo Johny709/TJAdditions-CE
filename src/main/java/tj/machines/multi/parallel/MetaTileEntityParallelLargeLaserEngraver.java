@@ -68,7 +68,7 @@ public class MetaTileEntityParallelLargeLaserEngraver extends ParallelRecipeMapM
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("XXX", "XGX", "XXX", "~C~");
             factoryPattern.aisle("XXX", "GcG", "XEX", "CBC");
@@ -94,9 +94,9 @@ public class MetaTileEntityParallelLargeLaserEngraver extends ParallelRecipeMapM
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
-        int emitter = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV).getTier();
-        int tier = Math.min(conveyor, emitter);
+        final int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
+        final int emitter = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV).getTier();
+        final int tier = Math.min(conveyor, emitter);
         if (tier >= GAValues.MAX) {
             this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                     .mapToLong(IEnergyContainer::getInputVoltage)

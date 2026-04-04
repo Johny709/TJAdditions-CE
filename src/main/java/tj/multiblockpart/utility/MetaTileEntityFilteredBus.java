@@ -86,15 +86,15 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
             @Override
             @Nonnull
             public ItemStack getStackInSlot(int slot) {
-                ItemStack slotStack = super.getStackInSlot(slot);
-                ItemStack filterStack = filterInventory.getStackInSlot(slot);
+                final ItemStack slotStack = super.getStackInSlot(slot);
+                final ItemStack filterStack = filterInventory.getStackInSlot(slot);
                 return filterStack.isEmpty() || ItemHandlerHelper.canItemStacksStackRelaxed(slotStack, filterStack) ? slotStack : ItemStack.EMPTY;
             }
 
             @Override
             @Nonnull
             public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-                ItemStack filterStack = filterInventory.getStackInSlot(slot);
+                final ItemStack filterStack = filterInventory.getStackInSlot(slot);
                 if ((bypassEmptySlots && filterStack.isEmpty()) || ItemHandlerHelper.canItemStacksStackRelaxed(stack, filterStack))
                     return super.insertItem(slot, stack, simulate);
                 return stack;
@@ -108,15 +108,15 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
             @Override
             @Nonnull
             public ItemStack getStackInSlot(int slot) {
-                ItemStack slotStack = super.getStackInSlot(slot);
-                ItemStack filterStack = filterInventory.getStackInSlot(slot);
+                final ItemStack slotStack = super.getStackInSlot(slot);
+                final ItemStack filterStack = filterInventory.getStackInSlot(slot);
                 return filterStack.isEmpty() || ItemHandlerHelper.canItemStacksStackRelaxed(slotStack, filterStack) ? slotStack : ItemStack.EMPTY;
             }
 
             @Override
             @Nonnull
             public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-                ItemStack filterStack = filterInventory.getStackInSlot(slot);
+                final ItemStack filterStack = filterInventory.getStackInSlot(slot);
                 if ((bypassEmptySlots && filterStack.isEmpty()) || ItemHandlerHelper.canItemStacksStackRelaxed(stack, filterStack))
                     return super.insertItem(slot, stack, simulate);
                 return stack;
@@ -126,15 +126,15 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        int startX = Math.max(7, 79 - (9 * (this.getTier() - 1)));
-        IItemHandlerModifiable itemHandler = this.isOutput ? this.getExportItems() : this.getImportItems();
-        ButtonPopUpWidget<?> popUpWidget = new ButtonPopUpWidget<>(0, 0, 0, 0)
+        final int startX = Math.max(7, 79 - (9 * (this.getTier() - 1)));
+        final IItemHandlerModifiable itemHandler = this.isOutput ? this.getExportItems() : this.getImportItems();
+        final ButtonPopUpWidget<?> popUpWidget = new ButtonPopUpWidget<>(0, 0, 0, 0)
                 .addPopup(widgetGroup -> {
-                    WidgetGroup slotGroup = new WidgetGroup(new Position(0, 7));
+                    final WidgetGroup slotGroup = new WidgetGroup(new Position(0, 7));
                     SlotScrollableWidgetGroup slotScrollGroup = new SlotScrollableWidgetGroup(0, 7, 193, 180, 10)
                             .setScrollWidth(5);
                     for (int i = 0; i < itemHandler.getSlots(); i++) {
-                        SlotWidget slotWidget = new SlotWidget(itemHandler, i, startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)))
+                        final SlotWidget slotWidget = new SlotWidget(itemHandler, i, startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)))
                                 .setBackgroundTexture(GuiTextures.SLOT);
                         if (this.getTier() > 9)
                             slotScrollGroup.addWidget(slotWidget);
@@ -146,11 +146,11 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
                         .setBackgroundTextures(TJGuiTextures.ITEM_FILTER)
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                         .useToggleTexture(true), widgetGroup -> {
-                    WidgetGroup slotGroup = new WidgetGroup(new Position(0, 7));
-                    SlotScrollableWidgetGroup slotScrollGroup = new SlotScrollableWidgetGroup(0, 7, 193, 180, 10)
+                    final WidgetGroup slotGroup = new WidgetGroup(new Position(0, 7));
+                    final SlotScrollableWidgetGroup slotScrollGroup = new SlotScrollableWidgetGroup(0, 7, 193, 180, 10)
                             .setScrollWidth(5);
                     for (int i = 0; i < this.filterInventory.getSlots(); i++) {
-                        TJPhantomSlotWidget slotWidget = new TJPhantomSlotWidget(this.filterInventory, i, startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)))
+                        final TJPhantomSlotWidget slotWidget = new TJPhantomSlotWidget(this.filterInventory, i, startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)))
                                 .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY)
                                 .setAreGhostItems(this.ghostSlotHandler.getAreGhostItems());
                         if (this.getTier() > 9)

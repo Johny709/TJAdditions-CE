@@ -67,7 +67,7 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
     @Override
     protected boolean completeRecipe() {
         for (int i = this.outputIndex; i < this.fluidOutputsList.size(); i++) {
-            FluidStack stack = this.fluidOutputsList.get(i);
+            final FluidStack stack = this.fluidOutputsList.get(i);
             if (this.voidingFluids || this.handler.getExportFluidTank().fill(stack, false) == stack.amount) {
                 this.handler.getExportFluidTank().fill(stack, true);
                 this.outputIndex++;
@@ -81,8 +81,8 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound compound = super.serializeNBT();
-        NBTTagList fluidInputsList = new NBTTagList(), fluidOutputsList = new NBTTagList();
+        final NBTTagCompound compound = super.serializeNBT();
+        final NBTTagList fluidInputsList = new NBTTagList(), fluidOutputsList = new NBTTagList();
         for (FluidStack fluid : this.fluidInputsList)
             fluidInputsList.appendTag(fluid.writeToNBT(new NBTTagCompound()));
         for (FluidStack fluid : this.fluidOutputsList)
@@ -99,7 +99,7 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
         super.deserializeNBT(compound);
         this.outputIndex = compound.getInteger("outputIndex");
         this.voidingFluids = compound.getBoolean("voidFluids");
-        NBTTagList fluidInputsList = compound.getTagList("fluidInputsList", 10), fluidOutputsList = compound.getTagList("fluidOutputsList", 10);
+        final NBTTagList fluidInputsList = compound.getTagList("fluidInputsList", 10), fluidOutputsList = compound.getTagList("fluidOutputsList", 10);
         for (int i = 0; i < fluidInputsList.tagCount(); i++)
             this.fluidInputsList.add(FluidStack.loadFluidStackFromNBT(fluidInputsList.getCompoundTagAt(i)));
         for (int i = 0; i < fluidOutputsList.tagCount(); i++)

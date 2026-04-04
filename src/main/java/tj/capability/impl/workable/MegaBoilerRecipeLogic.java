@@ -19,16 +19,14 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import org.apache.commons.lang3.ArrayUtils;
-import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.capability.IGeneratorInfo;
 import tj.capability.IHeatInfo;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.impl.handler.IBoilerHandler;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 
 import java.util.*;
-import java.util.function.*;
 
 import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_FUELABLE;
 import static gregtech.api.unification.material.Materials.*;
@@ -72,7 +70,7 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
     protected void progressRecipe(int progress) {
         this.progress++;
         if (this.metaTileEntity.getOffsetTimer() % 20 == 0) {
-            double outputMultiplier = this.currentTemperature / (this.maxHeat() * 1.0) * this.getThrottleMultiplier() * this.getThrottleEfficiency();
+            final double outputMultiplier = this.currentTemperature / (this.maxHeat() * 1.0) * this.getThrottleMultiplier() * this.getThrottleEfficiency();
             this.steamProduction = (int) (this.handler.getBaseSteamOutput() * this.handler.getParallel() * outputMultiplier);
             if (this.currentTemperature < this.maxHeat())
                 this.currentTemperature++;
@@ -83,7 +81,7 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
             return;
         }
         this.waterConsumption = Math.round((float) this.steamProduction / 160);
-        boolean hasEnoughWater = this.hasEnoughFluid(Water.getFluid(this.waterConsumption), this.waterConsumption);
+        final boolean hasEnoughWater = this.hasEnoughFluid(Water.getFluid(this.waterConsumption), this.waterConsumption);
         if (hasEnoughWater && this.hasNoWater) {
             this.metaTileEntity.getWorld().setBlockToAir(this.metaTileEntity.getPos());
             this.metaTileEntity.getWorld().createExplosion(null,
@@ -115,7 +113,7 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
     @Override
     protected boolean completeRecipe() {
         if (!this.itemOutput.isEmpty())
-            ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), this.itemOutput.remove(0), false);
+            TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), this.itemOutput.remove(0), false);
         if (!this.fluidOutput.isEmpty())
             this.handler.getExportFluidTank().fill(this.fluidOutput.remove(0), true);
         this.itemInput.clear();
@@ -126,8 +124,8 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
     private int findFluidInputs() {
         FluidStack fuelStack = null;
         for (int i = 0; i < this.handler.getImportFluidTank().getTanks(); i++) {
-            IFluidTank tank = this.handler.getImportFluidTank().getTankAt(i);
-            FluidStack stack = tank.getFluid();
+            final IFluidTank tank = this.handler.getImportFluidTank().getTankAt(i);
+            final FluidStack stack = tank.getFluid();
             if (stack == null) continue;
             if (fuelStack == null) {
                 if (this.lastSearchedFluid.contains(stack)) continue;
@@ -138,27 +136,27 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
                 fuelStack.amount = (int) Math.min(Integer.MAX_VALUE, amount);
             }
         }
-        FuelRecipe dieselRecipe = RecipeMaps.DIESEL_GENERATOR_FUELS.findRecipe(GTValues.V[9], fuelStack);
+        final FuelRecipe dieselRecipe = RecipeMaps.DIESEL_GENERATOR_FUELS.findRecipe(GTValues.V[9], fuelStack);
         if (dieselRecipe != null) {
             fuelStack.amount = (int) Math.ceil(dieselRecipe.getRecipeFluid().amount * CONSUMPTION_MULTIPLIER * this.handler.getParallel() * this.handler.getFuelConsumptionMultiplier() * getThrottleMultiplier());
             if (fuelStack.isFluidStackIdentical(this.handler.getImportFluidTank().drain(fuelStack, false))) {
                 this.fluidInput.add(this.handler.getImportFluidTank().drain(fuelStack, true));
-                long recipeVoltage = FuelRecipeLogic.getTieredVoltage(dieselRecipe.getMinVoltage());
-                int voltageMultiplier = (int) Math.max(1L, recipeVoltage / GTValues.V[GTValues.LV]);
-                int burnTime = (int) Math.ceil(dieselRecipe.getDuration() * CONSUMPTION_MULTIPLIER / 2.0 * voltageMultiplier * this.getThrottleMultiplier());
+                final long recipeVoltage = FuelRecipeLogic.getTieredVoltage(dieselRecipe.getMinVoltage());
+                final int voltageMultiplier = (int) Math.max(1L, recipeVoltage / GTValues.V[GTValues.LV]);
+                final int burnTime = (int) Math.ceil(dieselRecipe.getDuration() * CONSUMPTION_MULTIPLIER / 2.0 * voltageMultiplier * this.getThrottleMultiplier());
                 this.getCarbonDioxideByproduct(burnTime, fuelStack.amount);
                 this.lastSearchedFluid.clear();
                 return burnTime;
             }
         }
-        FuelRecipe denseFuelRecipe = RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.findRecipe(GTValues.V[9], fuelStack);
+        final FuelRecipe denseFuelRecipe = RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.findRecipe(GTValues.V[9], fuelStack);
         if (denseFuelRecipe != null) {
             fuelStack.amount = (int) Math.ceil(denseFuelRecipe.getRecipeFluid().amount * CONSUMPTION_MULTIPLIER * this.handler.getParallel() * this.handler.getFuelConsumptionMultiplier() * getThrottleMultiplier());
             if (fuelStack.isFluidStackIdentical(this.handler.getImportFluidTank().drain(fuelStack, false))) {
                 this.fluidInput.add(this.handler.getImportFluidTank().drain(fuelStack, true));
-                long recipeVoltage = FuelRecipeLogic.getTieredVoltage(denseFuelRecipe.getMinVoltage());
-                int voltageMultiplier = (int) Math.max(1L, recipeVoltage / GTValues.V[GTValues.LV]);
-                int burnTime = (int) Math.ceil(denseFuelRecipe.getDuration() * CONSUMPTION_MULTIPLIER * 2 * voltageMultiplier * this.getThrottleMultiplier());
+                final long recipeVoltage = FuelRecipeLogic.getTieredVoltage(denseFuelRecipe.getMinVoltage());
+                final int voltageMultiplier = (int) Math.max(1L, recipeVoltage / GTValues.V[GTValues.LV]);
+                final int burnTime = (int) Math.ceil(denseFuelRecipe.getDuration() * CONSUMPTION_MULTIPLIER * 2 * voltageMultiplier * this.getThrottleMultiplier());
                 this.getCarbonDioxideByproduct(burnTime, fuelStack.amount);
                 this.lastSearchedFluid.clear();
                 return burnTime;
@@ -172,9 +170,9 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
     }
 
     private void getCarbonDioxideByproduct(int burnTime, int fuelAmount) {
-        double carbonBurnTime = COAL_BURNTIME / this.handler.getParallel();
+        final double carbonBurnTime = COAL_BURNTIME / this.handler.getParallel();
         if (burnTime >= carbonBurnTime) {
-            int amount = (int) (fuelAmount * Math.max(0.4, Math.random()));
+            final int amount = (int) (fuelAmount * Math.max(0.4, Math.random()));
             this.fluidOutput.add(CarbonDioxide.getFluid(amount));
         }
     }
@@ -184,7 +182,7 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
         ItemStack fuelStack = null;
         int availableParallels = this.handler.getParallel();
         for (int i = 0; i < this.handler.getImportItemInventory().getSlots(); i++) {
-            ItemStack stack = this.handler.getImportItemInventory().getStackInSlot(i);
+            final ItemStack stack = this.handler.getImportItemInventory().getStackInSlot(i);
             if (fuelStack == null) {
                 int fuelBurnValue = (int) (this.getBurnValue(stack) * stack.getCount());
                 if (fuelBurnValue > 0) {
@@ -193,8 +191,8 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
                 }
             }
             if (fuelStack != null && fuelStack.isItemEqual(stack)) {
-                int extracted = Math.min(availableParallels, stack.getCount());
-                int fuelBurnValue = (int) (this.getBurnValue(stack) * extracted);
+                final int extracted = Math.min(availableParallels, stack.getCount());
+                final int fuelBurnValue = (int) (this.getBurnValue(stack) * extracted);
                 burnTime += fuelBurnValue;
                 availableParallels -= extracted;
                 count += extracted;
@@ -206,9 +204,9 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
             if (availableParallels < 1)
                 break;
         }
-        double ashBurnTime = COAL_BURNTIME / this.handler.getParallel();
+        final double ashBurnTime = COAL_BURNTIME / this.handler.getParallel();
         if (burnTime >= ashBurnTime) {
-            int amount = (int) ((burnTime / ashBurnTime) * Math.max(0.4, Math.random()));
+            final int amount = (int) ((burnTime / ashBurnTime) * Math.max(0.4, Math.random()));
             this.itemOutput.add(new ItemStack(Item.getByNameOrId("gregtech:meta_item_1"), amount, 2110)); // dark ashes
         }
         return burnTime;
@@ -220,7 +218,7 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
         compound.setInteger("CurrentTemperature", this.currentTemperature);
         compound.setBoolean("HasNoWater", this.hasNoWater);
         compound.setInteger("ThrottlePercentage", this.throttlePercentage);
@@ -271,20 +269,20 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
         int fluidCapacity = 0; // fluid capacity is all non water tanks
         FluidStack fluidFuelStack = null;
         for (int i = 0; i < this.handler.getImportFluidTank().getTanks(); i++) {
-            IFluidTank tank = this.handler.getImportFluidTank().getTankAt(i);
-            FluidStack stack = tank.getFluid();
+            final IFluidTank tank = this.handler.getImportFluidTank().getTankAt(i);
+            final FluidStack stack = tank.getFluid();
             if (stack == null || ModHandler.isWater(stack))
                 continue;
-            long capacity = fluidCapacity + tank.getCapacity();
+            final long capacity = fluidCapacity + tank.getCapacity();
             fluidCapacity = (int) Math.min(Integer.MAX_VALUE, capacity);
             if (fluidFuelStack == null)
                 fluidFuelStack = stack.copy();
             else if (fluidFuelStack.isFluidEqual(stack)) {
-                long amount = fluidFuelStack.amount + stack.amount;
+                final long amount = fluidFuelStack.amount + stack.amount;
                 fluidFuelStack.amount = (int) Math.min(Integer.MAX_VALUE, amount);
             }
         }
-        FuelRecipe dieselRecipe = RecipeMaps.DIESEL_GENERATOR_FUELS.findRecipe(GTValues.V[9], fluidFuelStack);
+        final FuelRecipe dieselRecipe = RecipeMaps.DIESEL_GENERATOR_FUELS.findRecipe(GTValues.V[9], fluidFuelStack);
         if (dieselRecipe != null) {
             long recipeVoltage = FuelRecipeLogic.getTieredVoltage(dieselRecipe.getMinVoltage());
             int voltageMultiplier = (int) Math.max(1L, recipeVoltage / GTValues.V[GTValues.LV]);
@@ -294,41 +292,41 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
             FluidFuelInfo fluidFuelInfo = new FluidFuelInfo(fluidFuelStack, fluidFuelStack.amount, fluidCapacity, fuelAmountToConsume, fuelBurnTime);
             fuels.put(fluidFuelStack.getUnlocalizedName(), fluidFuelInfo);
         }
-        FuelRecipe denseFuelRecipe = RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.findRecipe(GTValues.V[9], fluidFuelStack);
+        final FuelRecipe denseFuelRecipe = RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.findRecipe(GTValues.V[9], fluidFuelStack);
         if (denseFuelRecipe != null) {
-            long recipeVoltage = FuelRecipeLogic.getTieredVoltage(denseFuelRecipe.getMinVoltage());
-            int voltageMultiplier = (int) Math.max(1L, recipeVoltage / GTValues.V[GTValues.LV]);
-            int burnTime = (int) Math.ceil(denseFuelRecipe.getDuration() * CONSUMPTION_MULTIPLIER * 2 * voltageMultiplier * getThrottleMultiplier());
-            int fuelAmountToConsume = (int) Math.ceil(denseFuelRecipe.getRecipeFluid().amount * this.handler.getParallel() * CONSUMPTION_MULTIPLIER * this.handler.getFuelConsumptionMultiplier() * getThrottleMultiplier());
+            final long recipeVoltage = FuelRecipeLogic.getTieredVoltage(denseFuelRecipe.getMinVoltage());
+            final int voltageMultiplier = (int) Math.max(1L, recipeVoltage / GTValues.V[GTValues.LV]);
+            final int burnTime = (int) Math.ceil(denseFuelRecipe.getDuration() * CONSUMPTION_MULTIPLIER * 2 * voltageMultiplier * getThrottleMultiplier());
+            final int fuelAmountToConsume = (int) Math.ceil(denseFuelRecipe.getRecipeFluid().amount * this.handler.getParallel() * CONSUMPTION_MULTIPLIER * this.handler.getFuelConsumptionMultiplier() * getThrottleMultiplier());
             final long fuelBurnTime = ((long) fluidFuelStack.amount * burnTime) / fuelAmountToConsume;
             FluidFuelInfo fluidFuelInfo = new FluidFuelInfo(fluidFuelStack, fluidFuelStack.amount, fluidCapacity, fuelAmountToConsume, fuelBurnTime);
             fuels.put(fluidFuelStack.getUnlocalizedName(), fluidFuelInfo);
         }
         int itemCapacity = 0; // item capacity is all slots
         for (int slotIndex = 0; slotIndex < this.handler.getImportItemInventory().getSlots(); slotIndex++) {
-            long capacity = itemCapacity + this.handler.getImportItemInventory().getSlotLimit(slotIndex);
+            final long capacity = itemCapacity + this.handler.getImportItemInventory().getSlotLimit(slotIndex);
             itemCapacity = (int) Math.min(Integer.MAX_VALUE, capacity);
         }
         int burnTime = 0, count = 0;
         ItemStack itemFuelStack = null;
         for (int i = 0; i < this.handler.getImportItemInventory().getSlots(); i++) {
-            ItemStack stack = this.handler.getImportItemInventory().getStackInSlot(i);
+            final ItemStack stack = this.handler.getImportItemInventory().getStackInSlot(i);
             if (itemFuelStack == null) {
-                int fuelBurnValue = (int) (this.getBurnValue(stack) * stack.getCount());
+                final int fuelBurnValue = (int) (this.getBurnValue(stack) * stack.getCount());
                 if (fuelBurnValue > 0)
                     itemFuelStack = stack.copy();
             }
             if (itemFuelStack != null && itemFuelStack.isItemEqual(stack)) {
-                int extracted = stack.getCount();
-                int fuelBurnValue = (int) (this.getBurnValue(stack) * extracted);
+                final int extracted = stack.getCount();
+                final int fuelBurnValue = (int) (this.getBurnValue(stack) * extracted);
                 burnTime += fuelBurnValue;
-                long amount = count + extracted;
+                final long amount = count + extracted;
                 count = (int) Math.min(Integer.MAX_VALUE, amount);
                 itemFuelStack.setCount(count);
             }
         }
         if (itemFuelStack != null) {
-            ItemFuelInfo itemFuelInfo = new ItemFuelInfo(itemFuelStack, itemFuelStack.getCount(), itemCapacity, 1, burnTime);
+            final ItemFuelInfo itemFuelInfo = new ItemFuelInfo(itemFuelStack, itemFuelStack.getCount(), itemCapacity, 1, burnTime);
             fuels.put(itemFuelStack.getDisplayName(), itemFuelInfo);
         }
         return fuels.values();

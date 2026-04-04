@@ -66,7 +66,7 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 1; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("~XXX~", "X###X", "X###X", "X###X", "~XXX~");
             factoryPattern.aisle("XXXXX", "PGGGP", "XGGGX", "PGGGP", "XXXXX");
@@ -110,7 +110,7 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int tier = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
+        final int tier = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
         if (tier >= GAValues.MAX) {
             this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                     .mapToLong(IEnergyContainer::getInputVoltage)

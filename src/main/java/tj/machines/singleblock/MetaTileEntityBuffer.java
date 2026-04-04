@@ -74,13 +74,13 @@ public class MetaTileEntityBuffer extends GATieredMetaTileEntity {
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        int tier = Math.min(10, this.getTier() + 2);
-        int startX = Math.max(7, 61 - (9 * (this.getTier() - 1)));
-        WidgetGroup slotGroup = new WidgetGroup(new Position(0, 7));
-        SlotScrollableWidgetGroup slotScrollGroup = new SlotScrollableWidgetGroup(0, 7, 193, 180, 10)
+        final int tier = Math.min(10, this.getTier() + 2);
+        final int startX = Math.max(7, 61 - (9 * (this.getTier() - 1)));
+        final WidgetGroup slotGroup = new WidgetGroup(new Position(0, 7));
+        final SlotScrollableWidgetGroup slotScrollGroup = new SlotScrollableWidgetGroup(0, 7, 193, 180, 10)
                 .setScrollWidth(5);
         for (int i = 0, itemI = 0, fluidI = 0; i < this.importItems.getSlots() + this.importFluids.getTanks(); i++) {
-            Widget slotWidget = i % tier == 0 || itemI >= this.importItems.getSlots()
+            final Widget slotWidget = i % tier == 0 || itemI >= this.importItems.getSlots()
                     ? new TankWidget(this.importFluids.getTankAt(fluidI++), startX + (18 * (i % tier)), 18 * (i / tier), 18, 18).setBackgroundTexture(GuiTextures.FLUID_SLOT).setAlwaysShowFull(true).setContainerClicking(true, true)
                     : new SlotWidget(this.importItems, itemI++, startX + (18 * (i % tier)), 18 * (i / tier)).setBackgroundTexture(GuiTextures.SLOT);
             if (this.getTier() > 9)

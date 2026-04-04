@@ -78,7 +78,7 @@ public class MetaTileEntityNamingMachine extends TJTieredWorkableMetaTileEntity 
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 25, 21, 20)
+        final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 25, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)

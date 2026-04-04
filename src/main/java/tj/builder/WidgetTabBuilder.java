@@ -55,8 +55,8 @@ public final class WidgetTabBuilder {
     }
 
     public WidgetTabBuilder addTab(String name, ItemStack itemDisplay, Consumer<List<Widget>> widgetGroupConsumer) {
-        WidgetGroup widgetGroup = new WidgetGroup(), offsetWidgetGroup = new WidgetGroup(new Position(0, -this.position.getY()));
-        List<Widget> widgets = new ArrayList<>();
+        final WidgetGroup widgetGroup = new WidgetGroup(), offsetWidgetGroup = new WidgetGroup(new Position(0, -this.position.getY()));
+        final List<Widget> widgets = new ArrayList<>();
         widgetGroupConsumer.accept(widgets);
         widgets.forEach(widget -> {
             if (widget.getPosition().getY() < this.offsetY)
@@ -69,7 +69,7 @@ public final class WidgetTabBuilder {
     }
 
     public WidgetGroup buildWidgetGroup() {
-        WidgetGroup widgetGroup = new WidgetGroup(this.position), offsetWidgetGroup = new WidgetGroup(new Position(0, -this.position.getY()));
+        final WidgetGroup widgetGroup = new WidgetGroup(this.position), offsetWidgetGroup = new WidgetGroup(new Position(0, -this.position.getY()));
         this.widgetGroup.forEach(widget -> {
             if (widget.getPosition().getY() < this.offsetY)
                 offsetWidgetGroup.addWidget(widget);
@@ -80,7 +80,7 @@ public final class WidgetTabBuilder {
     }
 
     public Widget build() {
-        TJTabGroup tabGroup = new TJTabGroup(this.tabListRenderer, this.position);
+        final TJTabGroup tabGroup = new TJTabGroup(this.tabListRenderer, this.position);
         this.tabs.forEach(tabGroup::addTab);
         return tabGroup;
     }

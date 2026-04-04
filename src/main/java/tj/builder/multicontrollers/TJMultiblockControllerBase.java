@@ -184,7 +184,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
      */
     @Override
     public void calculateMaintenance(int duration) {
-        MetaTileEntityMaintenanceHatch maintenanceHatch = getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).get(0);
+        final MetaTileEntityMaintenanceHatch maintenanceHatch = getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).get(0);
         if (maintenanceHatch.getType() == 2 || !GAConfig.GT5U.enableMaintenance) {
             return;
         }
@@ -205,7 +205,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
 
     private void readMaintenanceData(MetaTileEntityMaintenanceHatch hatch) {
         if (hatch.hasMaintenanceData()) {
-            Tuple<Byte, Integer> data = hatch.readMaintenanceData();
+            final Tuple<Byte, Integer> data = hatch.readMaintenanceData();
             this.maintenance_problems = data.getFirst();
             this.timeActive = data.getSecond();
         }
@@ -214,7 +214,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        List<IItemHandlerModifiable> itemHandlerCollection = new ArrayList<>();
+        final List<IItemHandlerModifiable> itemHandlerCollection = new ArrayList<>();
         itemHandlerCollection.addAll(this.getAbilities(TJMultiblockAbility.CIRCUIT_SLOT));
         itemHandlerCollection.addAll(this.getAbilities(MultiblockAbility.IMPORT_ITEMS));
 
@@ -227,7 +227,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
         if (this.hasMaintenance) {
             if (getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).isEmpty())
                 return;
-            MetaTileEntityMaintenanceHatch maintenanceHatch = getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).get(0);
+            final MetaTileEntityMaintenanceHatch maintenanceHatch = getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).get(0);
             if (maintenanceHatch.getType() == 2 || !GAConfig.GT5U.enableMaintenance) {
                 this.maintenance_problems = 0b111111;
             } else {
@@ -253,7 +253,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
 
     protected int getOffsetY(int y) {
         int height = this.getExtended();
-        int[][] barMatrix;
+        final int[][] barMatrix;
         height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
         return y + height;
     }
@@ -290,13 +290,13 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     }
 
     private void addBars(int[][] barMatrix, ModularUI.Builder builder) {
-        Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars = new ArrayDeque<>();
+        final Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars = new ArrayDeque<>();
         ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars);
         for (int i = 0; i < barMatrix.length; i++) {
-            int[] column = barMatrix[i];
+            final int[] column = barMatrix[i];
             for (int j = 0; j < column.length; j++) {
-                ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
-                int height = 188 / column.length;
+                final ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
+                final int height = 188 / column.length;
                 builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
                         .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
                         .setLocale(bar.getLocale(), bar.getParams())
@@ -329,7 +329,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
 
     protected void addDisplayText(GUIDisplayBuilder builder) {
         if (!this.isStructureFormed()) {
-            ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
+            final ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
             tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
             builder.customLine(text -> text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
                     .setStyle(new Style().setColor(TextFormatting.RED)
@@ -338,9 +338,9 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     }
 
     protected void addMaintenanceDisplayText(GUIDisplayBuilder builder) {
-        Instant now = Instant.now();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMMM d, yyyy hh:mm:ss aa");
-        long timeElapsed = now.getEpochSecond() - this.placedDown.getEpochSecond();
+        final Instant now = Instant.now();
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMMM d, yyyy hh:mm:ss aa");
+        final long timeElapsed = now.getEpochSecond() - this.placedDown.getEpochSecond();
         builder.addTranslationLine("tj.multiblock.date.placed_down", dateFormat.format(Date.from(this.placedDown)))
                 .addTranslationLine("tj.multiblock.date.ago", timeElapsed / 3600, (timeElapsed % 3600) / 60, timeElapsed % 60)
                 .addEmptyLine()
@@ -374,7 +374,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     }
 
     protected void outputRecoveryItems() {
-        MetaTileEntityMufflerHatch muffler = getAbilities(GregicAdditionsCapabilities.MUFFLER_HATCH).get(0);
+        final MetaTileEntityMufflerHatch muffler = getAbilities(GregicAdditionsCapabilities.MUFFLER_HATCH).get(0);
         muffler.recoverItemsTable(recoveryItems.stream().map(ItemStack::copy).collect(Collectors.toList()));
     }
 
@@ -513,14 +513,14 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
 
     public static Predicate<BlockWorldState> frameworkPredicate() {
         return blockWorldState -> {
-            IBlockState state = blockWorldState.getBlockState();
-            Block block = state.getBlock();
+            final IBlockState state = blockWorldState.getBlockState();
+            final Block block = state.getBlock();
             if (block instanceof GAMultiblockCasing) {
-                int tier = GAMetaBlocks.MUTLIBLOCK_CASING.getState(state).getTier();
+                final int tier = GAMetaBlocks.MUTLIBLOCK_CASING.getState(state).getTier();
                 if (tier < 0) return false;
                 return blockWorldState.getMatchContext().getOrPut("frameworkTier", tier) == tier;
             } else if (block instanceof GAMultiblockCasing2) {
-                int tier = GAMetaBlocks.MUTLIBLOCK_CASING2.getState(state).getTier();
+                final int tier = GAMetaBlocks.MUTLIBLOCK_CASING2.getState(state).getTier();
                 if (tier < 0) return false;
                 return blockWorldState.getMatchContext().getOrPut("frameworkTier", tier) == tier;
             }
@@ -530,19 +530,19 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
 
     public static Predicate<BlockWorldState> coilPredicate() {
         return blockWorldState -> {
-            IBlockState state = blockWorldState.getBlockState();
-            Block block = state.getBlock();
+            final IBlockState state = blockWorldState.getBlockState();
+            final Block block = state.getBlock();
             if (block instanceof BlockWireCoil) {
-                BlockWireCoil.CoilType coilType = ((BlockWireCoil) block).getState(state);
-                String name = blockWorldState.getMatchContext().getOrPut("coilName", coilType.getName());
+                final BlockWireCoil.CoilType coilType = ((BlockWireCoil) block).getState(state);
+                final String name = blockWorldState.getMatchContext().getOrPut("coilName", coilType.getName());
                 if (!coilType.getName().equals(name)) return false;
                 blockWorldState.getMatchContext().getOrPut("coilLevel", coilType.getLevel());
                 blockWorldState.getMatchContext().getOrPut("coilTemperature", coilType.getCoilTemperature());
                 blockWorldState.getMatchContext().getOrPut("coilEnergyDiscount", coilType.getEnergyDiscount());
                 return true;
             } else if (block instanceof GAHeatingCoil) {
-                GAHeatingCoil.CoilType coilType = ((GAHeatingCoil) block).getState(state);
-                String name = blockWorldState.getMatchContext().getOrPut("coilName", coilType.getName());
+                final GAHeatingCoil.CoilType coilType = ((GAHeatingCoil) block).getState(state);
+                final String name = blockWorldState.getMatchContext().getOrPut("coilName", coilType.getName());
                 if (!coilType.getName().equals(name)) return false;
                 blockWorldState.getMatchContext().getOrPut("coilLevel", coilType.getLevel());
                 blockWorldState.getMatchContext().getOrPut("coilTemperature", coilType.getCoilTemperature());

@@ -107,18 +107,18 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(113, 8, 60, 72, 3)
+        final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(113, 8, 60, 72, 3)
                 .setScrollWidth(6);
         for (int i = 0; i < this.getExportItemInventory().getSlots(); i++) {
             scrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.getExportItemInventory(), i, 18 * (i % 3), 18 * (i / 3))
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
-        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(90, 30, 21, 20)
+        final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(90, 30, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
-        TankWidget tankWidget = new TankWidget(this.importFluids.getTankAt(0), 69, 58, 18, 18)
+        final TankWidget tankWidget = new TankWidget(this.importFluids.getTankAt(0), 69, 58, 18, 18)
                 .setHideTooltip(true).setAlwaysShowFull(true);
         return ModularUI.defaultBuilder()
                 .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
@@ -235,8 +235,8 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
 
     @Override
     public IItemHandlerModifiable getExportItemInventory() {
-        TileEntity tileEntity = this.getWorld().getTileEntity(this.getPos().offset(this.getOutputFacing()));
-        IItemHandler itemHandler = tileEntity != null ? tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.getOutputFacing()) : null;
+        final TileEntity tileEntity = this.getWorld().getTileEntity(this.getPos().offset(this.getOutputFacing()));
+        final IItemHandler itemHandler = tileEntity != null ? tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.getOutputFacing()) : null;
         return itemHandler instanceof IItemHandlerModifiable ? (IItemHandlerModifiable) itemHandler : super.getExportItemInventory();
     }
 

@@ -65,7 +65,7 @@ public class MetaTileEntityParallelLargeWiremill extends ParallelRecipeMapMultib
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("XXXXX", "~XXX~", "~~~~~", "~~~~~", "~~~~~");
             factoryPattern.aisle("XXXXX", "XMGMX", "C###C", "CMGMC", "CCCCC");
@@ -90,7 +90,7 @@ public class MetaTileEntityParallelLargeWiremill extends ParallelRecipeMapMultib
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        final int tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         if (tier >= GAValues.MAX) {
             this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                     .mapToLong(IEnergyContainer::getInputVoltage)

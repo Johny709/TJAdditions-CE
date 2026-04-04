@@ -14,7 +14,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.capability.*;
 import tj.capability.impl.handler.IRecipeHandler;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 import tj.util.TJFluidUtils;
 import tj.util.TJUtility;
 
@@ -103,14 +103,14 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     @Override
     protected boolean completeRecipe() {
         for (int i = this.itemOutputIndex; i < this.itemOutputs.size(); i++) {
-            ItemStack stack = this.itemOutputs.get(i);
-            if (this.voidingItems || ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
+            final ItemStack stack = this.itemOutputs.get(i);
+            if (this.voidingItems || TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
+                TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
                 this.itemOutputIndex++;
             } else return false;
         }
         for (int i = this.fluidOutputIndex; i < this.fluidOutputs.size(); i++) {
-            FluidStack stack = this.fluidOutputs.get(i);
+            final FluidStack stack = this.fluidOutputs.get(i);
             if (this.voidingFluids || this.handler.getExportFluidTank().fill(stack, false) == stack.amount) {
                 this.handler.getExportFluidTank().fill(stack, true);
                 this.fluidOutputIndex++;
@@ -132,7 +132,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             this.overclockManager.setEUtAndDuration(baseEnergy, duration);
             return 0;
         }
-        long voltage = this.handler.getMaxVoltage();
+        final long voltage = this.handler.getMaxVoltage();
         baseEnergy *= 4;
         while (duration > 1 && baseEnergy <= voltage) {
             duration /= multiplier;
@@ -156,7 +156,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         return recipe;
     }
 
-    protected boolean consumeRecipe(Recipe recipe, IItemHandlerModifiable itemHandlerModifiable) {
+    protected final boolean consumeRecipe(Recipe recipe, IItemHandlerModifiable itemHandlerModifiable) {
         int parallels = this.overclockManager.getParallel();
         // check for parallel count and if there's enough inputs to be consumed.
         if ((parallels = this.checkItemInputsAmount(parallels, recipe, itemHandlerModifiable)) < 1)
@@ -177,9 +177,9 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     protected int checkItemInputsAmount(int parallels, Recipe recipe, IItemHandlerModifiable itemInputs) {
         for (CountableIngredient ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
             if (ingredient.getCount() > 0) {
-                parallels = Math.min(parallels, ItemStackHelper.extractFromItemHandlerByIngredient(itemInputs, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
+                parallels = Math.min(parallels, TJItemUtils.extractFromItemHandlerByIngredient(itemInputs, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
                 if (parallels < 1) return 0;
-            } else if (!ItemStackHelper.checkItemHandlerForIngredient(itemInputs, ingredient.getIngredient()))
+            } else if (!TJItemUtils.checkItemHandlerForIngredient(itemInputs, ingredient.getIngredient()))
                 return 0;
         }
         return parallels;
@@ -187,24 +187,24 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
 
     protected void consumeItemInputs(int parallels, Recipe recipe, IItemHandlerModifiable itemInputs) {
         for (CountableIngredient ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
-            ItemStackHelper.extractFromItemHandlerByIngredientToList(itemInputs, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.itemInputs);
+            TJItemUtils.extractFromItemHandlerByIngredientToList(itemInputs, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.itemInputs);
         }
     }
 
     protected void addItemOutputs(int parallels, Recipe recipe) {
         for (ItemStack stack : recipe.getOutputs()) {
-            ItemStack item = stack.copy();
+            final ItemStack item = stack.copy();
             item.setCount(stack.getCount() * parallels);
             this.itemOutputs.add(item);
         }
     }
 
     protected void addChancedOutputs(int parallels, Recipe recipe) {
-        int tier = this.handler.getTier() - TJUtility.getTierFromVoltage(this.overclockManager.getEUt());
+        final int tier = this.handler.getTier() - TJUtility.getTierFromVoltage(this.overclockManager.getEUt());
         for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
-            int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
+            final int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
             if (this.metaTileEntity.getWorld().rand.nextInt(10000) < chance) {
-                ItemStack stack = entry.getItemStack().copy();
+                final ItemStack stack = entry.getItemStack().copy();
                 stack.setCount(stack.getCount() * parallels);
                 this.itemOutputs.add(stack);
             }
@@ -224,7 +224,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
 
     protected void consumeFluidInputs(int parallels, Recipe recipe) {
         for (FluidStack stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
-            FluidStack fluid = stack.copy();
+            final FluidStack fluid = stack.copy();
             fluid.amount *= parallels;
             TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack, fluid.amount, true);
             this.fluidInputs.add(fluid);
@@ -233,7 +233,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
 
     protected void addFluidOutputs(int parallels, Recipe recipe) {
         for (FluidStack stack : recipe.getFluidOutputs()) {
-            FluidStack fluid = stack.copy();
+            final FluidStack fluid = stack.copy();
             fluid.amount *= parallels;
             this.fluidOutputs.add(fluid);
         }
@@ -249,8 +249,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             this.lastFluidInputs = new FluidStack[fluidInputs.getTanks()];
         }
         for (int i = 0; i < this.lastItemInputs.length; i++) {
-            ItemStack currentStack = itemInputs.getStackInSlot(i);
-            ItemStack lastStack = lastItemInputs[i];
+            final ItemStack currentStack = itemInputs.getStackInSlot(i);
+            final ItemStack lastStack = lastItemInputs[i];
             if (!areItemStacksEqual(currentStack, lastStack)) {
                 this.lastItemInputs[i] = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
                 shouldRecheckRecipe = true;
@@ -260,8 +260,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             }
         }
         for (int i = 0; i < this.lastFluidInputs.length; i++) {
-            FluidStack currentStack = fluidInputs.getTankAt(i).getFluid();
-            FluidStack lastStack = this.lastFluidInputs[i];
+            final FluidStack currentStack = fluidInputs.getTankAt(i).getFluid();
+            final FluidStack lastStack = this.lastFluidInputs[i];
             if ((currentStack == null && lastStack != null) ||
                     (currentStack != null && !currentStack.isFluidEqual(lastStack))) {
                 this.lastFluidInputs[i] = currentStack == null ? null : currentStack.copy();
@@ -289,8 +289,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             this.lastFluidInputs = new FluidStack[fluidInputs.getTanks()];
         }
         for (int i = 0; i < this.lastItemInputsMatrix[index].length; i++) {
-            ItemStack currentStack = itemInputs.getStackInSlot(i);
-            ItemStack lastStack = this.lastItemInputsMatrix[index][i];
+            final ItemStack currentStack = itemInputs.getStackInSlot(i);
+            final ItemStack lastStack = this.lastItemInputsMatrix[index][i];
             if (!areItemStacksEqual(currentStack, lastStack)) {
                 this.lastItemInputsMatrix[index][i] = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
                 shouldRecheckRecipe = true;
@@ -300,8 +300,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             }
         }
         for (int i = 0; i < this.lastFluidInputs.length; i++) {
-            FluidStack currentStack = fluidInputs.getTankAt(i).getFluid();
-            FluidStack lastStack = this.lastFluidInputs[i];
+            final FluidStack currentStack = fluidInputs.getTankAt(i).getFluid();
+            final FluidStack lastStack = this.lastFluidInputs[i];
             if ((currentStack == null && lastStack != null) ||
                     (currentStack != null && !currentStack.isFluidEqual(lastStack))) {
                 this.lastFluidInputs[i] = currentStack == null ? null : currentStack.copy();
@@ -328,9 +328,9 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound compound = super.serializeNBT();
-        NBTTagList itemInputList = new NBTTagList(), itemOutputList = new NBTTagList();
-        NBTTagList fluidInputList = new NBTTagList(), fluidOutputList = new NBTTagList();
+        final NBTTagCompound compound = super.serializeNBT();
+        final NBTTagList itemInputList = new NBTTagList(), itemOutputList = new NBTTagList();
+        final NBTTagList fluidInputList = new NBTTagList(), fluidOutputList = new NBTTagList();
         for (ItemStack stack : this.itemInputs)
             itemInputList.appendTag(stack.serializeNBT());
         for (ItemStack stack : this.itemOutputs)
@@ -353,8 +353,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
-        NBTTagList itemInputList = compound.getTagList("itemInputs", 10), itemOutputList = compound.getTagList("itemOutputs", 10);
-        NBTTagList fluidInputList = compound.getTagList("fluidInputs",10), fluidOutputList = compound.getTagList("fluidOutputs", 10);
+        final NBTTagList itemInputList = compound.getTagList("itemInputs", 10), itemOutputList = compound.getTagList("itemOutputs", 10);
+        final NBTTagList fluidInputList = compound.getTagList("fluidInputs",10), fluidOutputList = compound.getTagList("fluidOutputs", 10);
         for (int i = 0; i < itemInputList.tagCount(); i++)
             this.itemInputs.add(new ItemStack(itemInputList.getCompoundTagAt(i)));
         for (int i = 0; i < itemOutputList.tagCount(); i++)

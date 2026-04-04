@@ -107,16 +107,16 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     public boolean checkRecipe(Recipe recipe) {
         this.recipe = recipe;
         this.maxHeat = this.energyContainer.getEnergyCapacity();
-        long energyToStart = recipe.getProperty("eu_to_start");
-        int tier = recipe.getProperty("coil_tier");
+        final long energyToStart = recipe.getProperty("eu_to_start");
+        final int tier = recipe.getProperty("coil_tier");
         return this.energyToStart >= energyToStart && this.tier >= tier && this.heat >= energyToStart;
     }
 
     @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        int recipeTier = recipe.getProperty("coil_tier");
-        int coilTierDifference = this.coilTier - recipeTier;
-        int vacuumTierDifference = this.vacuumTier - recipeTier;
+        final int recipeTier = recipe.getProperty("coil_tier");
+        final int coilTierDifference = this.coilTier - recipeTier;
+        final int vacuumTierDifference = this.vacuumTier - recipeTier;
         overclockManager.setDuration((int) Math.max(1.0, overclockManager.getDuration() * (1 - GAConfig.multis.advFusion.coilDurationDiscount * coilTierDifference)));
         overclockManager.setEUt((long) Math.max(1, overclockManager.getEUt() * (1 - vacuumTierDifference * GAConfig.multis.advFusion.vacuumEnergyDecrease)));
         overclockManager.setParallel((int) (this.energyContainer.getEnergyCapacity() / (long) recipe.getProperty("eu_to_start")));
@@ -130,9 +130,9 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     @Override
     protected void updateFormedValid() {
         super.updateFormedValid();
-        long inputEnergyStored = this.inputEnergyContainer.getEnergyStored();
+        final long inputEnergyStored = this.inputEnergyContainer.getEnergyStored();
         if (inputEnergyStored > 0) {
-            long energyAdded = this.energyContainer.addEnergy(inputEnergyStored);
+            final long energyAdded = this.energyContainer.addEnergy(inputEnergyStored);
             if (energyAdded > 0)
                 this.inputEnergyContainer.removeEnergy(energyAdded);
         }
@@ -141,12 +141,12 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
             this.heat = this.maxHeat;
 
         if (!this.recipeLogic.isActive() || !this.recipeLogic.isWorkingEnabled()) {
-            this.heat -= Math.min(this.heat, 10000L * this.getParallel());
+            this.heat -= Math.min(this.heat, 10000L * this.recipeLogic.getParallel());
         }
 
         if (this.recipe != null && this.recipeLogic.isWorkingEnabled()) {
-            long remainingHeat = this.maxHeat - this.heat;
-            long energyToRemove = Math.min(remainingHeat, this.inputEnergyContainer.getInputAmperage() * this.inputEnergyContainer.getInputVoltage());
+            final long remainingHeat = this.maxHeat - this.heat;
+            final long energyToRemove = Math.min(remainingHeat, this.inputEnergyContainer.getInputAmperage() * this.inputEnergyContainer.getInputVoltage());
             this.heat += Math.abs(this.energyContainer.removeEnergy(energyToRemove));
         }
         if (!this.initialized && this.getOffsetTimer() > 50) {
@@ -173,7 +173,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
 
     @Override
     protected BlockPattern createStructurePattern() {
-        List<String[]> pattern = new ArrayList<>();
+        final List<String[]> pattern = new ArrayList<>();
         pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~", "~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~", "~~~~~~~~~cccc~~~~~~~~~~~~~~~~~~~~~cccc~~~~~~~~~", "~~~~~~~~~~cc~~~~~~~~~~~~~~~~~~~~~~~cc~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~cc~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~cc~~~~~~", "~~~~~cccc~~~~~~~~~~CCCCCCCCC~~~~~~~~~~cccc~~~~~", "~~~~~~cc~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~cc~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~cc~~~~~~~~~~~~~~~~~~~~~~~cc~~~~~~~~~~", "~~~~~~~~~cccc~~~~~~~~~~~~~~~~~~~~~cccc~~~~~~~~~", "~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~", "~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
         pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~BBBBBBBBB~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~BBBBBBBBBBBBBBBBB~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~BBBBBB~~~ccc~~~BBBBBB~~~~~~~~~~~~~", "~~~~~~~~~~cBBBB~~~~~~~~c~~~~~~~~BBBBc~~~~~~~~~~", "~~~~~~~~~cBBB~~~~~~~~~~~~~~~~~~~~~BBBc~~~~~~~~~", "~~~~~~~~~BBBcc~~~~~~~~~~~~~~~~~~~ccBBB~~~~~~~~~", "~~~~~~~~~BBcc~~~~~~~~~~~~~~~~~~~~~ccBB~~~~~~~~~", "~~~~~~~~BB~c~~~~~~~~~~~~~~~~~~~~~~~c~BB~~~~~~~~", "~~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~~", "~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~", "~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~", "~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~", "~~~~~~~BB~~~~~~~~~~CCCCCCCCC~~~~~~~~~~BB~~~~~~~", "~~~~~~BB~~~~~~~~~~CcccccccccC~~~~~~~~~~BB~~~~~~", "~~~~~~BB~~~~~~~~~~CcccccccccC~~~~~~~~~~BB~~~~~~", "~~~~~~BB~~~~~~~~~~CcccccccccC~~~~~~~~~~BB~~~~~~", "~~~~~cBBc~~~~~~~~~CcccccccccC~~~~~~~~~cBBc~~~~~", "~~~~ccBBcc~~~~~~~~CcccccccccC~~~~~~~~ccBBcc~~~~", "~~~~~cBBc~~~~~~~~~CcccccccccC~~~~~~~~~cBBc~~~~~", "~~~~~~BB~~~~~~~~~~CcccccccccC~~~~~~~~~~BB~~~~~~", "~~~~~~BB~~~~~~~~~~CcccccccccC~~~~~~~~~~BB~~~~~~", "~~~~~~BB~~~~~~~~~~CcccccccccC~~~~~~~~~~BB~~~~~~", "~~~~~~~BB~~~~~~~~~~CCCCCCCCC~~~~~~~~~~BB~~~~~~~", "~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~", "~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~", "~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~", "~~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~~", "~~~~~~~~BB~c~~~~~~~~~~~~~~~~~~~~~~~c~BB~~~~~~~~", "~~~~~~~~~BBcc~~~~~~~~~~~~~~~~~~~~~ccBB~~~~~~~~~", "~~~~~~~~~BBBcc~~~~~~~~~~~~~~~~~~~ccBBB~~~~~~~~~", "~~~~~~~~~cBBB~~~~~~~~~~~~~~~~~~~~~BBBc~~~~~~~~~", "~~~~~~~~~~cBBBB~~~~~~~~c~~~~~~~~BBBBc~~~~~~~~~~", "~~~~~~~~~~~~~BBBBBB~~~ccc~~~BBBBBB~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~BBBBBBBBBBBBBBBBB~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~BBBBBBBBB~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
         pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~s~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~eeeBBBeee~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~eeeeBBBBBBBBBeeee~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~eeBBBBBBBBBBBBBBBBBee~~~~~~~~~~~~~", "~~~~~~~~~~ceeBBBBBBBBBBBBBBBBBBBBBeec~~~~~~~~~~", "~~~~~~~~~cBBBBBBBBB~~~ccc~~~BBBBBBBBBc~~~~~~~~~", "~~~~~~~~cBBBBBB~~~~~~~~c~~~~~~~~BBBBBBc~~~~~~~~", "~~~~~~~~eBBBBc~~~~~~~~~~~~~~~~~~~cBBBBe~~~~~~~~", "~~~~~~~~eBBBcc~~~~~~~~~~~~~~~~~~~ccBBBe~~~~~~~~", "~~~~~~~eBBBcc~~~~~~~~~~~~~~~~~~~~~ccBBBe~~~~~~~", "~~~~~~~eBBB~~~~~~~~~~~~~~~~~~~~~~~~~BBBe~~~~~~~", "~~~~~~eBBB~~~~~~~~~~~~~~~~~~~~~~~~~~~BBBe~~~~~~", "~~~~~~eBBB~~~~~~~~~~~~~~~~~~~~~~~~~~~BBBe~~~~~~", "~~~~~~eBBB~~~~~~~~~CCCCCCCCC~~~~~~~~~BBBe~~~~~~", "~~~~~~eBBB~~~~~~~~CcccccccccC~~~~~~~~BBBe~~~~~~", "~~~~~eBBB~~~~~~~~CcccccccccccC~~~~~~~~BBBe~~~~~", "~~~~~eBBB~~~~~~~~CcccccccccccC~~~~~~~~BBBe~~~~~", "~~~~~eBBB~~~~~~~~CcccccccccccC~~~~~~~~BBBe~~~~~", "~~~~cBBBBc~~~~~~~CcccccccccccC~~~~~~~cBBBBc~~~~", "~~~ccBBBBcc~~~~~~CcccccccccccC~~~~~~ccBBBBcc~~~", "~~~~cBBBBc~~~~~~~CcccccccccccC~~~~~~~cBBBBc~~~~", "~~~~~eBBB~~~~~~~~CcccccccccccC~~~~~~~~BBBe~~~~~", "~~~~~eBBB~~~~~~~~CcccccccccccC~~~~~~~~BBBe~~~~~", "~~~~~eBBB~~~~~~~~CcccccccccccC~~~~~~~~BBBe~~~~~", "~~~~~~eBBB~~~~~~~~CcccccccccC~~~~~~~~BBBe~~~~~~", "~~~~~~eBBB~~~~~~~~~CCCCCCCCC~~~~~~~~~BBBe~~~~~~", "~~~~~~eBBB~~~~~~~~~~~~~~~~~~~~~~~~~~~BBBe~~~~~~", "~~~~~~eBBB~~~~~~~~~~~~~~~~~~~~~~~~~~~BBBe~~~~~~", "~~~~~~~eBBB~~~~~~~~~~~~~~~~~~~~~~~~~BBBe~~~~~~~", "~~~~~~~eBBBcc~~~~~~~~~~~~~~~~~~~~~ccBBBe~~~~~~~", "~~~~~~~~eBBBcc~~~~~~~~~~~~~~~~~~~ccBBBe~~~~~~~~", "~~~~~~~~eBBBBc~~~~~~~~~~~~~~~~~~~cBBBBe~~~~~~~~", "~~~~~~~~cBBBBBB~~~~~~~~c~~~~~~~~BBBBBBc~~~~~~~~", "~~~~~~~~~cBBBBBBBBB~~~ccc~~~BBBBBBBBBc~~~~~~~~~", "~~~~~~~~~~ceeBBBBBBBBBBBBBBBBBBBBBeec~~~~~~~~~~", "~~~~~~~~~~~~~eeBBBBBBBBBBBBBBBBBee~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~eeeeBBBBBBBBBeeee~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~eeeBBBeee~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
@@ -185,8 +185,8 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
         FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
         pattern.forEach(factoryPattern::aisle);
         for (int i = 0; i < pattern.size(); i++) {
-            String[] aisle = pattern.get(i);
-            String[] aisle2 = new String[aisle.length];
+            final String[] aisle = pattern.get(i);
+            final String[] aisle2 = new String[aisle.length];
             for (int j = 0; j < aisle.length; j++) {
                 aisle2[j] = aisle[j].replace("s", "S").replace("B", "D").replace("e", "H");
             }
@@ -211,15 +211,15 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
 
     public Predicate<BlockWorldState> energyPortPredicate() {
         return (blockWorldState) -> {
-            IBlockState blockState = blockWorldState.getBlockState();
-            Block block = blockState.getBlock();
+            final IBlockState blockState = blockWorldState.getBlockState();
+            final Block block = blockState.getBlock();
             if (block instanceof AdvEnergyPortCasings) {
-                AdvEnergyPortCasings abilityCasings = (AdvEnergyPortCasings) block;
+                final AdvEnergyPortCasings abilityCasings = (AdvEnergyPortCasings) block;
                 abilityCasings.setController(this);
-                AdvEnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
-                List<AdvEnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
-                Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
-                LongList amps = blockWorldState.getMatchContext().getOrCreate("EnergyAmps", LongArrayList::new);
+                final AdvEnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
+                final List<AdvEnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
+                final Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
+                final LongList amps = blockWorldState.getMatchContext().getOrCreate("EnergyAmps", LongArrayList::new);
                 currentCasing.add(tieredCasingType);
                 amps.add(abilityCasings.getAmps());
                 activeStates.add(blockWorldState.getPos());
@@ -232,14 +232,14 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        LongList energyPortAmps = context.getOrDefault("EnergyAmps", new LongArrayList());
-        List<AdvEnergyPortCasings.AbilityType> energyPorts = context.getOrDefault("EnergyPort", new ArrayList<>());
+        final LongList energyPortAmps = context.getOrDefault("EnergyAmps", new LongArrayList());
+        final List<AdvEnergyPortCasings.AbilityType> energyPorts = context.getOrDefault("EnergyPort", new ArrayList<>());
+        final int cryostat = context.getOrDefault("Cryostat", GACryostatCasing.CasingType.CRYOSTAT_1).getTier();
         this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
         this.divertorTier = context.getOrDefault("Divertor", GADivertorCasing.CasingType.DIVERTOR_1).getTier();
         this.coilTier = context.getOrDefault("Coil", GAFusionCasing.CasingType.ADV_FUSION_COIL_1).ordinal() - 3;
         this.vacuumTier = context.getOrDefault("Vacuum", GAVacuumCasing.CasingType.VACUUM_1).getTier();
-        int cryostat = context.getOrDefault("Cryostat", GACryostatCasing.CasingType.CRYOSTAT_1).getTier();
-        int fusionTier = Math.min(this.divertorTier, Math.min(this.coilTier, Math.min(this.vacuumTier, cryostat)));
+        final int fusionTier = Math.min(this.divertorTier, Math.min(this.coilTier, Math.min(this.vacuumTier, cryostat)));
         this.tier = fusionTier + GAValues.UV;
         this.maxVoltage = 8L << this.tier * 2;
         long energyCapacity = 0;
@@ -314,10 +314,10 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     }
 
     private void readActiveBlockPacket(PacketBuffer buffer) {
-        boolean isActive = buffer.readBoolean();
-        int size = buffer.readInt();
+        final boolean isActive = buffer.readBoolean();
+        final int size = buffer.readInt();
         for (int i = 0; i < size; i++) {
-            BlockPos pos = buffer.readBlockPos();
+            final BlockPos pos = buffer.readBlockPos();
             IBlockState state = this.getWorld().getBlockState(pos);
             Block block = state.getBlock();
             if (block instanceof AdvEnergyPortCasings) {
@@ -414,11 +414,11 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
 
         @Override
         protected int checkFluidInputsAmount(int parallels, Recipe recipe) {
-            int vacuumTierDifference = this.handler.getVacuumTier() - (int) recipe.getProperty("coil_tier");
-            int size = ((IGTRecipe) recipe).getMergedFluidInputs().size();
+            final int vacuumTierDifference = this.handler.getVacuumTier() - (int) recipe.getProperty("coil_tier");
+            final int size = ((IGTRecipe) recipe).getMergedFluidInputs().size();
             for (int i = 0; i < size; i++) {
-                FluidStack fluidStack = ((IGTRecipe) recipe).getMergedFluidInputs().get(i);
-                int amount = recipe.getFluidInputs().size() == 3 && i == size - 1
+                final FluidStack fluidStack = ((IGTRecipe) recipe).getMergedFluidInputs().get(i);
+                final int amount = recipe.getFluidInputs().size() == 3 && i == size - 1
                         ? (int) (fluidStack.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease))
                         : fluidStack.amount;
                 if (amount > 0) {
@@ -432,8 +432,8 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
 
         @Override
         protected void consumeFluidInputs(int parallels, Recipe recipe) {
-            int vacuumTierDifference = this.handler.getVacuumTier() - (int) recipe.getProperty("coil_tier");
-            int size = ((IGTRecipe) recipe).getMergedFluidInputs().size();
+            final int vacuumTierDifference = this.handler.getVacuumTier() - (int) recipe.getProperty("coil_tier");
+            final int size = ((IGTRecipe) recipe).getMergedFluidInputs().size();
             for (int i = 0; i < size; i++) {
                 FluidStack fluidStack = ((IGTRecipe) recipe).getMergedFluidInputs().get(i);
                 long amount = fluidStack.amount;
@@ -451,9 +451,9 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
 
         @Override
         protected void addFluidOutputs(int parallels, Recipe recipe) {
-            int recipeTier = recipe.getProperty("coil_tier");
-            int divertorTierDifference = this.handler.getDiverterTier() - recipeTier;
-            int vacuumTierDifference = this.handler.getVacuumTier() - recipeTier;
+            final int recipeTier = recipe.getProperty("coil_tier");
+            final int divertorTierDifference = this.handler.getDiverterTier() - recipeTier;
+            final int vacuumTierDifference = this.handler.getVacuumTier() - recipeTier;
             for (int i = 0; i < recipe.getFluidOutputs().size(); i++) {
                 FluidStack fluidStack = recipe.getFluidOutputs().get(i);
                 long amount = fluidStack.amount;

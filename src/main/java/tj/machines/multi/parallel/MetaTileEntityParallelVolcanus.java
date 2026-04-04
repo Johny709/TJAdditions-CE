@@ -129,7 +129,7 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             if (layer % 4 == 0) {
                 String muffler = layer == 0 ? "XXMXX" : "XXPXX";

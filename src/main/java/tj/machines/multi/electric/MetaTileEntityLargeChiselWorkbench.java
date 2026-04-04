@@ -112,7 +112,7 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("XXX", "XXX", "C~C", "C~C");
             factoryPattern.aisle("XXX", "XcX", "###", "CrC");
@@ -137,8 +137,8 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        ConveyorCasing.CasingType conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV);
-        RobotArmCasing.CasingType robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV);
+        final ConveyorCasing.CasingType conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV);
+        final RobotArmCasing.CasingType robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV);
         int tier = Math.min(conveyor.getTier(), robotArm.getTier());
         this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
         if (tier >= GAValues.MAX) {

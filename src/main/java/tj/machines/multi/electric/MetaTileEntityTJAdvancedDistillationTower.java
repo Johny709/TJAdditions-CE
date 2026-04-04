@@ -101,7 +101,7 @@ public class MetaTileEntityTJAdvancedDistillationTower extends TJMultiRecipeMapM
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        BlockPos offsetPos = this.getPos().offset(this.getFrontFacing().getOpposite());
+        final BlockPos offsetPos = this.getPos().offset(this.getFrontFacing().getOpposite());
         this.outputHatchPos.addAll(context.getOrDefault("outputHatches", new HashSet<>()));
         this.outputHatchPos.sort(Comparator.comparingInt(pos -> Math.abs(pos.getX() - offsetPos.getX()) + Math.abs(pos.getY() - offsetPos.getY()) + Math.abs(pos.getZ() - offsetPos.getZ())));
     }
@@ -136,10 +136,10 @@ public class MetaTileEntityTJAdvancedDistillationTower extends TJMultiRecipeMapM
     public IMultipleTankHandler getOutputHatchAt(int index) {
         if (index >= this.outputHatchPos.size())
             return null;
-        TileEntity tileEntity = this.getWorld().getTileEntity(this.outputHatchPos.get(index));
+        final TileEntity tileEntity = this.getWorld().getTileEntity(this.outputHatchPos.get(index));
         if (!(tileEntity instanceof MetaTileEntityHolder))
             return null;
-        MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) tileEntity).getMetaTileEntity();
+        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) tileEntity).getMetaTileEntity();
         return metaTileEntity != null ? metaTileEntity.getExportFluids() : null;
     }
 }

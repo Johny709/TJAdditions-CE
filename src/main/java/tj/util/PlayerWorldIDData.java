@@ -31,9 +31,9 @@ public class PlayerWorldIDData extends WorldSavedData {
     @Override
     @Nonnull
     public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound nbt) {
-        NBTTagList playerWorldIDList = new NBTTagList();
+        final NBTTagList playerWorldIDList = new NBTTagList();
         for (Object2IntMap.Entry<UUID> player : this.playerId.object2IntEntrySet()) {
-            NBTTagCompound playerCompound = new NBTTagCompound();
+            final NBTTagCompound playerCompound = new NBTTagCompound();
             playerCompound.setUniqueId("uuid", player.getKey());
             playerCompound.setInteger("worldId", player.getIntValue());
             playerWorldIDList.appendTag(playerCompound);
@@ -45,11 +45,11 @@ public class PlayerWorldIDData extends WorldSavedData {
 
     @Override
     public void readFromNBT(@Nonnull NBTTagCompound nbt) {
-        NBTTagList playerWorldIDList = nbt.getTagList("playerList", Constants.NBT.TAG_COMPOUND);
+        final NBTTagList playerWorldIDList = nbt.getTagList("playerList", Constants.NBT.TAG_COMPOUND);
         for (NBTBase compound : playerWorldIDList) {
-            NBTTagCompound tag = (NBTTagCompound) compound;
-            UUID uuid = tag.getUniqueId("uuid");
-            int worldID = tag.getInteger("worldId");
+            final NBTTagCompound tag = (NBTTagCompound) compound;
+            final UUID uuid = tag.getUniqueId("uuid");
+            final int worldID = tag.getInteger("worldId");
             this.playerId.put(uuid, worldID);
         }
     }

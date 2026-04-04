@@ -57,6 +57,7 @@ import tj.capability.impl.handler.ISteamHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.util.TJFluidUtils;
+import tj.util.TextUtils;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -96,16 +97,16 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
         super.addDisplayText(builder);
         if (!isStructureFormed()) return;
         builder.customLine(text -> {
-                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.workableHandler.getConsumption(),
-                            net.minecraft.util.text.translation.I18n.translateToLocal(this.workableHandler.getFuelName()),
+                    text.addTextComponent(new TextComponentString(TextUtils.translate("machine.universal.consuming.seconds", this.workableHandler.getConsumption(),
+                            TextUtils.translate(this.workableHandler.getFuelName()),
                             this.workableHandler.getMaxProgress() / 20)));
-                    FluidStack fuelStack = this.workableHandler.getFuelStack();
-                    int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
+                    final FluidStack fuelStack = this.workableHandler.getFuelStack();
+                    final int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
-                    ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
-                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelName.getUnformattedText())));
+                    final ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
+                    text.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.fuel_amount", fuelAmount, fuelName.getUnformattedText())));
 
-                    text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", this.workableHandler.getProduction())));
+                    text.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.extreme_turbine.energy", this.workableHandler.getProduction())));
 
                     text.addTextComponent(new TextComponentTranslation("gregtech.universal.tooltip.efficiency", TJValues.thousandFormat.format(this.efficiency * 100)).setStyle(new Style().setColor(AQUA)));
 
@@ -126,9 +127,9 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        boolean hasOutputEnergy = abilities.containsKey(MultiblockAbility.OUTPUT_ENERGY);
-        boolean hasInputFluid = abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS);
-        boolean hasSteamInput = abilities.containsKey(GregicAdditionsCapabilities.STEAM);
+        final boolean hasOutputEnergy = abilities.containsKey(MultiblockAbility.OUTPUT_ENERGY);
+        final boolean hasInputFluid = abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS);
+        final boolean hasSteamInput = abilities.containsKey(GregicAdditionsCapabilities.STEAM);
 
         return super.checkStructureComponents(parts, abilities) && hasOutputEnergy && (hasInputFluid || hasSteamInput);
     }
@@ -148,7 +149,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        List<IFluidTank> fluidTanks = new ArrayList<>();
+        final List<IFluidTank> fluidTanks = new ArrayList<>();
         fluidTanks.addAll(this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
         fluidTanks.addAll(this.getAbilities(GregicAdditionsCapabilities.STEAM));
 
@@ -260,8 +261,8 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
         protected boolean startRecipe() {
             FluidStack fuelStack = null;
             for (int i = 0; i < this.handler.getImportFluidTank().getTanks(); i++) {
-                IFluidTank tank = this.handler.getImportFluidTank().getTankAt(i);
-                FluidStack stack = tank.getFluid();
+                final IFluidTank tank = this.handler.getImportFluidTank().getTankAt(i);
+                final FluidStack stack = tank.getFluid();
                 if (stack == null) continue;
                 if (fuelStack == null) {
                     if (this.blacklistFluid.contains(stack) || this.lastSearchedFluid.contains(stack)) continue;
@@ -274,7 +275,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
             }
             fuelStack = this.tryAcquireNewRecipe(fuelStack);
             if (fuelStack != null && fuelStack.isFluidStackIdentical(this.handler.getImportFluidTank().drain(fuelStack, false))) {
-                FluidStack fluidStack = this.handler.getImportFluidTank().drain(fuelStack, true);
+                final FluidStack fluidStack = this.handler.getImportFluidTank().drain(fuelStack, true);
                 this.handler.getExportFluidTank().fill(DistilledWater.getFluid(this.consumption / 160), true);
                 this.fuelName = fluidStack.getUnlocalizedName();
                 this.lastSearchedFluid.remove(fuelStack);
@@ -308,12 +309,12 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
         public FluidStack getFuelStack() {
             if (this.previousRecipe == null)
                 return null;
-            FluidStack fuelStack = this.previousRecipe.getRecipeFluid();
+            final FluidStack fuelStack = this.previousRecipe.getRecipeFluid();
             return this.handler.getImportFluidTank().drain(new FluidStack(fuelStack.getFluid(), Integer.MAX_VALUE), false);
         }
 
         protected FluidStack tryAcquireNewRecipe(FluidStack fuelStack) {
-            FuelRecipe currentRecipe;
+            final FuelRecipe currentRecipe;
             if (this.previousRecipe != null && this.previousRecipe.matches(this.handler.getMaxVoltage(), fuelStack)) {
                 //if previous recipe still matches inputs, try to use it
                 currentRecipe = this.previousRecipe;
@@ -326,11 +327,11 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
                 } else this.blacklistFluid.add(fuelStack); // blacklist fluid not found in recipe map to prevent search slowdown.
             }
             if (currentRecipe != null && checkRecipe(currentRecipe)) {
-                int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
+                final int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
                 if (fuelStack.amount >= fuelAmountToUse) {
                     this.maxProgress = this.calculateRecipeDuration(currentRecipe);
                     this.energyPerTick = this.startRecipe(currentRecipe, fuelAmountToUse, this.maxProgress);
-                    FluidStack recipeFluid = currentRecipe.getRecipeFluid();
+                    final FluidStack recipeFluid = currentRecipe.getRecipeFluid();
                     recipeFluid.amount = fuelAmountToUse;
                     return recipeFluid;
                 }
@@ -377,15 +378,15 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
                     fuelCapacity -= fluidTank.getCapacity();
                     continue;
                 }
-                int fuelRemaining = tankContents.amount;
-                FuelRecipe recipe = this.recipeMap.findRecipe(this.handler.getMaxVoltage(), tankContents);
+                final int fuelRemaining = tankContents.amount;
+                final FuelRecipe recipe = this.recipeMap.findRecipe(this.handler.getMaxVoltage(), tankContents);
                 if (recipe == null || this.lastSearchedFluid.contains(recipe.getRecipeFluid())) {
                     fuelCapacity -= fluidTank.getCapacity();
                     continue;
                 }
-                int amountPerRecipe = this.calculateFuelAmount(recipe);
-                int duration = this.calculateRecipeDuration(recipe);
-                long fuelBurnTime = ((long) duration * fuelRemaining) / amountPerRecipe;
+                final int amountPerRecipe = this.calculateFuelAmount(recipe);
+                final int duration = this.calculateRecipeDuration(recipe);
+                final long fuelBurnTime = ((long) duration * fuelRemaining) / amountPerRecipe;
 
                 FluidFuelInfo fuelInfo = (FluidFuelInfo) fuels.get(tankContents.getUnlocalizedName());
                 if (fuelInfo == null) {
@@ -401,7 +402,7 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
 
         @Override
         public NBTTagCompound serializeNBT() {
-            NBTTagCompound tagCompound = super.serializeNBT();
+            final NBTTagCompound tagCompound = super.serializeNBT();
             tagCompound.setInteger("consumption", this.consumption);
             tagCompound.setBoolean("voidEnergy", this.voidEnergy);
             if (this.fuelName != null)
@@ -452,17 +453,17 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
 
         @Override
         public String[] consumptionInfo() {
-            int seconds = this.maxProgress / 20;
-            String amount = String.valueOf(seconds);
-            String s = seconds < 2 ? "second" : "seconds";
+            final int seconds = this.maxProgress / 20;
+            final String amount = String.valueOf(seconds);
+            final String s = seconds < 2 ? "second" : "seconds";
             return ArrayUtils.toArray("machine.universal.consumption", "§7 ", "suffix", "machine.universal.liters.short",  "§r§7 (§b", this.fuelName, "§7)§r ", "every", "§b ", amount, "§r ", s);
         }
 
         @Override
         public String[] productionInfo() {
-            int tier = GAUtility.getTierByVoltage(this.energyPerTick);
-            String voltage = GAValues.VN[tier];
-            String color = TJValues.VCC[tier];
+            final int tier = GAUtility.getTierByVoltage(this.energyPerTick);
+            final String voltage = GAValues.VN[tier];
+            final String color = TJValues.VCC[tier];
             return ArrayUtils.toArray("machine.universal.producing", "§e ", "suffix", "§r ", "machine.universal.eu.tick",
                     " ", "§7(§6", color, voltage, "§7)");
         }

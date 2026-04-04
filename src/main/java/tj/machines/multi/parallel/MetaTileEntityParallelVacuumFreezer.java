@@ -68,7 +68,7 @@ public class MetaTileEntityParallelVacuumFreezer extends ParallelRecipeMapMultib
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             String entityP = layer == 0 ? "XXXXX" : "XXPXX";
             if (layer % 4 == 0) {

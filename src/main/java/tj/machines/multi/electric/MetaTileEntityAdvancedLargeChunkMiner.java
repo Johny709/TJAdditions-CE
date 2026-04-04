@@ -160,7 +160,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
 
     @Override
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
-        String[] data = componentData.split(":");
+        final String[] data = componentData.split(":");
         if (data[0].equals("silkTouch")) {
             this.workableHandler.setSilkTouch(!data[1].equals("true"));
         } else if (data[0].equals("reset")) {

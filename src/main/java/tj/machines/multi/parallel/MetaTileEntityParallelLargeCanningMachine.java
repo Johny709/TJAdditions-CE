@@ -65,7 +65,7 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, DOWN, BACK);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, DOWN, BACK);
         factoryPattern.aisle("~~P~~", "~XPX~", "PPPPP", "~XPX~", "~~P~~");
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("~~P~~", "~G#G~", "P#p#P", "~G#G~", "~~P~~");
@@ -90,7 +90,7 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int tier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
+        final int tier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
         if (tier >= GAValues.MAX) {
             this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                     .mapToLong(IEnergyContainer::getInputVoltage)

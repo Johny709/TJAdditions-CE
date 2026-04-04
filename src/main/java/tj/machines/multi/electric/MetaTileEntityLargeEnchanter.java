@@ -149,14 +149,14 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockControllerBase {
     }
 
     private boolean bookshelfPredicate(BlockWorldState blockWorldState) {
-        Block block = blockWorldState.getBlockState().getBlock();
+        final Block block = blockWorldState.getBlockState().getBlock();
         return block == Block.getBlockFromName("apotheosis:hellshelf");
     }
 
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int tier = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV).getTier();
+        final int tier = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV).getTier();
         this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
         if (tier >= GAValues.MAX) {
             this.maxVoltage = this.inputEnergyContainer.getInputVoltage();

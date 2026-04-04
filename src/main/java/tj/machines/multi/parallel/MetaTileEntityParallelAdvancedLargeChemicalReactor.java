@@ -89,7 +89,7 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         if (!(this.parallelLayer % 2 == 0)) {
             factoryPattern.aisle("C~~~C~XXXXX~~~~~~", "CCCCC~XXXXX~~~~~~", "C~~~C~XXXXX~~~~~~", "CCCCC~XXXXX~~~~~~", "C~~~C~XXXXX~~~~~~");
             factoryPattern.aisle("CCCCC~F~~~F~~~~~~", "CcccC~~~P~~~~~~~~", "CPPPPPPPpP~~~~~~~", "CcccC~~~P~~~~~~~~", "CCCCC~F~~~F~~~~~~");
@@ -109,7 +109,7 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
                 factoryPattern.aisle("CCCCC~F~~~F~CCCCC", "CcccC~~~P~~~CcccC", "CPPPPPPPpPPPPPPPC", "CcccC~~~P~~~CcccC", "CCCCC~F~~~F~CCCCC");
             }
         }
-        String[] controller = this.parallelLayer > 1 ?
+        final String[] controller = this.parallelLayer > 1 ?
                 new String[]{"C~~~C~XXSXX~C~~~C", "CCCCC~XXXXX~CCCCC", "C~~~C~XXXXX~C~~~C", "CCCCC~XXXXX~CCCCC", "C~~~C~XXXXX~C~~~C"} :
                 new String[]{"C~~~C~XXSXX~~~~~~", "CCCCC~XXXXX~~~~~~", "C~~~C~XXXXX~~~~~~", "CCCCC~XXXXX~~~~~~", "C~~~C~XXXXX~~~~~~"};
 
@@ -145,9 +145,9 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        int pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
-        int tier = Math.min(motor, pump);
+        final int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        final int pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
+        final int tier = Math.min(motor, pump);
         if (tier >= GAValues.MAX) {
             this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                     .mapToLong(IEnergyContainer::getInputVoltage)

@@ -9,7 +9,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import tj.capability.*;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 import tj.util.TJFluidUtils;
 
 import java.util.ArrayList;
@@ -146,7 +146,7 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
 
     @Override
     protected boolean completeRecipe() {
-        this.oreOutputs.forEach(ore -> ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), ore, false));
+        this.oreOutputs.forEach(ore -> TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), ore, false));
         this.fluidOutputsList.forEach(fluid -> this.handler.getExportFluidTank().fill(fluid, true));
         this.fluidInputsList.clear();
         this.fluidOutputsList.clear();

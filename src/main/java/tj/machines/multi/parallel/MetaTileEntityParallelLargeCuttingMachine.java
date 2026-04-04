@@ -66,7 +66,7 @@ public class MetaTileEntityParallelLargeCuttingMachine extends ParallelRecipeMap
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         if (this.parallelLayer % 2 == 0) {
             factoryPattern.aisle("XXXXXXX", "X#XXX#X", "C#C~C#C");
             factoryPattern.aisle("XcXXXcX", "XMXXXMX", "C#C~C#C");
@@ -103,9 +103,9 @@ public class MetaTileEntityParallelLargeCuttingMachine extends ParallelRecipeMap
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
-        int tier = Math.min(motor, conveyor);
+        final int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        final int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
+        final int tier = Math.min(motor, conveyor);
         if (tier >= GAValues.MAX) {
             this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                     .mapToLong(IEnergyContainer::getInputVoltage)

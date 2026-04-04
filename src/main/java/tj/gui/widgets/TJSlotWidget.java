@@ -17,7 +17,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.lwjgl.input.Keyboard;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -211,7 +211,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
                             if (this.takeItemsPredicate != null && !this.takeItemsPredicate.test(this.getItemHandler().extractItem(this.slotIndex, amount, true))) return;
                             newStack = this.getItemHandler().extractItem(this.slotIndex, amount, false);
                             if (isShiftKeyPressed)
-                                newStack = ItemStackHelper.insertInMainInventory(player.inventory, newStack);
+                                newStack = TJItemUtils.insertInMainInventory(player.inventory, newStack);
                             if (this.widgetGroup != null)
                                 this.writeUpdateInfo(3, buffer1 -> buffer1.writeInt(5));
                         } else return;
@@ -246,7 +246,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
             case 3:
                 int amount = buffer.readInt();
                 if (this.getItemHandler() != null)
-                    newStack = ItemStackHelper.extractFromItemHandler(this.getItemHandler(), newStack, amount, false);
+                    newStack = TJItemUtils.extractFromItemHandler(this.getItemHandler(), newStack, amount, false);
                 break;
             case 4:
                 this.simulating = buffer.readBoolean();

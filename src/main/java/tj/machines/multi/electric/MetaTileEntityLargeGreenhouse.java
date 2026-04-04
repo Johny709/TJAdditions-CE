@@ -90,12 +90,12 @@ public class MetaTileEntityLargeGreenhouse extends TJMultiRecipeMapMultiblockCon
 
     public static Predicate<BlockWorldState> glassPredicate() {
         return blockWorldState -> {
-            IBlockState blockState = blockWorldState.getBlockState();
+            final IBlockState blockState = blockWorldState.getBlockState();
             if (!(blockState.getBlock() instanceof GATransparentCasing))
                 return false;
-            GATransparentCasing glassCasing = (GATransparentCasing)blockState.getBlock();
-            GATransparentCasing.CasingType tieredCasingType = glassCasing.getState(blockState);
-            GATransparentCasing.CasingType currentCasing = blockWorldState.getMatchContext().getOrPut("Glass", tieredCasingType);
+            final GATransparentCasing glassCasing = (GATransparentCasing)blockState.getBlock();
+            final GATransparentCasing.CasingType tieredCasingType = glassCasing.getState(blockState);
+            final GATransparentCasing.CasingType currentCasing = blockWorldState.getMatchContext().getOrPut("Glass", tieredCasingType);
             return currentCasing.getName().equals(tieredCasingType.getName());
         };
     }
@@ -103,7 +103,7 @@ public class MetaTileEntityLargeGreenhouse extends TJMultiRecipeMapMultiblockCon
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int tier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
+        final int tier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
         if (tier < GAValues.MAX) {
             this.maxVoltage = 8L << tier * 2;
             this.tier = tier;

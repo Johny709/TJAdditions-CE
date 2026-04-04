@@ -32,7 +32,7 @@ import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.impl.handler.IFarmerHandler;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,12 +112,12 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
             ItemStack stack = this.itemOutputs.get(i);
             Block block = Block.getBlockFromItem(stack.getItem());
             if (block instanceof IPlantable || stack.getItem() instanceof IPlantable) {
-                this.itemOutputs.set(i, ItemStackHelper.insertIntoItemHandler(this.handler.getImportItemInventory(), stack, false));
+                this.itemOutputs.set(i, TJItemUtils.insertIntoItemHandler(this.handler.getImportItemInventory(), stack, false));
             }
         }
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
-            if (this.voidOutputs || ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), this.itemOutputs.get(i), true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), this.itemOutputs.get(i), false);
+            if (this.voidOutputs || TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), this.itemOutputs.get(i), true).isEmpty()) {
+                TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), this.itemOutputs.get(i), false);
                 this.outputIndex++;
             } else return false;
         }
@@ -372,8 +372,8 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
 
         private boolean outputTool(ItemStack stack) {
             ItemStack exportStack = stack.copy();
-            if (ItemStackHelper.insertIntoItemHandler(handler.getExportItemInventory(), exportStack, true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(handler.getExportItemInventory(), exportStack, false);
+            if (TJItemUtils.insertIntoItemHandler(handler.getExportItemInventory(), exportStack, true).isEmpty()) {
+                TJItemUtils.insertIntoItemHandler(handler.getExportItemInventory(), exportStack, false);
                 stack.shrink(1);
                 return true;
             } else return false;

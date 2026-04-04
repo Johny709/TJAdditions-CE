@@ -93,7 +93,7 @@ public abstract class TJMultiRecipeMapMultiblockController extends TJRecipeMapMu
 
     @Override
     public String getRecipeMapNames() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         for (int i = 0; i < this.getRecipeMaps().length; i++) {
             builder.append(this.getRecipeMaps()[i].getLocalizedName());
             if (i < this.getRecipeMaps().length - 1)

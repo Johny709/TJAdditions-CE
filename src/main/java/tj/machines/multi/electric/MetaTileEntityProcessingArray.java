@@ -90,7 +90,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
                 .setItemStackPredicate((slot, itemStack) -> !this.recipeLogic.isActive() && this.getMetaTileEntityFromStack(itemStack) instanceof IProcessorProvider)
                 .setOnContentsChangedPre((slot, stack, insert) -> {
                     if (insert) {
-                        MetaTileEntity metaTileEntity = this.getMetaTileEntityFromStack(stack);
+                        final MetaTileEntity metaTileEntity = this.getMetaTileEntityFromStack(stack);
                         if (!(metaTileEntity instanceof IProcessorProvider)) return;
                         this.currentRecipeMap = ((IProcessorProvider) metaTileEntity).getRecipeMap();
                         this.machineTier = Math.min(this.maxTier, ((IProcessorProvider) metaTileEntity).getMachineTier());
@@ -183,7 +183,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
         super.receiveCustomData(dataId, buf);
         if (dataId == 100) {
             this.metaId = buf.readInt();
-            MetaTileEntity metaTileEntity = GregTechAPI.META_TILE_ENTITY_REGISTRY.getObjectById(this.metaId);
+            final MetaTileEntity metaTileEntity = GregTechAPI.META_TILE_ENTITY_REGISTRY.getObjectById(this.metaId);
             if (metaTileEntity instanceof IProcessorProvider)
                 this.overlayRenderer = ((IProcessorProvider) metaTileEntity).getRendererOverlay();
             else this.overlayRenderer = null;
@@ -201,7 +201,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
     public void receiveInitialSyncData(PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
         this.metaId = buf.readInt();
-        MetaTileEntity metaTileEntity = GregTechAPI.META_TILE_ENTITY_REGISTRY.getObjectById(this.metaId);
+        final MetaTileEntity metaTileEntity = GregTechAPI.META_TILE_ENTITY_REGISTRY.getObjectById(this.metaId);
         if (metaTileEntity instanceof IProcessorProvider)
             this.overlayRenderer = ((IProcessorProvider) metaTileEntity).getRendererOverlay();
         else this.overlayRenderer = null;
@@ -276,7 +276,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
     }
 
     private MetaTileEntity getMetaTileEntityFromStack(ItemStack stack) {
-        Block block = Block.getBlockFromItem(stack.getItem());
+        final Block block = Block.getBlockFromItem(stack.getItem());
         return block instanceof BlockMachine ? GregTechAPI.META_TILE_ENTITY_REGISTRY.getObjectById(stack.getMetadata()) : null;
     }
 

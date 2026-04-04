@@ -18,7 +18,7 @@ import org.lwjgl.input.Keyboard;
 import tj.gui.widgets.ISlotGroup;
 import tj.gui.widgets.ISlotHandler;
 import tj.mixin.gregtech.IAbstractWidgetGroupMixin;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 
 import java.awt.*;
 import java.io.IOException;
@@ -290,7 +290,7 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
             }
         } else if (id == 4) {
             ItemStack stack = this.gui.entityPlayer.inventory.getItemStack();
-            final ItemStack finalStack = ItemStackHelper.insertIntoItemHandler(this.itemHandler, stack, buffer.readBoolean());
+            final ItemStack finalStack = TJItemUtils.insertIntoItemHandler(this.itemHandler, stack, buffer.readBoolean());
             this.gui.entityPlayer.inventory.setItemStack(finalStack);
             this.writeUpdateInfo(3, buffer1 -> buffer1.writeItemStack(finalStack));
         } else if (id == 5) {

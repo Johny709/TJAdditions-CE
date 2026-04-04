@@ -90,11 +90,11 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            String entityP = layer == 0 ? "XXXXX" : "XXPXX";
+            final String entityP = layer == 0 ? "XXXXX" : "XXPXX";
             if (layer % 4 == 0) {
-                String entityS = layer >= this.parallelLayer - 4 ? "~XSX~" : "~XXX~";
+                final String entityS = layer >= this.parallelLayer - 4 ? "~XSX~" : "~XXX~";
                 factoryPattern.aisle("~XXX~", "XXXXX", entityP, "XXXXX", "~XXX~");
                 factoryPattern.aisle(entityS, "X#P#X", "XPPPX", "X#P#X", "~XXX~");
             }

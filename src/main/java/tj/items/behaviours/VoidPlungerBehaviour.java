@@ -16,7 +16,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +109,7 @@ public class VoidPlungerBehaviour implements IItemBehaviour {
                     if (voiding) {
                         itemHandler.setStackInSlot(i, ItemStack.EMPTY);
                     } else {
-                        ItemStack reminder = ItemStackHelper.insertInMainInventory(player.inventory, stack);
+                        ItemStack reminder = TJItemUtils.insertInMainInventory(player.inventory, stack);
                         itemHandler.setStackInSlot(i, reminder);
                         count -= reminder.getCount();
                     }

@@ -31,7 +31,7 @@ import tj.capability.AbstractWorkableHandler;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.handler.IMinerHandler;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 import tj.util.pair.IntPair;
 
 import java.util.ArrayList;
@@ -112,8 +112,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
             for (int i = 0; i < this.miningSpeed; i++) {
                 progress = (this.progress + i) % 256;
                 this.miningPos.setPos(this.currentChunk.x + (progress % 16), this.levelY, this.currentChunk.z + (progress / 16));
-                IBlockState state = this.metaTileEntity.getWorld().getBlockState(this.miningPos);
-                Block block = state.getBlock();
+                final IBlockState state = this.metaTileEntity.getWorld().getBlockState(this.miningPos);
+                final Block block = state.getBlock();
                 if (this.levelY > 0 && this.blacklistBlock == (this.itemFilterType.get(Item.getItemFromBlock(block)) == null)) {
                     if (block != Blocks.AIR) {
                         if (this.silkTouch ? this.addItemDrop(block, 1, block.getMetaFromState(state)) : this.addItemDrop(block.getItemDropped(state, this.metaTileEntity.getWorld().rand, this.handler.getFortuneLvl()), 1, block.damageDropped(state))) {
@@ -131,11 +131,11 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
 
     @Override
     protected boolean completeRecipe() {
-        IItemHandlerModifiable itemHandlerModifiable = this.handler.getExportItemInventory();
+        final IItemHandlerModifiable itemHandlerModifiable = this.handler.getExportItemInventory();
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
-            ItemStack stack = this.itemOutputs.get(i);
-            if (ItemStackHelper.insertIntoItemHandler(itemHandlerModifiable, stack, true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(itemHandlerModifiable, stack, false);
+            final ItemStack stack = this.itemOutputs.get(i);
+            if (TJItemUtils.insertIntoItemHandler(itemHandlerModifiable, stack, true).isEmpty()) {
+                TJItemUtils.insertIntoItemHandler(itemHandlerModifiable, stack, false);
                 this.outputIndex++;
             } else return false;
         }
@@ -153,12 +153,12 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     private void initializeChunks() {
         if (!this.initialized) {
             this.initialized = true;
-            int reminder = this.handler.getDiameter() % 2;
-            int start = this.handler.getDiameter() / 2;
-            int end = start + reminder;
-            Chunk origin = this.metaTileEntity.getWorld().getChunk(this.metaTileEntity.getPos());
-            int originX = origin.x * 16;
-            int originZ = origin.z * 16;
+            final int reminder = this.handler.getDiameter() % 2;
+            final int start = this.handler.getDiameter() / 2;
+            final int end = start + reminder;
+            final Chunk origin = this.metaTileEntity.getWorld().getChunk(this.metaTileEntity.getPos());
+            final int originX = origin.x * 16;
+            final int originZ = origin.z * 16;
             for (int i = -start; i < end; i++) {
                 for (int j = -start; j < end; j++) {
                     this.chunks.add(this.metaTileEntity.getWorld().getChunk(originX + (16 * (j % this.handler.getDiameter())), originZ + (16 * (j / this.handler.getDiameter())) + (i * 16)));
@@ -170,8 +170,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     private <T extends IForgeRegistryEntry<T>> boolean addItemDrop(T type, int count, int meta) {
         if (type == null)
             return false;
-        Item item = type instanceof Item ? (Item) type : Item.getItemFromBlock((Block) type);
-        IntPair<ItemStack> stackPair = this.itemType.get(item);
+        final Item item = type instanceof Item ? (Item) type : Item.getItemFromBlock((Block) type);
+        final IntPair<ItemStack> stackPair = this.itemType.get(item);
         if (stackPair != null) {
             if (this.blacklist == (this.oreDictFilter.matchItemStack(stackPair.getValue()) != null))
                 return false;
@@ -183,10 +183,10 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
             if (this.blacklist == (this.oreDictFilter.matchItemStack(itemStack) != null))
                 return false;
             if (!this.silkTouch && this.handler.getFortuneLvl() > 1) {
-                Recipe recipe = RecipeMaps.MACERATOR_RECIPES.findRecipe(Long.MAX_VALUE, Collections.singletonList(itemStack), Collections.emptyList(), 0);
+                final Recipe recipe = RecipeMaps.MACERATOR_RECIPES.findRecipe(Long.MAX_VALUE, Collections.singletonList(itemStack), Collections.emptyList(), 0);
                 if (recipe != null) {
                     itemStack = recipe.getResultItemOutputs(Integer.MAX_VALUE, this.metaTileEntity.getWorld().rand, this.handler.getTier()).get(0).copy();
-                    int originalCount = itemStack.getCount();
+                    final int originalCount = itemStack.getCount();
                     if (OreDictUnifier.getPrefix(itemStack) == OrePrefix.crushed) {
                         itemStack.setCount(this.getFortune(originalCount));
                         this.itemType.put(item, IntPair.of(originalCount, itemStack));
@@ -242,8 +242,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound compound = super.serializeNBT();
-        NBTTagList itemOutputList = new NBTTagList(), itemTypeCountList = new NBTTagList(), filterItemList = new NBTTagList();
+        final NBTTagCompound compound = super.serializeNBT();
+        final NBTTagList itemOutputList = new NBTTagList(), itemTypeCountList = new NBTTagList(), filterItemList = new NBTTagList();
         for (ItemStack stack : this.itemOutputs)
             itemOutputList.appendTag(stack.serializeNBT());
         for (IntPair<ItemStack> value : this.itemType.values())
@@ -271,7 +271,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
-        NBTTagList itemOutputList = compound.getTagList("itemOutputList", 10), itemTypeCountList = compound.getTagList("itemTypeCountList", 3), filterItemList = compound.getTagList("filterItemList", 10);
+        final NBTTagList itemOutputList = compound.getTagList("itemOutputList", 10), itemTypeCountList = compound.getTagList("itemTypeCountList", 3), filterItemList = compound.getTagList("filterItemList", 10);
         for (int i = 0; i < itemOutputList.tagCount(); i++)
             this.itemOutputs.add(new ItemStack(itemOutputList.getCompoundTagAt(i)));
         for (int i = 0; i < itemTypeCountList.tagCount(); i++)
