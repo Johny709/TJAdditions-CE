@@ -499,6 +499,11 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
         return this.outputEnergyContainer;
     }
 
+    @Override
+    public int getMaintenanceProblems() {
+        return this.getNumProblems();
+    }
+
     /**
      * Recipe Uid for JEI recipe click area.
      */

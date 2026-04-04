@@ -9,6 +9,8 @@ import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
+import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -36,6 +38,7 @@ import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
+import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
 import tj.util.TJUtility;
@@ -72,8 +75,8 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
-        int drillingMud = (int) Math.pow(4, (9 - GAValues.EV)) * 10;
-        int outputFluid = (int) Math.pow(4, (9 - GAValues.EV)) * 4000;
+        final int drillingMud = (int) Math.pow(4, (9 - GAValues.EV)) * 10;
+        final int outputFluid = (int) Math.pow(4, (9 - GAValues.EV)) * 4000;
         tooltip.add(I18n.format("gtadditions.multiblock.drilling_rig.tooltip.1"));
         tooltip.add(I18n.format("tj.multiblock.drilling_rig.voltage", GAValues.VN[9], GAValues.VN[14]));
         tooltip.add(I18n.format("gtadditions.multiblock.drilling_rig.tooltip.void.2"));
@@ -84,10 +87,28 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
-        int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
+        final int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
+        final int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
 
         return fluidInputsCount >= 1 && fluidOutputsCount >= 1 && abilities.containsKey(MultiblockAbility.INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
+    }
+
+    @Override
+    protected boolean shouldUpdate(MTETrait trait) {
+        return false;
+    }
+
+    @Override
+    protected void updateFormedValid() {
+        if (this.tier > GAValues.UV && ((this.getProblems() >> 5) & 1) != 0 && this.workableHandler.getVeinFluid() != null)
+            this.workableHandler.update();
+    }
+
+    @Override
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.FLUID_VOID_BUTTON, this.workableHandler::isVoidingFluids, this.workableHandler::setVoidingFluids)
+                .setTooltipText("machine.universal.toggle.fluid_voiding"));
     }
 
     @Override
@@ -106,31 +127,6 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
                 .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.hasProblem())
                 .addRecipeInputLine(this.workableHandler)
                 .addRecipeOutputLine(this.workableHandler);
-    }
-
-    @Override
-    protected void formStructure(PatternMatchContext context) {
-        super.formStructure(context);
-        int motorTier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        int pumpTier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
-        int tier = Math.min(motorTier, pumpTier);
-        if (tier >= GAValues.MAX) {
-            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
-            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
-        } else this.maxVoltage = 8L << tier * 2;
-        this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
-        this.workableHandler.initialize(this.tier);
-    }
-
-    @Override
-    protected boolean shouldUpdate(MTETrait trait) {
-        return false;
-    }
-
-    @Override
-    protected void updateFormedValid() {
-        if (this.tier > GAValues.UV && ((this.getProblems() >> 5) & 1) != 0 && this.workableHandler.getVeinFluid() != null)
-            this.workableHandler.update();
     }
 
     @Override
@@ -155,6 +151,20 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
 
     private IBlockState getCasingState() {
         return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SEABORGIUM_CASING);
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        final int motorTier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        final int pumpTier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
+        final int tier = Math.min(motorTier, pumpTier);
+        if (tier >= GAValues.MAX) {
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
+        } else this.maxVoltage = 8L << tier * 2;
+        this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
+        this.workableHandler.initialize(this.tier);
     }
 
     @Override
