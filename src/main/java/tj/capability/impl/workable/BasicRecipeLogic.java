@@ -1,6 +1,5 @@
 package tj.capability.impl.workable;
 
-import gregicadditions.GAUtility;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.CountableIngredient;
@@ -17,6 +16,7 @@ import tj.capability.*;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.util.ItemStackHelper;
 import tj.util.TJFluidUtils;
+import tj.util.TJUtility;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -200,10 +200,10 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     }
 
     protected void addChancedOutputs(int parallels, Recipe recipe) {
-        int tier = this.handler.getTier() - GAUtility.getTierByVoltage(this.overclockManager.getEUt());
+        int tier = this.handler.getTier() - TJUtility.getTierFromVoltage(this.overclockManager.getEUt());
         for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
             int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
-            if (Math.random() * 10000 < chance) {
+            if (this.metaTileEntity.getWorld().rand.nextInt(10000) < chance) {
                 ItemStack stack = entry.getItemStack().copy();
                 stack.setCount(stack.getCount() * parallels);
                 this.itemOutputs.add(stack);

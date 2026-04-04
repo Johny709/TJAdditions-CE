@@ -79,7 +79,7 @@ public class MegaRecipeLogic<R extends IRecipeHandler> extends BasicRecipeLogic<
         int tier = this.handler.getTier() - TJUtility.getTierFromVoltage(this.overclockManager.getEUt());
         for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
             int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
-            if (Math.random() * 10000 < chance) {
+            if (this.metaTileEntity.getWorld().rand.nextInt(10000) < chance) {
                 ItemStack stack = entry.getItemStack();
                 long amount = (long) stack.getCount() * parallels;
                 for (; amount > 0; amount -= Integer.MAX_VALUE) {

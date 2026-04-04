@@ -245,7 +245,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
         int tier = this.handler.getTier() - GAUtility.getTierByVoltage(this.overclockManager.getEUt());
         for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
             int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
-            if (Math.random() * 10000 < chance) {
+            if (this.metaTileEntity.getWorld().rand.nextInt(10000) < chance) {
                 ItemStack stack = entry.getItemStack().copy();
                 stack.setCount(stack.getCount() * parallels);
                 this.itemOutputs.get(i).add(stack);

@@ -18,6 +18,7 @@ import tj.util.TJFluidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static gregicadditions.GAMaterials.DrillingMud;
 import static gregicadditions.GAMaterials.UsedDrillingMud;
 import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.DRILLING_MUD;
 
@@ -44,7 +45,6 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
         if (this.veinFluid == null) return;
         this.drillingMudAmount = (long) (Math.pow(4, (tier - GAValues.EV)) * 10);
         this.outputFluidAmount = (long) (Math.pow(4, (tier - GAValues.EV)) * 4000);
-        this.maxProgress = 20;
     }
 
     @Override
@@ -53,12 +53,15 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
             TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), DRILLING_MUD, this.drillingMudAmount, true);
             long amount = this.drillingMudAmount;
             for (; amount > 0; amount -= Integer.MAX_VALUE)
+                this.fluidInputsList.add(DrillingMud.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
+            for (amount = this.drillingMudAmount; amount > 0; amount -= Integer.MAX_VALUE)
                 this.fluidOutputsList.add(UsedDrillingMud.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
             amount = this.outputFluidAmount /= (long) (1.00 + 0.05 * this.handler.getMaintenanceProblems());
             for (; amount > 0; amount -= Integer.MAX_VALUE)
                 this.fluidOutputsList.add(new FluidStack(this.veinFluid, (int) Math.min(Integer.MAX_VALUE, amount)));
-        }
-        return false;
+            this.maxProgress = 20;
+            return true;
+        } else return false;
     }
 
     @Override
@@ -120,6 +123,7 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
 
     public void setVoidingFluids(boolean voidingFluids) {
         this.voidingFluids = voidingFluids;
+        this.metaTileEntity.markDirty();
     }
 
     @Override
