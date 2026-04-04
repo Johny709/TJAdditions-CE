@@ -5,6 +5,8 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
 import gregtech.api.GTValues;
+import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.fluids.FluidStack;
@@ -55,9 +57,11 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
             MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    public static final FluidStack DRILLING_MUD = DrillingMud.getFluid(1);
+
     public static final FluidStack PYROTHEUM = Pyrotheum.getFluid(1);
     public static final FluidStack CRYOTHEUM = Cryotheum.getFluid(1);
+    public static final FluidStack DRILLING_MUD = DrillingMud.getFluid(1);
+    public static final FluidStack USED_DRILLING_MUD = UsedDrillingMud.getFluid(1);
 
     private final VoidMOreMinerWorkableHandler workableHandler = new VoidMOreMinerWorkableHandler(this);
     private long maxVoltage;
@@ -74,8 +78,8 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
-        int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
+        final int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
+        final int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
 
         return fluidInputsCount >= 1 && fluidOutputsCount >= 1 && abilities.containsKey(MultiblockAbility.INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
     }
@@ -93,6 +97,24 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
     }
 
     @Override
+    protected boolean shouldUpdate(MTETrait trait) {
+        return false;
+    }
+
+    @Override
+    protected void updateFormedValid() {
+        if (this.tier > GTValues.ZPM && ((this.getProblems() >> 5) & 1) != 0)
+            this.workableHandler.update();
+    }
+
+    @Override
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.FLUID_VOID_BUTTON, this.workableHandler::isVoidingFluids, this.workableHandler::setVoidingFluids)
+                .setTooltipText("machine.universal.toggle.fluid_voiding"));
+    }
+
+    @Override
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
@@ -106,36 +128,6 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
                         text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.overheat").setStyle(new Style().setColor(TextFormatting.RED)));
                 }).addRecipeInputLine(this.workableHandler)
                 .addRecipeOutputLine(this.workableHandler);
-    }
-
-    @Override
-    protected boolean shouldUpdate(MTETrait trait) {
-        return false;
-    }
-
-    @Override
-    protected void updateFormedValid() {
-        if (this.tier > GTValues.ZPM && ((this.getProblems() >> 5) & 1) != 0)
-            this.workableHandler.update();
-    }
-
-    @Override
-    protected void formStructure(PatternMatchContext context) {
-        super.formStructure(context);
-        int tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        if (tier >= GAValues.MAX) {
-            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
-            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
-        } else this.maxVoltage = 8L << tier * 2;
-        this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
-        this.workableHandler.initialize(this.tier);
-    }
-
-    @Override
-    public void invalidateStructure() {
-        super.invalidateStructure();
-        this.maxVoltage = 0;
-        this.tier = 0;
     }
 
     @Override
@@ -163,6 +155,25 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
 
     private IBlockState getCasingState() {
         return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.HEAVY_QUARK_DEGENERATE_MATTER);
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        final int tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        if (tier >= GAValues.MAX) {
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
+        } else this.maxVoltage = 8L << tier * 2;
+        this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
+        this.workableHandler.initialize(this.tier);
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.maxVoltage = 0;
+        this.tier = 0;
     }
 
     @Override
