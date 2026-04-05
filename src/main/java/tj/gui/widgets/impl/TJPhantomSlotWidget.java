@@ -79,8 +79,8 @@ public class TJPhantomSlotWidget extends TJSlotWidget<TJPhantomSlotWidget> imple
         super.handleClientAction(id, buffer);
         if (id == 5) {
             try {
-                ItemStack stack = buffer.readItemStack();
-                boolean isGhostItem = buffer.readBoolean();
+                final ItemStack stack = buffer.readItemStack();
+                final boolean isGhostItem = buffer.readBoolean();
                 if (this.putItemsPredicate != null && !this.putItemsPredicate.test(stack)) return;
                 if (this.getItemHandler().getStackInSlot(this.slotIndex).isEmpty() && this.getItemHandler().insertItem(this.slotIndex, stack, true).isEmpty()) {
                     this.getItemHandler().insertItem(this.slotIndex, stack, false);
@@ -90,7 +90,7 @@ public class TJPhantomSlotWidget extends TJSlotWidget<TJPhantomSlotWidget> imple
                 GTLog.logger.info(e.getMessage());
             }
         } else if (id == 6) {
-            boolean isGhostItem = buffer.readBoolean();
+            final boolean isGhostItem = buffer.readBoolean();
             if (this.areGhostItems[this.slotIndex]) {
                 if (this.takeItemsPredicate != null && !this.takeItemsPredicate.test(this.getItemHandler().getStackInSlot(this.slotIndex))) return;
                 this.areGhostItems[this.slotIndex] = isGhostItem;

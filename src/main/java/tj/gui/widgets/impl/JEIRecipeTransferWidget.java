@@ -2,6 +2,7 @@ package tj.gui.widgets.impl;
 
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.impl.ModularUIContainer;
+import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import mezz.jei.api.gui.IGuiIngredient;
@@ -39,27 +40,27 @@ public class JEIRecipeTransferWidget extends Widget implements IGTRecipeTransfer
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
         if (id == 1) {
-            NonNullList<ItemStack> itemInputs = NonNullList.create();
-            NonNullList<ItemStack> itemOutputs = NonNullList.create();
-            List<FluidStack> fluidInputs = new ArrayList<>();
-            List<FluidStack> fluidOutputs = new ArrayList<>();
-            int itemIngredientAmount = buffer.readVarInt();
-            int fluidIngredientAmount = buffer.readVarInt();
+            final NonNullList<ItemStack> itemInputs = NonNullList.create();
+            final NonNullList<ItemStack> itemOutputs = NonNullList.create();
+            final List<FluidStack> fluidInputs = new ArrayList<>();
+            final List<FluidStack> fluidOutputs = new ArrayList<>();
+            final int itemIngredientAmount = buffer.readVarInt();
+            final int fluidIngredientAmount = buffer.readVarInt();
             try {
                 for (int i = 0; i < itemIngredientAmount; i++) {
-                    ItemStack itemStack = buffer.readItemStack();
+                    final ItemStack itemStack = buffer.readItemStack();
                     if (buffer.readString(Short.MAX_VALUE).equals("Input")) {
                         itemInputs.add(itemStack);
                     } else itemOutputs.add(itemStack);
                 }
                 for (int i = 0; i < fluidIngredientAmount; i++) {
-                    FluidStack fluidStack = FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag());
+                    final FluidStack fluidStack = FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag());
                     if (buffer.readString(Short.MAX_VALUE).equals("Input")) {
                         fluidInputs.add(fluidStack);
                     } else fluidOutputs.add(fluidStack);
                 }
-            } catch (IOException exception) {
-                throw new RuntimeException(exception);
+            } catch (IOException e) {
+                GTLog.logger.info(e.getMessage());
             }
             this.recipeConsumer.accept(itemInputs, itemOutputs, fluidInputs, fluidOutputs, gui.entityPlayer);
         }
@@ -76,14 +77,14 @@ public class JEIRecipeTransferWidget extends Widget implements IGTRecipeTransfer
             buffer.writeVarInt(itemIngredients.size());
             buffer.writeVarInt(fluidIngredients.size());
             for (Map.Entry<Integer, IGuiIngredient<ItemStack>> entry : itemIngredients.entrySet()) {
-                ItemStack itemStack = entry.getValue().getDisplayedIngredient();
+                final ItemStack itemStack = entry.getValue().getDisplayedIngredient();
                 buffer.writeItemStack(itemStack);
                 if (entry.getValue().isInput())
                     buffer.writeString("Input");
                 else buffer.writeString("Output");
             }
             for (Map.Entry<Integer, IGuiIngredient<FluidStack>> entry : fluidIngredients.entrySet()) {
-                FluidStack fluidStack = entry.getValue().getDisplayedIngredient();
+                final FluidStack fluidStack = entry.getValue().getDisplayedIngredient();
                 buffer.writeCompoundTag(fluidStack.writeToNBT(new NBTTagCompound()));
                 if (entry.getValue().isInput())
                     buffer.writeString("Input");

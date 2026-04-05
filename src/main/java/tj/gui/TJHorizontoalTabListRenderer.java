@@ -19,15 +19,15 @@ public class TJHorizontoalTabListRenderer extends TabListRenderer {
 
     @Override
     public void renderTabs(Position offset, List<ITabInfo> tabInfos, int guiWidth, int guiHeight, int selectedTabIndex) {
-        boolean startLeft = startCorner == HorizontalStartCorner.LEFT;
-        boolean isTopLine = verticalLocation == VerticalLocation.TOP;
-        int tabYPosition = isTopLine ? (0 - TAB_HEIGHT + TAB_Y_OFFSET) : (guiHeight - TAB_Y_OFFSET);
+        final boolean startLeft = startCorner == HorizontalStartCorner.LEFT;
+        final boolean isTopLine = verticalLocation == VerticalLocation.TOP;
+        final int tabYPosition = isTopLine ? (0 - TAB_HEIGHT + TAB_Y_OFFSET) : (guiHeight - TAB_Y_OFFSET);
         int currentXOffset = 0;
         for (int tabIndex = 0; tabIndex < tabInfos.size(); tabIndex++) {
-            boolean isTabSelected = tabIndex == selectedTabIndex;
-            boolean isTabFirst = tabIndex == 0;
-            TextureArea tabTexture = getTabTexture(isTabSelected, isTabFirst, isTopLine, startLeft);
-            int finalPosX = startLeft ? currentXOffset : (guiWidth - TAB_WIDTH - currentXOffset);
+            final boolean isTabSelected = tabIndex == selectedTabIndex;
+            final boolean isTabFirst = tabIndex == 0;
+            final TextureArea tabTexture = getTabTexture(isTabSelected, isTabFirst, isTopLine, startLeft);
+            final int finalPosX = startLeft ? currentXOffset : (guiWidth - TAB_WIDTH - currentXOffset);
             tabInfos.get(tabIndex).renderTab(tabTexture, offset.x + finalPosX, offset.y + tabYPosition, TAB_WIDTH, TAB_HEIGHT, isTabSelected);
             currentXOffset += (TAB_WIDTH + SPACE_BETWEEN_TABS);
         }
@@ -41,10 +41,10 @@ public class TJHorizontoalTabListRenderer extends TabListRenderer {
 
     @Override
     public int[] getTabPos(int tabIndex, int guiWidth, int guiHeight) {
-        boolean startLeft = startCorner == HorizontalStartCorner.LEFT;
-        boolean isTopLine = verticalLocation == VerticalLocation.TOP;
-        int tabYPosition = isTopLine ? (0 - TAB_HEIGHT + TAB_Y_OFFSET) : (guiHeight - TAB_Y_OFFSET);
-        int tabXOffset = (TAB_WIDTH + SPACE_BETWEEN_TABS) * tabIndex;
+        final boolean startLeft = startCorner == HorizontalStartCorner.LEFT;
+        final boolean isTopLine = verticalLocation == VerticalLocation.TOP;
+        final int tabYPosition = isTopLine ? (0 - TAB_HEIGHT + TAB_Y_OFFSET) : (guiHeight - TAB_Y_OFFSET);
+        final int tabXOffset = (TAB_WIDTH + SPACE_BETWEEN_TABS) * tabIndex;
         return new int[]{startLeft ? tabXOffset : (guiWidth - TAB_WIDTH - tabXOffset), tabYPosition, TAB_WIDTH, TAB_HEIGHT};
     }
 

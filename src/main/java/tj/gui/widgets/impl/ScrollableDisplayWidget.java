@@ -91,8 +91,8 @@ public class ScrollableDisplayWidget extends ScrollableListWidget {
         if (!this.canScroll) {
             return this.widgets.stream().filter(this::isWidgetClickable).anyMatch(it -> it.mouseWheelMove(mouseX, mouseY, wheelDelta));
         } else if (this.isMouseOverElement(mouseX, mouseY, true)) {
-            int direction = -MathHelper.clamp(wheelDelta, -10, 10);
-            int moveDelta = direction * 10;
+            final int direction = -MathHelper.clamp(wheelDelta, -10, 10);
+            final int moveDelta = direction * 10;
             this.setScrollOffset(moveDelta);
             return true;
         }

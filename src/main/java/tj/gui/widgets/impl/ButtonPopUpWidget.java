@@ -54,8 +54,8 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
                 .setButtonIdAsLong(this.selectedIndex);
         if (button instanceof TJToggleButtonWidget)
             ((TJToggleButtonWidget) button).setButtonSupplier(() -> this.selectedIndex == button.getButtonIdAsLong());
-        WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
-        boolean visible = widgets.test(widgetGroup);
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
+        final boolean visible = widgets.test(widgetGroup);
         for (Widget widget : this.pendingWidgets)
             widgetGroup.addWidget(widget);
         this.widgetMap.get(0).getRight().addWidget(button);
@@ -75,7 +75,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
      * @param height height of widget group.
      */
     public T addFailPopup(int x, int y, int width, int height, Consumer<WidgetGroup> widgets) {
-        WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
         widgets.accept(widgetGroup);
         for (Widget widget : this.pendingWidgets)
             widgetGroup.addWidget(widget);
@@ -103,12 +103,12 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
 
     protected void handleButtonPress(String buttonId) {
         try {
-            int i = buttonId.lastIndexOf(":");
+            final int i = buttonId.lastIndexOf(":");
             if (i != -1) {
                 buttonId = buttonId.substring(i + 1);
-                int index = Integer.parseInt(buttonId) + 1;
+                final int index = Integer.parseInt(buttonId) + 1;
                 EnumActionResult actionResult = null;
-                boolean contains = this.buttonConditions.get(i) != null;
+                final boolean contains = this.buttonConditions.get(i) != null;
                 if (contains && (actionResult = this.buttonConditions.get(index).test(buttonId)) == EnumActionResult.PASS)
                     return;
                 buttonId = !contains || actionResult == EnumActionResult.SUCCESS ? buttonId : String.valueOf(index);

@@ -54,7 +54,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
     public NewTextFieldWidget(int x, int y, int width, int height, boolean enableBackground) {
         super(new Position(x, y), new Size(width, height));
         if (isClientSide()) {
-            FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+            final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
             this.textField = new GuiTextField(0, fontRenderer, x, y, width, height);
             this.textField.setCanLoseFocus(true);
             this.textField.setEnableBackgroundDrawing(enableBackground);
@@ -230,8 +230,8 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
     @Override
     protected void onPositionUpdate() {
         if (isClientSide() && this.textField != null) {
-            Position position = this.getPosition();
-            GuiTextField textField = this.textField;
+            final Position position = this.getPosition();
+            final GuiTextField textField = this.textField;
             textField.x = position.x;
             textField.y = position.y;
         }
@@ -240,8 +240,8 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
     @Override
     protected void onSizeUpdate() {
         if (isClientSide() && this.textField != null) {
-            Size size = this.getSize();
-            GuiTextField textField = this.textField;
+            final Size size = this.getSize();
+            final GuiTextField textField = this.textField;
             textField.width = size.width;
             textField.height = size.height;
         }
@@ -251,9 +251,9 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         if (isMouseOverElement(mouseX, mouseY) && this.tooltipText != null) {
-            String tooltipHoverString = this.tooltipText;
-            Object[] format = this.format != null ? this.format : ArrayUtils.toArray("");
-            List<String> hoverList = Arrays.asList(I18n.format(tooltipHoverString, format).split("/n"));
+            final String tooltipHoverString = this.tooltipText;
+            final Object[] format = this.format != null ? this.format : ArrayUtils.toArray("");
+            final List<String> hoverList = Arrays.asList(I18n.format(tooltipHoverString, format).split("/n"));
             this.drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
         }
     }
@@ -263,8 +263,8 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         this.textField.drawTextBox();
         if (this.backgroundText != null && this.textField.getText().isEmpty() && !this.textField.isFocused()) {
-            Position position = getPosition();
-            String locale = net.minecraft.util.text.translation.I18n.translateToLocal(this.backgroundText);
+            final Position position = getPosition();
+            final String locale = net.minecraft.util.text.translation.I18n.translateToLocal(this.backgroundText);
             this.drawStringSized(locale, position.getX(), position.getY(), this.backgroundTextColor, true, 1, false);
         }
     }
@@ -296,7 +296,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
             this.writeUpdateInfo(1, buffer -> buffer.writeString(this.currentString));
         }
         if (this.formatSupplier != null) {
-            String[] formatArgs = this.formatSupplier.get();
+            final String[] formatArgs = this.formatSupplier.get();
             this.writeUpdateInfo(3, buffer -> {
                 buffer.writeInt(formatArgs.length);
                 for (String format : formatArgs) {
@@ -315,7 +315,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
         } else if (id == 2) {
             this.textId = buffer.readString(Short.MAX_VALUE);
         } else if (id == 3) {
-            int size = buffer.readInt();
+            final int size = buffer.readInt();
             for (int i = 0; i < size; i++) {
                 this.format[i] =  buffer.readString(Short.MAX_VALUE);
             }

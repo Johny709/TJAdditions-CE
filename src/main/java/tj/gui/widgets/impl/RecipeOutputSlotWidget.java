@@ -38,14 +38,14 @@ public class RecipeOutputSlotWidget extends Widget implements IIngredientSlot {
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         if (!this.isMouseOverElement(mouseX, mouseY)) return;
-        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        int screenWidth = Minecraft.getMinecraft().displayWidth;
-        int screenHeight = Minecraft.getMinecraft().displayHeight;
-        ItemStack itemStack = this.itemOutputs != null ? this.itemOutputs.apply(this.slotIndex) : null;
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        final int screenWidth = Minecraft.getMinecraft().displayWidth;
+        final int screenHeight = Minecraft.getMinecraft().displayHeight;
+        final ItemStack itemStack = this.itemOutputs != null ? this.itemOutputs.apply(this.slotIndex) : null;
         if (itemStack != null && !itemStack.isEmpty()) {
             GuiUtils.drawHoveringText(getItemToolTip(itemStack), mouseX, mouseY, screenWidth, screenHeight, 100, fontRenderer);
         }
-        FluidStack fluidStack = this.fluidOutputs != null ? this.fluidOutputs.apply(this.slotIndex) : null;
+        final FluidStack fluidStack = this.fluidOutputs != null ? this.fluidOutputs.apply(this.slotIndex) : null;
         if (fluidStack != null) {
             String formula = FluidTooltipUtil.getFluidTooltip(fluidStack);
             formula = formula == null || formula.isEmpty() ? "" : fluidStack.getLocalizedName();
@@ -56,23 +56,23 @@ public class RecipeOutputSlotWidget extends Widget implements IIngredientSlot {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        Position pos = this.getPosition();
-        ItemStack itemStack = this.itemOutputs != null ? this.itemOutputs.apply(this.slotIndex) : null;
+        final Position pos = this.getPosition();
+        final ItemStack itemStack = this.itemOutputs != null ? this.itemOutputs.apply(this.slotIndex) : null;
         if (itemStack != null) {
             Widget.drawItemStack(itemStack, pos.getX() + 1, pos.getY() + 1, null);
             if (itemStack.isEmpty()) {
                 TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), 18, 18);
             } else TJGuiTextures.SELECTION_BOX_2.draw(pos.getX(), pos.getY(), 18, 18);
         }
-        FluidStack fluidStack = this.fluidOutputs != null ? this.fluidOutputs.apply(this.slotIndex) : null;
+        final FluidStack fluidStack = this.fluidOutputs != null ? this.fluidOutputs.apply(this.slotIndex) : null;
         if (fluidStack != null) {
             if (fluidStack.amount > 0) {
-                FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+                final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
                 GlStateManager.disableBlend();
                 TJGuiUtils.drawFluidForGui(fluidStack, fluidStack.amount, fluidStack.amount, pos.getX() + 1, pos.getY() + 1, 17, 17);
                 GlStateManager.pushMatrix();
                 GlStateManager.scale(0.5, 0.5, 1);
-                String s = TextFormattingUtil.formatLongToCompactString(fluidStack.amount, 4) + "L";
+                final String s = TextFormattingUtil.formatLongToCompactString(fluidStack.amount, 4) + "L";
                 fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + 12) * 2, 0xFFFFFF);
                 GlStateManager.popMatrix();
                 GlStateManager.enableBlend();

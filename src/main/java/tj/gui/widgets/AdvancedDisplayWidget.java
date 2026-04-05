@@ -73,7 +73,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     public AdvancedDisplayWidget setMaxWidthLimit(int maxWidthLimit) {
         this.maxWidthLimit = maxWidthLimit;
         if (isClientSide()) {
-            Size size = this.updateComponentTextSize(this.displayText);
+            final Size size = this.updateComponentTextSize(this.displayText);
             if (this.getSize().getWidth() != size.getWidth() || this.getSize().getHeight() != size.getHeight())
                 this.setSize(size);
         }
@@ -132,21 +132,21 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     @Override
     public void detectAndSendChanges() {
         boolean areEqual = true;
-        GUIDisplayBuilder displayBuilder = new GUIDisplayBuilder(false);
+        final GUIDisplayBuilder displayBuilder = new GUIDisplayBuilder(false);
         this.textSupplier.accept(displayBuilder);
-        List<TextComponentWrapper<?>> displayText = displayBuilder.getTextComponentWrappers();
+        final List<TextComponentWrapper<?>> displayText = displayBuilder.getTextComponentWrappers();
         if (this.displayText != null && this.displayText.size() == displayText.size()) {
             for (int i = 0; i < displayText.size(); i++) {
-                TextComponentWrapper<?> textComponentWrapper = displayText.get(i);
+                final TextComponentWrapper<?> textComponentWrapper = displayText.get(i);
                 if (!textComponentWrapper.equals(this.displayText.get(i).getValue())) {
                     areEqual = false;
                     break;
                 }
-                List<TextComponentWrapper<?>> hoverDisplayText = this.displayText.get(i).getAdvancedHoverComponent();
-                List<TextComponentWrapper<?>> innerDisplayText = textComponentWrapper.getAdvancedHoverComponent();
+                final List<TextComponentWrapper<?>> hoverDisplayText = this.displayText.get(i).getAdvancedHoverComponent();
+                final List<TextComponentWrapper<?>> innerDisplayText = textComponentWrapper.getAdvancedHoverComponent();
                 if (hoverDisplayText != null && hoverDisplayText.size() == innerDisplayText.size()) {
                     for (int j = 0; j < innerDisplayText.size(); j++) {
-                        TextComponentWrapper<?> innerTextComponentWrapper = innerDisplayText.get(j);
+                        final TextComponentWrapper<?> innerTextComponentWrapper = innerDisplayText.get(j);
                         if (!innerTextComponentWrapper.equals(hoverDisplayText.get(j).getValue())) {
                             areEqual = false;
                             break;
@@ -182,7 +182,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     }
 
     private void readFromBuffer(List<TextComponentWrapper<?>> displayText, PacketBuffer buffer) {
-        int count = buffer.readInt();
+        final int count = buffer.readInt();
         for (int i = 0; i < count; i++) {
             TextComponentWrapper<?> componentWrapper = null;
             switch (buffer.readByte()) {
@@ -231,7 +231,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
             this.displayText.clear();
             this.readFromBuffer(this.displayText, buffer);
             this.displayText = this.formatDisplayText(this.displayText);
-            Size size = this.updateComponentTextSize(this.displayText);
+            final Size size = this.updateComponentTextSize(this.displayText);
             if (this.getSize().getWidth() != size.getWidth() || this.getSize().getHeight() != size.getHeight())
                 this.setSize(size);
         }
@@ -241,10 +241,10 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
         if (id == 1) {
-            EntityPlayer player = this.gui.entityPlayer;
-            ClickData clickData = ClickData.readFromBuf(buffer);
-            String textId = buffer.readString(Short.MAX_VALUE);
-            String componentData = buffer.readString(128);
+            final EntityPlayer player = this.gui.entityPlayer;
+            final ClickData clickData = ClickData.readFromBuf(buffer);
+            final String textId = buffer.readString(Short.MAX_VALUE);
+            final String componentData = buffer.readString(128);
             if (this.clickHandler != null)
                 this.clickHandler.accept(componentData, clickData);
             for (QuadConsumer<String, String, ClickData, EntityPlayer> clickHandler : this.clickHandlers) {
@@ -259,7 +259,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
         int totalHeight = 0;
         int maxStringWidth = 0;
         boolean stackApplied = false;
-        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         for (TextComponentWrapper<?> component : displayText) {
             if (component.getValue() instanceof ITextComponent) {
                 if (stackApplied) {
@@ -291,8 +291,8 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
 
     @SideOnly(Side.CLIENT)
     private List<TextComponentWrapper<?>> formatDisplayText(List<TextComponentWrapper<?>> displayText) {
-        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        int maxTextWidthResult = this.maxWidthLimit == 0 ? Integer.MAX_VALUE : this.maxWidthLimit;
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        final int maxTextWidthResult = this.maxWidthLimit == 0 ? Integer.MAX_VALUE : this.maxWidthLimit;
         return displayText.stream()
                 .flatMap(component -> component.getValue() instanceof ITextComponent ? GuiUtilRenderComponents.splitText((ITextComponent) component.getValue(), maxTextWidthResult, fontRenderer, true, true).stream()
                         .map(component2 -> new TextComponentWrapper<>(component2).setPriority(component.getPriority()).setAdvancedHoverComponent(component.getAdvancedHoverComponent()))
@@ -303,13 +303,13 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
 
     @SideOnly(Side.CLIENT)
     private boolean handleCustomComponentClick(ITextComponent textComponent) {
-        Style style = textComponent.getStyle();
+        final Style style = textComponent.getStyle();
         if (style.getClickEvent() != null) {
-            ClickEvent clickEvent = style.getClickEvent();
-            String componentText = clickEvent.getValue();
+            final ClickEvent clickEvent = style.getClickEvent();
+            final String componentText = clickEvent.getValue();
             if (clickEvent.getAction() == ClickEvent.Action.OPEN_URL && componentText.startsWith("@!")) {
-                String rawText = componentText.substring(2);
-                ClickData clickData = new ClickData(Mouse.getEventButton(), isShiftDown(), isCtrlDown());
+                final String rawText = componentText.substring(2);
+                final ClickData clickData = new ClickData(Mouse.getEventButton(), isShiftDown(), isCtrlDown());
                 writeClientAction(1, buf -> {
                     clickData.writeToBuf(buf);
                     buf.writeString(this.textId != null ? this.textId : "");
@@ -324,7 +324,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        TextComponentWrapper<?> textComponent = this.getTextUnderMouse(mouseX, mouseY, this.hoverDisplayText != null ? this.hoverDisplayText : this.displayText, this.hoverDisplayText != null);
+        final TextComponentWrapper<?> textComponent = this.getTextUnderMouse(mouseX, mouseY, this.hoverDisplayText != null ? this.hoverDisplayText : this.displayText, this.hoverDisplayText != null);
         if (textComponent != null && textComponent.getValue() instanceof ITextComponent) {
             if (this.handleCustomComponentClick((ITextComponent) textComponent.getValue()) || this.getWrapScreen().handleComponentClick((ITextComponent) textComponent.getValue())) {
                 this.playButtonClickSound();
@@ -342,7 +342,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
 
     @SideOnly(Side.CLIENT)
     private void drawDisplayText(int x, int y, List<TextComponentWrapper<?>> displayText) {
-        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         int slot = 0;
         int widthApplied = 0, heightApplied = 0;
         boolean stackApplied = false;
@@ -367,13 +367,13 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                     GuiTextures.SLOT.draw(x + widthApplied, y + heightApplied, 18, 18);
                     Widget.drawItemStack((ItemStack) component.getValue(), x + widthApplied + 1, y + heightApplied + 1, null);
                 } else {
-                    FluidStack fluidStack = (FluidStack) component.getValue();
+                    final FluidStack fluidStack = (FluidStack) component.getValue();
                     GuiTextures.FLUID_SLOT.draw(x + widthApplied, y + heightApplied, 18, 18);
                     GlStateManager.disableBlend();
                     TJGuiUtils.drawFluidForGui(fluidStack, Math.max(1, fluidStack.amount), Math.max(1, fluidStack.amount), x + widthApplied + 1, y + heightApplied + 1, 17, 17);
                     GlStateManager.pushMatrix();
                     GlStateManager.scale(0.5, 0.5, 1);
-                    String s = TextFormattingUtil.formatLongToCompactString(fluidStack.amount, 4) + "L";
+                    final String s = TextFormattingUtil.formatLongToCompactString(fluidStack.amount, 4) + "L";
                     fontRenderer.drawStringWithShadow(s, (x + widthApplied + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + heightApplied + 14) * 2, 0xFFFFFF);
                     GlStateManager.popMatrix();
                     GlStateManager.enableBlend();
@@ -386,19 +386,19 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        boolean hovering = this.hoverDisplayText != null;
-        TextComponentWrapper<?> component = this.getTextUnderMouse(mouseX, mouseY, hovering ? this.hoverDisplayText : this.displayText, hovering);
+        final boolean hovering = this.hoverDisplayText != null;
+        final TextComponentWrapper<?> component = this.getTextUnderMouse(mouseX, mouseY, hovering ? this.hoverDisplayText : this.displayText, hovering);
         if (this.hoverDisplayText == null) {
             this.lastHoverX = mouseX;
             this.lastHoverY = mouseY;
             if (this.isShiftDown() && component != null)
                 this.hoverDisplayText = component.getAdvancedHoverComponent();
         } else this.hoverDisplayText = this.getTextUnderMouse(this.lastHoverX, this.lastHoverY, this.displayText, false).getAdvancedHoverComponent();
-        List<TextComponentWrapper<?>> displayText = hovering ? this.hoverDisplayText
+        final List<TextComponentWrapper<?>> displayText = hovering ? this.hoverDisplayText
                 : component != null && component.getAdvancedHoverComponent() != null && !component.getAdvancedHoverComponent().isEmpty() ? component.getAdvancedHoverComponent()
                 : null;
         if (displayText != null) {
-            Size size = this.updateComponentTextSize(displayText);
+            final Size size = this.updateComponentTextSize(displayText);
             TJGuiTextures.TOOLTIP_BOX.draw(this.lastHoverX, this.lastHoverY, size.getWidth() + 7, size.getHeight() + 5);
             this.drawDisplayText(this.lastHoverX + 4, this.lastHoverY + 4, displayText);
         }
@@ -413,7 +413,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
 
     @SideOnly(Side.CLIENT)
     protected TextComponentWrapper<?> getTextUnderMouse(int mouseX, int mouseY, List<TextComponentWrapper<?>> displayText, boolean hover) {
-        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         int slot = 0;
         int lastHeight = 0, lastWidth = 0;
         int heightApplied = 0, widthApplied = 0;
@@ -434,7 +434,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                 }
                 if (mouseY >= y + lastHeight && mouseY <= y + heightApplied) {
                     int currentOffset = 0;
-                    int mouseOffset = mouseX - x;
+                    final int mouseOffset = mouseX - x;
                     for (ITextComponent lineComponent : (ITextComponent) component.getValue()) {
                         currentOffset += fontRenderer.getStringWidth(lineComponent.getUnformattedComponentText());
                         if (currentOffset >= mouseOffset) {
@@ -453,10 +453,10 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                 widthApplied += 18;
                 if (mouseX >= x + lastWidth && mouseX <= x + widthApplied && mouseY >= y + lastHeight && mouseY <= y + heightApplied) {
                     if (component.getValue() instanceof ItemStack) {
-                        ItemStack itemStack = (ItemStack) component.getValue();
-                        List<String> tooltip = getItemToolTip(itemStack);
+                        final ItemStack itemStack = (ItemStack) component.getValue();
+                        final List<String> tooltip = getItemToolTip(itemStack);
                         String name = itemStack.getDisplayName();
-                        ITextComponent hoverComponent = new TextComponentString("");
+                        final ITextComponent hoverComponent = new TextComponentString("");
                         if (tooltip != null && !tooltip.isEmpty()) {
                             name = tooltip.get(0);
                             for (int j = 1; j < tooltip.size(); j++)
@@ -469,7 +469,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                                 .setAdvancedHoverComponent(Collections.singletonList(new TextComponentWrapper<>(itemStack))))
                                 .setAdvancedHoverComponent(component.getAdvancedHoverComponent());
                     } else {
-                        FluidStack fluidStack = (FluidStack) component.getValue();
+                        final FluidStack fluidStack = (FluidStack) component.getValue();
                         // Add chemical formula tooltip
                         String formula = FluidTooltipUtil.getFluidTooltip(fluidStack);
                         formula = formula == null || formula.isEmpty() ? "" : "\n" + formula;
@@ -492,10 +492,10 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     public Object getIngredientOverMouse(int mouseX, int mouseY) {
         if (!this.isMouseOverElement(mouseX, mouseY))
             return null;
-        TextComponentWrapper<?> component = this.getTextUnderMouse(mouseX, mouseY, this.hoverDisplayText != null ? this.hoverDisplayText : this.displayText, this.hoverDisplayText != null);
+        final TextComponentWrapper<?> component = this.getTextUnderMouse(mouseX, mouseY, this.hoverDisplayText != null ? this.hoverDisplayText : this.displayText, this.hoverDisplayText != null);
         if (!(component instanceof TextComponentWrapper<?>) || !(component.getValue() instanceof TextComponentWrapper<?>))
             return null;
-        TextComponentWrapper<?> subComponent = (TextComponentWrapper<?>) component.getValue();
+        final TextComponentWrapper<?> subComponent = (TextComponentWrapper<?>) component.getValue();
         if (subComponent.getAdvancedHoverComponent().isEmpty())
             return null;
         return subComponent.getAdvancedHoverComponent().get(0).getValue();

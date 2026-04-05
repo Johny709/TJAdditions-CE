@@ -34,9 +34,9 @@ public class SlotWidgetGroup extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        Position pos = this.getPosition();
-        int startX = pos.getX() + 1;
-        int startY = pos.getY() + 1;
+        final Position pos = this.getPosition();
+        final int startX = pos.getX() + 1;
+        final int startY = pos.getY() + 1;
         for (int i = 0; i < this.itemHandler.getSlots(); i++) {
             Widget.drawItemStack(this.itemHandler.getStackInSlot(i), startX + (18 * (i % this.slotWidth)), startY + (18 * (i / this.slotWidth)), null);
         }
@@ -45,7 +45,7 @@ public class SlotWidgetGroup extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        Position pos = this.getPosition();
+        final Position pos = this.getPosition();
         for (int i = 0; i < this.itemHandler.getSlots(); i++) {
             for (TextureArea textureArea : this.backgroundTextures) {
                 textureArea.draw(pos.getX() + (18 * (i % this.slotWidth)), pos.getY() + (18 * (i / this.slotWidth)), 18, 18);
@@ -58,7 +58,7 @@ public class SlotWidgetGroup extends Widget {
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
         if (!this.isMouseOverElement(mouseX, mouseY))
             return false;
-        int slotIndex = (mouseX / 18) * (mouseY / 18);
+        final int slotIndex = (mouseX / 18) * (mouseY / 18);
         System.out.println(slotIndex);
         return true;
     }
@@ -66,7 +66,7 @@ public class SlotWidgetGroup extends Widget {
     @Override
     public void detectAndSendChanges() {
         if (this.itemHandlerSupplier != null) {
-            IItemHandler iItemHandler = this.itemHandlerSupplier.get();
+            final IItemHandler iItemHandler = this.itemHandlerSupplier.get();
             if (this.itemHandler == null || iItemHandler.getSlots() != this.itemHandler.getSlots()) {
                 this.itemHandler = iItemHandler;
                 this.writeUpdateInfo(1, buffer -> buffer.writeInt(this.itemHandler.getSlots()));

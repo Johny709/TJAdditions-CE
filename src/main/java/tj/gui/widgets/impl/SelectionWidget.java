@@ -10,6 +10,7 @@ import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.gui.TJGuiTextures;
 
 import java.util.Collections;
 import java.util.List;
@@ -82,8 +83,8 @@ public class SelectionWidget extends WidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        Size size = this.getSize();
-        Position pos = this.getPosition();
+        final Size size = this.getSize();
+        final Position pos = this.getPosition();
         if (this.backgroundTextures != null) for (TextureArea textureArea : this.backgroundTextures) {
             textureArea.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         }
@@ -93,8 +94,10 @@ public class SelectionWidget extends WidgetGroup {
         if (this.active && this.activeTextures != null) for (TextureArea textureArea : this.activeTextures) {
             textureArea.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         }
-        if (this.active)
+        if (this.active) {
+            TJGuiTextures.SELECTION_BOX.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
             super.drawInBackground(mouseX, mouseY, context);
+        }
     }
 
     @Override

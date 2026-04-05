@@ -33,15 +33,15 @@ public class TJTabGroup extends AbstractWidgetGroup {
 
     public void addTab(ITabInfo tabInfo, AbstractWidgetGroup tabWidget) {
         this.tabInfos.add(tabInfo);
-        int tabIndex = tabInfos.size() - 1;
+        final int tabIndex = tabInfos.size() - 1;
         this.tabWidgets.put(tabIndex, tabWidget);
         tabWidget.setVisible(tabIndex == selectedTabIndex);
-        addWidget(tabWidget);
+        this.addWidget(tabWidget);
     }
 
     @Override
     public List<Widget> getContainedWidgets(boolean includeHidden) {
-        ArrayList<Widget> containedWidgets = new ArrayList<>(this.widgets.size());
+        final ArrayList<Widget> containedWidgets = new ArrayList<>(this.widgets.size());
 
         if (includeHidden) {
             for (AbstractWidgetGroup widget : this.tabWidgets.values()) {
@@ -52,7 +52,7 @@ public class TJTabGroup extends AbstractWidgetGroup {
                     containedWidgets.addAll(widget.getContainedWidgets(true));
             }
         } else {
-            AbstractWidgetGroup widgetGroup = tabWidgets.get(selectedTabIndex);
+            final AbstractWidgetGroup widgetGroup = tabWidgets.get(selectedTabIndex);
             containedWidgets.add(widgetGroup);
             containedWidgets.addAll(widgetGroup.getContainedWidgets(false));
         }
@@ -71,25 +71,25 @@ public class TJTabGroup extends AbstractWidgetGroup {
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         this.tabWidgets.get(this.selectedTabIndex).drawInForeground(mouseX, mouseY);
-        Tuple<ITabInfo, int[]> tabOnMouse = getTabOnMouse(mouseX, mouseY);
+        final Tuple<ITabInfo, int[]> tabOnMouse = getTabOnMouse(mouseX, mouseY);
         if (tabOnMouse != null) {
-            int[] tabSizes = tabOnMouse.getSecond();
-            ITabInfo tabInfo = tabOnMouse.getFirst();
-            boolean isSelected = tabInfos.get(selectedTabIndex) == tabInfo;
+            final int[] tabSizes = tabOnMouse.getSecond();
+            final ITabInfo tabInfo = tabOnMouse.getFirst();
+            final boolean isSelected = tabInfos.get(selectedTabIndex) == tabInfo;
             tabInfo.renderHoverText(tabSizes[0], tabSizes[1], tabSizes[2], tabSizes[3], sizes.getWidth(), sizes.getHeight(), isSelected, mouseX, mouseY);
         }
     }
 
     @Override
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        Tuple<ITabInfo, int[]> tabOnMouse = getTabOnMouse(mouseX, mouseY);
+        final Tuple<ITabInfo, int[]> tabOnMouse = getTabOnMouse(mouseX, mouseY);
         if (tabOnMouse != null) {
-            ITabInfo tabInfo = tabOnMouse.getFirst();
-            int tabIndex = tabInfos.indexOf(tabInfo);
+            final ITabInfo tabInfo = tabOnMouse.getFirst();
+            final int tabIndex = tabInfos.indexOf(tabInfo);
             if (selectedTabIndex != tabIndex) {
                 setSelectedTab(tabIndex);
                 playButtonClickSound();
-                writeClientAction(2, buf -> buf.writeVarInt(tabIndex));
+                this.writeClientAction(2, buf -> buf.writeVarInt(tabIndex));
                 return true;
             }
         }
@@ -135,9 +135,9 @@ public class TJTabGroup extends AbstractWidgetGroup {
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
         if (id == 2) {
-            int tabIndex = buffer.readVarInt();
+            final int tabIndex = buffer.readVarInt();
             if (selectedTabIndex != tabIndex) {
-                setSelectedTab(tabIndex);
+                this.setSelectedTab(tabIndex);
             }
         }
     }
@@ -154,8 +154,8 @@ public class TJTabGroup extends AbstractWidgetGroup {
 
     private Tuple<ITabInfo, int[]> getTabOnMouse(int mouseX, int mouseY) {
         for (int tabIndex = 0; tabIndex < tabInfos.size(); tabIndex++) {
-            ITabInfo tabInfo = tabInfos.get(tabIndex);
-            int[] tabSizes = tabListRenderer.getTabPos(tabIndex, sizes.getWidth(), sizes.getHeight());
+            final ITabInfo tabInfo = tabInfos.get(tabIndex);
+            final int[] tabSizes = tabListRenderer.getTabPos(tabIndex, sizes.getWidth(), sizes.getHeight());
             tabSizes[0] += getPosition().x;
             tabSizes[1] += getPosition().y;
             if (isMouseOverTab(mouseX, mouseY, tabSizes)) {
@@ -166,10 +166,10 @@ public class TJTabGroup extends AbstractWidgetGroup {
     }
 
     private static boolean isMouseOverTab(int mouseX, int mouseY, int[] tabSizes) {
-        int minX = tabSizes[0];
-        int minY = tabSizes[1];
-        int maxX = tabSizes[0] + tabSizes[2];
-        int maxY = tabSizes[1] + tabSizes[3];
+        final int minX = tabSizes[0];
+        final int minY = tabSizes[1];
+        final int maxX = tabSizes[0] + tabSizes[2];
+        final int maxY = tabSizes[1] + tabSizes[3];
         return mouseX >= minX && mouseY >= minY && mouseX < maxX && mouseY < maxY;
     }
 

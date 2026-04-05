@@ -82,10 +82,10 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        ItemStack stack;
+        final ItemStack stack;
         if (this.isMouseOverElement(mouseX, mouseY) && this.getItemHandler() != null && !(stack = this.getItemHandler().getStackInSlot(this.slotIndex)).isEmpty()) {
-            List<String> tooltip = getItemToolTip(stack);
-            String itemStoredText = I18n.format("gregtech.item_list.item_stored", stack.getCount());
+            final List<String> tooltip = getItemToolTip(stack);
+            final String itemStoredText = I18n.format("gregtech.item_list.item_stored", stack.getCount());
             tooltip.add(TextFormatting.GRAY + itemStoredText);
             drawHoveringText(stack, tooltip, -1, mouseX, mouseY);
         }
@@ -94,9 +94,9 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        Position pos = this.getPosition();
-        int stackX = pos.getX() + 1;
-        int stackY = pos.getY() + 1;
+        final Position pos = this.getPosition();
+        final int stackX = pos.getX() + 1;
+        final int stackY = pos.getY() + 1;
         if (this.backgroundTexture != null)
             for (TextureArea textureArea : this.backgroundTexture) {
                 textureArea.draw(pos.getX(), pos.getY(), 18, 18);
@@ -118,8 +118,8 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
         if (this.isMouseOverElement(mouseX, mouseY)) {
             this.slotModified = true;
             if (this.widgetGroup == null || this.widgetGroup.getTimer() < 1) {
-                boolean isCtrlKeyPressed = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
-                boolean isShiftKeyPressed = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+                final boolean isCtrlKeyPressed = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
+                final boolean isShiftKeyPressed = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
                 this.writeClientAction(1, buffer -> {
                     buffer.writeBoolean(isCtrlKeyPressed);
                     buffer.writeBoolean(isShiftKeyPressed);
@@ -172,7 +172,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
     public ItemStack insert(ItemStack stack, boolean simulate) {
         if (this.getItemHandler() == null || this.getItemHandler().getSlots() <= this.slotIndex)
             return stack;
-        ItemStack inventoryStack = this.getItemHandler().getStackInSlot(this.slotIndex);
+        final ItemStack inventoryStack = this.getItemHandler().getStackInSlot(this.slotIndex);
         if (inventoryStack.isEmpty() || inventoryStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(inventoryStack, stack))
             return this.getItemHandler().insertItem(this.slotIndex, stack, simulate);
         else return stack;
@@ -182,32 +182,32 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
     public ItemStack extract(int amount, ItemStack stack, boolean simulate) {
         if (this.getItemHandler() == null || this.getItemHandler().getSlots() <= this.slotIndex)
             return ItemStack.EMPTY;
-        ItemStack inventoryStack = this.getItemHandler().getStackInSlot(this.slotIndex);
+        final ItemStack inventoryStack = this.getItemHandler().getStackInSlot(this.slotIndex);
         if (inventoryStack.isEmpty() || inventoryStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(inventoryStack, stack))
             return this.getItemHandler().extractItem(this.slotIndex, amount, simulate);
         return ItemStack.EMPTY;
     }
 
     private void insertAmount(ItemStack stack, int amount) {
-        ItemStack oneStack = stack.copy();
+        final ItemStack oneStack = stack.copy();
         oneStack.setCount(amount);
         stack.shrink(amount - this.insert(oneStack, false).getCount());
     }
 
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
-        EntityPlayer player = this.gui.entityPlayer;
-        ItemStack handStack = player.inventory.getItemStack();
+        final EntityPlayer player = this.gui.entityPlayer;
+        final ItemStack handStack = player.inventory.getItemStack();
         ItemStack newStack = handStack;
         switch (id) {
             case 1:
-                boolean isCtrlKeyPressed = buffer.readBoolean();
-                boolean isShiftKeyPressed = buffer.readBoolean();
-                int button = buffer.readInt();
+                final boolean isCtrlKeyPressed = buffer.readBoolean();
+                final boolean isShiftKeyPressed = buffer.readBoolean();
+                final int button = buffer.readInt();
                 if (button == 0) {
                     if (handStack.isEmpty()) {
                         if (this.getItemHandler() != null) {
-                            int amount = isCtrlKeyPressed ? Integer.MAX_VALUE : 64;
+                            final int amount = isCtrlKeyPressed ? Integer.MAX_VALUE : 64;
                             if (this.takeItemsPredicate != null && !this.takeItemsPredicate.test(this.getItemHandler().extractItem(this.slotIndex, amount, true))) return;
                             newStack = this.getItemHandler().extractItem(this.slotIndex, amount, false);
                             if (isShiftKeyPressed)
@@ -222,7 +222,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
                 } else if (button == 1) {
                     if (handStack.isEmpty()) {
                         if (this.getItemHandler() != null) {
-                            ItemStack stack = this.getItemHandler().getStackInSlot(this.slotIndex);
+                            final ItemStack stack = this.getItemHandler().getStackInSlot(this.slotIndex);
                             if (this.takeItemsPredicate == null || this.takeItemsPredicate.test(stack))
                                 newStack = this.getItemHandler().extractItem(this.slotIndex, Math.max(1, stack.getCount() / 2), false);
                         } else return;
@@ -239,12 +239,12 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
                 }
                 break;
             case 2:
-                int button1 = buffer.readInt();
+                final int button1 = buffer.readInt();
                 if (button1 == 1)
                     this.insertAmount(newStack, 1);
                 break;
             case 3:
-                int amount = buffer.readInt();
+                final int amount = buffer.readInt();
                 if (this.getItemHandler() != null)
                     newStack = TJItemUtils.extractFromItemHandler(this.getItemHandler(), newStack, amount, false);
                 break;
@@ -263,7 +263,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
         switch (id) {
             case 1:
                 try {
-                    ItemStack stack = buffer.readItemStack();
+                    final ItemStack stack = buffer.readItemStack();
                     if (this.getItemHandler() instanceof IItemHandlerModifiable)
                         ((IItemHandlerModifiable) this.getItemHandler()).setStackInSlot(this.slotIndex, stack);
                 } catch (IOException e) {

@@ -96,11 +96,11 @@ public class TJProgressBarWidget extends Widget implements IIngredientSlot {
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         if (this.isMouseOverElement(mouseX, mouseY) && this.locale != null) {
-            Object[] format;
+            final Object[] format;
             if (this.isFluid && this.params != null && this.params.length > 0)
                 format = ArrayUtils.addAll(this.params, TJValues.thousandFormat.format(this.progress), TJValues.thousandFormat.format(this.maxProgress), (int) (100 * (this.progress / this.maxProgress)));
             else format = ArrayUtils.toArray(TJValues.thousandFormat.format(this.progress), TJValues.thousandFormat.format(this.maxProgress), (int) (100 * (this.progress / this.maxProgress)));
-            List<String> hoverList = Arrays.asList(I18n.format(this.locale, format).split("/n"));
+            final List<String> hoverList = Arrays.asList(I18n.format(this.locale, format).split("/n"));
             this.drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
         }
     }
@@ -108,10 +108,10 @@ public class TJProgressBarWidget extends Widget implements IIngredientSlot {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        Size size = this.getSize();
-        Position pos = this.getPosition();
-        long width = this.moveType == ProgressWidget.MoveType.HORIZONTAL ? (long) ((size.getWidth() - 2) * (this.progress / this.maxProgress)) : size.getWidth() - 2;
-        long height = this.moveType == ProgressWidget.MoveType.VERTICAL ? (long) ((size.getHeight() - 2) * (this.progress / this.maxProgress)) : size.getHeight() - 2;
+        final Size size = this.getSize();
+        final Position pos = this.getPosition();
+        final long width = this.moveType == ProgressWidget.MoveType.HORIZONTAL ? (long) ((size.getWidth() - 2) * (this.progress / this.maxProgress)) : size.getWidth() - 2;
+        final long height = this.moveType == ProgressWidget.MoveType.VERTICAL ? (long) ((size.getHeight() - 2) * (this.progress / this.maxProgress)) : size.getHeight() - 2;
         int x = this.inverted ? pos.getX() + size.getWidth() - 1: pos.getX() + 1;
         int y = this.inverted ? pos.getY() + size.getHeight() - 1: pos.getY() + 1;
         if (this.backgroundTexture != null)
@@ -133,21 +133,21 @@ public class TJProgressBarWidget extends Widget implements IIngredientSlot {
     @Override
     public void detectAndSendChanges() {
         if (this.progressSupplier != null) {
-            double progress = this.progressSupplier.getAsDouble();
+            final double progress = this.progressSupplier.getAsDouble();
             if (progress != this.progress) {
                 this.progress = progress;
                 this.writeUpdateInfo(1, buffer -> buffer.writeDouble(this.progress));
             }
         }
         if (this.maxProgressSupplier != null) {
-            double maxProgress = this.maxProgressSupplier.getAsDouble();
+            final double maxProgress = this.maxProgressSupplier.getAsDouble();
             if (maxProgress != this.maxProgress) {
                 this.maxProgress = maxProgress;
                 this.writeUpdateInfo(2, buffer -> buffer.writeDouble(this.maxProgress));
             }
         }
         if (this.paramSupplier != null) {
-            Object[] params = this.paramSupplier.get();
+            final Object[] params = this.paramSupplier.get();
             if (params != null && params.length > 0 && (this.params == null || !Arrays.equals(this.params, params))) {
                 this.params = params;
                 this.writeUpdateInfo(3, buffer -> {
@@ -158,7 +158,7 @@ public class TJProgressBarWidget extends Widget implements IIngredientSlot {
             }
         }
         if (this.fluidStackSupplier != null) {
-            FluidStack fluidStack = this.fluidStackSupplier.get();
+            final FluidStack fluidStack = this.fluidStackSupplier.get();
             if (fluidStack != null && (this.fluid == null || !this.fluid.isFluidStackIdentical(fluidStack))) {
                 this.fluid = fluidStack;
                 this.writeUpdateInfo(4, buffer -> buffer.writeCompoundTag(this.fluid.writeToNBT(new NBTTagCompound())));

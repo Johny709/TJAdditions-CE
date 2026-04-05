@@ -31,11 +31,11 @@ public class CraftingRecipeTransferWidget extends Widget implements IRecipeTrans
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
         if (id == 1) {
-            Map<Integer, ItemStack> itemStackMap = new HashMap<>();
+            final Map<Integer, ItemStack> itemStackMap = new HashMap<>();
             for (int i = 0; i < 9; i++)
                 itemStackMap.put(i, ItemStack.EMPTY);
             try {
-                int size = buffer.readVarInt();
+                final int size = buffer.readVarInt();
                 for (int i = 0; i < size; i++)
                     itemStackMap.put(buffer.readVarInt(), buffer.readItemStack());
                 for (Map.Entry<Integer, ItemStack> itemStackEntry : itemStackMap.entrySet())
@@ -53,11 +53,11 @@ public class CraftingRecipeTransferWidget extends Widget implements IRecipeTrans
             return null;
         }
         ingredients.values().removeIf(it -> !it.isInput());
-        writeClientAction(1, buf -> {
+        this.writeClientAction(1, buf -> {
             buf.writeVarInt(ingredients.size());
             for (Map.Entry<Integer, IGuiIngredient<ItemStack>> entry : ingredients.entrySet()) {
                 buf.writeVarInt(entry.getKey() - 1);
-                ItemStack itemStack = entry.getValue().getDisplayedIngredient();
+                final ItemStack itemStack = entry.getValue().getDisplayedIngredient();
                 Preconditions.checkNotNull(itemStack);
                 buf.writeItemStack(itemStack);
             }
