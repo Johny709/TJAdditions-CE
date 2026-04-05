@@ -5,7 +5,6 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
-import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -15,6 +14,7 @@ import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.render.Textures;
 import gregtech.api.util.Position;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
@@ -37,7 +37,7 @@ import java.util.stream.IntStream;
 
 public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblockPart {
 
-    private IMultipleTankHandler ghostTanks;
+    private FluidTankList ghostTanks;
 
     public MetaTileEntityCreativeFluidHatch(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GAValues.MAX);
@@ -64,8 +64,17 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
     protected void initializeInventory() {
         super.initializeInventory();
         this.ghostTanks = new FluidTankList(true, IntStream.range(0, 16)
-                .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
-                .collect(Collectors.toList()));
+                .mapToObj(i -> new FluidTank(Integer.MAX_VALUE) {
+                    @Override
+                    public FluidStack drain(FluidStack resource, boolean doDrain) {
+                        return this.getFluid();
+                    }
+
+                    @Override
+                    public FluidStack drain(int maxDrain, boolean doDrain) {
+                        return this.getFluid();
+                    }
+                }).collect(Collectors.toList()));
     }
 
     @Override
@@ -78,8 +87,8 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         final int tier = Math.min(3, this.getTier() / 3);
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(43, 20));
-        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(43, 20, 72, 72);
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(43, 24));
+        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(43, 24, 72, 72);
         for (int i = 0; i < this.ghostTanks.getTanks(); i++) {
             final int finalI = i;
             final int x = (tier == 3 ? 18 : 0) + 18 * (i % (tier + 1));
@@ -90,16 +99,22 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
                     this.ghostTanks.getTankAt(finalI).fill(fluidStack, true);
                 }
             }).setBackgroundTexture(GuiTextures.FLUID_SLOT));
-            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(18, -10, 72, 18, () -> String.valueOf(this.ghostTanks.getTankAt(finalI).getFluidAmount()), (text, id) -> {
-                final FluidStack fluidStack = this.ghostTanks.getTankAt(Integer.parseInt(id)).getFluid();
-                if (fluidStack != null)
-                    fluidStack.amount = Integer.parseInt(text);
+            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(21, -14, 72, 18, () -> String.valueOf(this.ghostTanks.getTankAt(finalI).getFluidAmount()), (text, id) -> {
+                FluidStack fluidStack = this.ghostTanks.getTankAt(Integer.parseInt(id)).getFluid();
+                if (fluidStack != null) {
+                    fluidStack = fluidStack.copy();
+                    fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text));
+                    this.ghostTanks.getTankAt(finalI).drain(Integer.MAX_VALUE, true);
+                    this.ghostTanks.getTankAt(finalI).fill(fluidStack, true);
+                }
             }).setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                     .setTextId(String.valueOf(i))
+                    .setUpdateOnTyping(true)
+                    .setMaxStringLength(11)
                     .enableBackground(true));
             selectionWidgetGroup.addSelectionBox(i, x, y, 18, 18);
         }
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 144 + 18 * (tier - 1))
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 148 + 18 * (tier - 1))
                 .widget(new TJLabelWidget(7, -19, 180, 19, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(widgetGroup)
@@ -116,7 +131,7 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
             final int oldBaseColor = renderState.baseColour;
             final int oldAlphaOverride = renderState.alphaOverride;
 
-            renderState.baseColour = TJValues.VC[this.getTier() - 1] << 8; // TODO get better MAX color overlay. use UXV color overlay for the time being
+            renderState.baseColour = TJValues.VC[this.getTier() - 2] << 8; // TODO get better MAX color overlay. use UMV color overlay for the time being
             renderState.alphaOverride = 0xFF;
 
             for (EnumFacing facing : EnumFacing.VALUES)
@@ -127,5 +142,18 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
         }
         Textures.PIPE_IN_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
         Textures.FLUID_HATCH_INPUT_OVERLAY.renderSided(getFrontFacing(), renderState, translation, pipeline);
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setTag("ghostTanks", this.ghostTanks.serializeNBT());
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.ghostTanks.deserializeNBT(data.getCompoundTag("ghostTanks"));
     }
 }
