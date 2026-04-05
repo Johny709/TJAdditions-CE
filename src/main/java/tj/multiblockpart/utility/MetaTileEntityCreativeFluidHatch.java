@@ -11,12 +11,16 @@ import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
+import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.render.Textures;
 import gregtech.api.util.Position;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
@@ -30,14 +34,14 @@ import tj.gui.widgets.impl.SelectionWidgetGroup;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.textures.TJTextures;
 
+import javax.annotation.Nullable;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
-public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblockPart {
-
-    private FluidTankList ghostTanks;
+public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IFluidTank> {
 
     public MetaTileEntityCreativeFluidHatch(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GAValues.MAX);
@@ -49,39 +53,35 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
     }
 
     @Override
-    public void update() {
-        super.update();
-        if (!this.getWorld().isRemote) {
-            for (int i = 0; i < this.importFluids.getTanks(); i++) {
-                final IFluidTank tank = this.importFluids.getTankAt(i);
-                tank.drain(Integer.MAX_VALUE, true);
-                tank.fill(this.ghostTanks.getTankAt(i).getFluid(), true);
-            }
-        }
-    }
-
-    @Override
-    protected void initializeInventory() {
-        super.initializeInventory();
-        this.ghostTanks = new FluidTankList(true, IntStream.range(0, 16)
-                .mapToObj(i -> new FluidTank(Integer.MAX_VALUE) {
-                    @Override
-                    public FluidStack drain(FluidStack resource, boolean doDrain) {
-                        return this.getFluid();
-                    }
-
-                    @Override
-                    public FluidStack drain(int maxDrain, boolean doDrain) {
-                        return this.getFluid();
-                    }
-                }).collect(Collectors.toList()));
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("cover.creative.only"));
     }
 
     @Override
     protected FluidTankList createImportFluidHandler() {
         return new FluidTankList(true, IntStream.range(0, 16)
-                .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
-                .collect(Collectors.toList()));
+                .mapToObj(i -> new FluidTank(Integer.MAX_VALUE) {
+                    @Override
+                    public FluidStack drain(FluidStack resource, boolean doDrain) {
+                        FluidStack fluidStack = this.getFluid();
+                        if (fluidStack == null || !fluidStack.isFluidEqual(resource)) return null;
+                        fluidStack = fluidStack.copy();
+                        fluidStack.amount = Math.min(fluidStack.amount, resource.amount);
+                        return fluidStack;
+                    }
+
+                    @Override
+                    public FluidStack drain(int maxDrain, boolean doDrain) {
+                        if (maxDrain == Integer.MIN_VALUE)
+                            super.drain(Integer.MAX_VALUE, doDrain);
+                        FluidStack fluidStack = this.getFluid();
+                        if (fluidStack == null) return null;
+                        fluidStack = fluidStack.copy();
+                        fluidStack.amount = Math.min(fluidStack.amount, maxDrain);
+                        return fluidStack;
+                    }
+                }).collect(Collectors.toList()));
     }
 
     @Override
@@ -89,26 +89,18 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
         final int tier = Math.min(3, this.getTier() / 3);
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(43, 24));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(43, 24, 72, 72);
-        for (int i = 0; i < this.ghostTanks.getTanks(); i++) {
+        for (int i = 0; i < this.importFluids.getTanks(); i++) {
             final int finalI = i;
             final int x = (tier == 3 ? 18 : 0) + 18 * (i % (tier + 1));
             final int y = 18 * (i / (tier + 1));
-            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(x, y, 18, 18, () -> this.ghostTanks.getTankAt(finalI).getFluid(), fluidStack -> {
+            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(x, y, 18, 18, i, this.importFluids, fluidStack -> {})
+                    .setBackgroundTexture(GuiTextures.FLUID_SLOT));
+            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(21, -14, 72, 18, () -> String.valueOf(this.importFluids.getTankAt(finalI).getFluidAmount()), (text, id) -> {
+                FluidStack fluidStack = this.importFluids.getTankAt(finalI).getFluid();
                 if (fluidStack != null) {
-                    this.ghostTanks.getTankAt(finalI).drain(Integer.MAX_VALUE, true);
-                    this.ghostTanks.getTankAt(finalI).fill(fluidStack, true);
-                }
-            }).setBackgroundTexture(GuiTextures.FLUID_SLOT));
-            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(21, -14, 72, 18, () -> String.valueOf(this.ghostTanks.getTankAt(finalI).getFluidAmount()), (text, id) -> {
-                FluidStack fluidStack = this.ghostTanks.getTankAt(Integer.parseInt(id)).getFluid();
-                if (fluidStack != null) {
-                    fluidStack = fluidStack.copy();
                     fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text));
-                    this.ghostTanks.getTankAt(finalI).drain(Integer.MAX_VALUE, true);
-                    this.ghostTanks.getTankAt(finalI).fill(fluidStack, true);
                 }
             }).setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                    .setTextId(String.valueOf(i))
                     .setUpdateOnTyping(true)
                     .setMaxStringLength(11)
                     .enableBackground(true));
@@ -145,15 +137,12 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound data) {
-        super.writeToNBT(data);
-        data.setTag("ghostTanks", this.ghostTanks.serializeNBT());
-        return data;
+    public MultiblockAbility<IFluidTank> getAbility() {
+        return MultiblockAbility.IMPORT_FLUIDS;
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
-        this.ghostTanks.deserializeNBT(data.getCompoundTag("ghostTanks"));
+    public void registerAbilities(List<IFluidTank> list) {
+        list.addAll(this.getImportFluids().getFluidTanks());
     }
 }

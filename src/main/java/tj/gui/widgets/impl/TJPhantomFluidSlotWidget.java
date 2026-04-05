@@ -1,14 +1,12 @@
 package tj.gui.widgets.impl;
 
+import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.igredient.IGhostIngredientTarget;
 import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.gui.resources.TextureArea;
-import gregtech.api.util.GTLog;
-import gregtech.api.util.Position;
-import gregtech.api.util.Size;
-import gregtech.api.util.TextFormattingUtil;
+import gregtech.api.util.*;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -16,6 +14,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.gui.TJGuiUtils;
@@ -25,24 +24,39 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredientTarget, IIngredientSlot {
 
-    private final Supplier<FluidStack> fluidStackSupplier;
     private final Consumer<FluidStack> fluidStackConsumer;
+    private final IMultipleTankHandler tanks;
+    private final int slotIndex;
     private TextureArea backgroundTexture;
     private FluidStack fluidStack;
 
-    public TJPhantomFluidSlotWidget(int x, int y, int width, int height, Supplier<FluidStack> fluidStackSupplier, Consumer<FluidStack> fluidStackConsumer) {
+    public TJPhantomFluidSlotWidget(int x, int y, int width, int height, int slotIndex, IMultipleTankHandler tanks, Consumer<FluidStack> fluidStackConsumer) {
         super(new Position(x, y), new Size(width, height));
-        this.fluidStackSupplier = fluidStackSupplier;
         this.fluidStackConsumer = fluidStackConsumer;
+        this.tanks = tanks;
+        this.slotIndex = slotIndex;
     }
 
     public TJPhantomFluidSlotWidget setBackgroundTexture(TextureArea backgroundTexture) {
         this.backgroundTexture = backgroundTexture;
         return this;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void drawInForeground(int mouseX, int mouseY) {
+        if (!this.isMouseOverElement(mouseX, mouseY)) return;
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        final int screenWidth = Minecraft.getMinecraft().displayWidth;
+        final int screenHeight = Minecraft.getMinecraft().displayHeight;
+        if (this.fluidStack != null) {
+            String formula = FluidTooltipUtil.getFluidTooltip(this.fluidStack);
+            formula = formula == null || formula.isEmpty() ? "" : this.fluidStack.getLocalizedName();
+            GuiUtils.drawHoveringText(Collections.singletonList(formula), mouseX, mouseY, screenWidth, screenHeight, 100, fontRenderer);
+        }
     }
 
     @Override
@@ -89,12 +103,10 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
 
     @Override
     public void detectAndSendChanges() {
-        if (this.fluidStackSupplier != null) {
-            final FluidStack stack = this.fluidStackSupplier.get();
-            if (stack != null && !stack.isFluidStackIdentical(this.fluidStack)) {
-                this.fluidStack = stack;
-                this.writeUpdateInfo(1, buffer -> buffer.writeCompoundTag(this.fluidStack.writeToNBT(new NBTTagCompound())));
-            }
+        final FluidStack stack = this.tanks.getTankAt(this.slotIndex).getFluid();
+        if (stack != null) {
+            this.fluidStack = stack;
+            this.writeUpdateInfo(1, buffer -> buffer.writeCompoundTag(this.fluidStack.writeToNBT(new NBTTagCompound())));
         }
     }
 
@@ -103,21 +115,18 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
         if (id == 1) {
             try {
                 this.fluidStack = FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag());
+                this.tanks.getTankAt(this.slotIndex).drain(Integer.MIN_VALUE, true);
+                this.tanks.getTankAt(this.slotIndex).fill(this.fluidStack, true);
+                if (this.fluidStackConsumer != null)
+                    this.fluidStackConsumer.accept(this.fluidStack);
             } catch (IOException e) {
                 GTLog.logger.info(e.getMessage());
             }
         } else if (id == 2) {
             this.fluidStack = null;
+            this.tanks.getTankAt(this.slotIndex).drain(Integer.MIN_VALUE, true);
             if (this.fluidStackConsumer != null)
                 this.fluidStackConsumer.accept(null);
-        } else if (id == 3) {
-            try {
-                this.fluidStack = FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag());
-            } catch (IOException e) {
-                GTLog.logger.info(e.getMessage());
-            }
-            if (this.fluidStackConsumer != null)
-                this.fluidStackConsumer.accept(this.fluidStack);
         }
     }
 
@@ -133,7 +142,7 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
             public void accept(Object o) {
                 if (o instanceof FluidStack) {
                     fluidStack = ((FluidStack) o).copy();
-                    writeClientAction(3, buffer -> buffer.writeCompoundTag(fluidStack.writeToNBT(new NBTTagCompound())));
+                    writeClientAction(1, buffer -> buffer.writeCompoundTag(fluidStack.writeToNBT(new NBTTagCompound())));
                 }
             }
         });
