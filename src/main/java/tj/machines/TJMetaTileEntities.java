@@ -153,6 +153,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityCompressedCrate INFINITY_CRATE;
     public static MetaTileEntityCreativeFluidHatch CREATIVE_FLUID_HATCH;
     public static MetaTileEntityCreativeItemBus CREATIVE_ITEM_BUS;
+    public static MetaTileEntityCreativeEnergyHatch CREATIVE_ENERGY_HATCH;
     public static MetaTileEntityFilingCabinet FILING_CABINET;
 
     public static void init() {
@@ -305,6 +306,7 @@ public class TJMetaTileEntities {
         FILING_CABINET = GregTechAPI.registerMetaTileEntity(5526, new MetaTileEntityFilingCabinet(TJId("filing_cabinet")));
         CREATIVE_FLUID_HATCH = GregTechAPI.registerMetaTileEntity(5527, new MetaTileEntityCreativeFluidHatch(TJId("creative_fluid_hatch")));
         CREATIVE_ITEM_BUS = GregTechAPI.registerMetaTileEntity(5528, new MetaTileEntityCreativeItemBus(TJId("creative_item_bus")));
+        CREATIVE_ENERGY_HATCH = GregTechAPI.registerMetaTileEntity(5529, new MetaTileEntityCreativeEnergyHatch(TJId("creative_energy_hatch")));
 
         // append tiers to existing hatches
         MetaTileEntities.ITEM_IMPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_IMPORT_BUS, 15);
