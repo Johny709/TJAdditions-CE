@@ -81,7 +81,7 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (this.isMouseOverElement(mouseX, mouseY) && button == 1) {
+        if (this.isMouseOverElement(mouseX, mouseY) && button == 1) { // Right-Click
             this.writeClientAction(2, buffer -> {});
             this.fluidStack = null;
             return true;

@@ -233,6 +233,7 @@ tj.machine.gt_buffer.umv.name=Buffer (UMV)
 tj.machine.gt_buffer.uxv.name=Buffer (UXV)
 tj.machine.gt_buffer.max.name=Buffer (MAX)
 tj.machine.creative_fluid_hatch.name=Creative Fluid Hatch
+tj.machine.creative_item_bus.name=Creative Item Bus
 tj.machine.compressed_chest.name=Compressed Chest
 tj.machine.compressed_crate.name=Compressed Crate
 tj.machine.infinity_chest.name=Infinity Chest
