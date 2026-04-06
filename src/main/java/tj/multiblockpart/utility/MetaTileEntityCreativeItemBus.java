@@ -69,13 +69,12 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        final int tier = Math.min(3, this.getTier() / 3);
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(43, 24));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(43, 24, 72, 72);
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             final int finalI = i;
-            final int x = (tier == 3 ? 18 : 0) + 18 * (i % (tier + 1));
-            final int y = 18 * (i / (tier + 1));
+            final int x = 18 + 18 * (i % 4);
+            final int y = 18 * (i / 4);
             widgetGroup.addWidget(new TJPhantomItemSlotWidget(x, y, 18, 18, i, this.importItems, fluidStack -> {})
                     .setBackgroundTexture(GuiTextures.SLOT));
             selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(21, -14, 72, 18, () -> String.valueOf(this.importItems.getStackInSlot(finalI).getCount()), (text, id) -> {
@@ -88,12 +87,12 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
                     .enableBackground(true));
             selectionWidgetGroup.addSelectionBox(i, x, y, 18, 18);
         }
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 148 + 18 * (tier - 1))
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 184)
                 .widget(new TJLabelWidget(7, -19, 180, 19, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
-                .bindPlayerInventory(player.inventory, 63 + 18 * (tier - 1))
+                .bindPlayerInventory(player.inventory, 100)
                 .build(this.getHolder(), player);
     }
 
