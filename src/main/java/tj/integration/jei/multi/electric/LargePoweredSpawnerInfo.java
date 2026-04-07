@@ -13,8 +13,6 @@ import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import org.apache.commons.lang3.ArrayUtils;
-import tj.blocks.BlockSolidCasings;
-import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
@@ -41,7 +39,7 @@ public class LargePoweredSpawnerInfo extends TJMultiblockInfoPage {
                 .aisle("CCCCC", "~TmT~", "~TmT~", "~TmT~", "CGGGC")
                 .aisle("IiSOC", "F~~~F", "F~~~F", "F~~~F", "CCMCC")
                 .where('S', this.getController(), EnumFacing.WEST)
-                .where('C', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SOUL_CASING))
+                .where('C', Block.getBlockFromName("contenttweaker:soulcasing").getDefaultState())
                 .where('F', MetaBlocks.FRAMES.get(GAMaterials.Protactinium.getMaterial()).getDefaultState())
                 .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
                 .where('m', new BlockInfo(Block.getBlockFromName("enderio:block_decoration1")))

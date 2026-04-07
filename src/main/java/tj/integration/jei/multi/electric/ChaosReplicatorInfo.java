@@ -11,8 +11,6 @@ import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import org.apache.commons.lang3.ArrayUtils;
-import tj.blocks.BlockSolidCasings;
-import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
@@ -42,7 +40,7 @@ public class ChaosReplicatorInfo extends TJMultiblockInfoPage {
                 .aisle("CCCCCCC", "CDDDDDC", "QF###FQ", "QF###FQ", "QF~A~FQ", "QF###FQ", "QF###FQ", "CDDDDDC", "CCCCCCC")
                 .aisle("CCCCCCC", "CIiSOCC", "CQQCQQC", "CQQCQQC", "CQQCQQC", "CQQQQQC", "CQQQQQC", "CCCCCCC", "CCCCCCC")
                 .where('S', this.getController(), EnumFacing.WEST)
-                .where('C', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.CHOATIC_CASING))
+                .where('C', Block.getBlockFromName("contenttweaker:chaoticcasing").getDefaultState())
                 .where('F', MetaBlocks.FRAMES.get(GAMaterials.EnrichedNaquadahAlloy).getDefaultState())
                 .where('R', MetaBlocks.FRAMES.get(MATERIAL_REGISTRY.getObject("chaos")).getDefaultState())
                 .where('D', new BlockInfo(Block.getBlockFromName("draconicevolution:infused_obsidian")))

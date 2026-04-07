@@ -4,6 +4,7 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
@@ -34,7 +35,7 @@ public class DragonReplicatorInfo extends TJMultiblockInfoPage {
                 .aisle("CCC", "CDC", "CCC")
                 .aisle("CCC", "ISO", "CMC")
                 .where('S', this.getController(), EnumFacing.WEST)
-                .where('C', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.AWAKENED_CASING))
+                .where('C', Block.getBlockFromName("contenttweaker:awakenedcasing").getDefaultState())
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('D', Blocks.DRAGON_EGG.getDefaultState());
         for (int tier = 0; tier < 15; tier++) {

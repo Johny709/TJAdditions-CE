@@ -14,8 +14,6 @@ import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import org.apache.commons.lang3.ArrayUtils;
-import tj.blocks.BlockSolidCasings;
-import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
@@ -42,7 +40,7 @@ public class LargeVialProcessorInfo extends TJMultiblockInfoPage {
                 .aisle("CTTTC", "~BGB~", "~BGB~", "~BGB~", "CTTTC")
                 .aisle("IiSOC", "F~~~F", "F~~~F", "F~~~F", "CCMCC")
                 .where('S', this.getController(), EnumFacing.WEST)
-                .where('C', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SOUL_CASING))
+                .where('C', Block.getBlockFromName("contenttweaker:soulcasing").getDefaultState())
                 .where('B', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
                 .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
                 .where('F', MetaBlocks.FRAMES.get(GAMaterials.Protactinium.getMaterial()).getDefaultState())

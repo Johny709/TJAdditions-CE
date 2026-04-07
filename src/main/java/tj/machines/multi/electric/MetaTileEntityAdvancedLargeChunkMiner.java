@@ -222,6 +222,11 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
             case 7: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.RUTHERFORDIUM_CASING);
             case 8: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.DURANIUM_CASING);
             case 9: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SEABORGIUM_CASING);
+            case 10: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.BOHRIUM);
+            case 11: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.VIBRANIUM);
+            case 12: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.ADAMANTIUM);
+            case 13: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.HEAVY_QUARK_DEGENERATE_MATTER);
+            case 14: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.NEUTRONIUM);
             default: return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.BLACK_STEEL);
         }
     }
@@ -233,6 +238,11 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
             case 7: return MetaBlocks.FRAMES.get(GAMaterials.Rutherfordium).getDefaultState();
             case 8: return MetaBlocks.FRAMES.get(Materials.Duranium).getDefaultState();
             case 9: return MetaBlocks.FRAMES.get(GAMaterials.Seaborgium).getDefaultState();
+            case 10: return MetaBlocks.FRAMES.get(GAMaterials.Bohrium).getDefaultState();
+            case 11: return MetaBlocks.FRAMES.get(GAMaterials.Vibranium).getDefaultState();
+            case 12: return MetaBlocks.FRAMES.get(GAMaterials.Adamantium).getDefaultState();
+            case 13: return MetaBlocks.FRAMES.get(GAMaterials.HeavyQuarkDegenerateMatter).getDefaultState();
+            case 14: return MetaBlocks.FRAMES.get(GAMaterials.Neutronium).getDefaultState();
             default: return MetaBlocks.FRAMES.get(Materials.BlackSteel).getDefaultState();
         }
     }
@@ -253,6 +263,11 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
             case 7: return TJTextures.RUTHERFORDIUM;
             case 8: return TJTextures.DURANIUM;
             case 9: return TJTextures.SEABORGIUM;
+            case 10: return TJTextures.BOHRIUM;
+            case 11: return TJTextures.VIBRANIUM;
+            case 12: return TJTextures.ADAMANTIUM;
+            case 13: return TJTextures.HEAVY_QUARK_DEGENERATE_MATTER;
+            case 14: return TJTextures.NEUTRONIUM;
             default: return ClientHandler.BLACK_STEEL_CASING;
         }
     }

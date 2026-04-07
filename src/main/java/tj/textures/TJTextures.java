@@ -31,11 +31,15 @@ public class TJTextures {
     private static final ThreadLocal<BlockRenderer.BlockFace> blockFaces = ThreadLocal.withInitial(BlockRenderer.BlockFace::new);
     public static final List<TextureUtils.IIconRegister> iconRegisters = new ArrayList<>();
 
-    public static final TJSimpleCubeRenderer DRACONIC = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/draconiccasing");
-    public static final TJSimpleCubeRenderer AWAKENED = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/awakenedcasing");
-    public static final TJSimpleCubeRenderer CHOATIC = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/chaoticcasing");
-    public static final TJSimpleCubeRenderer ETERNITY = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/eternityblock");
-    public static final TJSimpleCubeRenderer SOUL = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/soulcasing");
+    public static final TJSimpleCubeRenderer DRACONIC = new TJSimpleCubeRenderer("contenttweaker", "blocks/draconiccasing");
+    public static final TJSimpleCubeRenderer AWAKENED = new TJSimpleCubeRenderer("contenttweaker", "blocks/awakenedcasing");
+    public static final TJSimpleCubeRenderer CHOATIC = new TJSimpleCubeRenderer("contenttweaker", "blocks/chaoticcasing");
+    public static final TJSimpleCubeRenderer ETERNITY = new TJSimpleCubeRenderer("contenttweaker", "blocks/eternityblock");
+    public static final TJSimpleCubeRenderer SOUL = new TJSimpleCubeRenderer("contenttweaker", "blocks/soulcasing");
+    public static final TJSimpleCubeRenderer BOHRIUM = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/bohrium");
+    public static final TJSimpleCubeRenderer VIBRANIUM = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/vibranium");
+    public static final TJSimpleCubeRenderer ADAMANTIUM = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/adamantium");
+    public static final TJSimpleCubeRenderer NEUTRONIUM = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/neutronium");
     public static final TJSimpleCubeRenderer DURANIUM = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/duranium");
     public static final TJSimpleCubeRenderer SEABORGIUM = new TJSimpleCubeRenderer(TJ.MODID,"blocks/casings/solid/seaborgium");
     public static final TJSimpleCubeRenderer HEAVY_QUARK_DEGENERATE_MATTER = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/heavy_quark_degenerate_matter");
