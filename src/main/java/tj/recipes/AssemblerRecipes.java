@@ -373,7 +373,7 @@ public class AssemblerRecipes {
                     .duration(400).EUt(GAValues.VA[tier])
                     .buildAndRegister();
         }
-        Material[] minerGears = {BlackSteel, HSSG, HSSS, Rutherfordium, Duranium, Seaborgium};
+        Material[] minerGears = {BlackSteel, HSSG, HSSS, Rutherfordium, Duranium, Seaborgium, Bohrium, Adamantium, Vibranium, HeavyQuarkDegenerateMatter, Neutronium};
         for (int i = 0, tier = 4; i < ADVANCED_LARGE_CHUNK_MINERS.length; i++, tier++) {
             ASSEMBLER_RECIPES.recipeBuilder()
                     .input(OrePrefix.frameGt, minerGears[i])
