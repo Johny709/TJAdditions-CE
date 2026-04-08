@@ -126,6 +126,7 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("advanced_large_chunk_miner.8", new MultiblockInfoRecipeWrapper(new AdvancedLargeChunkMinerInfo(8)))
                             .put("advanced_large_chunk_miner.9", new MultiblockInfoRecipeWrapper(new AdvancedLargeChunkMinerInfo(9)))
                             .put("advanced_large_chunk_miner.10", new MultiblockInfoRecipeWrapper(new AdvancedLargeChunkMinerInfo(10)))
+                            .put("void_large_chunk_miner", new MultiblockInfoRecipeWrapper(new VoidAdvancedLargeChunkMinerInfo()))
                             .put("large_naming_machine", new MultiblockInfoRecipeWrapper(new LargeNamingMachineInfo()))
                             .put("large_assembly_line", new MultiblockInfoRecipeWrapper(new LargeAssemblyLineInfo()))
                             .put("parallel_circuit_assembly_line", new MultiblockInfoRecipeWrapper(new ParallelCircuitAssemblyLineInfo()))

@@ -40,6 +40,7 @@ public class TJTextures {
     public static final TJSimpleCubeRenderer VIBRANIUM = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/vibranium");
     public static final TJSimpleCubeRenderer ADAMANTIUM = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/adamantium");
     public static final TJSimpleCubeRenderer NEUTRONIUM = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/neutronium");
+    public static final TJSimpleCubeRenderer CHAOS_ALLOY = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/chaos_alloy");
     public static final TJSimpleCubeRenderer DURANIUM = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/duranium");
     public static final TJSimpleCubeRenderer SEABORGIUM = new TJSimpleCubeRenderer(TJ.MODID,"blocks/casings/solid/seaborgium");
     public static final TJSimpleCubeRenderer HEAVY_QUARK_DEGENERATE_MATTER = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/solid/heavy_quark_degenerate_matter");

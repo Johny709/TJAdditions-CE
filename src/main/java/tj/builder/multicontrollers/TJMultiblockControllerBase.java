@@ -258,7 +258,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
         int[][] barMatrix = null;
         height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
         final ModularUI.Builder builder = ModularUI.extendedBuilder();
-        WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
+        final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
                 .setPosition(-10, 1)
                 .offsetPosition(0, height)
@@ -274,7 +274,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
         return builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
                 .widget(tabBuilder.build())
                 .widget(tabBuilder.buildWidgetGroup())
-                .widget(new AnimatedImageWidget(154, 102, 26, 26, 41, 2, TJ_LOGO_ANIMATED))
+                .widget(new AnimatedImageWidget(154, 102, 26, 26, 41, TJ_LOGO_ANIMATED))
                 .build(this.getHolder(), entityPlayer);
     }
 

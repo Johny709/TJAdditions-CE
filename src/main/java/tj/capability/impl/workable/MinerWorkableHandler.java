@@ -42,9 +42,9 @@ import java.util.regex.Pattern;
 
 public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler> implements IItemFluidHandlerInfo {
 
-    private final Object2ObjectMap<Item, IntPair<ItemStack>> itemType = new Object2ObjectOpenHashMap<>();
-    private final Object2ObjectMap<Item, ItemStack> itemFilterType = new Object2ObjectOpenHashMap<>();
-    private final OreDictionaryItemFilter oreDictFilter = new OreDictionaryItemFilter() {
+    protected final Object2ObjectMap<Item, IntPair<ItemStack>> itemType = new Object2ObjectOpenHashMap<>();
+    protected final Object2ObjectMap<Item, ItemStack> itemFilterType = new Object2ObjectOpenHashMap<>();
+    protected final OreDictionaryItemFilter oreDictFilter = new OreDictionaryItemFilter() {
         @Override
         public void initUI(Consumer<Widget> widgetGroup) {
             widgetGroup.accept(new LabelWidget(10, 3, "cover.ore_dictionary_filter.title1"));
@@ -55,13 +55,13 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                     .setValidator(str -> Pattern.compile("\\*?[a-zA-Z0-9_]*\\*?").matcher(str).matches()));
         }
     };
-    private final BlockPos.MutableBlockPos miningPos = new BlockPos.MutableBlockPos();
-    private final List<ItemStack> itemOutputs = new ArrayList<>();
+    protected final BlockPos.MutableBlockPos miningPos = new BlockPos.MutableBlockPos();
+    protected final List<ItemStack> itemOutputs = new ArrayList<>();
     private final List<Chunk> chunks = new ArrayList<>();
     private boolean initialized;
-    private boolean blacklist = true;
+    protected boolean blacklist = true;
     private boolean blacklistBlock;
-    private boolean silkTouch;
+    protected boolean silkTouch;
     private boolean reset;
     private boolean done;
     private Chunk currentChunk;
@@ -150,7 +150,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         return true;
     }
 
-    private void initializeChunks() {
+    protected final void initializeChunks() {
         if (!this.initialized) {
             this.initialized = true;
             final int reminder = this.handler.getDiameter() % 2;
@@ -167,7 +167,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         }
     }
 
-    private <T extends IForgeRegistryEntry<T>> boolean addItemDrop(T type, int count, int meta) {
+    protected <T extends IForgeRegistryEntry<T>> boolean addItemDrop(T type, int count, int meta) {
         if (type == null)
             return false;
         final Item item = type instanceof Item ? (Item) type : Item.getItemFromBlock((Block) type);
@@ -201,7 +201,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         return true;
     }
 
-    private int getFortune(int count) {
+    protected int getFortune(int count) {
         int growAmount = Math.round(count * this.metaTileEntity.getWorld().rand.nextFloat());
         if (this.handler.getFortuneLvl() > 0) {
             int i = Math.max(0, this.metaTileEntity.getWorld().rand.nextInt(this.handler.getFortuneLvl() + 2) - 1);

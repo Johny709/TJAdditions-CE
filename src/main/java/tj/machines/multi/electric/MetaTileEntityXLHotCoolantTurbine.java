@@ -205,7 +205,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         int[][] barMatrix = null;
         height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
         final ModularUI.Builder builder = ModularUI.extendedBuilder();
-        WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
+        final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
                 .setPosition(-10, 1)
                 .offsetPosition(0, height)
@@ -221,18 +221,18 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
                 .widget(tabBuilder.build())
                 .widget(tabBuilder.buildWidgetGroup())
-                .widget(new AnimatedImageWidget(154, 102, 26, 26, 41, 2, TJ_LOGO_ANIMATED));
+                .widget(new AnimatedImageWidget(154, 102, 26, 26, 41, TJ_LOGO_ANIMATED));
         return builder;
     }
 
     private void addBars(int[][] barMatrix, ModularUI.Builder builder) {
-        Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars = new ArrayDeque<>();
+        final Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars = new ArrayDeque<>();
         ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars);
         for (int i = 0; i < barMatrix.length; i++) {
-            int[] column = barMatrix[i];
+            final int[] column = barMatrix[i];
             for (int j = 0; j < column.length; j++) {
-                ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
-                int height = 188 / column.length;
+                final ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
+                final int height = 188 / column.length;
                 builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
                         .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
                         .setLocale(bar.getLocale(), bar.getParams())

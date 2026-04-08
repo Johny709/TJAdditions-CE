@@ -147,6 +147,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityTJMegaDistillationTower MEGA_DISTILLATION_TOWER;
     public static MetaTileEntityTJMegaBlastFurnace MEGA_BLAST_FURNACE;
     public static MetaTileEntityTJMegaVacuumFreezer MEGA_VACUUM_FREEZER;
+    public static MetaTileEntityVoidLargeAdvancedChunkMiner VOID_LARGE_ADVANCED_CHUNK_MINER;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -304,6 +305,7 @@ public class TJMetaTileEntities {
         PRIMITIVE_WATER_PUMP = GregTechAPI.registerMetaTileEntity(5515, new MetaTileEntityPrimitiveWaterPump(TJId("primitive_water_pump")));
         for (int i = 0; i < ADVANCED_LARGE_CHUNK_MINERS.length; i++) // occupies ID range 5516 - 5526
             ADVANCED_LARGE_CHUNK_MINERS[i] = GregTechAPI.registerMetaTileEntity(5516 + i, new MetaTileEntityAdvancedLargeChunkMiner(TJId("advanced_large_chunk_miner." + GAValues.VN[i + 4]), i + 4));
+        VOID_LARGE_ADVANCED_CHUNK_MINER = GregTechAPI.registerMetaTileEntity(5527, new MetaTileEntityVoidLargeAdvancedChunkMiner(TJId("void_large_chunk_miner")));
 
         // append tiers to existing hatches
         MetaTileEntities.ITEM_IMPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_IMPORT_BUS, 15);
