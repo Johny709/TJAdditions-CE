@@ -23,7 +23,7 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
-import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
+import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.unification.OreDictUnifier;
@@ -78,7 +78,7 @@ import static tj.gui.TJGuiTextures.*;
 import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
-public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBase implements IControllable, IMaintenance, IMuffler, IMachineHandler {
+public abstract class TJMultiblockControllerBase extends MultiblockControllerBase implements IControllable, IMaintenance, IMuffler, IMachineHandler {
 
     private final List<ItemStack> recoveryItems = new ArrayList<ItemStack>() {{
         add(OreDictUnifier.get(OrePrefix.dustTiny, Materials.Ash));
@@ -251,42 +251,29 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
         this.outputEnergyContainer = new EnergyContainerList(Collections.emptyList());
     }
 
-    protected int getOffsetY(int y) {
-        int height = this.getExtended();
-        final int[][] barMatrix;
-        height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
-        return y + height;
-    }
-
-    protected int getExtended() {
-        return 0;
-    }
-
     @Override
-    protected ModularUI.Builder createUITemplate(EntityPlayer entityPlayer) {
+    protected ModularUI createUI(EntityPlayer entityPlayer) {
         int height = this.getExtended();
         int[][] barMatrix = null;
         height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
-        ModularUI.Builder builder = ModularUI.extendedBuilder();
+        final ModularUI.Builder builder = ModularUI.extendedBuilder();
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
                 .setPosition(-10, 1)
                 .offsetPosition(0, height)
                 .offsetY(132 - this.getExtended());
-        if (height > 0)
-            builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
-        builder.widget(new TJLabelWidget(-1, -38, 184, 18, MACHINE_LABEL, this::getRecipeUid)
-                .setItemLabel(this.getStackForm())
-                .setLocale(this.getMetaFullName()));
-        builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN)
-                .image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
+        builder.image(-10, -20, 200, 237 + height, GuiTextures.BORDERED_BACKGROUND)
+                .image(-4, -14, 188, 145, MULTIBLOCK_DISPLAY_BASE)
+                .widget(new TJLabelWidget(-1, -38, 184, 18, MACHINE_LABEL_2, this::getRecipeUid)
+                        .setItemLabel(this.getStackForm())
+                        .setLocale(this.getMetaFullName()));
         this.addTabs(tabBuilder, entityPlayer);
         if (barMatrix != null)
             this.addBars(barMatrix, builder);
-        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
+        return builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
                 .widget(tabBuilder.build())
-                .widget(tabBuilder.buildWidgetGroup());
-        return builder;
+                .widget(tabBuilder.buildWidgetGroup())
+                .build(this.getHolder(), entityPlayer);
     }
 
     private void addBars(int[][] barMatrix, ModularUI.Builder builder) {
@@ -309,15 +296,16 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
-                        .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addMaintenanceDisplayText, 0xFFFFFF)
+                maintenanceTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
+                        .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addMaintenanceDisplayText, 0xFFFFFF)
                                 .setMaxWidthLimit(180))
                         .setScrollPanelWidth(3)));
     }
 
+    @OverridingMethodsMustInvokeSuper
     protected void mainDisplayTab(List<Widget> widgetGroup) {
-        widgetGroup.add(new ScrollableDisplayWidget(10, -15, 183, 142)
-                .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addDisplayText, 0xFFFFFF)
+        widgetGroup.add(new ScrollableDisplayWidget(10, -11, 187, 140)
+                .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addDisplayText, 0xFFFFFF)
                         .setClickHandler(this::handleDisplayClick)
                         .setMaxWidthLimit(180))
                 .setScrollPanelWidth(3));
@@ -347,6 +335,8 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
                 .addMufflerDisplayLine(!this.hasMufflerHatch() || this.isMufflerFaceFree(), 999)
                 .addMaintenanceDisplayLines(this.getProblems(), this.hasProblems(), 1000);
     }
+
+    protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {}
 
     @Override
     public boolean isWorkingEnabled() {
@@ -502,6 +492,17 @@ public abstract class TJMultiblockControllerBase extends MultiblockWithDisplayBa
     @Override
     public int getMaintenanceProblems() {
         return this.getNumProblems();
+    }
+
+    protected int getOffsetY(int y) {
+        int height = this.getExtended();
+        final int[][] barMatrix;
+        height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
+        return y + height;
+    }
+
+    protected int getExtended() {
+        return 0;
     }
 
     /**

@@ -76,14 +76,14 @@ public class TJHorizontoalTabListRenderer extends TabListRenderer {
 
     private static final class BottomTextures {
 
-        private static final TextureArea startTabInactiveTexture = TJGuiTextures.MULTIBLOCK_BOTTOM_TABS.getSubArea(0.0, 0.5, 1.0 / 3.0, 0.5);
-        private static final TextureArea startTabActiveTexture = TJGuiTextures.MULTIBLOCK_BOTTOM_TABS.getSubArea(0.0, 0.0, 1.0 / 3.0, 0.5);
+        private static final TextureArea startTabInactiveTexture = TABS_BOTTOM_TEXTURE.getSubArea(0.0, 0.5, 1.0 / 3.0, 0.5);
+        private static final TextureArea startTabActiveTexture = TABS_BOTTOM_TEXTURE.getSubArea(0.0, 0.0, 1.0 / 3.0, 0.5);
 
-        private static final TextureArea middleTabInactiveTexture = TJGuiTextures.MULTIBLOCK_BOTTOM_TABS.getSubArea(1.0 / 3.0, 0.5, 1.0 / 3.0, 0.5);
-        private static final TextureArea middleTabActiveTexture = TJGuiTextures.MULTIBLOCK_BOTTOM_TABS.getSubArea(1.0 / 3.0, 0.0, 1.0 / 3.0, 0.5);
+        private static final TextureArea middleTabInactiveTexture = TABS_BOTTOM_TEXTURE.getSubArea(1.0 / 3.0, 0.5, 1.0 / 3.0, 0.5);
+        private static final TextureArea middleTabActiveTexture = TABS_BOTTOM_TEXTURE.getSubArea(1.0 / 3.0, 0.0, 1.0 / 3.0, 0.5);
 
-        private static final TextureArea endTabInactiveTexture = TJGuiTextures.MULTIBLOCK_BOTTOM_TABS.getSubArea(2.0 / 3.0, 0.5, 1.0 / 3.0, 0.5);
-        private static final TextureArea endTabActiveTexture = TJGuiTextures.MULTIBLOCK_BOTTOM_TABS.getSubArea(2.0 / 3.0, 0.0, 1.0 / 3.0, 0.5);
+        private static final TextureArea endTabInactiveTexture = TABS_BOTTOM_TEXTURE.getSubArea(2.0 / 3.0, 0.5, 1.0 / 3.0, 0.5);
+        private static final TextureArea endTabActiveTexture = TABS_BOTTOM_TEXTURE.getSubArea(2.0 / 3.0, 0.0, 1.0 / 3.0, 0.5);
 
         private static TextureArea getTabTexture(boolean isTabFirst, boolean startLeft, boolean isTabSelected) {
             return isTabFirst ? (startLeft ? (isTabSelected ? startTabActiveTexture : startTabInactiveTexture) :

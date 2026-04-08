@@ -124,8 +124,8 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
                     .setTooltipText("machine.universal.toggle.item_voiding"));
             debugTab.add(new ToggleButtonWidget(175, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
                     .setTooltipText("machine.universal.toggle.fluid_voiding"));
-            debugTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
-                    .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addDebugDisplayText, 0xFFFFFF)
+            debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
+                    .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addDebugDisplayText, 0xFFFFFF)
                             .setMaxWidthLimit(180))
                     .setScrollPanelWidth(3));
         });

@@ -37,10 +37,14 @@ import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.STORE_TAPED;
+import static tj.gui.TJGuiTextures.MACHINE_LABEL_2;
+import static tj.gui.TJGuiTextures.MULTIBLOCK_DISPLAY_BASE;
 import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
@@ -60,6 +64,8 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
     // Used for data preservation with Maintenance Hatch
     private boolean storedTaped = false;
     protected boolean doStructureCheck;
+
+    protected Instant placedDown = Instant.now();
 
     public TJRotorHolderMultiblockControllerBase(ResourceLocation metaTileEntityId, FuelRecipeMap recipeMap, long maxVoltage) {
         super(metaTileEntityId, recipeMap, maxVoltage);
@@ -90,22 +96,20 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
 
     @Override
     protected ModularUI.Builder createUITemplate(EntityPlayer entityPlayer) {
-        int height = 0;
+        int height = this.getExtended();
         int[][] barMatrix = null;
         height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
-        ModularUI.Builder builder = ModularUI.extendedBuilder();
+        final ModularUI.Builder builder = ModularUI.extendedBuilder();
         WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
                 .setPosition(-10, 1)
                 .offsetPosition(0, height)
-                .offsetY(132);
-        if (height > 0)
-            builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
-        builder.widget(new TJLabelWidget(-1, -38, 184, 18, TJGuiTextures.MACHINE_LABEL, this::getRecipeUid)
-                .setItemLabel(this.getStackForm())
-                .setLocale(this.getMetaFullName()));
-        builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN)
-                .image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
+                .offsetY(132 - this.getExtended());
+        builder.image(-10, -20, 200, 237 + height, GuiTextures.BORDERED_BACKGROUND)
+                .image(-4, -14, 188, 145, MULTIBLOCK_DISPLAY_BASE)
+                .widget(new TJLabelWidget(-1, -38, 184, 18, MACHINE_LABEL_2, this::getRecipeUid)
+                        .setItemLabel(this.getStackForm())
+                        .setLocale(this.getMetaFullName()));
         this.addTabs(tabBuilder);
         if (barMatrix != null)
             this.addBars(barMatrix, builder);
@@ -135,14 +139,15 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.add(new AdvancedTextWidget(10, -13, textList ->
-                        MultiblockDisplaysUtility.maintenanceDisplay(textList, this.maintenance_problems, this.hasProblems()), 0xFFFFFF)
-                        .setMaxWidthLimit(180)));
+                maintenanceTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
+                        .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addMaintenanceDisplayText, 0xFFFFFF)
+                                .setMaxWidthLimit(180))
+                        .setScrollPanelWidth(3)));
     }
 
     protected void mainDisplayTab(List<Widget> widgetGroup) {
-        widgetGroup.add(new ScrollableDisplayWidget(10, -15, 183, 142)
-                .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addDisplayText, 0xFFFFFF)
+        widgetGroup.add(new ScrollableDisplayWidget(10, -11, 187, 140)
+                .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addDisplayText, 0xFFFFFF)
                         .setClickHandler(this::handleDisplayClick)
                         .setMaxWidthLimit(180))
                 .setScrollPanelWidth(3));
@@ -160,6 +165,16 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
                     .setStyle(new Style().setColor(TextFormatting.RED)
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
         }
+    }
+
+    protected void addMaintenanceDisplayText(GUIDisplayBuilder builder) {
+        final Instant now = Instant.now();
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMMM d, yyyy hh:mm:ss aa");
+        final long timeElapsed = now.getEpochSecond() - this.placedDown.getEpochSecond();
+        builder.addTranslationLine("tj.multiblock.date.placed_down", dateFormat.format(Date.from(this.placedDown)))
+                .addTranslationLine("tj.multiblock.date.ago", timeElapsed / 3600, (timeElapsed % 3600) / 60, timeElapsed % 60)
+                .addEmptyLine()
+                .addMaintenanceDisplayLines(this.getProblems(), this.hasProblems(), 1000);
     }
 
     private boolean getDoStructureCheck() {
@@ -183,30 +198,33 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        data.setByte("Maintenance", maintenance_problems);
-        data.setInteger("ActiveTimer", timeActive);
+        data.setByte("Maintenance", this.maintenance_problems);
+        data.setInteger("ActiveTimer", this.timeActive);
+        data.setLong("placedDownDate", this.placedDown.getEpochSecond());
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        maintenance_problems = data.getByte("Maintenance");
-        timeActive = data.getInteger("ActiveTimer");
+        this.maintenance_problems = data.getByte("Maintenance");
+        this.timeActive = data.getInteger("ActiveTimer");
+        if (data.hasKey("placedDownDate"))
+            this.placedDown = Instant.ofEpochSecond(data.getLong("placedDownDate"));
     }
 
     @Override
     public void writeInitialSyncData(PacketBuffer buf) {
         super.writeInitialSyncData(buf);
-        buf.writeByte(maintenance_problems);
-        buf.writeInt(timeActive);
+        buf.writeByte(this.maintenance_problems);
+        buf.writeInt(this.timeActive);
     }
 
     @Override
     public void receiveInitialSyncData(PacketBuffer buf) {
         super.receiveInitialSyncData(buf);
-        maintenance_problems = buf.readByte();
-        timeActive = buf.readInt();
+        this.maintenance_problems = buf.readByte();
+        this.timeActive = buf.readInt();
     }
 
     @Override
@@ -287,6 +305,10 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
     public void storeTaped(boolean isTaped) {
         this.storedTaped = isTaped;
         writeCustomData(STORE_TAPED, buf -> buf.writeBoolean(isTaped));
+    }
+
+    protected int getExtended() {
+        return 0;
     }
 
     /**
