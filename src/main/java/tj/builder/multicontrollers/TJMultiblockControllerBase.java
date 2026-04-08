@@ -61,6 +61,7 @@ import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
+import tj.gui.widgets.impl.AnimatedImageWidget;
 import tj.multiblockpart.TJMultiblockAbility;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -273,6 +274,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
         return builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
                 .widget(tabBuilder.build())
                 .widget(tabBuilder.buildWidgetGroup())
+                .widget(new AnimatedImageWidget(154, 102, 26, 26, 41, 2, TJ_LOGO_ANIMATED))
                 .build(this.getHolder(), entityPlayer);
     }
 

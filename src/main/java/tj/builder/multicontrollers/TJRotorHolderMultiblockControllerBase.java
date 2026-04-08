@@ -34,6 +34,7 @@ import tj.gui.TJHorizontoalTabListRenderer;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
+import tj.gui.widgets.impl.AnimatedImageWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -43,8 +44,7 @@ import java.util.*;
 import java.util.function.UnaryOperator;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.STORE_TAPED;
-import static tj.gui.TJGuiTextures.MACHINE_LABEL_2;
-import static tj.gui.TJGuiTextures.MULTIBLOCK_DISPLAY_BASE;
+import static tj.gui.TJGuiTextures.*;
 import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
@@ -115,7 +115,8 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
             this.addBars(barMatrix, builder);
         builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
                 .widget(tabBuilder.build())
-                .widget(tabBuilder.buildWidgetGroup());
+                .widget(tabBuilder.buildWidgetGroup())
+                .widget(new AnimatedImageWidget(154, 102, 26, 26, 41, 2, TJ_LOGO_ANIMATED));
         return builder;
     }
 

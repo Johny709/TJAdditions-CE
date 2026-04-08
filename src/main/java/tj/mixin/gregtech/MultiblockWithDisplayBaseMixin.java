@@ -1,8 +1,6 @@
 package tj.mixin.gregtech;
 
 import gregicadditions.machines.GATileEntities;
-import gregicadditions.machines.multi.GAFueledMultiblockController;
-import gregicadditions.machines.multi.IMaintenance;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
@@ -21,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
 import tj.builder.WidgetTabBuilder;
-import tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
@@ -30,12 +27,10 @@ import tj.gui.TJHorizontoalTabListRenderer;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
+import tj.gui.widgets.impl.AnimatedImageWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayDeque;
-import java.util.Date;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.UnaryOperator;
@@ -82,7 +77,8 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
                 this.addNewBars(barMatrix, builder);
             builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
                     .widget(tabBuilder.build())
-                    .widget(tabBuilder.buildWidgetGroup());
+                    .widget(tabBuilder.buildWidgetGroup())
+                    .widget(new AnimatedImageWidget(154, 102, 26, 26, 41, 2, TJ_LOGO_ANIMATED));
             cir.setReturnValue(builder);
         }
     }
