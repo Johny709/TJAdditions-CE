@@ -62,6 +62,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     protected boolean blacklist = true;
     private boolean blacklistBlock;
     protected boolean silkTouch;
+    private boolean voidItems;
     private boolean reset;
     private boolean done;
     private Chunk currentChunk;
@@ -134,7 +135,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         final IItemHandlerModifiable itemHandlerModifiable = this.handler.getExportItemInventory();
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
             final ItemStack stack = this.itemOutputs.get(i);
-            if (TJItemUtils.insertIntoItemHandler(itemHandlerModifiable, stack, true).isEmpty()) {
+            if (this.voidItems || TJItemUtils.insertIntoItemHandler(itemHandlerModifiable, stack, true).isEmpty()) {
                 TJItemUtils.insertIntoItemHandler(itemHandlerModifiable, stack, false);
                 this.outputIndex++;
             } else return false;
@@ -258,6 +259,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         compound.setInteger("z", this.miningPos.getZ());
         compound.setBoolean("done", this.done);
         compound.setBoolean("reset", this.reset);
+        compound.setBoolean("voidItems", this.voidItems);
         compound.setBoolean("blacklist", this.blacklist);
         compound.setBoolean("silkTouch", this.silkTouch);
         compound.setBoolean("blacklistBlock", this.blacklistBlock);
@@ -286,6 +288,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         this.miningPos.setPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
         this.done = compound.getBoolean("done");
         this.reset = compound.getBoolean("reset");
+        this.voidItems = compound.getBoolean("voidItems");
         this.blacklist = compound.getBoolean("blacklist");
         this.silkTouch = compound.getBoolean("silkTouch");
         this.blacklistBlock = compound.getBoolean("blacklistBlock");
@@ -357,6 +360,15 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
 
     public OreDictionaryItemFilter getOreDictFilter() {
         return this.oreDictFilter;
+    }
+
+    public void setVoidItems(boolean voidItems) {
+        this.voidItems = voidItems;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isVoidItems() {
+        return this.voidItems;
     }
 
     public void setDone(boolean done) {

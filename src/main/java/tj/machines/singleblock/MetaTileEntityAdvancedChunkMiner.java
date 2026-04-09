@@ -25,7 +25,6 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -165,7 +164,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                                 .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                                 .useToggleTexture(true), widgetGroup -> {
                             for (int i = 0; i < this.filterInventory.getSlots(); i++) {
-                                widgetGroup.addWidget(new TJPhantomSlotWidget(this.filterInventory, i, 18 * (i % 9), 18 * (i / 9))
+                                widgetGroup.addWidget(new TJGhostSlotWidget(this.filterInventory, i, 18 * (i % 9), 18 * (i / 9))
                                         .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY)
                                         .setTakeItemsPredicate(this.workableHandler::removeItemFromFilter)
                                         .setPutItemsPredicate(this.workableHandler::addItemToFilter)

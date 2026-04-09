@@ -17,16 +17,15 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-@Deprecated
-public class TJPhantomSlotWidget extends TJSlotWidget<TJPhantomSlotWidget> implements IGhostIngredientTarget {
+public class TJGhostSlotWidget extends TJSlotWidget<TJGhostSlotWidget> implements IGhostIngredientTarget {
 
     private boolean[] areGhostItems;
 
-    public TJPhantomSlotWidget(IItemHandler itemHandler, int slotIndex, int x, int y) {
+    public TJGhostSlotWidget(IItemHandler itemHandler, int slotIndex, int x, int y) {
         super(itemHandler, slotIndex, x, y);
     }
 
-    public TJPhantomSlotWidget setAreGhostItems(boolean[] areGhostItems) {
+    public TJGhostSlotWidget setAreGhostItems(boolean[] areGhostItems) {
         this.areGhostItems = areGhostItems;
         return this;
     }

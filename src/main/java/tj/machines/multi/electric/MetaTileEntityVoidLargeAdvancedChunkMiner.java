@@ -30,6 +30,7 @@ import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -41,6 +42,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -57,7 +59,7 @@ import tj.capability.impl.handler.IMinerHandler;
 import tj.capability.impl.workable.MinerWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
-import tj.gui.widgets.impl.TJPhantomSlotWidget;
+import tj.gui.widgets.impl.TJGhostSlotWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.gui.widgets.impl.WindowsWidgetGroup;
 import tj.items.handlers.GhostSlotHandler;
@@ -67,6 +69,7 @@ import tj.util.EnumFacingHelper;
 import tj.util.TJFluidUtils;
 import tj.util.pair.IntPair;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
@@ -90,6 +93,13 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityVoidLargeAdvancedChunkMiner(this.metaTileEntityId);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.description"));
+        tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.crushed"));
     }
 
     @Override
@@ -157,7 +167,7 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
             tab.add(new ButtonPopUpWidget<>()
                     .addPopup(widgetGroup -> {
                         for (int i = 0; i < this.getImportItems().getSlots(); i++) {
-                            widgetGroup.addWidget(new TJPhantomSlotWidget(this.getImportItems(), i, 10 + (18 * (i % 10)), 10 + (18 * (i / 10)))
+                            widgetGroup.addWidget(new TJGhostSlotWidget(this.getImportItems(), i, 10 + (18 * (i % 10)), 10 + (18 * (i / 10)))
                                     .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY)
                                     .setTakeItemsPredicate(this.workableHandler::removeItemFromFilter)
                                     .setPutItemsPredicate(this.workableHandler::addItemToFilter)
@@ -175,6 +185,8 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
                         widgetGroup.addWidget(windowsWidgetGroup);
                         return false;
                     }));
+            tab.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.ITEM_VOID_BUTTON, this.workableHandler::isVoidItems, this.workableHandler::setVoidItems)
+                    .setTooltipText("machine.universal.toggle.item_voiding"));
             tab.add(new ToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
                     .setTooltipText("tj.multiblock.advanced_large_miner.blacklist_block"));
         });

@@ -23,7 +23,7 @@ import tj.gui.TJGuiTextures;
 import tj.gui.uifactory.ITileEntityUI;
 import tj.gui.uifactory.TileEntityHolder;
 import tj.gui.widgets.TJSlotWidget;
-import tj.gui.widgets.impl.TJPhantomSlotWidget;
+import tj.gui.widgets.impl.TJGhostSlotWidget;
 import tj.integration.appeng.IApiParts;
 import appeng.helpers.SuperDualityInterface;
 
@@ -81,7 +81,7 @@ public class PartSuperInterface extends PartInterface implements ITileEntityUI {
         WidgetGroup widgetGroup = new WidgetGroup();
         DualityInterface duality = this.getInterfaceDuality();
         for (int i = 0; i < duality.getConfig().getSlots(); i++)
-            widgetGroup.addWidget(new TJPhantomSlotWidget(duality.getConfig(), i, 7 + (18 * (i % 9)), 34 + (36 * (i / 9)))
+            widgetGroup.addWidget(new TJGhostSlotWidget(duality.getConfig(), i, 7 + (18 * (i % 9)), 34 + (36 * (i / 9)))
                     .setBackgroundTexture(TJGuiTextures.SLOT_DOWN));
         for (int i = 0; i < duality.getStorage().getSlots(); i++)
             widgetGroup.addWidget(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))

@@ -56,7 +56,7 @@ import tj.capability.impl.handler.IMinerHandler;
 import tj.capability.impl.workable.MinerWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
-import tj.gui.widgets.impl.TJPhantomSlotWidget;
+import tj.gui.widgets.impl.TJGhostSlotWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.gui.widgets.impl.WindowsWidgetGroup;
 import tj.items.handlers.GhostSlotHandler;
@@ -175,7 +175,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
             tab.add(new ButtonPopUpWidget<>()
                     .addPopup(widgetGroup -> {
                         for (int i = 0; i < this.getImportItems().getSlots(); i++) {
-                            widgetGroup.addWidget(new TJPhantomSlotWidget(this.getImportItems(), i, 10 + (18 * (i % 10)), 10 + (18 * (i / 10)))
+                            widgetGroup.addWidget(new TJGhostSlotWidget(this.getImportItems(), i, 10 + (18 * (i % 10)), 10 + (18 * (i / 10)))
                                     .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY)
                                     .setTakeItemsPredicate(this.workableHandler::removeItemFromFilter)
                                     .setPutItemsPredicate(this.workableHandler::addItemToFilter)
@@ -193,6 +193,8 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
                         widgetGroup.addWidget(windowsWidgetGroup);
                         return false;
                     }));
+            tab.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.ITEM_VOID_BUTTON, this.workableHandler::isVoidItems, this.workableHandler::setVoidItems)
+                    .setTooltipText("machine.universal.toggle.item_voiding"));
             tab.add(new ToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
                     .setTooltipText("tj.multiblock.advanced_large_miner.blacklist_block"));
         });
