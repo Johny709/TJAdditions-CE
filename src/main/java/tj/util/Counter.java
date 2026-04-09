@@ -1,7 +1,7 @@
 package tj.util;
 
 public final class Counter {
-    private int value;
+    private long value;
 
     public Counter(int initialValue) {
         this.value = initialValue;
@@ -15,7 +15,7 @@ public final class Counter {
         this.value -= amount;
     }
 
-    public int getValue() {
+    public long getValue() {
         return this.value;
     }
 }

@@ -1,7 +1,6 @@
 package tj.capability.impl.workable;
 
 import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
@@ -11,6 +10,8 @@ import tj.capability.impl.handler.IRecipeHandler;
 import tj.util.TJItemUtils;
 import tj.util.TJFluidUtils;
 import tj.util.TJUtility;
+import tj.util.wrappers.GTFluidStackWrapper;
+import tj.util.wrappers.GTIngredientWrapper;
 
 public class MegaRecipeLogic<R extends IRecipeHandler> extends BasicRecipeLogic<R> {
 
@@ -20,9 +21,9 @@ public class MegaRecipeLogic<R extends IRecipeHandler> extends BasicRecipeLogic<
 
     @Override
     protected int checkItemInputsAmount(int parallels, Recipe recipe, IItemHandlerModifiable itemInputs) {
-        for (CountableIngredient ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
-            if (ingredient.getCount() > 0) {
-                parallels = (int) Math.min(parallels, TJItemUtils.extractFromItemHandlerByIngredientLong(itemInputs, ingredient.getIngredient(), (long) ingredient.getCount() * parallels, true) / ingredient.getCount());
+        for (GTIngredientWrapper ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
+            if (ingredient.getCountLong() > 0) {
+                parallels = (int) Math.min(parallels, TJItemUtils.extractFromItemHandlerByIngredientLong(itemInputs, ingredient.getIngredient(), ingredient.getCountLong() * parallels, true) / ingredient.getCountLong());
                 if (parallels < 1) return 0;
             } else if (!TJItemUtils.checkItemHandlerForIngredient(itemInputs, ingredient.getIngredient()))
                 return 0;
@@ -32,11 +33,11 @@ public class MegaRecipeLogic<R extends IRecipeHandler> extends BasicRecipeLogic<
 
     @Override
     protected int checkFluidInputsAmount(int parallels, Recipe recipe) {
-        for (FluidStack stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
-            if (stack.amount > 0) {
-                parallels = (int) Math.min(parallels, TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), stack, (long) stack.amount * parallels, false) / stack.amount);
+        for (GTFluidStackWrapper stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
+            if (stack.getCountLong() > 0) {
+                parallels = (int) Math.min(parallels, TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), stack.getFluidStack(), stack.getCountLong() * parallels, false) / stack.getCountLong());
                 if (parallels < 1) return 0;
-            } else if (!TJFluidUtils.findFluidFromTanks(this.handler.getImportFluidTank(), stack))
+            } else if (!TJFluidUtils.findFluidFromTanks(this.handler.getImportFluidTank(), stack.getFluidStack()))
                 return 0;
         }
         return parallels;
@@ -44,20 +45,21 @@ public class MegaRecipeLogic<R extends IRecipeHandler> extends BasicRecipeLogic<
 
     @Override
     protected void consumeItemInputs(int parallels, Recipe recipe, IItemHandlerModifiable itemInputs) {
-        for (CountableIngredient ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
-            TJItemUtils.extractFromItemHandlerByIngredientToListLong(itemInputs, ingredient.getIngredient(), (long) ingredient.getCount() * parallels, false, this.itemInputs);
+        for (GTIngredientWrapper ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
+            TJItemUtils.extractFromItemHandlerByIngredientToListLong(itemInputs, ingredient.getIngredient(), ingredient.getCountLong() * parallels, false, this.itemInputs);
         }
     }
 
     @Override
     protected void consumeFluidInputs(int parallels, Recipe recipe) {
-        for (FluidStack stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
-            long amount = (long) stack.amount * parallels;
-            TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), stack, amount, true);
+        for (GTFluidStackWrapper stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
+            FluidStack fluidStack = stack.getFluidStack();
+            long amount = stack.getCountLong() * parallels;
+            TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), fluidStack, amount, true);
             for (; amount > 0; amount -= Integer.MAX_VALUE) {
-                stack = stack.copy();
-                stack.amount = (int) Math.min(Integer.MAX_VALUE, amount);
-                this.fluidInputs.add(stack);
+                fluidStack = fluidStack.copy();
+                fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, amount);
+                this.fluidInputs.add(fluidStack);
             }
         }
     }

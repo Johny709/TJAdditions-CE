@@ -21,6 +21,8 @@ import tj.capability.*;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.util.TJItemUtils;
 import tj.util.TJFluidUtils;
+import tj.util.wrappers.GTFluidStackWrapper;
+import tj.util.wrappers.GTIngredientWrapper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -217,7 +219,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     }
 
     protected int checkItemInputsAmount(int parallels, Recipe recipe, IItemHandlerModifiable itemInputs) {
-        for (CountableIngredient ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
+        for (GTIngredientWrapper ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
             if (ingredient.getCount() > 0) {
                 parallels = Math.min(parallels, TJItemUtils.extractFromItemHandlerByIngredient(itemInputs, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
                 if (parallels < 1) return 0;
@@ -228,7 +230,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     }
 
     protected void consumeItemInputs(int parallels, Recipe recipe, IItemHandlerModifiable itemInputs, int i) {
-        for (CountableIngredient ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
+        for (GTIngredientWrapper ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
             TJItemUtils.extractFromItemHandlerByIngredientToList(itemInputs, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.itemInputs.get(i));
         }
     }
@@ -254,21 +256,21 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     }
 
     protected int checkFluidInputsAmount(int parallels, Recipe recipe) {
-        for (FluidStack stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
-            if (stack.amount > 0) {
-                parallels = Math.min(parallels, TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack, stack.amount * parallels, false) / stack.amount);
+        for (GTFluidStackWrapper stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
+            if (stack.getCount() > 0) {
+                parallels = Math.min(parallels, TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack.getFluidStack(), stack.getCount() * parallels, false) / stack.getCount());
                 if (parallels < 1) return 0;
-            } else if (!TJFluidUtils.findFluidFromTanks(this.handler.getImportFluidTank(), stack))
+            } else if (!TJFluidUtils.findFluidFromTanks(this.handler.getImportFluidTank(), stack.getFluidStack()))
                 return 0;
         }
         return parallels;
     }
 
     protected void consumeFluidInputs(int parallels, Recipe recipe, int i) {
-        for (FluidStack stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
-            final FluidStack fluid = stack.copy();
+        for (GTFluidStackWrapper stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
+            final FluidStack fluid = stack.getFluidStack().copy();
             fluid.amount *= parallels;
-            TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack, stack.amount * parallels, true);
+            TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), fluid, stack.getCount() * parallels, true);
             this.fluidInputs.get(i).add(fluid);
         }
     }
