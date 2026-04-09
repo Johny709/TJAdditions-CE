@@ -417,7 +417,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
             final int vacuumTierDifference = this.handler.getVacuumTier() - (int) recipe.getProperty("coil_tier");
             final int size = ((IGTRecipe) recipe).getMergedFluidInputs().size();
             for (int i = 0; i < size; i++) {
-                final FluidStack fluidStack = ((IGTRecipe) recipe).getMergedFluidInputs().get(i);
+                final FluidStack fluidStack = ((IGTRecipe) recipe).getMergedFluidInputs().get(i).getFluidStack();
                 final int amount = recipe.getFluidInputs().size() == 3 && i == size - 1
                         ? (int) (fluidStack.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease))
                         : fluidStack.amount;
@@ -435,7 +435,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
             final int vacuumTierDifference = this.handler.getVacuumTier() - (int) recipe.getProperty("coil_tier");
             final int size = ((IGTRecipe) recipe).getMergedFluidInputs().size();
             for (int i = 0; i < size; i++) {
-                FluidStack fluidStack = ((IGTRecipe) recipe).getMergedFluidInputs().get(i);
+                FluidStack fluidStack = ((IGTRecipe) recipe).getMergedFluidInputs().get(i).getFluidStack();
                 long amount = fluidStack.amount;
                 if (recipe.getFluidInputs().size() == 3)
                     amount = i == size - 1 ? (int) (fluidStack.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease)) : fluidStack.amount;

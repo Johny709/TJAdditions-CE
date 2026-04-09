@@ -3,7 +3,7 @@ package tj.util;
 public final class Counter {
     private long value;
 
-    public Counter(int initialValue) {
+    public Counter(long initialValue) {
         this.value = initialValue;
     }
 
