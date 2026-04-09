@@ -175,7 +175,7 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
                         widgetGroup.addWidget(windowsWidgetGroup);
                         return false;
                     }));
-            tab.add(new ToggleButtonWidget(175, this.getOffsetY(151), 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
+            tab.add(new ToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
                     .setTooltipText("tj.multiblock.advanced_large_miner.blacklist_block"));
         });
     }
