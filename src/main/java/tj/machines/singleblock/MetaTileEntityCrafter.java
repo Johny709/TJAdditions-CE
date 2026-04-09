@@ -103,7 +103,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new ItemStackHandler(1);
+        return new ItemStackHandler(3);
     }
 
     @Override
@@ -149,7 +149,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                         .setBarTexture(TJGuiTextures.BAR_YELLOW)
                         .setTexture(TJGuiTextures.FLUID_BAR)
                         .setInverted(true))
-                .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 55, 111, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
+                .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 37, 111, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new ImageWidget(72, 28, 26, 26, SLOT))
                 .widget(new ImageWidget(109, 14, 54, 54, DARKENED_SLOT))
                 .widget(new SlotDisplayWidget(this.resultInventory, 0, 76, 32)
@@ -157,6 +157,10 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new SlotWidget(this.exportItems, 0, 79, 112, true, false)
+                        .setBackgroundTexture(SLOT))
+                .widget(new SlotWidget(this.exportItems, 1, 61, 112, true, false)
+                        .setBackgroundTexture(SLOT))
+                .widget(new SlotWidget(this.exportItems, 2, 97, 112, true, false)
                         .setBackgroundTexture(SLOT))
                 .widget(new RecipeOutputSlotWidget(0, 79, 112, 18, 18, displayWidget::getItemOutputAt, null))
                 .widget(new ToggleButtonWidget(151, 112, 18, 18, ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
