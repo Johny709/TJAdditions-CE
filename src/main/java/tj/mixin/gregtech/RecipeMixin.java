@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import tj.capability.IGTRecipe;
-import tj.util.Counter;
 import tj.util.wrappers.GTFluidStackWrapper;
 import tj.util.wrappers.GTIngredientWrapper;
 

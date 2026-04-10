@@ -62,7 +62,9 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
             public ItemStack extractItem(int slot, int amount, boolean simulate) {
                 if (amount == Integer.MIN_VALUE)
                     return super.extractItem(slot, amount, simulate);
-                return this.getStackInSlot(slot).copy();
+                final ItemStack stack = this.getStackInSlot(slot).copy();
+                stack.setCount(Math.min(stack.getCount(), amount));
+                return stack;
             }
         };
     }

@@ -311,7 +311,7 @@ public final class TJItemUtils {
 
         long count = 0;
         for (int i = 0; i < itemHandler.getSlots(); i++) {
-            ItemStack slotStack = itemHandler.getStackInSlot(i);
+            final ItemStack slotStack = itemHandler.getStackInSlot(i);
             if (ingredient.apply(slotStack)) {
                 final ItemStack extract = itemHandler.extractItem(i, (int) Math.min(Integer.MAX_VALUE, amount), simulate);
                 final int extracted = extract.getCount();
