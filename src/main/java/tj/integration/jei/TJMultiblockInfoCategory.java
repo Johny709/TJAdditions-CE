@@ -106,7 +106,7 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("large_chisel_workbench", new MultiblockInfoRecipeWrapper(new LargeChiselWorkbenchInfo()))
                             .put("large_enchanter", new MultiblockInfoRecipeWrapper(new LargeEnchanterInfo()))
                             .put("large_crafter", new MultiblockInfoRecipeWrapper(new LargeCrafterInfo()))
-                            .put("mega_fusion", new MultiblockInfoRecipeWrapper(new MegaFusionInfo()))
+                            .put("mega_fusion", new MultiblockInfoRecipeWrapper(new MegaAdvancedFusionInfo()))
                             .put("ender_battery_tower", new MultiblockInfoRecipeWrapper(new EnderBatteryTowerInfo()))
                             .put("large_solar_boiler", new MultiblockInfoRecipeWrapper(new LargeSolarBoilerInfo(false)))
                             .put("mega_solar_boiler", new MultiblockInfoRecipeWrapper(new LargeSolarBoilerInfo(true)))

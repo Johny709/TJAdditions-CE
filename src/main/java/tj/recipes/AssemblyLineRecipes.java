@@ -1034,7 +1034,7 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.gear, Bohrium, 16)
                 .input(OrePrefix.gear, Adamantium, 16)
                 .input(OrePrefix.plateDense, Mendelevium.getMaterial(), 7)
-                .outputs(MEGA_FUSION.getStackForm())
+                .outputs(MEGA_ADVANCED_FUSION.getStackForm())
                 .EUt(GAValues.VA[10]).duration(2000)
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()

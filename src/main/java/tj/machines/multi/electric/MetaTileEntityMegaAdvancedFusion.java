@@ -63,7 +63,7 @@ import static gregicadditions.machines.multi.advance.MetaTileEntityAdvFusionReac
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController implements IHeatInfo, IProgressBar, IFusionHandler {
+public class MetaTileEntityMegaAdvancedFusion extends TJRecipeMapMultiblockController implements IHeatInfo, IProgressBar, IFusionHandler {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private final Set<BlockPos> activeStates = new HashSet<>();
@@ -77,14 +77,14 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     private int vacuumTier;
     private int divertorTier;
 
-    public MetaTileEntityMegaFusion(ResourceLocation metaTileEntityId) {
+    public MetaTileEntityMegaAdvancedFusion(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GARecipeMaps.ADV_FUSION_RECIPES, true, false);
         this.recipeLogic.setActiveConsumer(this::replaceEnergyPortsAsActive);
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityMegaFusion(this.metaTileEntityId);
+        return new MetaTileEntityMegaAdvancedFusion(this.metaTileEntityId);
     }
 
     @Override

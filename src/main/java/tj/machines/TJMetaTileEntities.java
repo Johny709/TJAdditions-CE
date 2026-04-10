@@ -126,7 +126,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityLargeChiselWorkbench LARGE_CHISEL_WORKBENCH;
     public static MetaTileEntityLargeEnchanter LARGE_ENCHANTER;
     public static MetaTileEntityLargeCrafter LARGE_CRAFTER;
-    public static MetaTileEntityMegaFusion MEGA_FUSION;
+    public static MetaTileEntityMegaAdvancedFusion MEGA_ADVANCED_FUSION;
     public static MetaTileEntityEnderBatteryTower ENDER_BATTERY_TOWER;
     public static MetaTileEntityLargeSolarBoiler LARGE_SOLAR_BOILER;
     public static MetaTileEntityLargeSolarBoiler MEGA_SOLAR_BOILER;
@@ -294,7 +294,7 @@ public class TJMetaTileEntities {
         LARGE_WIRELESS_ENERGY_RECEIVER = GregTechAPI.registerMetaTileEntity(5504, new MetaTileEntityLargeWirelessEnergyReceiver(TJId("large_wireless_energy_receiver"), OUTPUT));
         LARGE_BATTERY_CHARGER = GregTechAPI.registerMetaTileEntity(5505, new MetaTileEntityLargeBatteryCharger(TJId("large_battery_charger")));
         LARGE_CRAFTER = GregTechAPI.registerMetaTileEntity(5506, new MetaTileEntityLargeCrafter(TJId("large_crafter")));
-        MEGA_FUSION = GregTechAPI.registerMetaTileEntity(5507, new MetaTileEntityMegaFusion(TJId("mega_fusion")));
+        MEGA_ADVANCED_FUSION = GregTechAPI.registerMetaTileEntity(5507, new MetaTileEntityMegaAdvancedFusion(TJId("mega_fusion")));
         ENDER_BATTERY_TOWER = GregTechAPI.registerMetaTileEntity(5508, new MetaTileEntityEnderBatteryTower(TJId("ender_battery_tower")));
         LARGE_SOLAR_BOILER = GregTechAPI.registerMetaTileEntity(5509, new MetaTileEntityLargeSolarBoiler(TJId("large_solar_boiler"), false));
         MEGA_SOLAR_BOILER = GregTechAPI.registerMetaTileEntity(5510, new MetaTileEntityLargeSolarBoiler(TJId("mega_solar_boiler"), true));
