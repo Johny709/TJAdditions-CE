@@ -10,8 +10,10 @@ import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import tj.TJConfig;
 import tj.blocks.AbilityBlocks;
 import tj.blocks.TJMetaBlocks;
+import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
 import tj.machines.multi.steam.MetaTileEntityLargeSolarBoiler;
 import tj.util.Color;
@@ -34,8 +36,8 @@ public class LargeSolarBoilerInfo extends MultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        MultiblockShapeInfo.Builder builder = MultiblockShapeInfo.builder();
+        final List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder();
         if (!this.mega) {
             builder.aisle("FFF", "CCC", "CCC", "sss")
                     .aisle("IFM", "SPC", "OPC", "sss")
@@ -64,7 +66,8 @@ public class LargeSolarBoilerInfo extends MultiblockInfoPage {
                 .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
                 .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE))
                 .where('s', TJMetaBlocks.ABILITY_BLOCKS.getState(AbilityBlocks.AbilityType.SOLAR_COLLECTOR));
-        for (int tier = 0; tier < 15; tier++) {
+        final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+        for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
             shapeInfos.add(builder.where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
                     .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)
                     .build());

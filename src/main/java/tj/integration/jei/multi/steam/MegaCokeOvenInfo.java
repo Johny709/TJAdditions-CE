@@ -13,6 +13,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.List;
@@ -27,7 +28,7 @@ public class MegaCokeOvenInfo extends MultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        MultiblockShapeInfo shapeInfo = MultiblockShapeInfo.builder()
+        TJMultiblockShapeInfo shapeInfo = TJMultiblockShapeInfo.builder()
                 .aisle("FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF")
                 .aisle("FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF", "F#F#F#F#F", "FFFFFFFFF")
                 .aisle("FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF", "FFFFFFFFF")

@@ -9,6 +9,7 @@ import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.TJConfig;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
@@ -27,15 +28,16 @@ public class PrimitiveAlloyInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+        final List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("CCC", "CCC", "BBB")
                 .aisle("CCC", "C#C", "B#B")
                 .aisle("IOI", "iSC", "BBB")
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.PRIMITIVE_BRICKS))
                 .where('B', MetaBlocks.MACHINE_CASING.getState(BlockMachineCasing.MachineCasingType.BRONZE_HULL));
-        for (int tier = 0; tier < 15; tier++) {
+        final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+        for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
             shapeInfos.add(builder.where('I', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)
                     .where('O', MetaTileEntities.ITEM_EXPORT_BUS[tier], EnumFacing.WEST)
                     .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)

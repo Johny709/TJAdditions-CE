@@ -12,6 +12,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import tj.TJConfig;
 import tj.capability.impl.workable.XLHotCoolantTurbineWorkableHandler;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
@@ -38,16 +39,16 @@ public class XLHotCoolantTurbineInfo extends TJMultiblockInfoPage implements IPa
 
     @Override
     public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        MetaTileEntityHolder holderNorth = new MetaTileEntityHolder();
-        MetaTileEntityHolder holderSouth = new MetaTileEntityHolder();
+        final MetaTileEntityHolder holderNorth = new MetaTileEntityHolder();
+        final MetaTileEntityHolder holderSouth = new MetaTileEntityHolder();
         holderNorth.setMetaTileEntity(GATileEntities.ROTOR_HOLDER[2]);
         holderSouth.setMetaTileEntity(GATileEntities.ROTOR_HOLDER[2]);
-        ItemStack rotorStack = GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm();
+        final ItemStack rotorStack = GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm();
         //noinspection ConstantConditions
         TurbineRotorBehavior.getInstanceFor(rotorStack).setPartMaterial(rotorStack, Materials.Darmstadtium);
         ((MetaTileEntityRotorHolderForNuclearCoolant) holderNorth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
         ((MetaTileEntityRotorHolderForNuclearCoolant) holderSouth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
-        List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
         for (int shapeInfo = 0; shapeInfo < 7; shapeInfo++) {
             TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                     .aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCECCC", "CCCCCCC", "CCCCCCC", "CCCCCCC")
@@ -61,8 +62,9 @@ public class XLHotCoolantTurbineInfo extends TJMultiblockInfoPage implements IPa
             builder.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC")
                     .aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC")
                     .aisle("CCCCCCC", "CCCCCCC", "CCCOCCC", "CCISJCC", "CCCMCCC", "CCCCCCC", "CCCCCCC");
-            TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            for (int tier = 0; tier < infos.length; tier++) {
+            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
+            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
                 infos[tier] = builder.where('S', this.turbine, EnumFacing.WEST)
                         .where('C', this.turbine.turbineType.casingState)
                         .where('R', holderNorth.getMetaTileEntity(), EnumFacing.NORTH)

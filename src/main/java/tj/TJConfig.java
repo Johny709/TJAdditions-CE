@@ -40,6 +40,10 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public int maxLayersInJEI = 4;
 
+        @Config.Name("Disable Layers In JEI")
+        @Config.Comment("Voltage layers won't be shown in multiblock previews if this is set true.")
+        @Config.RequiresMcRestart
+        public boolean disableLayersInJEI = false;
     }
 
     @Config.Comment("Industrial Fusion Reactor")

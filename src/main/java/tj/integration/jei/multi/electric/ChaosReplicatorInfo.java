@@ -11,6 +11,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.TJConfig;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
@@ -30,8 +31,8 @@ public class ChaosReplicatorInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+        final List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("CCCCCCC", "CCCEMCC", "CQQCQQC", "CQQCQQC", "CQQCQQC", "CQQQQQC", "CQQQQQC", "CCCCCCC", "CCCCCCC")
                 .aisle("CCCCCCC", "CDDDDDC", "QF###FQ", "QF###FQ", "QF#A#FQ", "QF###FQ", "QF###FQ", "CDDDDDC", "CCCCCCC")
                 .aisle("CCCCCCC", "CDDDDDC", "Q#DDD#Q", "Q#####Q", "Q#####Q", "Q#####Q", "Q#DDD#Q", "CDDDDDC", "CCCCCCC")
@@ -47,7 +48,8 @@ public class ChaosReplicatorInfo extends TJMultiblockInfoPage {
                 .where('Q', new BlockInfo(Block.getBlockFromName("enderio:block_fused_quartz")))
                 .where('A', new BlockInfo(Block.getBlockFromName("draconicevolution:draconic_block")))
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST);
-        for (int tier = 0; tier < 15; tier++) {
+        final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+        for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
             shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
                     .where('I', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)
                     .where('O', MetaTileEntities.ITEM_EXPORT_BUS[tier], EnumFacing.WEST)

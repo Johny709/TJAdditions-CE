@@ -12,7 +12,9 @@ import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import tj.TJConfig;
 import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.TJMultiblockShapeInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,8 +31,8 @@ public class TeleporterInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        MultiblockShapeInfo.Builder builder = MultiblockShapeInfo.builder()
+        final List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder()
                 .aisle("~CFC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("CCCCC", "~CCC~", "~C#C~", "~C#C~", "~C#C~", "~CCC~", "~~C~~")
                 .aisle("FCfCF", "~ISE~", "~###~", "~###~", "~###~", "~MFC~", "~CfC~")
@@ -39,7 +41,8 @@ public class TeleporterInfo extends TJMultiblockInfoPage {
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING_MK2))
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
-        for (int tier = 0; tier < 15; tier++) {
+        final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+        for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
             shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
                     .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
                     .where('F', this.getVoltageCasing(tier))

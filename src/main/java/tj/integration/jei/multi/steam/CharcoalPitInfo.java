@@ -1,11 +1,11 @@
 package tj.integration.jei.multi.steam;
 
-import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.Collections;
@@ -23,7 +23,7 @@ public class CharcoalPitInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        return Collections.singletonList(GAMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+        return Collections.singletonList(TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("~~~~~", "~GGG~", "~GGG~", "~GGG~", "~~~~~")
                 .aisle("~GGG~", "GCCCG", "GCCCG", "GCCCG", "~GGG~")
                 .aisle("~GGG~", "GCCCG", "GCCCG", "GCCCG", "~GSG~")

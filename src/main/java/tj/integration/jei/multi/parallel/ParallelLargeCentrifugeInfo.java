@@ -35,10 +35,10 @@ public class ParallelLargeCentrifugeInfo extends TJMultiblockInfoPage implements
 
     @Override
     public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
+        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        final int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
         for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
+            final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
             for (int layer = 0; layer < shapeInfo; layer++) {
 
                 String entityS = layer == shapeInfo - 1 ? "~CSC~" : "~CGC~";
@@ -49,8 +49,9 @@ public class ParallelLargeCentrifugeInfo extends TJMultiblockInfoPage implements
                 builder.aisle("CCCCC", "C###C", "C#P#C", "C###C", "CCCCC");
             }
             builder.aisle("~IMO~", "CcccC", "CcmcC", "CcccC", "~iEo~");
-            TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            for (int tier = 0; tier < infos.length; tier++) {
+            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
+            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
                 infos[tier] = builder.where('S', getController(), EnumFacing.WEST)
                         .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.RED_STEEL))
                         .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))

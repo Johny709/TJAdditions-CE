@@ -1,7 +1,6 @@
 package tj.integration.jei.multi.steam;
 
 import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
@@ -11,6 +10,7 @@ import net.minecraft.util.EnumFacing;
 import tj.blocks.AbilityBlocks;
 import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.ArrayList;
@@ -28,9 +28,9 @@ public class PrimitiveWaterPumpInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        final List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            shapeInfos.add(GAMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+            shapeInfos.add(TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                     .aisle(i % 2 == 0 ? new String[]{"CCCC", "~~F~", "~~F~"} : new String[]{"CCCCC", "~~F~~", "~~F~~"})
                     .aisle(i % 2 == 0 ? new String[]{"CPOC", "F~~F", "FFFF"} : new String[]{"CPOPC", "F~~~F", "FFFFF"})
                     .aisle(i % 2 == 0 ? new String[]{"SCCC", "~~F~", "~~F~"} : new String[]{"SCCCC", "~~F~~", "~~F~~"})

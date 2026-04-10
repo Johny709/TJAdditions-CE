@@ -35,10 +35,10 @@ public class ParallelLargeWashingMachineInfo extends TJMultiblockInfoPage implem
 
     @Override
     public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
+        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        final int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
         for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT);
+            final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT);
             builder.aisle("CCCCC", "CmEmC", "CCCCC", "~CCC~");
             for (int layer = 0; layer < shapeInfo; layer++) {
                 if (layer != 0) {
@@ -49,8 +49,9 @@ public class ParallelLargeWashingMachineInfo extends TJMultiblockInfoPage implem
                 builder.aisle("CCCCC", "CP#PC", "C###C", "CGCGC");
             }
             builder.aisle("CICOC", "CmSmC", "CiMoC", "~CCC~");
-            TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            for (int tier = 0; tier < infos.length; tier++) {
+            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
+            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
                 infos[tier] = builder.where('S', getController(), EnumFacing.WEST)
                         .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.GRISIUM))
                         .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS))

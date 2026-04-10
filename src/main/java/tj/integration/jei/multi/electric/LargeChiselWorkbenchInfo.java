@@ -32,18 +32,19 @@ public class LargeChiselWorkbenchInfo extends TJMultiblockInfoPage implements IP
 
     @Override
     public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
+        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        final int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
         for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT);
+            final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT);
             for (int layer = 0; layer < shapeInfo; layer++) {
                 String power = layer == 0 ? "CEC" : "CCC";
                 builder.aisle(power, "CCC", "C~C", "C~C");
                 builder.aisle("CCC", "CcC", "###", "CrC");
             }
             builder.aisle("CMC", "ISO", "C~C", "C~C");
-            TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            for (int tier = 0; tier < infos.length; tier++) {
+            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
+            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
                 infos[tier] = builder.where('S', this.getController(), EnumFacing.WEST)
                         .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.MARAGING_STEEL_250))
                         .where('c', GAMetaBlocks.CONVEYOR_CASING.getState(ConveyorCasing.CasingType.values()[Math.max(0, tier - 1)]))

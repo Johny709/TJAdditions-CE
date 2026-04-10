@@ -13,7 +13,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import tj.TJConfig;
 import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.ArrayList;
@@ -29,15 +31,16 @@ public class LargeWorldAcceleratorInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        MultiblockShapeInfo.Builder builder = MultiblockShapeInfo.builder()
+        final List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder()
                 .aisle("#C#", "EeC", "#C#")
                 .aisle("IeC", "SFe", "MeC")
                 .aisle("#C#", "CeC", "#C#")
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.TRITANIUM))
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
-        for (int tier = 0; tier < 15; tier++) {
+        final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+        for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
             shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.WEST)
                     .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
                     .where('F', GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.values()[Math.max(0, tier -1)]))

@@ -38,18 +38,19 @@ public class ParallelLargeLaserEngraverInfo extends TJMultiblockInfoPage impleme
 
     @Override
     public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
+        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        final int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
         for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            TJMultiblockShapeInfo.Builder builder = new TJMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
+            final TJMultiblockShapeInfo.Builder builder = new TJMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
             for (int layer = 0; layer < shapeInfo; layer++) {
                 String energ = layer == 0 ? "CEC" : "CCC";
                 builder.aisle(energ, "CGC", "CCC", "~C~");
                 builder.aisle("CCC", "GcG", "CeC", "CBC");
             }
             builder.aisle("iMo", "ISO", "CCC", "~C~");
-            TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            for (int tier = 0; tier < infos.length; tier++) {
+            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
+            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
                 infos[tier] = builder.where('S', this.getController(), WEST)
                         .where('C', GAMetaBlocks.MUTLIBLOCK_CASING2.getState(GAMultiblockCasing2.CasingType.LASER_ENGRAVER))
                         .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.IRIDIUM_GLASS))

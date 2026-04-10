@@ -1,6 +1,5 @@
 package tj.integration.jei.multi.electric;
 
-import gregicadditions.jei.GAMultiblockShapeInfo;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.recipes.RecipeMaps;
@@ -11,6 +10,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import tj.TJConfig;
 import tj.TJValues;
+import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.multi.electric.MetaTileEntityIndustrialFusionReactor;
 
 import java.util.ArrayList;
@@ -33,10 +33,10 @@ public class IndustrialFusionReactorInfo extends MultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapes = new ArrayList<>();
-        int tier = fusionReactor.getTier();
+        final List<MultiblockShapeInfo> shapes = new ArrayList<>();
+        final int tier = fusionReactor.getTier();
         for (int index = 0; index < 16; index++) {
-            GAMultiblockShapeInfo.Builder builder = GAMultiblockShapeInfo.builder(LEFT, FRONT, DOWN);
+            final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(LEFT, FRONT, DOWN);
             for (int num = 0; num < index; num++) {
                 builder.aisle("###############", "######CCC######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#C###########C#", "#C###########C#", "#C###########C#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######CCC######", "###############");
                 builder.aisle("######CCC######", "####CCcccCC####", "###CccCCCccC###", "##CcCC###CCcC##", "#CcC#######CcC#", "#CcC#######CcC#", "CcC#########CcC", "CcC#########CcC", "CcC#########CcC", "#CcC#######CcC#", "#CcC#######CcC#", "##CcCC###CCcC##", "###CccCCCccC###", "####CCcccCC####", "######CCC######");
