@@ -180,7 +180,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         };
     }
 
-    public Predicate<BlockWorldState> energyPortPredicate(int tier) {
+    public static Predicate<BlockWorldState> energyPortPredicate(int tier) {
         return (blockWorldState) -> {
             final IBlockState blockState = blockWorldState.getBlockState();
             if (blockState.getBlock() instanceof EnergyPortCasings) {
