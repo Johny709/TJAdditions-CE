@@ -1082,4 +1082,24 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public int maximumSlices = 256;
     }
+
+    public static InterStellarForge interStellarForge = new InterStellarForge();
+
+    public static class InterStellarForge {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
+    }
 }

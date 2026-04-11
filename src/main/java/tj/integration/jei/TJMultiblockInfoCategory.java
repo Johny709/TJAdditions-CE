@@ -134,6 +134,7 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.PROCESSING_ARRAY)))
                             .put("advanced_processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.ADVANCED_PROCESSING_ARRAY)))
                             .put("super_processing_array", new MultiblockInfoRecipeWrapper(new ProcessingArrayInfo(TJMetaTileEntities.SUPER_PROCESSING_ARRAY)))
+                            .put("interstellar_forge", new MultiblockInfoRecipeWrapper(new InterStellarForgeInfo()))
                             .put("distillation_tower", new MultiblockInfoRecipeWrapper(new TJDistillationTowerInfo()))
                             .put("advanced_distillation_tower", new MultiblockInfoRecipeWrapper(new TJAdvancedDistillationTowerInfo()))
                             .put("mega_distillation_tower", new MultiblockInfoRecipeWrapper(new TJMegaDistillationTowerInfo()))
