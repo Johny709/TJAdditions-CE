@@ -1,10 +1,10 @@
 package tj.machines.multi.electric;
 
 import gregicadditions.GAValues;
-import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.item.components.EmitterCasing;
-import gregicadditions.item.metal.MetalCasing2;
+import gregicadditions.item.fusion.GADivertorCasing;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -22,6 +22,8 @@ import tj.blocks.BlockFusionGlass;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
+import tj.textures.TJOrientedOverlayRenderer;
+import tj.textures.TJTextures;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,7 +35,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 public class MetaTileEntityInterStellarForge extends TJRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, IMPORT_FLUIDS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, IMPORT_FLUIDS, EXPORT_ITEMS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
 
     public MetaTileEntityInterStellarForge(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GARecipeMaps.STELLAR_FORGE_RECIPES);
@@ -57,10 +59,10 @@ public class MetaTileEntityInterStellarForge extends TJRecipeMapMultiblockContro
         pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~C~C~~~~~~~~~~~~", "~~~~~~~~~~~~C~C~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~C~C~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~CC~~~C~~~~~~~~~C~~~CC~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~CC~~~C~~~~~~~~~C~~~CC~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~C~C~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~C~C~~~~~~~~~~~~", "~~~~~~~~~~~~C~C~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
         pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~XXX~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~X~~~X~~~~~~~~~~~", "~~~~~~~~~~XX~~~XX~~~~~~~~~~", "~~~~XXXXXX~~XXX~~XXXXXX~~~~", "~~~~X~~~~~~~XvX~~~~~~~X~~~~", "~~~~XXXXXX~~XXX~~XXXXXX~~~~", "~~~~~~~~~~XX~~~XX~~~~~~~~~~", "~~~~~~~~~~~X~~~X~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~XXX~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
         pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~VVVVVVV~~~~~~~~~~", "~~~~~~~~VVVVVVVVVVV~~~~~~~~", "~~~~~~~VVVVVVVVVVVVV~~~~~~~", "~~~~~~VVVVVVVVVVVVVVV~~~~~~", "~~~~~~VVVVVVVVVVVVVVV~~~~~~", "~~~~~VVVVVVVVVVVVVVVVV~~~~~", "~~~~~VVVVVVVVVVVVVVVVV~~~~~", "~~~~XVVVVVVVVVVVVVVVVVX~~~~", "~~~~~VVVVVVVVVVVVVVVVV~~~~~", "~~~~XVVVVVVVVVVVVVVVVVX~~~~", "~~~~~VVVVVVVVVVVVVVVVV~~~~~", "~~~~~VVVVVVVVVVVVVVVVV~~~~~", "~~~~~~VVVVVVVVVVVVVVV~~~~~~", "~~~~~~VVVVVVVVVVVVVVV~~~~~~", "~~~~~~~VVVVVVVVVVVVV~~~~~~~", "~~~~~~~~VVVVVVVVVVV~~~~~~~~", "~~~~~~~~~~VVVVVVV~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
-        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~XsX~~~~~~~~~~~~", "~~~~~~~~~~~~ccc~~~~~~~~~~~~", "~~~~~~~~~~ccX~Xcc~~~~~~~~~~", "~~~~~~~~~c~~X~X~~c~~~~~~~~~", "~~~~~~~~c~~~XXX~~~c~~~~~~~~", "~~~~~~~~c~~TTTTT~~c~~~~~~~~", "~~~~~XXcXXXTTTTTXXXcXX~~~~~", "~~~~~~Xc~~XTTTTTX~~cX~~~~~~", "~~~~~XXcXXXTTTTTXXXcXX~~~~~", "~~~~~~~~c~~TTTTT~~c~~~~~~~~", "~~~~~~~~c~~~XXX~~~c~~~~~~~~", "~~~~~~~~~c~~X~X~~c~~~~~~~~~", "~~~~~~~~~~ccX~Xcc~~~~~~~~~~", "~~~~~~~~~~~~ccc~~~~~~~~~~~~", "~~~~~~~~~~~~CCC~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
+        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~XsX~~~~~~~~~~~~", "~~~~~~~~~~~~ccc~~~~~~~~~~~~", "~~~~~~~~~~ccX~Xcc~~~~~~~~~~", "~~~~~~~~~c~~X~X~~c~~~~~~~~~", "~~~~~~~~c~~~XXX~~~c~~~~~~~~", "~~~~~~~~c~~TTTTT~~c~~~~~~~~", "~~~~~XXcXXXTTTTTXXXcXX~~~~~", "~~~~~~Xc~~XTTTTTX~~cX~~~~~~", "~~~~~XXcXXXTTTTTXXXcXX~~~~~", "~~~~~~~~c~~TTTTT~~c~~~~~~~~", "~~~~~~~~c~~~XXX~~~c~~~~~~~~", "~~~~~~~~~c~~X~X~~c~~~~~~~~~", "~~~~~~~~~~ccX~Xcc~~~~~~~~~~", "~~~~~~~~~~~~ccc~~~~~~~~~~~~", "~~~~~~~~~~~~XXX~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
         pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~T~~~T~~~~~~~~~~~", "~~~~~~XX~~~~DGD~~~~XX~~~~~~", "~~~~~~~~~~~~G#G~~~~~~~~~~~~", "~~~~~~XX~~~~DGD~~~~XX~~~~~~", "~~~~~~~~~~~T~~~T~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
         pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~VVV~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~VVV~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~T~~~T~~~~~~~~~~~", "~V~~~VX~~~~~DGD~~~~~XV~~~V~", "~V~~~V~~~~~~G#G~~~~~~V~~~V~", "~V~~~VX~~~~~DGD~~~~~XV~~~V~", "~~~~~~~~~~~T~~~T~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~X~X~~~~~~~~~~~~", "~~~~~~~~~~~~VVV~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~VVV~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
-        pattern.add(new String[]{"~~~~~~~~~~~~~V~~~~~~~~~~~~~", "~~~~~~~~~VVVVGVVVV~~~~~~~~~", "~~~~~~VVV~~~~G~~~~VVV~~~~~~", "~~~~~V~~~~~~~G~~~~~~~V~~~~~", "~~~~V~~~~~~~~G~~~~~~~~V~~~~", "~~~V~~~~~~~VVGVV~~~~~~~V~~~", "~~V~~~~~~~~~X~X~~~~~~~~~V~~", "~~V~~~~~~~~~~~~~~~~~~~~~V~~", "~~V~~~~~~~~~~~~~~~~~~~~~V~~", "~V~~~~~~~~~~~~~~~~~~~~~~~V~", "~V~~~~~~~~~~~~~~~~~~~~~~~V~", "~V~~~V~~~~~T~~~T~~~~~V~~~V~", "~V~~~VX~~~~~DGD~~~~~XV~~XV~", "VGGGGG~~~~~~G#G~~~~~~GGGGGV", "~V~~~VX~~~~~DGD~~~~~XV~~XV~", "~V~~~V~~~~~T~~~T~~~~~V~~~V~", "~V~~~~~~~~~~~~~~~~~~~~~~~V~", "~V~~~~~~~~~~~~~~~~~~~~~~~V~", "~~V~~~~~~~~~~~~~~~~~~~~~V~~", "~~V~~~~~~~~~~~~~~~~~~~~~V~~", "~~V~~~~~~~~~X~X~~~~~~~~~V~~", "~~~V~~~~~~~VVGVV~~~~~~~V~~~", "~~~~V~~~~~~~~G~~~~~~~~V~~~~", "~~~~~V~~~~~~~G~~~~~~~V~~~~~", "~~~~~~VVV~~~~G~~~~VVV~~~~~~", "~~~~~~~~~VVVVGVVVV~~~~~~~~~", "~~~~~~~~~~~~~V~~~~~~~~~~~~~"});
+        pattern.add(new String[]{"~~~~~~~~~~~~~V~~~~~~~~~~~~~", "~~~~~~~~~VVVVGVVVV~~~~~~~~~", "~~~~~~VVV~~~~G~~~~VVV~~~~~~", "~~~~~V~~~~~~~G~~~~~~~V~~~~~", "~~~~V~~~~~~~~G~~~~~~~~V~~~~", "~~~V~~~~~~~VVGVV~~~~~~~V~~~", "~~V~~~~~~~~~X~X~~~~~~~~~V~~", "~~V~~~~~~~~~~~~~~~~~~~~~V~~", "~~V~~~~~~~~~~~~~~~~~~~~~V~~", "~V~~~~~~~~~~~~~~~~~~~~~~~V~", "~V~~~~~~~~~~~~~~~~~~~~~~~V~", "~V~~~V~~~~~T~~~T~~~~~V~~~V~", "~V~~~VX~~~~~DGD~~~~~XV~~~V~", "VGGGGG~~~~~~G#G~~~~~~GGGGGV", "~V~~~VX~~~~~DGD~~~~~XV~~~V~", "~V~~~V~~~~~T~~~T~~~~~V~~~V~", "~V~~~~~~~~~~~~~~~~~~~~~~~V~", "~V~~~~~~~~~~~~~~~~~~~~~~~V~", "~~V~~~~~~~~~~~~~~~~~~~~~V~~", "~~V~~~~~~~~~~~~~~~~~~~~~V~~", "~~V~~~~~~~~~X~X~~~~~~~~~V~~", "~~~V~~~~~~~VVGVV~~~~~~~V~~~", "~~~~V~~~~~~~~G~~~~~~~~V~~~~", "~~~~~V~~~~~~~G~~~~~~~V~~~~~", "~~~~~~VVV~~~~G~~~~VVV~~~~~~", "~~~~~~~~~VVVVGVVVV~~~~~~~~~", "~~~~~~~~~~~~~V~~~~~~~~~~~~~"});
         pattern.forEach(factoryPattern::aisle);
         factoryPattern.aisle("~~~~~~~~~~~~VVV~~~~~~~~~~~~", "~~~~~~~~~~~VGcGV~~~~~~~~~~~", "~~~~~~~~~~~~GcG~~~~~~~~~~~~", "~~~~~~~~~~~~GcG~~~~~~~~~~~~", "~~~~~~~~~~~~GcG~~~~~~~~~~~~", "~~~~~~~~~~~VGcGV~~~~~~~~~~~", "~~~~~~~~~~~~XcX~~~~~~~~~~~~", "~~~~~~~~~~~~ccc~~~~~~~~~~~~", "~~~~~~~~~~ccX~Xcc~~~~~~~~~~", "~~~~~~~~~c~~X~X~~c~~~~~~~~~", "~~~~~~~~c~~~X~X~~~c~~~~~~~~", "~V~~~V~~c~~TX~XT~~c~~V~~~V~", "VGGGGGXcXXXXDGDXXXXcXGGGGGV", "Vccccccc~~~~G#G~~~~cccccccV", "VGGGGGXcXXXXDGDXXXXcXGGGGGV", "~V~~~V~~c~~TX~XT~~c~~V~~~V~", "~~~~~~~~c~~~X~X~~~c~~~~~~~~", "~~~~~~~~~c~~X~X~~c~~~~~~~~~", "~~~~~~~~~~ccX~Xcc~~~~~~~~~~", "~~~~~~~~~~~~ccc~~~~~~~~~~~~", "~~~~~~~~~~~~XcX~~~~~~~~~~~~", "~~~~~~~~~~~VGcGV~~~~~~~~~~~", "~~~~~~~~~~~~GcG~~~~~~~~~~~~", "~~~~~~~~~~~~GcG~~~~~~~~~~~~", "~~~~~~~~~~~~GcG~~~~~~~~~~~~", "~~~~~~~~~~~VGcGV~~~~~~~~~~~", "~~~~~~~~~~~~VVV~~~~~~~~~~~~");
         for (int i = 0; i < pattern.size(); i++) {
@@ -80,6 +82,8 @@ public class MetaTileEntityInterStellarForge extends TJRecipeMapMultiblockContro
                 .where('V', statePredicate(TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.VIBRANIUM)))
                 .where('G', statePredicate(TJMetaBlocks.FUSION_GLASS.getState(BlockFusionGlass.GlassType.FUSION_GLASS_UEV)))
                 .where('c', statePredicate(TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_COIL_UEV)))
+                .where('T', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING2.getState(GAMultiblockCasing2.CasingType.STELLAR_CONTAINMENT)))
+                .where('D', statePredicate(GAMetaBlocks.DIVERTOR_CASING.getState(GADivertorCasing.CasingType.DIVERTOR_2)))
                 .where('v', frameworkPredicate())
                 .where('#', isAirPredicate())
                 .where('~', tile -> true)
@@ -93,7 +97,7 @@ public class MetaTileEntityInterStellarForge extends TJRecipeMapMultiblockContro
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        final int tier = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV).getTier();
+        final int tier = context.getOrDefault("frameworkTier", 0);
         if (tier < GAValues.MAX) {
             this.maxVoltage = 8L << tier * 2;
             this.tier = tier;
@@ -102,7 +106,12 @@ public class MetaTileEntityInterStellarForge extends TJRecipeMapMultiblockContro
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return ClientHandler.ENRICHED_NAQUADAH_ALLOY_CASING;
+        return TJTextures.CHAOS_ALLOY;
+    }
+
+    @Override
+    public TJOrientedOverlayRenderer getFrontalOverlay() {
+        return TJTextures.TJ_QUBIT_COMPUTER_OVERLAY;
     }
 
     @Override
