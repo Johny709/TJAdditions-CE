@@ -5,6 +5,7 @@ import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.AbstractRecipeLogic;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
+import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.common.items.MetaItems;
 import net.minecraft.item.ItemStack;
@@ -75,6 +76,21 @@ public final class GUIDisplayBuilder {
         return this;
     }
 
+    public GUIDisplayBuilder addIngredient(CountableIngredient ingredient, int priority) {
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(ingredient).setPriority(priority));
+        return this;
+    }
+
+    public GUIDisplayBuilder addIngredientWithHover(CountableIngredient ingredient, int priority, Consumer<GUIDisplayBuilder> uiBuilder) {
+        if (this.nested)
+            throw new IllegalArgumentException("Cannot set hover text on hover text");
+        final GUIDisplayBuilder builder = new GUIDisplayBuilder(true);
+        uiBuilder.accept(builder);
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(ingredient).setPriority(priority)
+                .setAdvancedHoverComponent(builder.getTextComponentWrappers()));
+        return this;
+    }
+
     public GUIDisplayBuilder addFluidStack(FluidStack fluidStack, int priority) {
         this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(fluidStack).setPriority(priority));
         return this;
@@ -112,6 +128,14 @@ public final class GUIDisplayBuilder {
 
     public GUIDisplayBuilder addFluidStackWithHover(FluidStack fluidStack, Consumer<GUIDisplayBuilder> uiBuilder) {
         return this.addFluidStackWithHover(fluidStack, this.count++, uiBuilder);
+    }
+
+    public GUIDisplayBuilder addIngredient(CountableIngredient ingredient) {
+        return this.addIngredient(ingredient, this.count++);
+    }
+
+    public GUIDisplayBuilder addIngredientWithHover(CountableIngredient ingredient, Consumer<GUIDisplayBuilder> uiBuilder) {
+        return this.addIngredientWithHover(ingredient, this.count++, uiBuilder);
     }
 
     public GUIDisplayBuilder addTranslationLine(String locale, Object... format) {

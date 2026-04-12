@@ -5,6 +5,7 @@ import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.igredient.IIngredientSlot;
+import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.util.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -61,6 +62,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     private List<TextComponentWrapper<?>> hoverDisplayText;
     private int lastHoverX;
     private int lastHoverY;
+    private int tick;
     private BiConsumer<String, ClickData> clickHandler;
     private String textId;
 
@@ -169,8 +171,15 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
             } else if (textComponentWrapper.getValue() instanceof FluidStack) {
                 buffer.writeByte(2);
                 buffer.writeCompoundTag(((FluidStack) textComponentWrapper.getValue()).writeToNBT(new NBTTagCompound()));
-            } else if (textComponentWrapper.getValue() instanceof ITextComponent) {
+            } else if (textComponentWrapper.getValue() instanceof CountableIngredient) {
+                final CountableIngredient ingredient = (CountableIngredient) textComponentWrapper.getValue();
                 buffer.writeByte(3);
+                buffer.writeInt(ingredient.getCount());
+                buffer.writeInt(ingredient.getIngredient().getMatchingStacks().length);
+                for (ItemStack stack : ingredient.getIngredient().getMatchingStacks())
+                    buffer.writeItemStack(stack);
+            } else if (textComponentWrapper.getValue() instanceof ITextComponent) {
+                buffer.writeByte(4);
                 buffer.writeString(ITextComponent.Serializer.componentToJson((ITextComponent) textComponentWrapper.getValue()));
             }
             buffer.writeInt(textComponentWrapper.getPriority());
@@ -201,6 +210,21 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                     }
                     break;
                 case 3:
+                    final int count1 = buffer.readInt();
+                    final int size = buffer.readInt();
+                    final List<ItemStack> stacks = new ArrayList<>();
+                    try {
+                        for (int j = 0; j < size; j++) {
+                            final ItemStack stack = buffer.readItemStack();
+                            stack.setCount(Math.max(1, count1));
+                            stacks.add(stack);
+                        }
+                    } catch (IOException e) {
+                        GTLog.logger.info(e.getMessage());
+                    }
+                    displayText.add(componentWrapper = new TextComponentWrapper<>(stacks).setPriority(buffer.readInt()));
+                    break;
+                case 4:
                     displayText.add(componentWrapper = new TextComponentWrapper<>(ITextComponent.Serializer.jsonToComponent(buffer.readString(Short.MAX_VALUE))).setPriority(buffer.readInt()));
                     break;
             }
@@ -217,6 +241,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     @Override
     @SideOnly(Side.CLIENT)
     public void updateScreen() {
+        this.tick++;
         if (!this.isShiftDown() && this.hoverDisplayText != null) {
             this.hoverDisplayText = null;
             this.lastHoverX = 0;
@@ -366,6 +391,9 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                 if (component.getValue() instanceof ItemStack) {
                     GuiTextures.SLOT.draw(x + widthApplied, y + heightApplied, 18, 18);
                     Widget.drawItemStack((ItemStack) component.getValue(), x + widthApplied + 1, y + heightApplied + 1, null);
+                } else if (component.getValue() instanceof List<?>) {
+                    GuiTextures.SLOT.draw(x + widthApplied, y + heightApplied, 18, 18);
+                    Widget.drawItemStack(this.getItemStackOreDict((List<ItemStack>) component.getValue()), x + widthApplied + 1, y + heightApplied + 1, null);
                 } else {
                     final FluidStack fluidStack = (FluidStack) component.getValue();
                     GuiTextures.FLUID_SLOT.draw(x + widthApplied, y + heightApplied, 18, 18);
@@ -452,8 +480,8 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                 stackApplied = true;
                 widthApplied += 18;
                 if (mouseX >= x + lastWidth && mouseX <= x + widthApplied && mouseY >= y + lastHeight && mouseY <= y + heightApplied) {
-                    if (component.getValue() instanceof ItemStack) {
-                        final ItemStack itemStack = (ItemStack) component.getValue();
+                    if (component.getValue() instanceof ItemStack || component.getValue() instanceof List<?>) {
+                        final ItemStack itemStack = component.getValue() instanceof ItemStack ? (ItemStack) component.getValue() : this.getItemStackOreDict((List<ItemStack>) component.getValue());
                         final List<String> tooltip = getItemToolTip(itemStack);
                         String name = itemStack.getDisplayName();
                         final ITextComponent hoverComponent = new TextComponentString("");
@@ -499,6 +527,11 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
         if (subComponent.getAdvancedHoverComponent().isEmpty())
             return null;
         return subComponent.getAdvancedHoverComponent().get(0).getValue();
+    }
+
+    private ItemStack getItemStackOreDict(List<ItemStack> stacks) {
+        final int index = Math.min(stacks.size() - 1, this.tick % (stacks.size() * 20) / 20);
+        return stacks.get(index);
     }
 
     /**
