@@ -37,10 +37,10 @@ public class LargeRockBreakerInfo extends TJMultiblockInfoPage implements IParal
 
     @Override
     public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        int size = Math.min(TJConfig.machines.maxLayersInJEI, 64);
+        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        final int size = Math.min(TJConfig.machines.maxLayersInJEI, 64);
         for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT);
+            final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT);
             builder.aisle("~~VEV~~", "~~VMV~~", "~~VVV~~");
             builder.aisle("FFVVVHH", "FfVGVfH", "FFVVVHH");
             for (int layer = 0; layer < shapeInfo; layer++) {
@@ -48,8 +48,9 @@ public class LargeRockBreakerInfo extends TJMultiblockInfoPage implements IParal
             }
             builder.aisle("FFVVVHH", "FfVGVfH", "FFVVVHH")
                     .aisle("~~VVV~~", "~~ISO~~", "~~VmV~~");
-            TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            for (int tier = 0; tier < infos.length; tier++) {
+            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
+            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
                 infos[tier] = builder.where('S', TJMetaTileEntities.LARGE_ROCK_BREAKER, EnumFacing.WEST)
                         .where('V', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STABALLOY))
                         .where('F', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.GRISIUM))

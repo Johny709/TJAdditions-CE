@@ -20,7 +20,7 @@ public class BlockSolidCasings extends VariantBlock<BlockSolidCasings.SolidCasin
         this.setRegistryName("solid_casing");
         this.setSoundType(SoundType.METAL);
         this.setHarvestLevel("wrench", 2);
-        this.setDefaultState(getState(SolidCasingType.DRACONIC_CASING));
+        this.setDefaultState(getState(SolidCasingType.BOHRIUM));
     }
 
     @Override
@@ -29,11 +29,11 @@ public class BlockSolidCasings extends VariantBlock<BlockSolidCasings.SolidCasin
     }
 
     public enum SolidCasingType implements IStringSerializable {
-        DRACONIC_CASING("draconium"),
-        AWAKENED_CASING("awakened"),
-        CHOATIC_CASING("chaotic"),
-        ETERNITY_CASING("eternity"),
-        SOUL_CASING("soul"),
+        BOHRIUM("bohrium"),
+        VIBRANIUM("vibranium"),
+        ADAMANTIUM("adamantium"),
+        NEUTRONIUM("neutronium"),
+        CHAOS_ALLOY("chaosalloy"),
         DURANIUM_CASING("duranium"),
         SEABORGIUM_CASING("seaborgium"),
         TUNGSTEN_TITANIUM_CARBIDE_CASING("tungsten_titanium_carbide"),

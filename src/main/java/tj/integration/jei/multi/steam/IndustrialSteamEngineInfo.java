@@ -16,6 +16,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.Arrays;
@@ -33,7 +34,7 @@ public class IndustrialSteamEngineInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        MultiblockShapeInfo.Builder shapeInfo = MultiblockShapeInfo.builder()
+        final TJMultiblockShapeInfo.Builder shapeInfo = TJMultiblockShapeInfo.builder()
                 .aisle("~~C~", "~CCC", "~~C~")
                 .aisle("mCCC", "SFRE", "ICCO")
                 .aisle("CCCC", "CCCC", "CCCC")

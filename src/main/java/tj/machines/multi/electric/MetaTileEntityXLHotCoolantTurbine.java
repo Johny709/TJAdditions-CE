@@ -17,7 +17,6 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.workable.XLHotCoolantTurbineWorkableHandler;
-import tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
 import gregicadditions.GAConfig;
@@ -60,6 +59,7 @@ import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
 import tj.gui.widgets.TJSlotWidget;
+import tj.gui.widgets.impl.AnimatedImageWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
 import tj.items.handlers.FilteredItemStackHandler;
@@ -67,6 +67,8 @@ import tj.util.TJFluidUtils;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
@@ -75,6 +77,7 @@ import static gregicadditions.client.ClientHandler.MARAGING_STEEL_250_CASING;
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static tj.gui.TJGuiTextures.*;
 import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
@@ -106,6 +109,8 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
 
     // Used for data preservation with Maintenance Hatch
     private boolean storedTaped = false;
+
+    protected Instant placedDown = Instant.now();
 
     public MetaTileEntityXLHotCoolantTurbine(ResourceLocation metaTileEntityId, MetaTileEntityHotCoolantTurbine.TurbineType turbineType) {
         super(metaTileEntityId, turbineType);
@@ -178,24 +183,110 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         return maintenanceCount == 1;
     }
 
+    @Override
+    protected void updateFormedValid() {
+        super.updateFormedValid();
+        if (this.isStructureFormed() && this.getOffsetTimer() % 20 == 0) {
+            for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : this.getAbilities(ABILITY_ROTOR_HOLDER)) {
+                if (rotorHolder.hasRotorInInventory())
+                    continue;
+                ItemStack rotorStack = this.checkAndConsumeItem();
+                if (rotorStack != null) {
+                    rotorHolder.getRotorInventory().setStackInSlot(0, rotorStack);
+                    rotorHolder.markDirty();
+                }
+            }
+        }
+    }
+
+    @Override
+    protected ModularUI.Builder createUITemplate(EntityPlayer entityPlayer) {
+        int height = this.getExtended();
+        int[][] barMatrix = null;
+        height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
+        final ModularUI.Builder builder = ModularUI.extendedBuilder();
+        final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
+                .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
+                .setPosition(-10, 1)
+                .offsetPosition(0, height)
+                .offsetY(132 - this.getExtended());
+        builder.image(-10, -20, 200, 237 + height, GuiTextures.BORDERED_BACKGROUND)
+                .image(-4, -14, 188, 145, MULTIBLOCK_DISPLAY_BASE)
+                .widget(new TJLabelWidget(-1, -38, 184, 18, MACHINE_LABEL_2, this::getRecipeUid)
+                        .setItemLabel(this.getStackForm())
+                        .setLocale(this.getMetaFullName()));
+        this.addTabs(tabBuilder);
+        if (barMatrix != null)
+            this.addBars(barMatrix, builder);
+        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
+                .widget(tabBuilder.build())
+                .widget(tabBuilder.buildWidgetGroup())
+                .widget(new AnimatedImageWidget(154, 102, 26, 26, 41, TJ_LOGO_ANIMATED));
+        return builder;
+    }
+
+    private void addBars(int[][] barMatrix, ModularUI.Builder builder) {
+        final Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars = new ArrayDeque<>();
+        ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars);
+        for (int i = 0; i < barMatrix.length; i++) {
+            final int[] column = barMatrix[i];
+            for (int j = 0; j < column.length; j++) {
+                final ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
+                final int height = 188 / column.length;
+                builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
+                        .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
+                        .setLocale(bar.getLocale(), bar.getParams())
+                        .setFluid(bar.getFluidStackSupplier()));
+            }
+        }
+    }
+
+    protected void addTabs(WidgetTabBuilder tabBuilder) {
+        tabBuilder.addWidget(new TJSlotWidget<>(this.importItems, 0, 175, 191)
+                .setBackgroundTexture(GuiTextures.TURBINE_OVERLAY));
+        tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
+        tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
+                maintenanceTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
+                        .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addMaintenanceDisplayText, 0xFFFFFF)
+                                .setMaxWidthLimit(180))
+                        .setScrollPanelWidth(3)));
+        tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab -> rotorTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
+                .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addRotorDisplayText, 0xFFFFFF)
+                        .setClickHandler(this::handleRotorDisplayClick)
+                        .setMaxWidthLimit(180))
+                .setScrollPanelWidth(3)));
+    }
+
+    private void mainDisplayTab(List<Widget> widgetGroup) {
+        widgetGroup.add(new ScrollableDisplayWidget(10, -11, 187, 140)
+                .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addDisplayText, 0xFFFFFF)
+                        .setClickHandler(this::handleDisplayClick)
+                        .setMaxWidthLimit(180))
+                .setScrollPanelWidth(3));
+        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                .setTooltipText("machine.universal.toggle.run.mode"));
+        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+                .setTooltipText("machine.universal.toggle.check.mode"));
+    }
+
     protected void addDisplayText(GUIDisplayBuilder builder) {
         if (this.isStructureFormed()) {
             builder.customLine(text -> {
-                text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.xlHotCoolantTurbineWorkableHandler.getConsumption(),
-                        net.minecraft.util.text.translation.I18n.translateToLocal(this.xlHotCoolantTurbineWorkableHandler.getFuelName()),
-                        this.xlHotCoolantTurbineWorkableHandler.getMaxProgress() / 20)));
-                FluidStack fuelStack = this.xlHotCoolantTurbineWorkableHandler.getFuelStack();
-                int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
+                        text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.xlHotCoolantTurbineWorkableHandler.getConsumption(),
+                                net.minecraft.util.text.translation.I18n.translateToLocal(this.xlHotCoolantTurbineWorkableHandler.getFuelName()),
+                                this.xlHotCoolantTurbineWorkableHandler.getMaxProgress() / 20)));
+                        FluidStack fuelStack = this.xlHotCoolantTurbineWorkableHandler.getFuelStack();
+                        int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
-                ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
-                text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelName.getUnformattedText())));
+                        ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
+                        text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelName.getUnformattedText())));
 
-                text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", this.xlHotCoolantTurbineWorkableHandler.getProduction())));
+                        text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", this.xlHotCoolantTurbineWorkableHandler.getProduction())));
 
-                text.addTextComponent(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode").appendText(" ")
-                        .appendSibling(this.xlHotCoolantTurbineWorkableHandler.isFastMode() ? withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true")
-                                : withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false")));
-            }).addIsWorkingLine(this.xlHotCoolantTurbineWorkableHandler.isWorkingEnabled(), this.xlHotCoolantTurbineWorkableHandler.isActive(), this.xlHotCoolantTurbineWorkableHandler.getProgress(), this.xlHotCoolantTurbineWorkableHandler.getMaxProgress())
+                        text.addTextComponent(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode").appendText(" ")
+                                .appendSibling(this.xlHotCoolantTurbineWorkableHandler.isFastMode() ? withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true")
+                                        : withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false")));
+                    }).addIsWorkingLine(this.xlHotCoolantTurbineWorkableHandler.isWorkingEnabled(), this.xlHotCoolantTurbineWorkableHandler.isActive(), this.xlHotCoolantTurbineWorkableHandler.getProgress(), this.xlHotCoolantTurbineWorkableHandler.getMaxProgress())
                     .addRecipeInputLine(this.xlHotCoolantTurbineWorkableHandler)
                     .addRecipeOutputLine(this.xlHotCoolantTurbineWorkableHandler);
         } else {
@@ -205,6 +296,16 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                     .setStyle(new Style().setColor(TextFormatting.RED)
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
         }
+    }
+
+    protected void addMaintenanceDisplayText(GUIDisplayBuilder builder) {
+        final Instant now = Instant.now();
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMMM d, yyyy hh:mm:ss aa");
+        final long timeElapsed = now.getEpochSecond() - this.placedDown.getEpochSecond();
+        builder.addTranslationLine("tj.multiblock.date.placed_down", dateFormat.format(Date.from(this.placedDown)))
+                .addTranslationLine("tj.multiblock.date.ago", timeElapsed / 3600, (timeElapsed % 3600) / 60, timeElapsed % 60)
+                .addEmptyLine()
+                .addMaintenanceDisplayLines(this.getProblems(), this.hasProblems(), 1000);
     }
 
     private void addRotorDisplayText(GUIDisplayBuilder builder) {
@@ -263,52 +364,6 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         this.fastModeConsumer.apply(componentData.equals("false"));
     }
 
-    @Override
-    protected void formStructure(PatternMatchContext context) {
-        super.formStructure(context);
-        this.exportFluidHandler = new FluidTankList(true, this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
-        this.importItemHandler = new ItemHandlerList(this.getAbilities(MultiblockAbility.IMPORT_ITEMS));
-        if (this.getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).isEmpty())
-            return;
-        MetaTileEntityMaintenanceHatch maintenanceHatch = this.getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).get(0);
-        if (maintenanceHatch.getType() == 2 || !GAConfig.GT5U.enableMaintenance) {
-            this.maintenance_problems = 0b111111;
-        } else {
-            this.readMaintenanceData(maintenanceHatch);
-            if (maintenanceHatch.getType() == 0 && storedTaped) {
-                maintenanceHatch.setTaped(true);
-                this.storeTaped(false);
-            }
-        }
-    }
-
-    @Override
-    public void invalidateStructure() {
-        super.invalidateStructure();
-        this.importFluidHandler = new FluidTankList(true, Collections.emptyList());
-        this.importItemHandler = new ItemHandlerList(Collections.emptyList());
-    }
-
-    public boolean isActive() {
-        return this.isTurbineFaceFree() && this.xlHotCoolantTurbineWorkableHandler.isActive() && this.xlHotCoolantTurbineWorkableHandler.isWorkingEnabled();
-    }
-
-    @Override
-    protected void updateFormedValid() {
-        super.updateFormedValid();
-        if (this.isStructureFormed() && this.getOffsetTimer() % 20 == 0) {
-            for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : this.getAbilities(ABILITY_ROTOR_HOLDER)) {
-                if (rotorHolder.hasRotorInInventory())
-                    continue;
-                ItemStack rotorStack = this.checkAndConsumeItem();
-                if (rotorStack != null) {
-                    rotorHolder.getRotorInventory().setStackInSlot(0, rotorStack);
-                    rotorHolder.markDirty();
-                }
-            }
-        }
-    }
-
     private ItemStack checkAndConsumeItem() {
         int getItemSlots = this.importItemHandler.getSlots();
         for (int slotIndex = 0; slotIndex < getItemSlots; slotIndex++) {
@@ -327,11 +382,6 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
             }
         }
         return null;
-    }
-
-    @Override
-    public boolean isTurbineFaceFree() {
-        return true;
     }
 
     @Override
@@ -370,23 +420,29 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound data) {
-        super.writeToNBT(data);
-        data.setByte("Maintenance", this.maintenance_problems);
-        data.setInteger("ActiveTimer", this.timeActive);
-        data.setInteger("parallels", this.parallels);
-        return data;
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        this.exportFluidHandler = new FluidTankList(true, this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
+        this.importItemHandler = new ItemHandlerList(this.getAbilities(MultiblockAbility.IMPORT_ITEMS));
+        if (this.getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).isEmpty())
+            return;
+        MetaTileEntityMaintenanceHatch maintenanceHatch = this.getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).get(0);
+        if (maintenanceHatch.getType() == 2 || !GAConfig.GT5U.enableMaintenance) {
+            this.maintenance_problems = 0b111111;
+        } else {
+            this.readMaintenanceData(maintenanceHatch);
+            if (maintenanceHatch.getType() == 0 && storedTaped) {
+                maintenanceHatch.setTaped(true);
+                this.storeTaped(false);
+            }
+        }
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
-        this.maintenance_problems = data.getByte("Maintenance");
-        this.timeActive = data.getInteger("ActiveTimer");
-        if (data.hasKey("parallels")) {
-            this.parallels = data.getInteger("parallels");
-            this.structurePattern = this.createStructurePattern();
-        }
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.importFluidHandler = new FluidTankList(true, Collections.emptyList());
+        this.importItemHandler = new ItemHandlerList(Collections.emptyList());
     }
 
     @Override
@@ -420,73 +476,30 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     }
 
     @Override
-    protected ModularUI.Builder createUITemplate(EntityPlayer entityPlayer) {
-        int height = 0;
-        int[][] barMatrix = null;
-        height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
-        ModularUI.Builder builder = ModularUI.extendedBuilder();
-        WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
-                .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
-                .setPosition(-10, 1)
-                .offsetPosition(0, height)
-                .offsetY(132);
-        if (height > 0)
-            builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
-        builder.widget(new TJLabelWidget(-1, -38, 184, 18, TJGuiTextures.MACHINE_LABEL, this::getRecipeUid)
-                .setItemLabel(this.getStackForm())
-                .setLocale(this.getMetaFullName()));
-        builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN)
-                .image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
-        this.addTabs(tabBuilder);
-        if (barMatrix != null)
-            this.addBars(barMatrix, builder);
-        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
-                .widget(tabBuilder.build())
-                .widget(tabBuilder.buildWidgetGroup());
-        return builder;
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setByte("Maintenance", this.maintenance_problems);
+        data.setInteger("ActiveTimer", this.timeActive);
+        data.setInteger("parallels", this.parallels);
+        data.setLong("placedDownDate", this.placedDown.getEpochSecond());
+        return data;
     }
 
-    private void addBars(int[][] barMatrix, ModularUI.Builder builder) {
-        Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars = new ArrayDeque<>();
-        ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars);
-        for (int i = 0; i < barMatrix.length; i++) {
-            int[] column = barMatrix[i];
-            for (int j = 0; j < column.length; j++) {
-                ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
-                int height = 188 / column.length;
-                builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
-                        .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
-                        .setLocale(bar.getLocale(), bar.getParams())
-                        .setFluid(bar.getFluidStackSupplier()));
-            }
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.maintenance_problems = data.getByte("Maintenance");
+        this.timeActive = data.getInteger("ActiveTimer");
+        if (data.hasKey("parallels")) {
+            this.parallels = data.getInteger("parallels");
+            this.structurePattern = this.createStructurePattern();
         }
+        if (data.hasKey("placedDownDate"))
+            this.placedDown = Instant.ofEpochSecond(data.getLong("placedDownDate"));
     }
 
-    protected void addTabs(WidgetTabBuilder tabBuilder) {
-        tabBuilder.addWidget(new TJSlotWidget<>(this.importItems, 0, 175, 191)
-                .setBackgroundTexture(GuiTextures.TURBINE_OVERLAY));
-        tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
-        tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.add(new AdvancedTextWidget(10, -2, textList ->
-                        MultiblockDisplaysUtility.maintenanceDisplay(textList, this.maintenance_problems, this.hasProblems()), 0xFFFFFF)
-                        .setMaxWidthLimit(180)));
-        tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab -> rotorTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
-                .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addRotorDisplayText, 0xFFFFFF)
-                        .setClickHandler(this::handleRotorDisplayClick)
-                        .setMaxWidthLimit(180))
-                .setScrollPanelWidth(3)));
-    }
-
-    private void mainDisplayTab(List<Widget> widgetGroup) {
-        widgetGroup.add(new ScrollableDisplayWidget(10, -15, 183, 142)
-                .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addDisplayText, 0xFFFFFF)
-                        .setClickHandler(this::handleDisplayClick)
-                        .setMaxWidthLimit(180))
-                .setScrollPanelWidth(3));
-        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                .setTooltipText("machine.universal.toggle.run.mode"));
-        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
-                .setTooltipText("machine.universal.toggle.check.mode"));
+    public boolean isActive() {
+        return this.isTurbineFaceFree() && this.xlHotCoolantTurbineWorkableHandler.isActive() && this.xlHotCoolantTurbineWorkableHandler.isWorkingEnabled();
     }
 
     public boolean isWorkingEnabled() {
@@ -495,6 +508,12 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
 
     public void setWorkingEnabled(boolean isWorking) {
         this.xlHotCoolantTurbineWorkableHandler.setWorkingEnabled(isWorking);
+    }
+
+
+    @Override
+    public boolean isTurbineFaceFree() {
+        return true;
     }
 
     private boolean getDoStructureCheck() {
@@ -621,6 +640,10 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
 
     private IMultipleTankHandler getExportFluidHandler() {
         return this.exportFluidHandler;
+    }
+
+    protected int getExtended() {
+        return 0;
     }
 
     /**

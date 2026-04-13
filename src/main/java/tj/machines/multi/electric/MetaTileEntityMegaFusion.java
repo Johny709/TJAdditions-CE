@@ -1,18 +1,10 @@
 package tj.machines.multi.electric;
 
-import gregicadditions.GAConfig;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
-import gregicadditions.client.ClientHandler;
-import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.item.fusion.GACryostatCasing;
-import gregicadditions.item.fusion.GADivertorCasing;
-import gregicadditions.item.fusion.GAFusionCasing;
-import gregicadditions.item.fusion.GAVacuumCasing;
-import gregicadditions.machines.multi.advance.MetaTileEntityAdvFusionReactor;
-import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.impl.EnergyContainerHandler;
+import gregtech.api.capability.impl.EnergyContainerList;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -22,6 +14,8 @@ import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.RecipeMaps;
+import gregtech.api.recipes.recipeproperties.FusionEUToStartProperty;
 import gregtech.api.render.ICubeRenderer;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
@@ -30,28 +24,25 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
-import tj.blocks.AdvEnergyPortCasings;
-import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
+import tj.blocks.*;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.*;
-import tj.capability.impl.handler.IFusionHandler;
-import tj.capability.impl.workable.BasicRecipeLogic;
-import tj.gui.TJGuiTextures;
+import tj.capability.impl.workable.MegaRecipeLogic;
+import tj.machines.multi.BatchMode;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
-import tj.util.TJFluidUtils;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -59,27 +50,30 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
-import static gregicadditions.machines.multi.advance.MetaTileEntityAdvFusionReactor.*;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static tj.gui.TJGuiTextures.BAR_RED;
 
-public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController implements IHeatInfo, IProgressBar, IFusionHandler {
+public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController implements IHeatInfo, IProgressBar {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH};
     private final Set<BlockPos> activeStates = new HashSet<>();
+    private final long energyToStart = 1_280_000_000;
     private IEnergyContainer energyContainer;
+    private BatchMode batchMode = BatchMode.ONE;
     private Recipe recipe;
-    private boolean initialized;
-    private long energyToStart;
     private long heat;
     private long maxHeat;
-    private int coilTier;
-    private int vacuumTier;
-    private int divertorTier;
 
     public MetaTileEntityMegaFusion(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, GARecipeMaps.ADV_FUSION_RECIPES, true, false);
-        this.recipeLogic.setActiveConsumer(this::replaceEnergyPortsAsActive);
+        super(metaTileEntityId, RecipeMaps.FUSION_RECIPES, true, false);
+        this.recipeLogic.setAllowOverclocking(false);
+        this.energyContainer = new EnergyContainerHandler(this, Integer.MAX_VALUE, 0, 0 ,0, 0) {
+            @Override
+            public String getName() {
+                return "EnergyContainerInternal";
+            }
+        };
     }
 
     @Override
@@ -92,47 +86,50 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.mega_fusion.description"));
         tooltip.add(I18n.format("tj.multiblock.processing_array.eut"));
-        tooltip.add(I18n.format("tj.multiblock.mega_fusion.coil_duration", TJValues.thousandTwoPlaceFormat.format(GAConfig.multis.advFusion.coilDurationDiscount)));
-        tooltip.add(I18n.format("tj.multiblock.mega_fusion.coolant_increase", TJValues.thousandTwoPlaceFormat.format(GAConfig.multis.advFusion.vacuumCoolantIncrease)));
-        tooltip.add(I18n.format("tj.multiblock.mega_fusion.energy_decrease", TJValues.thousandTwoPlaceFormat.format(GAConfig.multis.advFusion.vacuumEnergyDecrease)));
-        tooltip.add(I18n.format("tj.multiblock.mega_fusion.output_increase", TJValues.thousandTwoPlaceFormat.format(GAConfig.multis.advFusion.divertorOutputIncrease)));
+        super.addInformation(stack, player, tooltip, advanced);
     }
 
     @Override
-    protected BasicRecipeLogic<IFusionHandler> createRecipeLogic() {
-        return new MegaFusionRecipeLogic(this);
+    protected MegaRecipeLogic<?> createRecipeLogic() {
+        return new MegaRecipeLogic<>(this);
     }
 
     @Override
     public boolean checkRecipe(Recipe recipe) {
+        final long energyToStart = recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L);
         this.recipe = recipe;
-        this.maxHeat = this.energyContainer.getEnergyCapacity();
-        long energyToStart = recipe.getProperty("eu_to_start");
-        int tier = recipe.getProperty("coil_tier");
-        return this.energyToStart >= energyToStart && this.tier >= tier && this.heat >= energyToStart;
+        this.maxHeat = Math.min(this.energyContainer.getEnergyCapacity(), energyToStart);
+        return this.heat >= energyToStart;
     }
 
     @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        int recipeTier = recipe.getProperty("coil_tier");
-        int coilTierDifference = this.coilTier - recipeTier;
-        int vacuumTierDifference = this.vacuumTier - recipeTier;
-        overclockManager.setDuration((int) Math.max(1.0, overclockManager.getDuration() * (1 - GAConfig.multis.advFusion.coilDurationDiscount * coilTierDifference)));
-        overclockManager.setEUt((long) Math.max(1, overclockManager.getEUt() * (1 - vacuumTierDifference * GAConfig.multis.advFusion.vacuumEnergyDecrease)));
-        overclockManager.setParallel((int) (this.energyContainer.getEnergyCapacity() / (long) recipe.getProperty("eu_to_start")));
+        super.preOverclock(overclockManager, recipe);
+        long recipeEnergy = Math.max(160_000_000, recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L));
+        final long recipeEnergyOld = recipeEnergy;
+        float ocMultiplier = 1;
+        while (recipeEnergy <= this.energyToStart) {
+            if (recipeEnergy != recipeEnergyOld)
+                ocMultiplier *= recipeEnergy > 640_000_000 ? 4 : 2.8F;
+            recipeEnergy *= 2;
+        }
+        overclockManager.setEUt((long) (overclockManager.getEUt() * ocMultiplier));
+        overclockManager.setDuration((int) (overclockManager.getDuration() / ocMultiplier));
+        overclockManager.setParallel((int) (this.energyContainer.getEnergyCapacity() / recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L)));
     }
 
     @Override
     public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         overclockManager.setEUt(overclockManager.getEUt() * overclockManager.getParallel());
+        overclockManager.setDuration(overclockManager.getDuration() * this.batchMode.getAmount());
     }
 
     @Override
     protected void updateFormedValid() {
         super.updateFormedValid();
-        long inputEnergyStored = this.inputEnergyContainer.getEnergyStored();
+        final long inputEnergyStored = this.inputEnergyContainer.getEnergyStored();
         if (inputEnergyStored > 0) {
-            long energyAdded = this.energyContainer.addEnergy(inputEnergyStored);
+            final long energyAdded = this.energyContainer.addEnergy(inputEnergyStored);
             if (energyAdded > 0)
                 this.inputEnergyContainer.removeEnergy(energyAdded);
         }
@@ -145,14 +142,9 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
         }
 
         if (this.recipe != null && this.recipeLogic.isWorkingEnabled()) {
-            long remainingHeat = this.maxHeat - this.heat;
-            long energyToRemove = Math.min(remainingHeat, this.inputEnergyContainer.getInputAmperage() * this.inputEnergyContainer.getInputVoltage());
+            final long remainingHeat = this.maxHeat - this.heat;
+            final long energyToRemove = Math.min(remainingHeat, this.inputEnergyContainer.getInputAmperage() * this.inputEnergyContainer.getInputVoltage());
             this.heat += Math.abs(this.energyContainer.removeEnergy(energyToRemove));
-        }
-        if (!this.initialized && this.getOffsetTimer() > 50) {
-            this.initialized = true;
-            this.writeCustomData(10, buffer -> buffer.writeInt(this.tier));
-            this.markDirty();
         }
     }
 
@@ -164,7 +156,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
                 .addTranslationLine("tj.multiblock.industrial_fusion_reactor.heat", this.heat)
                 .customLine(text -> {
                     if (this.recipe != null) {
-                        long energyToStart = this.recipe.getProperty("eu_to_start");
+                        long energyToStart = this.recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L);
                         text.addTextComponent(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart))
                                 .setStyle(new Style().setColor(this.heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
                     }
@@ -173,53 +165,55 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
 
     @Override
     protected BlockPattern createStructurePattern() {
-        List<String[]> pattern = new ArrayList<>();
-        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~", "~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~", "~~~~~~~~~cccc~~~~~~~~~~~~~~~~~~~~~cccc~~~~~~~~~", "~~~~~~~~~~cc~~~~~~~~~~~~~~~~~~~~~~~cc~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~cc~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~cc~~~~~~", "~~~~~cccc~~~~~~~~~~CCCCCCCCC~~~~~~~~~~cccc~~~~~", "~~~~~~cc~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~cc~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~cc~~~~~~~~~~~~~~~~~~~~~~~cc~~~~~~~~~~", "~~~~~~~~~cccc~~~~~~~~~~~~~~~~~~~~~cccc~~~~~~~~~", "~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~", "~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
-        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~BBBBBBBBB~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~BBBBBBBBBBBBBBBBB~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~BBBBBB~~~ccc~~~BBBBBB~~~~~~~~~~~~~", "~~~~~~~~~~cBBBB~~~~~~~~c~~~~~~~~BBBBc~~~~~~~~~~", "~~~~~~~~~cBBB~~~~~~~~~~~~~~~~~~~~~BBBc~~~~~~~~~", "~~~~~~~~~BBBcc~~~~~~~~~~~~~~~~~~~ccBBB~~~~~~~~~", "~~~~~~~~~BBcc~~~~~~~~~~~~~~~~~~~~~ccBB~~~~~~~~~", "~~~~~~~~BB~c~~~~~~~~~~~~~~~~~~~~~~~c~BB~~~~~~~~", "~~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~~", "~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~", "~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~", "~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~", "~~~~~~~BB~~~~~~~~~~CCCCCCCCC~~~~~~~~~~BB~~~~~~~", "~~~~~~BB~~~~~~~~~~CcccccccccC~~~~~~~~~~BB~~~~~~", "~~~~~~BB~~~~~~~~~~CcccccccccC~~~~~~~~~~BB~~~~~~", "~~~~~~BB~~~~~~~~~~CcccccccccC~~~~~~~~~~BB~~~~~~", "~~~~~cBBc~~~~~~~~~CcccccccccC~~~~~~~~~cBBc~~~~~", "~~~~ccBBcc~~~~~~~~CcccccccccC~~~~~~~~ccBBcc~~~~", "~~~~~cBBc~~~~~~~~~CcccccccccC~~~~~~~~~cBBc~~~~~", "~~~~~~BB~~~~~~~~~~CcccccccccC~~~~~~~~~~BB~~~~~~", "~~~~~~BB~~~~~~~~~~CcccccccccC~~~~~~~~~~BB~~~~~~", "~~~~~~BB~~~~~~~~~~CcccccccccC~~~~~~~~~~BB~~~~~~", "~~~~~~~BB~~~~~~~~~~CCCCCCCCC~~~~~~~~~~BB~~~~~~~", "~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~", "~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~", "~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~", "~~~~~~~~BB~~~~~~~~~~~~~~~~~~~~~~~~~~~BB~~~~~~~~", "~~~~~~~~BB~c~~~~~~~~~~~~~~~~~~~~~~~c~BB~~~~~~~~", "~~~~~~~~~BBcc~~~~~~~~~~~~~~~~~~~~~ccBB~~~~~~~~~", "~~~~~~~~~BBBcc~~~~~~~~~~~~~~~~~~~ccBBB~~~~~~~~~", "~~~~~~~~~cBBB~~~~~~~~~~~~~~~~~~~~~BBBc~~~~~~~~~", "~~~~~~~~~~cBBBB~~~~~~~~c~~~~~~~~BBBBc~~~~~~~~~~", "~~~~~~~~~~~~~BBBBBB~~~ccc~~~BBBBBB~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~BBBBBBBBBBBBBBBBB~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~BBBBBBBBB~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
-        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~s~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~eeeBBBeee~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~eeeeBBBBBBBBBeeee~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~eeBBBBBBBBBBBBBBBBBee~~~~~~~~~~~~~", "~~~~~~~~~~ceeBBBBBBBBBBBBBBBBBBBBBeec~~~~~~~~~~", "~~~~~~~~~cBBBBBBBBB~~~ccc~~~BBBBBBBBBc~~~~~~~~~", "~~~~~~~~cBBBBBB~~~~~~~~c~~~~~~~~BBBBBBc~~~~~~~~", "~~~~~~~~eBBBBc~~~~~~~~~~~~~~~~~~~cBBBBe~~~~~~~~", "~~~~~~~~eBBBcc~~~~~~~~~~~~~~~~~~~ccBBBe~~~~~~~~", "~~~~~~~eBBBcc~~~~~~~~~~~~~~~~~~~~~ccBBBe~~~~~~~", "~~~~~~~eBBB~~~~~~~~~~~~~~~~~~~~~~~~~BBBe~~~~~~~", "~~~~~~eBBB~~~~~~~~~~~~~~~~~~~~~~~~~~~BBBe~~~~~~", "~~~~~~eBBB~~~~~~~~~~~~~~~~~~~~~~~~~~~BBBe~~~~~~", "~~~~~~eBBB~~~~~~~~~CCCCCCCCC~~~~~~~~~BBBe~~~~~~", "~~~~~~eBBB~~~~~~~~CcccccccccC~~~~~~~~BBBe~~~~~~", "~~~~~eBBB~~~~~~~~CcccccccccccC~~~~~~~~BBBe~~~~~", "~~~~~eBBB~~~~~~~~CcccccccccccC~~~~~~~~BBBe~~~~~", "~~~~~eBBB~~~~~~~~CcccccccccccC~~~~~~~~BBBe~~~~~", "~~~~cBBBBc~~~~~~~CcccccccccccC~~~~~~~cBBBBc~~~~", "~~~ccBBBBcc~~~~~~CcccccccccccC~~~~~~ccBBBBcc~~~", "~~~~cBBBBc~~~~~~~CcccccccccccC~~~~~~~cBBBBc~~~~", "~~~~~eBBB~~~~~~~~CcccccccccccC~~~~~~~~BBBe~~~~~", "~~~~~eBBB~~~~~~~~CcccccccccccC~~~~~~~~BBBe~~~~~", "~~~~~eBBB~~~~~~~~CcccccccccccC~~~~~~~~BBBe~~~~~", "~~~~~~eBBB~~~~~~~~CcccccccccC~~~~~~~~BBBe~~~~~~", "~~~~~~eBBB~~~~~~~~~CCCCCCCCC~~~~~~~~~BBBe~~~~~~", "~~~~~~eBBB~~~~~~~~~~~~~~~~~~~~~~~~~~~BBBe~~~~~~", "~~~~~~eBBB~~~~~~~~~~~~~~~~~~~~~~~~~~~BBBe~~~~~~", "~~~~~~~eBBB~~~~~~~~~~~~~~~~~~~~~~~~~BBBe~~~~~~~", "~~~~~~~eBBBcc~~~~~~~~~~~~~~~~~~~~~ccBBBe~~~~~~~", "~~~~~~~~eBBBcc~~~~~~~~~~~~~~~~~~~ccBBBe~~~~~~~~", "~~~~~~~~eBBBBc~~~~~~~~~~~~~~~~~~~cBBBBe~~~~~~~~", "~~~~~~~~cBBBBBB~~~~~~~~c~~~~~~~~BBBBBBc~~~~~~~~", "~~~~~~~~~cBBBBBBBBB~~~ccc~~~BBBBBBBBBc~~~~~~~~~", "~~~~~~~~~~ceeBBBBBBBBBBBBBBBBBBBBBeec~~~~~~~~~~", "~~~~~~~~~~~~~eeBBBBBBBBBBBBBBBBBee~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~eeeeBBBBBBBBBeeee~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~eeeBBBeee~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
-        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~BBBBBBBBB~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~BBBBBBBBBBBBBBBBB~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~BBBBBBBBBBBBBBBBBBBBB~~~~~~~~~~~~~", "~~~~~~~~~~~BBBBBBBBBBBBBBBBBBBBBBBBB~~~~~~~~~~~", "~~~~~~~~~cBBBBBBBBBBBBBBBBBBBBBBBBBBBc~~~~~~~~~", "~~~~~~~~cBBBBBBBBBBBBBBBBBBBBBBBBBBBBBc~~~~~~~~", "~~~~~~~~BBBBBBBBBBB~~~ccc~~~BBBBBBBBBBB~~~~~~~~", "~~~~~~~BBBBBBBB~~~~~~~~c~~~~~~~~BBBBBBBB~~~~~~~", "~~~~~~~BBBBBBcc~~~~~~~~~~~~~~~~~ccBBBBBB~~~~~~~", "~~~~~~BBBBBBcc~~~~~~~~~~~~~~~~~~~ccBBBBBB~~~~~~", "~~~~~~BBBBBBc~~~~~~~~~~~~~~~~~~~~~cBBBBBB~~~~~~", "~~~~~BBBBBB~~~~~~~~~~~~~~~~~~~~~~~~~BBBBBB~~~~~", "~~~~~BBBBBB~~~~~~~~CCCCCCCCC~~~~~~~~BBBBBB~~~~~", "~~~~~BBBBBB~~~~~~~CcccccccccC~~~~~~~BBBBBB~~~~~", "~~~~~BBBBBB~~~~~~CcccccccccccC~~~~~~BBBBBB~~~~~", "~~~~BBBBBB~~~~~~CcccccccccccccC~~~~~~BBBBBB~~~~", "~~~~BBBBBB~~~~~~CcccccccccccccC~~~~~~BBBBBB~~~~", "~~~~BBBBBB~~~~~~CcccccccccccccC~~~~~~BBBBBB~~~~", "~~~cBBBBBBc~~~~~CcccccccccccccC~~~~~cBBBBBBc~~~", "~~ccBBBBBBcc~~~~CcccccccccccccC~~~~ccBBBBBBcc~~", "~~~cBBBBBBc~~~~~CcccccccccccccC~~~~~cBBBBBBc~~~", "~~~~BBBBBB~~~~~~CcccccccccccccC~~~~~~BBBBBB~~~~", "~~~~BBBBBB~~~~~~CcccccccccccccC~~~~~~BBBBBB~~~~", "~~~~BBBBBB~~~~~~CcccccccccccccC~~~~~~BBBBBB~~~~", "~~~~~BBBBBB~~~~~~CcccccccccccC~~~~~~BBBBBB~~~~~", "~~~~~BBBBBB~~~~~~~CcccccccccC~~~~~~~BBBBBB~~~~~", "~~~~~BBBBBB~~~~~~~~CCCCCCCCC~~~~~~~~BBBBBB~~~~~", "~~~~~BBBBBB~~~~~~~~~~~~~~~~~~~~~~~~~BBBBBB~~~~~", "~~~~~~BBBBBBc~~~~~~~~~~~~~~~~~~~~~cBBBBBB~~~~~~", "~~~~~~BBBBBBcc~~~~~~~~~~~~~~~~~~~ccBBBBBB~~~~~~", "~~~~~~~BBBBBBcc~~~~~~~~~~~~~~~~~ccBBBBBB~~~~~~~", "~~~~~~~BBBBBBBB~~~~~~~~c~~~~~~~~BBBBBBBB~~~~~~~", "~~~~~~~~BBBBBBBBBBB~~~ccc~~~BBBBBBBBBBB~~~~~~~~", "~~~~~~~~cBBBBBBBBBBBBBBBBBBBBBBBBBBBBBc~~~~~~~~", "~~~~~~~~~cBBBBBBBBBBBBBBBBBBBBBBBBBBBc~~~~~~~~~", "~~~~~~~~~~~BBBBBBBBBBBBBBBBBBBBBBBBB~~~~~~~~~~~", "~~~~~~~~~~~~~BBBBBBBBBBBBBBBBBBBBB~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~BBBBBBBBBBBBBBBBB~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~BBBBBBBBB~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
-        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~RRRcccRRR~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~RRRRVVVVVVVVVRRRR~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~RRVVVV#########VVVVRR~~~~~~~~~~~~~", "~~~~~~~~~~~RRVV#################VVRR~~~~~~~~~~~", "~~~~~~~~~~RVV#####################VVR~~~~~~~~~~", "~~~~~~~~~cV#########################Vc~~~~~~~~~", "~~~~~~~~cV###########################Vc~~~~~~~~", "~~~~~~~cV#############################Vc~~~~~~~", "~~~~~~RV###########VVVVVVVVV###########VR~~~~~~", "~~~~~RV########VVVV~~~ccc~~~VVVV########VR~~~~~", "~~~~~RV######VV~~~~~~~~c~~~~~~~~VV######VR~~~~~", "~~~~RV######Vcc~~~~~~~~~~~~~~~~~ccV######VR~~~~", "~~~~RV######Vc~~~~~~~~~~~~~~~~~~~cV######VR~~~~", "~~~RV######V~~~~~~~CCCCCCCCC~~~~~~~V######VR~~~", "~~~RV######V~~~~~~CcccccccccC~~~~~~V######VR~~~", "~~~RV######V~~~~~CcccccccccccC~~~~~V######VR~~~", "~~~RV######V~~~~CcccccccccccccC~~~~V######VR~~~", "~~RV######V~~~~CcccccccccccccccC~~~~V######VR~~", "~~RV######V~~~~CcccccccccccccccC~~~~V######VR~~", "~~RV######V~~~~CcccccccccccccccC~~~~V######VR~~", "~~cV######Vc~~~CcccccccccccccccC~~~cV######Vc~~", "~ccV######Vcc~~CcccccccccccccccC~~ccV######Vcc~", "~~cV######Vc~~~CcccccccccccccccC~~~cV######Vc~~", "~~RV######V~~~~CcccccccccccccccC~~~~V######VR~~", "~~RV######V~~~~CcccccccccccccccC~~~~V######VR~~", "~~RV######V~~~~CcccccccccccccccC~~~~V######VR~~", "~~~RV######V~~~~CcccccccccccccC~~~~V######VR~~~", "~~~RV######V~~~~~CcccccccccccC~~~~~V######VR~~~", "~~~RV######V~~~~~~CcccccccccC~~~~~~V######VR~~~", "~~~RV######V~~~~~~~CCCCCCCCC~~~~~~~V######VR~~~", "~~~~RV######Vc~~~~~~~~~~~~~~~~~~~cV######VR~~~~", "~~~~RV######Vcc~~~~~~~~~~~~~~~~~ccV######VR~~~~", "~~~~~RV######VV~~~~~~~~c~~~~~~~~VV######VR~~~~~", "~~~~~RV########VVVV~~~ccc~~~VVVV########VR~~~~~", "~~~~~~RV###########VVVVVVVVV###########VR~~~~~~", "~~~~~~~cV#############################Vc~~~~~~~", "~~~~~~~~cV###########################Vc~~~~~~~~", "~~~~~~~~~cV#########################Vc~~~~~~~~~", "~~~~~~~~~~RVV#####################VVR~~~~~~~~~~", "~~~~~~~~~~~RRVV#################VVRR~~~~~~~~~~~", "~~~~~~~~~~~~~RRVVVV#########VVVVRR~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~RRRRVVVVVVVVVRRRR~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~RRRcccRRR~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
-        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~RRRcccRRR~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~RRRRVVVVVVVVVRRRR~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~RRVVVV#########VVVVRR~~~~~~~~~~~~~", "~~~~~~~~~~~RRVV#################VVRR~~~~~~~~~~~", "~~~~~~~~~~RVV#####################VVR~~~~~~~~~~", "~~~~~~~~~RV#########################VR~~~~~~~~~", "~~~~~~~~cV###########################Vc~~~~~~~~", "~~~~~~~cV#############################Vc~~~~~~~", "~~~~~~RV###############################VR~~~~~~", "~~~~~RV#################################VR~~~~~", "~~~~RV#############VVVVVVVVV#############VR~~~~", "~~~~RV#########VVVV~~~ccc~~~VVVV#########VR~~~~", "~~~RV########VVc~~~~~~~c~~~~~~~cVV########VR~~~", "~~~RV########Vcc~~~~~~~c~~~~~~~ccV########VR~~~", "~~RV########Vcccc~~CCCCcCCCC~~ccccV########VR~~", "~~RV########V~~ccccccccccccccccc~~V########VR~~", "~~RV########V~~~ccccccccccccccc~~~V########VR~~", "~~RV########V~~~ccccccccccccccc~~~V########VR~~", "~RV########V~~~CcccccccccccccccC~~~V########VR~", "~RV########V~~~CcccccccccccccccC~~~V########VR~", "~RV########V~~~CcccccccccccccccC~~~V########VR~", "~cV########Vc~~CcccccccccccccccC~~cV########Vc~", "ccV########VcccccccccccccccccccccccV########Vcc", "~cV########Vc~~CcccccccccccccccC~~cV########Vc~", "~RV########V~~~CcccccccccccccccC~~~V########VR~", "~RV########V~~~CcccccccccccccccC~~~V########VR~", "~RV########V~~~CcccccccccccccccC~~~V########VR~", "~~RV########V~~~ccccccccccccccc~~~V########VR~~", "~~RV########V~~~ccccccccccccccc~~~V########VR~~", "~~RV########V~~ccccccccccccccccc~~V########VR~~", "~~RV########Vcccc~~CCCCcCCCC~~ccccV########VR~~", "~~~RV########Vcc~~~~~~~c~~~~~~~ccV########VR~~~", "~~~RV########VVc~~~~~~~c~~~~~~~cVV########VR~~~", "~~~~RV#########VVVV~~~ccc~~~VVVV#########VR~~~~", "~~~~RV#############VVVVVVVVV#############VR~~~~", "~~~~~RV#################################VR~~~~~", "~~~~~~RV###############################VR~~~~~~", "~~~~~~~cV#############################Vc~~~~~~~", "~~~~~~~~cV###########################Vc~~~~~~~~", "~~~~~~~~~RV#########################VR~~~~~~~~~", "~~~~~~~~~~RVV#####################VVR~~~~~~~~~~", "~~~~~~~~~~~RRVV#################VVRR~~~~~~~~~~~", "~~~~~~~~~~~~~RRVVVV#########VVVVRR~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~RRRRVVVVVVVVVRRRR~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~RRRcccRRR~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~"});
-        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~RRRcccRRR~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~RRRRVVVVVVVVVRRRR~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~RRVVVV#########VVVVRR~~~~~~~~~~~~~", "~~~~~~~~~~~RRVV#################VVRR~~~~~~~~~~~", "~~~~~~~~~~RVV#####################VVR~~~~~~~~~~", "~~~~~~~~~RV#########################VR~~~~~~~~~", "~~~~~~~~cV###########################Vc~~~~~~~~", "~~~~~~~cV#############################Vc~~~~~~~", "~~~~~~cV###############################Vc~~~~~~", "~~~~~RV#################################VR~~~~~", "~~~~RV###################################VR~~~~", "~~~RV#####################################VR~~~", "~~~RV##############VVVVVVVVV##############VR~~~", "~~RV###########VVVV~~~ccc~~~VVVV###########VR~~", "~~RV##########Vcc~~~~~ccc~~~~~ccV##########VR~~", "~RV##########Vcccc~ccccccccc~ccccV##########VR~", "~RV##########VcccccccccccccccccccV##########VR~", "~RV##########V~ccccccccccccccccc~V##########VR~", "~RV##########V~~ccccccccccccccc~~V##########VR~", "RV##########V~~ccccccccccccccccc~~V##########VR", "RV##########V~~ccccccccccccccccc~~V##########VR", "RV##########V~~ccccccccccccccccc~~V##########VR", "cV##########VcccccccccccccccccccccV##########Vc", "cV##########VcccccccccccccccccccccV##########Vc", "cV##########VcccccccccccccccccccccV##########Vc", "RV##########V~~ccccccccccccccccc~~V##########VR", "RV##########V~~ccccccccccccccccc~~V##########VR", "RV##########V~~ccccccccccccccccc~~V##########VR", "~RV##########V~~ccccccccccccccc~~V##########VR~", "~RV##########V~ccccccccccccccccc~V##########VR~", "~RV##########VcccccccccccccccccccV##########VR~", "~RV##########Vcccc~ccccccccc~ccccV##########VR~", "~~RV##########Vcc~~~~~ccc~~~~~ccV##########VR~~", "~~RV###########VVVV~~~ccc~~~VVVV###########VR~~", "~~~RV##############VVVVVVVVV##############VR~~~", "~~~RV#####################################VR~~~", "~~~~RV###################################VR~~~~", "~~~~~RV#################################VR~~~~~", "~~~~~~cV###############################Vc~~~~~~", "~~~~~~~cV#############################Vc~~~~~~~", "~~~~~~~~cV###########################Vc~~~~~~~~", "~~~~~~~~~RV#########################VR~~~~~~~~~", "~~~~~~~~~~RVV#####################VVR~~~~~~~~~~", "~~~~~~~~~~~RRVV#################VVRR~~~~~~~~~~~", "~~~~~~~~~~~~~RRVVVV#########VVVVRR~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~RRRRVVVVVVVVVRRRR~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~RRRcccRRR~~~~~~~~~~~~~~~~~~~"});
-        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~RRRcccRRR~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~RRRRVVVVVVVVVRRRR~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~RRVVVV#########VVVVRR~~~~~~~~~~~~~", "~~~~~~~~~~~RRVV#################VVRR~~~~~~~~~~~", "~~~~~~~~~~RVV#####################VVR~~~~~~~~~~", "~~~~~~~~~RV#########################VR~~~~~~~~~", "~~~~~~~~cV###########################Vc~~~~~~~~", "~~~~~~~cV#############################Vc~~~~~~~", "~~~~~~cV###############################Vc~~~~~~", "~~~~~RV#################################VR~~~~~", "~~~~RV###################################VR~~~~", "~~~RV#####################################VR~~~", "~~~RV##############VVVVVVVVV##############VR~~~", "~~RV###########VVVV~~~ccc~~~VVVV###########VR~~", "~~RV##########Vcc~~~~~ccc~~~~~ccV##########VR~~", "~RV##########Vcccc~ccccccccc~ccccV##########VR~", "~RV##########VcccccccccccccccccccV##########VR~", "~RV##########V~ccccccccccccccccc~V##########VR~", "~RV##########V~~ccccccccccccccc~~V##########VR~", "RV##########V~~ccccccccccccccccc~~V##########VR", "RV##########V~~ccccccccccccccccc~~V##########VR", "RV##########V~~ccccccccccccccccc~~V##########VR", "cV##########VcccccccccccccccccccccV##########Vc", "cV##########VcccccccccccccccccccccV##########Vc", "cV##########VcccccccccccccccccccccV##########Vc", "RV##########V~~ccccccccccccccccc~~V##########VR", "RV##########V~~ccccccccccccccccc~~V##########VR", "RV##########V~~ccccccccccccccccc~~V##########VR", "~RV##########V~~ccccccccccccccc~~V##########VR~", "~RV##########V~ccccccccccccccccc~V##########VR~", "~RV##########VcccccccccccccccccccV##########VR~", "~RV##########Vcccc~ccccccccc~ccccV##########VR~", "~~RV##########Vcc~~~~~ccc~~~~~ccV##########VR~~", "~~RV###########VVVV~~~ccc~~~VVVV###########VR~~", "~~~RV##############VVVVVVVVV##############VR~~~", "~~~RV#####################################VR~~~", "~~~~RV###################################VR~~~~", "~~~~~RV#################################VR~~~~~", "~~~~~~cV###############################Vc~~~~~~", "~~~~~~~cV#############################Vc~~~~~~~", "~~~~~~~~cV###########################Vc~~~~~~~~", "~~~~~~~~~RV#########################VR~~~~~~~~~", "~~~~~~~~~~RVV#####################VVR~~~~~~~~~~", "~~~~~~~~~~~RRVV#################VVRR~~~~~~~~~~~", "~~~~~~~~~~~~~RRVVVV#########VVVVRR~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~RRRRVVVVVVVVVRRRR~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~RRRcccRRR~~~~~~~~~~~~~~~~~~~"});
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
+        final List<String[]> pattern = new ArrayList<>();
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
+        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~CCCCCCCCCCCCC~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~CCCCCCCCCCCCCCCCCCC~~~~~~~~~~~~~", "~~~~~~~~~~~~CCCCCCCCCCCCCCCCCCCCC~~~~~~~~~~~~", "~~~~~~~~~~CCCCCCCCCCCCCCCCCCCCCCCCC~~~~~~~~~~", "~~~~~~~~~CCCCCCCCC~~~~~~~~~CCCCCCCCC~~~~~~~~~", "~~~~~~~~CCCCCCCC~~~~~~~~~~~~~CCCCCCCC~~~~~~~~", "~~~~~~~CCCCCCC~~~~~~~~~~~~~~~~~CCCCCCC~~~~~~~", "~~~~~~~CCCCCC~~~~~~~~~~~~~~~~~~~CCCCCC~~~~~~~", "~~~~~~CCCCCC~~~~~~~~~~~~~~~~~~~~~CCCCCC~~~~~~", "~~~~~CCCCCC~~~~~~~~~~~~~~~~~~~~~~~CCCCCC~~~~~", "~~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~~", "~~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~~", "~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~", "~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~", "~~~~CCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCC~~~~", "~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~", "~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~", "~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~", "~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~", "~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~", "~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~", "~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~", "~~~~CCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCC~~~~", "~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~", "~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~", "~~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~~", "~~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~~", "~~~~~CCCCCC~~~~~~~~~~~~~~~~~~~~~~~CCCCCC~~~~~", "~~~~~~CCCCCC~~~~~~~~~~~~~~~~~~~~~CCCCCC~~~~~~", "~~~~~~~CCCCCC~~~~~~~~~~~~~~~~~~~CCCCCC~~~~~~~", "~~~~~~~CCCCCCC~~~~~~~~~~~~~~~~~CCCCCCC~~~~~~~", "~~~~~~~~CCCCCCCC~~~~~~~~~~~~~CCCCCCCC~~~~~~~~", "~~~~~~~~~CCCCCCCCC~~~~~~~~~CCCCCCCCC~~~~~~~~~", "~~~~~~~~~~CCCCCCCCCCCCCCCCCCCCCCCCC~~~~~~~~~~", "~~~~~~~~~~~~CCCCCCCCCCCCCCCCCCCCC~~~~~~~~~~~~", "~~~~~~~~~~~~~CCCCCCCCCCCCCCCCCCC~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~CCCCCCCCCCCCC~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
+        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~CCCCCCCCCCC~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~CCCCCcccccccCCCCC~~~~~~~~~~~~~~", "~~~~~~~~~~~~CCCCcccccccccccccCCCC~~~~~~~~~~~~", "~~~~~~~~~~~CCcccccccccccccccccccCC~~~~~~~~~~~", "~~~~~~~~~CCCcccccccccccccccccccccCCC~~~~~~~~~", "~~~~~~~~CCcccccccccccccccccccccccccCC~~~~~~~~", "~~~~~~~CCcccccccccCCCCCCCCCcccccccccCC~~~~~~~", "~~~~~~CCccccccccCCCC~~~~~CCCCccccccccCC~~~~~~", "~~~~~~CcccccccCCC~~~~~~~~~~~CCCcccccccC~~~~~~", "~~~~~CCccccccCC~~~~~~~~~~~~~~~CCccccccCC~~~~~", "~~~~CCccccccCC~~~~~~~~~~~~~~~~~CCccccccCC~~~~", "~~~~CccccccCC~~~~~~~~~~~~~~~~~~~CCccccccC~~~~", "~~~CCcccccCC~~~~~~~~~~~~~~~~~~~~~CCcccccCC~~~", "~~~CCcccccC~~~~~~~~~~~~~~~~~~~~~~~CcccccCC~~~", "~~~CcccccCC~~~~~~~~~~~~~~~~~~~~~~~CCcccccC~~~", "~~CCcccccC~~~~~~~~~~~~~~~~~~~~~~~~~CcccccCC~~", "~~CCccccCC~~~~~~~~~~~~~~~~~~~~~~~~~CCccccCC~~", "~~CcccccCC~~~~~~~~~~~~~~~~~~~~~~~~~CCcccccC~~", "~~CcccccC~~~~~~~~~~~~~~~~~~~~~~~~~~~CcccccC~~", "~~CcccccC~~~~~~~~~~~~~~~~~~~~~~~~~~~CcccccC~~", "~~CcccccC~~~~~~~~~~~~~~~~~~~~~~~~~~~CcccccC~~", "~~CcccccC~~~~~~~~~~~~~~~~~~~~~~~~~~~CcccccC~~", "~~CcccccC~~~~~~~~~~~~~~~~~~~~~~~~~~~CcccccC~~", "~~CcccccCC~~~~~~~~~~~~~~~~~~~~~~~~~CCcccccC~~", "~~CCccccCC~~~~~~~~~~~~~~~~~~~~~~~~~CCccccCC~~", "~~CCcccccC~~~~~~~~~~~~~~~~~~~~~~~~~CcccccCC~~", "~~~CcccccCC~~~~~~~~~~~~~~~~~~~~~~~CCcccccC~~~", "~~~CCcccccC~~~~~~~~~~~~~~~~~~~~~~~CcccccCC~~~", "~~~CCcccccCC~~~~~~~~~~~~~~~~~~~~~CCcccccCC~~~", "~~~~CccccccCC~~~~~~~~~~~~~~~~~~~CCccccccC~~~~", "~~~~CCccccccCC~~~~~~~~~~~~~~~~~CCccccccCC~~~~", "~~~~~CCccccccCC~~~~~~~~~~~~~~~CCccccccCC~~~~~", "~~~~~~CcccccccCCC~~~~~~~~~~~CCCcccccccC~~~~~~", "~~~~~~CCccccccccCCCC~~~~~CCCCccccccccCC~~~~~~", "~~~~~~~CCcccccccccCCCCCCCCCcccccccccCC~~~~~~~", "~~~~~~~~CCcccccccccccccccccccccccccCC~~~~~~~~", "~~~~~~~~~CCCcccccccccccccccccccccCCC~~~~~~~~~", "~~~~~~~~~~~CCcccccccccccccccccccCC~~~~~~~~~~~", "~~~~~~~~~~~~CCCCcccccccccccccCCCC~~~~~~~~~~~~", "~~~~~~~~~~~~~~CCCCCcccccccCCCCC~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~CCCCCCCCCCC~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
+        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~CCCCCCCCCCC~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~CCC###########CCC~~~~~~~~~~~~~~", "~~~~~~~~~~~~CC#################CC~~~~~~~~~~~~", "~~~~~~~~~~~C#####################C~~~~~~~~~~~", "~~~~~~~~~CC#######################CC~~~~~~~~~", "~~~~~~~~C###########################C~~~~~~~~", "~~~~~~~C#############################C~~~~~~~", "~~~~~~C###############################C~~~~~~", "~~~~~C#############CCCCCCC#############C~~~~~", "~~~~~C###########CC~~~~~~~CC###########C~~~~~", "~~~~C##########CC~~~~~~~~~~~CC##########C~~~~", "~~~C##########C~~~~~~~~~~~~~~~C##########C~~~", "~~~C#########C~~~~~~~~~~~~~~~~~C#########C~~~", "~~C#########C~~~~~~~~~~~~~~~~~~~C#########C~~", "~~C########C~~~~~~~~~~~~~~~~~~~~~C########C~~", "~~C########C~~~~~~~~~~~~~~~~~~~~~C########C~~", "~C########C~~~~~~~~~~~~~~~~~~~~~~~C########C~", "~C########C~~~~~~~~~~~~~~~~~~~~~~~C########C~", "~C#######C~~~~~~~~~~~~~~~~~~~~~~~~~C#######C~", "~C#######C~~~~~~~~~~~~~~~~~~~~~~~~~C#######C~", "~C#######C~~~~~~~~~~~~~~~~~~~~~~~~~C#######C~", "~C#######C~~~~~~~~~~~~~~~~~~~~~~~~~C#######C~", "~C#######C~~~~~~~~~~~~~~~~~~~~~~~~~C#######C~", "~C#######C~~~~~~~~~~~~~~~~~~~~~~~~~C#######C~", "~C#######C~~~~~~~~~~~~~~~~~~~~~~~~~C#######C~", "~C########C~~~~~~~~~~~~~~~~~~~~~~~C########C~", "~C########C~~~~~~~~~~~~~~~~~~~~~~~C########C~", "~~C########C~~~~~~~~~~~~~~~~~~~~~C########C~~", "~~C########C~~~~~~~~~~~~~~~~~~~~~C########C~~", "~~C#########C~~~~~~~~~~~~~~~~~~~C#########C~~", "~~~C#########C~~~~~~~~~~~~~~~~~C#########C~~~", "~~~C##########C~~~~~~~~~~~~~~~C##########C~~~", "~~~~C##########CC~~~~~~~~~~~CC##########C~~~~", "~~~~~C###########CC~~~~~~~CC###########C~~~~~", "~~~~~C#############CCCCCCC#############C~~~~~", "~~~~~~C###############################C~~~~~~", "~~~~~~~C#############################C~~~~~~~", "~~~~~~~~C###########################C~~~~~~~~", "~~~~~~~~~CC#######################CC~~~~~~~~~", "~~~~~~~~~~~C#####################C~~~~~~~~~~~", "~~~~~~~~~~~~CC#################CC~~~~~~~~~~~~", "~~~~~~~~~~~~~~CCC###########CCC~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~CCCCCCCCCCC~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
+        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~CCCCC~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~CCCC#####CCCC~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~CCC#############CCC~~~~~~~~~~~~~", "~~~~~~~~~~~CC###################CC~~~~~~~~~~~", "~~~~~~~~~~C#######################C~~~~~~~~~~", "~~~~~~~~EC#########################CE~~~~~~~~", "~~~~~~~E#############################E~~~~~~~", "~~~~~~E###############################E~~~~~~", "~~~~~E#################################E~~~~~", "~~~~~C#################################C~~~~~", "~~~~C#############CCCCCCCCC#############C~~~~", "~~~C############CC~~~~~~~~~CC############C~~~", "~~~C###########E~~~~~~~~~~~~~E###########C~~~", "~~C###########E~~~~~~~~~~~~~~~E###########C~~", "~~C##########E~~~~~~~~~~~~~~~~~E##########C~~", "~~C#########E~~~~~~~~~~~~~~~~~~~E#########C~~", "~C#########C~~~~~~~~~~~~~~~~~~~~~C#########C~", "~C#########C~~~~~~~~~~~~~~~~~~~~~C#########C~", "~C########C~~~~~~~~~~~~~~~~~~~~~~~C########C~", "~C########C~~~~~~~~~~~~~~~~~~~~~~~C########C~", "C#########C~~~~~~~~~~~~~~~~~~~~~~~C#########C", "C#########C~~~~~~~~~~~~~~~~~~~~~~~C#########C", "C#########C~~~~~~~~~~~~~~~~~~~~~~~C#########C", "C#########C~~~~~~~~~~~~~~~~~~~~~~~C#########C", "C#########C~~~~~~~~~~~~~~~~~~~~~~~C#########C", "~C########C~~~~~~~~~~~~~~~~~~~~~~~C########C~", "~C########C~~~~~~~~~~~~~~~~~~~~~~~C########C~", "~C#########C~~~~~~~~~~~~~~~~~~~~~C#########C~", "~C#########C~~~~~~~~~~~~~~~~~~~~~C#########C~", "~~C#########E~~~~~~~~~~~~~~~~~~~E#########C~~", "~~C##########E~~~~~~~~~~~~~~~~~E##########C~~", "~~C###########E~~~~~~~~~~~~~~~E###########C~~", "~~~C###########E~~~~~~~~~~~~~E###########C~~~", "~~~C############CC~~~~~~~~~CC############C~~~", "~~~~C#############CCCCCCCCC#############C~~~~", "~~~~~C#################################C~~~~~", "~~~~~E#################################E~~~~~", "~~~~~~E###############################E~~~~~~", "~~~~~~~E#############################E~~~~~~~", "~~~~~~~~EC#########################CE~~~~~~~~", "~~~~~~~~~~C#######################C~~~~~~~~~~", "~~~~~~~~~~~CC###################CC~~~~~~~~~~~", "~~~~~~~~~~~~~CCC#############CCC~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~CCCC#####CCCC~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~CCCCC~~~~~~~~~~~~~~~~~~~~"});
+        pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~XXXXXXXXX~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~GGG#########GGG~~~~~~~~~~~~~~~", "~~~~~~~~~~~~GGG###############GGG~~~~~~~~~~~~", "~~~~~~~~~~~G#####################G~~~~~~~~~~~", "~~~~~~~~~GG#######################GG~~~~~~~~~", "~~~~~~~~E###########################E~~~~~~~~", "~~~~~~~E#############################E~~~~~~~", "~~~~~~E###############################E~~~~~~", "~~~~~E#################################E~~~~~", "~~~~G###################################G~~~~", "~~~~G##############GGGGGGG##############G~~~~", "~~~G#############GG~~~~~~~GG#############G~~~", "~~G############EG~~~~~~~~~~~GE############G~~", "~~G###########E~~~~~~~~~~~~~~~E###########G~~", "~~G##########E~~~~~~~~~~~~~~~~~E##########G~~", "~G##########E~~~~~~~~~~~~~~~~~~~E##########G~", "~G##########G~~~~~~~~~~~~~~~~~~~G##########G~", "~G#########G~~~~~~~~~~~~~~~~~~~~~G#########G~", "X##########G~~~~~~~~~~~~~~~~~~~~~G##########X", "X#########G~~~~~~~~~~~~~~~~~~~~~~~G#########X", "X#########G~~~~~~~~~~~~~~~~~~~~~~~G#########X", "X#########G~~~~~~~~~~~~~~~~~~~~~~~G#########X", "X#########G~~~~~~~~~~~~~~~~~~~~~~~G#########X", "X#########G~~~~~~~~~~~~~~~~~~~~~~~G#########X", "X#########G~~~~~~~~~~~~~~~~~~~~~~~G#########X", "X#########G~~~~~~~~~~~~~~~~~~~~~~~G#########X", "X##########G~~~~~~~~~~~~~~~~~~~~~G##########X", "~G#########G~~~~~~~~~~~~~~~~~~~~~G#########G~", "~G##########G~~~~~~~~~~~~~~~~~~~G##########G~", "~G##########E~~~~~~~~~~~~~~~~~~~E##########G~", "~~G##########E~~~~~~~~~~~~~~~~~E##########G~~", "~~G###########E~~~~~~~~~~~~~~~E###########G~~", "~~G############EG~~~~~~~~~~~GE############G~~", "~~~G#############GG~~~~~~~GG#############G~~~", "~~~~G##############GGGGGGG##############G~~~~", "~~~~G###################################G~~~~", "~~~~~E#################################E~~~~~", "~~~~~~E###############################E~~~~~~", "~~~~~~~E#############################E~~~~~~~", "~~~~~~~~E###########################E~~~~~~~~", "~~~~~~~~~GG#######################GG~~~~~~~~~", "~~~~~~~~~~~G#####################G~~~~~~~~~~~", "~~~~~~~~~~~~GGG###############GGG~~~~~~~~~~~~", "~~~~~~~~~~~~~~~GGG#########GGG~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~XXXXXXXXX~~~~~~~~~~~~~~~~~~"});
         pattern.forEach(factoryPattern::aisle);
+        factoryPattern.aisle("~~~~~~~~~~~~~~~~~~XXXXSXXXX~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~GGGG#########GGGG~~~~~~~~~~~~~~", "~~~~~~~~~~~~GG#################GG~~~~~~~~~~~~", "~~~~~~~~~~GG#####################GG~~~~~~~~~~", "~~~~~~~~~G#########################G~~~~~~~~~", "~~~~~~~~E###########################E~~~~~~~~", "~~~~~~~E#############################E~~~~~~~", "~~~~~~E###############################E~~~~~~", "~~~~~E#################################E~~~~~", "~~~~G###################################G~~~~", "~~~G###############GGGGGGG###############G~~~", "~~~G#############GG~~~~~~~GG#############G~~~", "~~G############EG~~~~~~~~~~~GE############G~~", "~~G###########E~~~~~~~~~~~~~~~E###########G~~", "~G###########E~~~~~~~~~~~~~~~~~E###########G~", "~G##########E~~~~~~~~~~~~~~~~~~~E##########G~", "~G##########G~~~~~~~~~~~~~~~~~~~G##########G~", "~G#########G~~~~~~~~~~~~~~~~~~~~~G#########G~", "X##########G~~~~~~~~~~~~~~~~~~~~~G##########X", "X#########G~~~~~~~~~~~~~~~~~~~~~~~G#########X", "X#########G~~~~~~~~~~~~~~~~~~~~~~~G#########X", "X#########G~~~~~~~~~~~~~~~~~~~~~~~G#########X", "X#########G~~~~~~~~~~~~~~~~~~~~~~~G#########X", "X#########G~~~~~~~~~~~~~~~~~~~~~~~G#########X", "X#########G~~~~~~~~~~~~~~~~~~~~~~~G#########X", "X#########G~~~~~~~~~~~~~~~~~~~~~~~G#########X", "X##########G~~~~~~~~~~~~~~~~~~~~~G##########X", "~G#########G~~~~~~~~~~~~~~~~~~~~~G#########G~", "~G##########G~~~~~~~~~~~~~~~~~~~G##########G~", "~G##########E~~~~~~~~~~~~~~~~~~~E##########G~", "~G###########E~~~~~~~~~~~~~~~~~E###########G~", "~~G###########E~~~~~~~~~~~~~~~E###########G~~", "~~G############EG~~~~~~~~~~~GE############G~~", "~~~G#############GG~~~~~~~GG#############G~~~", "~~~G###############GGGGGGG###############G~~~", "~~~~G###################################G~~~~", "~~~~~E#################################E~~~~~", "~~~~~~E###############################E~~~~~~", "~~~~~~~E#############################E~~~~~~~", "~~~~~~~~E###########################E~~~~~~~~", "~~~~~~~~~G#########################G~~~~~~~~~", "~~~~~~~~~~GG#####################GG~~~~~~~~~~", "~~~~~~~~~~~~GG#################GG~~~~~~~~~~~~", "~~~~~~~~~~~~~~GGGG#########GGGG~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~XXXXXXXXX~~~~~~~~~~~~~~~~~~");
         for (int i = 0; i < pattern.size(); i++) {
-            String[] aisle = pattern.get(i);
-            String[] aisle2 = new String[aisle.length];
-            for (int j = 0; j < aisle.length; j++) {
-                aisle2[j] = aisle[j].replace("s", "S").replace("B", "D").replace("e", "H");
-            }
+            final String[] aisle = pattern.get(i);
+            final String[] aisle2 = new String[aisle.length];
+            System.arraycopy(aisle, 0, aisle2, 0, aisle.length);
             pattern.set(i, aisle2);
         }
         Collections.reverse(pattern);
         pattern.forEach(factoryPattern::aisle);
         return factoryPattern.where('S', this.selfPredicate())
-                .where('C', statePredicate(GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.ADV_FUSION_CASING)))
-                .where('B', statePredicate(GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_BLANKET)))
-                .where('e', statePredicate(GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_BLANKET)))
-                .where('H', divertorPredicate().or(abilityPartPredicate(ALLOWED_ABILITIES)).or(this.energyPortPredicate()))
-                .where('s', MetaTileEntityAdvFusionReactor.coilPredicate())
-                .where('c', MetaTileEntityAdvFusionReactor.coilPredicate())
-                .where('V', vacuumPredicate())
-                .where('R', cryostatPredicate())
-                .where('D', divertorPredicate())
+                .where('C', statePredicate(this.getCasingState()))
+                .where('G', statePredicate(this.getCasingState())
+                        .or(statePredicate(TJMetaBlocks.FUSION_GLASS.getState(BlockFusionGlass.GlassType.FUSION_GLASS_UEV))))
+                .where('c', statePredicate(TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_COIL_UEV)))
+                .where('X', statePredicate(this.getCasingState())
+                        .or(statePredicate(TJMetaBlocks.FUSION_GLASS.getState(BlockFusionGlass.GlassType.FUSION_GLASS_UEV)))
+                        .or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('E', statePredicate(this.getCasingState())
+                        .or(statePredicate(TJMetaBlocks.FUSION_GLASS.getState(BlockFusionGlass.GlassType.FUSION_GLASS_UEV)))
+                        .or(tilePredicate(MetaTileEntityIndustrialFusionReactor.energyHatchPredicate(10)))
+                        .or(this.energyPortPredicate()))
                 .where('#', isAirPredicate())
                 .where('~', tile -> true)
                 .build();
     }
 
+    private IBlockState getCasingState() {
+        return TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_CASING_UEV);
+    }
+
     public Predicate<BlockWorldState> energyPortPredicate() {
         return (blockWorldState) -> {
-            IBlockState blockState = blockWorldState.getBlockState();
-            Block block = blockState.getBlock();
-            if (block instanceof AdvEnergyPortCasings) {
-                AdvEnergyPortCasings abilityCasings = (AdvEnergyPortCasings) block;
+            final IBlockState blockState = blockWorldState.getBlockState();
+            final Block block = blockState.getBlock();
+            if (block instanceof EnergyPortCasings) {
+                final EnergyPortCasings abilityCasings = (EnergyPortCasings) block;
                 abilityCasings.setController(this);
-                AdvEnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
-                List<AdvEnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
-                Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
-                LongList amps = blockWorldState.getMatchContext().getOrCreate("EnergyAmps", LongArrayList::new);
+                final EnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
+                final List<EnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
+                final Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
+                final LongList amps = blockWorldState.getMatchContext().getOrCreate("EnergyAmps", LongArrayList::new);
                 currentCasing.add(tieredCasingType);
                 amps.add(abilityCasings.getAmps());
                 activeStates.add(blockWorldState.getPos());
@@ -232,122 +226,39 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        LongList energyPortAmps = context.getOrDefault("EnergyAmps", new LongArrayList());
-        List<AdvEnergyPortCasings.AbilityType> energyPorts = context.getOrDefault("EnergyPort", new ArrayList<>());
         this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
-        this.divertorTier = context.getOrDefault("Divertor", GADivertorCasing.CasingType.DIVERTOR_1).getTier();
-        this.coilTier = context.getOrDefault("Coil", GAFusionCasing.CasingType.ADV_FUSION_COIL_1).ordinal() - 3;
-        this.vacuumTier = context.getOrDefault("Vacuum", GAVacuumCasing.CasingType.VACUUM_1).getTier();
-        int cryostat = context.getOrDefault("Cryostat", GACryostatCasing.CasingType.CRYOSTAT_1).getTier();
-        int fusionTier = Math.min(this.divertorTier, Math.min(this.coilTier, Math.min(this.vacuumTier, cryostat)));
-        this.tier = fusionTier + GAValues.UV;
-        this.maxVoltage = 8L << this.tier * 2;
+        final LongList energyPortAmps = context.getOrDefault("EnergyAmps", new LongArrayList());
+        final List<AdvEnergyPortCasings.AbilityType> energyPorts = context.getOrDefault("EnergyPort", new ArrayList<>());
+        final int fusionTier = 10;
         long energyCapacity = 0;
         for (int i = 0; i < energyPortAmps.size(); i++) {
-            energyCapacity += (long) (100000000 * energyPortAmps.get(i) * Math.pow(2, energyPorts.get(i).getTier() - GAValues.UHV));
+            energyCapacity += (long) (10000000 * energyPortAmps.get(i) * Math.pow(2, energyPorts.get(i).getTier() - GAValues.LuV));
         }
         for (IEnergyContainer container : this.getAbilities(INPUT_ENERGY)) {
-            energyCapacity += (long) (100000000 * container.getInputAmperage() * Math.pow(2, GAUtility.getTierByVoltage(container.getInputVoltage()) - GAValues.UHV));
+            energyCapacity += (long) (10000000 * container.getInputAmperage() * Math.pow(2, GAUtility.getTierByVoltage(container.getInputVoltage()) - GAValues.LuV));
         }
-        this.energyToStart = 1_600_000_000L << fusionTier - 1;
-        this.energyContainer = new EnergyContainerHandler(this, energyCapacity, GAValues.V[this.tier], 0, 0, 0);
-        this.initialized = false;
+        this.energyContainer = new EnergyContainerHandler(this, energyCapacity, GAValues.V[fusionTier], 0, 0, 0) {
+            @Override
+            public String getName() {
+                return "EnergyContainerInternal";
+            }
+        };
+        ((EnergyContainerHandler) this.energyContainer).setEnergyStored(this.energyContainer.getEnergyStored());
     }
 
     @Override
     public void invalidateStructure() {
         super.invalidateStructure();
         this.activeStates.clear();
-        this.divertorTier = 0;
-        this.coilTier = 0;
-        this.vacuumTier = 0;
-        this.energyToStart = 0;
-    }
-
-    @Override
-    public TJOrientedOverlayRenderer getFrontalOverlay() {
-        return TJTextures.TJ_FUSION_REACTOR_OVERLAY;
-    }
-
-    @Override
-    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        switch (this.tier) {
-            case 9: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UHV_ACTIVE : TJTextures.ADV_FUSION_PORT_UHV;
-            case 10: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UEV_ACTIVE : TJTextures.ADV_FUSION_PORT_UEV;
-            case 11: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UIV_ACTIVE : TJTextures.ADV_FUSION_PORT_UIV;
-            case 12: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UMV_ACTIVE : TJTextures.ADV_FUSION_PORT_UMV;
-            case 13: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_UXV_ACTIVE : TJTextures.ADV_FUSION_PORT_UXV;
-            case 14: return this.recipeLogic.isActive() ? TJTextures.ADV_FUSION_PORT_MAX_ACTIVE : TJTextures.ADV_FUSION_PORT_MAX;
-            default: return ClientHandler.FUSION_TEXTURE;
-        }
-    }
-
-    @Override
-    public void writeInitialSyncData(PacketBuffer buf) {
-        super.writeInitialSyncData(buf);
-        this.writeActiveBlockPacket(buf, this.recipeLogic.isActive());
-    }
-
-    @Override
-    public void receiveInitialSyncData(PacketBuffer buf) {
-        super.receiveInitialSyncData(buf);
-        this.readActiveBlockPacket(buf);
-    }
-
-    @Override
-    public void receiveCustomData(int dataId, PacketBuffer buf) {
-        super.receiveCustomData(dataId, buf);
-        if (dataId == 10) {
-            this.tier = buf.readInt();
-            this.scheduleRenderUpdate();
-        } else if (dataId == 128) {
-            this.readActiveBlockPacket(buf);
-        }
-    }
-
-    private void writeActiveBlockPacket(PacketBuffer buffer, boolean isActive) {
-        buffer.writeBoolean(isActive);
-        buffer.writeInt(this.activeStates.size());
-        for (BlockPos pos : this.activeStates) {
-            buffer.writeBlockPos(pos);
-        }
-    }
-
-    private void readActiveBlockPacket(PacketBuffer buffer) {
-        boolean isActive = buffer.readBoolean();
-        int size = buffer.readInt();
-        for (int i = 0; i < size; i++) {
-            BlockPos pos = buffer.readBlockPos();
-            IBlockState state = this.getWorld().getBlockState(pos);
-            Block block = state.getBlock();
-            if (block instanceof AdvEnergyPortCasings) {
-                state = state.withProperty(AdvEnergyPortCasings.ACTIVE, isActive);
-                this.getWorld().setBlockState(pos, state);
-            }
-        }
-    }
-
-    public void replaceEnergyPortsAsActive(boolean isActive) {
-        this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
-        if (!isActive)
-            this.recipe = null;
-    }
-
-    @Override
-    public void onRemoval() {
-        super.onRemoval();
-        if (!this.getWorld().isRemote) {
-            this.replaceEnergyPortsAsActive(false);
-            this.markDirty();
-        }
+        this.inputEnergyContainer = new EnergyContainerList(Collections.emptyList());
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
-         super.writeToNBT(data);
-         data.setLong("heat", this.heat);
-         data.setLong("maxHeat", this.maxHeat);
-         return data;
+        super.writeToNBT(data);
+        data.setLong("heat", this.heat);
+        data.setLong("maxHeat", this.maxHeat);
+        return data;
     }
 
     @Override
@@ -357,11 +268,22 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
         this.maxHeat = data.getLong("maxHeat");
     }
 
+
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing side) {
         if (capability == TJCapabilities.CAPABILITY_HEAT)
             return TJCapabilities.CAPABILITY_HEAT.cast(this);
         return super.getCapability(capability, side);
+    }
+
+    @Override
+    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
+        return TJTextures.FUSION_PORT_UEV;
+    }
+
+    @Override
+    public TJOrientedOverlayRenderer getFrontalOverlay() {
+        return TJTextures.TJ_FUSION_REACTOR_OVERLAY;
     }
 
     @Override
@@ -372,8 +294,23 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     @Override
     public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
         bars.add(bar -> bar.setProgress(this::heat).setMaxProgress(this::maxHeat)
-                .setBarTexture(TJGuiTextures.BAR_RED)
-                .setLocale("tj.multiblock.bars.heat"));
+                .setLocale("tj.multiblock.bars.heat")
+                .setBarTexture(BAR_RED));
+    }
+
+    @Override
+    public int getParallel() {
+        return 0; // don't display parallel overclocking per tier on tooltip
+    }
+
+    @Override
+    public int getTier() {
+        return 10;
+    }
+
+    @Override
+    public int getTierDifference(long recipeEUt) {
+        return 0;
     }
 
     @Override
@@ -384,81 +321,5 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     @Override
     public long maxHeat() {
         return this.maxHeat;
-    }
-
-    @Override
-    public int getParallel() {
-        return 0; // don't display parallel overclocking per tier on tooltip
-    }
-
-    @Override
-    public IItemHandlerModifiable getInputBus(int index) {
-        return this.getImportItemInventory();
-    }
-
-    @Override
-    public int getDiverterTier() {
-        return this.divertorTier;
-    }
-
-    @Override
-    public int getVacuumTier() {
-        return this.vacuumTier;
-    }
-
-    private static class MegaFusionRecipeLogic extends BasicRecipeLogic<IFusionHandler> {
-
-        public MegaFusionRecipeLogic(MetaTileEntity metaTileEntity) {
-            super(metaTileEntity);
-        }
-
-        @Override
-        protected int checkFluidInputsAmount(int parallels, Recipe recipe) {
-            int vacuumTierDifference = this.handler.getVacuumTier() - (int) recipe.getProperty("coil_tier");
-            int size = ((IGTRecipe) recipe).getMergedFluidInputs().size();
-            for (int i = 0; i < size; i++) {
-                FluidStack fluid = ((IGTRecipe) recipe).getMergedFluidInputs().get(i);
-                int amount = recipe.getFluidInputs().size() == 3 && i == size - 1
-                        ? (int) (fluid.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease))
-                        : fluid.amount;
-                if (amount > 0) {
-                    parallels = Math.min(parallels, TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), fluid, amount * parallels, false) / amount);
-                    if (parallels < 1) return 0;
-                } else if (!TJFluidUtils.findFluidFromTanks(this.handler.getImportFluidTank(), fluid))
-                    return 0;
-            }
-            return parallels;
-        }
-
-        @Override
-        protected void consumeFluidInputs(int parallels, Recipe recipe) {
-            int vacuumTierDifference = this.handler.getVacuumTier() - (int) recipe.getProperty("coil_tier");
-            int size = ((IGTRecipe) recipe).getMergedFluidInputs().size();
-            for (int i = 0; i < size; i++) {
-                FluidStack fluid = ((IGTRecipe) recipe).getMergedFluidInputs().get(i).copy();
-                if (recipe.getFluidInputs().size() == 3)
-                    fluid.amount = i == size - 1 ? (int) (fluid.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease)) : fluid.amount;
-                fluid.amount *= parallels;
-                TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), fluid, fluid.amount, true);
-                this.getFluidInputs().add(fluid);
-            }
-        }
-
-        @Override
-        protected void addFluidOutputs(int parallels, Recipe recipe) {
-            int recipeTier = recipe.getProperty("coil_tier");
-            int divertorTierDifference = this.handler.getDiverterTier() - recipeTier;
-            int vacuumTierDifference = this.handler.getVacuumTier() - recipeTier;
-            for (int i = 0; i < recipe.getFluidOutputs().size(); i++) {
-                FluidStack fluid = recipe.getFluidOutputs().get(i).copy();
-                if (i == 0) {
-                    fluid.amount = (int) (fluid.amount * (1 + divertorTierDifference * GAConfig.multis.advFusion.divertorOutputIncrease));
-                } else if (i == recipe.getFluidOutputs().size() - 1) {
-                    fluid.amount = (int) (fluid.amount * (1 + vacuumTierDifference * GAConfig.multis.advFusion.vacuumCoolantIncrease));
-                }
-                fluid.amount *= parallels;
-                this.getFluidOutputs().add(fluid);
-            }
-        }
     }
 }

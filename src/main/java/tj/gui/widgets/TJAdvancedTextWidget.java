@@ -44,20 +44,20 @@ public class TJAdvancedTextWidget extends AdvancedTextWidget {
     }
 
     public static ITextComponent withButton(ITextComponent textComponent, String componentData) {
-        Style style = textComponent.getStyle();
+        final Style style = textComponent.getStyle();
         style.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "@!" + componentData));
         return textComponent;
     }
 
     @SideOnly(Side.CLIENT)
     private boolean handleCustomComponentClick(ITextComponent textComponent) {
-        Style style = textComponent.getStyle();
+        final Style style = textComponent.getStyle();
         if (style.getClickEvent() != null) {
-            ClickEvent clickEvent = style.getClickEvent();
-            String componentText = clickEvent.getValue();
+            final ClickEvent clickEvent = style.getClickEvent();
+            final String componentText = clickEvent.getValue();
             if (clickEvent.getAction() == ClickEvent.Action.OPEN_URL && componentText.startsWith("@!")) {
-                String rawText = componentText.substring(2);
-                ClickData clickData = new ClickData(Mouse.getEventButton(), isShiftDown(), isCtrlDown());
+                final String rawText = componentText.substring(2);
+                final ClickData clickData = new ClickData(Mouse.getEventButton(), isShiftDown(), isCtrlDown());
                 writeClientAction(1, buf -> {
                     clickData.writeToBuf(buf);
                     buf.writeString(this.textId != null ? this.textId : "");
@@ -72,7 +72,7 @@ public class TJAdvancedTextWidget extends AdvancedTextWidget {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        ITextComponent textComponent = getTextUnderMouse(mouseX, mouseY);
+        final ITextComponent textComponent = getTextUnderMouse(mouseX, mouseY);
         if (textComponent != null) {
             if (handleCustomComponentClick(textComponent) ||
                     getWrapScreen().handleComponentClick(textComponent)) {
@@ -93,10 +93,10 @@ public class TJAdvancedTextWidget extends AdvancedTextWidget {
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
         if (id == 1) {
-            EntityPlayer player = this.gui.entityPlayer;
-            ClickData clickData = ClickData.readFromBuf(buffer);
-            String textId = buffer.readString(Short.MAX_VALUE);
-            String componentData = buffer.readString(128);
+            final EntityPlayer player = this.gui.entityPlayer;
+            final ClickData clickData = ClickData.readFromBuf(buffer);
+            final String textId = buffer.readString(Short.MAX_VALUE);
+            final String componentData = buffer.readString(128);
             for (QuadConsumer<String, String, ClickData, EntityPlayer> clickHandler : this.clickHandlers) {
                 clickHandler.accept(componentData, textId, clickData, player);
             }

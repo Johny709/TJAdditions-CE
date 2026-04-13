@@ -97,7 +97,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
                 this.sleepRecipe();
                 return;
             }
-            boolean canStart = this.startRecipe();
+            final boolean canStart = this.startRecipe();
             if (canStart) {
                 this.sleepTime = 1;
                 this.progress = 1;
@@ -157,7 +157,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
     }
 
     protected int calculateOverclock(long baseEnergy, int duration, float multiplier) {
-        long voltage = this.handler.getMaxVoltage();
+        final long voltage = this.handler.getMaxVoltage();
         baseEnergy *= 4;
         while (duration > 1 && baseEnergy <= voltage) {
             duration /= multiplier;
@@ -168,12 +168,12 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
     }
 
     public boolean hasEnoughFluid(FluidStack fluid, int amount) {
-        FluidStack fluidStack = this.handler.getImportFluidTank().drain(fluid, false);
+        final FluidStack fluidStack = this.handler.getImportFluidTank().drain(fluid, false);
         return fluidStack != null && fluidStack.amount == amount || amount == 0;
     }
 
     public boolean canOutputFluid(FluidStack fluid, int amount) {
-        int fluidStack = this.handler.getExportFluidTank().fill(fluid, false);
+        final int fluidStack = this.handler.getExportFluidTank().fill(fluid, false);
         return fluidStack == amount || amount == 0;
     }
 
@@ -203,7 +203,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound compound = new NBTTagCompound();
+        final NBTTagCompound compound = new NBTTagCompound();
         compound.setInteger("progress", this.progress);
         compound.setInteger("maxProgress", this.maxProgress);
         compound.setLong("energyPerTick", this.energyPerTick);

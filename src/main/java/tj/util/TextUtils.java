@@ -18,7 +18,7 @@ public final class TextUtils {
     }
 
     public static TextComponentString addTranslationText(Consumer<TextComponentString> textBuilder, String locale, Object... format) {
-        TextComponentString textComponent = new TextComponentString(I18n.translateToLocalFormatted(locale, format));
+        final TextComponentString textComponent = new TextComponentString(I18n.translateToLocalFormatted(locale, format));
         if (textBuilder != null)
             textBuilder.accept(textComponent);
         return textComponent;

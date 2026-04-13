@@ -63,12 +63,12 @@ public final class TooltipHelper {
     }
 
     public static String rainbow(int ticks) {
-        int ordinal = (int) ((FMLClientHandler.instance().getWorldClient().getTotalWorldTime() % (Color.values().length * ticks)) / ticks);
+        final int ordinal = (int) ((FMLClientHandler.instance().getWorldClient().getTotalWorldTime() % (Color.values().length * ticks)) / ticks);
         return String.valueOf(Color.values()[ordinal]);
     }
 
     public static String rainbowText(int ticks, String locale, Object... params) {
-        int ordinal = (int) ((FMLClientHandler.instance().getWorldClient().getTotalWorldTime() % (Color.values().length * ticks)) / ticks);
+        final int ordinal = (int) ((FMLClientHandler.instance().getWorldClient().getTotalWorldTime() % (Color.values().length * ticks)) / ticks);
         return Color.values()[ordinal] + I18n.format(locale, params);
     }
 

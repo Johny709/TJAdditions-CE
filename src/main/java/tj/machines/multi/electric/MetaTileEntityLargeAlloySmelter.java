@@ -1,6 +1,7 @@
 package tj.machines.multi.electric;
 
 import gregicadditions.GAConfig;
+import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAHeatingCoil;
@@ -85,16 +86,16 @@ public class MetaTileEntityLargeAlloySmelter extends TJRecipeMapMultiblockContro
 
     public static Predicate<BlockWorldState> heatingCoilPredicate() {
         return blockWorldState -> {
-            IBlockState blockState = blockWorldState.getBlockState();
+            final IBlockState blockState = blockWorldState.getBlockState();
             if (!(blockState.getBlock() instanceof BlockWireCoil))
                 return false;
-            BlockWireCoil blockWireCoil = (BlockWireCoil) blockState.getBlock();
-            BlockWireCoil.CoilType coilType = blockWireCoil.getState(blockState);
+            final BlockWireCoil blockWireCoil = (BlockWireCoil) blockState.getBlock();
+            final BlockWireCoil.CoilType coilType = blockWireCoil.getState(blockState);
             if (Arrays.asList(GAConfig.multis.heatingCoils.gtceHeatingCoilsBlacklist).contains(coilType.getName()))
                 return false;
 
-            int blastFurnaceTemperature = coilType.getCoilTemperature();
-            int currentTemperature = blockWorldState.getMatchContext().getOrPut("blastFurnaceTemperature", blastFurnaceTemperature);
+            final int blastFurnaceTemperature = coilType.getCoilTemperature();
+            final int currentTemperature = blockWorldState.getMatchContext().getOrPut("blastFurnaceTemperature", blastFurnaceTemperature);
 
             BlockWireCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("coilType", coilType);
             Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
@@ -106,19 +107,19 @@ public class MetaTileEntityLargeAlloySmelter extends TJRecipeMapMultiblockContro
 
     public static Predicate<BlockWorldState> heatingCoilPredicate2() {
         return blockWorldState -> {
-            IBlockState blockState = blockWorldState.getBlockState();
+            final IBlockState blockState = blockWorldState.getBlockState();
             if (!(blockState.getBlock() instanceof GAHeatingCoil))
                 return false;
-            GAHeatingCoil blockWireCoil = (GAHeatingCoil) blockState.getBlock();
-            GAHeatingCoil.CoilType coilType = blockWireCoil.getState(blockState);
+            final GAHeatingCoil blockWireCoil = (GAHeatingCoil) blockState.getBlock();
+            final GAHeatingCoil.CoilType coilType = blockWireCoil.getState(blockState);
             if (Arrays.asList(GAConfig.multis.heatingCoils.gregicalityheatingCoilsBlacklist).contains(coilType.getName()))
                 return false;
 
-            int blastFurnaceTemperature = coilType.getCoilTemperature();
-            int currentTemperature = blockWorldState.getMatchContext().getOrPut("blastFurnaceTemperature", blastFurnaceTemperature);
+            final int blastFurnaceTemperature = coilType.getCoilTemperature();
+            final int currentTemperature = blockWorldState.getMatchContext().getOrPut("blastFurnaceTemperature", blastFurnaceTemperature);
 
-            GAHeatingCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("gaCoilType", coilType);
-            Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
+            final GAHeatingCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("gaCoilType", coilType);
+            final Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
             activeStates.add(blockWorldState.getPos());
 
             return currentTemperature == blastFurnaceTemperature && coilType.equals(currentCoilType);
@@ -128,13 +129,17 @@ public class MetaTileEntityLargeAlloySmelter extends TJRecipeMapMultiblockContro
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        BlockWireCoil.CoilType coilType;
-        GAHeatingCoil.CoilType gaCoilType;
+        int tier = 0;
+        final BlockWireCoil.CoilType coilType;
+        final GAHeatingCoil.CoilType gaCoilType;
         if ((coilType = context.getOrDefault("coilType", BlockWireCoil.CoilType.CUPRONICKEL)) != null)
-            this.tier = coilType.ordinal() + 1;
+            tier = coilType.ordinal() + 1;
         else if ((gaCoilType = context.getOrDefault("gaCoilType", GAHeatingCoil.CoilType.TITAN_STEEL_COIL)) != null)
-            this.tier = gaCoilType.ordinal() + 8;
-        this.maxVoltage = 8L << this.tier * 2;
+            tier = gaCoilType.ordinal() + 8;
+        if (tier < GAValues.MAX) {
+            this.maxVoltage = 8L << tier * 2;
+            this.tier = tier;
+        }
         this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
     }
 

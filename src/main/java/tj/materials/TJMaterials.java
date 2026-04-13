@@ -20,5 +20,6 @@ public class TJMaterials implements IMaterialHandler {
         Silver.addFlag(GENERATE_DOUBLE_PLATE, GENERATE_DENSE);
         Iron.addFlag(GENERATE_ROTOR);
         Rutherfordium.addFlag(GENERATE_FRAME);
+        QCDMatter.addFlag(GENERATE_SMALL_GEAR);
     }
 }

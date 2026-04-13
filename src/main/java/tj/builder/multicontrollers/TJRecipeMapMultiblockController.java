@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregicadditions.Gregicality;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
@@ -37,6 +38,7 @@ import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
+import tj.util.TJUtility;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -122,8 +124,8 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
                     .setTooltipText("machine.universal.toggle.item_voiding"));
             debugTab.add(new ToggleButtonWidget(175, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
                     .setTooltipText("machine.universal.toggle.fluid_voiding"));
-            debugTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
-                    .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addDebugDisplayText, 0xFFFFFF)
+            debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
+                    .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addDebugDisplayText, 0xFFFFFF)
                             .setMaxWidthLimit(180))
                     .setScrollPanelWidth(3));
         });
@@ -164,7 +166,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
             builder.addTranslationLine("tj.multiblock.recipe_cache.slot", i++)
                     .addTranslationLine("tj.multiblock.recipe_cache.inputs");
             for (CountableIngredient ingredient : recipe.getInputs())
-                builder.addItemStack(ingredient.getIngredient().getMatchingStacks()[0]);
+                builder.addIngredient(ingredient);
             for (FluidStack stack : recipe.getFluidInputs())
                 builder.addFluidStack(stack);
             if (!recipe.getOutputs().isEmpty() || !recipe.getFluidOutputs().isEmpty())
@@ -182,7 +184,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
 
     @Override
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
-        String[] data = componentData.split(":");
+        final String[] data = componentData.split(":");
         if (data[0].equals("distinct"))
             this.recipeLogic.setDistinct(data[1].equals("true"));
     }
@@ -192,7 +194,11 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         super.formStructure(context);
         this.recipeLogic.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
         this.maxVoltage = Math.max(this.inputEnergyContainer.getInputVoltage(), this.outputEnergyContainer.getOutputVoltage());
-        this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
+        this.tier = this.maxVoltage >= Integer.MAX_VALUE ? 14 : TJUtility.getTierByVoltage(this.maxVoltage);
+        if (this.tier >= GAValues.MAX) {
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
+            this.tier = TJUtility.getTierByVoltage(this.maxVoltage); // correct tier for post MAX
+        }
     }
 
     @Override

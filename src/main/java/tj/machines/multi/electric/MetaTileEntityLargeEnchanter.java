@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.EmitterCasing;
@@ -36,6 +37,7 @@ import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
+import tj.util.TJUtility;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -147,16 +149,20 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockControllerBase {
     }
 
     private boolean bookshelfPredicate(BlockWorldState blockWorldState) {
-        Block block = blockWorldState.getBlockState().getBlock();
+        final Block block = blockWorldState.getBlockState().getBlock();
         return block == Block.getBlockFromName("apotheosis:hellshelf");
     }
 
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.tier = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV).getTier();
+        final int tier = context.getOrDefault("Emitter", EmitterCasing.CasingType.EMITTER_LV).getTier();
         this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
-        this.maxVoltage = (long) (Math.pow(4, this.tier) * 8);
+        if (tier >= GAValues.MAX) {
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
+        } else this.maxVoltage = 8L << tier * 2;
+        this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
         this.parallel = TJConfig.largeEnchanter.stack * this.tier;
     }
 

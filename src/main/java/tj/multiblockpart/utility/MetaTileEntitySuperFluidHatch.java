@@ -63,8 +63,8 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        int tier = getTier() / 3;
-        int slots = Math.min(16, (tier + 1) * (tier + 1));
+        final int tier = getTier() / 3;
+        final int slots = Math.min(16, (tier + 1) * (tier + 1));
         int capacity = (int) Math.pow(2, tier - 1) * 1024000;
         capacity *= getTier() >= GAValues.UMV ? 8 : 1;
         int finalCapacity = getTier() >= GAValues.MAX ? Integer.MAX_VALUE : capacity;
@@ -76,8 +76,8 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
 
     @Override
     protected FluidTankList createImportFluidHandler() {
-        int tier = getTier() / 3;
-        int slots = Math.min(16, (tier + 1) * (tier + 1));
+        final int tier = getTier() / 3;
+        final int slots = Math.min(16, (tier + 1) * (tier + 1));
         int capacity = (int) Math.pow(2, tier - 1) * 1024000;
         capacity *= getTier() >= GAValues.UMV ? 8 : 1;
         int finalCapacity = getTier() >= GAValues.MAX ? Integer.MAX_VALUE : capacity;
@@ -90,8 +90,8 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
 
     @Override
     protected FluidTankList createExportFluidHandler() {
-        int tier = getTier() / 3;
-        int slots = Math.min(16, (tier + 1) * (tier + 1));
+        final int tier = getTier() / 3;
+        final int slots = Math.min(16, (tier + 1) * (tier + 1));
         int capacity = (int) Math.pow(2, tier - 1) * 1024000;
         capacity *= getTier() >= GAValues.UMV ? 8 : 1;
         int finalCapacity = getTier() >= GAValues.MAX ? Integer.MAX_VALUE : capacity;
@@ -116,9 +116,9 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        FluidTankList tank = isExport ? exportFluids : importFluids;
-        int tier = Math.min(3, getTier() / 3);
-        WidgetGroup widgetGroup = new WidgetGroup();
+        final FluidTankList tank = isExport ? exportFluids : importFluids;
+        final int tier = Math.min(3, getTier() / 3);
+        final WidgetGroup widgetGroup = new WidgetGroup();
         widgetGroup.addWidget(new TJLabelWidget(7, -19, 180, 19, TJGuiTextures.MACHINE_LABEL_2)
                 .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()));
         widgetGroup.addWidget(new ImageWidget(169, 81 + 18 * (tier - 1), 18, 18, GuiTextures.DISPLAY));
@@ -175,8 +175,8 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         if (this.getController() == null) {
-            int oldBaseColor = renderState.baseColour;
-            int oldAlphaOverride = renderState.alphaOverride;
+            final int oldBaseColor = renderState.baseColour;
+            final int oldAlphaOverride = renderState.alphaOverride;
 
             renderState.baseColour = TJValues.VC[this.getTier()] << 8;
             renderState.alphaOverride = 0xFF;

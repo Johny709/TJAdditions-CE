@@ -13,7 +13,7 @@ import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.IMachineHandler;
 import tj.capability.TJCapabilities;
 import tj.capability.AbstractWorkableHandler;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,8 +74,8 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
     protected boolean completeRecipe() {
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
             ItemStack stack = this.itemOutputs.get(i);
-            if (ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
+            if (TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
+                TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
                 this.outputIndex++;
             } else return false;
         }

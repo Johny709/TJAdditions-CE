@@ -33,10 +33,10 @@ public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage imple
 
     @Override
     public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
+        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        final int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
         for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
+            final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
             builder.aisle("CCMCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC");
             for (int layer = 0; layer < shapeInfo; layer++) {
                 builder.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F");
@@ -44,8 +44,9 @@ public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage imple
             }
             builder.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F")
                     .aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCECC");
-            TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            for (int tier = 0; tier < infos.length; tier++) {
+            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
+            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
                 infos[tier] = builder.where('S', this.getController(), EnumFacing.WEST)
                         .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
                         .where('c', this.getCoils(tier))

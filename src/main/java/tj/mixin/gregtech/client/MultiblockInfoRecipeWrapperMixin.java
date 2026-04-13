@@ -28,6 +28,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import tj.TJConfig;
 import tj.TJValues;
 import tj.integration.jei.MBPattern;
 import tj.integration.jei.PartInfo;
@@ -52,7 +53,6 @@ public abstract class MultiblockInfoRecipeWrapperMixin {
     private int RIGHT_PADDING;
 
     @Shadow
-    @Final
     private Map<GuiButton, Runnable> buttons;
 
     @Shadow
@@ -89,14 +89,17 @@ public abstract class MultiblockInfoRecipeWrapperMixin {
     @Inject(method = "<init>", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void injectMultiblockInfoRecipeWrapper_Init(MultiblockInfoPage infoPage, CallbackInfo ci, HashSet<ItemStackKey> drops) {
         if (infoPage instanceof IParallelMultiblockInfoPage) {
-            List<TJMultiblockShapeInfo[]> shapeInfos = ((IParallelMultiblockInfoPage) infoPage).getMatchingShapes(new TJMultiblockShapeInfo[15]);
-            this.mbPatterns = new MBPattern[shapeInfos.size()][15];
+            final List<TJMultiblockShapeInfo[]> shapeInfos = ((IParallelMultiblockInfoPage) infoPage).getMatchingShapes(new TJMultiblockShapeInfo[15]);
+            this.mbPatterns = new MBPattern[shapeInfos.size()][TJConfig.machines.disableLayersInJEI ? 1 : 15];
             this.multiLayer = true;
             for (int i = 0; i < shapeInfos.size(); i++) {
-                TJMultiblockShapeInfo[] infos = shapeInfos.get(i);
-                for (int j = 0; j < infos.length; j++) {
-                    this.mbPatterns[i][j] = this.initializePattern_2(infos[j], drops);
-                }
+                final TJMultiblockShapeInfo[] infos = shapeInfos.get(i);
+                if (!TJConfig.machines.disableLayersInJEI) {
+                    for (int j = 0; j < infos.length; j++) {
+                        this.mbPatterns[i][j] = this.initializePattern_2(infos[j], drops);
+                    }
+                } else if (infos != null && infos.length > 3 && infos[3] != null)
+                    this.mbPatterns[i][0] = this.initializePattern_2(infos[3], drops);
             }
         }
     }
@@ -120,9 +123,9 @@ public abstract class MultiblockInfoRecipeWrapperMixin {
     @Inject(method = "updateParts", at = @At("HEAD"), cancellable = true)
     private void injectUpdateParts(CallbackInfo ci) {
         if (this.multiLayer) {
-            IGuiItemStackGroup itemStackGroup = recipeLayout.getItemStacks();
-            List<ItemStack> parts = this.mbPatterns[currentRendererPage][this.currentVoltagePage].parts;
-            int limit = Math.min(parts.size(), MAX_PARTS);
+            final IGuiItemStackGroup itemStackGroup = recipeLayout.getItemStacks();
+            final List<ItemStack> parts = this.mbPatterns[currentRendererPage][this.currentVoltagePage].parts;
+            final int limit = Math.min(parts.size(), MAX_PARTS);
             for (int i = 0; i < limit; ++i)
                 itemStackGroup.set(i, parts.get(i));
             for (int i = parts.size(); i < limit; ++i)
@@ -134,8 +137,8 @@ public abstract class MultiblockInfoRecipeWrapperMixin {
     @Inject(method = "switchRenderPage", at = @At("HEAD"), cancellable = true)
     private void injectSwitchRenderPage(int amount, CallbackInfo ci) {
         if (this.multiLayer) {
-            int maxIndex = this.mbPatterns.length - 1;
-            int index = Math.max(0, Math.min(maxIndex, currentRendererPage + amount));
+            final int maxIndex = this.mbPatterns.length - 1;
+            final int index = Math.max(0, Math.min(maxIndex, currentRendererPage + amount));
             if (index != currentRendererPage) {
                 this.currentRendererPage = index;
                 this.buttonPreviousPattern.enabled = index > 0;
@@ -148,8 +151,8 @@ public abstract class MultiblockInfoRecipeWrapperMixin {
 
     @Unique
     private void switchVoltagePage(int amount) {
-        int maxIndex = this.mbPatterns[currentRendererPage].length - 1;
-        int index = Math.max(0, Math.min(maxIndex, this.currentVoltagePage + amount));
+        final int maxIndex = this.mbPatterns[currentRendererPage].length - 1;
+        final int index = Math.max(0, Math.min(maxIndex, this.currentVoltagePage + amount));
         if (index != this.currentVoltagePage) {
             this.currentVoltagePage = index;
             this.buttonVoltage.displayString = TJValues.VCC[index] + GAValues.VN[index];
@@ -159,27 +162,27 @@ public abstract class MultiblockInfoRecipeWrapperMixin {
 
     @Unique
     private MBPattern initializePattern_2(TJMultiblockShapeInfo shapeInfo, Set<ItemStackKey> blockDrops) {
-        MultiblockInfoRecipeWrapper wrapper = (MultiblockInfoRecipeWrapper)(Object)this;
-        Object2ObjectMap<BlockPos, BlockInfo> blockMap = new Object2ObjectOpenHashMap<>();
-        BlockInfo[][][] blocks = shapeInfo.getBlocks();
+        final MultiblockInfoRecipeWrapper wrapper = (MultiblockInfoRecipeWrapper)(Object)this;
+        final Object2ObjectMap<BlockPos, BlockInfo> blockMap = new Object2ObjectOpenHashMap<>();
+        final BlockInfo[][][] blocks = shapeInfo.getBlocks();
         for (int z = 0; z < blocks.length; z++) {
-            BlockInfo[][] aisle = blocks[z];
+            final BlockInfo[][] aisle = blocks[z];
             for (int y = 0; y < aisle.length; y++) {
-                BlockInfo[] column = aisle[y];
+                final BlockInfo[] column = aisle[y];
                 for (int x = 0; x < column.length; x++) {
-                    BlockPos blockPos = new BlockPos(x, y, z);
-                    BlockInfo blockInfo = column[x];
+                    final BlockPos blockPos = new BlockPos(x, y, z);
+                    final BlockInfo blockInfo = column[x];
                     blockMap.put(blockPos, blockInfo);
                 }
             }
         }
         WorldSceneRenderer worldSceneRenderer = new WorldSceneRenderer(blockMap);
         worldSceneRenderer.world.updateEntities();
-        Object2ObjectMap<ItemStackKey, PartInfo> partsMap = new Object2ObjectOpenHashMap<>();
+        final Object2ObjectMap<ItemStackKey, PartInfo> partsMap = new Object2ObjectOpenHashMap<>();
         gatherBlockDrops_2(worldSceneRenderer.world, blockMap, blockDrops, partsMap);
         worldSceneRenderer.setRenderCallback(wrapper);
         worldSceneRenderer.setRenderFilter(this::shouldDisplayBlock);
-        ArrayList<PartInfo> partInfos = new ArrayList<>(partsMap.values());
+        final ArrayList<PartInfo> partInfos = new ArrayList<>(partsMap.values());
         partInfos.sort((one, two) -> {
             if (one.isController) return -1;
             if (two.isController) return +1;
@@ -188,7 +191,7 @@ public abstract class MultiblockInfoRecipeWrapperMixin {
             if (one.blockId != two.blockId) return two.blockId - one.blockId;
             return two.amount - one.amount;
         });
-        ArrayList<ItemStack> parts = new ArrayList<>();
+        final ArrayList<ItemStack> parts = new ArrayList<>();
         for (PartInfo partInfo : partInfos) {
             parts.add(partInfo.getItemStack());
         }
@@ -197,16 +200,16 @@ public abstract class MultiblockInfoRecipeWrapperMixin {
 
     @Unique
     private void gatherBlockDrops_2(World world, Object2ObjectMap<BlockPos, BlockInfo> blocks, Set<ItemStackKey> drops, Object2ObjectMap<ItemStackKey, PartInfo> partsMap) {
-        NonNullList<ItemStack> dropsList = NonNullList.create();
+        final NonNullList<ItemStack> dropsList = NonNullList.create();
         for (Object2ObjectMap.Entry<BlockPos, BlockInfo> entry : blocks.object2ObjectEntrySet()) {
-            BlockPos pos = entry.getKey();
-            IBlockState blockState = world.getBlockState(pos);
-            NonNullList<ItemStack> blockDrops = NonNullList.create();
+            final BlockPos pos = entry.getKey();
+            final IBlockState blockState = world.getBlockState(pos);
+            final NonNullList<ItemStack> blockDrops = NonNullList.create();
             blockState.getBlock().getDrops(blockDrops, world, pos, blockState, 0);
             dropsList.addAll(blockDrops);
 
             for (ItemStack itemStack : blockDrops) {
-                ItemStackKey itemStackKey = new ItemStackKey(itemStack);
+                final ItemStackKey itemStackKey = new ItemStackKey(itemStack);
                 PartInfo partInfo = partsMap.get(itemStackKey);
                 if (partInfo == null) {
                     partInfo = new PartInfo(itemStackKey, entry.getValue());

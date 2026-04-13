@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 
-public final class ItemStackHelper {
+public final class TJItemUtils {
 
-    private ItemStackHelper() {}
+    private TJItemUtils() {}
 
     /**
      * Tries to insert ItemStack into player's main inventory. Make sure to return a new copy of ItemStack before inserting an item from ItemHandler
@@ -68,16 +68,16 @@ public final class ItemStackHelper {
 
     private static void insertToAvailableSlots(NonNullList<ItemStack> stackList, ItemStack stack) {
         for (int i = 0; i < stackList.size(); i++) {
-            ItemStack inventoryStack = stackList.get(i);
+            final ItemStack inventoryStack = stackList.get(i);
             if (inventoryStack.isEmpty()) {
-                int shrink = Math.min(stack.getCount(), 64);
-                ItemStack newStack = stack.copy();
+                final int shrink = Math.min(stack.getCount(), 64);
+                final ItemStack newStack = stack.copy();
                 newStack.setCount(shrink);
                 stackList.set(i, newStack);
                 stack.shrink(shrink);
             } else if (inventoryStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(inventoryStack, stack)) {
-                int reminder = inventoryStack.getMaxStackSize() - inventoryStack.getCount();
-                int shrink = Math.min(reminder, stack.getCount());
+                final int reminder = inventoryStack.getMaxStackSize() - inventoryStack.getCount();
+                final int shrink = Math.min(reminder, stack.getCount());
                 inventoryStack.grow(shrink);
                 stack.shrink(shrink);
             }
@@ -113,7 +113,7 @@ public final class ItemStackHelper {
         int count = 0;
         for (ItemStack inventoryStack : stackList) {
             if (!inventoryStack.isEmpty() && inventoryStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(inventoryStack, stack)) {
-                int extracted = Math.min(inventoryStack.getCount(), amount);
+                final int extracted = Math.min(inventoryStack.getCount(), amount);
                 inventoryStack.shrink(extracted);
                 count += extracted;
                 amount -= extracted;
@@ -137,13 +137,13 @@ public final class ItemStackHelper {
 
         stack = simulate ? stack.copy() : stack;
         for (int i = 0; i < itemHandler.getSlots() && !stack.isEmpty(); i++) {
-            ItemStack slotStack = itemHandler.getStackInSlot(i);
-            int maxStackSize = itemHandler.getSlotLimit(i);
+            final ItemStack slotStack = itemHandler.getStackInSlot(i);
+            final int maxStackSize = itemHandler.getSlotLimit(i);
             if (slotStack.isEmpty()) {
                 stack = itemHandler.insertItem(i, stack, simulate);
             } else if (slotStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(slotStack, stack)) {
-                int reminder = Math.max(0, maxStackSize - slotStack.getCount());
-                int extracted = Math.min(stack.getCount(), reminder);
+                final int reminder = Math.max(0, maxStackSize - slotStack.getCount());
+                final int extracted = Math.min(stack.getCount(), reminder);
                 stack.shrink(extracted);
                 if (!simulate)
                     slotStack.grow(extracted);
@@ -167,16 +167,16 @@ public final class ItemStackHelper {
 
         stack = simulate ? stack.copy() : stack;
         for (int i = 0; i < itemHandler.getSlots() && !stack.isEmpty(); i++) {
-            ItemStack slotStack = itemHandler.getStackInSlot(i);
-            int maxStackSize = itemHandler.getSlotLimit(i);
+            final ItemStack slotStack = itemHandler.getStackInSlot(i);
+            final int maxStackSize = itemHandler.getSlotLimit(i);
             if (slotStack.isEmpty()) {
                 beforeInsertedCallback.accept(i, stack);
                 stack = itemHandler.insertItem(i, stack, simulate);
                 afterInsertedCallback.accept(i, stack);
             } else if (slotStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(slotStack, stack)) {
                 beforeInsertedCallback.accept(i, stack);
-                int reminder = Math.max(0, maxStackSize - slotStack.getCount());
-                int extracted = Math.min(stack.getCount(), reminder);
+                final int reminder = Math.max(0, maxStackSize - slotStack.getCount());
+                final int extracted = Math.min(stack.getCount(), reminder);
                 stack.shrink(extracted);
                 if (!simulate)
                     slotStack.grow(extracted);
@@ -201,9 +201,9 @@ public final class ItemStackHelper {
         stack = simulate ? stack.copy() : stack;
         int count = 0;
         for (int i = 0; i < itemHandler.getSlots(); i++) {
-            ItemStack slotStack = itemHandler.getStackInSlot(i);
+            final ItemStack slotStack = itemHandler.getStackInSlot(i);
             if (slotStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(slotStack, stack)) {
-                int extracted = Math.min(slotStack.getCount(), amount);
+                final int extracted = Math.min(slotStack.getCount(), amount);
                 count += extracted;
                 amount -= extracted;
                 if (!simulate)
@@ -230,9 +230,35 @@ public final class ItemStackHelper {
 
         int count = 0;
         for (int i = 0; i < itemHandler.getSlots(); i++) {
-            ItemStack slotStack = itemHandler.getStackInSlot(i);
+            final ItemStack slotStack = itemHandler.getStackInSlot(i);
             if (ingredient.apply(slotStack)) {
-                int extracted = itemHandler.extractItem(i, amount, simulate).getCount();
+                final int extracted = itemHandler.extractItem(i, amount, simulate).getCount();
+                count += extracted;
+                amount -= extracted;
+                if (amount < 1)
+                    break;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Tries to extract from container inventory or item handler with ingredients
+     * @param itemHandler container inventory
+     * @param ingredient the ItemStack to extract
+     * @param amount the amount of items to extract and will be added to ItemStack count
+     * @param simulate test to see if the item can be extracted without actually extracting the item for real.
+     * @return The amount extracted
+     */
+    public static long extractFromItemHandlerByIngredientLong(IItemHandler itemHandler, @Nonnull Ingredient ingredient, long amount, boolean simulate) {
+        if (itemHandler == null)
+            return 0;
+
+        long count = 0;
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            final ItemStack slotStack = itemHandler.getStackInSlot(i);
+            if (ingredient.apply(slotStack)) {
+                final int extracted = itemHandler.extractItem(i, (int) Math.min(Integer.MAX_VALUE, amount), simulate).getCount();
                 count += extracted;
                 amount -= extracted;
                 if (amount < 1)
@@ -256,10 +282,39 @@ public final class ItemStackHelper {
 
         int count = 0;
         for (int i = 0; i < itemHandler.getSlots(); i++) {
-            ItemStack slotStack = itemHandler.getStackInSlot(i);
+            final ItemStack slotStack = itemHandler.getStackInSlot(i);
             if (ingredient.apply(slotStack)) {
-                ItemStack extract = itemHandler.extractItem(i, amount, simulate);
-                int extracted = extract.getCount();
+                final ItemStack extract = itemHandler.extractItem(i, amount, simulate);
+                final int extracted = extract.getCount();
+                count += extracted;
+                amount -= extracted;
+                if (!extract.isEmpty())
+                    stacks.add(extract);
+                if (amount < 1)
+                    break;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Tries to extract from container inventory or item handler with ingredients and adds the extracted items to list
+     * @param itemHandler container inventory
+     * @param ingredient the ItemStack to extract
+     * @param amount the amount of items to extract and will be added to ItemStack count
+     * @param simulate test to see if the item can be extracted without actually extracting the item for real.
+     * @return The amount extracted
+     */
+    public static long extractFromItemHandlerByIngredientToListLong(IItemHandler itemHandler, @Nonnull Ingredient ingredient, long amount, boolean simulate, List<ItemStack> stacks) {
+        if (itemHandler == null)
+            return 0;
+
+        long count = 0;
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            final ItemStack slotStack = itemHandler.getStackInSlot(i);
+            if (ingredient.apply(slotStack)) {
+                final ItemStack extract = itemHandler.extractItem(i, (int) Math.min(Integer.MAX_VALUE, amount), simulate);
+                final int extracted = extract.getCount();
                 count += extracted;
                 amount -= extracted;
                 if (!extract.isEmpty())

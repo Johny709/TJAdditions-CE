@@ -116,8 +116,8 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        Position pos = this.getPosition();
-        Size size = this.getSize();
+        final Position pos = this.getPosition();
+        final Size size = this.getSize();
         if (!this.useToggleTexture) {
             if (this.isPressedCondition.getAsBoolean())
                 this.activeTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
@@ -128,8 +128,8 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
             this.toggleTexture.drawSubArea(pos.x, pos.y, size.width, size.height, 0.0, this.isPressed ? 0.5 : 0.0, 1.0, 0.5);
         }
         if (this.baseDisplayText != null && this.activeDisplayText != null) {
-            FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-            String text = I18n.format(this.isPressed ? this.activeDisplayText : this.baseDisplayText);
+            final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+            final String text = I18n.format(this.isPressed ? this.activeDisplayText : this.baseDisplayText);
             fontRenderer.drawString(text,
                     this.getPosition().getX() + this.getSize().getWidth() / 2 - fontRenderer.getStringWidth(text) / 2,
                     this.getPosition().getY() + this.getSize().getHeight() / 2 - fontRenderer.FONT_HEIGHT / 2, this.textColor);
@@ -159,11 +159,11 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
         if (id == 1) {
-            String buttonId = buffer.readString(Short.MAX_VALUE);
+            final String buttonId = buffer.readString(Short.MAX_VALUE);
             this.isPressed = buffer.readBoolean();
-            int mouseX = buffer.readInt();
-            int mouseY = buffer.readInt();
-            int button = buffer.readInt();
+            final int mouseX = buffer.readInt();
+            final int mouseY = buffer.readInt();
+            final int button = buffer.readInt();
             if (this.buttonResponder != null)
                 this.buttonResponder.accept(buttonId);
             if (this.toggleButtonResponder != null)

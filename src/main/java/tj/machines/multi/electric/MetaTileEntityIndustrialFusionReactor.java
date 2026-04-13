@@ -120,7 +120,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     @Override
     public boolean checkRecipe(Recipe recipe) {
-        long energyToStart = recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * this.getParallel();
+        final long energyToStart = recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * this.getParallel();
         this.recipe = recipe;
         this.maxHeat = Math.min(this.energyContainer.getEnergyCapacity(), energyToStart);
         return this.heat >= energyToStart;
@@ -130,7 +130,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         super.preOverclock(overclockManager, recipe);
         long recipeEnergy = Math.max(160_000_000, recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L));
-        long recipeEnergyOld = recipeEnergy;
+        final long recipeEnergyOld = recipeEnergy;
         float ocMultiplier = 1;
         while (recipeEnergy <= this.energyToStart) {
             if (recipeEnergy != recipeEnergyOld)
@@ -149,7 +149,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(LEFT, FRONT, DOWN);
                 for (int count = 1; count < this.parallelLayer; count++) {
                     factoryPattern.aisle("###############", "######ICI######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#I###########I#", "#C###########C#", "#I###########I#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######ICI######", "###############");
                     factoryPattern.aisle("######OGO######", "####GGcccGG####", "###EccOGOccE###", "##EcEG###GEcE##", "#GcE#######EcG#", "#GcG#######GcG#", "OcO#########OcO", "GcG#########GcG", "OcO#########OcO", "#GcG#######GcG#", "#GcE#######EcG#", "##EcEG###GEcE##", "###EccOGOccE###", "####GGcccGG####", "######OGO######");
@@ -170,9 +170,9 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     public static BiFunction<BlockWorldState, MetaTileEntity, Boolean> energyHatchPredicate(int tier) {
         return (state, tile) -> {
             if (tile instanceof MetaTileEntityMultiblockPart) {
-                MetaTileEntityMultiblockPart multiblockPart = (MetaTileEntityMultiblockPart) tile;
+                final MetaTileEntityMultiblockPart multiblockPart = (MetaTileEntityMultiblockPart) tile;
                 if (multiblockPart instanceof IMultiblockAbilityPart<?>) {
-                    IMultiblockAbilityPart<?> abilityPart = (IMultiblockAbilityPart<?>) multiblockPart;
+                    final IMultiblockAbilityPart<?> abilityPart = (IMultiblockAbilityPart<?>) multiblockPart;
                     return abilityPart.getAbility() == INPUT_ENERGY && multiblockPart.getTier() >= tier;
                 }
             }
@@ -180,14 +180,14 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         };
     }
 
-    public Predicate<BlockWorldState> energyPortPredicate(int tier) {
+    public static Predicate<BlockWorldState> energyPortPredicate(int tier) {
         return (blockWorldState) -> {
-            IBlockState blockState = blockWorldState.getBlockState();
+            final IBlockState blockState = blockWorldState.getBlockState();
             if (blockState.getBlock() instanceof EnergyPortCasings) {
-                EnergyPortCasings abilityCasings = (EnergyPortCasings) blockState.getBlock();
-                EnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
-                List<EnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
-                Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
+                final EnergyPortCasings abilityCasings = (EnergyPortCasings) blockState.getBlock();
+                final EnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
+                final List<EnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
+                final Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
                 currentCasing.add(tieredCasingType);
                 activeStates.add(blockWorldState.getPos());
                 return currentCasing.get(0).getName().equals(tieredCasingType.getName()) && currentCasing.get(0).getTier() >= tier;
@@ -242,11 +242,11 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         super.formStructure(context);
         this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
         long euCapacity = 0;
-        long energyStored = this.energyContainer.getEnergyStored();
-        int energyPortAmount = Collections.unmodifiableList(context.getOrDefault("EnergyPort", Collections.emptyList())).size();
+        final long energyStored = this.energyContainer.getEnergyStored();
+        final int energyPortAmount = Collections.unmodifiableList(context.getOrDefault("EnergyPort", Collections.emptyList())).size();
         euCapacity += energyPortAmount * 10000000L * (long) Math.pow(2, this.fusionTier - 6);
 
-        List<IEnergyContainer> energyInputs = getAbilities(INPUT_ENERGY);
+        final List<IEnergyContainer> energyInputs = getAbilities(INPUT_ENERGY);
         this.inputEnergyContainer = new EnergyContainerList(energyInputs);
         euCapacity += energyInputs.size() * 10000000L * (long) Math.pow(2, this.fusionTier - 6);
         this.energyContainer = new EnergyContainerHandler(this, euCapacity, GAValues.V[this.fusionTier], 0, 0, 0) {
@@ -268,9 +268,9 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     protected void updateFormedValid() {
         super.updateFormedValid();
-        long inputEnergyStored = this.inputEnergyContainer.getEnergyStored();
+        final long inputEnergyStored = this.inputEnergyContainer.getEnergyStored();
         if (inputEnergyStored > 0) {
-            long energyAdded = this.energyContainer.addEnergy(inputEnergyStored);
+            final long energyAdded = this.energyContainer.addEnergy(inputEnergyStored);
             if (energyAdded > 0)
                 this.inputEnergyContainer.removeEnergy(energyAdded);
         }
@@ -283,8 +283,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         }
 
         if (this.recipe != null && this.recipeLogic.isWorkingEnabled()) {
-            long remainingHeat = this.maxHeat - this.heat;
-            long energyToRemove = Math.min(remainingHeat, this.inputEnergyContainer.getInputAmperage() * this.inputEnergyContainer.getInputVoltage());
+            final long remainingHeat = this.maxHeat - this.heat;
+            final long energyToRemove = Math.min(remainingHeat, this.inputEnergyContainer.getInputAmperage() * this.inputEnergyContainer.getInputVoltage());
             this.heat += Math.abs(this.energyContainer.removeEnergy(energyToRemove));
         }
     }
@@ -332,7 +332,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (!this.getWorld().isRemote) {
-            int lastParallelLayer = this.parallelLayer;
+            final int lastParallelLayer = this.parallelLayer;
             this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - 1 : this.parallelLayer + 1, 1, TJConfig.industrialFusionReactor.maximumSlices);
             if (this.parallelLayer != lastParallelLayer) {
                 playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
@@ -385,12 +385,12 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     private void readActiveBlockPacket(PacketBuffer buffer) {
-        boolean isActive = buffer.readBoolean();
-        int size = buffer.readInt();
+        final boolean isActive = buffer.readBoolean();
+        final int size = buffer.readInt();
         for (int i = 0; i < size; i++) {
-            BlockPos pos = buffer.readBlockPos();
+            final BlockPos pos = buffer.readBlockPos();
             IBlockState state = this.getWorld().getBlockState(pos);
-            Block block = state.getBlock();
+            final Block block = state.getBlock();
             if (block instanceof EnergyPortCasings) {
                 state = state.withProperty(EnergyPortCasings.ACTIVE, isActive);
                 this.getWorld().setBlockState(pos, state);
@@ -413,7 +413,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
-        NBTTagCompound tagCompound = super.writeToNBT(data);
+        final NBTTagCompound tagCompound = super.writeToNBT(data);
         tagCompound.setLong("Heat", this.heat);
         tagCompound.setLong("MaxHeat", this.maxHeat);
         tagCompound.setInteger("Parallel", this.parallelLayer);

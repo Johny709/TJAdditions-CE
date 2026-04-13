@@ -35,6 +35,7 @@ public abstract class TJMultiRecipeMapMultiblockController extends TJRecipeMapMu
         super.handleDisplayClick(componentData, clickData);
         if (this.recipeLogic.isActive() || !componentData.equals(this.getRecipeMap().getUnlocalizedName())) return;
         this.recipeLogic.getRecipeLRUCache().clear();
+        this.recipeLogic.invalidate();
         this.recipeMapIndex = this.recipeMapIndex >= this.recipeMaps.length - 1 ? 0 : this.recipeMapIndex + 1;
         if (!this.getWorld().isRemote) {
             this.writeCustomData(RECIPE_MAP_INDEX, buf -> buf.writeInt(this.recipeMapIndex));
@@ -93,7 +94,7 @@ public abstract class TJMultiRecipeMapMultiblockController extends TJRecipeMapMu
 
     @Override
     public String getRecipeMapNames() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         for (int i = 0; i < this.getRecipeMaps().length; i++) {
             builder.append(this.getRecipeMaps()[i].getLocalizedName());
             if (i < this.getRecipeMaps().length - 1)

@@ -37,8 +37,8 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
      * @param widgets widgets to add.
      */
     public ClickPopUpWidget addPopup(int x, int y, int width, int height, AdvancedDisplayWidget textWidget, boolean add, Predicate<WidgetGroup> widgets) {
-        WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
-        boolean visible = widgets.test(widgetGroup);
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
+        final boolean visible = widgets.test(widgetGroup);
         textWidget.setTextId(String.valueOf(this.selectedIndex))
                 .addClickHandler(this::handleDisplayClick);
         if (add)
@@ -63,8 +63,8 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
      * @param widgets widgets to add.
      */
     public ClickPopUpWidget addPopup(int x, int y, int width, int height, TJAdvancedTextWidget textWidget, boolean add, Predicate<WidgetGroup> widgets) {
-        WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
-        boolean visible = widgets.test(widgetGroup);
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
+        final boolean visible = widgets.test(widgetGroup);
         textWidget.setTextId(String.valueOf(this.selectedIndex))
                 .addClickHandler(this::handleDisplayClick);
         if (add)
@@ -87,7 +87,7 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
     }
 
     private void handleDisplayClick(String componentData, String textId, ClickData clickData, EntityPlayer player) {
-        int index = Integer.parseInt(textId) + 1;
+        final int index = Integer.parseInt(textId) + 1;
         EnumActionResult actionResult = null;
         boolean contains = this.textConditions.get(index) != null;
         if (contains && (actionResult = this.textConditions.get(index).test(componentData, textId, clickData, player)) == EnumActionResult.PASS)

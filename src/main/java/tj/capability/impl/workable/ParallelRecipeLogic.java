@@ -19,8 +19,10 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.capability.*;
 import tj.capability.impl.handler.IRecipeHandler;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 import tj.util.TJFluidUtils;
+import tj.util.wrappers.GTFluidStackWrapper;
+import tj.util.wrappers.GTIngredientWrapper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,6 +86,9 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     public void invalidate() {
         Arrays.fill(this.lastInputIndex, 0);
         Arrays.fill(this.recipeRecheck, true);
+        this.lastItemInputs = null;
+        this.lastItemInputsMatrix = null;
+        this.lastFluidInputs = null;
     }
 
     @Override
@@ -139,17 +144,17 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
 
     @Override
     protected boolean completeRecipe(int i) {
-        List<ItemStack> itemStackList = this.itemOutputs.get(i);
+        final List<ItemStack> itemStackList = this.itemOutputs.get(i);
         for (int j = this.itemOutputIndex[i]; j < itemStackList.size(); j++) {
-            ItemStack stack = itemStackList.get(j);
-            if (this.voidingItems || ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
+            final ItemStack stack = itemStackList.get(j);
+            if (this.voidingItems || TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
+                TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
                 this.itemOutputIndex[i]++;
             } else return false;
         }
-        List<FluidStack> fluidStackList = this.fluidOutputs.get(i);
+        final List<FluidStack> fluidStackList = this.fluidOutputs.get(i);
         for (int j = this.fluidOutputIndex[i]; j < fluidStackList.size(); j++) {
-            FluidStack stack = fluidStackList.get(j);
+            final FluidStack stack = fluidStackList.get(j);
             if (this.voidingFluids || this.handler.getExportFluidTank().fill(stack, false) == stack.amount) {
                 this.handler.getExportFluidTank().fill(stack, true);
                 this.fluidOutputIndex[i]++;
@@ -168,7 +173,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
 
     @Override
     protected int calculateOverclock(long baseEnergy, int duration, float multiplier, int i) {
-        long voltage = this.handler.getMaxVoltage();
+        final long voltage = this.handler.getMaxVoltage();
         baseEnergy *= 4;
         while (duration > 1 && baseEnergy <= voltage) {
             duration /= multiplier;
@@ -198,7 +203,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
         return recipe;
     }
 
-    protected boolean consumeRecipe(Recipe recipe, IItemHandlerModifiable itemInputs, int i) {
+    protected final boolean consumeRecipe(Recipe recipe, IItemHandlerModifiable itemInputs, int i) {
         int parallels = this.overclockManager.getParallel();
         // check for parallel count and if there's enough inputs to be consumed.
         if ((parallels = this.checkItemInputsAmount(parallels, recipe, itemInputs)) < 1)
@@ -217,36 +222,36 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     }
 
     protected int checkItemInputsAmount(int parallels, Recipe recipe, IItemHandlerModifiable itemInputs) {
-        for (CountableIngredient ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
+        for (GTIngredientWrapper ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
             if (ingredient.getCount() > 0) {
-                parallels = Math.min(parallels, ItemStackHelper.extractFromItemHandlerByIngredient(itemInputs, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
+                parallels = Math.min(parallels, TJItemUtils.extractFromItemHandlerByIngredient(itemInputs, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
                 if (parallels < 1) return 0;
-            } else if (!ItemStackHelper.checkItemHandlerForIngredient(itemInputs, ingredient.getIngredient()))
+            } else if (!TJItemUtils.checkItemHandlerForIngredient(itemInputs, ingredient.getIngredient()))
                 return 0;
         }
         return parallels;
     }
 
     protected void consumeItemInputs(int parallels, Recipe recipe, IItemHandlerModifiable itemInputs, int i) {
-        for (CountableIngredient ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
-            ItemStackHelper.extractFromItemHandlerByIngredientToList(itemInputs, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.itemInputs.get(i));
+        for (GTIngredientWrapper ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
+            TJItemUtils.extractFromItemHandlerByIngredientToList(itemInputs, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.itemInputs.get(i));
         }
     }
 
     protected void addItemOutputs(int parallels, Recipe recipe, int i) {
         for (ItemStack stack : recipe.getOutputs()) {
-            ItemStack item = stack.copy();
+            final ItemStack item = stack.copy();
             item.setCount(stack.getCount() * parallels);
             this.itemOutputs.get(i).add(item);
         }
     }
 
     protected void addChancedOutputs(int parallels, Recipe recipe, int i) {
-        int tier = this.handler.getTier() - GAUtility.getTierByVoltage(this.overclockManager.getEUt());
+        final int tier = this.handler.getTier() - GAUtility.getTierByVoltage(this.overclockManager.getEUt());
         for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
-            int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
-            if (Math.random() * 10000 < chance) {
-                ItemStack stack = entry.getItemStack().copy();
+            final int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
+            if (this.metaTileEntity.getWorld().rand.nextInt(10000) < chance) {
+                final ItemStack stack = entry.getItemStack().copy();
                 stack.setCount(stack.getCount() * parallels);
                 this.itemOutputs.get(i).add(stack);
             }
@@ -254,28 +259,28 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     }
 
     protected int checkFluidInputsAmount(int parallels, Recipe recipe) {
-        for (FluidStack stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
-            if (stack.amount > 0) {
-                parallels = Math.min(parallels, TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack, stack.amount * parallels, false) / stack.amount);
+        for (GTFluidStackWrapper stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
+            if (stack.getCount() > 0) {
+                parallels = Math.min(parallels, TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack.getFluidStack(), stack.getCount() * parallels, false) / stack.getCount());
                 if (parallels < 1) return 0;
-            } else if (!TJFluidUtils.findFluidFromTanks(this.handler.getImportFluidTank(), stack))
+            } else if (!TJFluidUtils.findFluidFromTanks(this.handler.getImportFluidTank(), stack.getFluidStack()))
                 return 0;
         }
         return parallels;
     }
 
     protected void consumeFluidInputs(int parallels, Recipe recipe, int i) {
-        for (FluidStack stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
-            FluidStack fluid = stack.copy();
+        for (GTFluidStackWrapper stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
+            final FluidStack fluid = stack.getFluidStack().copy();
             fluid.amount *= parallels;
-            TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack, stack.amount * parallels, true);
+            TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), fluid, stack.getCount() * parallels, true);
             this.fluidInputs.get(i).add(fluid);
         }
     }
 
     protected void addFluidOutputs(int parallels, Recipe recipe, int i) {
         for (FluidStack stack : recipe.getFluidOutputs()) {
-            FluidStack fluid = stack.copy();
+            final FluidStack fluid = stack.copy();
             fluid.amount *= parallels;
             this.fluidOutputs.get(i).add(fluid);
         }
@@ -291,8 +296,8 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
             this.lastFluidInputs = new FluidStack[fluidInputs.getTanks()];
         }
         for (int i = 0; i < this.lastItemInputs.length; i++) {
-            ItemStack currentStack = itemInputs.getStackInSlot(i);
-            ItemStack lastStack = lastItemInputs[i];
+            final ItemStack currentStack = itemInputs.getStackInSlot(i);
+            final ItemStack lastStack = lastItemInputs[i];
             if (!areItemStacksEqual(currentStack, lastStack)) {
                 this.lastItemInputs[i] = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
                 shouldRecheckRecipe = true;
@@ -302,8 +307,8 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
             }
         }
         for (int i = 0; i < this.lastFluidInputs.length; i++) {
-            FluidStack currentStack = fluidInputs.getTankAt(i).getFluid();
-            FluidStack lastStack = this.lastFluidInputs[i];
+            final FluidStack currentStack = fluidInputs.getTankAt(i).getFluid();
+            final FluidStack lastStack = this.lastFluidInputs[i];
             if ((currentStack == null && lastStack != null) ||
                     (currentStack != null && !currentStack.isFluidEqual(lastStack))) {
                 this.lastFluidInputs[i] = currentStack == null ? null : currentStack.copy();
@@ -331,8 +336,8 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
             this.lastFluidInputs = new FluidStack[fluidInputs.getTanks()];
         }
         for (int i = 0; i < this.lastItemInputsMatrix[index].length; i++) {
-            ItemStack currentStack = itemInputs.getStackInSlot(i);
-            ItemStack lastStack = this.lastItemInputsMatrix[index][i];
+            final ItemStack currentStack = itemInputs.getStackInSlot(i);
+            final ItemStack lastStack = this.lastItemInputsMatrix[index][i];
             if (!areItemStacksEqual(currentStack, lastStack)) {
                 this.lastItemInputsMatrix[index][i] = currentStack.isEmpty() ? ItemStack.EMPTY : currentStack.copy();
                 shouldRecheckRecipe = true;
@@ -342,8 +347,8 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
             }
         }
         for (int i = 0; i < this.lastFluidInputs.length; i++) {
-            FluidStack currentStack = fluidInputs.getTankAt(i).getFluid();
-            FluidStack lastStack = this.lastFluidInputs[i];
+            final FluidStack currentStack = fluidInputs.getTankAt(i).getFluid();
+            final FluidStack lastStack = this.lastFluidInputs[i];
             if ((currentStack == null && lastStack != null) ||
                     (currentStack != null && !currentStack.isFluidEqual(lastStack))) {
                 this.lastFluidInputs[i] = currentStack == null ? null : currentStack.copy();
@@ -370,9 +375,9 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound compound = super.serializeNBT();
-        NBTTagList occupiedRecipeList = new NBTTagList();
-        NBTTagList itemInputIndexList = new NBTTagList(), fluidInputIndexList = new NBTTagList(), recipeLockList = new NBTTagList();
+        final NBTTagCompound compound = super.serializeNBT();
+        final NBTTagList occupiedRecipeList = new NBTTagList();
+        final NBTTagList itemInputIndexList = new NBTTagList(), fluidInputIndexList = new NBTTagList(), recipeLockList = new NBTTagList();
         for (int itemInputIndex : this.itemOutputIndex)
             itemInputIndexList.appendTag(new NBTTagInt(itemInputIndex));
         for (int fluidInputIndex : this.fluidOutputIndex)
@@ -382,12 +387,12 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
         for (int i = 0; i < this.occupiedRecipes.size(); i++) {
             Recipe recipe = this.occupiedRecipes.get(i);
             if (!this.recipeLock[i] || recipe == null) continue;
-            NBTTagCompound recipeCompound = new NBTTagCompound();
-            NBTTagList recipeItemInputList = new NBTTagList(), recipeChancedOutputList = new NBTTagList(), recipeItemOutputList = new NBTTagList();
-            NBTTagList recipeFluidInputList = new NBTTagList(), recipeFluidOutputList = new NBTTagList();
+            final NBTTagCompound recipeCompound = new NBTTagCompound();
+            final NBTTagList recipeItemInputList = new NBTTagList(), recipeChancedOutputList = new NBTTagList(), recipeItemOutputList = new NBTTagList();
+            final NBTTagList recipeFluidInputList = new NBTTagList(), recipeFluidOutputList = new NBTTagList();
             for (CountableIngredient ingredient : recipe.getInputs()) {
-                NBTTagCompound ingredientCompound = new NBTTagCompound();
-                NBTTagList oreDictStackList = new NBTTagList();
+                final NBTTagCompound ingredientCompound = new NBTTagCompound();
+                final NBTTagList oreDictStackList = new NBTTagList();
                 for (ItemStack stack : ingredient.getIngredient().getMatchingStacks())
                     oreDictStackList.appendTag(stack.serializeNBT());
                 ingredientCompound.setTag("oreDictStacks", oreDictStackList);
@@ -396,7 +401,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
                 recipeItemInputList.appendTag(ingredientCompound);
             }
             for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
-                NBTTagCompound chanceCompound = new NBTTagCompound();
+                final NBTTagCompound chanceCompound = new NBTTagCompound();
                 chanceCompound.setTag("stack", entry.getItemStack().serializeNBT());
                 chanceCompound.setInteger("chance", entry.getChance());
                 chanceCompound.setInteger("boost", entry.getBoostPerTier());
@@ -436,8 +441,8 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
-        NBTTagList occupiedRecipeList = compound.getTagList("occupiedRecipes", 10);
-        NBTTagList itemInputIndexList = compound.getTagList("itemInputIndex", 3), fluidInputIndexList = compound.getTagList("fluidInputIndex", 3), recipeLockList = compound.getTagList("recipeLock", 1);
+        final NBTTagList occupiedRecipeList = compound.getTagList("occupiedRecipes", 10);
+        final NBTTagList itemInputIndexList = compound.getTagList("itemInputIndex", 3), fluidInputIndexList = compound.getTagList("fluidInputIndex", 3), recipeLockList = compound.getTagList("recipeLock", 1);
         this.itemOutputIndex = new int[this.size];
         this.fluidOutputIndex = new int[this.size];
         this.recipeLock = new boolean[this.size];
@@ -457,30 +462,30 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
             this.fluidOutputs.put(i, new ArrayList<>());
         }
         for (int i = 0; i < occupiedRecipeList.tagCount(); i++) {
-            NBTTagCompound recipeCompound = occupiedRecipeList.getCompoundTagAt(i);
-            NBTTagList recipeItemInputList = recipeCompound.getTagList("recipeItemInputs", 10), recipeChancedOutputList = recipeCompound.getTagList("recipeChancedOutputs", 10), recipeItemOutputList = recipeCompound.getTagList("recipeItemOutputs", 10);
-            NBTTagList recipeFluidInputList = recipeCompound.getTagList("recipeFluidInputs", 10), recipeFluidOutputList = recipeCompound.getTagList("recipeFluidOutputs", 10);
+            final NBTTagCompound recipeCompound = occupiedRecipeList.getCompoundTagAt(i);
+            final NBTTagList recipeItemInputList = recipeCompound.getTagList("recipeItemInputs", 10), recipeChancedOutputList = recipeCompound.getTagList("recipeChancedOutputs", 10), recipeItemOutputList = recipeCompound.getTagList("recipeItemOutputs", 10);
+            final NBTTagList recipeFluidInputList = recipeCompound.getTagList("recipeFluidInputs", 10), recipeFluidOutputList = recipeCompound.getTagList("recipeFluidOutputs", 10);
             List<CountableIngredient> itemInputs = new ArrayList<>();
             for (int j = 0; j < recipeItemInputList.tagCount(); j++) {
-                NBTTagCompound ingredientCompound = recipeItemOutputList.getCompoundTagAt(j);
-                NBTTagList oreDictStackList = ingredientCompound.getTagList("oreDictStacks", 10);
-                ItemStack[] stacks = new ItemStack[ingredientCompound.getInteger("size")];
+                final NBTTagCompound ingredientCompound = recipeItemOutputList.getCompoundTagAt(j);
+                final NBTTagList oreDictStackList = ingredientCompound.getTagList("oreDictStacks", 10);
+                final ItemStack[] stacks = new ItemStack[ingredientCompound.getInteger("size")];
                 for (int k = 0; k < oreDictStackList.tagCount(); k++)
                     stacks[k] = new ItemStack(oreDictStackList.getCompoundTagAt(k));
                 itemInputs.add(new CountableIngredient(Ingredient.fromStacks(stacks), ingredientCompound.getInteger("count")));
             }
-            List<Recipe.ChanceEntry> chancedOutputs = new ArrayList<>();
+            final List<Recipe.ChanceEntry> chancedOutputs = new ArrayList<>();
             for (int j = 0; j < recipeChancedOutputList.tagCount(); j++) {
                 NBTTagCompound chanceCompound = recipeChancedOutputList.getCompoundTagAt(j);
                 chancedOutputs.add(new Recipe.ChanceEntry(new ItemStack(chanceCompound.getCompoundTag("stack")), chanceCompound.getInteger("chance"), chanceCompound.getInteger("boost")));
             }
-            List<ItemStack> itemOutputs = new ArrayList<>();
+            final List<ItemStack> itemOutputs = new ArrayList<>();
             for (int j = 0; j < recipeItemOutputList.tagCount(); j++)
                 itemOutputs.add(new ItemStack(recipeItemOutputList.getCompoundTagAt(j)));
-            List<FluidStack> fluidInputs = new ArrayList<>();
+            final List<FluidStack> fluidInputs = new ArrayList<>();
             for (int j = 0; j < recipeFluidInputList.tagCount(); j++)
                 fluidInputs.add(FluidStack.loadFluidStackFromNBT(recipeFluidInputList.getCompoundTagAt(j)));
-            List<FluidStack> fluidOutputs = new ArrayList<>();
+            final List<FluidStack> fluidOutputs = new ArrayList<>();
             for (int j = 0; j < recipeFluidOutputList.tagCount(); j++)
                 fluidOutputs.add(FluidStack.loadFluidStackFromNBT(recipeFluidOutputList.getCompoundTagAt(j)));
             Recipe recipe = new Recipe(itemInputs, itemOutputs, chancedOutputs, fluidInputs, fluidOutputs, recipeCompound.getInteger("duration"), recipeCompound.getInteger("EUt"), recipeCompound.getBoolean("hidden"));
@@ -497,10 +502,10 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     }
 
     private NBTTagList writeItemStacksMapNBT(Int2ObjectMap<List<ItemStack>> itemStackMap) {
-        NBTTagList tagList = new NBTTagList();
+        final NBTTagList tagList = new NBTTagList();
         for (Int2ObjectMap.Entry<List<ItemStack>> entry : itemStackMap.int2ObjectEntrySet()) {
-            NBTTagCompound compound = new NBTTagCompound();
-            NBTTagList itemStackList = new NBTTagList();
+            final NBTTagCompound compound = new NBTTagCompound();
+            final NBTTagList itemStackList = new NBTTagList();
             for (ItemStack stack : entry.getValue())
                 itemStackList.appendTag(stack.serializeNBT());
             compound.setTag("itemStacks", itemStackList);
@@ -511,10 +516,10 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     }
 
     private Int2ObjectMap<List<ItemStack>> readItemStackMapNBT(NBTTagList tagList) {
-        Int2ObjectMap<List<ItemStack>> itemStackMap = new Int2ObjectOpenHashMap<>();
+        final Int2ObjectMap<List<ItemStack>> itemStackMap = new Int2ObjectOpenHashMap<>();
         for (int i = 0; i < tagList.tagCount(); i++) {
-            NBTTagCompound compound = tagList.getCompoundTagAt(i);
-            NBTTagList itemStackList = compound.getTagList("itemStacks", 10);
+            final NBTTagCompound compound = tagList.getCompoundTagAt(i);
+            final NBTTagList itemStackList = compound.getTagList("itemStacks", 10);
             List<ItemStack> itemStacks = new ArrayList<>();
             for (int j = 0; j < itemStackList.tagCount(); j++) {
                 itemStacks.add(new ItemStack(itemStackList.getCompoundTagAt(j)));
@@ -525,10 +530,10 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     }
 
     private NBTTagList writeFluidStacksMapNBT(Int2ObjectMap<List<FluidStack>> fluidStackMap) {
-        NBTTagList tagList = new NBTTagList();
+        final NBTTagList tagList = new NBTTagList();
         for (Int2ObjectMap.Entry<List<FluidStack>> entry : fluidStackMap.int2ObjectEntrySet()) {
-            NBTTagCompound compound = new NBTTagCompound();
-            NBTTagList fluidStackList = new NBTTagList();
+            final NBTTagCompound compound = new NBTTagCompound();
+            final NBTTagList fluidStackList = new NBTTagList();
             for (FluidStack stack : entry.getValue())
                 fluidStackList.appendTag(stack.writeToNBT(new NBTTagCompound()));
             compound.setTag("fluidStacks", fluidStackList);
@@ -539,11 +544,11 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     }
 
     private Int2ObjectMap<List<FluidStack>> readFluidStackMapNBT(NBTTagList tagList) {
-        Int2ObjectMap<List<FluidStack>> fluidStackMap = new Int2ObjectOpenHashMap<>();
+        final Int2ObjectMap<List<FluidStack>> fluidStackMap = new Int2ObjectOpenHashMap<>();
         for (int i = 0; i < tagList.tagCount(); i++) {
-            NBTTagCompound compound = tagList.getCompoundTagAt(i);
-            NBTTagList fluidStackList = compound.getTagList("fluidStacks", 10);
-            List<FluidStack> fluidStacks = new ArrayList<>();
+            final NBTTagCompound compound = tagList.getCompoundTagAt(i);
+            final NBTTagList fluidStackList = compound.getTagList("fluidStacks", 10);
+            final List<FluidStack> fluidStacks = new ArrayList<>();
             for (int j = 0; j < fluidStackList.tagCount(); j++) {
                 fluidStacks.add(FluidStack.loadFluidStackFromNBT(fluidStackList.getCompoundTagAt(j)));
             }

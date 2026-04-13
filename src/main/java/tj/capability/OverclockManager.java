@@ -30,6 +30,7 @@ public final class OverclockManager<T> {
      * Can be set in {@link tj.capability.impl.handler.IRecipeHandler#preOverclock(OverclockManager, Recipe) preOverclock}. Has no effect in {@link tj.capability.impl.handler.IRecipeHandler#postOverclock(OverclockManager, Recipe) postOverclock}.
      * Initial value is set to 2.8
      * @param durationMultiplier multiplier applied per overclock. e.g. setting to 2 will cut the recipe time in half for every overclock.
+     *                           setting to 4 will have the recipe time at 1/4.
      */
     public void setDurationMultiplier(float durationMultiplier) {
         this.durationMultiplier = durationMultiplier;

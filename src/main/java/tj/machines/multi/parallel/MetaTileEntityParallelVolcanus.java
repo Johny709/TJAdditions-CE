@@ -45,6 +45,7 @@ import tj.capability.impl.handler.IFluidSupplyHandler;
 import tj.capability.impl.workable.FluidRecipeLogic;
 import tj.capability.impl.workable.ParallelRecipeLogic;
 import tj.util.TJFluidUtils;
+import tj.util.TJUtility;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
@@ -116,15 +117,14 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
         int duration = overclockManager.getDuration();
         int heat = this.blastFurnaceTemperature - recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
         // Apply EUt discount for every 900K above the base recipe temperature
-        recipeEUt *= (long) Math.pow(0.95, heat / 900D);
+        recipeEUt /= (long) Math.max(1.00, (1.00 + 0.05 * (heat / 900D)));
         while (duration > 1 && recipeEUt <= this.maxVoltage) {
             if (heat < 1800) break;
             heat -= 1800;
             duration /= 4;
             recipeEUt *= 4;
         }
-        overclockManager.setEUt(recipeEUt / 4);
-        overclockManager.setDuration(duration);
+        overclockManager.setEUtAndDuration(recipeEUt / 4, duration);
     }
 
     @Override
@@ -138,7 +138,7 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             if (layer % 4 == 0) {
                 String muffler = layer == 0 ? "XXMXX" : "XXPXX";
@@ -172,7 +172,9 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
                 .filter(voltage -> voltage <= GAValues.V[7])
                 .max()
                 .orElse(GAValues.V[7]);
-        this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
+        if (this.maxVoltage >= Integer.MAX_VALUE)
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
+        this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
         this.bonusTemperature = Math.max(0, 100 * (this.tier - 2));
         this.blastFurnaceTemperature = context.getOrDefault("blastFurnaceTemperature", 0);
         this.blastFurnaceTemperature += this.bonusTemperature;

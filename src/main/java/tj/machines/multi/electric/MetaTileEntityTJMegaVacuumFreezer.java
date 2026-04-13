@@ -1,5 +1,6 @@
 package tj.machines.multi.electric;
 
+import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -26,6 +27,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.OverclockManager;
+import tj.capability.impl.handler.IRecipeHandler;
+import tj.capability.impl.workable.BasicRecipeLogic;
+import tj.capability.impl.workable.MegaRecipeLogic;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -56,8 +60,13 @@ public class MetaTileEntityTJMegaVacuumFreezer extends TJRecipeMapMultiblockCont
     }
 
     @Override
+    protected BasicRecipeLogic<? extends IRecipeHandler> createRecipeLogic() {
+        return new MegaRecipeLogic<>(this);
+    }
+
+    @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setParallel(1 << overclockManager.getParallel() * 2);
+        overclockManager.setParallel((int) Math.min(Integer.MAX_VALUE, 1L << overclockManager.getParallel() * 2));
     }
 
     @Override
@@ -87,8 +96,11 @@ public class MetaTileEntityTJMegaVacuumFreezer extends TJRecipeMapMultiblockCont
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.tier = context.getOrDefault("frameworkTier", 0);
-        this.maxVoltage = 8L << this.tier * 2;
+        final int tier = context.getOrDefault("frameworkTier", 0);
+        if (tier < GAValues.MAX) {
+            this.maxVoltage = 8L << tier * 2;
+            this.tier = tier;
+        }
     }
 
     @Override

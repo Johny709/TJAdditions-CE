@@ -1,8 +1,6 @@
 package tj.mixin.gregtech;
 
 import gregicadditions.machines.GATileEntities;
-import gregicadditions.machines.multi.GAFueledMultiblockController;
-import gregicadditions.machines.multi.IMaintenance;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
@@ -21,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
 import tj.builder.WidgetTabBuilder;
-import tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
@@ -30,6 +27,7 @@ import tj.gui.TJHorizontoalTabListRenderer;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJProgressBarWidget;
+import tj.gui.widgets.impl.AnimatedImageWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 
 import java.util.ArrayDeque;
@@ -37,7 +35,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.function.UnaryOperator;
 
-import static tj.gui.TJGuiTextures.CAUTION_BUTTON;
+import static tj.gui.TJGuiTextures.*;
 import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
@@ -60,41 +58,40 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     @Inject(method = "createUITemplate", at = @At("HEAD"), cancellable = true)
     private void injectCreateUITemplate(EntityPlayer entityPlayer, CallbackInfoReturnable<ModularUI.Builder> cir) {
         if (TJConfig.machines.multiblockUIOverrides) {
-            int height = 0;
+            int height = this.getYExtended();
             int[][] barMatrix = null;
             height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
-            ModularUI.Builder builder = ModularUI.extendedBuilder();
-            WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
+            final ModularUI.Builder builder = ModularUI.extendedBuilder();
+            final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                     .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
                     .setPosition(-10, 1)
                     .offsetPosition(0, height)
-                    .offsetY(132);
-            if (height > 0)
-                builder.image(-10, 132, 200, height, TJGuiTextures.MULTIBLOCK_DISPLAY_SLICE);
-            builder.widget(new TJLabelWidget(-1, -38, 184, 18, TJGuiTextures.MACHINE_LABEL, this::getJEIRecipeUid)
-                    .setItemLabel(this.getStackForm())
-                    .setLocale(this.getMetaFullName()));
-            builder.image(-10, -20, 200, 152, TJGuiTextures.MULTIBLOCK_DISPLAY_SCREEN)
-                    .image(-10, 132 + height, 200, 85, TJGuiTextures.MULTIBLOCK_DISPLAY_SLOTS);
+                    .offsetY(132 - this.getYExtended());
+            builder.image(-10, -20, 200, 237 + height, GuiTextures.BORDERED_BACKGROUND)
+                    .image(-4, -14, 188, 145, MULTIBLOCK_DISPLAY_BASE)
+                    .widget(new TJLabelWidget(-1, -38, 184, 18, MACHINE_LABEL_2, this::getJEIRecipeUid)
+                            .setItemLabel(this.getStackForm())
+                            .setLocale(this.getMetaFullName()));
             this.addNewTabs(tabBuilder);
             if (barMatrix != null)
                 this.addNewBars(barMatrix, builder);
             builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
                     .widget(tabBuilder.build())
-                    .widget(tabBuilder.buildWidgetGroup());
+                    .widget(tabBuilder.buildWidgetGroup())
+                    .widget(new AnimatedImageWidget(154, 102, 26, 26, 41, TJ_LOGO_ANIMATED));
             cir.setReturnValue(builder);
         }
     }
 
     @Unique
     private void addNewBars(int[][] barMatrix, ModularUI.Builder builder) {
-        Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars = new ArrayDeque<>();
+        final Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars = new ArrayDeque<>();
         ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars);
         for (int i = 0; i < barMatrix.length; i++) {
-            int[] column = barMatrix[i];
+            final int[] column = barMatrix[i];
             for (int j = 0; j < column.length; j++) {
-                ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
-                int height = 188 / column.length;
+                final ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
+                final int height = 188 / column.length;
                 builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
                         .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
                         .setLocale(bar.getLocale(), bar.getParams())
@@ -105,25 +102,19 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     }
 
     @Unique
-    private void addNewTabs(WidgetTabBuilder tabBuilder) {
+    protected void addNewTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::addMainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.add(new AdvancedTextWidget(10, -13, textList -> {
-                    if (this.getHolder().getMetaTileEntity() instanceof GAFueledMultiblockController) {
-                        GAFueledMultiblockController controller = (GAFueledMultiblockController) this.getHolder().getMetaTileEntity();
-                        MultiblockDisplaysUtility.mufflerDisplay(textList, !controller.hasMufflerHatch() || controller.isMufflerFaceFree());
-                    }
-                    if (this.getHolder().getMetaTileEntity() instanceof IMaintenance) {
-                        IMaintenance maintenance = (IMaintenance) this.getHolder().getMetaTileEntity();
-                        MultiblockDisplaysUtility.maintenanceDisplay(textList, maintenance.getProblems(), maintenance.hasProblems());
-                    }
-                }, 0xFFFFFF).setMaxWidthLimit(180)));
+                maintenanceTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
+                        .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::configureMaintenanceDisplayText, 0xFFFFFF)
+                                .setMaxWidthLimit(180))
+                        .setScrollPanelWidth(3)));
     }
 
     @Unique
     protected void addMainDisplayTab(List<Widget> widgetGroup) {
-        widgetGroup.add(new ScrollableDisplayWidget(10, -15, 183, 142)
-                .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::configureDisplayText, 0xFFFFFF)
+        widgetGroup.add(new ScrollableDisplayWidget(10, -11, 187, 140)
+                .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::configureDisplayText, 0xFFFFFF)
                         .setClickHandler(this::handleDisplayClick)
                         .setMaxWidthLimit(180))
                 .setScrollPanelWidth(3));
@@ -134,13 +125,16 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
     @Unique
     protected void configureDisplayText(GUIDisplayBuilder builder) {
         if (!this.isStructureFormed()) {
-            ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
+            final ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
             tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
             builder.customLine(text -> text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
                     .setStyle(new Style().setColor(TextFormatting.RED)
                             .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
         }
     }
+
+    @Unique
+    protected void configureMaintenanceDisplayText(GUIDisplayBuilder builder) {}
 
     @Unique
     private boolean isStructureCheck() {
@@ -156,6 +150,11 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
             this.invalidateStructure();
             this.structurePattern = this.createStructurePattern();
         }
+    }
+
+    @Unique
+    protected int getYExtended() {
+        return 0;
     }
 
     @Unique

@@ -45,7 +45,7 @@ public final class TJGuiUtils {
 
     private static WidgetGroup bindPlayerHotbar(WidgetGroup widgetGroup, InventoryPlayer inventoryPlayer, int x, int y, ItemStack stack) {
         for (int slot = 0; slot < 9; ++slot) {
-            boolean interact = inventoryPlayer.player.inventory.getStackInSlot(slot) != stack;
+            final boolean interact = inventoryPlayer.player.inventory.getStackInSlot(slot) != stack;
             widgetGroup.addWidget((new SlotWidget(inventoryPlayer, slot, x + slot * 18, y, interact, interact))
                     .setBackgroundTexture(GuiTextures.SLOT)
                     .setLocationInfo(true, true));
@@ -55,10 +55,10 @@ public final class TJGuiUtils {
 
     public static void drawFluidForGui(FluidStack contents, long fluidAmount, long tankCapacity, long startX, long startY, long widthT, long heightT) {
         widthT--;
-        Fluid fluid = contents.getFluid();
-        ResourceLocation fluidStill = fluid.getStill();
-        TextureAtlasSprite fluidStillSprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(fluidStill.toString());
-        int fluidColor = fluid.getColor(contents);
+        final Fluid fluid = contents.getFluid();
+        final ResourceLocation fluidStill = fluid.getStill();
+        final TextureAtlasSprite fluidStillSprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(fluidStill.toString());
+        final int fluidColor = fluid.getColor(contents);
         long scaledAmount = fluidAmount * widthT / Math.max(1, tankCapacity);
         if (fluidAmount > 0 && scaledAmount < 1) {
             scaledAmount = 1;
@@ -79,13 +79,13 @@ public final class TJGuiUtils {
 
         for (long xTile = 0; xTile <= xTileCount; xTile++) {
             for (long yTile = 0; yTile <= yTileCount; yTile++) {
-                long width = xTile == xTileCount ? xRemainder : 16;
-                long height = yTile == yTileCount ? yRemainder : 16;
-                long x = startX + xTile * 16;
-                long y = yStart - (yTile + 1) * 16;
+                final long width = xTile == xTileCount ? xRemainder : 16;
+                final long height = yTile == yTileCount ? yRemainder : 16;
+                final long x = startX + xTile * 16;
+                final long y = yStart - (yTile + 1) * 16;
                 if (width > 0 && height > 0) {
-                    long maskTop = 16 - height;
-                    long maskRight = 16 - width;
+                    final long maskTop = 16 - height;
+                    final long maskRight = 16 - width;
 
                     drawFluidTexture(x, y, fluidStillSprite, maskTop, maskRight, 0.0);
                 }
@@ -95,15 +95,15 @@ public final class TJGuiUtils {
     }
 
     private static void drawFluidTexture(double xCoord, double yCoord, TextureAtlasSprite textureSprite, long maskTop, long maskRight, double zLevel) {
-        double uMin = textureSprite.getMinU();
+        final double uMin = textureSprite.getMinU();
         double uMax = textureSprite.getMaxU();
-        double vMin = textureSprite.getMinV();
+        final double vMin = textureSprite.getMinV();
         double vMax = textureSprite.getMaxV();
         uMax = uMax - maskRight / 16.0 * (uMax - uMin);
         vMax = vMax - maskTop / 16.0 * (vMax - vMin);
 
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
+        final Tessellator tessellator = Tessellator.getInstance();
+        final BufferBuilder buffer = tessellator.getBuffer();
         buffer.begin(7, DefaultVertexFormats.POSITION_TEX);
         buffer.pos(xCoord, yCoord + 16, zLevel).tex(uMin, vMax).endVertex();
         buffer.pos(xCoord + 16 - maskRight, yCoord + 16, zLevel).tex(uMax, vMax).endVertex();

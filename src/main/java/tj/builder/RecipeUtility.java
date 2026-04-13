@@ -2,13 +2,17 @@ package tj.builder;
 
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.tuple.Pair;
+import tj.util.wrappers.GTIngredientWrapper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,41 +21,15 @@ public final class RecipeUtility {
     private RecipeUtility() {}
 
     public static NonNullList<CountableIngredient> mergeIngredients(NonNullList<Ingredient> ingredients) {
-        NonNullList<CountableIngredient> countableIngredients = NonNullList.create();
-        NonNullList<Ingredient> tmpIngredients = NonNullList.create();
-        tmpIngredients.addAll(ingredients);
-        for (int i = 0; i < ingredients.size(); i++) {
-            List<Ingredient> toRemove = new ArrayList<>();
-            Ingredient ingredient = ingredients.get(i);
-            int matches = 0;
-            for (int j = 0; j < tmpIngredients.size(); j++) {
-                Ingredient tmpIngredient = tmpIngredients.get(j);
-                if (matchingStacksMatches(ingredient, tmpIngredient)) {
-                    toRemove.add(tmpIngredient);
-                    matches++;
-                }
-            }
-            for (int j = 0; j < toRemove.size(); j++) {
-                tmpIngredients.remove(toRemove.get(j));
-            }
-            if (matches > 0)
-                countableIngredients.add(new CountableIngredient(ingredient, matches));
+        final Object2ObjectMap<String, GTIngredientWrapper> itemStacksMap = new Object2ObjectOpenHashMap<>();
+        for (Ingredient ingredient : ingredients) {
+            itemStacksMap.computeIfAbsent(Arrays.toString(ingredient.getMatchingStacks()), k -> new GTIngredientWrapper(ingredient, 0))
+                    .increment(1);
         }
+        final NonNullList<CountableIngredient> countableIngredients = NonNullList.create();
+        for (GTIngredientWrapper gtIngredientWrapper : itemStacksMap.values())
+            countableIngredients.add(new CountableIngredient(gtIngredientWrapper.getIngredient(), gtIngredientWrapper.getCount()));
         return countableIngredients;
-    }
-
-    private static boolean matchingStacksMatches(Ingredient ingredient, Ingredient other) {
-        ItemStack[] matchingStacks = ingredient.getMatchingStacks();
-        ItemStack[] otherMatchingStacks = other.getMatchingStacks();
-        try {
-            for (int i = 0; i < matchingStacks.length; i++) {
-                if (!matchingStacks[i].isItemEqual(otherMatchingStacks[i]))
-                    return false;
-            }
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return false;
-        }
-        return true;
     }
 
     public static boolean recipeMatches(Recipe recipe, List<ItemStack> inputs, List<ItemStack> outputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutputs) {

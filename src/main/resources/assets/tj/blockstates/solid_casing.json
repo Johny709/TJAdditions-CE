@@ -5,29 +5,29 @@
   },
   "variants": {
     "variant": {
-      "draconium": {
+      "bohrium": {
         "textures": {
-          "all": "tj:blocks/casings/solid/draconiccasing"
+          "all": "tj:blocks/casings/solid/bohrium"
         }
       },
-      "awakened": {
+      "vibranium": {
         "textures": {
-          "all": "tj:blocks/casings/solid/awakenedcasing"
+          "all": "tj:blocks/casings/solid/vibranium"
         }
       },
-      "chaotic": {
+      "adamantium": {
         "textures": {
-          "all": "tj:blocks/casings/solid/chaoticcasing"
+          "all": "tj:blocks/casings/solid/adamantium"
         }
       },
-      "eternity": {
+      "neutronium": {
         "textures": {
-          "all": "tj:blocks/casings/solid/eternityblock"
+          "all": "tj:blocks/casings/solid/neutronium"
         }
       },
-      "soul": {
+      "chaosalloy": {
         "textures": {
-          "all": "tj:blocks/casings/solid/soulcasing"
+          "all": "tj:blocks/casings/solid/chaos_alloy"
         }
       },
       "duranium": {

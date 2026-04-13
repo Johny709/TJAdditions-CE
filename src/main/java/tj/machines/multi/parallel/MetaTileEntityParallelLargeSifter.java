@@ -1,6 +1,8 @@
 package tj.machines.multi.parallel;
 
+import gregicadditions.GAValues;
 import gregicadditions.machines.GATileEntities;
+import gregtech.api.capability.IEnergyContainer;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import gregicadditions.client.ClientHandler;
@@ -27,6 +29,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.util.TJUtility;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
@@ -63,7 +66,7 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 1; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("~XXX~", "X###X", "X###X", "X###X", "~XXX~");
             factoryPattern.aisle("XXXXX", "PGGGP", "XGGGX", "PGGGP", "XXXXX");
@@ -107,8 +110,25 @@ public class MetaTileEntityParallelLargeSifter extends ParallelRecipeMapMultiblo
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.tier = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
-        this.maxVoltage = 8L << this.tier * 2;
+        final int tier = context.getOrDefault("Piston", PistonCasing.CasingType.PISTON_LV).getTier();
+        if (tier >= GAValues.MAX) {
+            this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
+                    .mapToLong(IEnergyContainer::getInputVoltage)
+                    .max()
+                    .orElse(0);
+            long amps = this.getAbilities(INPUT_ENERGY).stream()
+                    .filter(energy -> energy.getInputVoltage() == this.maxVoltage)
+                    .mapToLong(IEnergyContainer::getInputAmperage)
+                    .sum() / Math.max(1, this.parallelLayer);
+            amps = Math.min(4096, amps);
+            while (amps >= 4) {
+                amps /= 4;
+                this.maxVoltage *= 4;
+            }
+            if (this.maxVoltage >= Integer.MAX_VALUE)
+                this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
+        } else this.maxVoltage = 8L << tier * 2;
+        this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
     }
 
     @Override

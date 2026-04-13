@@ -68,8 +68,8 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
      * @param widgets widgets to add.
      */
     public R addPopup(Predicate<WidgetGroup> widgets) {
-        WidgetGroup widgetGroup = new WidgetGroup();
-        boolean visible = widgets.test(widgetGroup);
+        final WidgetGroup widgetGroup = new WidgetGroup();
+        final boolean visible = widgets.test(widgetGroup);
         this.addWidget(widgetGroup);
         this.pendingWidgets.clear();
         this.widgetMap.put(this.selectedIndex++ ,Pair.of(visible, widgetGroup));
@@ -84,13 +84,13 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
 
     @Override
     public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
-        AbstractWidgetGroup widgetGroup = this.widgetMap.get(this.selectedIndex).getRight();
+        final AbstractWidgetGroup widgetGroup = this.widgetMap.get(this.selectedIndex).getRight();
         return widgetGroup.getPhantomTargets(ingredient);
     }
 
     @Override
     public Object getIngredientOverMouse(int mouseX, int mouseY) {
-        AbstractWidgetGroup widgetGroup = this.widgetMap.get(this.selectedIndex).getRight();
+        final AbstractWidgetGroup widgetGroup = this.widgetMap.get(this.selectedIndex).getRight();
         return widgetGroup.getIngredientOverMouse(mouseX, mouseY);
     }
 

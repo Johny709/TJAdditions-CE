@@ -84,10 +84,10 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        WidgetGroup craftingSlotGroup = new WidgetGroup(new Position(7, 14));
-        SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(109, 14, 64, 54, 3);
+        final WidgetGroup craftingSlotGroup = new WidgetGroup(new Position(7, 14));
+        final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(109, 14, 64, 54, 3);
         for (int i = 0; i < this.craftingInventory.getSlots(); i++) {
-            int finalI = i;
+            final int finalI = i;
             craftingSlotGroup.addWidget(new PhantomSlotWidget(this.craftingInventory, i, 18 * (i % 3), 18 * (i / 3))
                     .setBackgroundTexture(SLOT)
                     .setChangeListener(() -> this.setCraftingResult(finalI, this.craftingInventory.getStackInSlot(finalI))));
@@ -97,7 +97,7 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
                     .onPressedConsumer((button, slot, stack) -> {
                         if (button == 0) {
                             this.clearCraftingResult();
-                            NonNullList<ItemStack> itemStacks = this.recipeMap.get(slot).getRight();
+                            final NonNullList<ItemStack> itemStacks = this.recipeMap.get(slot).getRight();
                             for (int j = 0; j < itemStacks.size(); j++) {
                                 this.setCraftingResult(j, itemStacks.get(j));
                             }
@@ -132,7 +132,7 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
             for (int i = 0; i < this.encodingSlots; i++) {
                 if (!this.recipeMap.containsKey(i)) {
                     this.encodingInventory.setStackInSlot(i, recipe.getRecipeOutput());
-                    NonNullList<ItemStack> itemStacks = NonNullList.create();
+                    final NonNullList<ItemStack> itemStacks = NonNullList.create();
                     for (int j = 0; j < this.craftingInventory.getSlots(); j++) {
                         itemStacks.add(this.craftingInventory.getStackInSlot(j));
                     }
@@ -146,7 +146,7 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
 
     private void removeRecipe(int slot) {
         this.recipeMap.remove(slot);
-        Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = new Int2ObjectArrayMap<>();
+        final Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = new Int2ObjectArrayMap<>();
         int i = 0;
         for (int j = 0; j < this.encodingInventory.getSlots(); j++)
             this.encodingInventory.setStackInSlot(j, ItemStack.EMPTY);
@@ -184,11 +184,11 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        NBTTagList recipeList = new NBTTagList();
+        final NBTTagList recipeList = new NBTTagList();
         for (Map.Entry<Integer, Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeEntry : this.recipeMap.entrySet()) {
-            NBTTagCompound recipeNBT = new NBTTagCompound();
-            NBTTagList patternNBT = new NBTTagList();
-            NonNullList<ItemStack> itemStacks = recipeEntry.getValue().getRight();
+            final NBTTagCompound recipeNBT = new NBTTagCompound();
+            final NBTTagList patternNBT = new NBTTagList();
+            final NonNullList<ItemStack> itemStacks = recipeEntry.getValue().getRight();
             for (int i = 0; i < itemStacks.size(); i++) {
                 patternNBT.appendTag(itemStacks.get(i).serializeNBT());
             }
@@ -204,13 +204,13 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        NBTTagList recipeList = data.getTagList("recipeList", 10);
+        final NBTTagList recipeList = data.getTagList("recipeList", 10);
         for (int i = 0; i < recipeList.tagCount(); i++) {
-            int index = recipeList.getCompoundTagAt(i).getInteger("index");
-            IRecipe recipe = CraftingManager.getRecipe(new ResourceLocation(recipeList.getCompoundTagAt(i).getString("id")));
+            final int index = recipeList.getCompoundTagAt(i).getInteger("index");
+            final IRecipe recipe = CraftingManager.getRecipe(new ResourceLocation(recipeList.getCompoundTagAt(i).getString("id")));
             if (recipe != null) {
-                NonNullList<ItemStack> itemStacks = NonNullList.create();
-                NBTTagList patternNBT = recipeList.getCompoundTagAt(i).getTagList("craftingPattern", 10);
+                final NonNullList<ItemStack> itemStacks = NonNullList.create();
+                final NBTTagList patternNBT = recipeList.getCompoundTagAt(i).getTagList("craftingPattern", 10);
                 for (int j = 0; j < patternNBT.tagCount(); j++) {
                     itemStacks.add(new ItemStack(patternNBT.getCompoundTagAt(j)));
                 }

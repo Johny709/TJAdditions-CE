@@ -29,7 +29,7 @@ import tj.capability.IRecipeMap;
 import tj.capability.OverclockManager;
 import tj.capability.TJCapabilities;
 import tj.capability.ParallelRecipeLRUCache;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 
 import java.util.*;
 import java.util.function.LongSupplier;
@@ -486,8 +486,8 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
         List<ItemStack> itemOutputs = this.itemOutputs.get(i);
         for (int j = this.itemOutputIndex[i]; j < itemOutputs.size(); j++) {
             ItemStack stack = itemOutputs.get(j);
-            if (this.voidItems || ItemStackHelper.insertIntoItemHandler(this.getOutputInventory(), stack, true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(this.getOutputInventory(), stack, false);
+            if (this.voidItems || TJItemUtils.insertIntoItemHandler(this.getOutputInventory(), stack, true).isEmpty()) {
+                TJItemUtils.insertIntoItemHandler(this.getOutputInventory(), stack, false);
                 this.itemOutputIndex[i]++;
             } else return false;
         }

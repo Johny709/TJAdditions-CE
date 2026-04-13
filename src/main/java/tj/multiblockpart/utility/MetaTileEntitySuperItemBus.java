@@ -67,8 +67,8 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        int slots = Math.min(100,(this.getTier() + 1) * (this.getTier() + 1));
-        int size = this.getTier() < GAValues.UMV ? 1024
+        final int slots = Math.min(100,(this.getTier() + 1) * (this.getTier() + 1));
+        final int size = this.getTier() < GAValues.UMV ? 1024
                 : this.getTier() < GAValues.MAX ? 16384
                 : Integer.MAX_VALUE;
 
@@ -79,8 +79,8 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        int slots = Math.min(100,(this.getTier() + 1) * (this.getTier() + 1));
-        int size = this.getTier() < GAValues.UMV ? 1024
+        final int slots = Math.min(100,(this.getTier() + 1) * (this.getTier() + 1));
+        final int size = this.getTier() < GAValues.UMV ? 1024
                 : this.getTier() < GAValues.MAX ? 16384
                 : Integer.MAX_VALUE;
 
@@ -90,8 +90,8 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        int slots = Math.min(100,(this.getTier() + 1) * (this.getTier() + 1));
-        int size = this.getTier() < GAValues.UMV ? 1024
+        final int slots = Math.min(100,(this.getTier() + 1) * (this.getTier() + 1));
+        final int size = this.getTier() < GAValues.UMV ? 1024
                 : this.getTier() < GAValues.MAX ? 16384
                 : Integer.MAX_VALUE;
 
@@ -113,9 +113,9 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        IItemHandlerModifiable bus = this.isExport ? this.exportItems : this.importItems;
-        int tier = Math.min(3, this.getTier() / 3);
-        WidgetGroup widgetGroup = new WidgetGroup();
+        final IItemHandlerModifiable bus = this.isExport ? this.exportItems : this.importItems;
+        final int tier = Math.min(3, this.getTier() / 3);
+        final WidgetGroup widgetGroup = new WidgetGroup();
         widgetGroup.addWidget(new TJLabelWidget(7, -19, 180, 19, TJGuiTextures.MACHINE_LABEL_2)
                 .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()));
         widgetGroup.addWidget(new ImageWidget(169, 72 * tier, 18, 18, GuiTextures.DISPLAY));
@@ -155,8 +155,8 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         if (this.getController() == null) {
-            int oldBaseColor = renderState.baseColour;
-            int oldAlphaOverride = renderState.alphaOverride;
+            final int oldBaseColor = renderState.baseColour;
+            final int oldAlphaOverride = renderState.alphaOverride;
 
             renderState.baseColour = TJValues.VC[this.getTier()] << 8;
             renderState.alphaOverride = 0xFF;

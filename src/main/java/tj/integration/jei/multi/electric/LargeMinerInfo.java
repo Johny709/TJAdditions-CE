@@ -1,6 +1,5 @@
 package tj.integration.jei.multi.electric;
 
-import com.google.common.collect.Lists;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.machines.GATileEntities;
@@ -8,16 +7,16 @@ import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
+import tj.TJConfig;
 import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMiner;
 import tj.machines.multi.electric.MetaTileEntityEliteLargeMiner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class LargeMinerInfo extends TJMultiblockInfoPage {
 
@@ -34,9 +33,9 @@ public class LargeMinerInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        final List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         if (this.largeMiner.getType() == TJMiner.Type.DESTROYER) {
-            MultiblockShapeInfo.Builder builder = MultiblockShapeInfo.builder()
+            TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder()
                     .aisle("F###F", "F###F", "PPPPP", "#####", "#####", "#####", "#####", "#####", "#####", "#####")
                     .aisle("#####", "#####", "PPPPP", "#MPO#", "##F##", "##F##", "##F##", "#####", "#####", "#####")
                     .aisle("#####", "#####", "PPmPP", "#SPE#", "##F##", "##F##", "##F##", "##F##", "##F##", "##F##")
@@ -46,7 +45,8 @@ public class LargeMinerInfo extends TJMultiblockInfoPage {
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                     .where('P', this.largeMiner.getCasingState())
                     .where('F', this.largeMiner.getFrameState());
-            for (int tier = 0; tier < 15; tier++) {
+            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
                 shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
                         .where('O', MetaTileEntities.ITEM_EXPORT_BUS[tier], EnumFacing.EAST)
                         .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.EAST)
@@ -55,7 +55,7 @@ public class LargeMinerInfo extends TJMultiblockInfoPage {
             }
             return shapeInfos;
         }
-        MultiblockShapeInfo.Builder builder = MultiblockShapeInfo.builder()
+        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder()
                 .aisle("F###F", "F###F", "PPPPP", "#####", "#####", "#####", "#####", "#####", "#####", "#####")
                 .aisle("#####", "#####", "PPPPP", "#MPO#", "##F##", "##F##", "##F##", "#####", "#####", "#####")
                 .aisle("#####", "#####", "PPPPP", "#SPE#", "##F##", "##F##", "##F##", "##F##", "##F##", "##F##")
@@ -65,7 +65,8 @@ public class LargeMinerInfo extends TJMultiblockInfoPage {
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('P', this.largeMiner.getCasingState())
                 .where('F', this.largeMiner.getFrameState());
-        for (int tier = 0; tier < 15; tier++) {
+        final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+        for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
             shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
                     .where('O', MetaTileEntities.ITEM_EXPORT_BUS[Math.min(9, tier)], EnumFacing.EAST)
                     .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)

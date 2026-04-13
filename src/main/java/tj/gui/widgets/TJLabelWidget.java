@@ -105,9 +105,9 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         int widthApplied = 3;
-        Size size = this.getSize();
-        Position pos = this.getPosition();
-        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        final Size size = this.getSize();
+        final Position pos = this.getPosition();
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         if (this.labelTexture != null)
             this.labelTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         if (this.itemLabel != null) {
@@ -119,8 +119,8 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
             widthApplied += 18;
         }
         if (this.locale != null) {
-            int finalX = pos.getX() + widthApplied - this.offsetX;
-            String locale = I18n.format(this.locale);
+            final int finalX = pos.getX() + widthApplied - this.offsetX;
+            final String locale = I18n.format(this.locale);
             int length = fontRenderer.getStringWidth(locale);
             length -= this.offsetX;
             if (length < 0)
@@ -132,14 +132,14 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
     @Override
     public void detectAndSendChanges() {
         if (this.recipeUid != null) {
-            String uid = this.recipeUid.get();
+            final String uid = this.recipeUid.get();
             if (uid != null && !uid.equals(this.uid)) {
                 this.uid = uid;
                 this.writeUpdateInfo(1, buffer -> buffer.writeString(this.uid));
             }
         }
         if (this.localeSupplier != null) {
-            String locale = this.localeSupplier.get();
+            final String locale = this.localeSupplier.get();
             if (this.locale == null || !this.locale.equals(locale)) {
                 this.locale = locale;
                 this.writeUpdateInfo(2, buffer -> buffer.writeString(this.locale));
@@ -167,22 +167,22 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
             } else if (this.canSlide && (this.tickCounter % 2 == 0 || this.tickCounter % 3 == 0))
                 this.offsetX++;
             if (++this.hoverTicks > 20 && this.uid != null) {
-                FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-                String format = I18n.format("jei.tooltip.show.recipes");
+                final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+                final String format = I18n.format("jei.tooltip.show.recipes");
                 GuiUtils.drawHoveringText(Collections.singletonList(format), mouseX, mouseY, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight, 256, fontRenderer);
             }
         } else {
             this.hoverTicks = 0;
             this.offsetX = 0;
             if (this.centered && this.locale != null) {
-                String locale = I18n.format(this.locale);
-                int length = Minecraft.getMinecraft().fontRenderer.getStringWidth(locale);
+                final String locale = I18n.format(this.locale);
+                final int length = Minecraft.getMinecraft().fontRenderer.getStringWidth(locale);
                 int widthApplied = 3;
                 if (this.itemLabel != null)
                     widthApplied += 16;
                 if (this.fluidLabel != null)
                     widthApplied += 18;
-                int boxLength = this.getSize().getWidth() - widthApplied;
+                final int boxLength = this.getSize().getWidth() - widthApplied;
                 if (length < boxLength) {
                     this.offsetX = (length - boxLength) / 2;
                 }

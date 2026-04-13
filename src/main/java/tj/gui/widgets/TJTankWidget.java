@@ -100,8 +100,8 @@ public class TJTankWidget extends Widget implements IIngredientSlot {
 
     @Override
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        Position pos = getPosition();
-        Size size = getSize();
+        final Position pos = getPosition();
+        final Size size = getSize();
         if (backgroundTexture != null) {
             for (TextureArea textureArea : backgroundTexture) {
                 textureArea.draw(pos.x, pos.y, size.width, size.height);
@@ -118,9 +118,9 @@ public class TJTankWidget extends Widget implements IIngredientSlot {
                 GlStateManager.pushMatrix();
                 GlStateManager.scale(0.5, 0.5, 1);
 
-                String s = TextFormattingUtil.formatLongToCompactString(lastFluidInTank.amount, 4) + "L";
+                final String s = TextFormattingUtil.formatLongToCompactString(lastFluidInTank.amount, 4) + "L";
 
-                FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+                final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
                 fontRenderer.drawStringWithShadow(s, (pos.x + (size.width / 3)) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.y + (size.height / 3) + 6) * 2, 0xFFFFFF);
                 GlStateManager.popMatrix();
             }
@@ -135,13 +135,13 @@ public class TJTankWidget extends Widget implements IIngredientSlot {
     @Override
     public void drawInForeground(int mouseX, int mouseY) {
         if (!hideTooltip && !gui.isJEIHandled && isMouseOverElement(mouseX, mouseY)) {
-            List<String> tooltips = new ArrayList<>();
+            final List<String> tooltips = new ArrayList<>();
             if (lastFluidInTank != null) {
-                Fluid fluid = lastFluidInTank.getFluid();
+                final Fluid fluid = lastFluidInTank.getFluid();
                 tooltips.add(fluid.getLocalizedName(lastFluidInTank));
 
                 // Add chemical formula tooltip
-                String formula = FluidTooltipUtil.getFluidTooltip(lastFluidInTank);
+                final String formula = FluidTooltipUtil.getFluidTooltip(lastFluidInTank);
                 if (formula != null && !formula.isEmpty())
                     tooltips.add(ChatFormatting.GRAY.toString() + formula);
 
@@ -169,9 +169,8 @@ public class TJTankWidget extends Widget implements IIngredientSlot {
 
     @Override
     public void detectAndSendChanges() {
-        if (fluidTank.get() == null)
-            return;
-        FluidStack fluidStack = fluidTank.get().getFluid();
+        if (fluidTank.get() == null) return;
+        final FluidStack fluidStack = fluidTank.get().getFluid();
         if (fluidTank.get().getCapacity() != lastTankCapacity) {
             this.lastTankCapacity = fluidTank.get().getCapacity();
             writeUpdateInfo(0, buffer -> buffer.writeVarInt(lastTankCapacity));
@@ -183,7 +182,7 @@ public class TJTankWidget extends Widget implements IIngredientSlot {
         } else if (fluidStack != null) {
             if (!fluidStack.isFluidEqual(lastFluidInTank)) {
                 this.lastFluidInTank = fluidStack.copy();
-                NBTTagCompound fluidStackTag = fluidStack.writeToNBT(new NBTTagCompound());
+                final NBTTagCompound fluidStackTag = fluidStack.writeToNBT(new NBTTagCompound());
                 writeUpdateInfo(2, buffer -> buffer.writeCompoundTag(fluidStackTag));
             } else if (fluidStack.amount != lastFluidInTank.amount) {
                 this.lastFluidInTank.amount = fluidStack.amount;
@@ -199,7 +198,7 @@ public class TJTankWidget extends Widget implements IIngredientSlot {
         } else if (id == 1) {
             this.lastFluidInTank = null;
         } else if (id == 2) {
-            NBTTagCompound fluidStackTag;
+            final NBTTagCompound fluidStackTag;
             try {
                 fluidStackTag = buffer.readCompoundTag();
             } catch (IOException ignored) {
@@ -211,8 +210,8 @@ public class TJTankWidget extends Widget implements IIngredientSlot {
         }
 
         if (id == 4) {
-            ItemStack currentStack = gui.entityPlayer.inventory.getItemStack();
-            int newStackSize = buffer.readVarInt();
+            final ItemStack currentStack = gui.entityPlayer.inventory.getItemStack();
+            final int newStackSize = buffer.readVarInt();
             currentStack.setCount(newStackSize);
             gui.entityPlayer.inventory.setItemStack(currentStack);
         }
@@ -222,8 +221,8 @@ public class TJTankWidget extends Widget implements IIngredientSlot {
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
         if (id == 1) {
-            boolean isShiftKeyDown = buffer.readBoolean();
-            int clickResult = tryClickContainer(isShiftKeyDown);
+            final boolean isShiftKeyDown = buffer.readBoolean();
+            final int clickResult = tryClickContainer(isShiftKeyDown);
             if (clickResult >= 0) {
                 writeUpdateInfo(4, buf -> buf.writeVarInt(clickResult));
             }
@@ -231,20 +230,20 @@ public class TJTankWidget extends Widget implements IIngredientSlot {
     }
 
     private int tryClickContainer(boolean isShiftKeyDown) {
-        EntityPlayer player = gui.entityPlayer;
-        ItemStack currentStack = player.inventory.getItemStack();
+        final EntityPlayer player = gui.entityPlayer;
+        final ItemStack currentStack = player.inventory.getItemStack();
         if (!currentStack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null))
             return -1;
-        int maxAttempts = isShiftKeyDown ? currentStack.getCount() : 1;
+        final int maxAttempts = isShiftKeyDown ? currentStack.getCount() : 1;
 
         if (allowClickFilling && fluidTank.get().getFluidAmount() > 0) {
             boolean performedFill = false;
-            FluidStack initialFluid = fluidTank.get().getFluid();
+            final FluidStack initialFluid = fluidTank.get().getFluid();
             for (int i = 0; i < maxAttempts; i++) {
                 FluidActionResult result = FluidUtil.tryFillContainer(currentStack,
                         (IFluidHandler) fluidTank.get(), Integer.MAX_VALUE, null, false);
                 if (!result.isSuccess()) break;
-                ItemStack remainingStack = result.getResult();
+                final ItemStack remainingStack = result.getResult();
                 if (!remainingStack.isEmpty() && !player.inventory.addItemStackToInventory(remainingStack))
                     break; //do not continue if we can't add resulting container into inventory
                 FluidUtil.tryFillContainer(currentStack, (IFluidHandler) fluidTank.get(), Integer.MAX_VALUE, null, true);
@@ -252,7 +251,7 @@ public class TJTankWidget extends Widget implements IIngredientSlot {
                 performedFill = true;
             }
             if (performedFill) {
-                SoundEvent soundevent = initialFluid.getFluid().getFillSound(initialFluid);
+                final SoundEvent soundevent = initialFluid.getFluid().getFillSound(initialFluid);
                 player.world.playSound(null, player.posX, player.posY + 0.5, player.posZ,
                         soundevent, SoundCategory.BLOCKS, 1.0F, 1.0F);
                 gui.entityPlayer.inventory.setItemStack(currentStack);
@@ -263,19 +262,19 @@ public class TJTankWidget extends Widget implements IIngredientSlot {
         if (allowClickEmptying) {
             boolean performedEmptying = false;
             for (int i = 0; i < maxAttempts; i++) {
-                FluidActionResult result = FluidUtil.tryEmptyContainer(currentStack,
+                final FluidActionResult result = FluidUtil.tryEmptyContainer(currentStack,
                         (IFluidHandler) fluidTank.get(), Integer.MAX_VALUE, null, false);
                 if (!result.isSuccess()) break;
-                ItemStack remainingStack = result.getResult();
+                final ItemStack remainingStack = result.getResult();
                 if (!remainingStack.isEmpty() && !player.inventory.addItemStackToInventory(remainingStack))
                     break; //do not continue if we can't add resulting container into inventory
                 FluidUtil.tryEmptyContainer(currentStack, (IFluidHandler) fluidTank.get(), Integer.MAX_VALUE, null, true);
                 currentStack.shrink(1);
                 performedEmptying = true;
             }
-            FluidStack filledFluid = fluidTank.get().getFluid();
+            final FluidStack filledFluid = fluidTank.get().getFluid();
             if (performedEmptying) {
-                SoundEvent soundevent = filledFluid.getFluid().getEmptySound(filledFluid);
+                final SoundEvent soundevent = filledFluid.getFluid().getEmptySound(filledFluid);
                 player.world.playSound(null, player.posX, player.posY + 0.5, player.posZ,
                         soundevent, SoundCategory.BLOCKS, 1.0F, 1.0F);
                 gui.entityPlayer.inventory.setItemStack(currentStack);
@@ -290,10 +289,10 @@ public class TJTankWidget extends Widget implements IIngredientSlot {
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
         if (isMouseOverElement(mouseX, mouseY)) {
-            ItemStack currentStack = gui.entityPlayer.inventory.getItemStack();
+            final ItemStack currentStack = gui.entityPlayer.inventory.getItemStack();
             if (button == 0 && (allowClickEmptying || allowClickFilling) &&
                     currentStack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)) {
-                boolean isShiftKeyDown = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+                final boolean isShiftKeyDown = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
                 writeClientAction(1, writer -> writer.writeBoolean(isShiftKeyDown));
                 playButtonClickSound();
                 return true;

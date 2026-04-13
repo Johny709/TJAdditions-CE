@@ -89,12 +89,12 @@ public class TJSimpleMachineMetaTileEntity extends TJTieredWorkableMetaTileEntit
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 22, 21, 20)
+        final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 22, 21, 20)
                 .setFluidOutputSupplier(this.recipeLogic::getFluidOutputs)
                 .setItemOutputSupplier(this.recipeLogic::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
-        ModularUI.Builder newBuilder = ((IRecipeMap) this.getRecipeMap()).createUITemplateAdvanced(this.recipeLogic::getProgressPercent, this.importItems, this.exportItems, this.importFluids, this.exportFluids, displayWidget)
+        final ModularUI.Builder newBuilder = ((IRecipeMap) this.getRecipeMap()).createUITemplateAdvanced(this.recipeLogic::getProgressPercent, this.importItems, this.exportItems, this.importFluids, this.exportFluids, displayWidget)
                 .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
                 .image(-28, 138, 26, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL, () -> Gregicality.MODID + ":" + this.getRecipeMap().getUnlocalizedName())

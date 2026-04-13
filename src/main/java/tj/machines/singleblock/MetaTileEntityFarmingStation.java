@@ -80,7 +80,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
 
     public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
-        int range = (9 + (2 * tier)) * (9 + (2 * tier));
+        final int range = (9 + (2 * tier)) * (9 + (2 * tier));
         this.workableHandler.initialize(range);
         this.initializeInventory();
     }
@@ -123,9 +123,9 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        WidgetGroup widgetGroup = new WidgetGroup(new Position(7, 22));
-        SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(105, 22, 64, 54, 3);
-        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 39, 21, 20)
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(7, 22));
+        final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(105, 22, 64, 54, 3);
+        final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 39, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
                 .setItemInputInventorySupplier(this::getImportItems)

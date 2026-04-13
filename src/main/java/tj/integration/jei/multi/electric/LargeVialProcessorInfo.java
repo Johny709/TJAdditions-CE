@@ -14,8 +14,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import org.apache.commons.lang3.ArrayUtils;
-import tj.blocks.BlockSolidCasings;
-import tj.blocks.TJMetaBlocks;
+import tj.TJConfig;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
@@ -34,22 +33,23 @@ public class LargeVialProcessorInfo extends TJMultiblockInfoPage {
 
     @Override
     public List<MultiblockShapeInfo> getMatchingShapes() {
-        List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+        final List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("CCECC", "F~~~F", "F~~~F", "F~~~F", "CCCCC")
                 .aisle("CTTTC", "~BGB~", "~BGB~", "~BGB~", "CTTTC")
                 .aisle("CTeTC", "~GeG~", "~GeG~", "~GeG~", "CTeTC")
                 .aisle("CTTTC", "~BGB~", "~BGB~", "~BGB~", "CTTTC")
                 .aisle("IiSOC", "F~~~F", "F~~~F", "F~~~F", "CCMCC")
                 .where('S', this.getController(), EnumFacing.WEST)
-                .where('C', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SOUL_CASING))
+                .where('C', Block.getBlockFromName("contenttweaker:soulcasing").getDefaultState())
                 .where('B', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
                 .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
                 .where('F', MetaBlocks.FRAMES.get(GAMaterials.Protactinium.getMaterial()).getDefaultState())
                 .where('e', Block.getBlockFromName("enderio:block_alloy").getStateFromMeta(8))
                 .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
-        for (int tier = 0; tier < 15; tier++) {
+        final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+        for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
             shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
                     .where('I', MetaTileEntities.ITEM_EXPORT_BUS[tier], EnumFacing.WEST)
                     .where('O', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)

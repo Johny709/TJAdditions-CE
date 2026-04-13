@@ -36,10 +36,10 @@ public class ParallelLargeSifterInfo extends TJMultiblockInfoPage implements IPa
 
     @Override
     public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
+        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        final int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
         for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
+            final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
             for (int layer = 1; layer < shapeInfo; layer++) {
                 builder.aisle("~CCC~", "C###C", "C###C", "C###C", "~CCC~");
                 builder.aisle("CCCCC", "PGGGP", "CGGGC", "PGGGP", "CCCCC");
@@ -51,8 +51,9 @@ public class ParallelLargeSifterInfo extends TJMultiblockInfoPage implements IPa
                     .aisle("~CMC~", "C###C", "C###C", "C###C", "~CCC~")
                     .aisle("~C~C~", "CCCCC", "~C~C~", "CCCCC", "~C~C~")
                     .aisle("~C~C~", "CCCCC", "~C~C~", "CCCCC", "~C~C~");
-            TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            for (int tier = 0; tier < infos.length; tier++) {
+            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
+            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
                 infos[tier] = builder.where('S', getController(), WEST)
                         .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.EGLIN_STEEL))
                         .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))

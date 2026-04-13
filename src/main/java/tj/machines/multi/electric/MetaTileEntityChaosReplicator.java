@@ -12,7 +12,6 @@ import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -20,8 +19,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJRecipeMaps;
-import tj.blocks.BlockSolidCasings;
-import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.OverclockManager;
 import tj.textures.TJTextures;
@@ -68,8 +65,8 @@ public class MetaTileEntityChaosReplicator extends TJRecipeMapMultiblockControll
                 .aisle("CCCCCCC", "XDDDDDX", "QF###FQ", "QF###FQ", "QF#A#FQ", "QF###FQ", "QF###FQ", "XDDDDDX", "CCCCCCC")
                 .aisle("CCCCCCC", "CXXSXXC", "CQQCQQC", "CQQCQQC", "CQQCQQC", "CQQQQQC", "CQQQQQC", "CXXXXXC", "CCCCCCC")
                 .where('S', this.selfPredicate())
-                .where('C', statePredicate(this.getCasingState()).or(blockPredicate(getCasingAlternativeState())))
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(blockPredicate(getCasingAlternativeState())))
+                .where('C', blockPredicate(this.getCasingState()))
+                .where('X', blockPredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.EnrichedNaquadahAlloy).getDefaultState()))
                 .where('R', statePredicate(MetaBlocks.FRAMES.get(MATERIAL_REGISTRY.getObject("chaos")).getDefaultState()))
                 .where('D', blockPredicate(Block.getBlockFromName("draconicevolution:infused_obsidian")))
@@ -79,10 +76,7 @@ public class MetaTileEntityChaosReplicator extends TJRecipeMapMultiblockControll
                 .build();
     }
 
-    private IBlockState getCasingState() {
-        return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.CHOATIC_CASING);
-    }
-    protected Block getCasingAlternativeState() {
+    private Block getCasingState() {
         return Block.getBlockFromName("contenttweaker:chaoticcasing");
     }
 

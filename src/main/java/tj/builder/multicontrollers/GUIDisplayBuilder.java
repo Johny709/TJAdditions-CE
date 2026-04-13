@@ -1,29 +1,31 @@
 package tj.builder.multicontrollers;
 
-import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.AbstractRecipeLogic;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
+import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.common.items.MetaItems;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.TJValues;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.mixin.gregtech.IAbstractRecipeLogicMixin;
+import tj.util.TJFluidUtils;
+import tj.util.TJUtility;
+import tj.util.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static tj.util.TJFluidUtils.VOID_TANK;
 
 public final class GUIDisplayBuilder {
 
@@ -52,7 +54,7 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addTextComponentWithHover(ITextComponent component, int priority, Consumer<GUIDisplayBuilder> uiBuilder) {
         if (this.nested)
             throw new IllegalArgumentException("Cannot set hover text on hover text");
-        GUIDisplayBuilder builder = new GUIDisplayBuilder(true);
+        final GUIDisplayBuilder builder = new GUIDisplayBuilder(true);
         uiBuilder.accept(builder);
         this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(component).setPriority(priority)
                 .setAdvancedHoverComponent(builder.getTextComponentWrappers()));
@@ -67,9 +69,24 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addItemStackWithHover(ItemStack itemStack, int priority, Consumer<GUIDisplayBuilder> uiBuilder) {
         if (this.nested)
             throw new IllegalArgumentException("Cannot set hover text on hover text");
-        GUIDisplayBuilder builder = new GUIDisplayBuilder(true);
+        final GUIDisplayBuilder builder = new GUIDisplayBuilder(true);
         uiBuilder.accept(builder);
         this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(itemStack).setPriority(priority)
+                .setAdvancedHoverComponent(builder.getTextComponentWrappers()));
+        return this;
+    }
+
+    public GUIDisplayBuilder addIngredient(CountableIngredient ingredient, int priority) {
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(ingredient).setPriority(priority));
+        return this;
+    }
+
+    public GUIDisplayBuilder addIngredientWithHover(CountableIngredient ingredient, int priority, Consumer<GUIDisplayBuilder> uiBuilder) {
+        if (this.nested)
+            throw new IllegalArgumentException("Cannot set hover text on hover text");
+        final GUIDisplayBuilder builder = new GUIDisplayBuilder(true);
+        uiBuilder.accept(builder);
+        this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(ingredient).setPriority(priority)
                 .setAdvancedHoverComponent(builder.getTextComponentWrappers()));
         return this;
     }
@@ -82,7 +99,7 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addFluidStackWithHover(FluidStack fluidStack, int priority, Consumer<GUIDisplayBuilder> uiBuilder) {
         if (this.nested)
             throw new IllegalArgumentException("Cannot set hover text on hover text");
-        GUIDisplayBuilder builder = new GUIDisplayBuilder(true);
+        final GUIDisplayBuilder builder = new GUIDisplayBuilder(true);
         uiBuilder.accept(builder);
         this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(fluidStack).setPriority(priority)
                 .setAdvancedHoverComponent(builder.getTextComponentWrappers()));
@@ -113,6 +130,14 @@ public final class GUIDisplayBuilder {
         return this.addFluidStackWithHover(fluidStack, this.count++, uiBuilder);
     }
 
+    public GUIDisplayBuilder addIngredient(CountableIngredient ingredient) {
+        return this.addIngredient(ingredient, this.count++);
+    }
+
+    public GUIDisplayBuilder addIngredientWithHover(CountableIngredient ingredient, Consumer<GUIDisplayBuilder> uiBuilder) {
+        return this.addIngredientWithHover(ingredient, this.count++, uiBuilder);
+    }
+
     public GUIDisplayBuilder addTranslationLine(String locale, Object... format) {
         return this.addTranslationLine(0, locale, format);
     }
@@ -126,7 +151,7 @@ public final class GUIDisplayBuilder {
     }
 
     public GUIDisplayBuilder addTranslationLine(Consumer<TextComponentString> componentBuilder, int priority, String locale, Object... format) {
-        TextComponentString component = new TextComponentString(I18n.translateToLocalFormatted(locale, format));
+        final TextComponentString component = new TextComponentString(TextUtils.translate(locale, format));
         if (componentBuilder != null)
             componentBuilder.accept(component);
         if (priority != 0)
@@ -150,8 +175,8 @@ public final class GUIDisplayBuilder {
 
     public GUIDisplayBuilder addEnergyStoredLine(long energyStored, long energyCapacity, int priority) {
         if (priority != 0)
-            return this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.energy.stored", energyStored, energyCapacity)), priority);
-        else return this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.energy.stored", energyStored, energyCapacity)));
+            return this.addTextComponent(new TextComponentString(TextUtils.translate("machine.universal.energy.stored", energyStored, energyCapacity)), priority);
+        else return this.addTextComponent(new TextComponentString(TextUtils.translate("machine.universal.energy.stored", energyStored, energyCapacity)));
     }
 
     public GUIDisplayBuilder addEnergyInputLine(IEnergyContainer container, long amount) {
@@ -165,36 +190,48 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addEnergyInputLine(IEnergyContainer container, long amount, int maxProgress, int priority) {
         if (amount == 0)
             return this;
-        ITextComponent textComponent = container.getEnergyStored() < amount ? new TextComponentString(I18n.translateToLocal("tj.multiblock.not_enough_energy"))
-                : maxProgress > 1 ? new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.sum.2", amount, maxProgress))
-                : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.sum", amount)) ;
+        final ITextComponent textComponent = container.getEnergyStored() < amount ? new TextComponentString(TextUtils.translate("tj.multiblock.not_enough_energy"))
+                : maxProgress > 1 ? new TextComponentString(TextUtils.translate("tj.multiblock.parallel.sum.2", amount, maxProgress))
+                : new TextComponentString(TextUtils.translate("tj.multiblock.parallel.sum", amount)) ;
         if (priority != 0)
             return this.addTextComponent(textComponent, priority);
         else return this.addTextComponent(textComponent);
     }
 
     public GUIDisplayBuilder addVoltageTierLine(int tier) {
+        return this.addVoltageTierLine(tier, 0);
+    }
+
+    public GUIDisplayBuilder addVoltageTierLine(int tier, int priority) {
         if (tier > 0) {
-            String color = TJValues.VCC[tier];
-            this.addTextComponent(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
-                    .appendText(" §7(")
-                    .appendSibling(new TextComponentString(color + GAValues.VN[tier] + "§r"))
-                    .appendText("§7)"));
+            final String text = tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier] + "§r";
+            if (priority != 0) {
+                this.addTextComponent(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
+                        .appendText(" §7(").appendSibling(new TextComponentString(text)).appendText("§7)"), priority);
+            } else this.addTextComponent(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
+                    .appendText(" §7(").appendSibling(new TextComponentString(text)).appendText("§7)"));
         }
         return this;
     }
 
     public GUIDisplayBuilder addVoltageInLine(IEnergyContainer energyContainer) {
+        return this.addVoltageInLine(energyContainer, 0);
+    }
+
+    public GUIDisplayBuilder addVoltageInLine(IEnergyContainer energyContainer, int priority) {
         if (energyContainer != null && energyContainer.getEnergyCapacity() > 0) {
             long maxVoltage = energyContainer.getInputVoltage();
-            int tier = GAUtility.getTierByVoltage(maxVoltage);
-            String color = TJValues.VCC[tier];
-            this.addTextComponent(new TextComponentTranslation("tj.multiblock.max_energy_per_tick")
-                    .appendText(" ")
-                    .appendSibling(new TextComponentString("§e" + TJValues.thousandFormat.format(maxVoltage) + "§r"))
-                    .appendText(" §7(")
-                    .appendSibling(new TextComponentString(color + GAValues.VN[tier] + "§r"))
-                    .appendText("§7)"));
+            if (maxVoltage >= Integer.MAX_VALUE)
+                maxVoltage += maxVoltage / Integer.MAX_VALUE;
+            final int tier = TJUtility.getTierByVoltage(maxVoltage);
+            final String text = tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier] + "§r";
+            if (priority != 0) {
+                this.addTextComponent(new TextComponentTranslation("tj.multiblock.max_energy_per_tick").appendText(" ")
+                        .appendSibling(new TextComponentString("§e" + TJValues.thousandFormat.format(maxVoltage) + "§r")).appendText(" §7(")
+                        .appendSibling(new TextComponentString(text)).appendText("§7)"), priority);
+            } else this.addTextComponent(new TextComponentTranslation("tj.multiblock.max_energy_per_tick").appendText(" ")
+                    .appendSibling(new TextComponentString("§e" + TJValues.thousandFormat.format(maxVoltage) + "§r")).appendText(" §7(")
+                    .appendSibling(new TextComponentString(text)).appendText("§7)"));
         }
         return this;
     }
@@ -225,40 +262,56 @@ public final class GUIDisplayBuilder {
     }
 
     public GUIDisplayBuilder addFluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack) {
-        return this.addFluidInputLine(tanks, fluidStack, 1);
-    }
-    public GUIDisplayBuilder addFluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack, int ticks) {
-        return this.addFluidInputLine(tanks, fluidStack, ticks, 0);
+        return this.addFluidInputLine(tanks, fluidStack, 0, 1);
     }
 
-    public GUIDisplayBuilder addFluidInputLine(IFluidHandler tanks, FluidStack fluidStack, int ticks, int priority) {
+    public GUIDisplayBuilder addFluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack, long amount) {
+        return this.addFluidInputLine(tanks, fluidStack, amount, 1);
+    }
+
+    public GUIDisplayBuilder addFluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack, long amount, int ticks) {
+        return this.addFluidInputLine(tanks, fluidStack, amount, ticks, 0);
+    }
+
+    public GUIDisplayBuilder addFluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack, long amount, int ticks, int priority) {
         if (fluidStack == null)
             return this;
-        String fluidName = fluidStack.getLocalizedName();
-        int amount = fluidStack.amount;
-        boolean hasEnoughFluid = fluidStack.isFluidStackIdentical(tanks.drain(fluidStack, false)) || amount == 0;
-        ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid", fluidName, amount))
-                : ticks == 1 ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.tick", fluidName, amount))
-                : ticks % 20 != 0 ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.ticks", amount, fluidName, ticks))
-                : ticks == 20 ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.input.sec", fluidName, amount))
-                : new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.input.secs", amount, fluidName, ticks / 20));
+        amount = amount > 0 ? amount : fluidStack.amount;
+        final String fluidName = fluidStack.getLocalizedName();
+        final boolean hasEnoughFluid = amount < 1 || TJFluidUtils.drainFromTanksLong(tanks, fluidStack, amount, false) == amount;
+        final ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentString(TextUtils.translate("tj.multiblock.not_enough_fluid", fluidName, amount))
+                : ticks == 1 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.input.tick", fluidName, amount))
+                : ticks % 20 != 0 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.input.ticks", amount, fluidName, ticks))
+                : ticks == 20 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.input.sec", fluidName, amount))
+                : new TextComponentString(TextUtils.translate("machine.universal.fluid.input.secs", amount, fluidName, ticks / 20));
         if (priority != 0)
             return this.addTextComponent(fluidInputText, priority);
         else return this.addTextComponent(fluidInputText);
     }
 
-    public GUIDisplayBuilder addFluidOutputLine(IFluidHandler tanks, FluidStack fluidStack) {
-        return this.addFluidOutputLine(tanks, fluidStack, 0);
+    public GUIDisplayBuilder addFluidOutputLine(IMultipleTankHandler tanks, FluidStack fluidStack) {
+        return this.addFluidOutputLine(tanks, fluidStack, 0, 1, 0);
     }
 
-    public GUIDisplayBuilder addFluidOutputLine(IFluidHandler tanks, FluidStack fluidStack, int priority) {
+    public GUIDisplayBuilder addFluidOutputLine(IMultipleTankHandler tanks, FluidStack fluidStack, long amount) {
+        return this.addFluidOutputLine(tanks, fluidStack, amount, 1, 0);
+    }
+
+    public GUIDisplayBuilder addFluidOutputLine(IMultipleTankHandler tanks, FluidStack fluidStack, long amount, int ticks) {
+        return this.addFluidOutputLine(tanks, fluidStack, amount, ticks, 0);
+    }
+
+    public GUIDisplayBuilder addFluidOutputLine(IMultipleTankHandler tanks, FluidStack fluidStack, long amount, int ticks, int priority) {
         if (fluidStack == null)
             return this;
-        String fluidName = fluidStack.getLocalizedName();
-        int amount = fluidStack.amount;
-        boolean hasEnoughFluid = tanks.fill(fluidStack, false) == amount || amount == 0;
-        ITextComponent fluidInputText = hasEnoughFluid ? new TextComponentString(I18n.translateToLocalFormatted("machine.universal.fluid.output.sec", fluidName, amount))
-                : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.not_enough_fluid.space", fluidName, amount));
+        amount = amount > 0 ? amount : fluidStack.amount;
+        final String fluidName = fluidStack.getLocalizedName();
+        final boolean hasEnoughFluid = amount < 1 || tanks == VOID_TANK || TJFluidUtils.fillIntoTanksLong(tanks, fluidStack, amount, false) == amount;
+        final ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentString(TextUtils.translate("tj.multiblock.not_enough_fluid.space", fluidName, amount))
+                : ticks == 1 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.output.tick", fluidName, amount))
+                : ticks % 20 != 0 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.output.ticks", amount, fluidName, ticks))
+                : ticks == 20 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.output.sec", fluidName, amount))
+                : new TextComponentString(TextUtils.translate("machine.universal.fluid.output.secs", fluidName, amount));
         if (priority != 0)
             return this.addTextComponent(fluidInputText, priority);
         else return this.addTextComponent(fluidInputText);
@@ -279,15 +332,15 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, boolean hasProblems, int priority) {
         if (isActive) {
             progress--;
-            int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
+            final int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
             if (priority != 0)
-                this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)), priority);
-            else this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)));
+                this.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)), priority);
+            else this.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)));
         }
-        ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentString(I18n.translateToLocal("machine.universal.work_paused"))
-                : hasProblems ? new TextComponentString(I18n.translateToLocal("machine.universal.has_problems"))
-                : !isActive ? new TextComponentString(I18n.translateToLocal("machine.universal.idling"))
-                : new TextComponentString(I18n.translateToLocal("machine.universal.running"));
+        final ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentString(TextUtils.translate("machine.universal.work_paused"))
+                : hasProblems ? new TextComponentString(TextUtils.translate("machine.universal.has_problems"))
+                : !isActive ? new TextComponentString(TextUtils.translate("machine.universal.idling"))
+                : new TextComponentString(TextUtils.translate("machine.universal.running"));
         if (priority != 0)
             this.addTextComponent(isWorkingText, priority);
         else this.addTextComponent(isWorkingText);
@@ -388,7 +441,7 @@ public final class GUIDisplayBuilder {
 
     public GUIDisplayBuilder addRecipeMapLine(RecipeMap<?> recipeMap) {
         return this.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
-                .appendSibling(withButton(new TextComponentString("[" + I18n.translateToLocal("recipemap." + recipeMap.getUnlocalizedName() + ".name") + "]"), recipeMap.getUnlocalizedName())));
+                .appendSibling(withButton(new TextComponentString("[" + TextUtils.translate("recipemap." + recipeMap.getUnlocalizedName() + ".name") + "]"), recipeMap.getUnlocalizedName())));
     }
 
     public GUIDisplayBuilder addTemperatureLine(long current, long max) {
@@ -397,8 +450,8 @@ public final class GUIDisplayBuilder {
 
     public GUIDisplayBuilder addTemperatureLine(long current, long max, int priority) {
         if (priority != 0)
-            return this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.temperature", current, max)), priority);
-        else return this.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.temperature", current, max)));
+            return this.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.temperature", current, max)), priority);
+        else return this.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.temperature", current, max)));
     }
 
     public GUIDisplayBuilder addMufflerDisplayLine(boolean isMufflerFaceFree) {
@@ -407,7 +460,7 @@ public final class GUIDisplayBuilder {
 
     public GUIDisplayBuilder addMufflerDisplayLine(boolean isMufflerFaceFree, int priority) {
         if (isMufflerFaceFree) return this;
-        ITextComponent component = new TextComponentTranslation("gtadditions.multiblock.universal.muffler_obstructed")
+        final ITextComponent component = new TextComponentTranslation("gtadditions.multiblock.universal.muffler_obstructed")
                 .setStyle(new Style().setColor(TextFormatting.RED)
                         .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                                 new TextComponentTranslation("gtadditions.multiblock.universal.muffler_obstructed.tooltip"))));
@@ -422,20 +475,20 @@ public final class GUIDisplayBuilder {
 
     public GUIDisplayBuilder addMaintenanceDisplayLines(byte maintenanceProblems, boolean hasProblems, int priority) {
         if (!hasProblems) {
-            ITextComponent hasNoProblemsComponent = new TextComponentTranslation("gtadditions.multiblock.universal.no_problems")
+            final ITextComponent hasNoProblemsComponent = new TextComponentTranslation("gtadditions.multiblock.universal.no_problems")
                     .setStyle(new Style().setColor(TextFormatting.GREEN));
             if (priority != 0)
                 return this.addTextComponent(hasNoProblemsComponent, priority);
             else return this.addTextComponent(hasNoProblemsComponent);
         }
-        ITextComponent component = new TextComponentTranslation("gtadditions.multiblock.universal.has_problems")
+        final ITextComponent component = new TextComponentTranslation("gtadditions.multiblock.universal.has_problems")
                 .setStyle(new Style().setColor(TextFormatting.DARK_RED));
         if (priority != 0)
             this.addTextComponent(component, priority);
         else this.addTextComponent(component);
 
         if (((maintenanceProblems) & 1) == 0) {
-            ITextComponent wrenchComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.wrench")
+            final ITextComponent wrenchComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.wrench")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
                 this.addTextComponentWithHover(wrenchComponent, priority, builder -> {
@@ -448,7 +501,7 @@ public final class GUIDisplayBuilder {
             });
         }
         if (((maintenanceProblems >> 1) & 1) == 0) {
-            ITextComponent screwdriverComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.screwdriver")
+            final ITextComponent screwdriverComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.screwdriver")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
                 this.addTextComponentWithHover(screwdriverComponent, priority, builder -> {
@@ -461,7 +514,7 @@ public final class GUIDisplayBuilder {
             });
         }
         if (((maintenanceProblems >> 2) & 1) == 0) {
-            ITextComponent softHammerComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.softhammer")
+            final ITextComponent softHammerComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.softhammer")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
                 this.addTextComponentWithHover(softHammerComponent, priority, builder -> {
@@ -474,7 +527,7 @@ public final class GUIDisplayBuilder {
             });
         }
         if (((maintenanceProblems >> 3) & 1) == 0) {
-            ITextComponent hardHammerComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.hardhammer")
+            final ITextComponent hardHammerComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.hardhammer")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
                 this.addTextComponentWithHover(hardHammerComponent, priority, builder -> {
@@ -487,7 +540,7 @@ public final class GUIDisplayBuilder {
             });
         }
         if (((maintenanceProblems >> 4) & 1) == 0) {
-            ITextComponent wireCutterComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.wirecutter")
+            final ITextComponent wireCutterComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.wirecutter")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
                 this.addTextComponentWithHover(wireCutterComponent, priority, builder -> {
@@ -500,7 +553,7 @@ public final class GUIDisplayBuilder {
             });
         }
         if (((maintenanceProblems >> 5) & 1) == 0) {
-            ITextComponent crowbarComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.crowbar")
+            final ITextComponent crowbarComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.crowbar")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
                 this.addTextComponentWithHover(crowbarComponent, priority, builder -> {

@@ -26,7 +26,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
 import tj.items.handlers.LargeItemStackHandler;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 import tj.util.TJFluidUtils;
 import tj.util.references.BooleanReference;
 import tj.util.references.IntegerReference;
@@ -92,15 +92,15 @@ public class RecipeOutputDisplayWidget extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        int x = this.isShiftDown() ? this.lastX : mouseX;
-        int y = this.isShiftDown() ? this.lastY : mouseY;
+        final int x = this.isShiftDown() ? this.lastX : mouseX;
+        final int y = this.isShiftDown() ? this.lastY : mouseY;
         if (this.tooltipSize == null || !this.isMouseOverElement(x, y)) return;
         int slot = 0;
         int offsetX = 3;
         int offsetY = 15;
-        int screenWidth = Minecraft.getMinecraft().displayWidth;
-        int screenHeight = Minecraft.getMinecraft().displayHeight;
-        FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        final int screenWidth = Minecraft.getMinecraft().displayWidth;
+        final int screenHeight = Minecraft.getMinecraft().displayHeight;
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         TJGuiTextures.TOOLTIP_BOX.draw(x, y, this.tooltipSize.getWidth() + 7, this.tooltipSize.getHeight() + 7);
         this.drawStringSized(I18n.format("machine.universal.producing"), x + 4, y + 4, 0xFFFFFF, true, 1, false);
         for (ItemStack stack : this.itemOutputs) {
@@ -127,7 +127,7 @@ public class RecipeOutputDisplayWidget extends Widget {
             TJGuiUtils.drawFluidForGui(stack, Math.max(1, stack.amount), Math.max(1, stack.amount), x + offsetX + 1, y + offsetY + 1, 17, 17);
             GlStateManager.pushMatrix();
             GlStateManager.scale(0.5, 0.5, 1);
-            String s = TextFormattingUtil.formatLongToCompactString(stack.amount, 4) + "L";
+            final String s = TextFormattingUtil.formatLongToCompactString(stack.amount, 4) + "L";
             fontRenderer.drawStringWithShadow(s, (x + offsetX + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + offsetY + 14) * 2, 0xFFFFFF);
             GlStateManager.popMatrix();
             GlStateManager.enableBlend();
@@ -160,7 +160,7 @@ public class RecipeOutputDisplayWidget extends Widget {
             this.fluidOutputTanks = this.writeFluidTanksPacket(this.fluidOutputTankSupplier.get(), this.fluidOutputTanks, 4);
         }
         if (this.itemOutputSupplier != null) {
-            List<ItemStack> itemStacks = this.itemOutputSupplier.get();
+            final List<ItemStack> itemStacks = this.itemOutputSupplier.get();
             if (itemStacks != null) {
                 this.itemOutputs = itemStacks;
                 this.writeUpdateInfo(5, buffer -> {
@@ -173,7 +173,7 @@ public class RecipeOutputDisplayWidget extends Widget {
             }
         }
         if (this.fluidOutputSupplier != null) {
-            List<FluidStack> fluidStacks = this.fluidOutputSupplier.get();
+            final List<FluidStack> fluidStacks = this.fluidOutputSupplier.get();
             if (fluidStacks != null) {
                 this.fluidOutputs = fluidStacks;
                 this.writeUpdateInfo(6, buffer -> {
@@ -216,8 +216,8 @@ public class RecipeOutputDisplayWidget extends Widget {
             boolean equal = true;
             if (lastFluidTanks != null && lastFluidTanks.getTanks() == fluidTanks.getTanks()) {
                 for (int i = 0; i < lastFluidTanks.getTanks(); i++) {
-                    IFluidTank tank = fluidTanks.getTankAt(i);
-                    IFluidTank previousTank = lastFluidTanks.getTankAt(i);
+                    final IFluidTank tank = fluidTanks.getTankAt(i);
+                    final IFluidTank previousTank = lastFluidTanks.getTankAt(i);
                     if (previousTank.getCapacity() != tank.getCapacity()) {
                         equal = false;
                         break;
@@ -240,7 +240,7 @@ public class RecipeOutputDisplayWidget extends Widget {
     private void writeItemContentsPacket(PacketBuffer buffer, Supplier<IItemHandlerModifiable> itemInventorySupplier) {
         buffer.writeBoolean(itemInventorySupplier != null);
         if (itemInventorySupplier != null) {
-            IItemHandlerModifiable itemHandlerModifiable = itemInventorySupplier.get();
+            final IItemHandlerModifiable itemHandlerModifiable = itemInventorySupplier.get();
             buffer.writeBoolean(itemHandlerModifiable != null);
             if (itemHandlerModifiable != null) {
                 buffer.writeInt(itemHandlerModifiable.getSlots());
@@ -253,12 +253,12 @@ public class RecipeOutputDisplayWidget extends Widget {
     private void writeFluidContentsPacket(PacketBuffer buffer, Supplier<IMultipleTankHandler> fluidTankSupplier) {
         buffer.writeBoolean(fluidTankSupplier != null);
         if (fluidTankSupplier != null) {
-            IMultipleTankHandler tankHandler = fluidTankSupplier.get();
+            final IMultipleTankHandler tankHandler = fluidTankSupplier.get();
             buffer.writeBoolean(tankHandler != null);
             if (tankHandler != null) {
                 buffer.writeInt(tankHandler.getTanks());
                 for (int i = 0; i < tankHandler.getTanks(); i++) {
-                    FluidStack stack = tankHandler.getTankAt(i).getFluid();
+                    final FluidStack stack = tankHandler.getTankAt(i).getFluid();
                     buffer.writeBoolean(stack != null);
                     if (stack != null)
                         buffer.writeCompoundTag(stack.writeToNBT(new NBTTagCompound()));
@@ -269,8 +269,8 @@ public class RecipeOutputDisplayWidget extends Widget {
 
     private void readItemContentsPacket(PacketBuffer buffer, Int2ObjectMap<ItemStack> itemIndex) {
         if (buffer.readBoolean() && buffer.readBoolean()) {
-            int size6 = buffer.readInt();
-            for (int i = 0; i < size6; i++) {
+            final int size = buffer.readInt();
+            for (int i = 0; i < size; i++) {
                 try {
                     itemIndex.put(i, buffer.readItemStack());
                 } catch (IOException e) {
@@ -282,8 +282,8 @@ public class RecipeOutputDisplayWidget extends Widget {
 
     private void readFluidContentsPacket(PacketBuffer buffer, Int2ObjectMap<FluidStack> fluidIndex) {
         if (buffer.readBoolean() && buffer.readBoolean()) {
-            int size8 = buffer.readInt();
-            for (int i = 0; i < size8; i++) {
+            final int size = buffer.readInt();
+            for (int i = 0; i < size; i++) {
                 if (buffer.readBoolean()) {
                     try {
                         fluidIndex.put(i, FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag()));
@@ -300,29 +300,29 @@ public class RecipeOutputDisplayWidget extends Widget {
     public void readUpdateInfo(int id, PacketBuffer buffer) {
         switch (id) {
             case 1:
-                List<IItemHandler> itemHandlers = new ArrayList<>();
-                int size = buffer.readInt();
+                final List<IItemHandler> itemHandlers = new ArrayList<>();
+                final int size = buffer.readInt();
                 for (int i = 0; i < size; i++)
                     itemHandlers.add(new LargeItemStackHandler(1, buffer.readInt()));
                 this.itemInputInventory = new ItemHandlerList(itemHandlers);
                 break;
             case 2:
-                List<IItemHandler> itemHandlers1 = new ArrayList<>();
-                int size1 = buffer.readInt();
+                final List<IItemHandler> itemHandlers1 = new ArrayList<>();
+                final int size1 = buffer.readInt();
                 for (int i = 0; i < size1; i++)
                     itemHandlers1.add(new LargeItemStackHandler(1, buffer.readInt()));
                 this.itemOutputInventory = new ItemHandlerList(itemHandlers1);
                 break;
             case 3:
-                List<IFluidTank> fluidTanks = new ArrayList<>();
-                int size3 = buffer.readInt();
+                final List<IFluidTank> fluidTanks = new ArrayList<>();
+                final int size3 = buffer.readInt();
                 for (int i = 0; i < size3; i++)
                     fluidTanks.add(new FluidTank(buffer.readInt()));
                 this.fluidInputTanks = new FluidTankList(true, fluidTanks);
                 break;
             case 4:
-                List<IFluidTank> fluidTanks1 = new ArrayList<>();
-                int size4 = buffer.readInt();
+                final List<IFluidTank> fluidTanks1 = new ArrayList<>();
+                final int size4 = buffer.readInt();
                 for (int i = 0; i < size4; i++)
                     fluidTanks1.add(new FluidTank(buffer.readInt()));
                 this.fluidOutputTanks = new FluidTankList(true, fluidTanks1);
@@ -331,7 +331,7 @@ public class RecipeOutputDisplayWidget extends Widget {
                 this.itemOutputs.clear();
                 this.itemInputIndex.clear();
                 this.itemOutputIndex.clear();
-                int size5 = buffer.readInt();
+                final int size5 = buffer.readInt();
                 for (int i = 0; i < size5; i++) {
                     try {
                         this.itemOutputs.add(buffer.readItemStack());
@@ -353,10 +353,10 @@ public class RecipeOutputDisplayWidget extends Widget {
                 this.itemOutputIndex.clear();
                 for (ItemStack stack : this.itemOutputs) {
                     stack = stack.copy();
-                    IntegerReference previousCount = new IntegerReference();
-                    BooleanReference previouslyFilled = new BooleanReference();
-                    ObjectReference<ItemStack> inserted = new ObjectReference<>();
-                    stack = ItemStackHelper.insertIntoItemHandlerWithCallback(this.itemInputInventory, stack, false, (slot, itemStack) -> {
+                    final IntegerReference previousCount = new IntegerReference();
+                    final BooleanReference previouslyFilled = new BooleanReference();
+                    final ObjectReference<ItemStack> inserted = new ObjectReference<>();
+                    stack = TJItemUtils.insertIntoItemHandlerWithCallback(this.itemInputInventory, stack, false, (slot, itemStack) -> {
                         previouslyFilled.setValue(!this.itemInputInventory.getStackInSlot(slot).isEmpty());
                         previousCount.setValue(itemStack.getCount());
                         inserted.setValue(itemStack.copy());
@@ -366,7 +366,7 @@ public class RecipeOutputDisplayWidget extends Widget {
                             this.itemInputIndex.put(slot, inserted.getValue());
                         }
                     });
-                    ItemStackHelper.insertIntoItemHandlerWithCallback(this.itemOutputInventory, stack, false, (slot, itemStack) -> {
+                    TJItemUtils.insertIntoItemHandlerWithCallback(this.itemOutputInventory, stack, false, (slot, itemStack) -> {
                         previouslyFilled.setValue(!this.itemOutputInventory.getStackInSlot(slot).isEmpty());
                         previousCount.setValue(itemStack.getCount());
                         inserted.setValue(itemStack.copy());
@@ -383,7 +383,7 @@ public class RecipeOutputDisplayWidget extends Widget {
                 this.fluidOutputs.clear();
                 this.fluidInputIndex.clear();
                 this.fluidOutputIndex.clear();
-                int size7 = buffer.readInt();
+                final int size7 = buffer.readInt();
                 for (int i = 0; i < size7; i++) {
                     try {
                         this.fluidOutputs.add(FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag()));
@@ -405,9 +405,9 @@ public class RecipeOutputDisplayWidget extends Widget {
                 this.fluidOutputIndex.clear();
                 for (FluidStack stack : this.fluidOutputs) {
                     stack = stack.copy();
-                    IntegerReference previousCount = new IntegerReference();
-                    BooleanReference previouslyFilled = new BooleanReference();
-                    ObjectReference<FluidStack> inserted = new ObjectReference<>();
+                    final IntegerReference previousCount = new IntegerReference();
+                    final BooleanReference previouslyFilled = new BooleanReference();
+                    final ObjectReference<FluidStack> inserted = new ObjectReference<>();
                     stack = TJFluidUtils.fillIntoTanksWithCallback(this.fluidInputTanks, stack, true, (slot, fluidStack) -> {
                         previouslyFilled.setValue(this.fluidInputTanks.getTankAt(slot).getFluidAmount() > 0);
                         previousCount.setValue(fluidStack.amount);

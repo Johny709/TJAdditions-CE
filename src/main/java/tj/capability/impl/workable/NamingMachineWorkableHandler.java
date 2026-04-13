@@ -11,7 +11,7 @@ import tj.capability.AbstractWorkableHandler;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.handler.INameHandler;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -66,8 +66,8 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
     protected boolean completeRecipe() {
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
             ItemStack stack = this.itemOutputs.get(i);
-            if (ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
+            if (TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
+                TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
                 this.outputIndex++;
             } else return false;
         }

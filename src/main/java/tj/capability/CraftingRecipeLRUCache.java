@@ -6,7 +6,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.tuple.Triple;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 
 import java.util.LinkedList;
 
@@ -55,7 +55,7 @@ public final class CraftingRecipeLRUCache {
             for (int i = 0; i < recipe.getMiddle().size(); i++) {
                 CountableIngredient ingredient = recipe.getMiddle().get(i);
                 int size = ingredient.getCount();
-                int extracted = ItemStackHelper.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), size, true);
+                int extracted = TJItemUtils.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), size, true);
                 if (extracted < size)
                     continue recipe;
             }

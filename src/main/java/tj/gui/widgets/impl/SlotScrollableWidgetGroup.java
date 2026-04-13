@@ -18,7 +18,7 @@ import org.lwjgl.input.Keyboard;
 import tj.gui.widgets.ISlotGroup;
 import tj.gui.widgets.ISlotHandler;
 import tj.mixin.gregtech.IAbstractWidgetGroupMixin;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 
 import java.awt.*;
 import java.io.IOException;
@@ -88,8 +88,8 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     }
 
     private boolean isOnScrollPane(int mouseX, int mouseY) {
-        Position pos = this.getPosition();
-        Size size = this.getSize();
+        final Position pos = this.getPosition();
+        final Size size = this.getSize();
         return isMouseOver(pos.x + size.width - this.scrollPaneWidth, pos.y, this.scrollPaneWidth, size.height, mouseX, mouseY);
     }
 
@@ -99,12 +99,12 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     }
 
     private void updateElementPositions() {
-        Position position = this.getPosition();
-        int currentPosY = position.y - this.scrollOffset;
+        final Position position = this.getPosition();
+        final int currentPosY = position.y - this.scrollOffset;
         int totalListHeight = 0;
         for (int i = 0; i < this.widgets.size(); i++) {
-            Widget widget = this.widgets.get(i);
-            Position childPosition = new Position(position.x, currentPosY);
+            final Widget widget = this.widgets.get(i);
+            final Position childPosition = new Position(position.x, currentPosY);
             widget.setParentPosition(childPosition);
             if (i % this.rowLength == 0) {
                 totalListHeight += widget.getSize().getHeight();
@@ -136,19 +136,19 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
             mouseX = Integer.MAX_VALUE;
             mouseY = Integer.MAX_VALUE;
         }
-        int finalMouseX = mouseX;
-        int finalMouseY = mouseY;
-        Position position = this.getPosition();
-        Size size = this.getSize();
-        int paneSize = this.scrollPaneWidth;
-        int scrollX = position.x + size.width - paneSize;
+        final int finalMouseX = mouseX;
+        final int finalMouseY = mouseY;
+        final Position position = this.getPosition();
+        final Size size = this.getSize();
+        final int paneSize = this.scrollPaneWidth;
+        final int scrollX = position.x + size.width - paneSize;
         drawSolidRect(scrollX, position.y, paneSize, size.height, 0xFF666666);
         drawSolidRect(scrollX + 1, position.y + 1, paneSize - 2, size.height - 2, 0xFF888888);
 
-        int maxScrollOffset = this.totalListHeight - size.height;
-        float scrollPercent = maxScrollOffset == 0 ? 0 : this.scrollOffset / (maxScrollOffset * 1.0f);
-        int scrollSliderHeight = 14;
-        int scrollSliderY = Math.round(position.y + (size.height - scrollSliderHeight) * scrollPercent);
+        final int maxScrollOffset = this.totalListHeight - size.height;
+        final float scrollPercent = maxScrollOffset == 0 ? 0 : this.scrollOffset / (maxScrollOffset * 1.0f);
+        final int scrollSliderHeight = 14;
+        final int scrollSliderY = Math.round(position.y + (size.height - scrollSliderHeight) * scrollPercent);
         drawGradientRect(scrollX + 1, scrollSliderY, paneSize - 2, scrollSliderHeight, 0xFF555555, 0xFF454545);
 
         RenderUtil.useScissor(position.x, position.y, size.width - paneSize, size.height, () ->
@@ -189,8 +189,8 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     @SideOnly(Side.CLIENT)
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
         if (this.isMouseOverElement(mouseX, mouseY, true)) {
-            int direction = -MathHelper.clamp(wheelDelta, -1, 1);
-            int moveDelta = direction * SLOT_HEIGHT;
+            final int direction = -MathHelper.clamp(wheelDelta, -1, 1);
+            final int moveDelta = direction * SLOT_HEIGHT;
             this.addScrollOffset(moveDelta);
             this.writeClientAction(2, buffer -> buffer.writeInt(moveDelta));
             return true;
@@ -218,7 +218,7 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
-        int mouseDelta = (mouseY - this.lastMouseY);
+        final int mouseDelta = (mouseY - this.lastMouseY);
         this.lastMouseX = mouseX;
         this.lastMouseY = mouseY;
         if (this.draggedOnScrollBar) {
@@ -260,19 +260,19 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
         if (id == 1) {
-            int widgetIndex = buffer.readVarInt();
-            int widgetUpdateId = buffer.readVarInt();
-            Widget widget = this.widgets.get(Math.min(this.widgets.size() - 1, widgetIndex));
+            final int widgetIndex = buffer.readVarInt();
+            final int widgetUpdateId = buffer.readVarInt();
+            final Widget widget = this.widgets.get(Math.min(this.widgets.size() - 1, widgetIndex));
             widget.readUpdateInfo(widgetUpdateId, buffer);
         } else if (id == 2) {
-            int time = buffer.readInt();
+            final int time = buffer.readInt();
             if (this.timer > 0 && time == 1)
                 this.timer--;
         } else if (id == 3) {
             try {
                 this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
             } catch (IOException e) {
-                GTLog.logger.error(e);
+                GTLog.logger.info(e.getMessage());
             }
         }
     }
@@ -286,21 +286,21 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
             try {
                 this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
             } catch (IOException e) {
-                GTLog.logger.error(e);
+                GTLog.logger.info(e.getMessage());
             }
         } else if (id == 4) {
-            ItemStack stack = this.gui.entityPlayer.inventory.getItemStack();
-            final ItemStack finalStack = ItemStackHelper.insertIntoItemHandler(this.itemHandler, stack, buffer.readBoolean());
+            final ItemStack stack = this.gui.entityPlayer.inventory.getItemStack();
+            final ItemStack finalStack = TJItemUtils.insertIntoItemHandler(this.itemHandler, stack, buffer.readBoolean());
             this.gui.entityPlayer.inventory.setItemStack(finalStack);
             this.writeUpdateInfo(3, buffer1 -> buffer1.writeItemStack(finalStack));
         } else if (id == 5) {
             try {
-                ItemStack heldStack = buffer.readItemStack();
-                int size = buffer.readInt();
+                final ItemStack heldStack = buffer.readItemStack();
+                final int size = buffer.readInt();
                 int remainder = heldStack.getCount() % size;
                 int amountPerSlot = (heldStack.getCount() - remainder) / size;
                 for (int i = 0; i < size; i++) {
-                    int index = buffer.readInt();
+                    final int index = buffer.readInt();
                     ItemStack stack = buffer.readItemStack();
                     stack.setCount(amountPerSlot);
                     stack = this.itemHandler.insertItem(index, stack, false);
@@ -310,7 +310,7 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
                 this.gui.entityPlayer.inventory.setItemStack(heldStack);
                 this.writeUpdateInfo(3, buffer1 -> buffer1.writeItemStack(heldStack));
             } catch (IOException e) {
-                GTLog.logger.error(e);
+                GTLog.logger.info(e.getMessage());
             }
         }
     }
@@ -343,18 +343,18 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
         if (this.canAddWidgets && !this.dragWidgets.containsKey(widget)) {
             if (this.dragWidgets.isEmpty())
                 this.dragStack = this.gui.entityPlayer.inventory.getItemStack().copy();
-            ItemStack heldStack = this.dragStack.copy();
+            final ItemStack heldStack = this.dragStack.copy();
             this.dragWidgets.put(widget, this.dragStack.copy());
             callback.run();
-            int size = this.dragWidgets.size();
+            final int size = this.dragWidgets.size();
             int remainder = heldStack.getCount() % size;
-            int amountPerSlot = (heldStack.getCount() - remainder) / size;
+            final int amountPerSlot = (heldStack.getCount() - remainder) / size;
             for (Map.Entry<ISlotHandler, ItemStack> dragWidgets : this.dragWidgets.entrySet()) {
-                ISlotHandler slot = dragWidgets.getKey();
+                final ISlotHandler slot = dragWidgets.getKey();
                 ItemStack stack = dragWidgets.getValue();
                 slot.extract(slot.getSimulatedAmount(), stack, false);
                 stack.setCount(amountPerSlot);
-                int count = stack.getCount();
+                final int count = stack.getCount();
                 stack = slot.insert(stack, false);
                 slot.setSimulatedAmount(stack.isEmpty() ? amountPerSlot : count - stack.getCount());
                 remainder += stack.getCount();

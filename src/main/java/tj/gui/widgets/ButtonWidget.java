@@ -173,9 +173,9 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         if (this.isMouseOverElement(mouseX, mouseY) && this.tooltipText != null) {
-            String tooltipHoverString = this.tooltipText;
-            Object[] format = this.format != null ? this.format : ArrayUtils.toArray("");
-            List<String> hoverList = Arrays.asList(I18n.format(tooltipHoverString, format).split("/n"));
+            final String tooltipHoverString = this.tooltipText;
+            final Object[] format = this.format != null ? this.format : ArrayUtils.toArray("");
+            final List<String> hoverList = Arrays.asList(I18n.format(tooltipHoverString, format).split("/n"));
             this.drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
         }
     }
@@ -187,8 +187,8 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
             for (TextureArea textureArea : this.backgroundTextures)
                 textureArea.draw(this.getPosition().getX(), this.getPosition().getY(), this.getSize().getWidth(), this.getSize().getHeight());
         if (this.displayText != null) {
-            FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-            String text = I18n.format(this.displayText);
+            final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+            final String text = I18n.format(this.displayText);
             fontRenderer.drawString(text,
                     this.getPosition().getX() + this.getSize().getWidth() / 2 - fontRenderer.getStringWidth(text) / 2,
                     this.getPosition().getY() + this.getSize().getHeight() / 2 - fontRenderer.FONT_HEIGHT / 2, this.textColor);
@@ -218,10 +218,10 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
         if (id == 1) {
-            String buttonId = buffer.readString(Short.MAX_VALUE);
-            int mouseX = buffer.readInt();
-            int mouseY = buffer.readInt();
-            int button = buffer.readInt();
+            final String buttonId = buffer.readString(Short.MAX_VALUE);
+            final int mouseX = buffer.readInt();
+            final int mouseY = buffer.readInt();
+            final int button = buffer.readInt();
             if (this.buttonResponder != null)
                 this.buttonResponder.accept(buttonId);
             if (this.textResponderWithMouse != null)
@@ -232,7 +232,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     @Override
     public void detectAndSendChanges() {
         if (this.formatSupplier != null) {
-            String[] formatArgs = this.formatSupplier.get();
+            final String[] formatArgs = this.formatSupplier.get();
             this.writeUpdateInfo(1, buffer -> {
                 buffer.writeInt(formatArgs.length);
                 for (String format : formatArgs) {
@@ -241,14 +241,14 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
             });
         }
         if (this.buttonIdSupplier != null) {
-            String buttonId = this.buttonIdSupplier.get();
+            final String buttonId = this.buttonIdSupplier.get();
             if (this.buttonId == null || !this.buttonId.equals(buttonId)) {
                 this.buttonId = buttonId;
                 this.writeUpdateInfo(2, buffer -> buffer.writeString(this.buttonId));
             }
         }
         if (this.dynamicTooltipText != null) {
-            String tooltipText = this.dynamicTooltipText.get();
+            final String tooltipText = this.dynamicTooltipText.get();
             if (this.tooltipText == null || !this.tooltipText.equals(tooltipText)) {
                 this.tooltipText = tooltipText;
                 this.writeUpdateInfo(3, buffer -> buffer.writeString(this.tooltipText));
@@ -260,7 +260,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
         if (id == 1) {
-            int size = buffer.readInt();
+            final int size = buffer.readInt();
             for (int i = 0; i < size; i++) {
                this.format[i] =  buffer.readString(Short.MAX_VALUE);
             }

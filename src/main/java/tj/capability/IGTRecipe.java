@@ -1,15 +1,15 @@
 package tj.capability;
 
-import gregtech.api.recipes.CountableIngredient;
-import net.minecraftforge.fluids.FluidStack;
+import tj.util.wrappers.GTFluidStackWrapper;
+import tj.util.wrappers.GTIngredientWrapper;
 
 import java.util.List;
 
 public interface IGTRecipe {
 
-    List<CountableIngredient> getMergedItemInputs();
+    List<GTIngredientWrapper> getMergedItemInputs();
 
-    List<FluidStack> getMergedFluidInputs();
+    List<GTFluidStackWrapper> getMergedFluidInputs();
 
     void mergeRecipeInputs();
 }

@@ -49,6 +49,7 @@ import java.util.function.Predicate;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.Materials.Water;
 import static gregtech.api.unification.material.Materials.Wood;
+import static tj.util.TJFluidUtils.VOID_TANK;
 
 public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase {
 
@@ -90,7 +91,8 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
+        builder.addFluidOutputLine(VOID_TANK, Water.getFluid(1), this.workableHandler.getLastAmount())
+                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
                 .addRecipeOutputLine(this.workableHandler);
     }
 
@@ -111,11 +113,11 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
 
     public static Predicate<BlockWorldState> pumpPredicate() {
         return blockWorldState -> {
-            IBlockState state = blockWorldState.getBlockState();
+            final IBlockState state = blockWorldState.getBlockState();
             if (!(state.getBlock() instanceof PumpCasing))
                 return false;
-            List<PumpCasing.CasingType> casingType = blockWorldState.getMatchContext().getOrCreate("Pumps", ArrayList::new);
-            PumpCasing.CasingType currentCasingType = ((PumpCasing) state.getBlock()).getState(state);
+            final List<PumpCasing.CasingType> casingType = blockWorldState.getMatchContext().getOrCreate("Pumps", ArrayList::new);
+            final PumpCasing.CasingType currentCasingType = ((PumpCasing) state.getBlock()).getState(state);
             casingType.add(currentCasingType);
             return casingType.get(0).getTier() == currentCasingType.getTier();
         };
@@ -133,7 +135,7 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        List<PumpCasing.CasingType> casingTypes = context.getOrDefault("Pumps", new ArrayList<>());
+        final List<PumpCasing.CasingType> casingTypes = context.getOrDefault("Pumps", new ArrayList<>());
         this.workableHandler.initialize2(500 + casingTypes.stream()
                 .mapToLong(pump -> 1280L << (pump.getTier() - 1) * 2)
                 .sum());
@@ -209,7 +211,7 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
                 this.fluidOutputs.clear();
                 long amountLeft = this.lastAmount = amount;
                 while (amountLeft > 0) {
-                    FluidStack water = Water.getFluid((int) Math.min(amountLeft, Integer.MAX_VALUE));
+                    final FluidStack water = Water.getFluid((int) Math.min(amountLeft, Integer.MAX_VALUE));
                     this.fluidOutputs.add(water);
                     amountLeft -= water.amount;
                 }
@@ -247,8 +249,8 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
 
         @Override
         public NBTTagCompound serializeNBT() {
-            NBTTagCompound compound = super.serializeNBT();
-            NBTTagList fluidOutputsList = new NBTTagList();
+            final NBTTagCompound compound = super.serializeNBT();
+            final NBTTagList fluidOutputsList = new NBTTagList();
             for (FluidStack stack : this.fluidOutputs)
                 fluidOutputsList.appendTag(stack.writeToNBT(new NBTTagCompound()));
             compound.setTag("fluidOutputs", fluidOutputsList);
@@ -258,10 +260,14 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
         @Override
         public void deserializeNBT(NBTTagCompound compound) {
             super.deserializeNBT(compound);
-            NBTTagList fluidOutputsList = compound.getTagList("fluidOutputs", 10);
+            final NBTTagList fluidOutputsList = compound.getTagList("fluidOutputs", 10);
             for (int i = 0; i < fluidOutputsList.tagCount(); i++) {
                 this.fluidOutputs.add(FluidStack.loadFluidStackFromNBT(fluidOutputsList.getCompoundTagAt(i)));
             }
+        }
+
+        public long getLastAmount() {
+            return this.lastAmount;
         }
     }
 }

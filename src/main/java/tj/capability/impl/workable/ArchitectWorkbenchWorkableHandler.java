@@ -10,7 +10,7 @@ import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.IMachineHandler;
 import tj.capability.TJCapabilities;
 import tj.capability.AbstractWorkableHandler;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -71,8 +71,8 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
 
     @Override
     protected boolean completeRecipe() {
-        if (ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), this.output, true).isEmpty()) {
-            ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), this.output, false);
+        if (TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), this.output, true).isEmpty()) {
+            TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), this.output, false);
             this.catalyst = ItemStack.EMPTY;
             this.input = ItemStack.EMPTY;
             this.output = ItemStack.EMPTY;

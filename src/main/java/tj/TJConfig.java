@@ -38,8 +38,12 @@ public class TJConfig {
         @Config.Name("Max Extendable Layers Shown In JEI")
         @Config.Comment("Set the maximum amount of layers to be shown in JEI preview of extendable multiblocks")
         @Config.RequiresMcRestart
-        public int maxLayersInJEI = 16;
+        public int maxLayersInJEI = 4;
 
+        @Config.Name("Disable Layers In JEI")
+        @Config.Comment("Voltage layers won't be shown in multiblock previews if this is set true.")
+        @Config.RequiresMcRestart
+        public boolean disableLayersInJEI = false;
     }
 
     @Config.Comment("Industrial Fusion Reactor")
@@ -1077,5 +1081,25 @@ public class TJConfig {
         @Config.Comment("Adjust the maximum number of slices the parallel circuit assembly line can have")
         @Config.RequiresMcRestart
         public int maximumSlices = 256;
+    }
+
+    public static InterStellarForge interStellarForge = new InterStellarForge();
+
+    public static class InterStellarForge {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
     }
 }

@@ -5,34 +5,33 @@ import gregicadditions.worldgen.PumpjackHandler;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
-import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.IMachineHandler;
 import tj.capability.TJCapabilities;
 import tj.capability.AbstractWorkableHandler;
+import tj.util.TJFluidUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static gregicadditions.GAMaterials.DrillingMud;
 import static gregicadditions.GAMaterials.UsedDrillingMud;
+import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.DRILLING_MUD;
 
 
 public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IItemFluidHandlerInfo {
 
-    private Fluid veinFluid;
-    private FluidStack[] veinFluidStack;
-    private int[] outputVeinFluidAmount;
-    private int outputIndex;
-    private int drillingMudAmount;
     private final List<FluidStack> fluidInputsList = new ArrayList<>();
     private final List<FluidStack> fluidOutputsList = new ArrayList<>();
+    private Fluid veinFluid;
+    private int outputIndex;
+    private long drillingMudAmount;
+    private long outputFluidAmount;
+    private boolean voidingFluids;
 
     public InfiniteFluidDrillWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -41,52 +40,38 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
     @Override
     public void initialize(int tier) {
         super.initialize(tier);
-        this.drillingMudAmount = (int) Math.pow(4, (tier - GAValues.EV)) * 10;
-
-        World world = this.metaTileEntity.getWorld();
-        BlockPos pos = this.metaTileEntity.getPos();
-        this.veinFluid = PumpjackHandler.getFluid(world, world.getChunk(this.metaTileEntity.getPos()).x, world.getChunk(pos).z);
-        this.maxProgress = 20;
-
+        final World world = this.metaTileEntity.getWorld();
+        this.veinFluid = PumpjackHandler.getFluid(world, world.getChunk(this.metaTileEntity.getPos()).x, world.getChunk(this.metaTileEntity.getPos()).z);
         if (this.veinFluid == null) return;
-        long totalAmount = (long) (Math.pow(4, (tier - GAValues.EV)) * 4000);
-        long totalAmount2 = totalAmount;
-        int size = 0;
-        while (totalAmount > 0) {
-            totalAmount -= Integer.MAX_VALUE;
-            size++;
-        }
-        this.veinFluidStack = new FluidStack[size];
-        this.outputVeinFluidAmount = new int[size];
-        for (int i = 0; i < veinFluidStack.length; i++) {
-            this.outputVeinFluidAmount[i] = (int) Math.min(totalAmount2, Integer.MAX_VALUE);
-            this.veinFluidStack[i] = new FluidStack(this.veinFluid, this.outputVeinFluidAmount[i]);
-            totalAmount2 -= Integer.MAX_VALUE;
-        }
+        this.drillingMudAmount = (long) (Math.pow(4, (tier - GAValues.EV)) * 10);
+        this.outputFluidAmount = (long) (Math.pow(4, (tier - GAValues.EV)) * 4000);
     }
 
     @Override
     protected boolean startRecipe() {
-        FluidStack drillingMud = DrillingMud.getFluid(this.drillingMudAmount);
-        FluidStack usedDrillingMud = UsedDrillingMud.getFluid(this.drillingMudAmount);
-        if (drillingMud.isFluidStackIdentical(this.handler.getImportFluidTank().drain(drillingMud, false)) && this.canOutputFluid(usedDrillingMud, this.drillingMudAmount)) {
-            this.fluidInputsList.add(this.handler.getImportFluidTank().drain(DrillingMud.getFluid(this.drillingMudAmount), true));
-            int outputAmount = this.handler.getExportFluidTank().fill(UsedDrillingMud.getFluid(this.drillingMudAmount), true);
-            this.fluidOutputsList.add(new FluidStack(UsedDrillingMud.getFluid(outputAmount), outputAmount));
-            this.fluidOutputsList.addAll(Arrays.asList(this.veinFluidStack));
-            this.energyPerTick = this.handler.getMaxVoltage();
+        if (TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), DRILLING_MUD, this.drillingMudAmount, false) == this.drillingMudAmount) {
+            TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), DRILLING_MUD, this.drillingMudAmount, true);
+            long amount = this.drillingMudAmount;
+            for (; amount > 0; amount -= Integer.MAX_VALUE)
+                this.fluidInputsList.add(DrillingMud.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
+            for (amount = this.drillingMudAmount; amount > 0; amount -= Integer.MAX_VALUE)
+                this.fluidOutputsList.add(UsedDrillingMud.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
+            amount = this.outputFluidAmount /= (long) (1.00 + 0.05 * this.handler.getMaintenanceProblems());
+            for (; amount > 0; amount -= Integer.MAX_VALUE)
+                this.fluidOutputsList.add(new FluidStack(this.veinFluid, (int) Math.min(Integer.MAX_VALUE, amount)));
+            this.maxProgress = 20;
             return true;
-        }
-        return false;
+        } else return false;
     }
 
     @Override
     protected boolean completeRecipe() {
-        for (int i = this.outputIndex; i < this.veinFluidStack.length; i++) {
-            if (!this.canOutputFluid(this.veinFluidStack[i], this.outputVeinFluidAmount[i]))
-                return false;
-            this.handler.getExportFluidTank().fill(this.veinFluidStack[i], true);
-            this.outputIndex++;
+        for (int i = this.outputIndex; i < this.fluidOutputsList.size(); i++) {
+            final FluidStack stack = this.fluidOutputsList.get(i);
+            if (this.voidingFluids || this.handler.getExportFluidTank().fill(stack, false) == stack.amount) {
+                this.handler.getExportFluidTank().fill(stack, true);
+                this.outputIndex++;
+            } else return false;
         }
         this.fluidInputsList.clear();
         this.fluidOutputsList.clear();
@@ -96,8 +81,8 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound compound = super.serializeNBT();
-        NBTTagList fluidInputsList = new NBTTagList(), fluidOutputsList = new NBTTagList();
+        final NBTTagCompound compound = super.serializeNBT();
+        final NBTTagList fluidInputsList = new NBTTagList(), fluidOutputsList = new NBTTagList();
         for (FluidStack fluid : this.fluidInputsList)
             fluidInputsList.appendTag(fluid.writeToNBT(new NBTTagCompound()));
         for (FluidStack fluid : this.fluidOutputsList)
@@ -105,6 +90,7 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
         compound.setTag("fluidInputsList", fluidInputsList);
         compound.setTag("fluidOutputsList", fluidOutputsList);
         compound.setInteger("outputIndex", this.outputIndex);
+        compound.setBoolean("voidFluids", this.voidingFluids);
         return compound;
     }
 
@@ -112,7 +98,8 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
         this.outputIndex = compound.getInteger("outputIndex");
-        NBTTagList fluidInputsList = compound.getTagList("fluidInputsList", 10), fluidOutputsList = compound.getTagList("fluidOutputsList", 10);
+        this.voidingFluids = compound.getBoolean("voidFluids");
+        final NBTTagList fluidInputsList = compound.getTagList("fluidInputsList", 10), fluidOutputsList = compound.getTagList("fluidOutputsList", 10);
         for (int i = 0; i < fluidInputsList.tagCount(); i++)
             this.fluidInputsList.add(FluidStack.loadFluidStackFromNBT(fluidInputsList.getCompoundTagAt(i)));
         for (int i = 0; i < fluidOutputsList.tagCount(); i++)
@@ -128,6 +115,19 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
 
     public Fluid getVeinFluid() {
         return this.veinFluid;
+    }
+
+    public long getDrillingMudAmount() {
+        return this.drillingMudAmount;
+    }
+
+    public boolean isVoidingFluids() {
+        return this.voidingFluids;
+    }
+
+    public void setVoidingFluids(boolean voidingFluids) {
+        this.voidingFluids = voidingFluids;
+        this.metaTileEntity.markDirty();
     }
 
     @Override

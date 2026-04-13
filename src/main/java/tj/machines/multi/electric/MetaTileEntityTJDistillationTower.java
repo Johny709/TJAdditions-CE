@@ -99,10 +99,10 @@ public class MetaTileEntityTJDistillationTower extends TJRecipeMapMultiblockCont
     public static BiFunction<BlockWorldState, MetaTileEntity, Boolean> outputHatchPredicate() {
         return (state, tile) -> {
             if (tile instanceof MetaTileEntityMultiblockPart) {
-                MetaTileEntityMultiblockPart multiblockPart = (MetaTileEntityMultiblockPart) tile;
+                final MetaTileEntityMultiblockPart multiblockPart = (MetaTileEntityMultiblockPart) tile;
                 if (multiblockPart instanceof IMultiblockAbilityPart<?>) {
-                    IMultiblockAbilityPart<?> abilityPart = (IMultiblockAbilityPart<?>) multiblockPart;
-                    boolean isOutputHatch = abilityPart.getAbility() == MultiblockAbility.EXPORT_FLUIDS;
+                    final IMultiblockAbilityPart<?> abilityPart = (IMultiblockAbilityPart<?>) multiblockPart;
+                    final boolean isOutputHatch = abilityPart.getAbility() == MultiblockAbility.EXPORT_FLUIDS;
                     if (isOutputHatch) state.getMatchContext().getOrCreate("outputHatches", HashSet::new).add(state.getPos());
                     return isOutputHatch;
                 }
@@ -114,7 +114,7 @@ public class MetaTileEntityTJDistillationTower extends TJRecipeMapMultiblockCont
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        BlockPos offsetPos = this.getPos().offset(this.getFrontFacing().getOpposite());
+        final BlockPos offsetPos = this.getPos().offset(this.getFrontFacing().getOpposite());
         this.outputHatchPos.addAll(context.getOrDefault("outputHatches", new HashSet<>()));
         this.outputHatchPos.sort(Comparator.comparingInt(pos -> Math.abs(pos.getX() - offsetPos.getX()) + Math.abs(pos.getY() - offsetPos.getY()) + Math.abs(pos.getZ() - offsetPos.getZ())));
     }
@@ -144,10 +144,10 @@ public class MetaTileEntityTJDistillationTower extends TJRecipeMapMultiblockCont
     public IMultipleTankHandler getOutputHatchAt(int index) {
         if (index >= this.outputHatchPos.size())
             return null;
-        TileEntity tileEntity = this.getWorld().getTileEntity(this.outputHatchPos.get(index));
+        final TileEntity tileEntity = this.getWorld().getTileEntity(this.outputHatchPos.get(index));
         if (!(tileEntity instanceof MetaTileEntityHolder))
             return null;
-        MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) tileEntity).getMetaTileEntity();
+        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) tileEntity).getMetaTileEntity();
         return metaTileEntity != null ? metaTileEntity.getExportFluids() : null;
     }
 

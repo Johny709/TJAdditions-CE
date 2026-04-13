@@ -108,10 +108,10 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        boolean hasInputFluid = abilities.containsKey(IMPORT_FLUIDS);
-        boolean hasSteamOutput = abilities.containsKey(TJMultiblockAbility.STEAM_OUTPUT);
-        boolean hasOutputFluid = abilities.containsKey(MultiblockAbility.EXPORT_FLUIDS);
-        int mufflerCount = abilities.getOrDefault(MUFFLER_HATCH, Collections.emptyList()).size();
+        final boolean hasInputFluid = abilities.containsKey(IMPORT_FLUIDS);
+        final boolean hasSteamOutput = abilities.containsKey(TJMultiblockAbility.STEAM_OUTPUT);
+        final boolean hasOutputFluid = abilities.containsKey(MultiblockAbility.EXPORT_FLUIDS);
+        final int mufflerCount = abilities.getOrDefault(MUFFLER_HATCH, Collections.emptyList()).size();
 
         return mufflerCount == 1 && hasInputFluid && (hasOutputFluid || hasSteamOutput) && super.checkStructureComponents(parts, abilities);
     }
@@ -136,8 +136,8 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
             this.waterConsumption = 0;
             return;
         }
-        int waterToConsume = Math.round((900 * this.getMaxParallel() * this.getTempPercent()) / 160);
-        FluidStack waterStack = this.waterTank.drain(waterToConsume, false);
+        final int waterToConsume = Math.round((900 * this.getMaxParallel() * this.getTempPercent()) / 160);
+        final FluidStack waterStack = this.waterTank.drain(waterToConsume, false);
         boolean hasEnoughWater = waterStack != null && (waterStack.isFluidEqual(WATER) || waterStack.isFluidEqual(DISTILLED_WATER)) && waterStack.amount == waterToConsume || waterToConsume == 0;
         if (hasEnoughWater && this.hadWater) {
             this.getWorld().setBlockToAir(this.getPos());
@@ -167,7 +167,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
                 .customLine(text -> {
                     text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_boiler.steam_output", this.steamProduction, 900));
 
-                    ITextComponent heatEffText = new TextComponentTranslation("gregtech.multiblock.large_boiler.heat_efficiency",100);
+                    final ITextComponent heatEffText = new TextComponentTranslation("gregtech.multiblock.large_boiler.heat_efficiency",100);
                     withHoverTextTranslate(heatEffText, "gregtech.multiblock.large_boiler.heat_efficiency.tooltip");
                     text.addTextComponent(heatEffText);
                     if (this.calcification > 0)
@@ -181,7 +181,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start();
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start();
         if (!this.mega) {
             factoryPattern.aisle("XXX", "CCC", "CCC", "sss");
             factoryPattern.aisle("XXX", "CPC", "CPC", "sss");
@@ -216,8 +216,8 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
 
     public Predicate<BlockWorldState> fireboxStatePredicate(IBlockState... allowedStates) {
         return (blockWorldState) -> {
-            IBlockState state = blockWorldState.getBlockState();
-            Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
+            final IBlockState state = blockWorldState.getBlockState();
+            final Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
             activeStates.add(blockWorldState.getPos());
             return ArrayUtils.contains(allowedStates, state);
         };
@@ -228,7 +228,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
             if (blockWorldState.getBlockState() != TJMetaBlocks.ABILITY_BLOCKS.getState(AbilityBlocks.AbilityType.SOLAR_COLLECTOR))
                 return false;
             if (blockWorldState.getWorld() != null) {
-                Set<BlockPos> posList = blockWorldState.getMatchContext().getOrCreate("solarCollectors", HashSet::new);
+                final Set<BlockPos> posList = blockWorldState.getMatchContext().getOrCreate("solarCollectors", HashSet::new);
                 posList.add(blockWorldState.getPos());
             }
             return true;
@@ -238,7 +238,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        List<IFluidTank> fluidTanks = new ArrayList<>();
+        final List<IFluidTank> fluidTanks = new ArrayList<>();
         fluidTanks.addAll(this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
         fluidTanks.addAll(this.getAbilities(TJMultiblockAbility.STEAM_OUTPUT));
 
@@ -277,7 +277,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         if (sourcePart instanceof IMultiblockAbilityPart) {
-            MultiblockAbility<?> ability = ((IMultiblockAbilityPart<?>) sourcePart).getAbility();
+            final MultiblockAbility<?> ability = ((IMultiblockAbilityPart<?>) sourcePart).getAbility();
             if (ability == MultiblockAbility.EXPORT_FLUIDS || ability == TJMultiblockAbility.STEAM_OUTPUT)
                 return Textures.SOLID_STEEL_CASING;
         }
@@ -287,7 +287,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
     @Override
     public int getLightValueForPart(IMultiblockPart sourcePart) {
         if (sourcePart instanceof IMultiblockAbilityPart) {
-            MultiblockAbility<?> ability = ((IMultiblockAbilityPart<?>) sourcePart).getAbility();
+            final MultiblockAbility<?> ability = ((IMultiblockAbilityPart<?>) sourcePart).getAbility();
             if (ability == MultiblockAbility.EXPORT_FLUIDS || ability == TJMultiblockAbility.STEAM_OUTPUT)
                 return 0;
         }
@@ -324,12 +324,12 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
     }
 
     private void readActiveBlockPacket(PacketBuffer buffer) {
-        boolean isActive = buffer.readBoolean();
-        int size = buffer.readInt();
+        final boolean isActive = buffer.readBoolean();
+        final int size = buffer.readInt();
         for (int i = 0; i < size; i++) {
-            BlockPos pos = buffer.readBlockPos();
+            final BlockPos pos = buffer.readBlockPos();
             IBlockState state = this.getWorld().getBlockState(pos);
-            Block block = state.getBlock();
+            final Block block = state.getBlock();
             if (block instanceof BlockFireboxCasing) {
                 state = state.withProperty(BlockFireboxCasing.ACTIVE, isActive);
                 this.getWorld().setBlockState(pos, state);
@@ -391,7 +391,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
     }
 
     public boolean hasEnoughWater(FluidStack fluid, int amount) {
-        FluidStack fluidStack = this.waterTank.drain(fluid, false);
+        final FluidStack fluidStack = this.waterTank.drain(fluid, false);
         return fluidStack != null && fluidStack.amount == amount || amount == 0;
     }
 
@@ -400,9 +400,9 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
     }
 
     private boolean canSeeSky() {
-        int start = this.mega ? -7 : -1;
-        int end = this.mega ? 8 : 2;
-        int startY = this.offSetPos.getY() + (this.mega ? 18 : 3);
+        final int start = this.mega ? -7 : -1;
+        final int end = this.mega ? 8 : 2;
+        final int startY = this.offSetPos.getY() + (this.mega ? 18 : 3);
         for (int x = start; x < end; x++) {
             for (int y = startY; y <= this.getWorld().getHeight(); y++) {
                 for (int z = start; z < end; z++) {

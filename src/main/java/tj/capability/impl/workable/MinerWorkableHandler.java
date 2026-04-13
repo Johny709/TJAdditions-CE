@@ -31,7 +31,7 @@ import tj.capability.AbstractWorkableHandler;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.handler.IMinerHandler;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 import tj.util.pair.IntPair;
 
 import java.util.ArrayList;
@@ -42,9 +42,9 @@ import java.util.regex.Pattern;
 
 public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler> implements IItemFluidHandlerInfo {
 
-    private final Object2ObjectMap<Item, IntPair<ItemStack>> itemType = new Object2ObjectOpenHashMap<>();
-    private final Object2ObjectMap<Item, ItemStack> itemFilterType = new Object2ObjectOpenHashMap<>();
-    private final OreDictionaryItemFilter oreDictFilter = new OreDictionaryItemFilter() {
+    protected final Object2ObjectMap<Item, IntPair<ItemStack>> itemType = new Object2ObjectOpenHashMap<>();
+    protected final Object2ObjectMap<Item, ItemStack> itemFilterType = new Object2ObjectOpenHashMap<>();
+    protected final OreDictionaryItemFilter oreDictFilter = new OreDictionaryItemFilter() {
         @Override
         public void initUI(Consumer<Widget> widgetGroup) {
             widgetGroup.accept(new LabelWidget(10, 3, "cover.ore_dictionary_filter.title1"));
@@ -55,13 +55,14 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                     .setValidator(str -> Pattern.compile("\\*?[a-zA-Z0-9_]*\\*?").matcher(str).matches()));
         }
     };
-    private final BlockPos.MutableBlockPos miningPos = new BlockPos.MutableBlockPos();
-    private final List<ItemStack> itemOutputs = new ArrayList<>();
+    protected final BlockPos.MutableBlockPos miningPos = new BlockPos.MutableBlockPos();
+    protected final List<ItemStack> itemOutputs = new ArrayList<>();
     private final List<Chunk> chunks = new ArrayList<>();
     private boolean initialized;
-    private boolean blacklist = true;
+    protected boolean blacklist = true;
     private boolean blacklistBlock;
-    private boolean silkTouch;
+    protected boolean silkTouch;
+    private boolean voidItems;
     private boolean reset;
     private boolean done;
     private Chunk currentChunk;
@@ -112,8 +113,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
             for (int i = 0; i < this.miningSpeed; i++) {
                 progress = (this.progress + i) % 256;
                 this.miningPos.setPos(this.currentChunk.x + (progress % 16), this.levelY, this.currentChunk.z + (progress / 16));
-                IBlockState state = this.metaTileEntity.getWorld().getBlockState(this.miningPos);
-                Block block = state.getBlock();
+                final IBlockState state = this.metaTileEntity.getWorld().getBlockState(this.miningPos);
+                final Block block = state.getBlock();
                 if (this.levelY > 0 && this.blacklistBlock == (this.itemFilterType.get(Item.getItemFromBlock(block)) == null)) {
                     if (block != Blocks.AIR) {
                         if (this.silkTouch ? this.addItemDrop(block, 1, block.getMetaFromState(state)) : this.addItemDrop(block.getItemDropped(state, this.metaTileEntity.getWorld().rand, this.handler.getFortuneLvl()), 1, block.damageDropped(state))) {
@@ -131,11 +132,11 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
 
     @Override
     protected boolean completeRecipe() {
-        IItemHandlerModifiable itemHandlerModifiable = this.handler.getExportItemInventory();
+        final IItemHandlerModifiable itemHandlerModifiable = this.handler.getExportItemInventory();
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
-            ItemStack stack = this.itemOutputs.get(i);
-            if (ItemStackHelper.insertIntoItemHandler(itemHandlerModifiable, stack, true).isEmpty()) {
-                ItemStackHelper.insertIntoItemHandler(itemHandlerModifiable, stack, false);
+            final ItemStack stack = this.itemOutputs.get(i);
+            if (this.voidItems || TJItemUtils.insertIntoItemHandler(itemHandlerModifiable, stack, true).isEmpty()) {
+                TJItemUtils.insertIntoItemHandler(itemHandlerModifiable, stack, false);
                 this.outputIndex++;
             } else return false;
         }
@@ -150,15 +151,15 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         return true;
     }
 
-    private void initializeChunks() {
+    protected final void initializeChunks() {
         if (!this.initialized) {
             this.initialized = true;
-            int reminder = this.handler.getDiameter() % 2;
-            int start = this.handler.getDiameter() / 2;
-            int end = start + reminder;
-            Chunk origin = this.metaTileEntity.getWorld().getChunk(this.metaTileEntity.getPos());
-            int originX = origin.x * 16;
-            int originZ = origin.z * 16;
+            final int reminder = this.handler.getDiameter() % 2;
+            final int start = this.handler.getDiameter() / 2;
+            final int end = start + reminder;
+            final Chunk origin = this.metaTileEntity.getWorld().getChunk(this.metaTileEntity.getPos());
+            final int originX = origin.x * 16;
+            final int originZ = origin.z * 16;
             for (int i = -start; i < end; i++) {
                 for (int j = -start; j < end; j++) {
                     this.chunks.add(this.metaTileEntity.getWorld().getChunk(originX + (16 * (j % this.handler.getDiameter())), originZ + (16 * (j / this.handler.getDiameter())) + (i * 16)));
@@ -167,11 +168,11 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         }
     }
 
-    private <T extends IForgeRegistryEntry<T>> boolean addItemDrop(T type, int count, int meta) {
+    protected <T extends IForgeRegistryEntry<T>> boolean addItemDrop(T type, int count, int meta) {
         if (type == null)
             return false;
-        Item item = type instanceof Item ? (Item) type : Item.getItemFromBlock((Block) type);
-        IntPair<ItemStack> stackPair = this.itemType.get(item);
+        final Item item = type instanceof Item ? (Item) type : Item.getItemFromBlock((Block) type);
+        final IntPair<ItemStack> stackPair = this.itemType.get(item);
         if (stackPair != null) {
             if (this.blacklist == (this.oreDictFilter.matchItemStack(stackPair.getValue()) != null))
                 return false;
@@ -183,10 +184,10 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
             if (this.blacklist == (this.oreDictFilter.matchItemStack(itemStack) != null))
                 return false;
             if (!this.silkTouch && this.handler.getFortuneLvl() > 1) {
-                Recipe recipe = RecipeMaps.MACERATOR_RECIPES.findRecipe(Long.MAX_VALUE, Collections.singletonList(itemStack), Collections.emptyList(), 0);
+                final Recipe recipe = RecipeMaps.MACERATOR_RECIPES.findRecipe(Long.MAX_VALUE, Collections.singletonList(itemStack), Collections.emptyList(), 0);
                 if (recipe != null) {
                     itemStack = recipe.getResultItemOutputs(Integer.MAX_VALUE, this.metaTileEntity.getWorld().rand, this.handler.getTier()).get(0).copy();
-                    int originalCount = itemStack.getCount();
+                    final int originalCount = itemStack.getCount();
                     if (OreDictUnifier.getPrefix(itemStack) == OrePrefix.crushed) {
                         itemStack.setCount(this.getFortune(originalCount));
                         this.itemType.put(item, IntPair.of(originalCount, itemStack));
@@ -201,7 +202,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         return true;
     }
 
-    private int getFortune(int count) {
+    protected int getFortune(int count) {
         int growAmount = Math.round(count * this.metaTileEntity.getWorld().rand.nextFloat());
         if (this.handler.getFortuneLvl() > 0) {
             int i = Math.max(0, this.metaTileEntity.getWorld().rand.nextInt(this.handler.getFortuneLvl() + 2) - 1);
@@ -242,8 +243,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound compound = super.serializeNBT();
-        NBTTagList itemOutputList = new NBTTagList(), itemTypeCountList = new NBTTagList(), filterItemList = new NBTTagList();
+        final NBTTagCompound compound = super.serializeNBT();
+        final NBTTagList itemOutputList = new NBTTagList(), itemTypeCountList = new NBTTagList(), filterItemList = new NBTTagList();
         for (ItemStack stack : this.itemOutputs)
             itemOutputList.appendTag(stack.serializeNBT());
         for (IntPair<ItemStack> value : this.itemType.values())
@@ -258,6 +259,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         compound.setInteger("z", this.miningPos.getZ());
         compound.setBoolean("done", this.done);
         compound.setBoolean("reset", this.reset);
+        compound.setBoolean("voidItems", this.voidItems);
         compound.setBoolean("blacklist", this.blacklist);
         compound.setBoolean("silkTouch", this.silkTouch);
         compound.setBoolean("blacklistBlock", this.blacklistBlock);
@@ -271,7 +273,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
-        NBTTagList itemOutputList = compound.getTagList("itemOutputList", 10), itemTypeCountList = compound.getTagList("itemTypeCountList", 3), filterItemList = compound.getTagList("filterItemList", 10);
+        final NBTTagList itemOutputList = compound.getTagList("itemOutputList", 10), itemTypeCountList = compound.getTagList("itemTypeCountList", 3), filterItemList = compound.getTagList("filterItemList", 10);
         for (int i = 0; i < itemOutputList.tagCount(); i++)
             this.itemOutputs.add(new ItemStack(itemOutputList.getCompoundTagAt(i)));
         for (int i = 0; i < itemTypeCountList.tagCount(); i++)
@@ -286,6 +288,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         this.miningPos.setPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
         this.done = compound.getBoolean("done");
         this.reset = compound.getBoolean("reset");
+        this.voidItems = compound.getBoolean("voidItems");
         this.blacklist = compound.getBoolean("blacklist");
         this.silkTouch = compound.getBoolean("silkTouch");
         this.blacklistBlock = compound.getBoolean("blacklistBlock");
@@ -357,6 +360,15 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
 
     public OreDictionaryItemFilter getOreDictFilter() {
         return this.oreDictFilter;
+    }
+
+    public void setVoidItems(boolean voidItems) {
+        this.voidItems = voidItems;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isVoidItems() {
+        return this.voidItems;
     }
 
     public void setDone(boolean done) {

@@ -1,6 +1,6 @@
 package tj.machines.multi.electric;
 
-import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
@@ -33,6 +33,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.OverclockManager;
+import tj.capability.impl.handler.IRecipeHandler;
+import tj.capability.impl.workable.BasicRecipeLogic;
+import tj.capability.impl.workable.MegaRecipeLogic;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -66,26 +69,30 @@ public class MetaTileEntityTJMegaBlastFurnace extends TJRecipeMapMultiblockContr
     }
 
     @Override
+    protected BasicRecipeLogic<? extends IRecipeHandler> createRecipeLogic() {
+        return new MegaRecipeLogic<>(this);
+    }
+
+    @Override
     public boolean checkRecipe(Recipe recipe) {
         return this.blastFurnaceTemperature >= recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
     }
 
     @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setParallel(1 << overclockManager.getParallel() * 2);
         long recipeEUt = overclockManager.getEUt() * 4;
         int duration = overclockManager.getDuration();
         int heat = this.blastFurnaceTemperature - recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
         // Apply EUt discount for every 900K above the base recipe temperature
-        recipeEUt *= (long) Math.pow(0.95, heat / 900D);
+        recipeEUt /= (long) Math.max(1.00, (1.00 + 0.05 * (heat / 900D)));
         while (duration > 1 && recipeEUt <= this.maxVoltage) {
             if (heat < 1800) break;
             heat -= 1800;
             duration /= 4;
             recipeEUt *= 4;
         }
-        overclockManager.setEUt(recipeEUt / 4);
-        overclockManager.setDuration(duration);
+        overclockManager.setParallel((int) Math.min(Integer.MAX_VALUE, 1L << overclockManager.getParallel() * 2));
+        overclockManager.setEUtAndDuration(recipeEUt / 4, duration);
     }
 
     @Override
@@ -139,11 +146,13 @@ public class MetaTileEntityTJMegaBlastFurnace extends TJRecipeMapMultiblockContr
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.tier = context.getOrDefault("frameworkTier", 0);
-        this.maxVoltage = 8L << this.tier * 2;
+        final int tier = context.getOrDefault("frameworkTier", 0);
         this.blastFurnaceTemperature = context.getOrDefault("coilTemperature", 0);
-        int energyTier = GAUtility.getTierByVoltage(this.getInputEnergyContainer().getInputVoltage());
-        this.bonusTemperature = Math.max(0, 100 * Math.min(GAUtility.getTierByVoltage(this.maxVoltage), energyTier - 2));
+        if (tier < GAValues.MAX) {
+            this.maxVoltage = 8L << tier * 2;
+            this.tier = tier;
+        }
+        this.bonusTemperature = Math.max(0, 100 * (this.tier - 2));
         this.blastFurnaceTemperature += this.bonusTemperature;
     }
 

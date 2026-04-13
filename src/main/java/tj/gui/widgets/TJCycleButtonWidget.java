@@ -61,13 +61,13 @@ public class TJCycleButtonWidget extends CycleButtonWidget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        Position pos = getPosition();
-        Size size = getSize();
+        final Position pos = getPosition();
+        final Size size = getSize();
         if (buttonTexture instanceof SizedTextureArea) {
             ((SizedTextureArea) buttonTexture).drawHorizontalCutSubArea(pos.x, pos.y, size.width, size.height, 0.0, 1.0);
         } else {
-            double drawV = toggle && currentOption == 0 ? 0.0 : 0.5;
-            double drawHeight = toggle ? 0.5 : 1.0;
+            final double drawV = toggle && currentOption == 0 ? 0.0 : 0.5;
+            final double drawHeight = toggle ? 0.5 : 1.0;
             buttonTexture.drawSubArea(pos.x, pos.y, size.width, size.height, 0.0, drawV, 1.0, drawHeight);
         }
         if (currentOption < buttonBackground.length)
@@ -77,8 +77,8 @@ public class TJCycleButtonWidget extends CycleButtonWidget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        boolean isHovered = isMouseOverElement(mouseX, mouseY);
-        boolean wasHovered = this.isMouseHovered;
+        final boolean isHovered = isMouseOverElement(mouseX, mouseY);
+        final boolean wasHovered = this.isMouseHovered;
         if (isHovered && !wasHovered) {
             this.isMouseHovered = true;
             this.hoverStartTime = System.currentTimeMillis();
@@ -87,8 +87,8 @@ public class TJCycleButtonWidget extends CycleButtonWidget {
             this.hoverStartTime = 0L;
         } else if (isHovered) {
             if (this.tooltipHoverString != null) {
-                Object[] format = this.format != null ? this.format : ArrayUtils.toArray("");
-                List<String> hoverList = Arrays.asList(I18n.format(this.tooltipHoverString, format).split("/n"));
+                final Object[] format = this.format != null ? this.format : ArrayUtils.toArray("");
+                final List<String> hoverList = Arrays.asList(I18n.format(this.tooltipHoverString, format).split("/n"));
                 drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
             }
         }

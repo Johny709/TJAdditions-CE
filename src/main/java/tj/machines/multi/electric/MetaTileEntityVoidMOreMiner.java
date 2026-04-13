@@ -5,6 +5,8 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
 import gregtech.api.GTValues;
+import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.fluids.FluidStack;
@@ -39,6 +41,7 @@ import tj.capability.ProgressBar;
 import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
+import tj.util.TJUtility;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -54,9 +57,11 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
             MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
-    public static final FluidStack DRILLING_MUD = DrillingMud.getFluid(1);
+
     public static final FluidStack PYROTHEUM = Pyrotheum.getFluid(1);
     public static final FluidStack CRYOTHEUM = Cryotheum.getFluid(1);
+    public static final FluidStack DRILLING_MUD = DrillingMud.getFluid(1);
+    public static final FluidStack USED_DRILLING_MUD = UsedDrillingMud.getFluid(1);
 
     private final VoidMOreMinerWorkableHandler workableHandler = new VoidMOreMinerWorkableHandler(this);
     private long maxVoltage;
@@ -73,8 +78,8 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
-        int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
+        final int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
+        final int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
 
         return fluidInputsCount >= 1 && fluidOutputsCount >= 1 && abilities.containsKey(MultiblockAbility.INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
     }
@@ -92,22 +97,6 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
     }
 
     @Override
-    protected void addDisplayText(GUIDisplayBuilder builder) {
-        super.addDisplayText(builder);
-        if (!this.isStructureFormed()) return;
-        builder.addVoltageInLine(this.inputEnergyContainer)
-                .addVoltageTierLine(this.tier)
-                .addEnergyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
-                .addTemperatureLine(this.workableHandler.heat(), this.workableHandler.maxHeat())
-                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.hasProblem())
-                .customLine(text -> {
-                    if (this.workableHandler.isOverheat())
-                        text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.overheat").setStyle(new Style().setColor(TextFormatting.RED)));
-                }).addRecipeInputLine(this.workableHandler)
-                .addRecipeOutputLine(this.workableHandler);
-    }
-
-    @Override
     protected boolean shouldUpdate(MTETrait trait) {
         return false;
     }
@@ -119,10 +108,68 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
     }
 
     @Override
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.FLUID_VOID_BUTTON, this.workableHandler::isVoidingFluids, this.workableHandler::setVoidingFluids)
+                .setTooltipText("machine.universal.toggle.fluid_voiding"));
+    }
+
+    @Override
+    protected void addDisplayText(GUIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        builder.addVoltageInLine(this.inputEnergyContainer)
+                .addVoltageTierLine(this.tier)
+                .addEnergyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
+                .addTemperatureLine(this.workableHandler.heat(), this.workableHandler.maxHeat())
+                .addFluidInputLine(this.importFluidTank, DRILLING_MUD, (long) this.workableHandler.getCurrentDrillingFluid())
+                .addFluidInputLine(this.importFluidTank, PYROTHEUM, (long) this.workableHandler.getCurrentDrillingFluid())
+                .addFluidInputLine(this.importFluidTank, CRYOTHEUM, (long) this.workableHandler.getCurrentDrillingFluid())
+                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.hasProblem())
+                .customLine(text -> {
+                    if (this.workableHandler.isOverheat())
+                        text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.overheat").setStyle(new Style().setColor(TextFormatting.RED)));
+                }).addRecipeInputLine(this.workableHandler)
+                .addRecipeOutputLine(this.workableHandler);
+    }
+
+    @Override
+    protected BlockPattern createStructurePattern() {
+        return FactoryBlockPattern.start()
+                .aisle("CCCCCCCCC", "CCCCCCCCC", "C#######C", "C#######C", "C#######C", "CCCCCCCCC", "CFFFFFFFC", "CFFFFFFFC", "CfffffffC", "C#######C")
+                .aisle("C#######C", "C#######C", "#########", "#########", "#########", "C###D###C", "F##DDD##F", "F##DDD##F", "f##DDD##f", "#########")
+                .aisle("C#######C", "C#######C", "#########", "####D####", "###DDD###", "C##DDD##C", "F#DD#DD#F", "F#D###D#F", "f#D###D#f", "#########")
+                .aisle("C###D###C", "C###D###C", "###DDD###", "###D#D###", "##DD#DD##", "C#D###D#C", "FDD###DDF", "FD#####DF", "fD#####Df", "#########")
+                .aisle("C##DMD##C", "C##DMD##C", "###DMD###", "##D###D##", "##D###D##", "CDD###DDC", "FD#####DF", "FD#####DF", "fD#####Df", "#########")
+                .aisle("C###D###C", "C###D###C", "###DDD###", "###D#D###", "##DD#DD##", "C#D###D#C", "FDD###DDF", "FD#####DF", "fD#####Df", "#########")
+                .aisle("C#######C", "C#######C", "#########", "####D####", "###DDD###", "C##DDD##C", "F#DD#DD#F", "F#D###D#F", "f#D###D#f", "#########")
+                .aisle("C#######C", "C#######C", "#########", "#########", "#########", "C###D###C", "F##DDD##F", "F##DDD##F", "f##DDD##f", "#########")
+                .aisle("CCCCCCCCC", "CCCCSCCCC", "C#######C", "C#######C", "C#######C", "CCCCCCCCC", "CFFFFFFFC", "CFFFFFFFC", "CfffffffC", "C#######C")
+                .setAmountAtLeast('L', 100)
+                .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
+                .where('C', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('D', statePredicate(TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.PERIODICIUM)))
+                .where('F', statePredicate(MetaBlocks.FRAMES.get(QCDMatter).getDefaultState()))
+                .where('f', frameworkPredicate())
+                .where('M', LargeSimpleRecipeMapMultiblockController.motorPredicate())
+                .where('#', (tile) -> true)
+                .build();
+    }
+
+    private IBlockState getCasingState() {
+        return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.HEAVY_QUARK_DEGENERATE_MATTER);
+    }
+
+    @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        this.maxVoltage = GAValues.VA[this.tier];
+        final int tier = Math.min(context.getOrDefault("frameworkTier", 0), context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier());
+        if (tier >= GAValues.MAX) {
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
+        } else this.maxVoltage = 8L << tier * 2;
+        this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
         this.workableHandler.initialize(this.tier);
     }
 
@@ -131,33 +178,6 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
         super.invalidateStructure();
         this.maxVoltage = 0;
         this.tier = 0;
-    }
-
-    @Override
-    protected BlockPattern createStructurePattern() {
-        return FactoryBlockPattern.start()
-                .aisle("CCCCCCCCC", "CCCCCCCCC", "C#######C", "C#######C", "C#######C", "CCCCCCCCC", "CFFFFFFFC", "CFFFFFFFC", "C#######C", "C#######C")
-                .aisle("C#######C", "C#######C", "#########", "#########", "#########", "C###D###C", "F##DDD##F", "F##DDD##F", "###DDD###", "#########")
-                .aisle("C#######C", "C#######C", "#########", "####D####", "###DDD###", "C##DDD##C", "F#DD#DD#F", "F#D###D#F", "##D###D##", "#########")
-                .aisle("C###D###C", "C###D###C", "###DDD###", "###D#D###", "##DD#DD##", "C#D###D#C", "FDD###DDF", "FD#####DF", "#D#####D#", "#########")
-                .aisle("C##DMD##C", "C##DMD##C", "###DMD###", "##D###D##", "##D###D##", "CDD###DDC", "FD#####DF", "FD#####DF", "#D#####D#", "#########")
-                .aisle("C###D###C", "C###D###C", "###DDD###", "###D#D###", "##DD#DD##", "C#D###D#C", "FDD###DDF", "FD#####DF", "#D#####D#", "#########")
-                .aisle("C#######C", "C#######C", "#########", "####D####", "###DDD###", "C##DDD##C", "F#DD#DD#F", "F#D###D#F", "##D###D##", "#########")
-                .aisle("C#######C", "C#######C", "#########", "#########", "#########", "C###D###C", "F##DDD##F", "F##DDD##F", "###DDD###", "#########")
-                .aisle("CCCCCCCCC", "CCCCSCCCC", "C#######C", "C#######C", "C#######C", "CCCCCCCCC", "CFFFFFFFC", "CFFFFFFFC", "C#######C", "C#######C")
-                .setAmountAtLeast('L', 100)
-                .where('S', this.selfPredicate())
-                .where('L', statePredicate(this.getCasingState()))
-                .where('C', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('D', statePredicate(TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.PERIODICIUM)))
-                .where('F', statePredicate(MetaBlocks.FRAMES.get(QCDMatter).getDefaultState()))
-                .where('M', LargeSimpleRecipeMapMultiblockController.motorPredicate())
-                .where('#', (tile) -> true)
-                .build();
-    }
-
-    private IBlockState getCasingState() {
-        return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.HEAVY_QUARK_DEGENERATE_MATTER);
     }
 
     @Override

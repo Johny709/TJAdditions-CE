@@ -68,7 +68,7 @@ public class MetaTileEntityParallelVacuumFreezer extends ParallelRecipeMapMultib
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             String entityP = layer == 0 ? "XXXXX" : "XXPXX";
             if (layer % 4 == 0) {
@@ -103,11 +103,13 @@ public class MetaTileEntityParallelVacuumFreezer extends ParallelRecipeMapMultib
                 .filter(energy -> energy.getInputVoltage() == this.maxVoltage)
                 .mapToLong(IEnergyContainer::getInputAmperage)
                 .sum() / Math.max(1, this.parallelLayer);
-        amps = Math.min(1024, amps);
+        amps = Math.min(4096, amps);
         while (amps >= 4) {
             amps /= 4;
             this.maxVoltage *= 4;
         }
+        if (this.maxVoltage >= Integer.MAX_VALUE)
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
         this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
     }
 

@@ -51,13 +51,13 @@ public class SlotDisplayWidget extends TJSlotWidget<SlotDisplayWidget> {
     public void handleClientAction(int id, PacketBuffer buffer) {
         if (id == 1) {
             try {
-                int button = buffer.readInt();
-                int index = buffer.readInt();
-                ItemStack stack = buffer.readItemStack();
+                final int button = buffer.readInt();
+                final int index = buffer.readInt();
+                final ItemStack stack = buffer.readItemStack();
                 if (this.onPressed != null)
                     this.onPressed.accept(button, index, stack);
             } catch (IOException e) {
-                GTLog.logger.error(e);
+                GTLog.logger.info(e.getMessage());
             }
         }
     }

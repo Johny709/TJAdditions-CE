@@ -60,7 +60,7 @@ public class MetaTileEntityTJSteamHatch extends GAMetaTileEntityMultiblockPart i
 
     @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        int capacity = (int) (Math.pow(4, getTier()) * 16000);
+        final int capacity = (int) (Math.pow(4, getTier()) * 16000);
         tooltip.add(I18n.format("gregtech.universal.tooltip.fluid_storage_capacity", capacity));
         tooltip.add(I18n.format("gtadditions.machine.steam.steam_hatch.tooltip"));
         tooltip.add(I18n.format("gregtech.universal.enabled"));
@@ -105,8 +105,8 @@ public class MetaTileEntityTJSteamHatch extends GAMetaTileEntityMultiblockPart i
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         if (this.getController() == null) {
-            int oldBaseColor = renderState.baseColour;
-            int oldAlphaOverride = renderState.alphaOverride;
+            final int oldBaseColor = renderState.baseColour;
+            final int oldAlphaOverride = renderState.alphaOverride;
 
             renderState.baseColour = TJValues.VC[this.getTier()] << 8;
             renderState.alphaOverride = 0xFF;
@@ -128,13 +128,13 @@ public class MetaTileEntityTJSteamHatch extends GAMetaTileEntityMultiblockPart i
 
     @Override
     protected ModularUI createUI(EntityPlayer entityPlayer) {
-        IFluidTank fluidTank = isExport ? exportFluids.getTankAt(0) : importFluids.getTankAt(0);
+        final IFluidTank fluidTank = isExport ? exportFluids.getTankAt(0) : importFluids.getTankAt(0);
         return createTankUI(fluidTank, entityPlayer)
                 .build(getHolder(), entityPlayer);
     }
 
     public ModularUI.Builder createTankUI(IFluidTank fluidTank, EntityPlayer entityPlayer) {
-        ModularUI.Builder builder = ModularUI.defaultBuilder()
+        final ModularUI.Builder builder = ModularUI.defaultBuilder()
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .image(7, 16, 81, 55, GuiTextures.DISPLAY);

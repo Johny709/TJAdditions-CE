@@ -8,8 +8,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJRecipeMaps;
-import tj.blocks.BlockSolidCasings;
-import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.OverclockManager;
 import tj.textures.TJTextures;
@@ -27,7 +25,6 @@ import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -67,7 +64,7 @@ public class MetaTileEntityLargeVialProcessor extends TJRecipeMapMultiblockContr
                 .aisle("XTTTX", "~BGB~", "~BGB~", "~BGB~", "XTTTX")
                 .aisle("XXSXX", "F~~~F", "F~~~F", "F~~~F", "XXXXX")
                 .where('S', this.selfPredicate())
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(blockPredicate(Block.getBlockFromName("contenttweaker:soulcasing"))))
+                .where('X', blockPredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(blockPredicate(Block.getBlockFromName("contenttweaker:soulcasing"))))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.Protactinium.getMaterial()).getDefaultState()))
                 .where('T', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('B', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING)))
@@ -77,8 +74,8 @@ public class MetaTileEntityLargeVialProcessor extends TJRecipeMapMultiblockContr
                 .build();
     }
 
-    private IBlockState getCasingState() {
-        return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SOUL_CASING);
+    private Block getCasingState() {
+        return Block.getBlockFromName("contenttweaker:soulcasing");
     }
 
     @Override

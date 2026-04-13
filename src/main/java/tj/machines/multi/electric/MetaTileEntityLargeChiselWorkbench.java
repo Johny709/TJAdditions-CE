@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.ConveyorCasing;
@@ -33,6 +34,7 @@ import tj.builder.multicontrollers.ExtendableMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
+import tj.util.TJUtility;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -110,7 +112,7 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             factoryPattern.aisle("XXX", "XXX", "C~C", "C~C");
             factoryPattern.aisle("XXX", "XcX", "###", "CrC");
@@ -135,12 +137,16 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        ConveyorCasing.CasingType conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV);
-        RobotArmCasing.CasingType robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV);
-        int min = Math.min(conveyor.getTier(), robotArm.getTier());
+        final ConveyorCasing.CasingType conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV);
+        final RobotArmCasing.CasingType robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV);
+        int tier = Math.min(conveyor.getTier(), robotArm.getTier());
         this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
-        this.maxVoltage = (long) (Math.pow(4, min) * 8);
-        this.parallel = TJConfig.largeChiselWorkbench.stack * min;
+        if (tier >= GAValues.MAX) {
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
+            tier = TJUtility.getTierByVoltage(this.maxVoltage);
+        } else this.maxVoltage = 8L << tier * 2;
+        this.parallel = TJConfig.largeChiselWorkbench.stack * tier;
     }
 
     @Override

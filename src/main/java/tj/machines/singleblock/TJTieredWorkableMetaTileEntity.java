@@ -53,7 +53,7 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
-        String color = TJValues.VCC[this.getTier()];
+        final String color = TJValues.VCC[this.getTier()];
         tooltip.add(I18n.format("machine.universal.tooltip.voltage_in", this.energyContainer.getInputVoltage(), color, GAValues.VN[this.getTier()]));
         tooltip.add(I18n.format("gregtech.universal.tooltip.energy_storage_capacity", this.energyContainer.getEnergyCapacity()));
     }
@@ -67,7 +67,7 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
     public void update() {
         super.update();
         if (!this.getWorld().isRemote) {
-            IElectricItem chargerContainer = this.chargerInventory.getStackInSlot(0).getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+            final IElectricItem chargerContainer = this.chargerInventory.getStackInSlot(0).getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
             if (chargerContainer != null && this.energyContainer.getEnergyStored() >= this.getMaxVoltage()) {
                 this.energyContainer.removeEnergy(chargerContainer.charge(this.getMaxVoltage(), 1, true, false));
             }
@@ -82,7 +82,7 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
 
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        EnumFacing hitFacing = ICoverable.determineGridSideHit(hitResult);
+        final EnumFacing hitFacing = ICoverable.determineGridSideHit(hitResult);
         if (facing == this.getOutputFacing() || (hitFacing == this.getOutputFacing() && playerIn.isSneaking())) {
             if (!this.getWorld().isRemote) {
                 if (isAllowInputFromOutputSide()) {
@@ -101,7 +101,7 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
     @Override
     public boolean onWrenchClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (!playerIn.isSneaking()) {
-            EnumFacing currentOutputSide = this.getOutputFacing();
+            final EnumFacing currentOutputSide = this.getOutputFacing();
             if (currentOutputSide == facing || this.getFrontFacing() == facing) {
                 return false;
             }
@@ -115,9 +115,9 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
 
     @Override
     public boolean placeCoverOnSide(EnumFacing side, ItemStack itemStack, CoverDefinition coverDefinition) {
-        boolean coverPlaced = super.placeCoverOnSide(side, itemStack, coverDefinition);
+        final boolean coverPlaced = super.placeCoverOnSide(side, itemStack, coverDefinition);
         if (coverPlaced && this.getOutputFacing() == side) {
-            CoverBehavior cover = getCoverAtSide(side);
+            final CoverBehavior cover = getCoverAtSide(side);
             if (cover != null && cover.shouldCoverInteractWithOutputside()) {
                 this.setAllowInputFromOutputSide(true);
             }

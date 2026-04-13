@@ -1,6 +1,7 @@
 package tj.machines.multi.electric;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
+import gregicadditions.GAValues;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.capabilities.IQubitContainer;
 import gregicadditions.capabilities.impl.QubitContainerList;
@@ -55,7 +56,7 @@ import tj.capability.impl.handler.IAssemblyHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
 import tj.util.TextUtils;
 
 import javax.annotation.Nullable;
@@ -114,7 +115,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         builder.addTranslationLine("tj.multiblock.slices", this.parallelLayer);
-        int qubit = ((AssemblyRecipeLogic) this.recipeLogic).getRecipeQubit();
+        final int qubit = ((AssemblyRecipeLogic) this.recipeLogic).getRecipeQubit();
         if (!this.isStructureFormed() || qubit < 1) return;
         if (this.qubitContainer.getQubitStored() >= qubit)
             builder.addTranslationLine(2, "tj.multiblock.large_assembly_line.qubit", qubit);
@@ -123,7 +124,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
 
     @Override
     protected BlockPattern createStructurePattern() {
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK)
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK)
                 .aisle("CCCCC", "COOOC", "C###C", "COOOC", "EXXXE", "~EXE~", "~~e~~");
         for (int i = 0; i < this.parallelLayer; i++) {
             factoryPattern.aisle("FCICF", "G#c#G", "G###G", "G#r#G", "EAaAE", "~EAE~", "~~e~~");
@@ -154,10 +155,10 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     public static BiFunction<BlockWorldState, MetaTileEntity, Boolean> inputBusPredicate() {
         return (state, tile) -> {
             if (tile instanceof MetaTileEntityMultiblockPart) {
-                MetaTileEntityMultiblockPart multiblockPart = (MetaTileEntityMultiblockPart) tile;
+                final MetaTileEntityMultiblockPart multiblockPart = (MetaTileEntityMultiblockPart) tile;
                 if (multiblockPart instanceof IMultiblockAbilityPart<?>) {
-                    IMultiblockAbilityPart<?> abilityPart = (IMultiblockAbilityPart<?>) multiblockPart;
-                    boolean isInputBus = abilityPart.getAbility() == MultiblockAbility.IMPORT_ITEMS;
+                    final IMultiblockAbilityPart<?> abilityPart = (IMultiblockAbilityPart<?>) multiblockPart;
+                    final boolean isInputBus = abilityPart.getAbility() == MultiblockAbility.IMPORT_ITEMS;
                     if (isInputBus) state.getMatchContext().getOrCreate("InputBuses", HashSet::new).add(state.getPos());
                     return isInputBus;
                 }
@@ -169,13 +170,16 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
-        int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
+        final int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
+        final int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
+        final int tier = Math.min(conveyor, robotArm);
         this.qubitContainer = new QubitContainerList(this.getAbilities(GregicAdditionsCapabilities.INPUT_QBIT));
         this.inputBusPos.addAll(context.getOrDefault("InputBuses", new HashSet<>()));
         this.inputBusPos.sort(Comparator.comparingInt(pos -> Math.abs(pos.getX() - this.getPos().getX()) + Math.abs(pos.getY() - this.getPos().getY()) + Math.abs(pos.getZ() - this.getPos().getZ())));
-        this.tier = Math.min(conveyor, robotArm);
-        this.maxVoltage = 8L << this.tier * 2;
+        if (tier < GAValues.MAX) {
+            this.maxVoltage = 8L << tier * 2;
+            this.tier = tier;
+        }
     }
 
     @Override
@@ -193,7 +197,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (!this.getWorld().isRemote) {
-            int lastParallelLayer = this.parallelLayer;
+            final int lastParallelLayer = this.parallelLayer;
             this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - 1 : this.parallelLayer + 1, 1, TJConfig.largeAssemblyLine.maximumSlices);
             if (this.parallelLayer != lastParallelLayer) {
                 playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
@@ -246,7 +250,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     public IItemHandlerModifiable getInputBusAt(int index) {
         if (index >= this.inputBusPos.size())
             return null;
-        TileEntity tileEntity = this.getWorld().getTileEntity(this.inputBusPos.get(index));
+        final TileEntity tileEntity = this.getWorld().getTileEntity(this.inputBusPos.get(index));
         if (!(tileEntity instanceof MetaTileEntityHolder))
             return null;
         MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) tileEntity).getMetaTileEntity();
@@ -329,13 +333,13 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
         @Override
         protected int checkItemInputsAmount(int parallels, Recipe recipe, IItemHandlerModifiable inputBus) {
             for (int i = 0; i < recipe.getInputs().size(); i++) {
-                CountableIngredient ingredient = recipe.getInputs().get(i);
+                final CountableIngredient ingredient = recipe.getInputs().get(i);
                 inputBus = this.handler.getInputBusAt(i);
                 if (inputBus == null) return 0;
                 if (ingredient.getCount() > 0) {
-                    parallels = Math.min(parallels, ItemStackHelper.extractFromItemHandlerByIngredient(inputBus, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
+                    parallels = Math.min(parallels, TJItemUtils.extractFromItemHandlerByIngredient(inputBus, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
                     if (parallels < 1) return 0;
-                } else if (!ItemStackHelper.checkItemHandlerForIngredient(inputBus, ingredient.getIngredient()))
+                } else if (!TJItemUtils.checkItemHandlerForIngredient(inputBus, ingredient.getIngredient()))
                     return 0;
             }
             return parallels;
@@ -344,15 +348,15 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
         @Override
         protected void consumeItemInputs(int parallels, Recipe recipe, IItemHandlerModifiable inputBus) {
             for (int i = 0; i < recipe.getInputs().size(); i++) {
-                CountableIngredient ingredient = recipe.getInputs().get(i);
+                final CountableIngredient ingredient = recipe.getInputs().get(i);
                 inputBus = this.handler.getInputBusAt(i);
-                ItemStackHelper.extractFromItemHandlerByIngredientToList(inputBus, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.getItemInputs());
+                TJItemUtils.extractFromItemHandlerByIngredientToList(inputBus, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.getItemInputs());
             }
         }
 
         @Override
         public NBTTagCompound serializeNBT() {
-            NBTTagCompound compound = super.serializeNBT();
+            final NBTTagCompound compound = super.serializeNBT();
             compound.setInteger("qubit", this.recipeQubit);
             return compound;
         }

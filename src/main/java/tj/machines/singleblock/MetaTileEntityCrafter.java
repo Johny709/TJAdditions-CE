@@ -103,19 +103,19 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new ItemStackHandler(1);
+        return new ItemStackHandler(3);
     }
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        WidgetGroup inventorySlotGroup = new WidgetGroup(new Position(7, 72)), craftingSlotGroup = new WidgetGroup(new Position(7, 14));
-        SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(109, 14, 64, 54, 3);
+        final WidgetGroup inventorySlotGroup = new WidgetGroup(new Position(7, 72)), craftingSlotGroup = new WidgetGroup(new Position(7, 14));
+        final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(109, 14, 64, 54, 3);
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             inventorySlotGroup.addWidget(new SlotWidget(this.importItems, i, 18 * (i % 9), 18 * (i / 9), true, true)
                     .setBackgroundTexture(SLOT));
         }
         for (int i = 0; i < this.craftingInventory.getSlots(); i++) {
-            int finalI = i;
+            final int finalI = i;
             craftingSlotGroup.addWidget(new PhantomSlotWidget(this.craftingInventory, i, 18 * (i % 3), 18 * (i / 3))
                     .setBackgroundTexture(SLOT)
                     .setChangeListener(() -> this.setCraftingResult(finalI, this.craftingInventory.getStackInSlot(finalI))));
@@ -125,7 +125,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                     .onPressedConsumer((button, slot, stack) -> {
                         if (button == 0) {
                             this.clearCraftingResult();
-                            NonNullList<ItemStack> itemStacks = this.recipeMap.get(slot).getRight();
+                            final NonNullList<ItemStack> itemStacks = this.recipeMap.get(slot).getRight();
                             for (int j = 0; j < itemStacks.size(); j++) {
                                 this.setCraftingResult(j, itemStacks.get(j));
                             }
@@ -134,7 +134,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                         }
                     }));
         }
-        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(55, 111, 21, 20)
+        final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(55, 111, 21, 20)
                 .setFluidOutputSupplier(this.recipeLogic::getFluidOutputs)
                 .setItemOutputSupplier(this.recipeLogic::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
@@ -149,7 +149,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                         .setBarTexture(TJGuiTextures.BAR_YELLOW)
                         .setTexture(TJGuiTextures.FLUID_BAR)
                         .setInverted(true))
-                .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 55, 111, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
+                .widget(new ProgressWidget(this.recipeLogic::getProgressPercent, 37, 111, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new ImageWidget(72, 28, 26, 26, SLOT))
                 .widget(new ImageWidget(109, 14, 54, 54, DARKENED_SLOT))
                 .widget(new SlotDisplayWidget(this.resultInventory, 0, 76, 32)
@@ -157,6 +157,10 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new SlotWidget(this.exportItems, 0, 79, 112, true, false)
+                        .setBackgroundTexture(SLOT))
+                .widget(new SlotWidget(this.exportItems, 1, 61, 112, true, false)
+                        .setBackgroundTexture(SLOT))
+                .widget(new SlotWidget(this.exportItems, 2, 97, 112, true, false)
                         .setBackgroundTexture(SLOT))
                 .widget(new RecipeOutputSlotWidget(0, 79, 112, 18, 18, displayWidget::getItemOutputAt, null))
                 .widget(new ToggleButtonWidget(151, 112, 18, 18, ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
@@ -185,7 +189,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
             for (int i = 0; i < this.encodingSlots; i++) {
                 if (!this.recipeMap.containsKey(i)) {
                     this.encodingInventory.setStackInSlot(i, recipe.getRecipeOutput());
-                    NonNullList<ItemStack> itemStacks = NonNullList.create();
+                    final NonNullList<ItemStack> itemStacks = NonNullList.create();
                     for (int j = 0; j < this.craftingInventory.getSlots(); j++) {
                         itemStacks.add(this.craftingInventory.getStackInSlot(j));
                     }
@@ -199,7 +203,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
 
     private void removeRecipe(int slot) {
         this.recipeMap.remove(slot);
-        Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = new Int2ObjectArrayMap<>();
+        final Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = new Int2ObjectArrayMap<>();
         int i = 0;
         for (int j = 0; j < this.encodingInventory.getSlots(); j++)
             this.encodingInventory.setStackInSlot(j, ItemStack.EMPTY);
@@ -241,11 +245,11 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        NBTTagList recipeList = new NBTTagList();
+        final NBTTagList recipeList = new NBTTagList();
         for (Map.Entry<Integer, Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeEntry : this.recipeMap.entrySet()) {
-            NBTTagCompound recipeNBT = new NBTTagCompound();
-            NBTTagList patternNBT = new NBTTagList();
-            NonNullList<ItemStack> itemStacks = recipeEntry.getValue().getRight();
+            final NBTTagCompound recipeNBT = new NBTTagCompound();
+            final NBTTagList patternNBT = new NBTTagList();
+            final NonNullList<ItemStack> itemStacks = recipeEntry.getValue().getRight();
             for (int i = 0; i < itemStacks.size(); i++) {
                 patternNBT.appendTag(itemStacks.get(i).serializeNBT());
             }
@@ -261,13 +265,13 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        NBTTagList recipeList = data.getTagList("recipeList", 10);
+        final NBTTagList recipeList = data.getTagList("recipeList", 10);
         for (int i = 0; i < recipeList.tagCount(); i++) {
-            int index = recipeList.getCompoundTagAt(i).getInteger("index");
-            IRecipe recipe = CraftingManager.getRecipe(new ResourceLocation(recipeList.getCompoundTagAt(i).getString("id")));
+            final int index = recipeList.getCompoundTagAt(i).getInteger("index");
+            final IRecipe recipe = CraftingManager.getRecipe(new ResourceLocation(recipeList.getCompoundTagAt(i).getString("id")));
             if (recipe != null) {
-                NonNullList<ItemStack> itemStacks = NonNullList.create();
-                NBTTagList patternNBT = recipeList.getCompoundTagAt(i).getTagList("craftingPattern", 10);
+                final NonNullList<ItemStack> itemStacks = NonNullList.create();
+                final NBTTagList patternNBT = recipeList.getCompoundTagAt(i).getTagList("craftingPattern", 10);
                 for (int j = 0; j < patternNBT.tagCount(); j++) {
                     itemStacks.add(new ItemStack(patternNBT.getCompoundTagAt(j)));
                 }

@@ -42,8 +42,8 @@ public class GhostCircuitWidget extends SlotWidget {
     }
 
     private boolean isMouseInWidget(int mouseX, int mouseY) {
-        Size size = this.getSize();
-        int posY = this.getPosition().getY();
+        final Size size = this.getSize();
+        final int posY = this.getPosition().getY();
         return mouseX >= this.posX && mouseX <= this.posX + size.getWidth() && mouseY >= posY && mouseY <= posY + size.getHeight();
     }
 
@@ -61,13 +61,13 @@ public class GhostCircuitWidget extends SlotWidget {
     }
 
     private void setCircuit(int num) {
-        ItemStack stack = this.slotReference.getStack();
+        final ItemStack stack = this.slotReference.getStack();
         if (stack.isEmpty()) {
-            ItemStack circuitStack = MetaItems.INTEGRATED_CIRCUIT.getStackForm();
+            final ItemStack circuitStack = MetaItems.INTEGRATED_CIRCUIT.getStackForm();
             IntCircuitIngredient.setCircuitConfiguration(circuitStack, num > 0 ? 0 : 32);
             this.slotReference.putStack(circuitStack);
         } else if (MetaItems.INTEGRATED_CIRCUIT.isItemEqual(stack)) {
-            int config = IntCircuitIngredient.getCircuitConfiguration(stack) + num;
+            final int config = IntCircuitIngredient.getCircuitConfiguration(stack) + num;
             if (config > 32 || config < 0)
                 this.slotReference.putStack(ItemStack.EMPTY);
             else IntCircuitIngredient.setCircuitConfiguration(stack, config);

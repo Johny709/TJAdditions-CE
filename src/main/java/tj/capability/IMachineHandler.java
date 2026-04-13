@@ -51,5 +51,9 @@ public interface IMachineHandler {
         return false;
     }
 
+    default int getMaintenanceProblems() {
+        return 0;
+    }
+
     default void calculateMaintenance(int duration) {}
 }

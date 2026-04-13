@@ -34,10 +34,10 @@ public class ParallelElectricBlastFurnaceInfo extends TJMultiblockInfoPage imple
 
     @Override
     public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
+        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        final int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
         for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            TJMultiblockShapeInfo.Builder builder = new TJMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
+            final TJMultiblockShapeInfo.Builder builder = new TJMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
             for (int layer = 0; layer < shapeInfo; layer++) {
                 String muffler = layer == 0 ? "CCmCC" : "CCPCC";
                 builder.aisle("CCCCC", "CCCCC", muffler, "CCCCC", "CCCCC");
@@ -45,8 +45,9 @@ public class ParallelElectricBlastFurnaceInfo extends TJMultiblockInfoPage imple
                 builder.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
             }
             builder.aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCEMC");
-            TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            for (int tier = 0; tier < infos.length; tier++) {
+            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
+            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
                 infos[tier] = builder.where('S', this.getController(), WEST)
                         .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF))
                         .where('c', this.getCoils(tier))

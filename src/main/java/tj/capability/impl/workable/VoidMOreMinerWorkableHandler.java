@@ -8,29 +8,34 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
-import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.capability.*;
-import tj.util.ItemStackHelper;
+import tj.util.TJItemUtils;
+import tj.util.TJFluidUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.GAMaterials.UsedDrillingMud;
 import static gregicadditions.recipes.categories.handlers.VoidMinerHandler.ORES_3;
+import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.*;
 
 public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IHeatInfo, IItemFluidHandlerInfo {
 
     private static final int CONSUME_START = 100;
+
+    private final List<ItemStack> oreOutputs = new ArrayList<>();
+    private final List<FluidStack> fluidInputsList = new ArrayList<>();
+    private final List<FluidStack> fluidOutputsList = new ArrayList<>();
+
     private boolean overheat;
+    private boolean voidingFluids;
     private long maxTemperature;
     private long temperature;
     private double currentDrillingFluid = CONSUME_START;
-    private final List<FluidStack> fluidInputsList = new ArrayList<>();
-    private final List<FluidStack> fluidOutputsList = new ArrayList<>();
-    private final List<ItemStack> oreOutputs = new ArrayList<>();
 
     public VoidMOreMinerWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -39,10 +44,10 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
     @Override
     public void initialize(int tier) {
         super.initialize(tier);
-        int startTier = tier - GTValues.ZPM;
-        int multiplier = (startTier + 2) * 100;
-        int multiplier2 = Math.min((startTier + 2) * 10, 40);
-        int multiplier3 = startTier > 2 ? (int) Math.pow(2.8, startTier - 2) : 1;
+        final int startTier = tier - GTValues.ZPM;
+        final int multiplier = (startTier + 2) * 100;
+        final int multiplier2 = Math.min((startTier + 2) * 10, 40);
+        final int multiplier3 = startTier > 2 ? (int) Math.pow(2.8, startTier - 2) : 1;
         this.maxTemperature = multiplier * ((long) multiplier2 * multiplier3);
         this.maxProgress = 20;
     }
@@ -58,21 +63,28 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
         }
 
         boolean canMineOres = false;
-        FluidStack pyrotheum = Pyrotheum.getFluid(this.getCurrentDrillingFluid());
-        FluidStack cryotheum = Cryotheum.getFluid(this.getCurrentDrillingFluid());
-        boolean hasEnoughPyrotheum = pyrotheum.isFluidStackIdentical(this.handler.getImportFluidTank().drain(pyrotheum, false));
-        boolean hasEnoughCryotheum = cryotheum.isFluidStackIdentical(this.handler.getImportFluidTank().drain(cryotheum, false));
+        final long consumeAmount = (long) this.currentDrillingFluid;
+        final boolean hasEnoughPyrotheum = TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), PYROTHEUM, consumeAmount, false) == consumeAmount;
+        final boolean hasEnoughCryotheum = TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), CRYOTHEUM, consumeAmount, false) == consumeAmount;
         if (hasEnoughPyrotheum && hasEnoughCryotheum) {
-            this.fluidInputsList.add(this.handler.getImportFluidTank().drain(Pyrotheum.getFluid(this.getCurrentDrillingFluid()), true));
-            this.fluidInputsList.add(this.handler.getImportFluidTank().drain(Cryotheum.getFluid(this.getCurrentDrillingFluid()), true));
+            TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), PYROTHEUM, consumeAmount, true);
+            TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), CRYOTHEUM, consumeAmount, true);
+            for (long amount = consumeAmount; amount > 0; amount -= Integer.MAX_VALUE)
+                this.fluidInputsList.add(Pyrotheum.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
+            for (long amount = consumeAmount; amount > 0; amount =- Integer.MAX_VALUE)
+                this.fluidInputsList.add(Cryotheum.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
             canMineOres = true;
         } else if (hasEnoughPyrotheum) {
-            this.fluidInputsList.add(this.handler.getImportFluidTank().drain(Pyrotheum.getFluid(this.getCurrentDrillingFluid()), true));
+            TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), PYROTHEUM, consumeAmount, true);
+            for (long amount = consumeAmount; amount > 0; amount -= Integer.MAX_VALUE)
+                this.fluidInputsList.add(Pyrotheum.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
             this.temperature += (long) (this.currentDrillingFluid / 100.0);
             this.currentDrillingFluid *= 1.02;
             canMineOres = true;
         } else if (hasEnoughCryotheum) {
-            this.fluidInputsList.add(this.handler.getImportFluidTank().drain(Cryotheum.getFluid(this.getCurrentDrillingFluid()), true));
+            TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), CRYOTHEUM, consumeAmount, true);
+            for (long amount = consumeAmount; amount > 0; amount -= Integer.MAX_VALUE)
+                this.fluidInputsList.add(Cryotheum.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
             this.currentDrillingFluid /= 1.02;
             this.temperature -= (long) (this.currentDrillingFluid / 100.0);
         } else {
@@ -91,21 +103,29 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
         if (this.metaTileEntity instanceof IMaintenance)
             this.currentDrillingFluid += ((IMaintenance) this.metaTileEntity).getNumProblems();
 
-        FluidStack drillingMud = DrillingMud.getFluid(this.getCurrentDrillingFluid());
-        boolean canOutputUsedDrillingMud = this.canOutputFluid(UsedDrillingMud.getFluid(this.getCurrentDrillingFluid()), this.getCurrentDrillingFluid());
-        if (drillingMud.isFluidStackIdentical(this.handler.getImportFluidTank().drain(drillingMud, false)) && canOutputUsedDrillingMud) {
-            this.fluidInputsList.add(this.handler.getImportFluidTank().drain(DrillingMud.getFluid(this.getCurrentDrillingFluid()), true));
-            int outputAmount = this.handler.getImportFluidTank().fill(UsedDrillingMud.getFluid(this.getCurrentDrillingFluid()), true);
-            this.fluidOutputsList.add(new FluidStack(UsedDrillingMud.getFluid(outputAmount), outputAmount));
-            long nbOres = this.temperature / 1000;
+        if ((this.voidingFluids || TJFluidUtils.fillIntoTanksLong(this.handler.getExportFluidTank(), USED_DRILLING_MUD, consumeAmount, false) == consumeAmount) && TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), DRILLING_MUD, consumeAmount, false) == consumeAmount) {
+            TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), DRILLING_MUD, consumeAmount, true);
+            for (long amount = consumeAmount; amount > 0; amount -= Integer.MAX_VALUE)
+                this.fluidInputsList.add(DrillingMud.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
+            for (long amount = consumeAmount; amount > 0; amount -= Integer.MAX_VALUE)
+                this.fluidOutputsList.add(UsedDrillingMud.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
 
+            final long nbOres = this.temperature / 1000;
             if (nbOres != 0 && canMineOres) {
-                List<ItemStack> ores = getOres();
+                final List<ItemStack> ores = getOres();
                 Collections.shuffle(ores);
                 this.oreOutputs.addAll(ores.stream()
                         .limit(10)
-                        .peek(itemStack -> itemStack.setCount(this.metaTileEntity.getWorld().rand.nextInt((int) (nbOres * nbOres)) + 1))
-                        .collect(Collectors.toCollection(ArrayList::new)));
+                        .flatMap(itemStack -> {
+                            final List<ItemStack> stackList = new ArrayList<>();
+                            long amount = ThreadLocalRandom.current().nextLong(nbOres * nbOres) + 1;
+                            for (; amount > 0; amount -= Integer.MAX_VALUE) {
+                                itemStack = itemStack.copy();
+                                itemStack.setCount((int) Math.min(Integer.MAX_VALUE, amount));
+                                stackList.add(itemStack);
+                            }
+                            return stackList.stream();
+                        }).collect(Collectors.toCollection(ArrayList::new)));
             }
         } else return false;
         this.energyPerTick = this.handler.getMaxVoltage();
@@ -126,7 +146,8 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
 
     @Override
     protected boolean completeRecipe() {
-        this.oreOutputs.forEach(ore -> ItemStackHelper.insertIntoItemHandler(this.handler.getExportItemInventory(), ore, false));
+        this.oreOutputs.forEach(ore -> TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), ore, false));
+        this.fluidOutputsList.forEach(fluid -> this.handler.getExportFluidTank().fill(fluid, true));
         this.fluidInputsList.clear();
         this.fluidOutputsList.clear();
         this.oreOutputs.clear();
@@ -135,8 +156,8 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound compound = super.serializeNBT();
-        NBTTagList oreList = new NBTTagList(), fluidInputList = new NBTTagList(), fluidOutputList = new NBTTagList();
+        final NBTTagCompound compound = super.serializeNBT();
+        final NBTTagList oreList = new NBTTagList(), fluidInputList = new NBTTagList(), fluidOutputList = new NBTTagList();
         for (ItemStack item : this.oreOutputs)
             oreList.appendTag(item.serializeNBT());
         for (FluidStack fluid : this.fluidInputsList)
@@ -146,6 +167,7 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
         compound.setLong("temperature", this.temperature);
         compound.setDouble("currentDrillingFluid", this.currentDrillingFluid);
         compound.setBoolean("overheat", this.overheat);
+        compound.setBoolean("voidFluids", this.voidingFluids);
         compound.setTag("oreList", oreList);
         compound.setTag("fluidInputList", fluidOutputList);
         compound.setTag("fluidOutputList", fluidOutputList);
@@ -155,7 +177,7 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
-        NBTTagList oreList = compound.getTagList("oreList", 10), fluidInputList = compound.getTagList("fluidInputList", 10),
+        final NBTTagList oreList = compound.getTagList("oreList", 10), fluidInputList = compound.getTagList("fluidInputList", 10),
                 fluidOutputList = compound.getTagList("fluidOutputList", 10);
         for (int i = 0; i < oreList.tagCount(); i++)
             this.oreOutputs.add(new ItemStack(oreList.getCompoundTagAt(i)));
@@ -166,6 +188,7 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
         this.temperature = compound.getLong("temperature");
         this.currentDrillingFluid = compound.getDouble("currentDrillingFluid");
         this.overheat = compound.getBoolean("overheat");
+        this.voidingFluids = compound.getBoolean("voidFluids");
     }
 
     @Override
@@ -177,12 +200,21 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
         return super.getCapability(capability);
     }
 
-    public int getCurrentDrillingFluid() {
-        return (int) this.currentDrillingFluid;
-    }
-
     public boolean isOverheat() {
         return this.overheat;
+    }
+
+    public void setVoidingFluids(boolean voidingFluids) {
+        this.voidingFluids = voidingFluids;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isVoidingFluids() {
+        return this.voidingFluids;
+    }
+
+    public double getCurrentDrillingFluid() {
+        return this.currentDrillingFluid;
     }
 
     @Override

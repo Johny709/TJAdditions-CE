@@ -107,9 +107,9 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        boolean hasInputFluid = abilities.containsKey(IMPORT_FLUIDS);
-        boolean hasSteamOutput = abilities.containsKey(TJMultiblockAbility.STEAM_OUTPUT);
-        boolean hasOutputFluid = abilities.containsKey(MultiblockAbility.EXPORT_FLUIDS);
+        final boolean hasInputFluid = abilities.containsKey(IMPORT_FLUIDS);
+        final boolean hasSteamOutput = abilities.containsKey(TJMultiblockAbility.STEAM_OUTPUT);
+        final boolean hasOutputFluid = abilities.containsKey(MultiblockAbility.EXPORT_FLUIDS);
         int mufflerCount = abilities.getOrDefault(MUFFLER_HATCH, Collections.emptyList()).size();
 
         return mufflerCount == 1 && hasInputFluid && (hasOutputFluid || hasSteamOutput) && super.checkStructureComponents(parts, abilities);
@@ -119,8 +119,8 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        int amount = (int) this.boilerRecipeLogic.getConsumption();
-        FluidStack water = Water.getFluid(amount);
+        final int amount = (int) this.boilerRecipeLogic.getConsumption();
+        final FluidStack water = Water.getFluid(amount);
         builder.addTemperatureLine(this.boilerRecipeLogic.heat(), this.boilerType.maxTemperature)
                 .addFluidInputLine(this.importFluidTank, water)
                 .customLine(text -> {
@@ -148,8 +148,8 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
     @Override
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
         super.handleDisplayClick(componentData, clickData);
-        int modifier = componentData.equals("add") ? 1 : -1;
-        int result = (clickData.isShiftClick ? 1 : 5) * modifier;
+        final int modifier = componentData.equals("add") ? 1 : -1;
+        final int result = (clickData.isShiftClick ? 1 : 5) * modifier;
         this.boilerRecipeLogic.setThrottlePercentage(MathHelper.clamp(this.boilerRecipeLogic.getThrottlePercentage() + result, 20, 100));
     }
 
@@ -196,8 +196,8 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
 
     public Predicate<BlockWorldState> fireboxStatePredicate(IBlockState... allowedStates) {
         return (blockWorldState) -> {
-            IBlockState state = blockWorldState.getBlockState();
-            Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
+            final IBlockState state = blockWorldState.getBlockState();
+            final Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
             activeStates.add(blockWorldState.getPos());
             return ArrayUtils.contains(allowedStates, state);
         };
@@ -206,7 +206,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        List<IFluidTank> fluidTanks = new ArrayList<>();
+        final List<IFluidTank> fluidTanks = new ArrayList<>();
         fluidTanks.addAll(this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
         fluidTanks.addAll(this.getAbilities(TJMultiblockAbility.STEAM_OUTPUT));
 
@@ -230,7 +230,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         if (sourcePart instanceof IMultiblockAbilityPart) {
-            MultiblockAbility<?> ability = ((IMultiblockAbilityPart<?>) sourcePart).getAbility();
+            final MultiblockAbility<?> ability = ((IMultiblockAbilityPart<?>) sourcePart).getAbility();
             if (ability == MultiblockAbility.EXPORT_FLUIDS || ability == TJMultiblockAbility.STEAM_OUTPUT)
                 return this.boilerType.solidCasingRenderer;
         }
@@ -240,7 +240,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
     @Override
     public int getLightValueForPart(IMultiblockPart sourcePart) {
         if (sourcePart instanceof IMultiblockAbilityPart) {
-            MultiblockAbility<?> ability = ((IMultiblockAbilityPart<?>) sourcePart).getAbility();
+            final MultiblockAbility<?> ability = ((IMultiblockAbilityPart<?>) sourcePart).getAbility();
             if (ability == MultiblockAbility.EXPORT_FLUIDS || ability == TJMultiblockAbility.STEAM_OUTPUT)
                 return 0;
         }
@@ -249,7 +249,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
 
     @Override
     public boolean onRightClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
-        ItemStack itemStack = playerIn.getHeldItem(hand);
+        final ItemStack itemStack = playerIn.getHeldItem(hand);
         if(!itemStack.isEmpty() && itemStack.hasCapability(GregtechCapabilities.CAPABILITY_MALLET, null)) {
             ISoftHammerItem softHammerItem = itemStack.getCapability(GregtechCapabilities.CAPABILITY_MALLET, null);
 
@@ -292,8 +292,8 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
     }
 
     private void readActiveBlockPacket(PacketBuffer buffer) {
-        boolean isActive = buffer.readBoolean();
-        int size = buffer.readInt();
+        final boolean isActive = buffer.readBoolean();
+        final int size = buffer.readInt();
         for (int i = 0; i < size; i++) {
             BlockPos pos = buffer.readBlockPos();
             IBlockState state = this.getWorld().getBlockState(pos);
@@ -357,7 +357,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
 
     @Override
     public double getHeatEfficiencyMultiplier() {
-        double temperature = this.boilerRecipeLogic.heat() / (this.boilerType.maxTemperature * 1.0);
+        final double temperature = this.boilerRecipeLogic.heat() / (this.boilerType.maxTemperature * 1.0);
         return 1.0 + Math.round(this.boilerType.temperatureEffBuff * temperature) / 100.0;
     }
 

@@ -65,9 +65,9 @@ public class TJClickButtonWidget extends ClickButtonWidget {
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         if (isMouseOverElement(mouseX, mouseY) && this.tooltipText != null) {
-            String tooltipHoverString = this.tooltipText;
-            Object[] format = this.format != null ? this.format : ArrayUtils.toArray("");
-            List<String> hoverList = Arrays.asList(I18n.format(tooltipHoverString, format).split("/n"));
+            final String tooltipHoverString = this.tooltipText;
+            final Object[] format = this.format != null ? this.format : ArrayUtils.toArray("");
+            final List<String> hoverList = Arrays.asList(I18n.format(tooltipHoverString, format).split("/n"));
             drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
         }
     }
@@ -93,7 +93,7 @@ public class TJClickButtonWidget extends ClickButtonWidget {
 
     @Override
     protected void triggerButton() {
-        ClickData clickData = new ClickData(Mouse.getEventButton(), isShiftDown(), isCtrlDown());
+        final ClickData clickData = new ClickData(Mouse.getEventButton(), isShiftDown(), isCtrlDown());
         if (this.onPressCallback != null)
             this.writeClientAction(1, clickData::writeToBuf);
         if (this.onPlayerPressCallback != null)
@@ -103,7 +103,7 @@ public class TJClickButtonWidget extends ClickButtonWidget {
 
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
-        ClickData clickData = ClickData.readFromBuf(buffer);
+        final ClickData clickData = ClickData.readFromBuf(buffer);
         if (id == 1)
             if (this.onPressCallback != null)
                 this.onPressCallback.accept(clickData);

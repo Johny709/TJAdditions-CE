@@ -56,7 +56,7 @@ import tj.capability.impl.handler.IMinerHandler;
 import tj.capability.impl.workable.MinerWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
-import tj.gui.widgets.impl.TJPhantomSlotWidget;
+import tj.gui.widgets.impl.TJGhostSlotWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.gui.widgets.impl.WindowsWidgetGroup;
 import tj.items.handlers.GhostSlotHandler;
@@ -160,7 +160,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
 
     @Override
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
-        String[] data = componentData.split(":");
+        final String[] data = componentData.split(":");
         if (data[0].equals("silkTouch")) {
             this.workableHandler.setSilkTouch(!data[1].equals("true"));
         } else if (data[0].equals("reset")) {
@@ -175,7 +175,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
             tab.add(new ButtonPopUpWidget<>()
                     .addPopup(widgetGroup -> {
                         for (int i = 0; i < this.getImportItems().getSlots(); i++) {
-                            widgetGroup.addWidget(new TJPhantomSlotWidget(this.getImportItems(), i, 10 + (18 * (i % 10)), 10 + (18 * (i / 10)))
+                            widgetGroup.addWidget(new TJGhostSlotWidget(this.getImportItems(), i, 10 + (18 * (i % 10)), 10 + (18 * (i / 10)))
                                     .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY)
                                     .setTakeItemsPredicate(this.workableHandler::removeItemFromFilter)
                                     .setPutItemsPredicate(this.workableHandler::addItemToFilter)
@@ -193,7 +193,9 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
                         widgetGroup.addWidget(windowsWidgetGroup);
                         return false;
                     }));
-            tab.add(new ToggleButtonWidget(175, this.getOffsetY(151), 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
+            tab.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.ITEM_VOID_BUTTON, this.workableHandler::isVoidItems, this.workableHandler::setVoidItems)
+                    .setTooltipText("machine.universal.toggle.item_voiding"));
+            tab.add(new ToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
                     .setTooltipText("tj.multiblock.advanced_large_miner.blacklist_block"));
         });
     }
@@ -222,6 +224,11 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
             case 7: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.RUTHERFORDIUM_CASING);
             case 8: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.DURANIUM_CASING);
             case 9: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.SEABORGIUM_CASING);
+            case 10: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.BOHRIUM);
+            case 11: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.VIBRANIUM);
+            case 12: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.ADAMANTIUM);
+            case 13: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.HEAVY_QUARK_DEGENERATE_MATTER);
+            case 14: return TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.NEUTRONIUM);
             default: return GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.BLACK_STEEL);
         }
     }
@@ -233,6 +240,11 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
             case 7: return MetaBlocks.FRAMES.get(GAMaterials.Rutherfordium).getDefaultState();
             case 8: return MetaBlocks.FRAMES.get(Materials.Duranium).getDefaultState();
             case 9: return MetaBlocks.FRAMES.get(GAMaterials.Seaborgium).getDefaultState();
+            case 10: return MetaBlocks.FRAMES.get(GAMaterials.Bohrium).getDefaultState();
+            case 11: return MetaBlocks.FRAMES.get(GAMaterials.Vibranium).getDefaultState();
+            case 12: return MetaBlocks.FRAMES.get(GAMaterials.Adamantium).getDefaultState();
+            case 13: return MetaBlocks.FRAMES.get(GAMaterials.HeavyQuarkDegenerateMatter).getDefaultState();
+            case 14: return MetaBlocks.FRAMES.get(GAMaterials.Neutronium).getDefaultState();
             default: return MetaBlocks.FRAMES.get(Materials.BlackSteel).getDefaultState();
         }
     }
@@ -253,6 +265,11 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
             case 7: return TJTextures.RUTHERFORDIUM;
             case 8: return TJTextures.DURANIUM;
             case 9: return TJTextures.SEABORGIUM;
+            case 10: return TJTextures.BOHRIUM;
+            case 11: return TJTextures.VIBRANIUM;
+            case 12: return TJTextures.ADAMANTIUM;
+            case 13: return TJTextures.HEAVY_QUARK_DEGENERATE_MATTER;
+            case 14: return TJTextures.NEUTRONIUM;
             default: return ClientHandler.BLACK_STEEL_CASING;
         }
     }

@@ -63,7 +63,7 @@ public class MetaTileEntityMachineController extends MetaTileEntityMultiblockPar
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        WidgetGroup widgetGroup = new WidgetGroup();
+        final WidgetGroup widgetGroup = new WidgetGroup();
         widgetGroup.addWidget(new ImageWidget(10, 40, 150, 20, GuiTextures.DISPLAY));
         widgetGroup.addWidget(new AdvancedTextWidget(15, 45, this::addDisplayText, 0xFFFFFF));
         widgetGroup.addWidget(new CycleButtonWidget(10, 60, 50, 20, this::isAutomatic, this::setAutomatic,

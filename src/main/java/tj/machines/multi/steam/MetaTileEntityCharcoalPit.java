@@ -112,22 +112,22 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        IntegerReference widthHeight = new IntegerReference(this.widthHeight);
-        IntegerReference depth = new IntegerReference(this.depth);
-        ObjectReference<String> result = new ObjectReference<>(widthHeight.getValue() + ":" + depth.getValue());
-        Consumer<String> addWidthHeight = value -> {
+        final IntegerReference widthHeight = new IntegerReference(this.widthHeight);
+        final IntegerReference depth = new IntegerReference(this.depth);
+        final ObjectReference<String> result = new ObjectReference<>(widthHeight.getValue() + ":" + depth.getValue());
+        final Consumer<String> addWidthHeight = value -> {
             widthHeight.setValue(Integer.parseInt(value) + 1);
             result.setValue(widthHeight.getValue() + ":" + depth.getValue());
         };
-        Consumer<String> subtractWidthHeight = value -> {
+        final Consumer<String> subtractWidthHeight = value -> {
             widthHeight.setValue(Integer.parseInt(value) - 1);
             result.setValue(widthHeight.getValue() + ":" + depth.getValue());
         };
-        Consumer<String> addDepth = value -> {
+        final Consumer<String> addDepth = value -> {
             depth.setValue(Integer.parseInt(value) + 1);
             result.setValue(widthHeight.getValue() + ":" + depth.getValue());
         };
-        Consumer<String> subtractDepth = value -> {
+        final Consumer<String> subtractDepth = value -> {
             depth.setValue(Integer.parseInt(value) - 1);
             result.setValue(widthHeight.getValue() + ":" + depth.getValue());
         };
@@ -184,7 +184,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
     }
 
     private void setSize(String size) {
-        String[] args = size.split(":");
+        final String[] args = size.split(":");
         this.widthHeight = Integer.parseInt(args[0]);
         this.depth = Integer.parseInt(args[1]);
         this.writeCustomData(1, buffer -> {
@@ -208,14 +208,14 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
 
     @Override
     protected BlockPattern createStructurePattern() {
-        int size = this.widthHeight + this.widthHeight + 1;
+        final int size = this.widthHeight + this.widthHeight + 1;
         String[] controllerAisle = new String[size + 2];
-        String[] charcoalAisle = new String[size + 2];
+        final String[] charcoalAisle = new String[size + 2];
         Arrays.fill(controllerAisle, '~' + this.getAisleWidthHeight('G', size) + '~');
         Arrays.fill(charcoalAisle, 'G' + this.getAisleWidthHeight('C', size) + 'G');
         charcoalAisle[0] = charcoalAisle[charcoalAisle.length - 1] = '~' + this.getAisleWidthHeight('G', size) + '~';
         controllerAisle[0] = controllerAisle[controllerAisle.length - 1] = this.getAisleWidthHeight('~', size + 2);
-        FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK)
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK)
                 .aisle(controllerAisle);
         for (int i = 0; i < this.depth; i++) {
             factoryPattern.aisle(charcoalAisle);
@@ -225,7 +225,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
         return factoryPattern.aisle(controllerAisle)
                 .where('S', this.selfPredicate())
                 .where('C', blockWorldState -> {
-                    Block block = blockWorldState.getBlockState().getBlock();
+                    final Block block = blockWorldState.getBlockState().getBlock();
                     if (block instanceof BlockLog || block instanceof BlockGregLog) {
                         if (blockWorldState.getWorld() != null)
                             this.charcoalPos.add(blockWorldState.getPos());
@@ -233,14 +233,14 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
                     }
                     return false;
                 }).where('G', blockWorldState -> {
-                    Block block = blockWorldState.getBlockState().getBlock();
+                    final Block block = blockWorldState.getBlockState().getBlock();
                     return block instanceof BlockDirt || block instanceof BlockGrass || block instanceof BlockSand;
                 }).where('~', tile -> true)
                 .build();
     }
 
     private String getAisleWidthHeight(char symbol, int widthHeight) {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         for (int i = 0; i < widthHeight; i++) {
             builder.append(symbol);
         }
@@ -333,7 +333,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
             if (!this.handler.isAdvanced())
                 return false;
             for (EnumFacing facing : EnumFacing.VALUES) {
-                BlockPos pos = this.metaTileEntity.getPos().offset(facing);
+                final BlockPos pos = this.metaTileEntity.getPos().offset(facing);
                 if (this.metaTileEntity.getWorld().getBlockState(pos).getBlock() instanceof BlockFire)
                     return true;
             }
@@ -344,7 +344,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
         protected boolean startRecipe() {
             this.setMaxProgress(this.handler.getCharcoalPos().size() * 1200);
             if (this.canStart || this.checkForFire()) {
-                ItemStack charcoalBlocks = MetaBlocks.COMPRESSED.get(Charcoal).getItem(Charcoal);
+                final ItemStack charcoalBlocks = MetaBlocks.COMPRESSED.get(Charcoal).getItem(Charcoal);
                 charcoalBlocks.setCount(this.handler.getCharcoalPos().size());
                 this.itemOutputs.add(charcoalBlocks);
                 return true;
@@ -359,7 +359,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
 
         @Override
         protected boolean completeRecipe() {
-            Block charcoalBlock = MetaBlocks.COMPRESSED.get(Charcoal);
+            final Block charcoalBlock = MetaBlocks.COMPRESSED.get(Charcoal);
             for (BlockPos pos : this.handler.getCharcoalPos()) {
                this.metaTileEntity.getWorld().setBlockState(pos, charcoalBlock.getStateFromMeta(5));
             }
@@ -388,8 +388,8 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
 
         @Override
         public NBTTagCompound serializeNBT() {
-            NBTTagCompound compound = super.serializeNBT();
-            NBTTagList itemOutputsList = new NBTTagList();
+            final NBTTagCompound compound = super.serializeNBT();
+            final NBTTagList itemOutputsList = new NBTTagList();
             for (ItemStack stack : this.itemOutputs)
                 itemOutputsList.appendTag(stack.serializeNBT());
             compound.setTag("itemOutputs", itemOutputsList);
@@ -399,7 +399,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
         @Override
         public void deserializeNBT(NBTTagCompound compound) {
             super.deserializeNBT(compound);
-            NBTTagList itemOutputsList = compound.getTagList("itemOutputs", 10);
+            final NBTTagList itemOutputsList = compound.getTagList("itemOutputs", 10);
             for (int i = 0; i < itemOutputsList.tagCount(); i++) {
                 this.itemOutputs.add(new ItemStack(itemOutputsList.getCompoundTagAt(i)));
             }
