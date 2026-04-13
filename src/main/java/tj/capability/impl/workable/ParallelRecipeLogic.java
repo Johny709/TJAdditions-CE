@@ -86,6 +86,9 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     public void invalidate() {
         Arrays.fill(this.lastInputIndex, 0);
         Arrays.fill(this.recipeRecheck, true);
+        this.lastItemInputs = null;
+        this.lastItemInputsMatrix = null;
+        this.lastFluidInputs = null;
     }
 
     @Override

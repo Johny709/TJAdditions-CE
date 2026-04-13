@@ -1139,7 +1139,7 @@ public class AssemblyLineRecipes {
                 .fluidInputs(SolderingAlloy.getFluid(62208), Lubricant.getFluid(64000), HeavyQuarkDegenerateMatter.getFluid(57600), QCDMatter.getFluid(62208))
                 .inputs(INDUSTRIAL_FUSION_REACTOR_UEV.getStackForm(), INDUSTRIAL_FUSION_REACTOR_UHV.getStackForm(2), INDUSTRIAL_FUSION_REACTOR_UV.getStackForm(3), INDUSTRIAL_FUSION_REACTOR_ZPM.getStackForm(4), INDUSTRIAL_FUSION_REACTOR_LUV.getStackForm(5), FUSION_REACTOR[2].getStackForm(16), FUSION_REACTOR[1].getStackForm(32), FUSION_REACTOR[0].getStackForm(64), UHPIC_WAFER.getStackForm(64))
                 .inputs(fieldGens[12].getStackForm(64), emitters[12].getStackForm(64), sensors[12].getStackForm(64))
-                .input(OrePrefix.wireGtOctal, UXVSuperconductor, 64)
+                .input(OrePrefix.wireGtHex, UXVSuperconductor, 64)
                 .input(OrePrefix.plateDense, CosmicNeutronium, 7)
                 .input(OrePrefix.plateDense, Neutronium, 7)
                 .input(OrePrefix.circuit, UXV, 64)

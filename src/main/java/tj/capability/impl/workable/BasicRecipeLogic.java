@@ -55,6 +55,9 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     public void invalidate() {
         this.lastInputIndex = 0;
         this.recipeRecheck = true;
+        this.lastItemInputs = null;
+        this.lastItemInputsMatrix = null;
+        this.lastFluidInputs = null;
     }
 
     @Override
