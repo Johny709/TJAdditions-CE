@@ -44,6 +44,7 @@ import static gregicadditions.machines.GATileEntities.GA_HULLS;
 import static gregtech.api.recipes.RecipeMaps.*;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.*;
 import static gregtech.api.unification.material.Materials.*;
+import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
 import static gregtech.common.metatileentities.MetaTileEntities.*;
 import static tj.TJValues.CIRCUIT_TIERS;
 import static tj.items.TJMetaItems.*;
@@ -65,12 +66,12 @@ public class RecipeInit {
 
     }
     private static void craftingRecipes() {
-        ApiBlocks aeBlocks = Api.INSTANCE.definitions().blocks();
-        IApiItems aeItems = ((IApiItems) (IItems) Api.INSTANCE.definitions().items());
-        IApiMaterials aeMaterials = ((IApiMaterials) (IMaterials) Api.INSTANCE.definitions().materials());
-        ItemStack[] aeCellParts = {aeMaterials.getCell65mPart().maybeStack(1).get(), aeMaterials.getCell262mPart().maybeStack(1).get(), aeMaterials.getCell1048mPart().maybeStack(1).get(), aeMaterials.getCellDigitalSingularityPart().maybeStack(1).get(),
+        final ApiBlocks aeBlocks = Api.INSTANCE.definitions().blocks();
+        final IApiItems aeItems = ((IApiItems) (IItems) Api.INSTANCE.definitions().items());
+        final IApiMaterials aeMaterials = ((IApiMaterials) (IMaterials) Api.INSTANCE.definitions().materials());
+        final ItemStack[] aeCellParts = {aeMaterials.getCell65mPart().maybeStack(1).get(), aeMaterials.getCell262mPart().maybeStack(1).get(), aeMaterials.getCell1048mPart().maybeStack(1).get(), aeMaterials.getCellDigitalSingularityPart().maybeStack(1).get(),
             aeMaterials.getFluidCell65mPart().maybeStack(1).get(), aeMaterials.getFluidCell262mPart().maybeStack(1).get(), aeMaterials.getFluidCell1048mPart().maybeStack(1).get(), aeMaterials.getFluidCellDigitalSingularityPart().maybeStack(1).get()};
-        ItemStack[] aeCells = {aeItems.getCell65m().maybeStack(1).get(), aeItems.getCell262m().maybeStack(1).get(), aeItems.getCell1048m().maybeStack(1).get(), aeItems.getCellDigitalSingularity().maybeStack(1).get(),
+        final ItemStack[] aeCells = {aeItems.getCell65m().maybeStack(1).get(), aeItems.getCell262m().maybeStack(1).get(), aeItems.getCell1048m().maybeStack(1).get(), aeItems.getCellDigitalSingularity().maybeStack(1).get(),
             aeItems.getFluidCell65m().maybeStack(1).get(), aeItems.getFluidCell262m().maybeStack(1).get(), aeItems.getFluidCell1048m().maybeStack(1).get(), aeItems.getFluidCellDigitalSingularity().maybeStack(1).get()};
         ALLOY_SMELTER_RECIPES.recipeBuilder()
                 .input(Items.CLAY_BALL)
@@ -208,7 +209,7 @@ public class RecipeInit {
                     'S', AIR_COLLECTORS[i].getStackForm(),
                     'P', CraftingComponent.PIPE.getIngredient(5 + i));
         }
-        Material[] materials = {Duranium, Seaborgium, TungstenTitaniumCarbide, HeavyQuarkDegenerateMatter, Periodicium, Rutherfordium, Bohrium, Vibranium, Adamantium, Neutronium};
+        final Material[] materials = {Duranium, Seaborgium, TungstenTitaniumCarbide, HeavyQuarkDegenerateMatter, Periodicium, Rutherfordium, Bohrium, Vibranium, Adamantium, Neutronium};
         for (Material material : materials) {
             ModHandler.addShapedRecipe(material.toString(), TJMetaBlocks.SOLID_CASING.getItemVariant(Arrays.stream(BlockSolidCasings.SolidCasingType.values())
                             .filter(block -> block.getName().equals(material.toString()))
@@ -216,7 +217,6 @@ public class RecipeInit {
                             .orElse(null), 3), "PhP", "PFP", "PwP",
                     'P', new UnificationEntry(OrePrefix.plate, material),
                     'F', new UnificationEntry(OrePrefix.frameGt, material));
-
             ASSEMBLER_RECIPES.recipeBuilder()
                     .input(OrePrefix.plate, material, 6)
                     .input(OrePrefix.frameGt, material)
@@ -229,16 +229,18 @@ public class RecipeInit {
                     .EUt(16)
                     .buildAndRegister();
         }
-        MetaTileEntityQuantumTank[] superTanks = {QUANTUM_TANK[1], Super_tank[2], Super_tank[4]};
-        Material[] pipe = {StainlessSteel, Naquadah, TantalumHafniumSeaborgiumCarbide};
+        ModHandler.addShapedRecipe("chaosalloy", TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.CHAOS_ALLOY, 3), "PhP", "PFP", "PwP",
+                'P', new UnificationEntry(OrePrefix.plate, MATERIAL_REGISTRY.getObject("chaosalloy")),
+                'F', new UnificationEntry(OrePrefix.frameGt, MATERIAL_REGISTRY.getObject("chaos")));
+        final MetaTileEntityQuantumTank[] superTanks = {QUANTUM_TANK[1], Super_tank[2], Super_tank[4]};
+        final Material[] pipe = {StainlessSteel, Naquadah, TantalumHafniumSeaborgiumCarbide};
         for (int i = 0; i < STEAM_INPUT_FLUID_HATCH.length; i++) {
-            int tier = 3 + (3 * i);
+            final int tier = 3 + (3 * i);
             MetaTileEntityQuantumTank superTank = superTanks[i];
             ModHandler.addShapedRecipe("steam_input_hatch." + GAValues.VN[tier], STEAM_INPUT_FLUID_HATCH[i].getStackForm(), "DPD", "DSD", "DPD",
                     'D', new UnificationEntry(OrePrefix.plate, MATERIAL_TIER[0][tier -1]),
                     'P', new UnificationEntry(OrePrefix.pipeLarge, pipe[i]),
                     'S', superTank.getStackForm());
-
             ModHandler.addShapedRecipe("steam_output_hatch." + GAValues.VN[tier], STEAM_OUTPUT_FLUID_HATCH[i].getStackForm(), "DDD", "PSP", "DDD",
                     'D', new UnificationEntry(OrePrefix.plate, MATERIAL_TIER[0][tier -1]),
                     'P', new UnificationEntry(OrePrefix.pipeLarge, pipe[i]),
@@ -333,7 +335,7 @@ public class RecipeInit {
                     'S', i == 0 ? COMPRESSED_CHEST.getStackForm() : COMPRESSED_CRATE.getStackForm());
         }
         for (int i = 0, tier = 1; i < CRAFTER.length; i++, tier++) {
-            ItemStack craftingTable = new ItemStack(Blocks.CRAFTING_TABLE);
+            final ItemStack craftingTable = new ItemStack(Blocks.CRAFTING_TABLE);
             ModHandler.addShapedRecipe("crafter_" + GAValues.VN[tier], CRAFTER[i].getStackForm(), "CTC", "RSR", "EWE",
                     'C', GACraftingComponents.CONVEYOR.getIngredient(tier),
                     'T', craftingTable,
@@ -346,7 +348,7 @@ public class RecipeInit {
                     'S', CRAFTER[i].getStackForm());
         }
         for (int i = 0; i < FILTERED_INPUT_BUSES.length; i++) {
-            Object motor = i == 0 ? new ItemStack(Item.getByNameOrId("contenttweaker:steammotor")) : GACraftingComponents.MOTOR.getIngredient(i);
+            final Object motor = i == 0 ? new ItemStack(Item.getByNameOrId("contenttweaker:steammotor")) : GACraftingComponents.MOTOR.getIngredient(i);
             ModHandler.addShapedRecipe("filtered_input_bus." + GAValues.VN[i], FILTERED_INPUT_BUSES[i].getStackForm(), " F ", "MHM", " F ",
                     'F', MetaItems.ITEM_FILTER.getStackForm(),
                     'H', ITEM_IMPORT_BUS[i].getStackForm(),
@@ -372,7 +374,6 @@ public class RecipeInit {
         }
         for (int i = 0; i < UNIVERSAL_CIRCUITS.length; i++) {
             ModHandler.addShapelessRecipe(GAValues.VN[i].toLowerCase() + "_universal_circuit", UNIVERSAL_CIRCUITS[i].getStackForm(), new UnificationEntry(OrePrefix.circuit, CIRCUIT_TIERS[i]));
-
             PACKER_RECIPES.recipeBuilder()
                     .input(OrePrefix.circuit, CIRCUIT_TIERS[i])
                     .notConsumable(new IntCircuitIngredient(0))
@@ -447,8 +448,8 @@ public class RecipeInit {
                     'H', GACraftingComponents.HULL.getIngredient(i),
                     'P', GACraftingComponents.PUMP.getIngredient(i));
         }
-        BlockFusionGlass.GlassType[] fusionGlass = BlockFusionGlass.GlassType.values();
-        ItemStack[] fusionCasing = {MetaBlocks.MUTLIBLOCK_CASING.getItemVariant(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING), MetaBlocks.MUTLIBLOCK_CASING.getItemVariant(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING_MK2),
+        final BlockFusionGlass.GlassType[] fusionGlass = BlockFusionGlass.GlassType.values();
+        final ItemStack[] fusionCasing = {MetaBlocks.MUTLIBLOCK_CASING.getItemVariant(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING), MetaBlocks.MUTLIBLOCK_CASING.getItemVariant(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING_MK2),
                 GAMetaBlocks.FUSION_CASING.getItemVariant(GAFusionCasing.CasingType.FUSION_3), TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_CASING_UHV),
                 TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_CASING_UEV)};
         for (int i = 0; i < fusionGlass.length; i++) {
@@ -466,28 +467,28 @@ public class RecipeInit {
         ModHandler.addShapelessRecipe("tj_mega_blast_furnace.back", GATileEntities.MEGA_BLAST_FURNACE.getStackForm(), MEGA_BLAST_FURNACE.getStackForm());
         ModHandler.addShapelessRecipe("tj_mega_vacuum_freezer", MEGA_VACUUM_FREEZER.getStackForm(), GATileEntities.MEGA_VACUUM_FREEZER.getStackForm());
         ModHandler.addShapelessRecipe("tj_mega_vacuum_freezer.back", GATileEntities.MEGA_VACUUM_FREEZER.getStackForm(), MEGA_VACUUM_FREEZER.getStackForm());
-        ItemStack cokeOven = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1000);
+        final ItemStack cokeOven = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1000);
         ModHandler.addShapelessRecipe("tj_coke_oven", TJMetaTileEntities.COKE_OVEN.getStackForm(), cokeOven);
         ModHandler.addShapelessRecipe("tj_coke_oven.back", cokeOven, TJMetaTileEntities.COKE_OVEN.getStackForm());
-        ItemStack primitiveAlloy = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1002);
+        final ItemStack primitiveAlloy = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1002);
         ModHandler.addShapelessRecipe("tj_primitive_alloy", PRIMITIVE_ALLOY.getStackForm(), primitiveAlloy);
         ModHandler.addShapelessRecipe("tj_primitive_alloy.back", primitiveAlloy, PRIMITIVE_ALLOY.getStackForm());
-        ItemStack heatExchanger = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1003);
+        final ItemStack heatExchanger = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1003);
         ModHandler.addShapelessRecipe("tj_heat_exchanger", HEAT_EXCHANGER.getStackForm(), heatExchanger);
         ModHandler.addShapelessRecipe("tj_heat_exchanger.back", heatExchanger, HEAT_EXCHANGER.getStackForm());
-        ItemStack armorInfuser = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1004);
+        final ItemStack armorInfuser = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1004);
         ModHandler.addShapelessRecipe("tj_armor_infuser", ARMOR_INFUSER.getStackForm(), armorInfuser);
         ModHandler.addShapelessRecipe("tj_armor_infuser.back", armorInfuser, ARMOR_INFUSER.getStackForm());
-        ItemStack chaosReplicator = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1005);
+        final ItemStack chaosReplicator = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1005);
         ModHandler.addShapelessRecipe("tj_chaos_replicator", CHAOS_REPLICATOR.getStackForm(), chaosReplicator);
         ModHandler.addShapelessRecipe("tj_chaos_replicator.back", chaosReplicator, CHAOS_REPLICATOR.getStackForm());
-        ItemStack dragonReplicator = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1006);
+        final ItemStack dragonReplicator = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1006);
         ModHandler.addShapelessRecipe("tj_dragon_egg_replicator", DRAGON_REPLICATOR.getStackForm(), dragonReplicator);
         ModHandler.addShapelessRecipe("tj_dragon_egg_replicator.back", dragonReplicator, DRAGON_REPLICATOR.getStackForm());
-        ItemStack largePoweredSpawner = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 4201);
+        final ItemStack largePoweredSpawner = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 4201);
         ModHandler.addShapelessRecipe("tj_large_powered_spawner", LARGE_POWERED_SPAWNER.getStackForm(), largePoweredSpawner);
         ModHandler.addShapelessRecipe("tj_large_powered_spawner.back", largePoweredSpawner, LARGE_POWERED_SPAWNER.getStackForm());
-        ItemStack largeVialProcessor = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 4202);
+        final ItemStack largeVialProcessor = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 4202);
         ModHandler.addShapelessRecipe("tj_large_vial_processor", LARGE_VIAL_PROCESSOR.getStackForm(), largeVialProcessor);
         ModHandler.addShapelessRecipe("tj_large_vial_processor.back", largeVialProcessor, LARGE_VIAL_PROCESSOR.getStackForm());
     }

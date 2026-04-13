@@ -1,5 +1,6 @@
 package tj.recipes;
 
+import gregicadditions.item.*;
 import gregicadditions.item.metal.MetalCasing1;
 import gregtech.api.items.metaitem.MetaItem;
 import net.minecraft.nbt.NBTTagCompound;
@@ -8,10 +9,6 @@ import tj.blocks.BlockFusionCasings;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import gregicadditions.GAValues;
-import gregicadditions.item.CellCasing;
-import gregicadditions.item.GAMetaBlocks;
-import gregicadditions.item.GAMetaItems;
-import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.unification.material.MarkerMaterials;
 import gregtech.api.unification.ore.OrePrefix;
@@ -24,6 +21,7 @@ import net.minecraft.item.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
+import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
 import static tj.items.TJMetaItems.*;
 import static tj.items.TJMetaItems.FLUID_REGULATOR_MAX;
 import static tj.machines.TJMetaTileEntities.*;
@@ -40,15 +38,15 @@ import static tj.recipes.AssemblerRecipes.MATERIAL_TIER;
 public class AssemblyLineRecipes {
 
     public static void init() {
-        MetaItem<?>.MetaValueItem[] motors = {ELECTRIC_MOTOR_LV, ELECTRIC_MOTOR_MV, ELECTRIC_MOTOR_HV, ELECTRIC_MOTOR_EV, ELECTRIC_MOTOR_IV, ELECTRIC_MOTOR_LUV, ELECTRIC_MOTOR_ZPM, ELECTRIC_MOTOR_UV, ELECTRIC_MOTOR_UHV, ELECTRIC_MOTOR_UEV, ELECTRIC_MOTOR_UIV, ELECTRIC_MOTOR_UMV, ELECTRIC_MOTOR_UXV, ELECTRIC_MOTOR_MAX};
-        MetaItem<?>.MetaValueItem[] emitters = {EMITTER_LV, EMITTER_MV, EMITTER_HV, EMITTER_EV, EMITTER_IV, EMITTER_LUV, EMITTER_ZPM, EMITTER_UV, EMITTER_UHV, EMITTER_UEV, EMITTER_UIV, EMITTER_UMV, EMITTER_UXV, EMITTER_MAX};
-        MetaItem<?>.MetaValueItem[] sensors = {SENSOR_LV, SENSOR_MV, SENSOR_HV, SENSOR_EV, SENSOR_IV, SENSOR_LUV, SENSOR_ZPM, SENSOR_UV, SENSOR_UHV, SENSOR_UEV, SENSOR_UIV, SENSOR_UMV, SENSOR_UXV, SENSOR_MAX};
-        MetaItem<?>.MetaValueItem[] pistons = {ELECTRIC_PISTON_LV, ELECTRIC_PISTON_MV, ELECTRIC_PISTON_HV, ELECTRIC_PISTON_EV, ELECTRIC_PISTON_IV, ELECTRIC_PISTON_LUV, ELECTRIC_PISTON_ZPM, ELECTRIC_PISTON_UV, ELECTRIC_PISTON_UHV, ELECTRIC_PISTON_UEV, ELECTRIC_PISTON_UIV, ELECTRIC_PISTON_UMV, ELECTRIC_PISTON_UXV, ELECTRIC_PISTON_MAX};
-        MetaItem<?>.MetaValueItem[] pumps = {ELECTRIC_PUMP_LV, ELECTRIC_PUMP_MV, ELECTRIC_PUMP_HV, ELECTRIC_PUMP_EV, ELECTRIC_PUMP_IV, ELECTRIC_PUMP_LUV, ELECTRIC_PUMP_ZPM, ELECTRIC_PUMP_UV, ELECTRIC_PUMP_UHV, ELECTRIC_PUMP_UEV, ELECTRIC_PUMP_UIV, ELECTRIC_PUMP_UMV, ELECTRIC_PUMP_UXV, ELECTRIC_PUMP_MAX};
-        MetaItem<?>.MetaValueItem[] conveyors = {CONVEYOR_MODULE_LV, CONVEYOR_MODULE_MV, CONVEYOR_MODULE_HV, CONVEYOR_MODULE_EV, CONVEYOR_MODULE_IV, CONVEYOR_MODULE_LUV, CONVEYOR_MODULE_ZPM, CONVEYOR_MODULE_UV, CONVEYOR_MODULE_UHV, CONVEYOR_MODULE_UEV, CONVEYOR_MODULE_UIV, CONVEYOR_MODULE_UMV, CONVEYOR_MODULE_UXV, CONVEYOR_MODULE_MAX};
-        MetaItem<?>.MetaValueItem[] robotArms = {ROBOT_ARM_LV, ROBOT_ARM_MV, ROBOT_ARM_HV, ROBOT_ARM_EV, ROBOT_ARM_IV, ROBOT_ARM_LUV, ROBOT_ARM_ZPM, ROBOT_ARM_UV, ROBOT_ARM_UHV, ROBOT_ARM_UEV, ROBOT_ARM_UIV, ROBOT_ARM_UMV, ROBOT_ARM_UXV, ROBOT_ARM_MAX};
-        MetaItem<?>.MetaValueItem[] fieldGens = {FIELD_GENERATOR_LV, FIELD_GENERATOR_MV, FIELD_GENERATOR_HV, FIELD_GENERATOR_EV, FIELD_GENERATOR_IV, FIELD_GENERATOR_LUV, FIELD_GENERATOR_ZPM, FIELD_GENERATOR_UV, FIELD_GENERATOR_UHV, FIELD_GENERATOR_UEV, FIELD_GENERATOR_UIV, FIELD_GENERATOR_UMV, FIELD_GENERATOR_UXV, FIELD_GENERATOR_MAX};
-        MetaItem<?>.MetaValueItem[] regulators = {FLUID_REGULATOR_LV, FLUID_REGULATOR_MV, FLUID_REGULATOR_HV, FLUID_REGULATOR_EV, FLUID_REGULATOR_IV, FLUID_REGULATOR_LUV, FLUID_REGULATOR_ZPM, FLUID_REGULATOR_UV, FLUID_REGULATOR_UHV, null, null, FLUID_REGULATOR_UMV, null, FLUID_REGULATOR_MAX};
+        final MetaItem<?>.MetaValueItem[] motors = {ELECTRIC_MOTOR_LV, ELECTRIC_MOTOR_MV, ELECTRIC_MOTOR_HV, ELECTRIC_MOTOR_EV, ELECTRIC_MOTOR_IV, ELECTRIC_MOTOR_LUV, ELECTRIC_MOTOR_ZPM, ELECTRIC_MOTOR_UV, ELECTRIC_MOTOR_UHV, ELECTRIC_MOTOR_UEV, ELECTRIC_MOTOR_UIV, ELECTRIC_MOTOR_UMV, ELECTRIC_MOTOR_UXV, ELECTRIC_MOTOR_MAX};
+        final MetaItem<?>.MetaValueItem[] emitters = {EMITTER_LV, EMITTER_MV, EMITTER_HV, EMITTER_EV, EMITTER_IV, EMITTER_LUV, EMITTER_ZPM, EMITTER_UV, EMITTER_UHV, EMITTER_UEV, EMITTER_UIV, EMITTER_UMV, EMITTER_UXV, EMITTER_MAX};
+        final MetaItem<?>.MetaValueItem[] sensors = {SENSOR_LV, SENSOR_MV, SENSOR_HV, SENSOR_EV, SENSOR_IV, SENSOR_LUV, SENSOR_ZPM, SENSOR_UV, SENSOR_UHV, SENSOR_UEV, SENSOR_UIV, SENSOR_UMV, SENSOR_UXV, SENSOR_MAX};
+        final MetaItem<?>.MetaValueItem[] pistons = {ELECTRIC_PISTON_LV, ELECTRIC_PISTON_MV, ELECTRIC_PISTON_HV, ELECTRIC_PISTON_EV, ELECTRIC_PISTON_IV, ELECTRIC_PISTON_LUV, ELECTRIC_PISTON_ZPM, ELECTRIC_PISTON_UV, ELECTRIC_PISTON_UHV, ELECTRIC_PISTON_UEV, ELECTRIC_PISTON_UIV, ELECTRIC_PISTON_UMV, ELECTRIC_PISTON_UXV, ELECTRIC_PISTON_MAX};
+        final MetaItem<?>.MetaValueItem[] pumps = {ELECTRIC_PUMP_LV, ELECTRIC_PUMP_MV, ELECTRIC_PUMP_HV, ELECTRIC_PUMP_EV, ELECTRIC_PUMP_IV, ELECTRIC_PUMP_LUV, ELECTRIC_PUMP_ZPM, ELECTRIC_PUMP_UV, ELECTRIC_PUMP_UHV, ELECTRIC_PUMP_UEV, ELECTRIC_PUMP_UIV, ELECTRIC_PUMP_UMV, ELECTRIC_PUMP_UXV, ELECTRIC_PUMP_MAX};
+        final MetaItem<?>.MetaValueItem[] conveyors = {CONVEYOR_MODULE_LV, CONVEYOR_MODULE_MV, CONVEYOR_MODULE_HV, CONVEYOR_MODULE_EV, CONVEYOR_MODULE_IV, CONVEYOR_MODULE_LUV, CONVEYOR_MODULE_ZPM, CONVEYOR_MODULE_UV, CONVEYOR_MODULE_UHV, CONVEYOR_MODULE_UEV, CONVEYOR_MODULE_UIV, CONVEYOR_MODULE_UMV, CONVEYOR_MODULE_UXV, CONVEYOR_MODULE_MAX};
+        final MetaItem<?>.MetaValueItem[] robotArms = {ROBOT_ARM_LV, ROBOT_ARM_MV, ROBOT_ARM_HV, ROBOT_ARM_EV, ROBOT_ARM_IV, ROBOT_ARM_LUV, ROBOT_ARM_ZPM, ROBOT_ARM_UV, ROBOT_ARM_UHV, ROBOT_ARM_UEV, ROBOT_ARM_UIV, ROBOT_ARM_UMV, ROBOT_ARM_UXV, ROBOT_ARM_MAX};
+        final MetaItem<?>.MetaValueItem[] fieldGens = {FIELD_GENERATOR_LV, FIELD_GENERATOR_MV, FIELD_GENERATOR_HV, FIELD_GENERATOR_EV, FIELD_GENERATOR_IV, FIELD_GENERATOR_LUV, FIELD_GENERATOR_ZPM, FIELD_GENERATOR_UV, FIELD_GENERATOR_UHV, FIELD_GENERATOR_UEV, FIELD_GENERATOR_UIV, FIELD_GENERATOR_UMV, FIELD_GENERATOR_UXV, FIELD_GENERATOR_MAX};
+        final MetaItem<?>.MetaValueItem[] regulators = {FLUID_REGULATOR_LV, FLUID_REGULATOR_MV, FLUID_REGULATOR_HV, FLUID_REGULATOR_EV, FLUID_REGULATOR_IV, FLUID_REGULATOR_LUV, FLUID_REGULATOR_ZPM, FLUID_REGULATOR_UV, FLUID_REGULATOR_UHV, null, null, FLUID_REGULATOR_UMV, null, FLUID_REGULATOR_MAX};
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -977,7 +975,7 @@ public class AssemblyLineRecipes {
                 .outputs(LARGE_CRAFTER.getStackForm())
                 .EUt(GAValues.VA[6]).duration(2000)
                 .buildAndRegister();
-        List<ItemStack> turbineUpgrade = new ArrayList<>();
+        final List<ItemStack> turbineUpgrade = new ArrayList<>();
         for (int i = 0; i < TURBINE_UPGRADES.length; i++) {
             if (i > 0)
                 turbineUpgrade.set(0, TURBINE_UPGRADES[i - 1].getStackForm());
@@ -997,8 +995,8 @@ public class AssemblyLineRecipes {
                     .EUt(GAValues.VA[i + GAValues.UHV]).duration(1500)
                     .buildAndRegister();
         }
-        ItemStack sodiumPotassiumCell = LARGE_FLUID_CELL_STEEL.getStackForm(), sodiumPotassiumCell2 = LARGE_FLUID_CELL_TUNGSTEN_STEEL.getStackForm();
-        NBTTagCompound cellCompound = new NBTTagCompound(), cellCompound2 = new NBTTagCompound(), fluidCompound = new NBTTagCompound(), fluidCompound2 = new NBTTagCompound();
+        final ItemStack sodiumPotassiumCell = LARGE_FLUID_CELL_STEEL.getStackForm(), sodiumPotassiumCell2 = LARGE_FLUID_CELL_TUNGSTEN_STEEL.getStackForm();
+        final NBTTagCompound cellCompound = new NBTTagCompound(), cellCompound2 = new NBTTagCompound(), fluidCompound = new NBTTagCompound(), fluidCompound2 = new NBTTagCompound();
         fluidCompound.setString("FluidName", "sodium_potassium_alloy");
         fluidCompound.setInteger("Amount", 64000);
         cellCompound.setTag("Fluid", fluidCompound);
@@ -1008,7 +1006,7 @@ public class AssemblyLineRecipes {
         cellCompound2.setTag("Fluid", fluidCompound2);
         sodiumPotassiumCell2.setTagCompound(cellCompound2);
         for (int i = 0, count = 1; i < ENDER_ENERGY_INPUT_HATCHES.length; i++, count++) {
-            ItemStack stack = i > 7 ? sodiumPotassiumCell2 : sodiumPotassiumCell;
+            final ItemStack stack = i > 7 ? sodiumPotassiumCell2 : sodiumPotassiumCell;
             stack.setCount(count - (i > 7 ? 7 : 0));
             ASSEMBLY_LINE_RECIPES.recipeBuilder()
                     .fluidInputs(SolderingAlloy.getFluid(4608), Lubricant.getFluid(16000), EnderPearl.getFluid(1440), EnderEye.getFluid(1440))
@@ -1123,6 +1121,44 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.plate, HSSS, 40)
                 .outputs(SUPER_PROCESSING_ARRAY.getStackForm())
                 .EUt(GAValues.VA[7]).duration(1000)
+                .buildAndRegister();
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(62208), Lubricant.getFluid(64000), CosmicNeutronium.getFluid(57600), FluidRegistry.getFluidStack("rawchaos", 62208))
+                .inputs(STELLAR_FORGE.getStackForm(16), fieldGens[12].getStackForm(32), sensors[12].getStackForm(64), emitters[12].getStackForm(64), GAMetaBlocks.MUTLIBLOCK_CASING2.getItemVariant(GAMultiblockCasing2.CasingType.STELLAR_CONTAINMENT, 64), TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_COIL_UEV, 64), RECURSIVELY_FOLDED_NEGATIVE_SPACE.getStackForm(50))
+                .input(OrePrefix.plateDense, MATERIAL_REGISTRY.getObject("chaosalloy"), 7)
+                .input(OrePrefix.plate, MATERIAL_REGISTRY.getObject("chaos"), 64)
+                .input(OrePrefix.screw, HastelloyK243, 64)
+                .input(OrePrefix.screw, HastelloyX78, 64)
+                .input(OrePrefix.stickLong, HDCS, 64)
+                .input(OrePrefix.gear, Vibranium, 16)
+                .input(OrePrefix.circuit, UXV, 48)
+                .outputs(INTERSTELLAR_FORGE.getStackForm())
+                .EUt(GAValues.VA[14]).duration(5000)
+                .buildAndRegister();
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(62208), Lubricant.getFluid(64000), HeavyQuarkDegenerateMatter.getFluid(57600), QCDMatter.getFluid(62208))
+                .inputs(INDUSTRIAL_FUSION_REACTOR_UEV.getStackForm(), INDUSTRIAL_FUSION_REACTOR_UHV.getStackForm(2), INDUSTRIAL_FUSION_REACTOR_UV.getStackForm(3), INDUSTRIAL_FUSION_REACTOR_ZPM.getStackForm(4), INDUSTRIAL_FUSION_REACTOR_LUV.getStackForm(5), FUSION_REACTOR[2].getStackForm(16), FUSION_REACTOR[1].getStackForm(32), FUSION_REACTOR[0].getStackForm(64), UHPIC_WAFER.getStackForm(64))
+                .inputs(fieldGens[12].getStackForm(64), emitters[12].getStackForm(64), sensors[12].getStackForm(64))
+                .input(OrePrefix.wireGtOctal, UXVSuperconductor, 64)
+                .input(OrePrefix.plateDense, CosmicNeutronium, 7)
+                .input(OrePrefix.plateDense, Neutronium, 7)
+                .input(OrePrefix.circuit, UXV, 64)
+                .outputs(MEGA_FUSION.getStackForm())
+                .EUt(GAValues.VA[13]).duration(4000)
+                .buildAndRegister();
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(20736), Lubricant.getFluid(64000), CosmicNeutronium.getFluid(57600))
+                .inputs(CREATIVE_LARGE_MINER.getStackForm(20), emitters[12].getStackForm(64), motors[12].getStackForm(16), pistons[12].getStackForm(16), COMPONENT_GRINDER_TUNGSTEN.getStackForm(64))
+                .input(OrePrefix.gearSmall, QCDMatter, 64)
+                .input(OrePrefix.gearSmall, QCDMatter, 64)
+                .input(OrePrefix.gearSmall, QCDMatter, 64)
+                .input(OrePrefix.gearSmall, QCDMatter, 64)
+                .input(OrePrefix.plate, CosmicNeutronium, 64)
+                .input(OrePrefix.screw, Neutronium, 64)
+                .input(OrePrefix.gear, Neutronium, 16)
+                .input(OrePrefix.circuit, UXV, 20)
+                .outputs(VOID_LARGE_ADVANCED_CHUNK_MINER.getStackForm())
+                .EUt(GAValues.VA[14]).duration(2000)
                 .buildAndRegister();
     }
 }
