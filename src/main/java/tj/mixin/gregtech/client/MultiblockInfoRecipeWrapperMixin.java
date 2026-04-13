@@ -98,8 +98,8 @@ public abstract class MultiblockInfoRecipeWrapperMixin {
                     for (int j = 0; j < infos.length; j++) {
                         this.mbPatterns[i][j] = this.initializePattern_2(infos[j], drops);
                     }
-                } else if (infos != null && infos.length > 2 && infos[2] != null)
-                    this.mbPatterns[i][0] = this.initializePattern_2(infos[2], drops);
+                } else if (infos != null && infos.length > 3 && infos[3] != null)
+                    this.mbPatterns[i][0] = this.initializePattern_2(infos[3], drops);
             }
         }
     }
