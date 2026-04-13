@@ -1147,7 +1147,7 @@ public class AssemblyLineRecipes {
                 .EUt(GAValues.VA[13]).duration(4000)
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
-                .fluidInputs(SolderingAlloy.getFluid(20736), Lubricant.getFluid(64000), CosmicNeutronium.getFluid(57600))
+                .fluidInputs(SolderingAlloy.getFluid(20736), Lubricant.getFluid(64000), Taranium.getFluid(57600), NaquadriaticTaranium.getFluid(57600))
                 .inputs(CREATIVE_LARGE_MINER.getStackForm(20), emitters[12].getStackForm(64), motors[12].getStackForm(16), pistons[12].getStackForm(16), COMPONENT_GRINDER_TUNGSTEN.getStackForm(64))
                 .input(OrePrefix.gearSmall, QCDMatter, 64)
                 .input(OrePrefix.gearSmall, QCDMatter, 64)

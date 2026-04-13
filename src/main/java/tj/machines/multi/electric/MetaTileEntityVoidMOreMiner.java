@@ -136,21 +136,22 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
     @Override
     protected BlockPattern createStructurePattern() {
         return FactoryBlockPattern.start()
-                .aisle("CCCCCCCCC", "CCCCCCCCC", "C#######C", "C#######C", "C#######C", "CCCCCCCCC", "CFFFFFFFC", "CFFFFFFFC", "C#######C", "C#######C")
-                .aisle("C#######C", "C#######C", "#########", "#########", "#########", "C###D###C", "F##DDD##F", "F##DDD##F", "###DDD###", "#########")
-                .aisle("C#######C", "C#######C", "#########", "####D####", "###DDD###", "C##DDD##C", "F#DD#DD#F", "F#D###D#F", "##D###D##", "#########")
-                .aisle("C###D###C", "C###D###C", "###DDD###", "###D#D###", "##DD#DD##", "C#D###D#C", "FDD###DDF", "FD#####DF", "#D#####D#", "#########")
-                .aisle("C##DMD##C", "C##DMD##C", "###DMD###", "##D###D##", "##D###D##", "CDD###DDC", "FD#####DF", "FD#####DF", "#D#####D#", "#########")
-                .aisle("C###D###C", "C###D###C", "###DDD###", "###D#D###", "##DD#DD##", "C#D###D#C", "FDD###DDF", "FD#####DF", "#D#####D#", "#########")
-                .aisle("C#######C", "C#######C", "#########", "####D####", "###DDD###", "C##DDD##C", "F#DD#DD#F", "F#D###D#F", "##D###D##", "#########")
-                .aisle("C#######C", "C#######C", "#########", "#########", "#########", "C###D###C", "F##DDD##F", "F##DDD##F", "###DDD###", "#########")
-                .aisle("CCCCCCCCC", "CCCCSCCCC", "C#######C", "C#######C", "C#######C", "CCCCCCCCC", "CFFFFFFFC", "CFFFFFFFC", "C#######C", "C#######C")
+                .aisle("CCCCCCCCC", "CCCCCCCCC", "C#######C", "C#######C", "C#######C", "CCCCCCCCC", "CFFFFFFFC", "CFFFFFFFC", "CfffffffC", "C#######C")
+                .aisle("C#######C", "C#######C", "#########", "#########", "#########", "C###D###C", "F##DDD##F", "F##DDD##F", "f##DDD##f", "#########")
+                .aisle("C#######C", "C#######C", "#########", "####D####", "###DDD###", "C##DDD##C", "F#DD#DD#F", "F#D###D#F", "f#D###D#f", "#########")
+                .aisle("C###D###C", "C###D###C", "###DDD###", "###D#D###", "##DD#DD##", "C#D###D#C", "FDD###DDF", "FD#####DF", "fD#####Df", "#########")
+                .aisle("C##DMD##C", "C##DMD##C", "###DMD###", "##D###D##", "##D###D##", "CDD###DDC", "FD#####DF", "FD#####DF", "fD#####Df", "#########")
+                .aisle("C###D###C", "C###D###C", "###DDD###", "###D#D###", "##DD#DD##", "C#D###D#C", "FDD###DDF", "FD#####DF", "fD#####Df", "#########")
+                .aisle("C#######C", "C#######C", "#########", "####D####", "###DDD###", "C##DDD##C", "F#DD#DD#F", "F#D###D#F", "f#D###D#f", "#########")
+                .aisle("C#######C", "C#######C", "#########", "#########", "#########", "C###D###C", "F##DDD##F", "F##DDD##F", "f##DDD##f", "#########")
+                .aisle("CCCCCCCCC", "CCCCSCCCC", "C#######C", "C#######C", "C#######C", "CCCCCCCCC", "CFFFFFFFC", "CFFFFFFFC", "CfffffffC", "C#######C")
                 .setAmountAtLeast('L', 100)
                 .where('S', this.selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('D', statePredicate(TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.PERIODICIUM)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(QCDMatter).getDefaultState()))
+                .where('f', frameworkPredicate())
                 .where('M', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('#', (tile) -> true)
                 .build();
@@ -163,7 +164,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        final int tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
+        final int tier = Math.min(context.getOrDefault("frameworkTier", 0), context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier());
         if (tier >= GAValues.MAX) {
             this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
             this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
