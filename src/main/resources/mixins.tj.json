@@ -70,6 +70,7 @@
     "gregtech.MetaTileEntityLargeBoilerMixin",
     "gregtech.MetaTileEntityLargeTurbineMixin",
     "gregtech.MultiblockWithDisplayBaseMixin",
+    "gregtech.RecipeLRUCacheMixin",
     "gregtech.RecipeMapMixin",
     "gregtech.RecipeMapMultiblockControllerMixin",
     "gregtech.RecipeMixin",

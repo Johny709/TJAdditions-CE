@@ -4,13 +4,17 @@ import gregicadditions.capabilities.impl.GARecipeMapMultiblockController;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.recipes.CountableIngredient;
+import gregtech.api.recipes.Recipe;
 import gregtech.common.items.MetaItems;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -130,6 +134,25 @@ public abstract class GARecipeMapMultiblockControllerMixin extends RecipeMapMult
                 .addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))),
                         "tj.multiblock.parallel.debug.cache.miss", this.recipeMapWorkable.previousRecipe.getCacheMiss())
                 .addEmptyLine();
+        int i = 1;
+        for (Recipe recipe : ((Iterable<Recipe>) this.recipeMapWorkable.previousRecipe)) {
+            builder.addTranslationLine("tj.multiblock.recipe_cache.slot", i++)
+                    .addTranslationLine("tj.multiblock.recipe_cache.inputs");
+            for (CountableIngredient ingredient : recipe.getInputs())
+                builder.addIngredient(ingredient);
+            for (FluidStack stack : recipe.getFluidInputs())
+                builder.addFluidStack(stack);
+            if (!recipe.getOutputs().isEmpty() || !recipe.getFluidOutputs().isEmpty())
+                builder.addTranslationLine("tj.multiblock.recipe_cache.outputs");
+            for (ItemStack stack : recipe.getOutputs())
+                builder.addItemStack(stack);
+            for (FluidStack stack : recipe.getFluidOutputs())
+                builder.addFluidStack(stack);
+            if (!recipe.getChancedOutputs().isEmpty())
+                builder.addTranslationLine("tj.multiblock.recipe_cache.chanced_outputs");
+            for (Recipe.ChanceEntry entry : recipe.getChancedOutputs())
+                builder.addItemStack(entry.getItemStack());
+        }
     }
 
     @Unique
