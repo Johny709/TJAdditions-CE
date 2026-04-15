@@ -141,7 +141,7 @@ public class MetaTileEntityMegaAdvancedFusion extends TJRecipeMapMultiblockContr
             this.heat = this.maxHeat;
 
         if (!this.recipeLogic.isActive() || !this.recipeLogic.isWorkingEnabled()) {
-            this.heat -= Math.min(this.heat, 10000L * this.recipeLogic.getParallel());
+            this.heat -= Math.min(this.heat, 10000L * this.recipeLogic.getParallelsPerformed());
         }
 
         if (this.recipe != null && this.recipeLogic.isWorkingEnabled()) {

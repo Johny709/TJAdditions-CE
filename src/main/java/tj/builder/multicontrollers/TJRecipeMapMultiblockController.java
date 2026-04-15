@@ -146,7 +146,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         builder.addVoltageInLine(this.inputEnergyContainer)
                 .addVoltageTierLine(this.tier)
                 .addEnergyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
-                .addParallelLine(this.recipeLogic.getParallel())
+                .addParallelLine(this.recipeLogic.getParallelsPerformed(), this.recipeLogic.getParallel())
                 .addIsWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress(), this.recipeLogic.hasProblem(), 998)
                 .addRecipeInputLine(this.recipeLogic, 999)
                 .addRecipeOutputLine(this.recipeLogic, 1000);
