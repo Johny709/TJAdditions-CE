@@ -282,7 +282,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
             builder.addTranslationLine("tj.multiblock.recipe_cache.slot", i++)
                     .addTranslationLine("tj.multiblock.recipe_cache.inputs");
             for (CountableIngredient ingredient : recipe.getInputs())
-                builder.addItemStack(ingredient.getIngredient().getMatchingStacks()[0]);
+                builder.addIngredient(ingredient);
             for (FluidStack stack : recipe.getFluidInputs())
                 builder.addFluidStack(stack);
             if (!recipe.getOutputs().isEmpty() || !recipe.getFluidOutputs().isEmpty())
