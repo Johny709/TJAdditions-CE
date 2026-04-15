@@ -221,7 +221,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         for (int i = 0; i < this.recipeLogic.getSize(); i++) {
             final int parallel = this.recipeLogic.getParallel(i);
             final int progressOffset = this.recipeLogic.isInstanceActive(i) ? 1 : 0;
-            final double progressPercent = (this.recipeLogic.getProgressPercent(i) - progressOffset) * 100;
+            final double progressPercent = this.recipeLogic.getProgressPercent(i) * (100 - progressOffset);
             final String isRunning = !this.recipeLogic.isWorkingEnabled(i) ? TextUtils.translate("machine.universal.work_paused")
                     : this.recipeLogic.hasProblems(i) ? TextUtils.translate("machine.universal.has_problems")
                     : !this.recipeLogic.isInstanceActive(i) ? TextUtils.translate("machine.universal.idling")
