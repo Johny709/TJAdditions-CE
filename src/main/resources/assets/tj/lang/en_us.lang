@@ -627,6 +627,7 @@ recipemap.greenhouse_tree.name=Green House Tree Recipes
 recipemap.architect.name=Architecture Recipes
 recipemap.rock_breaker.name=Rock Breaker
 recipemap.large_assembly_line.name=Large Assembly Line
+recipemap.interstellar_forge.name=InterStellar Forge
 
 material.pahoehoe=Pahoehoe Lava
 material.draconium=Draconium

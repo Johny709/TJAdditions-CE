@@ -3,7 +3,6 @@ package tj.machines.multi.electric;
 import gregicadditions.GAValues;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing2;
-import gregicadditions.item.components.EmitterCasing;
 import gregicadditions.item.fusion.GADivertorCasing;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -17,6 +16,7 @@ import gregtech.api.render.ICubeRenderer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 import tj.TJConfig;
+import tj.TJRecipeMaps;
 import tj.blocks.BlockFusionCasings;
 import tj.blocks.BlockFusionGlass;
 import tj.blocks.BlockSolidCasings;
@@ -38,7 +38,7 @@ public class MetaTileEntityInterStellarForge extends TJRecipeMapMultiblockContro
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, IMPORT_FLUIDS, EXPORT_ITEMS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
 
     public MetaTileEntityInterStellarForge(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, GARecipeMaps.STELLAR_FORGE_RECIPES);
+        super(metaTileEntityId, TJRecipeMaps.INTERSTELLAR_FORGE_RECIPES);
     }
 
     @Override
