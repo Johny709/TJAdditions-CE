@@ -105,8 +105,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1", builder.toString()));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(this.getEUtMultiplier() / 100.0)));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(this.getDurationMultiplier() / 100.0)));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", this.getParallel()));
-        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", this.getMaxParallel()));
+        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJValues.thousandFormat.format(this.getParallel())));
+        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", TJValues.thousandFormat.format(this.getMaxParallel())));
         tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", this.getChanceMultiplier()));
     }
 
@@ -215,7 +215,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     private void addWorkableDisplayText(GUIDisplayBuilder builder) {
-        builder.addTranslationLine("tj.multiblock.slices", this.parallelLayer)
+        builder.addTranslationLine("tj.multiblock.slices", TJValues.thousandFormat.format(this.parallelLayer))
                 .addTextComponent(new TextComponentTranslation("tj.multiblock.parallel.distinct").appendText(" ")
                         .appendSibling(this.recipeLogic.isDistinctRecipes() ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "isDistinct")
                                 : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "notDistinct")));
@@ -236,10 +236,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     .appendText(" ")
                     .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + finalI)), hoverBuilder -> {
                 hoverBuilder.addTranslationLine("tj.multiblock.parallel.status", isRunning)
-                        .addTranslationLine("tj.multiblock.handler", finalI + 1)
-                        .addTranslationLine("tj.multiblock.eu", this.recipeLogic.getRecipeEUt(finalI), tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier])
+                        .addTranslationLine("tj.multiblock.handler", TJValues.thousandFormat.format(finalI + 1))
+                        .addTranslationLine("tj.multiblock.eu", TJValues.thousandFormat.format(this.recipeLogic.getRecipeEUt(finalI)), tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier])
                         .addTranslationLine("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) (this.recipeLogic.getProgress(finalI) - progressOffset) / 20), TJValues.thousandTwoPlaceFormat.format((double) this.recipeLogic.getMaxProgress(finalI) / 20), (int) progressPercent)
-                        .addTranslationLine("tj.multiblock.max_parallel", this.recipeLogic.getParallelsPerformed(finalI), this.recipeLogic.getParallel(finalI));
+                        .addTranslationLine("tj.multiblock.max_parallel", TJValues.thousandFormat.format(this.recipeLogic.getParallelsPerformed(finalI)), TJValues.thousandFormat.format(this.recipeLogic.getParallel(finalI)));
                 final List<ItemStack> itemInputs = this.recipeLogic.getItemInputsAt(finalI);
                 final List<FluidStack> fluidInputs = this.recipeLogic.getFluidInputsAt(finalI);
                 if (itemInputs != null && !itemInputs.isEmpty() || fluidInputs != null && !fluidInputs.isEmpty())
@@ -273,11 +273,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     private void addDebugDisplayText(GUIDisplayBuilder builder) {
-        builder.addTranslationLine("tj.multiblock.parallel.debug.cache.capacity", this.recipeLogic.getRecipeLRUCache().getCapacity())
+        builder.addTranslationLine("tj.multiblock.parallel.debug.cache.capacity", TJValues.thousandFormat.format(this.recipeLogic.getRecipeLRUCache().getCapacity()))
                 .addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))),
-                        "tj.multiblock.parallel.debug.cache.hit", this.recipeLogic.getRecipeLRUCache().getCacheHit())
+                        "tj.multiblock.parallel.debug.cache.hit", TJValues.thousandFormat.format(this.recipeLogic.getRecipeLRUCache().getCacheHit()))
                 .addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))),
-                        "tj.multiblock.parallel.debug.cache.miss", this.recipeLogic.getRecipeLRUCache().getCacheMiss())
+                        "tj.multiblock.parallel.debug.cache.miss", TJValues.thousandFormat.format(this.recipeLogic.getRecipeLRUCache().getCacheMiss()))
                 .addEmptyLine();
         int i = 1;
         for (Recipe recipe : this.recipeLogic.getRecipeLRUCache()) {

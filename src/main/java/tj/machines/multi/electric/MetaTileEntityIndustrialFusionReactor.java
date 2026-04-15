@@ -113,8 +113,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             tip.add(I18n.format("tj.multiblock.universal.tooltip.1", this.recipeMap.getLocalizedName()));
             tip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(TJConfig.industrialFusionReactor.eutPercentage / 100.0)));
             tip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(TJConfig.industrialFusionReactor.durationPercentage / 100.0)));
-            tip.add(I18n.format("tj.multiblock.universal.tooltip.2", TJConfig.industrialFusionReactor.maximumSlices));
-            tip.add(I18n.format("tj.multiblock.industrial_fusion_reactor.energy", this.energyToStart));
+            tip.add(I18n.format("tj.multiblock.universal.tooltip.2", TJValues.thousandFormat.format(TJConfig.industrialFusionReactor.maximumSlices)));
+            tip.add(I18n.format("tj.multiblock.industrial_fusion_reactor.energy", TJValues.thousandFormat.format(this.energyToStart)));
         });
     }
 
@@ -311,15 +311,15 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
-        builder.addTranslationLine("tj.multiblock.slices", this.parallelLayer);
+        builder.addTranslationLine("tj.multiblock.slices", TJValues.thousandFormat.format(this.parallelLayer));
         if (!this.isStructureFormed()) return;
         builder.addEnergyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity())
                 .customLine(text -> {
-                    text.addTranslationLine("tj.multiblock.industrial_fusion_reactor.heat", this.heat);
+                    text.addTranslationLine("tj.multiblock.industrial_fusion_reactor.heat", TJValues.thousandFormat.format(this.heat));
                     if (this.recipe != null) {
                         long energyToStart = this.recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L) * this.parallelLayer;
-                        text.addTextComponent(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart))
-                                .setStyle(new Style().setColor(this.heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
+                        text.addTranslationLine(text1 -> text1.setStyle(new Style().setColor(this.heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)),
+                                "tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart));
                     }
                 });
     }

@@ -155,11 +155,11 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     }
 
     protected void addDebugDisplayText(GUIDisplayBuilder builder) {
-        builder.addTranslationLine("tj.multiblock.parallel.debug.cache.capacity", this.recipeLogic.getRecipeLRUCache().getCapacity())
+        builder.addTranslationLine("tj.multiblock.parallel.debug.cache.capacity", TJValues.thousandFormat.format(this.recipeLogic.getRecipeLRUCache().getCapacity()))
                 .addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))),
-                        "tj.multiblock.parallel.debug.cache.hit", this.recipeLogic.getRecipeLRUCache().getCacheHit())
+                        "tj.multiblock.parallel.debug.cache.hit", TJValues.thousandFormat.format(this.recipeLogic.getRecipeLRUCache().getCacheHit()))
                 .addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))),
-                        "tj.multiblock.parallel.debug.cache.miss", this.recipeLogic.getRecipeLRUCache().getCacheMiss())
+                        "tj.multiblock.parallel.debug.cache.miss", TJValues.thousandFormat.format(this.recipeLogic.getRecipeLRUCache().getCacheMiss()))
                 .addEmptyLine();
         int i = 1;
         for (Recipe recipe : this.recipeLogic.getRecipeLRUCache()) {

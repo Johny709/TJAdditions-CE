@@ -3,6 +3,7 @@ package tj.multiblockpart.utility;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import tj.TJValues;
 import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 import tj.multiblockpart.TJMultiblockAbility;
 import gregtech.api.gui.GuiTextures;
@@ -81,7 +82,7 @@ public class MetaTileEntityMachineController extends MetaTileEntityMultiblockPar
     }
 
     private void addDisplayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentTranslation("tj.machine.machine_controller.index", this.Id +1));
+        textList.add(new TextComponentTranslation("tj.machine.machine_controller.index", TJValues.thousandFormat.format(this.Id + 1)));
     }
 
     @Override

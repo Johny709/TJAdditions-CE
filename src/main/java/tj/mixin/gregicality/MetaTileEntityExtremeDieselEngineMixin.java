@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
+import tj.TJValues;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
@@ -116,7 +117,7 @@ public abstract class MetaTileEntityExtremeDieselEngineMixin extends FueledMulti
                             text.addTextComponent(new TextComponentString(String.format("%s: %dmb", booster.getLocalizedName(), boosterAmount)).setStyle(new Style().setColor(TextFormatting.AQUA)));
                     }
                     text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", workableHandler.getProduction())))
-                            .addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.large_combustion_engine.cycles", 20 - workableHandler.getCurrentCycle())));
+                            .addTranslationLine("tj.multiblock.large_combustion_engine.cycles", TJValues.thousandFormat.format(20 - workableHandler.getCurrentCycle()));
                 }).addIsWorkingLine(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress())
                 .addRecipeInputLine(workableHandler)
                 .addRecipeOutputLine(workableHandler);

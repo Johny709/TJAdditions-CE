@@ -20,6 +20,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
+import tj.TJValues;
 import tj.capability.impl.workable.EnchanterWorkableHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
@@ -59,8 +60,8 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
     @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
-        tooltip.add(I18n.format("tj.multiblock.large_enchanter.level.max", this.getTier()));
-        tooltip.add(I18n.format("tj.multiblock.parallel", this.parallel));
+        tooltip.add(I18n.format("tj.multiblock.large_enchanter.level.max", TJValues.thousandFormat.format(this.getTier())));
+        tooltip.add(I18n.format("tj.multiblock.parallel", TJValues.thousandFormat.format(this.parallel)));
     }
 
     @Override

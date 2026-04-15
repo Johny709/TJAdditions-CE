@@ -10,6 +10,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
+import tj.TJValues;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.multi.electric.MetaTileEntityProcessingArray;
@@ -66,6 +67,6 @@ public class ProcessingArrayInfo extends TJMultiblockInfoPage {
     public String[] getDescription() {
         return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.processing_array.description"),
                         I18n.format("tj.multiblock.processing_array.eut")},
-                ArrayUtils.addAll(super.getDescription(), I18n.format("tj.multiblock.universal.tooltip.2", this.getController().getMaxParallel())));
+                ArrayUtils.addAll(super.getDescription(), I18n.format("tj.multiblock.universal.tooltip.2", TJValues.thousandFormat.format(this.getController().getMaxParallel()))));
     }
 }

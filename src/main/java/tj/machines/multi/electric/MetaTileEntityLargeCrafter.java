@@ -11,7 +11,6 @@ import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.ConveyorCasing;
 import gregicadditions.item.components.RobotArmCasing;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -33,9 +32,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
@@ -43,12 +40,15 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.Triple;
 import tj.TJConfig;
+import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.impl.workable.CrafterRecipeLogic;
 import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.gui.TJGuiTextures;
+import tj.gui.widgets.AdvancedDisplayWidget;
+import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.textures.TJTextures;
 import tj.util.Color;
 import tj.util.EnumFacingHelper;
@@ -134,17 +134,19 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         super.addTabs(tabBuilder, player);
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
-            debugTab.add(new AdvancedTextWidget(10, -2, this::addDebugDisplayText, 0xFFFFFF)
-                    .setMaxWidthLimit(180));
+            debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
+                    .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addDebugDisplayText, 0xFFFFFF)
+                            .setMaxWidthLimit(180))
+                    .setScrollPanelWidth(3));
         });
     }
 
-    private void addDebugDisplayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.capacity", this.recipeLogic.getPreviousRecipe().getCapacity())));
-        textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.hit", this.recipeLogic.getPreviousRecipe().getCacheHit()))
-                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))));
-        textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.parallel.debug.cache.miss", this.recipeLogic.getPreviousRecipe().getCacheMiss()))
-                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))));
+    private void addDebugDisplayText(GUIDisplayBuilder builder) {
+        builder.addTranslationLine("tj.multiblock.parallel.debug.cache.capacity", TJValues.thousandFormat.format(this.recipeLogic.getPreviousRecipe().getCapacity()));
+        builder.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))),
+                "tj.multiblock.parallel.debug.cache.hit", TJValues.thousandFormat.format(this.recipeLogic.getPreviousRecipe().getCacheHit()));
+        builder.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))),
+                "tj.multiblock.parallel.debug.cache.miss", TJValues.thousandFormat.format(this.recipeLogic.getPreviousRecipe().getCacheMiss()));
     }
 
     @Override

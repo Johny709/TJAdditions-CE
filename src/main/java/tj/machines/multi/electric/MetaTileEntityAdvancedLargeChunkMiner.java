@@ -45,6 +45,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.TJValues;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
@@ -150,9 +151,9 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
             builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.done")
                     .setStyle(new Style().setColor(TextFormatting.GREEN)), 1000);
         if (this.workableHandler.isActive())
-            builder.addTranslationLine("metaitem.linking.device.x", this.workableHandler.getX())
-                    .addTranslationLine("metaitem.linking.device.y", this.workableHandler.getY())
-                    .addTranslationLine("metaitem.linking.device.z", this.workableHandler.getZ())
+            builder.addTranslationLine("metaitem.linking.device.x", TJValues.thousandFormat.format(this.workableHandler.getX()))
+                    .addTranslationLine("metaitem.linking.device.y", TJValues.thousandFormat.format(this.workableHandler.getY()))
+                    .addTranslationLine("metaitem.linking.device.z", TJValues.thousandFormat.format(this.workableHandler.getZ()))
                     .addFluidInputLine(this.getImportFluidTank(), this.drillingFluid)
                     .addTranslationLine("gtadditions.machine.miner.fluid_usage", this.drillingFluid.amount, this.drillingFluid.getLocalizedName())
                     .addTranslationLine("gregtech.multiblock.large_miner.block_per_tick", this.workableHandler.getMiningSpeed());

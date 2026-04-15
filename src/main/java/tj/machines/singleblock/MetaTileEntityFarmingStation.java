@@ -32,6 +32,7 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.TJValues;
 import tj.capability.impl.handler.IFarmerHandler;
 import tj.capability.impl.workable.FarmingStationWorkableHandler;
 import tj.gui.TJGuiTextures;
@@ -94,7 +95,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
-        tooltip.add(I18n.format("machine.universal.linked.entity.radius", (9 + (2 * this.getTier())) / 2, (9 + (2 * this.getTier())) / 2));
+        tooltip.add(I18n.format("machine.universal.linked.entity.radius", TJValues.thousandFormat.format((9 + (2L * this.getTier())) / 2), TJValues.thousandFormat.format((9 + (2L * this.getTier())) / 2)));
         tooltip.add(I18n.format("tj.machine.farming_station.description", this.getTier() >= GTValues.ZPM ? 4 : this.getTier() >= GTValues.EV ? 2 : 1));
         tooltip.add(I18n.format("tj.machine.farming_station.fertilizer.tooltip", this.getTier() * 10));
     }

@@ -53,6 +53,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
+import tj.TJValues;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
@@ -390,10 +391,10 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
         textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.mining.level")
                 .appendText(" ")
                 .appendSibling(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.reset.y"), "reset")));
-        textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.elite_large_miner.maximum.y", maxY.get()))
+        textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.maximum.y", TJValues.thousandFormat.format(maxY.get()))
                 .appendSibling(withButton(new TextComponentString(" [+]"), "maxYIncrement"))
                 .appendSibling(withButton(new TextComponentString(" [-]"), "maxYDecrement")));
-        textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.elite_large_miner.minimum.y", minY.get()))
+        textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.minimum.y", TJValues.thousandFormat.format(minY.get()))
                 .appendSibling(withButton(new TextComponentString(" [+]"), "minYIncrement"))
                 .appendSibling(withButton(new TextComponentString(" [-]"), "minYDecrement")));
     }

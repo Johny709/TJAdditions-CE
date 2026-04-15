@@ -36,6 +36,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
+import tj.TJValues;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
@@ -74,20 +75,20 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
         tooltip.add(net.minecraft.client.resources.I18n.format("tj.machine.compressed_chest.description"));
         tooltip.add(net.minecraft.client.resources.I18n.format("tj.machine.filing_cabinet.description", 27));
         tooltip.add(net.minecraft.client.resources.I18n.format("machine.universal.stack", 64));
-        tooltip.add(net.minecraft.client.resources.I18n.format("machine.universal.slots", SLOT_LIMIT));
+        tooltip.add(net.minecraft.client.resources.I18n.format("machine.universal.slots", TJValues.thousandFormat.format(SLOT_LIMIT)));
         NBTTagCompound compound = stack.getTagCompound();
         if (compound == null || compound.isEmpty()) return;
         NBTTagList itemList = compound.getCompoundTag("Inventory").getTagList("Items", 10);
         int size = itemList.tagCount() / 10;
         if (itemList.tagCount() > 0)
-            tooltip.add(net.minecraft.client.resources.I18n.format("tj.machine.compressed_chest.slot_filled", itemList.tagCount(), this.getImportItems().getSlots()));
+            tooltip.add(net.minecraft.client.resources.I18n.format("tj.machine.compressed_chest.slot_filled", TJValues.thousandFormat.format(itemList.tagCount()), TJValues.thousandFormat.format(this.getImportItems().getSlots())));
         TooltipHelper.shiftText(tooltip, tip -> {
             TooltipHelper.pageText(tip, size, (tip1, tooltipHandler) -> {
                 int start = tooltipHandler.getIndex() * 10;
                 for (int i = start; i < Math.min(itemList.tagCount(), start + 10); i++) {
                     NBTTagCompound itemCompound = itemList.getCompoundTagAt(i);
                     ItemStack itemStack = new ItemStack(Item.getByNameOrId(itemCompound.getString("id")), itemCompound.getInteger("Count"), itemCompound.getShort("Damage"));
-                    tip1.add(net.minecraft.client.resources.I18n.format("tj.machine.compressed_chest.slot", itemCompound.getInteger("Slot"), itemStack.getDisplayName(), itemStack.getCount()));
+                    tip1.add(net.minecraft.client.resources.I18n.format("tj.machine.compressed_chest.slot", TJValues.thousandFormat.format(itemCompound.getInteger("Slot")), itemStack.getDisplayName(), TJValues.thousandFormat.format(itemStack.getCount())));
                 }
             });
         });

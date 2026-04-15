@@ -26,6 +26,7 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
+import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
@@ -173,7 +174,7 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
         final SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMMM d, yyyy hh:mm:ss aa");
         final long timeElapsed = now.getEpochSecond() - this.placedDown.getEpochSecond();
         builder.addTranslationLine("tj.multiblock.date.placed_down", dateFormat.format(Date.from(this.placedDown)))
-                .addTranslationLine("tj.multiblock.date.ago", timeElapsed / 3600, (timeElapsed % 3600) / 60, timeElapsed % 60)
+                .addTranslationLine("tj.multiblock.date.ago", TJValues.thousandFormat.format(timeElapsed / 3600), TJValues.thousandFormat.format((timeElapsed % 3600) / 60), TJValues.thousandFormat.format(timeElapsed % 60))
                 .addEmptyLine()
                 .addMaintenanceDisplayLines(this.getProblems(), this.hasProblems(), 1000);
     }

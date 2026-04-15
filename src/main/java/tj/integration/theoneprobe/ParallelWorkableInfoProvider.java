@@ -61,7 +61,7 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
                         .filledColor(0xFF000099)
                         .alternateFilledColor(0xFF000077));
                 final IProbeInfo EUtInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                EUtInfo.text(TextStyleClass.INFO + TextUtils.translate("tj.multiblock.eu", EUt, tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier]));
+                EUtInfo.text(TextStyleClass.INFO + TextUtils.translate("tj.multiblock.eu", TJValues.thousandFormat.format(EUt), tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier]));
             }
         }
     }

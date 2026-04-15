@@ -129,7 +129,7 @@ public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity impleme
     private void addDisplayText(List<ITextComponent> textList) {
         textList.add(metaTileEntity != null ? new TextComponentTranslation(metaTileEntity.getMetaFullName())
                 .appendText("\n")
-                .appendSibling(new TextComponentTranslation("machine.universal.linked.entity.radius", tier, tier))
+                .appendSibling(new TextComponentTranslation("machine.universal.linked.entity.radius", TJValues.thousandFormat.format(tier), TJValues.thousandFormat.format(tier)))
                 .appendText("\n")
                 .appendSibling(new TextComponentString("X: ").appendSibling(new TextComponentString("" + metaTileEntity.getPos().getX()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))
                 .appendSibling(new TextComponentString(" Y: ").appendSibling(new TextComponentString("" + metaTileEntity.getPos().getY()).setStyle(new Style().setColor(TextFormatting.YELLOW))).setStyle(new Style().setBold(true)))

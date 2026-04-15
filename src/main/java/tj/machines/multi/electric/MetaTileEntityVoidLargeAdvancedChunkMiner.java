@@ -48,6 +48,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.registries.IForgeRegistryEntry;
+import tj.TJValues;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
@@ -131,7 +132,7 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
         if (!this.isStructureFormed()) return;
         builder.addVoltageInLine(this.getInputEnergyContainer())
                 .addEnergyInputLine(this.getInputEnergyContainer(), this.workableHandler.getEnergyPerTick())
-                .addTranslationLine("tj.multiblock.advanced_large_miner.chunk_index", this.workableHandler.getChunkIndex() + 1, this.workableHandler.getChunkSize())
+                .addTranslationLine("tj.multiblock.advanced_large_miner.chunk_index", TJValues.thousandFormat.format(this.workableHandler.getChunkIndex() + 1), TJValues.thousandFormat.format(this.workableHandler.getChunkSize()))
                 .addTextComponent(AdvancedTextWidget.withButton(new TextComponentTranslation(this.workableHandler.isSilkTouch() ? "tj.multiblock.advanced_large_miner.silktouch_true" : "tj.multiblock.advanced_large_miner.silktouch_false")
                         .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.advanced_large_miner.silktouch")))), this.workableHandler.isSilkTouch() ? "silkTouch:true" : "silkTouch:false"))
                 .addTextComponent(AdvancedTextWidget.withButton(new TextComponentTranslation(this.workableHandler.isReset() ? "tj.multiblock.advanced_large_miner.reset_true" : "tj.multiblock.advanced_large_miner.reset_false")
@@ -142,9 +143,9 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
             builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.large_miner.done")
                     .setStyle(new Style().setColor(TextFormatting.GREEN)), 1000);
         if (this.workableHandler.isActive())
-            builder.addTranslationLine("metaitem.linking.device.x", this.workableHandler.getX())
-                    .addTranslationLine("metaitem.linking.device.y", this.workableHandler.getY())
-                    .addTranslationLine("metaitem.linking.device.z", this.workableHandler.getZ())
+            builder.addTranslationLine("metaitem.linking.device.x", TJValues.thousandFormat.format(this.workableHandler.getX()))
+                    .addTranslationLine("metaitem.linking.device.y", TJValues.thousandFormat.format(this.workableHandler.getY()))
+                    .addTranslationLine("metaitem.linking.device.z", TJValues.thousandFormat.format(this.workableHandler.getZ()))
                     .addFluidInputLine(this.getImportFluidTank(), this.drillingFluid)
                     .addTranslationLine("gtadditions.machine.miner.fluid_usage", this.drillingFluid.amount, this.drillingFluid.getLocalizedName())
                     .addTranslationLine("gregtech.multiblock.large_miner.block_per_tick", this.workableHandler.getMiningSpeed());

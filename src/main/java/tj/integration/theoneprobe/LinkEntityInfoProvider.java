@@ -7,13 +7,14 @@ import mcjty.theoneprobe.api.TextStyleClass;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
+import tj.TJValues;
 import tj.capability.LinkEntity;
 import tj.capability.TJCapabilities;
+import tj.util.TextUtils;
 
 public class LinkEntityInfoProvider extends CapabilityInfoProvider<LinkEntity> {
 
@@ -45,8 +46,8 @@ public class LinkEntityInfoProvider extends CapabilityInfoProvider<LinkEntity> {
                 entityInfo.text(TextStyleClass.INFO + (entity.hasCustomName() ? entity.getCustomNameTag() : entity.getName()));
 
                 IProbeInfo posInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                posInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldType.getName(), worldID));
-                posInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.linked.pos", (int) entity.posX, (int) entity.posY, (int) entity.posZ));
+                posInfo.text(TextStyleClass.INFO + TextUtils.translate("machine.universal.linked.dimension", worldType.getName(), TJValues.thousandFormat.format(worldID)));
+                posInfo.text(TextStyleClass.INFO + TextUtils.translate("machine.universal.linked.pos", TJValues.thousandFormat.format(entity.posX), TJValues.thousandFormat.format(entity.posY), TJValues.thousandFormat.format(entity.posZ)));
             }
         }
     }

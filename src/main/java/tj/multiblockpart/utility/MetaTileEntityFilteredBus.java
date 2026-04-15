@@ -28,6 +28,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
+import tj.TJValues;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.TJLabelWidget;
@@ -66,7 +67,7 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(TooltipHelper.blinkingText(Color.YELLOW, 20, "tj.machine.filtered_bus.warning"));
         tooltip.add(I18n.format("tj.machine.filtered_bus.description"));
-        tooltip.add(I18n.format("machine.universal.slots", this.getTierSlots(this.getTier())));
+        tooltip.add(I18n.format("machine.universal.slots", TJValues.thousandFormat.format(this.getTierSlots(this.getTier()))));
         tooltip.add(I18n.format("gregtech.universal.enabled"));
     }
 

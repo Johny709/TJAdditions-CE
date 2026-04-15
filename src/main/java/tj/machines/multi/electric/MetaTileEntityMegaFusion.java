@@ -153,12 +153,12 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.addEnergyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity(), 2)
-                .addTranslationLine("tj.multiblock.industrial_fusion_reactor.heat", this.heat)
+                .addTranslationLine("tj.multiblock.industrial_fusion_reactor.heat", TJValues.thousandFormat.format(this.heat))
                 .customLine(text -> {
                     if (this.recipe != null) {
                         long energyToStart = this.recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L);
-                        text.addTextComponent(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart))
-                                .setStyle(new Style().setColor(this.heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
+                        text.addTranslationLine(text1 -> text1.setStyle(new Style().setColor(this.heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)),
+                                "tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart));
                     }
                 });
     }

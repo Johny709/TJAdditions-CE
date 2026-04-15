@@ -11,8 +11,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
+import tj.TJValues;
 import tj.capability.impl.workable.BasicEnergyHandler;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
@@ -82,7 +83,7 @@ public class EnderCoverEnergy extends AbstractEnderCover<BasicEnergyHandler> {
             @Override
             public void drawInForeground(int mouseX, int mouseY) {
                 if(isMouseOverElement(mouseX, mouseY)) {
-                    List<String> hoverList = Collections.singletonList(I18n.format("machine.universal.energy.stored", this.energyStored, this.energyCapacity));
+                    List<String> hoverList = Collections.singletonList(I18n.format("machine.universal.energy.stored", TJValues.thousandFormat.format(this.energyStored), TJValues.thousandFormat.format(this.energyCapacity)));
                     this.drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
                 }
             }
@@ -122,7 +123,7 @@ public class EnderCoverEnergy extends AbstractEnderCover<BasicEnergyHandler> {
     @Override
     protected void addChannelText(ITextComponent keyEntry, String key, BasicEnergyHandler value) {
         keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", value.getEnergyStored(), value.getEnergyCapacity()))));
+                new TextComponentTranslation("machine.universal.energy.stored", TJValues.thousandFormat.format(value.getEnergyStored()), TJValues.thousandFormat.format(value.getEnergyCapacity()))));
     }
 
     @Override

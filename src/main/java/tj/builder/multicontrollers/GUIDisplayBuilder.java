@@ -146,12 +146,12 @@ public final class GUIDisplayBuilder {
         return this.addTranslationLine(null, priority, locale, format);
     }
 
-    public GUIDisplayBuilder addTranslationLine(Consumer<TextComponentString> componentBuilder, String locale, Object... format) {
+    public GUIDisplayBuilder addTranslationLine(Consumer<TextComponentTranslation> componentBuilder, String locale, Object... format) {
         return this.addTranslationLine(componentBuilder, 0, locale, format);
     }
 
-    public GUIDisplayBuilder addTranslationLine(Consumer<TextComponentString> componentBuilder, int priority, String locale, Object... format) {
-        final TextComponentString component = new TextComponentString(TextUtils.translate(locale, format));
+    public GUIDisplayBuilder addTranslationLine(Consumer<TextComponentTranslation> componentBuilder, int priority, String locale, Object... format) {
+        final TextComponentTranslation component = new TextComponentTranslation(locale, format);
         if (componentBuilder != null)
             componentBuilder.accept(component);
         if (priority != 0)
@@ -175,8 +175,8 @@ public final class GUIDisplayBuilder {
 
     public GUIDisplayBuilder addEnergyStoredLine(long energyStored, long energyCapacity, int priority) {
         if (priority != 0)
-            return this.addTextComponent(new TextComponentString(TextUtils.translate("machine.universal.energy.stored", energyStored, energyCapacity)), priority);
-        else return this.addTextComponent(new TextComponentString(TextUtils.translate("machine.universal.energy.stored", energyStored, energyCapacity)));
+            return this.addTranslationLine(priority, "machine.universal.energy.stored", TJValues.thousandFormat.format(energyStored), TJValues.thousandFormat.format(energyCapacity));
+        else return this.addTranslationLine("machine.universal.energy.stored", TJValues.thousandFormat.format(energyStored), TJValues.thousandFormat.format(energyCapacity));
     }
 
     public GUIDisplayBuilder addEnergyInputLine(IEnergyContainer container, long amount) {
@@ -190,9 +190,9 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addEnergyInputLine(IEnergyContainer container, long amount, int maxProgress, int priority) {
         if (amount == 0)
             return this;
-        final ITextComponent textComponent = container.getEnergyStored() < amount ? new TextComponentString(TextUtils.translate("tj.multiblock.not_enough_energy"))
-                : maxProgress > 1 ? new TextComponentString(TextUtils.translate("tj.multiblock.parallel.sum.2", amount, maxProgress))
-                : new TextComponentString(TextUtils.translate("tj.multiblock.parallel.sum", amount)) ;
+        final ITextComponent textComponent = container.getEnergyStored() < amount ? new TextComponentTranslation("tj.multiblock.not_enough_energy")
+                : maxProgress > 1 ? new TextComponentTranslation("tj.multiblock.parallel.sum.2", TJValues.thousandFormat.format(amount), TJValues.thousandFormat.format(maxProgress))
+                : new TextComponentTranslation("tj.multiblock.parallel.sum", TJValues.thousandFormat.format(amount));
         if (priority != 0)
             return this.addTextComponent(textComponent, priority);
         else return this.addTextComponent(textComponent);
@@ -258,7 +258,8 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addParallelLine(int parallelsPerformed, int parallel, int priority) {
         if (parallel < 1)
             return this;
-        return priority != 0 ? this.addTranslationLine(priority, "tj.multiblock.max_parallel", parallelsPerformed, parallel) : this.addTranslationLine("tj.multiblock.max_parallel", parallelsPerformed, parallel);
+        return priority != 0 ? this.addTranslationLine(priority, "tj.multiblock.max_parallel", TJValues.thousandFormat.format(parallelsPerformed), TJValues.thousandFormat.format(parallel))
+                : this.addTranslationLine("tj.multiblock.max_parallel", TJValues.thousandFormat.format(parallelsPerformed), TJValues.thousandFormat.format(parallel));
     }
 
     public GUIDisplayBuilder addFluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack) {
@@ -279,11 +280,11 @@ public final class GUIDisplayBuilder {
         amount = amount > 0 ? amount : fluidStack.amount;
         final String fluidName = fluidStack.getLocalizedName();
         final boolean hasEnoughFluid = amount < 1 || TJFluidUtils.drainFromTanksLong(tanks, fluidStack, amount, false) == amount;
-        final ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentString(TextUtils.translate("tj.multiblock.not_enough_fluid", fluidName, amount))
-                : ticks == 1 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.input.tick", fluidName, amount))
-                : ticks % 20 != 0 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.input.ticks", amount, fluidName, ticks))
-                : ticks == 20 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.input.sec", fluidName, amount))
-                : new TextComponentString(TextUtils.translate("machine.universal.fluid.input.secs", amount, fluidName, ticks / 20));
+        final ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentTranslation("tj.multiblock.not_enough_fluid", fluidName, TJValues.thousandFormat.format(amount))
+                : ticks == 1 ? new TextComponentTranslation("machine.universal.fluid.input.tick", fluidName, TJValues.thousandFormat.format(amount))
+                : ticks % 20 != 0 ? new TextComponentTranslation("machine.universal.fluid.input.ticks", TJValues.thousandFormat.format(amount), fluidName, TJValues.thousandFormat.format(ticks))
+                : ticks == 20 ? new TextComponentTranslation("machine.universal.fluid.input.sec", fluidName, TJValues.thousandFormat.format(amount))
+                : new TextComponentTranslation("machine.universal.fluid.input.secs", TJValues.thousandFormat.format(amount), fluidName, TJValues.thousandFormat.format(ticks / 20));
         if (priority != 0)
             return this.addTextComponent(fluidInputText, priority);
         else return this.addTextComponent(fluidInputText);
@@ -307,11 +308,11 @@ public final class GUIDisplayBuilder {
         amount = amount > 0 ? amount : fluidStack.amount;
         final String fluidName = fluidStack.getLocalizedName();
         final boolean hasEnoughFluid = amount < 1 || tanks == VOID_TANK || TJFluidUtils.fillIntoTanksLong(tanks, fluidStack, amount, false) == amount;
-        final ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentString(TextUtils.translate("tj.multiblock.not_enough_fluid.space", fluidName, amount))
-                : ticks == 1 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.output.tick", fluidName, amount))
-                : ticks % 20 != 0 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.output.ticks", amount, fluidName, ticks))
-                : ticks == 20 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.output.sec", fluidName, amount))
-                : new TextComponentString(TextUtils.translate("machine.universal.fluid.output.secs", fluidName, amount));
+        final ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", fluidName, TJValues.thousandFormat.format(amount))
+                : ticks == 1 ? new TextComponentTranslation("machine.universal.fluid.output.tick", fluidName, TJValues.thousandFormat.format(amount))
+                : ticks % 20 != 0 ? new TextComponentTranslation("machine.universal.fluid.output.ticks", TJValues.thousandFormat.format(amount), fluidName, TJValues.thousandFormat.format(ticks))
+                : ticks == 20 ? new TextComponentTranslation("machine.universal.fluid.output.sec", fluidName, TJValues.thousandFormat.format(amount))
+                : new TextComponentTranslation("machine.universal.fluid.output.secs", fluidName, TJValues.thousandFormat.format(amount));
         if (priority != 0)
             return this.addTextComponent(fluidInputText, priority);
         else return this.addTextComponent(fluidInputText);
@@ -334,16 +335,16 @@ public final class GUIDisplayBuilder {
             progress--;
             final int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
             if (priority != 0)
-                this.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)), priority);
-            else this.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)));
+                this.addTranslationLine(priority, "tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress);
+            else this.addTranslationLine("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress);
         }
-        final ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentString(TextUtils.translate("machine.universal.work_paused"))
-                : hasProblems ? new TextComponentString(TextUtils.translate("machine.universal.has_problems"))
-                : !isActive ? new TextComponentString(TextUtils.translate("machine.universal.idling"))
-                : new TextComponentString(TextUtils.translate("machine.universal.running"));
+        final String isWorkingText = !isWorkingEnabled ? "machine.universal.work_paused"
+                : hasProblems ? "machine.universal.has_problems"
+                : !isActive ? "machine.universal.idling"
+                : "machine.universal.running";
         if (priority != 0)
-            this.addTextComponent(isWorkingText, priority);
-        else this.addTextComponent(isWorkingText);
+            this.addTranslationLine(priority, isWorkingText);
+        else this.addTranslationLine(isWorkingText);
         return this;
     }
 
@@ -450,8 +451,8 @@ public final class GUIDisplayBuilder {
 
     public GUIDisplayBuilder addTemperatureLine(long current, long max, int priority) {
         if (priority != 0)
-            return this.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.temperature", current, max)), priority);
-        else return this.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.temperature", current, max)));
+            return this.addTranslationLine(priority, "tj.multiblock.temperature", TJValues.thousandFormat.format(current), TJValues.thousandFormat.format(max));
+        else return this.addTranslationLine("tj.multiblock.temperature", TJValues.thousandFormat.format(current), TJValues.thousandFormat.format(max));
     }
 
     public GUIDisplayBuilder addMufflerDisplayLine(boolean isMufflerFaceFree) {

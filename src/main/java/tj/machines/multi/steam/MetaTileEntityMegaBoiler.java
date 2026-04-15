@@ -11,6 +11,7 @@ import gregtech.api.multiblock.BlockWorldState;
 import net.minecraft.block.Block;
 import net.minecraft.network.PacketBuffer;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.TJValues;
 import tj.capability.impl.handler.IBoilerHandler;
 import tj.capability.impl.workable.MegaBoilerRecipeLogic;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
@@ -101,7 +102,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
         tooltip.add(TooltipHelper.blinkingText(Color.YELLOW, 20, "tj.multiblock.mega_boiler.warning"));
         TooltipHelper.shiftTextJEI(tooltip, tip -> {
             tip.add(I18n.format("tj.multiblock.universal.tooltip.1", RecipeMaps.DIESEL_GENERATOR_FUELS.getLocalizedName() + ", " + RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.getLocalizedName()));
-            tip.add(I18n.format("tj.multiblock.universal.tooltip.2", this.parallel));
+            tip.add(I18n.format("tj.multiblock.universal.tooltip.2", TJValues.thousandFormat.format(this.parallel)));
         });
     }
 

@@ -18,6 +18,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+import tj.TJValues;
 
 import java.util.List;
 
@@ -77,9 +78,9 @@ public class RemoteMultiblockControllerBehaviour implements IItemBehaviour {
 
         lines.add(net.minecraft.client.resources.I18n.format("metaitem.remote_multiblock_controller.description"));
         lines.add(net.minecraft.client.resources.I18n.format("metaitem.remote_multiblock_controller.machine", name));
-        lines.add(net.minecraft.client.resources.I18n.format("machine.universal.linked.dimension", worldName, worldID));
-        lines.add(net.minecraft.client.resources.I18n.format("metaitem.linking.device.x", x));
-        lines.add(net.minecraft.client.resources.I18n.format("metaitem.linking.device.y", y));
-        lines.add(net.minecraft.client.resources.I18n.format("metaitem.linking.device.z", z));
+        lines.add(net.minecraft.client.resources.I18n.format("machine.universal.linked.dimension", worldName, TJValues.thousandFormat.format(worldID)));
+        lines.add(net.minecraft.client.resources.I18n.format("metaitem.linking.device.x", TJValues.thousandFormat.format(x)));
+        lines.add(net.minecraft.client.resources.I18n.format("metaitem.linking.device.y", TJValues.thousandFormat.format(y)));
+        lines.add(net.minecraft.client.resources.I18n.format("metaitem.linking.device.z", TJValues.thousandFormat.format(z)));
     }
 }

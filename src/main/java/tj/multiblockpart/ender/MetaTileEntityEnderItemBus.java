@@ -13,9 +13,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.TJValues;
 import tj.gui.widgets.PopUpWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
@@ -25,6 +25,7 @@ import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.EnderWorldData;
+import tj.util.TextUtils;
 
 import java.awt.*;
 import java.util.List;
@@ -121,12 +122,12 @@ public class MetaTileEntityEnderItemBus extends AbstractEnderHatch<IItemHandlerM
     protected void addChannelText(ITextComponent keyEntry, String key, LargeItemStackHandler value) {
         ItemStack item = value.getStackInSlot(0);
         boolean empty = item.isEmpty();
-        String name = !empty ? item.getTranslationKey() + ".name" : net.minecraft.util.text.translation.I18n.translateToLocal("metaitem.fluid_cell.empty");
+        String name = !empty ? item.getTranslationKey() + ".name" : TextUtils.translate("metaitem.fluid_cell.empty");
         int capacity = value.getCapacity();
         int amount = !empty ? item.getCount() : 0;
         keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(name)
                 .appendText("\n")
-                .appendText(I18n.translateToLocalFormatted("machine.universal.item.stored", amount, capacity))));
+                .appendText(TextUtils.translate("machine.universal.item.stored", TJValues.thousandFormat.format(amount), TJValues.thousandFormat.format(capacity)))));
     }
 
     @Override
