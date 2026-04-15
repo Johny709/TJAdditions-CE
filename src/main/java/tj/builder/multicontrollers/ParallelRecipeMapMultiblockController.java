@@ -214,7 +214,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     private void addWorkableDisplayText(GUIDisplayBuilder builder) {
-        builder.addTranslationLine("tj.multiblock.parallel", this.parallelLayer)
+        builder.addTranslationLine("tj.multiblock.slices", this.parallelLayer)
                 .addTextComponent(new TextComponentTranslation("tj.multiblock.parallel.distinct").appendText(" ")
                         .appendSibling(this.recipeLogic.isDistinctRecipes() ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "isDistinct")
                                 : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "notDistinct")));

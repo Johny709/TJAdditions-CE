@@ -353,8 +353,8 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         super.addTabs(tabBuilder);
         tabBuilder.addWidget(new TJSlotWidget<>(this.importItems, 0, 175, 191)
-                .setBackgroundTexture(GuiTextures.TURBINE_OVERLAY));
-        tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab -> rotorTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
+                .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.TURBINE_OVERLAY));
+        tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab -> rotorTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                 .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addRotorDisplayText, 0xFFFFFF)
                         .setClickHandler(this::handleRotorDisplayClick)
                         .setMaxWidthLimit(180))
