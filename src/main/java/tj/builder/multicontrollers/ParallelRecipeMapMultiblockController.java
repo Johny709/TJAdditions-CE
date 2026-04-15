@@ -163,7 +163,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     .setTooltipText("machine.universal.toggle.item_voiding"));
             workableTab.add(new ToggleButtonWidget(175, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
                     .setTooltipText("machine.universal.toggle.fluid_voiding"));
-            workableTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
+            workableTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                     .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addWorkableDisplayText, 0xFFFFFF)
                             .setClickHandler(this::handleWorkableDisplayClick)
                             .setMaxWidthLimit(180))
@@ -176,7 +176,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     .setTooltipText("machine.universal.toggle.item_voiding"));
             debugTab.add(new ToggleButtonWidget(175, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
                     .setTooltipText("machine.universal.toggle.fluid_voiding"));
-            debugTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
+            debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                     .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addDebugDisplayText, 0xFFFFFF)
                             .setMaxWidthLimit(180))
                     .setScrollPanelWidth(3));
@@ -205,6 +205,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
         if (this.recipeLogic.isActive() || !componentData.equals(this.getMultiblockRecipe().getUnlocalizedName())) return;
         this.recipeLogic.getRecipeLRUCache().clear();
+        this.recipeLogic.invalidate();
         this.recipeMapIndex = this.recipeMapIndex >= this.recipeMaps.length - 1 ? 0 : this.recipeMapIndex + 1;
         if (!this.getWorld().isRemote) {
             this.writeCustomData(RECIPE_MAP_INDEX, buf -> buf.writeInt(this.recipeMapIndex));
@@ -219,7 +220,6 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                                 : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "notDistinct")));
         if (!this.isStructureFormed()) return;
         for (int i = 0; i < this.recipeLogic.getSize(); i++) {
-            final int parallel = this.recipeLogic.getParallel(i);
             final int progressOffset = this.recipeLogic.isInstanceActive(i) ? 1 : 0;
             final double progressPercent = this.recipeLogic.getProgressPercent(i) * (100 - progressOffset);
             final String isRunning = !this.recipeLogic.isWorkingEnabled(i) ? TextUtils.translate("machine.universal.work_paused")
@@ -237,7 +237,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                         .addTranslationLine("tj.multiblock.handler", finalI + 1)
                         .addTranslationLine("tj.multiblock.eu", this.recipeLogic.getRecipeEUt(finalI))
                         .addTranslationLine("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) (this.recipeLogic.getProgress(finalI) - progressOffset) / 20), TJValues.thousandTwoPlaceFormat.format((double) this.recipeLogic.getMaxProgress(finalI) / 20), (int) progressPercent)
-                        .addTranslationLine("tj.multiblock.parallel", parallel);
+                        .addTranslationLine("tj.multiblock.max_parallel", this.recipeLogic.getParallelsPerformed(finalI), this.recipeLogic.getParallel(finalI));
                 final List<ItemStack> itemInputs = this.recipeLogic.getItemInputsAt(finalI);
                 final List<FluidStack> fluidInputs = this.recipeLogic.getFluidInputsAt(finalI);
                 if (itemInputs != null && !itemInputs.isEmpty() || fluidInputs != null && !fluidInputs.isEmpty())
