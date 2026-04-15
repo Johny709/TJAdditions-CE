@@ -18,10 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentBase;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fluids.FluidStack;
@@ -291,7 +288,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                     stackApplied = false;
                     totalHeight += 20;
                 }
-                maxStringWidth = Math.max(maxStringWidth, fontRenderer.getStringWidth(((ITextComponent) component.getValue()).getFormattedText()));
+                maxStringWidth = Math.max(maxStringWidth, fontRenderer.getStringWidth(((ITextComponent) component.getValue()).getUnformattedText()));
                 totalHeight += 11;
             } else {
                 if (slot++ > 8 || !stackApplied) {
@@ -378,7 +375,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                     widthApplied = 0;
                     heightApplied += 20;
                 }
-                fontRenderer.drawString(((ITextComponent) component.getValue()).getFormattedText(), x + widthApplied, y + heightApplied, color);
+                fontRenderer.drawString(((ITextComponent) component.getValue()).getUnformattedText(), x + widthApplied, y + heightApplied, color);
                 heightApplied += 11;
             } else {
                 if (slot++ > 8 || !stackApplied) {
