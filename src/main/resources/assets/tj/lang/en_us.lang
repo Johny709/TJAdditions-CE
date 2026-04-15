@@ -492,7 +492,7 @@ tj.multiblock.large_combustion_engine.cycles=Cycles Left: §5%,d
 
 tj.multiblock.handler=Handler: [§a%d§r]
 tj.multiblock.progress=Progress: §b%ss §7/ §b%ss §7(§b%d%%§7)
-tj.multiblock.eu=EU/t: §e%,d
+tj.multiblock.eu=EU/t: §e%,d §7(%s§7)
 tj.multiblock.parallel=Parallel: §5%,d
 tj.multiblock.max_parallel=Parallel: §5%,d §7/ §5%,d
 tj.multiblock.slices=Slices: §d%d

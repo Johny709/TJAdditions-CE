@@ -5,6 +5,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregicadditions.Gregicality;
 import gregicadditions.capabilities.IMultiRecipe;
 import gregtech.api.gui.Widget;
@@ -221,6 +222,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         if (!this.isStructureFormed()) return;
         for (int i = 0; i < this.recipeLogic.getSize(); i++) {
             final int progressOffset = this.recipeLogic.isInstanceActive(i) ? 1 : 0;
+            final int tier = TJUtility.getTierFromVoltage(this.recipeLogic.getRecipeEUt(i));
             final double progressPercent = this.recipeLogic.getProgressPercent(i) * (100 - progressOffset);
             final String isRunning = !this.recipeLogic.isWorkingEnabled(i) ? TextUtils.translate("machine.universal.work_paused")
                     : this.recipeLogic.hasProblems(i) ? TextUtils.translate("machine.universal.has_problems")
@@ -235,7 +237,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + finalI)), hoverBuilder -> {
                 hoverBuilder.addTranslationLine("tj.multiblock.parallel.status", isRunning)
                         .addTranslationLine("tj.multiblock.handler", finalI + 1)
-                        .addTranslationLine("tj.multiblock.eu", this.recipeLogic.getRecipeEUt(finalI))
+                        .addTranslationLine("tj.multiblock.eu", this.recipeLogic.getRecipeEUt(finalI), tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier])
                         .addTranslationLine("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) (this.recipeLogic.getProgress(finalI) - progressOffset) / 20), TJValues.thousandTwoPlaceFormat.format((double) this.recipeLogic.getMaxProgress(finalI) / 20), (int) progressPercent)
                         .addTranslationLine("tj.multiblock.max_parallel", this.recipeLogic.getParallelsPerformed(finalI), this.recipeLogic.getParallel(finalI));
                 final List<ItemStack> itemInputs = this.recipeLogic.getItemInputsAt(finalI);

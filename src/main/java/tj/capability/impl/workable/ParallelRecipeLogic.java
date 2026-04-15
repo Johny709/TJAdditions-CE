@@ -628,4 +628,9 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     public int getParallelsPerformed(int i) {
         return this.parallelsPerformed[i];
     }
+
+    @Override
+    public int getPageSize() {
+        return Math.min(this.size, 6);
+    }
 }
