@@ -486,7 +486,7 @@ tj.multiblock.industrial_fusion_reactor.slices=Number of slices
 tj.multiblock.industrial_fusion_reactor.overclock.1=Duration / 2
 tj.multiblock.industrial_fusion_reactor.overclock.2=Energy * 2
 tj.multiblock.industrial_fusion_reactor.energy=Energy Capacity: §e%s§r
-tj.multiblock.industrial_fusion_reactor.required_heat=Required Heat to run recipe: §e%s§7 °C
+tj.multiblock.industrial_fusion_reactor.required_heat=Required Heat to run recipe: §c%s§7 °C
 
 tj.multiblock.large_combustion_engine.cycles=Cycles Left: §5%s
 

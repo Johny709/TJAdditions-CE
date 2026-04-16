@@ -10,7 +10,6 @@ import gregtech.api.util.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiUtilRenderComponents;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,6 +28,7 @@ import org.lwjgl.input.Mouse;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
+import tj.util.TextUtils;
 import tj.util.consumers.QuadConsumer;
 
 import java.io.IOException;
@@ -316,7 +316,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         final int maxTextWidthResult = this.maxWidthLimit == 0 ? Integer.MAX_VALUE : this.maxWidthLimit;
         return displayText.stream()
-                .flatMap(component -> component.getValue() instanceof ITextComponent ? GuiUtilRenderComponents.splitText((ITextComponent) component.getValue(), maxTextWidthResult, fontRenderer, true, true).stream()
+                .flatMap(component -> component.getValue() instanceof ITextComponent ? TextUtils.splitText((ITextComponent) component.getValue(), maxTextWidthResult, fontRenderer).stream()
                         .map(component2 -> new TextComponentWrapper<>(component2).setPriority(component.getPriority()).setAdvancedHoverComponent(component.getAdvancedHoverComponent()))
                         : Stream.of(component))
                 .sorted(Comparator.comparingInt(TextComponentWrapper::getPriority))
