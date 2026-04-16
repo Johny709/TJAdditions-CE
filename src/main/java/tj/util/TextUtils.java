@@ -32,8 +32,6 @@ public final class TextUtils {
     public static List<ITextComponent> splitText(ITextComponent textComponent, int maxTextLength, FontRenderer fontRendererIn) {
         boolean flag = false;
         StringBuilder colorCode = new StringBuilder();
-        ITextComponent theTextComponent = new TextComponentString("")
-                .setStyle(textComponent.getStyle().createShallowCopy());
         final List<ITextComponent> textComponentList = new ArrayList<>();
         final List<ITextComponent> siblings = new ArrayList<>(Collections.singleton(textComponent));
         siblings.addAll(textComponent.getSiblings());
@@ -50,25 +48,24 @@ public final class TextUtils {
                             colorCode.append(text1, j, j + 2);
                     }
                     text = text.replace(text1, "");
-                    theTextComponent.appendSibling(new TextComponentString(text1)
+                    textComponent.appendSibling(new TextComponentString(text1)
                             .setStyle(sibling.getStyle().createShallowCopy()));
-                    textComponentList.add(theTextComponent);
-                    theTextComponent = new TextComponentString("");
-                    theTextComponent.appendSibling(new TextComponentString(colorCode + text)
+                    textComponentList.add(textComponent);
+                    textComponent = new TextComponentString("");
+                    textComponent.appendSibling(new TextComponentString(colorCode + text)
                             .setStyle(sibling.getStyle().createShallowCopy()));
-                    textComponentList.add(theTextComponent);
-                    theTextComponent = new TextComponentString("");
+                    textComponentList.add(textComponent);
+                    textComponent = new TextComponentString("");
                     colorCode = new StringBuilder();
                 }
                 if (i == 0) {
                     flag = true;
                     break;
                 }
-            } else if (i == 0)
-                theTextComponent.appendSibling(sibling);
+            }
         }
         if (!flag)
-            textComponentList.add(theTextComponent);
+            textComponentList.add(textComponent);
         return textComponentList;
     }
 

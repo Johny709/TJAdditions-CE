@@ -288,7 +288,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                     stackApplied = false;
                     totalHeight += 20;
                 }
-                maxStringWidth = Math.max(maxStringWidth, fontRenderer.getStringWidth(((ITextComponent) component.getValue()).getUnformattedText()));
+                maxStringWidth = Math.max(maxStringWidth, fontRenderer.getStringWidth(((ITextComponent) component.getValue()).getUnformattedText() + TextFormatting.RESET));
                 totalHeight += 11;
             } else {
                 if (slot++ > 8 || !stackApplied) {
@@ -375,7 +375,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                     widthApplied = 0;
                     heightApplied += 20;
                 }
-                fontRenderer.drawString(((ITextComponent) component.getValue()).getUnformattedText(), x + widthApplied, y + heightApplied, color);
+                fontRenderer.drawString(((ITextComponent) component.getValue()).getUnformattedText() + TextFormatting.RESET, x + widthApplied, y + heightApplied, color);
                 heightApplied += 11;
             } else {
                 if (slot++ > 8 || !stackApplied) {
