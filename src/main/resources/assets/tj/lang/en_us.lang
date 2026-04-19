@@ -126,7 +126,8 @@ tj.machine.advanced_large_chunk_miner.umv.name=Advanced Large Chunk Miner (UMV)
 tj.machine.advanced_large_chunk_miner.uxv.name=Advanced Large Chunk Miner (UXV)
 tj.machine.advanced_large_chunk_miner.max.name=Advanced Large Chunk Miner (MAX)
 tj.machine.void_large_chunk_miner.name=Void Large Chunk Miner (VLCM)
-tj.machine.large_bio_reactor.name=Large Bio Reactor
+tj.machine.large_bio_reactor.name=Large Bio Reactor (LBR)
+tj.machine.large_gas_centrifuge.name=Large Gas Centrifuge (LGC)
 
 tj.machine.architect_workbench_lv.name=Basic Architect Workbench
 tj.machine.architect_workbench_mv.name=Advanced Architect Workbench

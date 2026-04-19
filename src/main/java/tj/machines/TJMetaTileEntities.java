@@ -150,6 +150,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityVoidLargeAdvancedChunkMiner VOID_LARGE_ADVANCED_CHUNK_MINER;
     public static MetaTileEntityMegaFusion MEGA_FUSION;
     public static MetaTileEntityLargeBioReactor LARGE_BIO_REACTOR;
+    public static MetaTileEntityLargeGasCentrifuge LARGE_GAS_CENTRIFUGE;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -310,6 +311,7 @@ public class TJMetaTileEntities {
         VOID_LARGE_ADVANCED_CHUNK_MINER = GregTechAPI.registerMetaTileEntity(5527, new MetaTileEntityVoidLargeAdvancedChunkMiner(TJId("void_large_chunk_miner")));
         MEGA_FUSION = GregTechAPI.registerMetaTileEntity(5528, new MetaTileEntityMegaFusion(TJId("mega_fusion.2")));
         LARGE_BIO_REACTOR = GregTechAPI.registerMetaTileEntity(5529, new MetaTileEntityLargeBioReactor(TJId("large_bio_reactor")));
+        LARGE_GAS_CENTRIFUGE = GregTechAPI.registerMetaTileEntity(5530, new MetaTileEntityLargeGasCentrifuge(TJId("large_gas_centrifuge")));
 
         // append tiers to existing hatches
         MetaTileEntities.ITEM_IMPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_IMPORT_BUS, 15);
