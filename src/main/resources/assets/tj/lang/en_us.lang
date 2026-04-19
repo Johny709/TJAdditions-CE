@@ -128,6 +128,7 @@ tj.machine.advanced_large_chunk_miner.max.name=Advanced Large Chunk Miner (MAX)
 tj.machine.void_large_chunk_miner.name=Void Large Chunk Miner (VLCM)
 tj.machine.large_bio_reactor.name=Large Bio Reactor (LBR)
 tj.machine.large_gas_centrifuge.name=Large Gas Centrifuge (LGC)
+tj.machine.large_nuclear_reactor.name=Large Nuclear Reactor (LNR)
 
 tj.machine.architect_workbench_lv.name=Basic Architect Workbench
 tj.machine.architect_workbench_mv.name=Advanced Architect Workbench
