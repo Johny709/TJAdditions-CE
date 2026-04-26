@@ -176,12 +176,12 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addEnergyStoredLine(long energyStored, long energyCapacity, int priority) {
         if (priority != 0) {
             return this.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            new TextComponentTranslation("machine.universal.energy.stored.tooltip.1", TJValues.thousandFormat.format(energyStored))
-                                    .appendText("\n").appendSibling(new TextComponentTranslation("machine.universal.energy.stored.tooltip.2", TJValues.thousandFormat.format(energyCapacity)))))),
+                            new TextComponentTranslation("machine.universal.energy.stored.tooltip.1", "§e" + TJValues.thousandFormat.format(energyStored))
+                                    .appendText("\n").appendSibling(new TextComponentTranslation("machine.universal.energy.stored.tooltip.2", "§e" + TJValues.thousandFormat.format(energyCapacity)))))),
                     priority, "machine.universal.energy.stored", TJValues.thousandFormat.format(energyStored), TJValues.thousandFormat.format(energyCapacity));
         } else return this.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                        new TextComponentTranslation("machine.universal.energy.stored.tooltip.1", TJValues.thousandFormat.format(energyStored))
-                                .appendText("\n").appendSibling(new TextComponentTranslation("machine.universal.energy.stored.tooltip.2", TJValues.thousandFormat.format(energyCapacity)))))),
+                        new TextComponentTranslation("machine.universal.energy.stored.tooltip.1", "§e" + TJValues.thousandFormat.format(energyStored))
+                                .appendText("\n").appendSibling(new TextComponentTranslation("machine.universal.energy.stored.tooltip.2", "§e" + TJValues.thousandFormat.format(energyCapacity)))))),
                 "machine.universal.energy.stored", TJValues.thousandFormat.format(energyStored), TJValues.thousandFormat.format(energyCapacity));
     }
 
@@ -198,9 +198,9 @@ public final class GUIDisplayBuilder {
             return this;
         final ITextComponent textComponent = container.getEnergyStored() < amount ? new TextComponentTranslation("tj.multiblock.not_enough_energy")
                 : maxProgress > 1 ? new TextComponentTranslation("tj.multiblock.parallel.sum.2", TJValues.thousandFormat.format(amount), TJValues.thousandFormat.format(maxProgress))
-                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.sum.2.tooltip", TJValues.thousandFormat.format(amount), TJValues.thousandFormat.format(maxProgress)))))
+                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.sum.2.tooltip", "§e" + TJValues.thousandFormat.format(amount), TJValues.thousandFormat.format(maxProgress)))))
                 : new TextComponentTranslation("tj.multiblock.parallel.sum", TJValues.thousandFormat.format(amount))
-                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.sum.tooltip", TJValues.thousandFormat.format(amount)))));
+                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.sum.tooltip", "§e" + TJValues.thousandFormat.format(amount)))));
         if (priority != 0)
             return this.addTextComponent(textComponent, priority);
         else return this.addTextComponent(textComponent);
@@ -232,7 +232,7 @@ public final class GUIDisplayBuilder {
             if (maxVoltage >= Integer.MAX_VALUE)
                 maxVoltage += maxVoltage / Integer.MAX_VALUE;
             final int tier = TJUtility.getTierByVoltage(maxVoltage);
-            final String eut = TJValues.thousandFormat.format(maxVoltage);
+            final String eut = "§e" + TJValues.thousandFormat.format(maxVoltage);
             final String voltage = tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier] + "§r";
             if (priority != 0) {
                 this.addTranslationLine(text1 -> text1.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
@@ -268,12 +268,12 @@ public final class GUIDisplayBuilder {
         if (parallel < 1)
             return this;
         return priority != 0 ? this.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                        new TextComponentTranslation("tj.multiblock.max_parallel.tooltip.1", TJValues.thousandFormat.format(parallelsPerformed))
-                                .appendText("\n").appendSibling(new TextComponentTranslation("tj.multiblock.max_parallel.tooltip.2", TJValues.thousandFormat.format(parallel)))))),
+                        new TextComponentTranslation("tj.multiblock.max_parallel.tooltip.1", "§5" + TJValues.thousandFormat.format(parallelsPerformed))
+                                .appendText("\n").appendSibling(new TextComponentTranslation("tj.multiblock.max_parallel.tooltip.2", "§5" + TJValues.thousandFormat.format(parallel)))))),
                 priority, "tj.multiblock.max_parallel", TJValues.thousandFormat.format(parallelsPerformed), TJValues.thousandFormat.format(parallel))
                 : this.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                        new TextComponentTranslation("tj.multiblock.max_parallel.tooltip.1", TJValues.thousandFormat.format(parallelsPerformed))
-                                .appendText("\n").appendSibling(new TextComponentTranslation("tj.multiblock.max_parallel.tooltip.2", TJValues.thousandFormat.format(parallel)))))),
+                        new TextComponentTranslation("tj.multiblock.max_parallel.tooltip.1", "§5" + TJValues.thousandFormat.format(parallelsPerformed))
+                                .appendText("\n").appendSibling(new TextComponentTranslation("tj.multiblock.max_parallel.tooltip.2", "§5" + TJValues.thousandFormat.format(parallel)))))),
                 "tj.multiblock.max_parallel", TJValues.thousandFormat.format(parallelsPerformed), TJValues.thousandFormat.format(parallel));
     }
 
@@ -350,13 +350,12 @@ public final class GUIDisplayBuilder {
             progress--;
             final int finalProgress = progress;
             final int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
-            final int currentProgressReverse = (int) (Math.floor((maxProgress - progress) / (maxProgress * 1.0)) * 100);
             if (priority != 0) {
                 this.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                new TextComponentTranslation("tj.multiblock.progress.left", TJValues.thousandTwoPlaceFormat.format((maxProgress / 20.0) - (finalProgress / 20.0)), TJValues.thousandFormat.format(maxProgress - finalProgress), TJValues.thousandFormat.format(currentProgressReverse))))),
+                                new TextComponentTranslation("tj.multiblock.progress.left", "§b" + TJValues.thousandTwoPlaceFormat.format((maxProgress / 20.0) - (finalProgress / 20.0)), "§b" + TJValues.thousandFormat.format(maxProgress - finalProgress))))),
                         priority, "tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format(progress / 20.0), TJValues.thousandTwoPlaceFormat.format(maxProgress / 20.0), TJValues.thousandFormat.format(currentProgress));
             } else this.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            new TextComponentTranslation("tj.multiblock.progress.left", TJValues.thousandTwoPlaceFormat.format((maxProgress / 20.0) - (finalProgress / 20.0)), TJValues.thousandFormat.format(maxProgress - finalProgress), TJValues.thousandFormat.format(currentProgressReverse))))),
+                            new TextComponentTranslation("tj.multiblock.progress.left", "§b" + TJValues.thousandTwoPlaceFormat.format((maxProgress / 20.0) - (finalProgress / 20.0)), "§b" + TJValues.thousandFormat.format(maxProgress - finalProgress))))),
                     "tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format(progress / 20.0), TJValues.thousandTwoPlaceFormat.format(maxProgress / 20.0), TJValues.thousandFormat.format(currentProgress));
         }
         final String isWorkingText = !isWorkingEnabled ? "machine.universal.work_paused"

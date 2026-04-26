@@ -167,7 +167,7 @@ public class MetaTileEntityMegaAdvancedFusion extends TJRecipeMapMultiblockContr
                     if (this.recipe != null) {
                         final long energyToStart = this.recipe.getProperty("eu_to_start");
                         text.addTranslationLine(text1 -> text1.setStyle(new Style().setColor(this.heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)
-                                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat.toolip", TJValues.thousandFormat.format(energyToStart))))),
+                                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat.tooltip", "§c" + TJValues.thousandFormat.format(energyToStart))))),
                                 "tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart));
                     }
                 });
