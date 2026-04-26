@@ -40,23 +40,20 @@ public final class TextUtils {
             String text = sibling.getUnformattedComponentText();
             int textLeft = fontRendererIn.getStringWidth(text);
             if (textLeft >= maxTextLength) {
-                for (; textLeft >= maxTextLength; textLeft -= maxTextLength) {
-                    final String text1 = fontRendererIn.trimStringToWidth(text, Math.min(maxTextLength, textLeft));
-                    for (int j = 0; j < text1.length(); j++) {
-                        final char letter = text1.charAt(j);
-                        if (i < text1.length() - 1 && letter == '§')
-                            colorCode.append(text1, j, j + 2);
-                    }
-                    text = text.replace(text1, "");
-                    textComponent.appendSibling(new TextComponentString(text1)
+                for (; textLeft > 0; textLeft -= maxTextLength) {
+                    final String text1 = fontRendererIn.trimStringToWidth(text, Math.min(maxTextLength, textLeft), true);
+                    final String text2 = fontRendererIn.trimStringToWidth(text, Math.min(maxTextLength, textLeft));
+                    textComponent.appendSibling(new TextComponentString(colorCode + text1)
                             .setStyle(sibling.getStyle().createShallowCopy()));
                     textComponentList.add(textComponent);
-                    textComponent = new TextComponentString("");
-                    textComponent.appendSibling(new TextComponentString(colorCode + text)
-                            .setStyle(sibling.getStyle().createShallowCopy()));
-                    textComponentList.add(textComponent);
-                    textComponent = new TextComponentString("");
                     colorCode = new StringBuilder();
+                    for (int j = 0; j < text2.length(); j++) {
+                        final char letter = text2.charAt(j);
+                        if (i < text2.length() - 1 && letter == '§')
+                            colorCode.append(text2, j, j + 2);
+                    }
+                    textComponent = new TextComponentString("");
+                    text = text1;
                 }
                 if (i == 0) {
                     flag = true;
