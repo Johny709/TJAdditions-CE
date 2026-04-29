@@ -1083,9 +1083,31 @@ public class TJConfig {
         public int maximumSlices = 256;
     }
 
+    @Config.Comment("InterStellar Forge")
     public static InterStellarForge interStellarForge = new InterStellarForge();
 
     public static class InterStellarForge {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
+    }
+
+    @Config.Comment("Large Bio Reactor")
+    public static LargeBioReactor largeBioReactor = new LargeBioReactor();
+
+    public static class LargeBioReactor {
         @Config.Name("EU/t Percentage")
         @Config.RequiresMcRestart
         public int eutPercentage = 90;
