@@ -65,7 +65,7 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
     @Override
     protected boolean completeRecipe() {
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
-            ItemStack stack = this.itemOutputs.get(i);
+            final ItemStack stack = this.itemOutputs.get(i);
             if (TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
                 TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
                 this.outputIndex++;
@@ -80,10 +80,10 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
 
     private boolean findNameTag(IItemHandlerModifiable itemInputs) {
         for (int i = 0; i < itemInputs.getSlots(); i++) {
-            ItemStack stack = itemInputs.getStackInSlot(i);
+            final ItemStack stack = itemInputs.getStackInSlot(i);
             if (stack.getItem() == Items.NAME_TAG) {
                 this.catalystIndex = i;
-                this.catalyst = stack;
+                this.catalyst = stack.copy();
                 return true;
             }
         }
@@ -95,7 +95,7 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
         int availableParallels = this.handler.getParallel();
         for (int i = 0; i < itemInputs.getSlots() && availableParallels > 0; i++) {
             if (i == this.catalystIndex) continue;
-            ItemStack stack = itemInputs.extractItem(i, availableParallels, false).copy();
+            final ItemStack stack = itemInputs.extractItem(i, availableParallels, false).copy();
             if (stack.isEmpty()) continue;
             this.itemInputs.add(stack);
             stack.setStackDisplayName(this.catalyst.isEmpty() ? this.handler.getName() : this.catalyst.getDisplayName());
@@ -107,8 +107,8 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound compound = super.serializeNBT();
-        NBTTagList itemInputList = new NBTTagList(), itemOutputList = new NBTTagList();
+        final NBTTagCompound compound = super.serializeNBT();
+        final NBTTagList itemInputList = new NBTTagList(), itemOutputList = new NBTTagList();
         for (ItemStack stack : this.itemInputs)
             itemInputList.appendTag(stack.serializeNBT());
         for (ItemStack stack : this.itemOutputs)
@@ -122,7 +122,7 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
-        NBTTagList itemInputList = compound.getTagList("itemInputs", 10), itemOutputList = compound.getTagList("itemOutputs", 10);
+        final NBTTagList itemInputList = compound.getTagList("itemInputs", 10), itemOutputList = compound.getTagList("itemOutputs", 10);
         for (int i = 0; i < itemInputList.tagCount(); i++)
             this.itemInputs.add(new ItemStack(itemInputList.getCompoundTagAt(i)));
         for (int i = 0; i < itemOutputList.tagCount(); i++)
