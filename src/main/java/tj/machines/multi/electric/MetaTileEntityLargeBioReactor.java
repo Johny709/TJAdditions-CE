@@ -1,5 +1,6 @@
 package tj.machines.multi.electric;
 
+import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing2;
@@ -9,7 +10,6 @@ import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.item.components.SensorCasing;
 import gregicadditions.recipes.GARecipeMaps;
-import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -100,7 +100,7 @@ public class MetaTileEntityLargeBioReactor extends TJRecipeMapMultiblockControll
         final int pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
         final int tier = Math.min(fieldGen, Math.min(emitter, Math.min(sensor, pump)));
         this.energyBonus = context.getOrDefault("coilIndex", 0) * 5;
-        if (tier < GTValues.MAX) {
+        if (tier < GAValues.MAX) {
             this.maxVoltage = 8L << tier * 2;
             this.tier = tier;
         }

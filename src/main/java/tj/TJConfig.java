@@ -1124,4 +1124,26 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public int stack = 16;
     }
+
+    @Config.Comment("Large Gas Centrifuge")
+    public static LargeGasCentrifuge largeGasCentrifuge = new LargeGasCentrifuge();
+
+    public static class LargeGasCentrifuge {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Slice Limit")
+        @Config.Comment("Adjust the maximum number of slices the large gas centrifuge can have")
+        @Config.RequiresMcRestart
+        public int maximumSlices = 64;
+    }
 }
