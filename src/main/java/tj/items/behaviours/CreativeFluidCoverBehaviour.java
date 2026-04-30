@@ -32,7 +32,7 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         if (!world.isRemote && hand == EnumHand.MAIN_HAND) {
-            PlayerInventoryHolder holder = new PlayerInventoryHolder(player, hand);
+            final PlayerInventoryHolder holder = new PlayerInventoryHolder(player, hand);
             holder.openUI();
             return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
         }
@@ -41,13 +41,13 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
 
     @Override
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
-        ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        NBTTagCompound compound = stack.getOrCreateSubCompound("init");
+        final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
+        final NBTTagCompound compound = stack.getOrCreateSubCompound("init");
         if (!compound.hasKey("speed"))
             compound.setInteger("speed", 1);
         if (!compound.hasKey("power"))
             compound.setBoolean("power", false);
-        SimpleFluidFilter fluidFilter = new SimpleFluidFilter() {
+        final SimpleFluidFilter fluidFilter = new SimpleFluidFilter() {
             @Override
             public void setFluidInSlot(int slotIndex, FluidStack fluidStack) {
                 super.setFluidInSlot(slotIndex, fluidStack);
@@ -56,7 +56,7 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
                 else compound.removeTag("slot:" + slotIndex);
             }
         };
-        Consumer<Widget.ClickData> onIncrement = clickData -> {
+        final Consumer<Widget.ClickData> onIncrement = clickData -> {
             int speed = compound.getInteger("speed");
             int value = clickData.isCtrlClick ? 100
                     : clickData.isShiftClick ? 10
@@ -64,7 +64,7 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
             speed = MathHelper.clamp(speed +value, 1, Integer.MAX_VALUE);
             compound.setInteger("speed", speed);
         };
-        Consumer<Widget.ClickData> onDecrement = clickData -> {
+        final Consumer<Widget.ClickData> onDecrement = clickData -> {
             int speed = compound.getInteger("speed");
             int value = clickData.isCtrlClick ? 100
                     : clickData.isShiftClick ? 10
@@ -76,7 +76,7 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
             if (compound.hasKey("slot:" + i))
                 fluidFilter.setFluidInSlot(i, FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("slot:" + i)));
         }
-        WidgetGroup fluidFilterGroup = new WidgetGroup(new Position(51, 25));
+        final WidgetGroup fluidFilterGroup = new WidgetGroup(new Position(51, 25));
         fluidFilterGroup.addWidget(new LabelWidget(-15, -15, "cover.creative_fluid.title"));
         fluidFilterGroup.addWidget(new ImageWidget(10, 55, 55, 18, GuiTextures.DISPLAY));
         fluidFilterGroup.addWidget(new AdvancedTextWidget(12, 60, textList -> textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", compound.getInteger("speed"))), 0xFFFFFF));

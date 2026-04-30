@@ -30,7 +30,7 @@ public class CreativeEnergyCoverBehaviour implements IItemBehaviour, ItemUIFacto
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         if (!world.isRemote && hand == EnumHand.MAIN_HAND) {
-            PlayerInventoryHolder holder = new PlayerInventoryHolder(player, hand);
+            final PlayerInventoryHolder holder = new PlayerInventoryHolder(player, hand);
             holder.openUI();
             return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
         }
@@ -39,8 +39,8 @@ public class CreativeEnergyCoverBehaviour implements IItemBehaviour, ItemUIFacto
 
     @Override
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
-        ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        NBTTagCompound compound = stack.getOrCreateSubCompound("init");
+        final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
+        final NBTTagCompound compound = stack.getOrCreateSubCompound("init");
         if (!compound.hasKey("simulateVoltage"))
             compound.setBoolean("simulateVoltage", false);
         if (!compound.hasKey("draining"))
