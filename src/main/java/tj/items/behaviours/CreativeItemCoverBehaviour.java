@@ -58,7 +58,7 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
                                 compound.setTag("slot:" + j, stack.serializeNBT());
                             else compound.removeTag("slot:" + j);
                         }
-                    }).setBackgroundTexture(GuiTextures.SLOT));
+                    }).setBackgroundTextures(GuiTextures.SLOT));
                 }
                 widgetGroup.accept(new ToggleButtonWidget(74, 0, 20, 20, GuiTextures.BUTTON_FILTER_DAMAGE,
                         () -> this.ignoreDamage, this::setIgnoreDamage).setTooltipText("cover.item_filter.ignore_damage"));

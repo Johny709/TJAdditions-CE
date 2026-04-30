@@ -164,11 +164,8 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                                 .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                                 .useToggleTexture(true), widgetGroup -> {
                             for (int i = 0; i < this.filterInventory.getSlots(); i++) {
-                                widgetGroup.addWidget(new TJGhostSlotWidget(this.filterInventory, i, 18 * (i % 9), 18 * (i / 9))
-                                        .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY)
-                                        .setTakeItemsPredicate(this.workableHandler::removeItemFromFilter)
-                                        .setPutItemsPredicate(this.workableHandler::addItemToFilter)
-                                        .setAreGhostItems(this.ghostSlotHandler.getAreGhostItems()));
+                                widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 9), 18 * (i / 9), 18, 18, i, this.filterInventory, this.workableHandler::addItemToFilter, this.workableHandler::removeItemFromFilter)
+                                        .setBackgroundTextures(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
                             }
                             widgetGroup.addWidget(new ToggleButtonWidget(144, 57, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
                                     .setTooltipText("tj.multiblock.advanced_large_miner.blacklist_block"));

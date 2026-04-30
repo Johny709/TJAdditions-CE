@@ -216,6 +216,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     }
 
     public boolean addItemToFilter(ItemStack stack) {
+        if (stack.isEmpty())
+            return false;
         if (this.itemFilterType.get(stack.getItem()) != null)
             return false;
         this.itemFilterType.put(stack.getItem(), stack);
