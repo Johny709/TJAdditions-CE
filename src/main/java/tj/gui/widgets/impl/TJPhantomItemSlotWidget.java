@@ -70,10 +70,18 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (this.isMouseOverElement(mouseX, mouseY) && button == 1) { // Right-Click
-            this.writeClientAction(2, buffer -> {});
-            this.itemStack = ItemStack.EMPTY;
-            return true;
+        if (this.isMouseOverElement(mouseX, mouseY)) {
+            if (button == 1) { // Right-Click
+                this.writeClientAction(2, buffer -> {});
+                this.itemStack = ItemStack.EMPTY;
+                return true;
+            } else if (button == 0) { // Left-Click
+                final ItemStack stack = this.gui.entityPlayer.inventory.getItemStack();
+                if (!stack.isEmpty()) {
+                    this.writeClientAction(1, buffer -> buffer.writeItemStack(this.gui.entityPlayer.inventory.getItemStack()));
+                    return true;
+                }
+            }
         }
         return false;
     }
