@@ -137,6 +137,7 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("interstellar_forge", new MultiblockInfoRecipeWrapper(new InterStellarForgeInfo()))
                             .put("large_bio_reactor", new MultiblockInfoRecipeWrapper(new LargeBioReactorInfo()))
                             .put("large_gas_centrifuge", new MultiblockInfoRecipeWrapper(new LargeGasCentrifugeInfo()))
+                            .put("large_nuclear_reactor", new MultiblockInfoRecipeWrapper(new LargeNuclearReactorInfo()))
                             .put("distillation_tower", new MultiblockInfoRecipeWrapper(new TJDistillationTowerInfo()))
                             .put("advanced_distillation_tower", new MultiblockInfoRecipeWrapper(new TJAdvancedDistillationTowerInfo()))
                             .put("mega_distillation_tower", new MultiblockInfoRecipeWrapper(new TJMegaDistillationTowerInfo()))
