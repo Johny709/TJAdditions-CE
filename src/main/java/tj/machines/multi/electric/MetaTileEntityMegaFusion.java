@@ -121,7 +121,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
 
     @Override
     public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setEUt(overclockManager.getEUt() * overclockManager.getParallel());
+        overclockManager.setEUt(overclockManager.getEUt() * overclockManager.getParallelsPerformed());
         overclockManager.setDuration(overclockManager.getDuration() * this.batchMode.getAmount());
     }
 

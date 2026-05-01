@@ -116,13 +116,11 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
     }
 
     @Override
-    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setParallel(this.getParallel());
-    }
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {}
 
     @Override
     public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setEUt(overclockManager.getEUt() * overclockManager.getParallel());
+        overclockManager.setEUt(overclockManager.getEUt() * overclockManager.getParallelsPerformed());
     }
 
     @Override
