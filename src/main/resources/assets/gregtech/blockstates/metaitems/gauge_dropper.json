@@ -1,0 +1,14 @@
+{
+  "forge_marker": 1,
+  "variants": {
+    "inventory": {
+      "model": "forge:forgebucket",
+      "textures": {
+        "base": "gregtech:items/metaitems/gauge_dropper/base",
+        "fluid": "gregtech:items/metaitems/gauge_dropper/overlay",
+        "cover": "gregtech:items/metaitems/gauge_dropper/base"
+      },
+      "transform": "forge:default-item"
+    }
+  }
+}

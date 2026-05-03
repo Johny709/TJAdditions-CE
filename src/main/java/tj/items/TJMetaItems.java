@@ -17,6 +17,7 @@ public class TJMetaItems {
     public static ArmorMetaItem<?>.ArmorMetaValueItem MODULAR_ARMOR_LEGS;
     public static ArmorMetaItem<?>.ArmorMetaValueItem MODULAR_ARMOR_BOOTS;
 
+    public static MetaItem<?>.MetaValueItem GAUGE_DROPPER;
     public static MetaItem<?>.MetaValueItem TOOLBOX;
     public static MetaItem<?>.MetaValueItem CREATIVE_FLUID_COVER;
     public static MetaItem<?>.MetaValueItem CREATIVE_ITEM_COVER;

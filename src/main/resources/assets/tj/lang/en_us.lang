@@ -946,6 +946,7 @@ metaitem.turbine_upgrade.name=Turbine Expansion Upgrade Tier %d
 metaitem.turbine_upgrade.description=Can be applied on XL turbines to increase rotor count by +%d.
 metaitem.toolbox.name=Toolbox
 metaitem.toolbox.description=To store tools. Can be also used for fixing maintenance. Right-click on maintenance hatch with tools or tape inside.
+metaitem.gauge_dropper.name=Gauge Dropper
 
 item.unbreakable_hoe.name=Unbreakable Hoe
 item.unbreakable_axe.name=Unbreakable Axe
