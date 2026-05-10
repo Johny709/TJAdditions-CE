@@ -15,6 +15,7 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
+import gregtech.api.unification.material.Materials;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
@@ -93,14 +94,14 @@ public class MetaTileEntityLargeGasCentrifuge extends TJRecipeMapMultiblockContr
     @Override
     protected BlockPattern createStructurePattern() {
         final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK)
-                .aisle("~XXX~", "~XXX~", "~N~N~", "~N~N~", "~N~N~", "~N~N~", "~N~N~");
-        for (int i = 1; i < this.parallelLayer; i++) {
-            factoryPattern.aisle("XXXXX", "XCCCX", "NPOPN", "NPNPN", "NPNPN", "NPNPN", "NPNPN");
-            factoryPattern.aisle("XXXXX", "XCCCX", "~O~O~", "~N~N~", "~N~N~", "~N~N~", "~N~N~");
+                .aisle("~XXX~", "~XXX~", "~T~T~", "~p~p~", "~U~U~", "~N~N~", "~l~l~", "~A~A~", "~R~R~", "~B~B~", "~c~c~", "~E~E~", "~F~F~", "~M~M~");
+        for (int layer = 1; layer < this.parallelLayer; layer++) {
+            factoryPattern.aisle("XXXXX", "XCCCX", "pPOPp", "UPUPU", "NPNPN", "NPNPN", "lPlPl", "APAPA", "RPRPR", "BPBPB", "cPcPc", "EPEPE", "FPFPF", "MPMPM");
+            factoryPattern.aisle("XXXXX", "XCCCX", "~O~O~", "~U~U~", "~N~N~", "~N~N~", "~l~l~", "~A~A~", "~R~R~", "~B~B~", "~c~c~", "~E~E~", "~F~F~", "~M~M~");
         }
         return factoryPattern
-                .aisle("XXXXX", "XCCCX", "NPOPN", "NPNPN", "NPNPN", "NPNPN", "NPNPN")
-                .aisle("~XXX~", "~XSX~", "~N~N~", "~N~N~", "~N~N~", "~N~N~", "~N~N~")
+                .aisle("XXXXX", "XCCCX", "NPOPN", "NPNPN", "UPNPU", "NPNPN", "lPlPl", "APAPA", "RPRPR", "BPBPB", "cPcPc", "EPEPE", "FPFPF", "MPMPM")
+                .aisle("~XXX~", "~XSX~", "~T~T~", "~p~p~", "~U~U~", "~N~N~", "~l~l~", "~A~A~", "~R~R~", "~B~B~", "~c~c~", "~E~E~", "~F~F~", "~M~M~")
                 .setAmountAtLeast('L', 5)
                 .where('S', this.selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
@@ -108,7 +109,18 @@ public class MetaTileEntityLargeGasCentrifuge extends TJRecipeMapMultiblockContr
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('O', statePredicate(MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID)))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE)))
-                .where('N', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.Mendelevium.getMaterial()).getDefaultState()))
+                .where('T', statePredicate(MetaBlocks.FRAMES.get(Materials.Thorium).getDefaultState()))
+                .where('p', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.Protactinium.getMaterial()).getDefaultState()))
+                .where('U', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.UraniumRadioactive.getMaterial()).getDefaultState()))
+                .where('N', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.Neptunium.getMaterial()).getDefaultState()))
+                .where('l', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.PlutoniumRadioactive.getMaterial()).getDefaultState()))
+                .where('A', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.AmericiumRadioactive.getMaterial()).getDefaultState()))
+                .where('R', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.Curium.getMaterial()).getDefaultState()))
+                .where('B', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.Berkelium.getMaterial()).getDefaultState()))
+                .where('c', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.Californium.getMaterial()).getDefaultState()))
+                .where('E', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.Einsteinium.getMaterial()).getDefaultState()))
+                .where('F', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.Fermium.getMaterial()).getDefaultState()))
+                .where('M', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.Mendelevium.getMaterial()).getDefaultState()))
                 .where('~', tile -> true)
                 .build();
     }
