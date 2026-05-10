@@ -35,6 +35,8 @@ import tj.TJValues;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockController;
 import tj.capability.OverclockManager;
+import tj.textures.TJOrientedOverlayRenderer;
+import tj.textures.TJTextures;
 import tj.util.TextUtils;
 
 import javax.annotation.Nullable;
@@ -211,6 +213,11 @@ public class MetaTileEntityLargeNuclearReactor extends TJMultiRecipeMapMultibloc
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return ClientHandler.CLADDED_REACTOR_CASING;
+    }
+
+    @Override
+    public TJOrientedOverlayRenderer getFrontalOverlay() {
+        return TJTextures.TJ_NUCLEAR_REACTOR_OVERLAY;
     }
 
     @Override
