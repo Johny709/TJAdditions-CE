@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAMaterials;
+import gregicadditions.GAValues;
 import gregicadditions.Gregicality;
 import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
@@ -92,6 +93,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.description"));
         tooltip.add(I18n.format("tj.multiblock.advanced_large_miner.crushed"));
+        tooltip.add(I18n.format("tj.multiblock.drilling_rig.voltage", GAValues.VN[this.tier], GAValues.VN[14]));
         tooltip.add(I18n.format("gtadditions.machine.miner.multi.description", this.getDiameter(), this.getDiameter(), this.getFortuneLvl()));
         tooltip.add(I18n.format("gtadditions.machine.miner.fluid_usage", 1 << this.getDiameter() - 1, this.drillingFluid.getLocalizedName()));
         tooltip.add(I18n.format("gregtech.multiblock.large_miner.block_per_tick", 1 << this.getDiameter() - 1));
@@ -326,5 +328,9 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     @Override
     public String getRecipeUid() {
         return Gregicality.MODID + ":" + RecipeMaps.MACERATOR_RECIPES.getUnlocalizedName();
+    }
+
+    public int getMinerTier() {
+        return this.tier;
     }
 }

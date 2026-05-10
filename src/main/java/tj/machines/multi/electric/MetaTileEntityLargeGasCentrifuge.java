@@ -210,7 +210,7 @@ public class MetaTileEntityLargeGasCentrifuge extends TJRecipeMapMultiblockContr
 
     @Override
     public int getChanceMultiplier() {
-        return TJConfig.largeGasCentrifuge.durationPercentage;
+        return TJConfig.largeGasCentrifuge.chancePercentage;
     }
 
     @Override

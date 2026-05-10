@@ -1,5 +1,6 @@
 package tj.integration.jei.multi.electric;
 
+import gregicadditions.GAValues;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.machines.GATileEntities;
@@ -61,6 +62,7 @@ public class AdvancedLargeChunkMinerInfo extends TJMultiblockInfoPage {
     public String[] getDescription() {
         return new String[]{I18n.format("tj.multiblock.advanced_large_miner.description").replace("§7", "§r"),
                 I18n.format("tj.multiblock.advanced_large_miner.crushed"),
+                I18n.format("tj.multiblock.drilling_rig.voltage", GAValues.VN[this.getController().getMinerTier()], GAValues.VN[14]).replace("§7", "§r"),
                 I18n.format("gtadditions.machine.miner.multi.description", this.getController().getDiameter(), this.getController().getDiameter(), this.getController().getFortuneLvl()),
                 I18n.format("gtadditions.machine.miner.fluid_usage", 1 << this.getController().getDiameter() - 1, this.getController().getDrillingFluid().getLocalizedName()),
                 I18n.format("gregtech.multiblock.large_miner.block_per_tick", 1 << this.getController().getDiameter() - 1)};
