@@ -387,7 +387,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
         for (boolean recipeLock : this.recipeLock)
             recipeLockList.appendTag(new NBTTagByte((byte) (recipeLock ? 1 : 0)));
         for (int i = 0; i < this.occupiedRecipes.size(); i++) {
-            Recipe recipe = this.occupiedRecipes.get(i);
+            final Recipe recipe = this.occupiedRecipes.get(i);
             if (!this.recipeLock[i] || recipe == null) continue;
             final NBTTagCompound recipeCompound = new NBTTagCompound();
             final NBTTagList recipeItemInputList = new NBTTagList(), recipeChancedOutputList = new NBTTagList(), recipeItemOutputList = new NBTTagList();
