@@ -68,7 +68,7 @@ public class MetaTileEntityLargeGasCentrifuge extends TJRecipeMapMultiblockContr
         tooltip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
         tooltip.add(I18n.format("tj.multiblock.processing_array.eut"));
         super.addInformation(stack, player, tooltip, advanced);
-        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.2", TJValues.thousandFormat.format(TJConfig.industrialFusionReactor.maximumSlices)));
+        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.2", TJValues.thousandFormat.format(TJConfig.largeGasCentrifuge.maximumSlices)));
     }
 
     @Override

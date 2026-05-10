@@ -1163,8 +1163,9 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public int chancePercentage = 100;
 
-        @Config.Name("Stack Size")
+        @Config.Name("Slice Limit")
+        @Config.Comment("Adjust the maximum number of slices the large gas centrifuge can have")
         @Config.RequiresMcRestart
-        public int stack = 16;
+        public int maximumSlices = 64;
     }
 }
