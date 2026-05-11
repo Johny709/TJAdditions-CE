@@ -25,6 +25,8 @@ import tj.TJConfig;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.OverclockManager;
+import tj.textures.TJOrientedOverlayRenderer;
+import tj.textures.TJTextures;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.*;
@@ -87,10 +89,6 @@ public class MetaTileEntityLargeBioReactor extends TJRecipeMapMultiblockControll
                 .build();
     }
 
-    private IBlockState getCasingState() {
-        return GAMetaBlocks.MUTLIBLOCK_CASING2.getState(GAMultiblockCasing2.CasingType.BIO_REACTOR);
-    }
-
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
@@ -112,9 +110,18 @@ public class MetaTileEntityLargeBioReactor extends TJRecipeMapMultiblockControll
         this.energyBonus = 0;
     }
 
+    private IBlockState getCasingState() {
+        return GAMetaBlocks.MUTLIBLOCK_CASING2.getState(GAMultiblockCasing2.CasingType.BIO_REACTOR);
+    }
+
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         return ClientHandler.BIO_REACTOR;
+    }
+
+    @Override
+    public TJOrientedOverlayRenderer getFrontalOverlay() {
+        return TJTextures.TJ_ORGANIC_REPLICATOR_OVERLAY;
     }
 
     @Override
