@@ -122,6 +122,11 @@ public class RecipeInit {
                 'S', GACraftingComponents.SENSOR.getIngredient(5),
                 'H', GACraftingComponents.HULL.getIngredient(5),
                 'D', MetaItems.ENERGY_LAPOTRONIC_ORB2.getStackForm());
+        ModHandler.addShapedRecipe("gauge_dropper", GAUGE_DROPPER.getStackForm(), "B  ", " SP", " PC",
+                'S', GAMetaItems.ALUMINO_SILICATE_GLASS_TUBE.getStackForm(),
+                'C', new UnificationEntry(OrePrefix.circuit, Basic),
+                'P', new UnificationEntry(OrePrefix.plate, Steel),
+                'B', new UnificationEntry(OrePrefix.bolt, Steel));
         for (int i = 0, tier = 1; i < ARCHITECT_WORKBENCH.length; i++, tier++) {
             ModHandler.addShapedRecipe("architect_workbench_" + GAValues.VN[tier].toLowerCase(), ARCHITECT_WORKBENCH[i].getStackForm(), "PAP", "CSC", "MWM",
                     'P', GACraftingComponents.PISTON.getIngredient(tier),
