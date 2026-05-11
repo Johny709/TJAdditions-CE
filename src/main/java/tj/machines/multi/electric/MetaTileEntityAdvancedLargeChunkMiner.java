@@ -33,6 +33,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -273,6 +274,11 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
         ClientHandler.CHUNK_MINER_OVERLAY.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
         ClientHandler.CHUNK_MINER_OVERLAY.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
+    }
+
+    @Override
+    public void clearMachineInventory(NonNullList<ItemStack> itemBuffer) {
+        // Inventory used for filters. Don't drop anything.
     }
 
     @Override
