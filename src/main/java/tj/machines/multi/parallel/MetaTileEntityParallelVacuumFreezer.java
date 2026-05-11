@@ -60,11 +60,8 @@ public class MetaTileEntityParallelVacuumFreezer extends ParallelRecipeMapMultib
 
     @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setParallel(1);
+        overclockManager.setParallel(this.batchMode.getAmount());
     }
-
-    @Override
-    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {}
 
     @Override
     protected BlockPattern createStructurePattern() {

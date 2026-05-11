@@ -72,6 +72,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
 
     @Override
     public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        super.preOverclock(overclockManager, recipe);
         overclockManager.setEUt(overclockManager.getEUt() * (100 - this.energyBonus) / 100);
     }
 
