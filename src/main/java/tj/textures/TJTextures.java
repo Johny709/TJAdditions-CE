@@ -66,7 +66,7 @@ public class TJTextures {
     public static final TJOrientedOverlayRenderer TJ_DISTILLERY_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/distillery", FRONT);
     public static final TJOrientedOverlayRenderer TJ_QUBIT_COMPUTER_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/qubit_computer", FRONT);
     public static final TJOrientedOverlayRenderer TJ_NUCLEAR_REACTOR_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/nuclear_reactor", FRONT);
-    public static final TJOrientedOverlayRenderer TJ_ORGANIC_REPLICATOR_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/organic_replicator_2", FRONT, TOP);
+    public static final TJOrientedOverlayRenderer TJ_ORGANIC_REPLICATOR_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/organic_replicator_2", FRONT, TOP, BOTTOM);
 
     public static final TJSimpleCubeRenderer FUSION_MK2 = new TJSimpleCubeRenderer(GTValues.MODID, "blocks/casings/fusion/machine_casing_fusion_2");
     public static final TJSimpleCubeRenderer FUSION_PORT_LUV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_luv");

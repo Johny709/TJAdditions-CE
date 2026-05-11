@@ -1189,7 +1189,7 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), SterileGrowthMedium.getFluid(64000), BacterialGrowthMedium.getFluid(64000))
-                .inputs(BIO_REACTOR.getStackForm(16), sensors[9].getStackForm(32), pumps[9].getStackForm(32), robotArms[9].getStackForm(32), emitters[9].getStackForm(32))
+                .inputs(BIO_REACTOR.getStackForm(16), sensors[9].getStackForm(32), pumps[9].getStackForm(32), robotArms[9].getStackForm(32), emitters[9].getStackForm(32), fieldGens[9].getStackForm(16))
                 .input(OrePrefix.plate, TantalumHafniumSeaborgiumCarbide, 24)
                 .input(OrePrefix.screw, EnrichedNaquadahAlloy, 64)
                 .input(OrePrefix.gear, HastelloyK243, 16)
