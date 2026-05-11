@@ -5,7 +5,6 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
-import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
@@ -18,8 +17,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
-import net.minecraftforge.fluids.IFluidTank;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.textures.TJTextures;
@@ -27,11 +27,11 @@ import tj.textures.TJTextures;
 public class VoidCoverFluid extends CoverBehavior implements CoverWithUI, ITickable {
 
     private final SimpleFluidFilter fluidFilter = new SimpleFluidFilter();
-    private final IMultipleTankHandler fluidHandler;
+    private final IFluidHandler fluidHandler;
 
     public VoidCoverFluid(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
-        this.fluidHandler = (IMultipleTankHandler) this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, this.attachedSide);
+        this.fluidHandler = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, this.attachedSide);
     }
 
     @Override
@@ -65,9 +65,10 @@ public class VoidCoverFluid extends CoverBehavior implements CoverWithUI, ITicka
 
     @Override
     public void update() {
-        for (IFluidTank tank : this.fluidHandler) {
-            if (this.fluidFilter.testFluid(tank.getFluid()))
-                tank.drain(Integer.MAX_VALUE, true);
+        for (int i = 0; i < 9; i++) {
+            final FluidStack stack = this.fluidFilter.getFluidInSlot(i);
+            if (stack != null)
+                this.fluidHandler.drain(stack, true);
         }
     }
 

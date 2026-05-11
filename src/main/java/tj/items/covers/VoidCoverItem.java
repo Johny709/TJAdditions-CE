@@ -18,7 +18,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.IItemHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.textures.TJTextures;
@@ -26,11 +26,11 @@ import tj.textures.TJTextures;
 public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickable {
 
     private final SimpleItemFilter itemFilter = new SimpleItemFilter();
-    private final IItemHandlerModifiable itemHandler;
+    private final IItemHandler itemHandler;
 
     public VoidCoverItem(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
-        this.itemHandler = (IItemHandlerModifiable) this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.attachedSide);
+        this.itemHandler = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.attachedSide);
     }
 
     @Override
