@@ -2,9 +2,11 @@ package tj.machines.multi.electric;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
+import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.item.metal.NuclearCasing;
 import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.capability.IEnergyContainer;
@@ -126,20 +128,11 @@ public class MetaTileEntityLargeNuclearReactor extends TJMultiRecipeMapMultibloc
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
-                .mapToLong(IEnergyContainer::getInputVoltage)
-                .max()
-                .orElse(0);
-        long amps = this.getAbilities(INPUT_ENERGY).stream()
-                .filter(energy -> energy.getInputVoltage() == this.maxVoltage)
-                .mapToLong(IEnergyContainer::getInputAmperage)
-                .sum() / Math.max(1, this.parallelLayer);
-        amps = Math.min(4096, amps);
-        while (amps >= 4) {
-            amps /= 4;
-            this.maxVoltage *= 4;
+        final int tier = context.getOrDefault("FieldGen", FieldGenCasing.CasingType.FIELD_GENERATOR_LV).getTier();
+        if (tier < GAValues.MAX) {
+            this.maxVoltage = 8L << tier * 2;
+            this.tier = tier;
         }
-        this.tier = GAUtility.getTierByVoltage(this.maxVoltage);
     }
 
     @Override
