@@ -72,7 +72,7 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new ItemStackHandler(1);
+        return new ItemStackHandler(4);
     }
 
     @Override
@@ -98,6 +98,12 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
                 .widget(new SlotWidget(this.importItems, 1, 52, 22, true, true)
                         .setBackgroundTexture(SLOT, MOLD_OVERLAY))
                 .widget(new SlotWidget(this.exportItems, 0, 105, 22, true, false)
+                        .setBackgroundTexture(SLOT))
+                .widget(new SlotWidget(this.exportItems, 1, 123, 22, true, false)
+                        .setBackgroundTexture(SLOT))
+                .widget(new SlotWidget(this.exportItems, 2, 105, 40, true, false)
+                        .setBackgroundTexture(SLOT))
+                .widget(new SlotWidget(this.exportItems, 3, 123, 40, true, false)
                         .setBackgroundTexture(SLOT))
                 .widget(new RecipeOutputSlotWidget(0, 105, 22, 18, 18, displayWidget::getItemOutputAt, null))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)

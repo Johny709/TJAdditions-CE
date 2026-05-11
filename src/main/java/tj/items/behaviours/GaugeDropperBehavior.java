@@ -56,7 +56,7 @@ public class GaugeDropperBehavior implements IItemBehaviour, ItemUIFactory, IIte
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setUpdateOnTyping(true)
                         .setMaxStringLength(10))
-                .widget(new ToggleButtonWidget(7, 30, 18, 18, PLUS_BUTTON, () -> false, plus -> compound.setInteger("capacity", Math.min(1000, compound.getInteger("capacity") * 2))))
+                .widget(new ToggleButtonWidget(7, 30, 18, 18, PLUS_BUTTON, () -> false, plus -> compound.setInteger("capacity", Math.max(1, Math.min(1000, compound.getInteger("capacity") * 2)))))
                 .widget(new ToggleButtonWidget(151, 30, 18, 18, MINUS_BUTTON, () -> false, minus -> compound.setInteger("capacity", Math.max(1, compound.getInteger("capacity") / 2))))
                 .widget(new ToggleButtonWidget(151, 48, 18, 18, RESET_BUTTON, () -> false, reset -> compound.setInteger("capacity", 1000)))
                 .widget(new TJToggleButtonWidget(27, 48, 119, 18, () -> compound.getBoolean("voiding"), (bool, str) -> compound.setBoolean("voiding", bool))

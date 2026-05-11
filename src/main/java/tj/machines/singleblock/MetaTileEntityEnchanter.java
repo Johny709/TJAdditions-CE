@@ -78,7 +78,7 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new ItemStackHandler(2);
+        return new ItemStackHandler(4);
     }
 
     @Override
@@ -111,6 +111,10 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                 .widget(new SlotWidget(this.exportItems, 0, 105, 22, true, false)
                         .setBackgroundTexture(SLOT))
                 .widget(new SlotWidget(this.exportItems, 1, 123, 22, true, false)
+                        .setBackgroundTexture(SLOT))
+                .widget(new SlotWidget(this.exportItems, 2, 105, 40, true, false)
+                        .setBackgroundTexture(SLOT))
+                .widget(new SlotWidget(this.exportItems, 3, 123, 40, true, false)
                         .setBackgroundTexture(SLOT))
                 .widget(new RecipeOutputSlotWidget(0, 105, 22, 18, 18, displayWidget::getItemOutputAt, null))
                 .widget(new RecipeOutputSlotWidget(1, 123, 22, 18, 18, displayWidget::getItemOutputAt, null))
