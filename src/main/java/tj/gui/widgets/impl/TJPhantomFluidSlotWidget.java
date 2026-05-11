@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -81,10 +82,19 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (this.isMouseOverElement(mouseX, mouseY) && button == 1) { // Right-Click
-            this.writeClientAction(2, buffer -> {});
-            this.fluidStack = null;
-            return true;
+        if (this.isMouseOverElement(mouseX, mouseY)) {
+            if (button == 0) { // Left-Click
+                final FluidStack fluidStack = FluidUtil.getFluidContained(this.gui.entityPlayer.inventory.getItemStack());
+                if (fluidStack != null) {
+                    this.fluidStack = fluidStack.copy();
+                    this.writeClientAction(1, buffer -> buffer.writeCompoundTag(this.fluidStack.writeToNBT(new NBTTagCompound())));
+                    return true;
+                }
+            } else if (button == 1) { // Right-Click
+                this.writeClientAction(2, buffer -> {});
+                this.fluidStack = null;
+                return true;
+            }
         }
         return false;
     }
