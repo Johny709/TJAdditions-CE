@@ -10,6 +10,8 @@ import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.PhantomFluidWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
 import gregtech.common.covers.filter.SimpleFluidFilter;
@@ -24,9 +26,25 @@ import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.textures.TJTextures;
 
+import java.util.function.Consumer;
+
 public class VoidCoverFluid extends CoverBehavior implements CoverWithUI, ITickable {
 
-    private final SimpleFluidFilter fluidFilter = new SimpleFluidFilter();
+    private final SimpleFluidFilter fluidFilter = new SimpleFluidFilter() {
+        @Override
+        public void initUI(Consumer<Widget> widgetGroup) {
+            for (int i = 0; i < 9; ++i) {
+                int index = i;
+                widgetGroup.accept((new PhantomFluidWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18,
+                        () -> this.getFluidInSlot(index),
+                        (newFluid) -> {
+                    newFluid = newFluid.copy();
+                    newFluid.amount = Integer.MAX_VALUE;
+                    this.setFluidInSlot(index, newFluid);
+                })).setBackgroundTexture(GuiTextures.SLOT));
+            }
+        }
+    };
     private final IFluidHandler fluidHandler;
 
     public VoidCoverFluid(ICoverable coverHolder, EnumFacing attachedSide) {
