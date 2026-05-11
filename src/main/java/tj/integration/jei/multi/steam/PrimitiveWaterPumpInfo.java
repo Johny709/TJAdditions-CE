@@ -7,6 +7,7 @@ import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
+import tj.TJValues;
 import tj.blocks.AbilityBlocks;
 import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockInfoPage;
@@ -46,6 +47,6 @@ public class PrimitiveWaterPumpInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return new String[]{I18n.format("tj.multiblock.primitive_water_pump.description", 500, 1280).replace("§7", "§r")};
+        return new String[]{I18n.format("tj.multiblock.primitive_water_pump.description", 500, TJValues.thousandFormat.format(1280)).replace("§7", "§r")};
     }
 }

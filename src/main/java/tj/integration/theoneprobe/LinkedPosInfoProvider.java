@@ -10,13 +10,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.capabilities.Capability;
+import tj.TJValues;
 import tj.capability.LinkPos;
 import tj.capability.TJCapabilities;
+import tj.util.TextUtils;
 
 public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
 
@@ -54,8 +55,8 @@ public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
                     int x = gregEntity != null ? gregEntity.getPos().getX() : entity.getPos().getX();
                     int y = gregEntity != null ? gregEntity.getPos().getY() : entity.getPos().getY();
                     int z = gregEntity != null ? gregEntity.getPos().getZ() : entity.getPos().getZ();
-                    posInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldType.getName(), worldID));
-                    posInfo.text(TextStyleClass.INFO + I18n.translateToLocalFormatted("machine.universal.linked.pos", x, y, z));
+                    posInfo.text(TextStyleClass.INFO + TextUtils.translate("machine.universal.linked.dimension", worldType.getName(), TJValues.thousandFormat.format(worldID)));
+                    posInfo.text(TextStyleClass.INFO + TextUtils.translate("machine.universal.linked.pos", TJValues.thousandFormat.format(x), TJValues.thousandFormat.format(y), TJValues.thousandFormat.format(z)));
                 }
             }
         }

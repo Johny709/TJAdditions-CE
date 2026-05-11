@@ -5,6 +5,7 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
+import tj.TJValues;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -20,7 +21,7 @@ public final class TooltipHelper {
     public static void pageText(List<String> tooltip, int maxPages, BiConsumer<List<String>, TooltipHandler> tipHandler) {
         if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT)) {
             INSTANCE.setEnd(maxPages);
-            tooltip.add(Color.WHITE + I18n.format("tj.multiblock.universal.tooltip.page", INSTANCE.getIndex() + 1, INSTANCE.getEnd() + 1));
+            tooltip.add(Color.WHITE + I18n.format("tj.multiblock.universal.tooltip.page", TJValues.thousandFormat.format(INSTANCE.getIndex() + 1), TJValues.thousandFormat.format(INSTANCE.getEnd() + 1)));
             if (Keyboard.isKeyDown(Keyboard.KEY_TAB)) {
                 if (!INSTANCE.isPressed()) {
                     INSTANCE.setPressed(true);

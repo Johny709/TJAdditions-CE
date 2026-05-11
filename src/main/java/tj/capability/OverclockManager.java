@@ -7,6 +7,7 @@ public final class OverclockManager<T> {
     private long EUt;
     private int duration;
     private int parallel;
+    private int parallelsPerformed;
     private int chanceMultiplier;
     private float durationMultiplier;
     private T recipeProperty;
@@ -68,6 +69,15 @@ public final class OverclockManager<T> {
     }
 
     /**
+     * Not meant to be used in {@link tj.capability.impl.handler.IRecipeHandler#preOverclock(OverclockManager, Recipe) preOverclock} and {@link tj.capability.impl.handler.IRecipeHandler#postOverclock(OverclockManager, Recipe) postOverclock}.
+     * Use {@link OverclockManager#setParallel(int) setParallel} to set parallels.
+     * @param maxParallelCalculated max parallels performed after recipe input calculation.
+     */
+    public void setParallelsPerformed(int maxParallelCalculated) {
+        this.parallelsPerformed = maxParallelCalculated;
+    }
+
+    /**
      * Can be set in {@link tj.capability.impl.handler.IRecipeHandler#preOverclock(OverclockManager, Recipe) preOverclock}. Has no effect in {@link tj.capability.impl.handler.IRecipeHandler#postOverclock(OverclockManager, Recipe) postOverclock}.
      * Multiplier to calculate chance outputs with the output's chance value. If the roll fails, then the output is voided.
      * @param chanceMultiplier multiplier amount. e.g. 10000 == 100.00%.
@@ -94,6 +104,10 @@ public final class OverclockManager<T> {
 
     public int getParallel() {
         return this.parallel;
+    }
+
+    public int getParallelsPerformed() {
+        return this.parallelsPerformed;
     }
 
     public int getChanceMultiplier() {

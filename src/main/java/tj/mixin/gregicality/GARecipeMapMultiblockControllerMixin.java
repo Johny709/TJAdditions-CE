@@ -24,6 +24,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.gui.TJGuiTextures;
@@ -120,7 +121,7 @@ public abstract class GARecipeMapMultiblockControllerMixin extends RecipeMapMult
         final SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMMM d, yyyy hh:mm:ss aa");
         final long timeElapsed = now.getEpochSecond() - this.placedDown.getEpochSecond();
         builder.addTranslationLine("tj.multiblock.date.placed_down", dateFormat.format(Date.from(this.placedDown)))
-                .addTranslationLine("tj.multiblock.date.ago", timeElapsed / 3600, (timeElapsed % 3600) / 60, timeElapsed % 60)
+                .addTranslationLine("tj.multiblock.date.ago", TJValues.thousandFormat.format(timeElapsed / 3600), TJValues.thousandFormat.format((timeElapsed % 3600) / 60), TJValues.thousandFormat.format(timeElapsed % 60))
                 .addEmptyLine()
                 .addMufflerDisplayLine(!this.hasMufflerHatch() || this.isMufflerFaceFree(), 999)
                 .addMaintenanceDisplayLines(this.getProblems(), this.hasProblems(), 1000);
@@ -128,11 +129,11 @@ public abstract class GARecipeMapMultiblockControllerMixin extends RecipeMapMult
 
     @Unique
     protected void configureDebugDisplayText(GUIDisplayBuilder builder) {
-        builder.addTranslationLine("tj.multiblock.parallel.debug.cache.capacity", this.recipeMapWorkable.previousRecipe.getCachedRecipeCount())
+        builder.addTranslationLine("tj.multiblock.parallel.debug.cache.capacity", TJValues.thousandFormat.format(this.recipeMapWorkable.previousRecipe.getCachedRecipeCount()))
                 .addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))),
-                        "tj.multiblock.parallel.debug.cache.hit", this.recipeMapWorkable.previousRecipe.getCacheHit())
+                        "tj.multiblock.parallel.debug.cache.hit", TJValues.thousandFormat.format(this.recipeMapWorkable.previousRecipe.getCacheHit()))
                 .addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))),
-                        "tj.multiblock.parallel.debug.cache.miss", this.recipeMapWorkable.previousRecipe.getCacheMiss())
+                        "tj.multiblock.parallel.debug.cache.miss", TJValues.thousandFormat.format(this.recipeMapWorkable.previousRecipe.getCacheMiss()))
                 .addEmptyLine();
         int i = 1;
         for (Recipe recipe : ((Iterable<Recipe>) this.recipeMapWorkable.previousRecipe)) {

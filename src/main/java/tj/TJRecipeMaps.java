@@ -1,6 +1,10 @@
 package tj;
 
 
+import gregicadditions.recipes.GARecipeMaps;
+import gregicadditions.recipes.impl.LargeRecipeBuilder;
+import gregicadditions.recipes.impl.LargeRecipeMap;
+import gregtech.api.recipes.Recipe;
 import tj.builder.recipes.RecipeMapLargeAssemblyLine;
 import tj.builder.recipes.SteamRecipeBuilder;
 import gregtech.api.gui.GuiTextures;
@@ -39,6 +43,9 @@ public final class TJRecipeMaps {
 
     public static final RecipeMapLargeAssemblyLine LARGE_ASSEMBLY_LINE_RECIPES = new RecipeMapLargeAssemblyLine("large_assembly_line", 1, 256, 1, 1, 0, 64, 0, 0);
 
+    public static final LargeRecipeMap INTERSTELLAR_FORGE_RECIPES = (LargeRecipeMap) new LargeRecipeMap("interstellar_forge", 0, 6, 0, 6, 0, 6, 0, 6, (new LargeRecipeBuilder(GARecipeMaps.STELLAR_FORGE_RECIPES)))
+            .setProgressBar(GuiTextures.PROGRESS_BAR_BATH, ProgressWidget.MoveType.HORIZONTAL);
+
     public static RecipeMap<?> COKE_OVEN_RECIPES;
     public static RecipeMap<?> PRIMITIVE_ALLOY_RECIPES;
     public static RecipeMap<?> HEAT_EXCHANGER_RECIPES;
@@ -47,4 +54,24 @@ public final class TJRecipeMaps {
     public static RecipeMap<?> DRAGON_REPLICATOR_RECIPES;
     public static RecipeMap<?> LARGE_POWERED_SPAWNER_RECIPES;
     public static RecipeMap<?> LARGE_VIAL_PROCESSOR_RECIPES;
+
+    public static void registerLargeMachineRecipes(RecipeMap<?> mapToCopy, RecipeMap<LargeRecipeBuilder> mapToForm) {
+
+        for (Recipe recipe : mapToCopy.getRecipeList()) {
+
+            LargeRecipeBuilder largeRecipeBuilder = mapToForm.recipeBuilder()
+                    .EUt(recipe.getEUt())
+                    .duration(recipe.getDuration())
+                    .inputsIngredients(recipe.getInputs())
+                    .outputs(recipe.getOutputs())
+                    .fluidInputs(recipe.getFluidInputs())
+                    .fluidOutputs(recipe.getFluidOutputs());
+
+            // TODO Giving better way to do this in GTCE
+            for (Recipe.ChanceEntry entry : recipe.getChancedOutputs())
+                largeRecipeBuilder.chancedOutput(entry.getItemStack(), entry.getChance(), entry.getBoostPerTier());
+
+            largeRecipeBuilder.buildAndRegister();
+        }
+    }
 }

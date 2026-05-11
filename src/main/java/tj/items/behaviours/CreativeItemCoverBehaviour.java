@@ -21,6 +21,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
+import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -30,7 +31,7 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         if (!world.isRemote && hand == EnumHand.MAIN_HAND) {
-            PlayerInventoryHolder holder = new PlayerInventoryHolder(player, hand);
+            final PlayerInventoryHolder holder = new PlayerInventoryHolder(player, hand);
             holder.openUI();
             return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
         }
@@ -39,29 +40,37 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
 
     @Override
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
-        ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-        NBTTagCompound compound = stack.getOrCreateSubCompound("init");
+        final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
+        final NBTTagCompound compound = stack.getOrCreateSubCompound("init");
         if (!compound.hasKey("speed"))
             compound.setInteger("speed", 1);
         if (!compound.hasKey("power"))
             compound.setBoolean("power", false);
-        SimpleItemFilter itemFilter = new SimpleItemFilter() {
+        final SimpleItemFilter itemFilter = new SimpleItemFilter() {
+
             @Override
-            protected void onMaxStackSizeChange() {
-                super.onMaxStackSizeChange();
-                for (int i = 0; i < this.itemFilterSlots.getSlots(); i++) {
-                    ItemStack stack = this.itemFilterSlots.getStackInSlot(i);
-                    if (!stack.isEmpty())
-                        compound.setTag("slot:" + i, stack.serializeNBT());
-                    else compound.removeTag("slot:" + i);
+            public void initUI(Consumer<Widget> widgetGroup) {
+                for (int i = 0; i < 9; i++) {
+                    widgetGroup.accept(new TJPhantomItemSlotWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilterSlots, itemStack -> {
+                        for (int j = 0; j < this.itemFilterSlots.getSlots(); j++) {
+                            final ItemStack stack = this.itemFilterSlots.getStackInSlot(j);
+                            if (!stack.isEmpty())
+                                compound.setTag("slot:" + j, stack.serializeNBT());
+                            else compound.removeTag("slot:" + j);
+                        }
+                    }).setBackgroundTextures(GuiTextures.SLOT));
                 }
+                widgetGroup.accept(new ToggleButtonWidget(74, 0, 20, 20, GuiTextures.BUTTON_FILTER_DAMAGE,
+                        () -> this.ignoreDamage, this::setIgnoreDamage).setTooltipText("cover.item_filter.ignore_damage"));
+                widgetGroup.accept(new ToggleButtonWidget(99, 0, 20, 20, GuiTextures.BUTTON_FILTER_NBT,
+                        () -> this.ignoreNBT, this::setIgnoreNBT).setTooltipText("cover.item_filter.ignore_nbt"));
             }
         };
         for (int i = 0; i < 9; i++) {
             if (compound.hasKey("slot:" + i))
                 itemFilter.getItemFilterSlots().setStackInSlot(i, new ItemStack(compound.getCompoundTag("slot:" + i)));
         }
-        Consumer<Widget.ClickData> onIncrement = clickData -> {
+        final Consumer<Widget.ClickData> onIncrement = clickData -> {
             int speed = compound.getInteger("speed");
             int value = clickData.isCtrlClick ? 100
                     : clickData.isShiftClick ? 10
@@ -69,7 +78,7 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
             speed = MathHelper.clamp(speed +value, 1, Integer.MAX_VALUE);
             compound.setInteger("speed", speed);
         };
-        Consumer<Widget.ClickData> onDecrement = clickData -> {
+        final Consumer<Widget.ClickData> onDecrement = clickData -> {
             int speed = compound.getInteger("speed");
             int value = clickData.isCtrlClick ? 100
                     : clickData.isShiftClick ? 10
@@ -77,7 +86,7 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
             speed = MathHelper.clamp(speed -value, 1, Integer.MAX_VALUE);
             compound.setInteger("speed", speed);
         };
-        WidgetGroup itemFilterGroup = new WidgetGroup(new Position(51, 25));
+        final WidgetGroup itemFilterGroup = new WidgetGroup(new Position(51, 25));
         itemFilterGroup.addWidget(new LabelWidget(-15, -15, "cover.creative_item.title"));
         itemFilterGroup.addWidget(new ImageWidget(10, 55, 55, 18, GuiTextures.DISPLAY));
         itemFilterGroup.addWidget(new AdvancedTextWidget(12, 60, textList -> textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", compound.getInteger("speed"))), 0xFFFFFF));

@@ -303,10 +303,10 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockControllerB
                         .appendSibling(new TextComponentString(name).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
                                         .appendText("\n")
                                         .appendSibling(new TextComponentTranslation("machine.universal.linked.entity.radius",
-                                                isMetaTileEntity && metaTileEntity instanceof MetaTileEntityAcceleratorAnchorPoint ? this.tier : 0,
-                                                isMetaTileEntity && metaTileEntity instanceof MetaTileEntityAcceleratorAnchorPoint ? this.tier : 0))
+                                                TJValues.thousandFormat.format(isMetaTileEntity && metaTileEntity instanceof MetaTileEntityAcceleratorAnchorPoint ? this.tier : 0),
+                                                TJValues.thousandFormat.format(isMetaTileEntity && metaTileEntity instanceof MetaTileEntityAcceleratorAnchorPoint ? this.tier : 0)))
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.pos", pos.getX(), pos.getY(), pos.getZ()))))))
+                                        .appendSibling(new TextComponentTranslation("machine.universal.linked.pos", TJValues.thousandFormat.format(pos.getX()), TJValues.thousandFormat.format(pos.getY()), TJValues.thousandFormat.format(pos.getZ()))))))
                                 .appendText("\n")
                                 .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i)))
                         .appendText(" ")

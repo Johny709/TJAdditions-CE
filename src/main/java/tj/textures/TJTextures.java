@@ -59,12 +59,17 @@ public class TJTextures {
     public static final TJSimpleOverlayRenderer INSIDE_OVERLAY_BASE = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/inside_overlay_base");
     public static final TJSimpleOverlayRenderer PORTAL_OVERLAY = new TJSimpleOverlayRenderer("minecraft", "blocks/portal");
     public static final TJSimpleOverlayRenderer SUPER_HATCH_OVERLAY = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/overlay/super_hatch_overlay");
+    public static final TJSimpleOverlayRenderer VOID_ITEM_COVER_OVERLAY = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/void_item_cover_overlay");
+    public static final TJSimpleOverlayRenderer VOID_FLUID_COVER_OVERLAY = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/void_fluid_cover_overlay");
+    public static final TJSimpleOverlayRenderer VOID_ENERGY_COVER_OVERLAY = new TJSimpleOverlayRenderer(TJ.MODID, "blocks/cover/void_energy_cover_overlay");
     public static final TJOrientedOverlayRenderer TELEPORTER_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/teleporter", "teleporter", TOP);
     public static final TJOrientedOverlayRenderer TJ_MULTIBLOCK_WORKABLE_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/multiblock_workable", FRONT);
     public static final TJOrientedOverlayRenderer TJ_ASSEMBLER_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/assembler", FRONT, TOP);
     public static final TJOrientedOverlayRenderer TJ_FUSION_REACTOR_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/fusion_reactor", FRONT);
     public static final TJOrientedOverlayRenderer TJ_DISTILLERY_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/distillery", FRONT);
     public static final TJOrientedOverlayRenderer TJ_QUBIT_COMPUTER_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/qubit_computer", FRONT);
+    public static final TJOrientedOverlayRenderer TJ_NUCLEAR_REACTOR_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/nuclear_reactor", FRONT);
+    public static final TJOrientedOverlayRenderer TJ_ORGANIC_REPLICATOR_OVERLAY = new TJOrientedOverlayRenderer(GTValues.MODID, "machines/organic_replicator_2", FRONT, TOP, BOTTOM);
 
     public static final TJSimpleCubeRenderer FUSION_MK2 = new TJSimpleCubeRenderer(GTValues.MODID, "blocks/casings/fusion/machine_casing_fusion_2");
     public static final TJSimpleCubeRenderer FUSION_PORT_LUV = new TJSimpleCubeRenderer(TJ.MODID, "blocks/casings/ability/fusion_energy_port_luv");

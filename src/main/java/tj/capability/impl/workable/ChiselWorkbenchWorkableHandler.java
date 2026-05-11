@@ -3,6 +3,7 @@ package tj.capability.impl.workable;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import team.chisel.api.carving.CarvingUtils;
@@ -14,20 +15,16 @@ import tj.capability.TJCapabilities;
 import tj.capability.AbstractWorkableHandler;
 import tj.util.TJItemUtils;
 
-import javax.annotation.Nonnull;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IItemFluidHandlerInfo {
 
+    private final List<ItemStack> itemInputs = new ArrayList<>();
+    private final List<ItemStack> itemOutputs = new ArrayList<>();
     private int circuitNumber;
-
-    @Nonnull
-    private ItemStack input = ItemStack.EMPTY;
-
-    @Nonnull
-    private ItemStack output = ItemStack.EMPTY;
+    private int outputIndex;
 
     public ChiselWorkbenchWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -59,10 +56,6 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
             foundRecipe = this.findCircuit(itemInputs) && this.findInputs(itemInputs);
         }
         if (foundRecipe) {
-            List<ICarvingVariation> carvingGroups = CarvingUtils.getChiselRegistry().getGroup(this.input).getVariations();
-            int variation = Math.min(this.circuitNumber, carvingGroups.size() - 1);
-            this.output = carvingGroups.get(variation).getStack();
-            this.output.setCount(this.input.getCount());
             this.maxProgress = this.calculateOverclock(30, 200, 2.8F);
             return true;
         }
@@ -71,53 +64,55 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
 
     @Override
     protected boolean completeRecipe() {
-        if (TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), this.output, true).isEmpty()) {
-            TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), this.output, false);
-            this.input = ItemStack.EMPTY;
-            this.output = ItemStack.EMPTY;
-            return true;
+        for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
+            final ItemStack stack = this.itemOutputs.get(i);
+            if (TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
+                TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
+                this.outputIndex++;
+            } else return false;
         }
-        return false;
+        this.outputIndex = 0;
+        this.itemInputs.clear();
+        this.itemOutputs.clear();
+        return true;
     }
 
     private boolean findCircuit(IItemHandlerModifiable itemInputs) {
         this.circuitNumber = 0;
+        boolean foundCircuit = false;
         for (int i = 0; i < itemInputs.getSlots(); i++) {
-            ItemStack stack = itemInputs.getStackInSlot(i);
-            NBTTagCompound compound = stack.getTagCompound();
+            final ItemStack stack = itemInputs.getStackInSlot(i);
+            final NBTTagCompound compound = stack.getTagCompound();
             if (this.isCircuitStack(compound)) {
                 this.circuitNumber += compound.getInteger("Configuration");
+                foundCircuit = true;
             }
         }
-        return true;
+        return foundCircuit;
     }
 
     private boolean findInputs(IItemHandlerModifiable itemInputs) {
         int availableParallels = this.handler.getParallel();
-        int count = 0;
-        for (int i = 0; i < itemInputs.getSlots(); i++) {
-            ItemStack stack = itemInputs.getStackInSlot(i);
-            if (stack.isEmpty() || this.isCircuitStack(stack.getTagCompound()))
-                continue;
-            if (this.input.isEmpty()) {
-                ICarvingGroup carvingGroup = CarvingUtils.getChiselRegistry().getGroup(stack);
-                if (carvingGroup != null) {
-                    List<ICarvingVariation> carvingVariations = carvingGroup.getVariations();
-                    if (carvingVariations != null && !carvingVariations.isEmpty())
-                        this.input = stack.copy();
+        for (int i = 0; i < itemInputs.getSlots() && availableParallels > 0; i++) {
+            final ItemStack stack = itemInputs.getStackInSlot(i);
+            if (stack.isEmpty() || this.isCircuitStack(stack.getTagCompound())) continue;
+            final ItemStack input = this.handler.getImportItemInventory().extractItem(i, availableParallels, true);
+            if (input.isEmpty()) continue;
+            final ICarvingGroup carvingGroup = CarvingUtils.getChiselRegistry().getGroup(stack);
+            if (carvingGroup != null) {
+                final List<ICarvingVariation> carvingVariations = carvingGroup.getVariations();
+                if (carvingVariations != null && !carvingVariations.isEmpty()) {
+                    final int variation = Math.min(this.circuitNumber, carvingVariations.size() - 1);
+                    final int inputCount = this.handler.getImportItemInventory().extractItem(i, availableParallels, false).getCount();
+                    final ItemStack output = carvingVariations.get(variation).getStack().copy();
+                    output.setCount(inputCount);
+                    this.itemInputs.add(input);
+                    this.itemOutputs.add(output);
+                    availableParallels -= inputCount;
                 }
             }
-            if (!stack.isItemEqual(this.input))
-                continue;
-            int reminder = Math.min(stack.getCount(), availableParallels);
-            if (this.handler.getImportItemInventory().extractItem(i, reminder, true).getCount() == reminder) {
-                this.handler.getImportItemInventory().extractItem(i, reminder, false);
-                availableParallels -= reminder;
-                count += reminder;
-                this.input.setCount(count);
-            }
         }
-        return count > 0;
+        return availableParallels != this.handler.getParallel();
     }
 
     private boolean isCircuitStack(NBTTagCompound compound) {
@@ -126,23 +121,29 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound compound = super.serializeNBT();
+        final NBTTagCompound compound = super.serializeNBT();
+        final NBTTagList itemInputList = new NBTTagList(), itemOutputList = new NBTTagList();
+        for (ItemStack stack : this.itemInputs)
+            itemInputList.appendTag(stack.serializeNBT());
+        for (ItemStack stack : this.itemOutputs)
+            itemOutputList.appendTag(stack.serializeNBT());
+        compound.setTag("itemInputs", itemInputList);
+        compound.setTag("itemOutputs", itemOutputList);
+        compound.setInteger("outputIndex", this.outputIndex);
         compound.setInteger("circuitNumber", this.circuitNumber);
-        if (!this.input.isEmpty())
-            compound.setTag("itemInput", this.input.serializeNBT());
-        if (!this.output.isEmpty())
-            compound.setTag("itemOutput", this.output.serializeNBT());
         return compound;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
         super.deserializeNBT(compound);
+        final NBTTagList itemInputList = compound.getTagList("itemInputs", 10), itemOutputList = compound.getTagList("itemOutputs", 10);
         this.circuitNumber = compound.getInteger("circuitNumber");
-        if (compound.hasKey("itemInput"))
-            this.input = new ItemStack(compound.getCompoundTag("itemInput"));
-        if (compound.hasKey("itemOutput"))
-            this.output = new ItemStack(compound.getCompoundTag("itemOutput"));
+        this.outputIndex = compound.getInteger("outputIndex");
+        for (int i = 0; i < itemInputList.tagCount(); i++)
+            this.itemInputs.add(new ItemStack(itemInputList.getCompoundTagAt(i)));
+        for (int i = 0; i < itemOutputList.tagCount(); i++)
+            this.itemOutputs.add(new ItemStack(itemOutputList.getCompoundTagAt(i)));
     }
 
     @Override
@@ -154,11 +155,11 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
 
     @Override
     public List<ItemStack> getItemInputs() {
-        return !this.input.isEmpty() ? Collections.singletonList(this.input) : null;
+        return this.itemInputs;
     }
 
     @Override
     public List<ItemStack> getItemOutputs() {
-        return !this.output.isEmpty() ? Collections.singletonList(this.output) : null;
+        return this.itemOutputs;
     }
 }

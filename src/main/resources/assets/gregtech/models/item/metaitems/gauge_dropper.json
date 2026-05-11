@@ -1,0 +1,20 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "gregtech:items/metaitems/gauge_dropper/base"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "gregtech:gauge_dropper_void": 0.0
+      },
+      "model": "gregtech:item/metaitems/gauge_dropper/base"
+    },
+    {
+      "predicate": {
+        "gregtech:gauge_dropper_void": 1.0
+      },
+      "model": "gregtech:item/metaitems/gauge_dropper/base_2"
+    }
+  ]
+}

@@ -78,7 +78,7 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
             final int x = 18 + 18 * (i % 4);
             final int y = 18 * (i / 4);
             widgetGroup.addWidget(new TJPhantomItemSlotWidget(x, y, 18, 18, i, this.importItems, fluidStack -> {})
-                    .setBackgroundTexture(GuiTextures.SLOT));
+                    .setBackgroundTextures(GuiTextures.SLOT));
             selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(21, -14, 72, 18, () -> String.valueOf(this.importItems.getStackInSlot(finalI).getCount()), (text, id) -> {
                 final ItemStack stack = this.importItems.getStackInSlot(finalI);
                 if (!stack.isEmpty())

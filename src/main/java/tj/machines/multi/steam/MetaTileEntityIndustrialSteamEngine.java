@@ -42,7 +42,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
@@ -98,18 +97,18 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
         super.addDisplayText(builder);
         if (!isStructureFormed()) return;
         builder.customLine(text -> {
-                    text.addTextComponent(new TextComponentString(TextUtils.translate("machine.universal.consuming.seconds", this.workableHandler.getConsumption(),
-                            TextUtils.translate(this.workableHandler.getFuelName()),
-                            this.workableHandler.getMaxProgress() / 20)));
+                    text.addTranslationLine("machine.universal.consuming.seconds", TJValues.thousandFormat.format(this.workableHandler.getConsumption()),
+                            TextUtils.translate(this.workableHandler.getFuelName(),
+                            TJValues.thousandFormat.format(this.workableHandler.getMaxProgress() / 20)));
                     final FluidStack fuelStack = this.workableHandler.getFuelStack();
                     final int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
                     final ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
-                    text.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.fuel_amount", fuelAmount, fuelName.getUnformattedText())));
+                    text.addTranslationLine("tj.multiblock.fuel_amount", TJValues.thousandFormat.format(fuelAmount), fuelName.getUnformattedText());
 
-                    text.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.extreme_turbine.energy", this.workableHandler.getProduction())));
+                    text.addTranslationLine("tj.multiblock.extreme_turbine.energy", TJValues.thousandFormat.format(this.workableHandler.getProduction()));
 
-                    text.addTextComponent(new TextComponentTranslation("gregtech.universal.tooltip.efficiency", TJValues.thousandFormat.format(this.efficiency * 100)).setStyle(new Style().setColor(AQUA)));
+                    text.addTranslationLine(text1 -> text1.setStyle(new Style().setColor(AQUA)), "gregtech.universal.tooltip.efficiency", TJValues.thousandFormat.format(this.efficiency * 100));
 
                     if (!this.workableHandler.isVoidEnergy() && this.outputEnergyContainer.getEnergyCanBeInserted() < this.workableHandler.getProduction())
                         text.addTextComponent(new TextComponentTranslation("machine.universal.output.full").setStyle(new Style().setColor(RED)));

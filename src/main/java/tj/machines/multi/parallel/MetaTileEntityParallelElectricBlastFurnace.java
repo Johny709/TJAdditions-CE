@@ -98,12 +98,9 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
             duration /= 4;
             recipeEUt *= 4;
         }
-        overclockManager.setParallel(1);
+        overclockManager.setParallel(this.batchMode.getAmount());
         overclockManager.setEUtAndDuration(recipeEUt / 4, duration);
     }
-
-    @Override
-    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {}
 
     @Override
     protected void addDisplayText(GUIDisplayBuilder builder) {

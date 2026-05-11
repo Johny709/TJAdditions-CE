@@ -1083,6 +1083,7 @@ public class TJConfig {
         public int maximumSlices = 256;
     }
 
+    @Config.Comment("InterStellar Forge")
     public static InterStellarForge interStellarForge = new InterStellarForge();
 
     public static class InterStellarForge {
@@ -1101,5 +1102,70 @@ public class TJConfig {
         @Config.Name("Stack Size")
         @Config.RequiresMcRestart
         public int stack = 16;
+    }
+
+    @Config.Comment("Large Bio Reactor")
+    public static LargeBioReactor largeBioReactor = new LargeBioReactor();
+
+    public static class LargeBioReactor {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Stack Size")
+        @Config.RequiresMcRestart
+        public int stack = 16;
+    }
+
+    @Config.Comment("Large Gas Centrifuge")
+    public static LargeGasCentrifuge largeGasCentrifuge = new LargeGasCentrifuge();
+
+    public static class LargeGasCentrifuge {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Slice Limit")
+        @Config.Comment("Adjust the maximum number of slices the large gas centrifuge can have")
+        @Config.RequiresMcRestart
+        public int maximumSlices = 64;
+    }
+
+    @Config.Comment("Large Nuclear Reactor")
+    public static LargeNuclearReactor largeNuclearReactor = new LargeNuclearReactor();
+
+    public static class LargeNuclearReactor {
+        @Config.Name("EU/t Percentage")
+        @Config.RequiresMcRestart
+        public int eutPercentage = 90;
+
+        @Config.Name("Duration Percentage")
+        @Config.RequiresMcRestart
+        public int durationPercentage = 80;
+
+        @Config.Name("Chance Percentage")
+        @Config.RequiresMcRestart
+        public int chancePercentage = 100;
+
+        @Config.Name("Slice Limit")
+        @Config.Comment("Adjust the maximum number of slices the large gas centrifuge can have")
+        @Config.RequiresMcRestart
+        public int maximumSlices = 64;
     }
 }

@@ -44,6 +44,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.impl.workable.BatteryChargerWorkableHandler;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
@@ -353,11 +354,11 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockControllerBas
                         .setStyle(new Style()
                                 .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.energy.stored", totalEnergyStored, totalEnergyCapacity)))
+                                        .appendSibling(new TextComponentTranslation("machine.universal.energy.stored", TJValues.thousandFormat.format(totalEnergyStored), TJValues.thousandFormat.format(totalEnergyCapacity)))
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.dimension", dimensionName, dimensionID)))
+                                        .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", dimensionName, TJValues.thousandFormat.format(dimensionID)))
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.linked.pos", x, y, z))))))
+                                        .appendSibling(new TextComponentTranslation("machine.universal.linked.pos", TJValues.thousandFormat.format(x), TJValues.thousandFormat.format(y), TJValues.thousandFormat.format(z))))))
                         .appendText("\n")
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i))
                         .appendText(" ")

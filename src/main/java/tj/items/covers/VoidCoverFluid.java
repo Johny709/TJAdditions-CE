@@ -5,12 +5,13 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
-import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.PhantomFluidWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
 import gregtech.common.covers.filter.SimpleFluidFilter;
@@ -18,20 +19,37 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
-import net.minecraftforge.fluids.IFluidTank;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.textures.TJTextures;
 
+import java.util.function.Consumer;
+
 public class VoidCoverFluid extends CoverBehavior implements CoverWithUI, ITickable {
 
-    private final SimpleFluidFilter fluidFilter = new SimpleFluidFilter();
-    private final IMultipleTankHandler fluidHandler;
+    private final SimpleFluidFilter fluidFilter = new SimpleFluidFilter() {
+        @Override
+        public void initUI(Consumer<Widget> widgetGroup) {
+            for (int i = 0; i < 9; ++i) {
+                int index = i;
+                widgetGroup.accept((new PhantomFluidWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18,
+                        () -> this.getFluidInSlot(index),
+                        (newFluid) -> {
+                    newFluid = newFluid.copy();
+                    newFluid.amount = Integer.MAX_VALUE;
+                    this.setFluidInSlot(index, newFluid);
+                })).setBackgroundTexture(GuiTextures.SLOT));
+            }
+        }
+    };
+    private final IFluidHandler fluidHandler;
 
     public VoidCoverFluid(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
-        this.fluidHandler = (IMultipleTankHandler) this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, this.attachedSide);
+        this.fluidHandler = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, this.attachedSide);
     }
 
     @Override
@@ -41,7 +59,8 @@ public class VoidCoverFluid extends CoverBehavior implements CoverWithUI, ITicka
 
     @Override
     public void renderCover(CCRenderState ccRenderState, Matrix4 matrix4, IVertexOperation[] iVertexOperations, Cuboid6 cuboid6, BlockRenderLayer blockRenderLayer) {
-        TJTextures.COVER_CREATIVE_FLUID.renderSided(this.attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
+        TJTextures.VOID_FLUID_COVER_OVERLAY.renderSided(this.attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
+        TJTextures.OUTSIDE_OVERLAY_BASE.renderSided(this.attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
     }
 
     @Override
@@ -65,9 +84,10 @@ public class VoidCoverFluid extends CoverBehavior implements CoverWithUI, ITicka
 
     @Override
     public void update() {
-        for (IFluidTank tank : this.fluidHandler) {
-            if (this.fluidFilter.testFluid(tank.getFluid()))
-                tank.drain(Integer.MAX_VALUE, true);
+        for (int i = 0; i < 9; i++) {
+            final FluidStack stack = this.fluidFilter.getFluidInSlot(i);
+            if (stack != null)
+                this.fluidHandler.drain(stack, true);
         }
     }
 

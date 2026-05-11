@@ -7,6 +7,7 @@ import gregtech.api.metatileentity.MTETrait;
 import net.minecraft.item.Item;
 import net.minecraft.util.text.Style;
 import net.minecraftforge.fluids.FluidStack;
+import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.impl.workable.TeleporterWorkableHandler;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
@@ -199,9 +200,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
                 .addVoltageTierLine(this.tier)
                 .customLine(text -> {
                     if (selectedPos != null) {
-                        text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.world", world != null ? world.provider.getDimensionType().getName() : "Null", worldID)));
-                        text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.teleporter.selected.pos", pos.getX(), pos.getY(), pos.getZ())));
-                        text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("metaitem.linking.device.range", distance)));
+                        text.addTextComponent(new TextComponentTranslation("tj.multiblock.teleporter.selected.world", world != null ? world.provider.getDimensionType().getName() : "Null", TJValues.thousandFormat.format(worldID)));
+                        text.addTextComponent(new TextComponentTranslation("tj.multiblock.teleporter.selected.pos", TJValues.thousandFormat.format(pos.getX()), TJValues.thousandFormat.format(pos.getY()), TJValues.thousandFormat.format(pos.getZ())));
+                        text.addTextComponent(new TextComponentTranslation("metaitem.linking.device.range", TJValues.thousandFormat.format(distance)));
                     }
                 }).addEnergyInputLine(this.inputEnergyContainer, distanceEU, this.workableHandler.getMaxProgress())
                 .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
@@ -386,9 +387,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), rename));
 
                 ITextComponent blockPos = new TextComponentString(key + "\n")
-                        .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldName, worldID)))
+                        .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", worldName, TJValues.thousandFormat.format(worldID)))
                         .appendText("\n")
-                        .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.pos", pos.getX(), pos.getY(), pos.getZ())));
+                        .appendSibling(new TextComponentTranslation("machine.universal.linked.pos", TJValues.thousandFormat.format(pos.getX()), TJValues.thousandFormat.format(pos.getY()), TJValues.thousandFormat.format(pos.getZ())));
 
                 keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
                 builder.addTextComponent(keyPos);
@@ -412,14 +413,12 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
                 String worldName = world != null ? world.provider.getDimensionType().getName() : "Null";
                 int worldID = queueEntry.getMiddle();
 
-                String position = I18n.translateToLocal("machine.universal.linked.pos") + " X: §e" + pos.getX() + "§r Y: §e" + pos.getY() + "§r Z: §e" + pos.getZ();
-
                 ITextComponent keyPos = new TextComponentString(": [§a" + (++results) + "§r] " + key);
 
                 ITextComponent blockPos = new TextComponentString(results + ": " + key + "\n")
-                        .appendSibling(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.linked.dimension", worldName, worldID)))
+                        .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", worldName, TJValues.thousandFormat.format(worldID)))
                         .appendText("\n")
-                        .appendSibling(new TextComponentString(position));
+                        .appendSibling(new TextComponentTranslation("machine.universal.linked.pos", TJValues.thousandFormat.format(pos.getX()), TJValues.thousandFormat.format(pos.getY()), TJValues.thousandFormat.format(pos.getZ())));
 
                 keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
                 builder.addTextComponent(keyPos);

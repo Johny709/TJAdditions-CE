@@ -73,7 +73,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
     @Override
     protected boolean completeRecipe() {
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
-            ItemStack stack = this.itemOutputs.get(i);
+            final ItemStack stack = this.itemOutputs.get(i);
             if (TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
                 TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
                 this.outputIndex++;
@@ -90,7 +90,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
 
     private boolean findCatalyst(IItemHandlerModifiable itemInputs) {
         for (int i = 0; i < itemInputs.getSlots(); i++) {
-            ItemStack stack = itemInputs.getStackInSlot(i);
+            final ItemStack stack = itemInputs.getStackInSlot(i);
             if (!stack.isEmpty() && this.isEnchanted(stack.getTagCompound())) {
                 this.catalystIndex = i;
                 this.catalyst = stack;
@@ -103,7 +103,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
     private boolean findInputs(IItemHandlerModifiable itemInputs, boolean simulate) {
         int applied = 0;
         for (int i = 0; i < itemInputs.getSlots(); i++) {
-            ItemStack stack = itemInputs.getStackInSlot(i);
+            final ItemStack stack = itemInputs.getStackInSlot(i);
             ItemStack catalystStack = null;
             if (i != this.catalystIndex && !stack.isEmpty()) {
                 catalystStack = this.catalyst.copy();
@@ -126,17 +126,17 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
 
     private int applyEnchantments(ItemStack catalyst, int slot, boolean simulate) {
         int applied = 0, parallelsUsed = 0;
-        ItemStack stack = this.handler.getImportItemInventory().getStackInSlot(slot);
-        NBTTagList catalystEnchants = this.getEnchantments(catalyst.getTagCompound()), newCatalystEnchants = new NBTTagList();
-        NBTTagList stackEnchants = this.getEnchantments(stack.getTagCompound()), newStackEnchants = new NBTTagList();
+        final ItemStack stack = this.handler.getImportItemInventory().getStackInSlot(slot);
+        final NBTTagList catalystEnchants = this.getEnchantments(catalyst.getTagCompound()), newCatalystEnchants = new NBTTagList();
+        final NBTTagList stackEnchants = this.getEnchantments(stack.getTagCompound()), newStackEnchants = new NBTTagList();
         for (int i = 0; i < catalystEnchants.tagCount(); i++) {
-            NBTTagCompound catalystCompound = catalystEnchants.getCompoundTagAt(i);
+            final NBTTagCompound catalystCompound = catalystEnchants.getCompoundTagAt(i);
             boolean hasApplied = false;
-            short catalystEnchant = catalystCompound.getShort("id");
-            short catalystLevel = catalystCompound.getShort("lvl");
+            final short catalystEnchant = catalystCompound.getShort("id");
+            final short catalystLevel = catalystCompound.getShort("lvl");
             for (int j = 0; j < stackEnchants.tagCount() && parallelsUsed < this.handler.getParallel(); j++) {
-                NBTTagCompound stackCompound = stackEnchants.getCompoundTagAt(i);
-                short stackEnchant = stackCompound.getShort("id");
+                final NBTTagCompound stackCompound = stackEnchants.getCompoundTagAt(i);
+                final short stackEnchant = stackCompound.getShort("id");
                 short stackLevel = stackCompound.getShort("lvl");
                 if (stackEnchant == catalystEnchant) {
                     stackLevel = catalystLevel == stackLevel ? (short) (catalystLevel + 1)
@@ -148,13 +148,13 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
                     applied += stackLevel;
                     parallelsUsed++;
                 }
-                NBTTagCompound newStackCompound = new NBTTagCompound();
+                final NBTTagCompound newStackCompound = new NBTTagCompound();
                 newStackCompound.setShort("id", stackEnchant);
                 newStackCompound.setShort("lvl", stackLevel);
                 newStackEnchants.appendTag(newStackCompound);
             }
             if (!hasApplied) {
-                NBTTagCompound newCatalystCompound = new NBTTagCompound();
+                final NBTTagCompound newCatalystCompound = new NBTTagCompound();
                 newCatalystCompound.setShort("id", catalystEnchant);
                 newCatalystCompound.setShort("lvl", catalystLevel);
                 if (parallelsUsed < this.handler.getParallel()) {
@@ -174,7 +174,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
     }
 
     private ItemStack setBookOrEnchantedBook(ItemStack stack) {
-        NBTTagCompound compound = stack.getTagCompound();
+         final NBTTagCompound compound = stack.getTagCompound();
         if (stack.getItem() == Items.ENCHANTED_BOOK && !this.isEnchanted(compound))
             stack = new ItemStack(Items.BOOK);
         if (stack.getItem() == Items.BOOK && this.isEnchanted(compound)) {
@@ -191,7 +191,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
     private NBTTagList getEnchantments(NBTTagCompound compound) {
         if (compound == null)
             return new NBTTagList();
-        NBTTagList enchantmentsList = compound.getTagList("ench", 10);
+        final NBTTagList enchantmentsList = compound.getTagList("ench", 10);
         if (enchantmentsList.tagCount() > 0)
             return enchantmentsList;
         else return compound.getTagList("StoredEnchantments", 10);
@@ -216,8 +216,8 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound compound = super.serializeNBT();
-        NBTTagList itemInputs = new NBTTagList(), itemOutputs = new NBTTagList(), fluidInputs = new NBTTagList();
+        final NBTTagCompound compound = super.serializeNBT();
+        final NBTTagList itemInputs = new NBTTagList(), itemOutputs = new NBTTagList(), fluidInputs = new NBTTagList();
         for (ItemStack stack : this.itemInputs)
             itemInputs.appendTag(stack.serializeNBT());
         for (ItemStack stack : this.itemOutputs)
@@ -237,7 +237,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
         super.deserializeNBT(compound);
         this.outputIndex = compound.getInteger("outputIndex");
         this.experience = compound.getInteger("experience");
-        NBTTagList itemInputs = compound.getTagList("itemInputs", 10), itemOutputs = compound.getTagList("itemOutputs", 10),
+        final NBTTagList itemInputs = compound.getTagList("itemInputs", 10), itemOutputs = compound.getTagList("itemOutputs", 10),
                 fluidInputs = compound.getTagList("fluidInputs", 10);
         for (int i = 0; i < itemInputs.tagCount(); i++)
             this.itemInputs.add(new ItemStack(itemInputs.getCompoundTagAt(i)));

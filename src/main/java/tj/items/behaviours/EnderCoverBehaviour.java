@@ -3,6 +3,7 @@ package tj.items.behaviours;
 import gregtech.api.items.metaitem.stats.IItemBehaviour;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
+import tj.TJValues;
 
 import java.util.List;
 
@@ -23,8 +24,8 @@ public class EnderCoverBehaviour implements IItemBehaviour {
     @Override
     public void addInformation(ItemStack itemStack, List<String> lines) {
         lines.add(I18n.format("metaitem.ender_cover.description"));
-        lines.add(I18n.format("metaitem.ender_cover.transfer", this.transferRate));
-        lines.add(I18n.format("metaitem.ender_cover.capacity", this.capacity));
+        lines.add(I18n.format("metaitem.ender_cover.transfer", TJValues.thousandFormat.format(this.transferRate)));
+        lines.add(I18n.format("metaitem.ender_cover.capacity", TJValues.thousandFormat.format(this.capacity)));
     }
 
     public enum EnderCoverType {

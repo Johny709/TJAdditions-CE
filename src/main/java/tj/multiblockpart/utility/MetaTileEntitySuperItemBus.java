@@ -72,8 +72,8 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
                 : this.getTier() < GAValues.MAX ? 16384
                 : Integer.MAX_VALUE;
 
-        tooltip.add(I18n.format("machine.universal.stack", size));
-        tooltip.add(I18n.format("machine.universal.slots", slots));
+        tooltip.add(I18n.format("machine.universal.stack", TJValues.thousandFormat.format(size)));
+        tooltip.add(I18n.format("machine.universal.slots", TJValues.thousandFormat.format(slots)));
         tooltip.add(I18n.format("gregtech.universal.enabled"));
     }
 

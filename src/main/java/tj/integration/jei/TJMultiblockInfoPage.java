@@ -118,8 +118,8 @@ public abstract class TJMultiblockInfoPage extends MultiblockInfoPage {
                 I18n.format("gtadditions.multiblock.universal.tooltip.1", builder.toString()),
                 I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(controller.getEUtMultiplier() / 100.0)),
                 I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(controller.getDurationMultiplier() / 100.0)),
-                I18n.format("tj.multiblock.parallel.tooltip.1", controller.getParallel()).replace("§7", "§0").replace("§r", "§r§0"),
-                I18n.format("tj.multiblock.parallel.tooltip.2", controller.getMaxParallel()),
+                I18n.format("tj.multiblock.parallel.tooltip.1", TJValues.thousandFormat.format(controller.getParallel())).replace("§7", "§0").replace("§r", "§r§0"),
+                I18n.format("tj.multiblock.parallel.tooltip.2", TJValues.thousandFormat.format(controller.getMaxParallel())),
                 I18n.format("gtadditions.multiblock.universal.tooltip.5", controller.getChanceMultiplier())};
     }
 }

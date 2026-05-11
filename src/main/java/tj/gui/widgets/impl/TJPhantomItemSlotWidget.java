@@ -23,27 +23,57 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientTarget, IIngredientSlot {
 
-    private final Consumer<ItemStack> itemStackConsumer;
+    private final Consumer<ItemStack> onExtracted;
+    private final Consumer<ItemStack> onItemUpdate;
     private final IItemHandlerModifiable itemHandler;
     private final int slotIndex;
-    private TextureArea backgroundTexture;
+    private TextureArea[] backgroundTextures;
+    private BooleanSupplier putItemsPredicate;
+    private BooleanSupplier takeItemsPredicate;
 
     @Nonnull
     private ItemStack itemStack = ItemStack.EMPTY;
 
-    public TJPhantomItemSlotWidget(int x, int y, int width, int height, int slotIndex, IItemHandlerModifiable itemHandler, Consumer<ItemStack> itemStackConsumer) {
+    public TJPhantomItemSlotWidget(int x, int y, int width, int height, int slotIndex, IItemHandlerModifiable itemHandler) {
+        this(x, y, width, height, slotIndex, itemHandler, null, null);
+    }
+
+    public TJPhantomItemSlotWidget(int x, int y, int width, int height, int slotIndex, IItemHandlerModifiable itemHandler, Consumer<ItemStack> onItemUpdate) {
+        this(x, y, width, height, slotIndex, itemHandler, onItemUpdate, null);
+    }
+
+    public TJPhantomItemSlotWidget(int x, int y, int width, int height, int slotIndex, IItemHandlerModifiable itemHandler, Consumer<ItemStack> onItemUpdate, Consumer<ItemStack> onExtracted) {
         super(new Position(x, y), new Size(width, height));
         this.slotIndex = slotIndex;
         this.itemHandler = itemHandler;
-        this.itemStackConsumer = itemStackConsumer;
+        this.onItemUpdate = onItemUpdate;
+        this.onExtracted = onExtracted;
     }
 
-    public TJPhantomItemSlotWidget setBackgroundTexture(TextureArea backgroundTexture) {
-        this.backgroundTexture = backgroundTexture;
+    /**
+     * Set condition for item to be placed into slot either by dragging from JEI or placing item held by mouse into slot.
+     * Will always be true if supplier not set or null.
+     */
+    public TJPhantomItemSlotWidget setPutItemsPredicate(BooleanSupplier putItemsPredicate) {
+        this.putItemsPredicate = putItemsPredicate;
+        return this;
+    }
+
+    /**
+     * Set condition for item to be removed from slot. Will always be true if supplier not set or null.
+     */
+    public TJPhantomItemSlotWidget setTakeItemsPredicate(BooleanSupplier takeItemsPredicate) {
+        this.takeItemsPredicate = takeItemsPredicate;
+        return this;
+    }
+
+    public TJPhantomItemSlotWidget setBackgroundTextures(TextureArea... backgroundTextures) {
+        this.backgroundTextures = backgroundTextures;
         return this;
     }
 
@@ -61,8 +91,9 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         final Position pos = this.getPosition();
-        if (this.backgroundTexture != null)
-            this.backgroundTexture.draw(pos.getX(), pos.getY(), this.getSize().getWidth(), this.getSize().getHeight());
+        if (this.backgroundTextures != null) for (TextureArea textureArea : this.backgroundTextures) {
+            textureArea.draw(pos.getX(), pos.getY(), this.getSize().getWidth(), this.getSize().getHeight());
+        }
         if (!this.itemStack.isEmpty())
             Widget.drawItemStack(this.itemStack, pos.getX() + 1, pos.getY() + 1, null);
     }
@@ -70,10 +101,18 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (this.isMouseOverElement(mouseX, mouseY) && button == 1) { // Right-Click
-            this.writeClientAction(2, buffer -> {});
-            this.itemStack = ItemStack.EMPTY;
-            return true;
+        if (this.isMouseOverElement(mouseX, mouseY)) {
+            if (button == 1 && (this.takeItemsPredicate == null || this.takeItemsPredicate.getAsBoolean())) { // Right-Click
+                this.writeClientAction(2, buffer -> {});
+                this.itemStack = ItemStack.EMPTY;
+                return true;
+            } else if (button == 0 && (this.putItemsPredicate == null || this.putItemsPredicate.getAsBoolean())) { // Left-Click
+                final ItemStack stack = this.gui.entityPlayer.inventory.getItemStack();
+                if (!stack.isEmpty()) {
+                    this.writeClientAction(1, buffer -> buffer.writeItemStack(stack));
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -106,16 +145,18 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
                 this.itemStack = buffer.readItemStack();
                 this.itemHandler.extractItem(this.slotIndex, Integer.MIN_VALUE, false);
                 this.itemHandler.insertItem(this.slotIndex, this.itemStack, false);
-                if (this.itemStackConsumer != null)
-                    this.itemStackConsumer.accept(this.itemStack);
+                if (this.onItemUpdate != null)
+                    this.onItemUpdate.accept(this.itemStack);
             } catch (IOException e) {
                 GTLog.logger.info(e.getMessage());
             }
         } else if (id == 2) {
             this.itemStack = ItemStack.EMPTY;
-            this.itemHandler.extractItem(this.slotIndex, Integer.MIN_VALUE, false);
-            if (this.itemStackConsumer != null)
-                this.itemStackConsumer.accept(this.itemStack);
+            final ItemStack extracted = this.itemHandler.extractItem(this.slotIndex, Integer.MIN_VALUE, false);
+            if (this.onItemUpdate != null)
+                this.onItemUpdate.accept(this.itemStack);
+            if (this.onExtracted != null)
+                this.onExtracted.accept(extracted);
         }
     }
 
@@ -131,7 +172,8 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
             public void accept(Object o) {
                 if (o instanceof ItemStack) {
                     itemStack = ((ItemStack) o).copy();
-                    writeClientAction(1, buffer -> buffer.writeItemStack(itemStack));
+                    if (putItemsPredicate == null || putItemsPredicate.getAsBoolean())
+                        writeClientAction(1, buffer -> buffer.writeItemStack(itemStack));
                 }
             }
         });

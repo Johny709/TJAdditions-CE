@@ -44,17 +44,21 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
     protected String[] format;
 
     public NewTextFieldWidget(int x, int y, int width, int height) {
-        this(x, y, width, height, false);
-    }
-
-    public NewTextFieldWidget(int x, int y, int width, int height, Supplier<String> textSupplier, BiConsumer<String, String> textResponder) {
-        this(x, y, width, height, false);
-        this.textSupplier = textSupplier;
-        this.textResponder = textResponder;
+        this(x, y, width, height, false, null, null);
     }
 
     public NewTextFieldWidget(int x, int y, int width, int height, boolean enableBackground) {
+        this(x, y, width, height, enableBackground, null, null);
+    }
+
+    public NewTextFieldWidget(int x, int y, int width, int height, Supplier<String> textSupplier, BiConsumer<String, String> textResponder) {
+        this(x, y, width, height, false, textSupplier, textResponder);
+    }
+
+    public NewTextFieldWidget(int x, int y, int width, int height, boolean enableBackground, Supplier<String> textSupplier, BiConsumer<String, String> textResponder) {
         super(new Position(x, y), new Size(width, height));
+        this.textSupplier = textSupplier;
+        this.textResponder = textResponder;
         if (isClientSide()) {
             final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
             this.textField = new GuiTextField(0, fontRenderer, x, y, width, height);

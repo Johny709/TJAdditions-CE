@@ -1,5 +1,6 @@
 package tj.recipes;
 
+import gregicadditions.recipes.GARecipeMaps;
 import gregtech.api.GregTechAPI;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
@@ -30,5 +31,6 @@ public class LateRecipes {
         TJRecipeMaps.DRAGON_REPLICATOR_RECIPES = ((RecipeMapMultiblockController) GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(new ResourceLocation("multiblocktweaker", "dragon_egg_replicator"))).recipeMap;
         TJRecipeMaps.LARGE_POWERED_SPAWNER_RECIPES = ((RecipeMapMultiblockController) GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(new ResourceLocation("multiblocktweaker", "large_powered_spawner"))).recipeMap;
         TJRecipeMaps.LARGE_VIAL_PROCESSOR_RECIPES = ((RecipeMapMultiblockController) GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(new ResourceLocation("multiblocktweaker", "large_vial_processor"))).recipeMap;
+        TJRecipeMaps.registerLargeMachineRecipes(GARecipeMaps.STELLAR_FORGE_RECIPES, TJRecipeMaps.INTERSTELLAR_FORGE_RECIPES);
     }
 }

@@ -38,6 +38,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
+import tj.TJValues;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
@@ -88,7 +89,7 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
     @Override
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
-        builder.addTranslationLine("tj.multiblock.slices", this.parallelLayer);
+        builder.addTranslationLine("tj.multiblock.slices", TJValues.thousandFormat.format(this.parallelLayer));
     }
 
     @Override

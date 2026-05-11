@@ -32,6 +32,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.TJValues;
 import tj.blocks.AbilityBlocks;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
@@ -69,7 +70,7 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("tj.multiblock.primitive_water_pump.description", 500, 1280));
+        tooltip.add(I18n.format("tj.multiblock.primitive_water_pump.description", 500, TJValues.thousandFormat.format(1280)));
     }
 
     @Override

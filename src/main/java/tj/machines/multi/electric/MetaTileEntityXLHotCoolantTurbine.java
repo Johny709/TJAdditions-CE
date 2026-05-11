@@ -12,6 +12,7 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
@@ -64,6 +65,7 @@ import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.util.TJFluidUtils;
+import tj.util.TextUtils;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
@@ -200,29 +202,29 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     }
 
     @Override
-    protected ModularUI.Builder createUITemplate(EntityPlayer entityPlayer) {
+    protected ModularUI createUI(EntityPlayer entityPlayer) {
         int height = this.getExtended();
         int[][] barMatrix = null;
         height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
-        final ModularUI.Builder builder = ModularUI.extendedBuilder();
+        final ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 200, 216);
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
-                .setPosition(-10, 1)
+                .setPosition(0, 1)
                 .offsetPosition(0, height)
                 .offsetY(132 - this.getExtended());
-        builder.image(-10, -20, 200, 237 + height, GuiTextures.BORDERED_BACKGROUND)
-                .image(-4, -14, 188, 145, MULTIBLOCK_DISPLAY_BASE)
-                .widget(new TJLabelWidget(-1, -38, 184, 18, MACHINE_LABEL_2, this::getRecipeUid)
+        builder.image(0, -20, 200, 237 + height, GuiTextures.BORDERED_BACKGROUND)
+                .image(6, -14, 188, 145, MULTIBLOCK_DISPLAY_BASE)
+                .widget(new TJLabelWidget(9, -38, 184, 18, MACHINE_LABEL_2, this::getRecipeUid)
                         .setItemLabel(this.getStackForm())
                         .setLocale(this.getMetaFullName()));
         this.addTabs(tabBuilder);
         if (barMatrix != null)
             this.addBars(barMatrix, builder);
-        builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
+        return builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,7, 134 + height)
                 .widget(tabBuilder.build())
                 .widget(tabBuilder.buildWidgetGroup())
-                .widget(new AnimatedImageWidget(154, 102, 26, 26, 41, TJ_LOGO_ANIMATED));
-        return builder;
+                .widget(new AnimatedImageWidget(164, 102, 26, 26, 41, TJ_LOGO_ANIMATED))
+                .build(this.getHolder(), entityPlayer);
     }
 
     private void addBars(int[][] barMatrix, ModularUI.Builder builder) {
@@ -233,7 +235,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
             for (int j = 0; j < column.length; j++) {
                 final ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
                 final int height = 188 / column.length;
-                builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
+                builder.widget(new TJProgressBarWidget(7 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
                         .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
                         .setLocale(bar.getLocale(), bar.getParams())
                         .setFluid(bar.getFluidStackSupplier()));
@@ -243,14 +245,14 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
 
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addWidget(new TJSlotWidget<>(this.importItems, 0, 175, 191)
-                .setBackgroundTexture(GuiTextures.TURBINE_OVERLAY));
+                .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.TURBINE_OVERLAY));
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
                 maintenanceTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                         .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addMaintenanceDisplayText, 0xFFFFFF)
                                 .setMaxWidthLimit(180))
                         .setScrollPanelWidth(3)));
-        tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab -> rotorTab.add(new ScrollableDisplayWidget(10, -15, 183, 142)
+        tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab -> rotorTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                 .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addRotorDisplayText, 0xFFFFFF)
                         .setClickHandler(this::handleRotorDisplayClick)
                         .setMaxWidthLimit(180))
@@ -272,16 +274,16 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     protected void addDisplayText(GUIDisplayBuilder builder) {
         if (this.isStructureFormed()) {
             builder.customLine(text -> {
-                        text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("machine.universal.consuming.seconds", this.xlHotCoolantTurbineWorkableHandler.getConsumption(),
-                                net.minecraft.util.text.translation.I18n.translateToLocal(this.xlHotCoolantTurbineWorkableHandler.getFuelName()),
-                                this.xlHotCoolantTurbineWorkableHandler.getMaxProgress() / 20)));
-                        FluidStack fuelStack = this.xlHotCoolantTurbineWorkableHandler.getFuelStack();
-                        int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
+                        text.addTranslationLine("machine.universal.consuming.seconds", TJValues.thousandFormat.format(this.xlHotCoolantTurbineWorkableHandler.getConsumption()),
+                                this.xlHotCoolantTurbineWorkableHandler.getFuelName(),
+                                TJValues.thousandFormat.format(this.xlHotCoolantTurbineWorkableHandler.getMaxProgress() / 20));
+                        final FluidStack fuelStack = this.xlHotCoolantTurbineWorkableHandler.getFuelStack();
+                        final int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
-                        ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
-                        text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.fuel_amount", fuelAmount, fuelName.getUnformattedText())));
+                        final ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
+                        text.addTranslationLine("tj.multiblock.fuel_amount", TJValues.thousandFormat.format(fuelAmount), fuelName.getUnformattedText());
 
-                        text.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", this.xlHotCoolantTurbineWorkableHandler.getProduction())));
+                        text.addTranslationLine("tj.multiblock.extreme_turbine.energy", TJValues.thousandFormat.format(this.xlHotCoolantTurbineWorkableHandler.getProduction()));
 
                         text.addTextComponent(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode").appendText(" ")
                                 .appendSibling(this.xlHotCoolantTurbineWorkableHandler.isFastMode() ? withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true")
@@ -290,7 +292,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                     .addRecipeInputLine(this.xlHotCoolantTurbineWorkableHandler)
                     .addRecipeOutputLine(this.xlHotCoolantTurbineWorkableHandler);
         } else {
-            ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
+            final ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
             tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
             builder.customLine(text -> text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
                     .setStyle(new Style().setColor(TextFormatting.RED)
@@ -303,7 +305,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         final SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMMM d, yyyy hh:mm:ss aa");
         final long timeElapsed = now.getEpochSecond() - this.placedDown.getEpochSecond();
         builder.addTranslationLine("tj.multiblock.date.placed_down", dateFormat.format(Date.from(this.placedDown)))
-                .addTranslationLine("tj.multiblock.date.ago", timeElapsed / 3600, (timeElapsed % 3600) / 60, timeElapsed % 60)
+                .addTranslationLine("tj.multiblock.date.ago", TJValues.thousandFormat.format(timeElapsed / 3600), TJValues.thousandFormat.format((timeElapsed % 3600) / 60), TJValues.thousandFormat.format(timeElapsed % 60))
                 .addEmptyLine()
                 .addMaintenanceDisplayLines(this.getProblems(), this.hasProblems(), 1000);
     }
@@ -314,35 +316,30 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                 .appendSibling(withButton(new TextComponentString("[<]"), "leftPage"))
                 .appendText(" ")
                 .appendSibling(withButton(new TextComponentString("[>]"), "rightPage")));
-        int rotorHolderSize = getAbilities(ABILITY_ROTOR_HOLDER).size();
+        final int rotorHolderSize = getAbilities(ABILITY_ROTOR_HOLDER).size();
         for (int i = this.pageIndex, rotorIndex = i + 1; i < this.pageIndex + this.pageSize; i++, rotorIndex++) {
             if (i < rotorHolderSize) {
-                MetaTileEntityRotorHolderForNuclearCoolant rotorHolder = this.getAbilities(ABILITY_ROTOR_HOLDER).get(i);
+                final MetaTileEntityRotorHolderForNuclearCoolant rotorHolder = this.getAbilities(ABILITY_ROTOR_HOLDER).get(i);
 
-                double durability = rotorHolder.getRotorDurability() * 100;
-                double efficiency = rotorHolder.getRotorEfficiency() * 100;
+                final double durability = rotorHolder.getRotorDurability() * 100;
+                final double efficiency = rotorHolder.getRotorEfficiency() * 100;
 
-                String colorText = !rotorHolder.hasRotorInInventory() ? "§f"
+                final String colorText = !rotorHolder.hasRotorInInventory() ? "§f"
                         : durability > 25 ? "§a"
                         : durability > 10 ? "§e" : "§c";
 
-                String rotorName = rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName();
-                String shortRotorName = rotorName.length() > 26 ? rotorName.substring(0, 26) + "..." : rotorName;
+                final String rotorName = rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName();
+                final String shortRotorName = rotorName.length() > 26 ? rotorName.substring(0, 26) + "..." : rotorName;
                 builder.addTextComponentWithHover(new TextComponentString("-")
                         .appendText(" ")
-                        .appendSibling(new TextComponentString(colorText + "[" + rotorIndex + "] " + (shortRotorName.equals("Air") ? net.minecraft.util.text.translation.I18n.translateToLocal("tj.multiblock.extreme_turbine.insertrotor") : shortRotorName))), hoverBuilder -> {
-                    hoverBuilder.addTextComponent(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.name", rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName().equals("Air") ?
-                                    net.minecraft.util.text.translation.I18n.translateToLocal("gregtech.multiblock.extreme_turbine.norotor") :
-                                    rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName()))
-                                    .appendText("\n")
-                                    .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.parallel.status", net.minecraft.util.text.translation.I18n.translateToLocalFormatted(rotorHolder.isFrontFaceFree() ? "tj.multiblock.extreme_turbine.obstructed.not"
-                                            : "tj.multiblock.extreme_turbine.obstructed"))))
-                                    .appendText("\n")
-                                    .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.speed", rotorHolder.getCurrentRotorSpeed(), rotorHolder.getMaxRotorSpeed())))
-                                    .appendText("\n")
-                                    .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.efficiency", (int) efficiency)))
-                                    .appendText("\n")
-                                    .appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.durability", (int) durability))))
+                        .appendSibling(new TextComponentString(colorText + "[" + rotorIndex + "] " + (shortRotorName.equals("Air") ? TextUtils.translate("tj.multiblock.extreme_turbine.insertrotor") : shortRotorName))), hoverBuilder -> {
+                    hoverBuilder.addTranslationLine("tj.multiblock.extreme_turbine.name", new TextComponentTranslation(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName().equals("Air") ?
+                            "gregtech.multiblock.extreme_turbine.norotor" : rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName()))
+                            .addTranslationLine("tj.multiblock.parallel.status", new TextComponentTranslation(rotorHolder.isFrontFaceFree() ? "tj.multiblock.extreme_turbine.obstructed.not"
+                                    : "tj.multiblock.extreme_turbine.obstructed"))
+                            .addTranslationLine("tj.multiblock.extreme_turbine.speed", TJValues.thousandFormat.format(rotorHolder.getCurrentRotorSpeed()), TJValues.thousandFormat.format(rotorHolder.getMaxRotorSpeed()))
+                            .addTranslationLine("tj.multiblock.extreme_turbine.efficiency", TJValues.thousandFormat.format(efficiency))
+                            .addTranslationLine("tj.multiblock.extreme_turbine.durability", TJValues.thousandFormat.format(durability))
                             .addItemStack(rotorHolder.getRotorInventory().getStackInSlot(0));
                 });
             }

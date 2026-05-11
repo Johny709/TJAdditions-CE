@@ -18,7 +18,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.IItemHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.textures.TJTextures;
@@ -26,11 +26,11 @@ import tj.textures.TJTextures;
 public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickable {
 
     private final SimpleItemFilter itemFilter = new SimpleItemFilter();
-    private final IItemHandlerModifiable itemHandler;
+    private final IItemHandler itemHandler;
 
     public VoidCoverItem(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
-        this.itemHandler = (IItemHandlerModifiable) this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.attachedSide);
+        this.itemHandler = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.attachedSide);
     }
 
     @Override
@@ -40,7 +40,8 @@ public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickab
 
     @Override
     public void renderCover(CCRenderState ccRenderState, Matrix4 matrix4, IVertexOperation[] iVertexOperations, Cuboid6 cuboid6, BlockRenderLayer blockRenderLayer) {
-        TJTextures.COVER_CREATIVE_FLUID.renderSided(this.attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
+        TJTextures.VOID_ITEM_COVER_OVERLAY.renderSided(this.attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
+        TJTextures.OUTSIDE_OVERLAY_BASE.renderSided(this.attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
     }
 
     @Override

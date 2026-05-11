@@ -24,6 +24,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
+import tj.TJValues;
 import tj.capability.LinkEntity;
 import tj.capability.LinkPos;
 import tj.event.MTELinkEvent;
@@ -127,9 +128,9 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                     }
                     String worldName = world.provider.getDimensionType().getName();
                     int worldID = world.provider.getDimension();
-                    ITextComponent textComponent = new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted(hasLink ? "metaitem.linking.device.message.link.continue" : "metaitem.linking.device.message.link",
-                            targetGTTE.getMetaFullName(), worldName, worldID, targetGTTE.getPos().getX(), targetGTTE.getPos().getY(), targetGTTE.getPos().getZ()));
-                    player.sendMessage(textComponent.appendSibling(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("metaitem.linking.device.message.remaining", nbt.getInteger("I")))));
+                    ITextComponent textComponent = new TextComponentTranslation(hasLink ? "metaitem.linking.device.message.link.continue" : "metaitem.linking.device.message.link",
+                            targetGTTE.getMetaFullName(), worldName, TJValues.thousandFormat.format(worldID), TJValues.thousandFormat.format(targetGTTE.getPos().getX()), TJValues.thousandFormat.format(targetGTTE.getPos().getY()), TJValues.thousandFormat.format(targetGTTE.getPos().getZ()));
+                    player.sendMessage(textComponent.appendSibling(new TextComponentTranslation("metaitem.linking.device.message.remaining", nbt.getInteger("I"))));
                 } else {
                     player.sendMessage(new TextComponentTranslation("metaitem.linking.device.message.capable"));
                     return EnumActionResult.SUCCESS;
@@ -224,12 +225,12 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
         String name = nbt.hasKey("Name") ? nbt.getString("Name") : "Null";
         lines.add(I18n.format("metaitem.linking.device.description"));
         lines.add(I18n.format("metaitem.linking.device.name", I18n.format(name)));
-        lines.add(I18n.format("machine.universal.linked.dimension", dimensionName, dimensionID));
-        lines.add(I18n.format("metaitem.linking.device.x", x));
-        lines.add(I18n.format("metaitem.linking.device.y", y));
-        lines.add(I18n.format("metaitem.linking.device.z", z));
-        lines.add(I18n.format("metaitem.linking.device.message.remaining", linkI));
-        lines.add(I18n.format("metaitem.linking.device.range", range));
+        lines.add(I18n.format("machine.universal.linked.dimension", dimensionName, TJValues.thousandFormat.format(dimensionID)));
+        lines.add(I18n.format("metaitem.linking.device.x", TJValues.thousandFormat.format(x)));
+        lines.add(I18n.format("metaitem.linking.device.y", TJValues.thousandFormat.format(y)));
+        lines.add(I18n.format("metaitem.linking.device.z", TJValues.thousandFormat.format(z)));
+        lines.add(I18n.format("metaitem.linking.device.message.remaining", TJValues.thousandFormat.format(linkI)));
+        lines.add(I18n.format("metaitem.linking.device.range", TJValues.thousandFormat.format(range)));
         lines.add(I18n.format("metaitem.linking.device.message.mode.description"));
         lines.add(I18n.format("metaitem.linking.device.message.mode", net.minecraft.util.text.translation.I18n.translateToLocal(linkingMode.getMode())));
     }

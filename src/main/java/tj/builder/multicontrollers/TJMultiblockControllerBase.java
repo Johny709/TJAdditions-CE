@@ -50,6 +50,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IMachineHandler;
 import tj.capability.IMuffler;
@@ -257,24 +258,24 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
         int height = this.getExtended();
         int[][] barMatrix = null;
         height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
-        final ModularUI.Builder builder = ModularUI.extendedBuilder();
+        final ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 200, 216);
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
-                .setPosition(-10, 1)
+                .setPosition(0, 1)
                 .offsetPosition(0, height)
                 .offsetY(132 - this.getExtended());
-        builder.image(-10, -20, 200, 237 + height, GuiTextures.BORDERED_BACKGROUND)
-                .image(-4, -14, 188, 145, MULTIBLOCK_DISPLAY_BASE)
-                .widget(new TJLabelWidget(-1, -38, 184, 18, MACHINE_LABEL_2, this::getRecipeUid)
+        builder.image(0, -20, 200, 237 + height, GuiTextures.BORDERED_BACKGROUND)
+                .image(6, -14, 188, 145, MULTIBLOCK_DISPLAY_BASE)
+                .widget(new TJLabelWidget(9, -38, 184, 18, MACHINE_LABEL_2, this::getRecipeUid)
                         .setItemLabel(this.getStackForm())
                         .setLocale(this.getMetaFullName()));
         this.addTabs(tabBuilder, entityPlayer);
         if (barMatrix != null)
             this.addBars(barMatrix, builder);
-        return builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,-3, 134 + height)
+        return builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,7, 134 + height)
                 .widget(tabBuilder.build())
                 .widget(tabBuilder.buildWidgetGroup())
-                .widget(new AnimatedImageWidget(154, 102, 26, 26, 41, TJ_LOGO_ANIMATED))
+                .widget(new AnimatedImageWidget(164, 102, 26, 26, 41, TJ_LOGO_ANIMATED))
                 .build(this.getHolder(), entityPlayer);
     }
 
@@ -286,7 +287,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
             for (int j = 0; j < column.length; j++) {
                 final ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
                 final int height = 188 / column.length;
-                builder.widget(new TJProgressBarWidget(-3 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
+                builder.widget(new TJProgressBarWidget(7 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
                         .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
                         .setLocale(bar.getLocale(), bar.getParams())
                         .setFluid(bar.getFluidStackSupplier()));
@@ -332,7 +333,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
         final SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMMM d, yyyy hh:mm:ss aa");
         final long timeElapsed = now.getEpochSecond() - this.placedDown.getEpochSecond();
         builder.addTranslationLine("tj.multiblock.date.placed_down", dateFormat.format(Date.from(this.placedDown)))
-                .addTranslationLine("tj.multiblock.date.ago", timeElapsed / 3600, (timeElapsed % 3600) / 60, timeElapsed % 60)
+                .addTranslationLine("tj.multiblock.date.ago", TJValues.thousandFormat.format(timeElapsed / 3600), TJValues.thousandFormat.format((timeElapsed % 3600) / 60), TJValues.thousandFormat.format(timeElapsed % 60))
                 .addEmptyLine()
                 .addMufflerDisplayLine(!this.hasMufflerHatch() || this.isMufflerFaceFree(), 999)
                 .addMaintenanceDisplayLines(this.getProblems(), this.hasProblems(), 1000);
@@ -538,7 +539,8 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
             if (block instanceof BlockWireCoil) {
                 final BlockWireCoil.CoilType coilType = ((BlockWireCoil) block).getState(state);
                 final String name = blockWorldState.getMatchContext().getOrPut("coilName", coilType.getName());
-                if (!coilType.getName().equals(name)) return false;
+                if (!coilType.getName().equals(name) || Arrays.asList(GAConfig.multis.heatingCoils.gtceHeatingCoilsBlacklist).contains(coilType.getName())) return false;
+                blockWorldState.getMatchContext().getOrPut("coilIndex", coilType.ordinal());
                 blockWorldState.getMatchContext().getOrPut("coilLevel", coilType.getLevel());
                 blockWorldState.getMatchContext().getOrPut("coilTemperature", coilType.getCoilTemperature());
                 blockWorldState.getMatchContext().getOrPut("coilEnergyDiscount", coilType.getEnergyDiscount());
@@ -546,7 +548,8 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
             } else if (block instanceof GAHeatingCoil) {
                 final GAHeatingCoil.CoilType coilType = ((GAHeatingCoil) block).getState(state);
                 final String name = blockWorldState.getMatchContext().getOrPut("coilName", coilType.getName());
-                if (!coilType.getName().equals(name)) return false;
+                if (!coilType.getName().equals(name) || Arrays.asList(GAConfig.multis.heatingCoils.gregicalityheatingCoilsBlacklist).contains(coilType.getName())) return false;
+                blockWorldState.getMatchContext().getOrPut("coilIndex", coilType.ordinal() + 8);
                 blockWorldState.getMatchContext().getOrPut("coilLevel", coilType.getLevel());
                 blockWorldState.getMatchContext().getOrPut("coilTemperature", coilType.getCoilTemperature());
                 blockWorldState.getMatchContext().getOrPut("coilEnergyDiscount", coilType.getEnergyDiscount());

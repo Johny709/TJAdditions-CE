@@ -40,6 +40,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.TJValues;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.IProcessorProvider;
@@ -81,7 +82,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
         tooltip.add(I18n.format("tj.multiblock.processing_array.description"));
         tooltip.add(I18n.format("tj.multiblock.processing_array.eut"));
         super.addInformation(stack, player, tooltip, advanced);
-        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.2", this.getMaxParallel()));
+        tooltip.add(I18n.format("tj.multiblock.universal.tooltip.2", TJValues.thousandFormat.format(this.getMaxParallel())));
     }
 
     @Override
@@ -115,13 +116,11 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
     }
 
     @Override
-    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setParallel(this.getParallel());
-    }
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {}
 
     @Override
     public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setEUt(overclockManager.getEUt() * overclockManager.getParallel());
+        overclockManager.setEUt(overclockManager.getEUt() * overclockManager.getParallelsPerformed());
     }
 
     @Override

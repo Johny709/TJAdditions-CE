@@ -53,6 +53,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
+import tj.TJValues;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
@@ -76,6 +77,7 @@ import static gregicadditions.GAMaterials.Taranium;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.unification.material.Materials.DrillingFluid;
 import static gregtech.api.unification.material.Materials.Duranium;
+import static tj.gui.TJGuiTextures.ITEM_VOID_BUTTON;
 
 
 public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase implements TJMiner {
@@ -92,6 +94,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
     protected boolean isActive = false;
     protected boolean done = false;
     protected boolean silkTouch = false;
+    protected boolean voidItems;
     protected boolean canRestart = false;
     protected final ExtendedItemFilter blockFilter;
     protected BooleanConsumer enableBlockPopUp;
@@ -252,7 +255,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
                         } else {
                             itemStacks.add(stack);
                         }
-                        if (addItemsToItemHandler(this.outputInventory, true, itemStacks)) {
+                        if (this.voidItems || addItemsToItemHandler(this.outputInventory, true, itemStacks)) {
                             addItemsToItemHandler(this.outputInventory, false, itemStacks);
                             if (this.getType() != Type.DESTROYER) {
                                 world.setBlockState(blockPos1, Blocks.COBBLESTONE.getDefaultState());
@@ -352,9 +355,13 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
             filterTab.add(slotsPopUp);
             filterTab.add(oreDictPopUp);
         });
-        tabBuilder.addTab("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab -> settingsTab.add(new AdvancedTextWidget(10,-2, this::addSettingsDisplayText, 0xFFFFFF)
-                .setMaxWidthLimit(180)
-                .setClickHandler(this::handleSettingDisplayText)));
+        tabBuilder.addTab("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab -> {
+            settingsTab.add(new ToggleButtonWidget(175, 133, 18, 18, ITEM_VOID_BUTTON, () -> this.voidItems, this::setVoidItems)
+                    .setTooltipText("machine.universal.toggle.item_voiding"));
+            settingsTab.add(new AdvancedTextWidget(10, -2, this::addSettingsDisplayText, 0xFFFFFF)
+                    .setClickHandler(this::handleSettingDisplayText)
+                    .setMaxWidthLimit(180));
+        });
     }
 
     @Override
@@ -384,10 +391,10 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
         textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.mining.level")
                 .appendText(" ")
                 .appendSibling(withButton(new TextComponentTranslation("tj.multiblock.elite_large_miner.reset.y"), "reset")));
-        textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.elite_large_miner.maximum.y", maxY.get()))
+        textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.maximum.y", TJValues.thousandFormat.format(maxY.get()))
                 .appendSibling(withButton(new TextComponentString(" [+]"), "maxYIncrement"))
                 .appendSibling(withButton(new TextComponentString(" [-]"), "maxYDecrement")));
-        textList.add(new TextComponentString(net.minecraft.util.text.translation.I18n.translateToLocalFormatted("tj.multiblock.elite_large_miner.minimum.y", minY.get()))
+        textList.add(new TextComponentTranslation("tj.multiblock.elite_large_miner.minimum.y", TJValues.thousandFormat.format(minY.get()))
                 .appendSibling(withButton(new TextComponentString(" [+]"), "minYIncrement"))
                 .appendSibling(withButton(new TextComponentString(" [-]"), "minYDecrement")));
     }
@@ -503,6 +510,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
         this.blockFilter.writeToNBT(data);
         data.setTag("BlockList", blockList);
         data.setTag("IndexList", indexList);
+        data.setBoolean("voidItems", this.voidItems);
         data.setBoolean("EnableFilter", this.enableFilter);
         data.setBoolean("BlackListFilter", this.blackListFilter);
         data.setTag("xPos", new NBTTagLong(this.x.get()));
@@ -524,6 +532,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
         this.blockFilter.readFromNBT(data);
         this.blackListFilter = data.getBoolean("BlackListFilter");
         this.enableFilter = data.getBoolean("EnableFilter");
+        this.voidItems = data.getBoolean("voidItems");
         this.x.set(data.getLong("xPos"));
         this.y.set(data.getLong("yPos"));
         this.z.set(data.getLong("zPos"));
@@ -552,6 +561,11 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         Textures.MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, getFrontFacing(), this.isActive);
+    }
+
+    public void setVoidItems(boolean voidItems) {
+        this.voidItems = voidItems;
+        this.markDirty();
     }
 
     protected void setActive(boolean active) {

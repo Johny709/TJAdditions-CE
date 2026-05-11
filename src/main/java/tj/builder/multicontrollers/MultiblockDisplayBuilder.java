@@ -39,7 +39,7 @@ public class MultiblockDisplayBuilder {
 
 
     public MultiblockDisplayBuilder energyStored(long energyStored, long energyCapacity) {
-        this.textList.add(new TextComponentString(I18n.translateToLocalFormatted("machine.universal.energy.stored", energyStored, energyCapacity)));
+        this.textList.add(new TextComponentTranslation("machine.universal.energy.stored", TJValues.thousandFormat.format(energyStored), TJValues.thousandFormat.format(energyCapacity)));
         return this;
     }
 
@@ -48,9 +48,9 @@ public class MultiblockDisplayBuilder {
     }
 
     public MultiblockDisplayBuilder energyInput(boolean hasEnoughEnergy, long amount, int maxProgress) {
-        ITextComponent textComponent = !hasEnoughEnergy ? new TextComponentString(I18n.translateToLocal("tj.multiblock.not_enough_energy"))
-                : maxProgress > 1 ? new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.sum.2", amount, maxProgress))
-                : new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.parallel.sum", amount)) ;
+        ITextComponent textComponent = !hasEnoughEnergy ? new TextComponentTranslation("tj.multiblock.not_enough_energy")
+                : maxProgress > 1 ? new TextComponentTranslation("tj.multiblock.parallel.sum.2", TJValues.thousandFormat.format(amount), TJValues.thousandFormat.format(maxProgress))
+                : new TextComponentTranslation("tj.multiblock.parallel.sum", TJValues.thousandFormat.format(amount));
         this.textList.add(textComponent);
         return this;
     }

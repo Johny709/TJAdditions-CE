@@ -34,6 +34,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.TJValues;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.AbstractWorkableHandler;
@@ -101,9 +102,9 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.addTranslationLine("tj.multiblock.charcoal_pit.burn_time", this.charcoalPos.size() * 60)
-                .addTranslationLine("tj.multiblock.charcoal_pit.width_height", this.widthHeight)
-                .addTranslationLine("tj.multiblock.charcoal_pit.depth", this.depth)
+        builder.addTranslationLine("tj.multiblock.charcoal_pit.burn_time", TJValues.thousandFormat.format(this.charcoalPos.size() * 60L))
+                .addTranslationLine("tj.multiblock.charcoal_pit.width_height", TJValues.thousandFormat.format(this.widthHeight))
+                .addTranslationLine("tj.multiblock.charcoal_pit.depth", TJValues.thousandFormat.format(this.depth))
                 .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
                 .addRecipeInputLine(this.workableHandler)
                 .addRecipeOutputLine(this.workableHandler);

@@ -146,12 +146,12 @@ public final class GUIDisplayBuilder {
         return this.addTranslationLine(null, priority, locale, format);
     }
 
-    public GUIDisplayBuilder addTranslationLine(Consumer<TextComponentString> componentBuilder, String locale, Object... format) {
+    public GUIDisplayBuilder addTranslationLine(Consumer<TextComponentTranslation> componentBuilder, String locale, Object... format) {
         return this.addTranslationLine(componentBuilder, 0, locale, format);
     }
 
-    public GUIDisplayBuilder addTranslationLine(Consumer<TextComponentString> componentBuilder, int priority, String locale, Object... format) {
-        final TextComponentString component = new TextComponentString(TextUtils.translate(locale, format));
+    public GUIDisplayBuilder addTranslationLine(Consumer<TextComponentTranslation> componentBuilder, int priority, String locale, Object... format) {
+        final TextComponentTranslation component = new TextComponentTranslation(locale, format);
         if (componentBuilder != null)
             componentBuilder.accept(component);
         if (priority != 0)
@@ -174,9 +174,15 @@ public final class GUIDisplayBuilder {
     }
 
     public GUIDisplayBuilder addEnergyStoredLine(long energyStored, long energyCapacity, int priority) {
-        if (priority != 0)
-            return this.addTextComponent(new TextComponentString(TextUtils.translate("machine.universal.energy.stored", energyStored, energyCapacity)), priority);
-        else return this.addTextComponent(new TextComponentString(TextUtils.translate("machine.universal.energy.stored", energyStored, energyCapacity)));
+        if (priority != 0) {
+            return this.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                            new TextComponentTranslation("machine.universal.energy.stored.tooltip.1", "§e" + TJValues.thousandFormat.format(energyStored))
+                                    .appendText("\n").appendSibling(new TextComponentTranslation("machine.universal.energy.stored.tooltip.2", "§e" + TJValues.thousandFormat.format(energyCapacity)))))),
+                    priority, "machine.universal.energy.stored", TJValues.thousandFormat.format(energyStored), TJValues.thousandFormat.format(energyCapacity));
+        } else return this.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                        new TextComponentTranslation("machine.universal.energy.stored.tooltip.1", "§e" + TJValues.thousandFormat.format(energyStored))
+                                .appendText("\n").appendSibling(new TextComponentTranslation("machine.universal.energy.stored.tooltip.2", "§e" + TJValues.thousandFormat.format(energyCapacity)))))),
+                "machine.universal.energy.stored", TJValues.thousandFormat.format(energyStored), TJValues.thousandFormat.format(energyCapacity));
     }
 
     public GUIDisplayBuilder addEnergyInputLine(IEnergyContainer container, long amount) {
@@ -190,9 +196,11 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addEnergyInputLine(IEnergyContainer container, long amount, int maxProgress, int priority) {
         if (amount == 0)
             return this;
-        final ITextComponent textComponent = container.getEnergyStored() < amount ? new TextComponentString(TextUtils.translate("tj.multiblock.not_enough_energy"))
-                : maxProgress > 1 ? new TextComponentString(TextUtils.translate("tj.multiblock.parallel.sum.2", amount, maxProgress))
-                : new TextComponentString(TextUtils.translate("tj.multiblock.parallel.sum", amount)) ;
+        final ITextComponent textComponent = container.getEnergyStored() < amount ? new TextComponentTranslation("tj.multiblock.not_enough_energy")
+                : maxProgress > 1 ? new TextComponentTranslation("tj.multiblock.parallel.sum.2", TJValues.thousandFormat.format(amount), TJValues.thousandFormat.format(maxProgress))
+                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.sum.2.tooltip", "§e" + TJValues.thousandFormat.format(amount), TJValues.thousandFormat.format(maxProgress)))))
+                : new TextComponentTranslation("tj.multiblock.parallel.sum", TJValues.thousandFormat.format(amount))
+                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.sum.tooltip", "§e" + TJValues.thousandFormat.format(amount)))));
         if (priority != 0)
             return this.addTextComponent(textComponent, priority);
         else return this.addTextComponent(textComponent);
@@ -224,14 +232,15 @@ public final class GUIDisplayBuilder {
             if (maxVoltage >= Integer.MAX_VALUE)
                 maxVoltage += maxVoltage / Integer.MAX_VALUE;
             final int tier = TJUtility.getTierByVoltage(maxVoltage);
-            final String text = tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier] + "§r";
+            final String eut = "§e" + TJValues.thousandFormat.format(maxVoltage);
+            final String voltage = tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier] + "§r";
             if (priority != 0) {
-                this.addTextComponent(new TextComponentTranslation("tj.multiblock.max_energy_per_tick").appendText(" ")
-                        .appendSibling(new TextComponentString("§e" + TJValues.thousandFormat.format(maxVoltage) + "§r")).appendText(" §7(")
-                        .appendSibling(new TextComponentString(text)).appendText("§7)"), priority);
-            } else this.addTextComponent(new TextComponentTranslation("tj.multiblock.max_energy_per_tick").appendText(" ")
-                    .appendSibling(new TextComponentString("§e" + TJValues.thousandFormat.format(maxVoltage) + "§r")).appendText(" §7(")
-                    .appendSibling(new TextComponentString(text)).appendText("§7)"));
+                this.addTranslationLine(text1 -> text1.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                new TextComponentTranslation("tj.multiblock.max_voltage.tooltip", eut, voltage)))),
+                        priority, "tj.multiblock.max_voltage", eut, voltage);
+            } else this.addTranslationLine(text1 -> text1.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                            new TextComponentTranslation("tj.multiblock.max_voltage.tooltip", eut, voltage)))),
+                    "tj.multiblock.max_voltage", eut, voltage);
         }
         return this;
     }
@@ -251,14 +260,21 @@ public final class GUIDisplayBuilder {
         return this;
     }
 
-    public GUIDisplayBuilder addParallelLine(int parallel) {
-        return this.addParallelLine(parallel, 0);
+    public GUIDisplayBuilder addParallelLine(int parallelsPerformed, int parallel) {
+        return this.addParallelLine(parallelsPerformed, parallel, 0);
     }
 
-    public GUIDisplayBuilder addParallelLine(int parallel, int priority) {
+    public GUIDisplayBuilder addParallelLine(int parallelsPerformed, int parallel, int priority) {
         if (parallel < 1)
             return this;
-        return priority != 0 ? this.addTranslationLine(priority, "tj.multiblock.parallel", parallel) : this.addTranslationLine("tj.multiblock.parallel", parallel);
+        return priority != 0 ? this.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                        new TextComponentTranslation("tj.multiblock.max_parallel.tooltip.1", "§5" + TJValues.thousandFormat.format(parallelsPerformed))
+                                .appendText("\n").appendSibling(new TextComponentTranslation("tj.multiblock.max_parallel.tooltip.2", "§5" + TJValues.thousandFormat.format(parallel)))))),
+                priority, "tj.multiblock.max_parallel", TJValues.thousandFormat.format(parallelsPerformed), TJValues.thousandFormat.format(parallel))
+                : this.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                        new TextComponentTranslation("tj.multiblock.max_parallel.tooltip.1", "§5" + TJValues.thousandFormat.format(parallelsPerformed))
+                                .appendText("\n").appendSibling(new TextComponentTranslation("tj.multiblock.max_parallel.tooltip.2", "§5" + TJValues.thousandFormat.format(parallel)))))),
+                "tj.multiblock.max_parallel", TJValues.thousandFormat.format(parallelsPerformed), TJValues.thousandFormat.format(parallel));
     }
 
     public GUIDisplayBuilder addFluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack) {
@@ -279,11 +295,11 @@ public final class GUIDisplayBuilder {
         amount = amount > 0 ? amount : fluidStack.amount;
         final String fluidName = fluidStack.getLocalizedName();
         final boolean hasEnoughFluid = amount < 1 || TJFluidUtils.drainFromTanksLong(tanks, fluidStack, amount, false) == amount;
-        final ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentString(TextUtils.translate("tj.multiblock.not_enough_fluid", fluidName, amount))
-                : ticks == 1 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.input.tick", fluidName, amount))
-                : ticks % 20 != 0 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.input.ticks", amount, fluidName, ticks))
-                : ticks == 20 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.input.sec", fluidName, amount))
-                : new TextComponentString(TextUtils.translate("machine.universal.fluid.input.secs", amount, fluidName, ticks / 20));
+        final ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentTranslation("tj.multiblock.not_enough_fluid", fluidName, TJValues.thousandFormat.format(amount))
+                : ticks == 1 ? new TextComponentTranslation("machine.universal.fluid.input.tick", fluidName, TJValues.thousandFormat.format(amount))
+                : ticks % 20 != 0 ? new TextComponentTranslation("machine.universal.fluid.input.ticks", TJValues.thousandFormat.format(amount), fluidName, TJValues.thousandFormat.format(ticks))
+                : ticks == 20 ? new TextComponentTranslation("machine.universal.fluid.input.sec", fluidName, TJValues.thousandFormat.format(amount))
+                : new TextComponentTranslation("machine.universal.fluid.input.secs", TJValues.thousandFormat.format(amount), fluidName, TJValues.thousandFormat.format(ticks / 20));
         if (priority != 0)
             return this.addTextComponent(fluidInputText, priority);
         else return this.addTextComponent(fluidInputText);
@@ -307,11 +323,11 @@ public final class GUIDisplayBuilder {
         amount = amount > 0 ? amount : fluidStack.amount;
         final String fluidName = fluidStack.getLocalizedName();
         final boolean hasEnoughFluid = amount < 1 || tanks == VOID_TANK || TJFluidUtils.fillIntoTanksLong(tanks, fluidStack, amount, false) == amount;
-        final ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentString(TextUtils.translate("tj.multiblock.not_enough_fluid.space", fluidName, amount))
-                : ticks == 1 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.output.tick", fluidName, amount))
-                : ticks % 20 != 0 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.output.ticks", amount, fluidName, ticks))
-                : ticks == 20 ? new TextComponentString(TextUtils.translate("machine.universal.fluid.output.sec", fluidName, amount))
-                : new TextComponentString(TextUtils.translate("machine.universal.fluid.output.secs", fluidName, amount));
+        final ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", fluidName, TJValues.thousandFormat.format(amount))
+                : ticks == 1 ? new TextComponentTranslation("machine.universal.fluid.output.tick", fluidName, TJValues.thousandFormat.format(amount))
+                : ticks % 20 != 0 ? new TextComponentTranslation("machine.universal.fluid.output.ticks", TJValues.thousandFormat.format(amount), fluidName, TJValues.thousandFormat.format(ticks))
+                : ticks == 20 ? new TextComponentTranslation("machine.universal.fluid.output.sec", fluidName, TJValues.thousandFormat.format(amount))
+                : new TextComponentTranslation("machine.universal.fluid.output.secs", fluidName, TJValues.thousandFormat.format(amount));
         if (priority != 0)
             return this.addTextComponent(fluidInputText, priority);
         else return this.addTextComponent(fluidInputText);
@@ -332,18 +348,23 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, boolean hasProblems, int priority) {
         if (isActive) {
             progress--;
+            final int finalProgress = progress;
             final int currentProgress = (int) Math.floor(progress / (maxProgress * 1.0) * 100);
-            if (priority != 0)
-                this.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)), priority);
-            else this.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) progress / 20), TJValues.thousandTwoPlaceFormat.format((double) maxProgress / 20), currentProgress)));
+            if (priority != 0) {
+                this.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                new TextComponentTranslation("tj.multiblock.progress.left", "§b" + TJValues.thousandTwoPlaceFormat.format((maxProgress / 20.0) - (finalProgress / 20.0)), "§b" + TJValues.thousandFormat.format(maxProgress - finalProgress))))),
+                        priority, "tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format(progress / 20.0), TJValues.thousandTwoPlaceFormat.format(maxProgress / 20.0), TJValues.thousandFormat.format(currentProgress));
+            } else this.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                            new TextComponentTranslation("tj.multiblock.progress.left", "§b" + TJValues.thousandTwoPlaceFormat.format((maxProgress / 20.0) - (finalProgress / 20.0)), "§b" + TJValues.thousandFormat.format(maxProgress - finalProgress))))),
+                    "tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format(progress / 20.0), TJValues.thousandTwoPlaceFormat.format(maxProgress / 20.0), TJValues.thousandFormat.format(currentProgress));
         }
-        final ITextComponent isWorkingText = !isWorkingEnabled ? new TextComponentString(TextUtils.translate("machine.universal.work_paused"))
-                : hasProblems ? new TextComponentString(TextUtils.translate("machine.universal.has_problems"))
-                : !isActive ? new TextComponentString(TextUtils.translate("machine.universal.idling"))
-                : new TextComponentString(TextUtils.translate("machine.universal.running"));
+        final String isWorkingText = !isWorkingEnabled ? "machine.universal.work_paused"
+                : hasProblems ? "machine.universal.has_problems"
+                : !isActive ? "machine.universal.idling"
+                : "machine.universal.running";
         if (priority != 0)
-            this.addTextComponent(isWorkingText, priority);
-        else this.addTextComponent(isWorkingText);
+            this.addTranslationLine(priority, isWorkingText);
+        else this.addTranslationLine(isWorkingText);
         return this;
     }
 
@@ -441,7 +462,7 @@ public final class GUIDisplayBuilder {
 
     public GUIDisplayBuilder addRecipeMapLine(RecipeMap<?> recipeMap) {
         return this.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.tooltip.1")
-                .appendSibling(withButton(new TextComponentString("[" + TextUtils.translate("recipemap." + recipeMap.getUnlocalizedName() + ".name") + "]"), recipeMap.getUnlocalizedName())));
+                .appendSibling(withButton(new TextComponentString("§e[" + TextUtils.translate("recipemap." + recipeMap.getUnlocalizedName() + ".name") + "]"), recipeMap.getUnlocalizedName())));
     }
 
     public GUIDisplayBuilder addTemperatureLine(long current, long max) {
@@ -449,9 +470,15 @@ public final class GUIDisplayBuilder {
     }
 
     public GUIDisplayBuilder addTemperatureLine(long current, long max, int priority) {
-        if (priority != 0)
-            return this.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.temperature", current, max)), priority);
-        else return this.addTextComponent(new TextComponentString(TextUtils.translate("tj.multiblock.temperature", current, max)));
+        if (priority != 0) {
+            return this.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                            new TextComponentTranslation("tj.multiblock.temperature.tooltip.1", TJValues.thousandFormat.format(current))
+                                    .appendText("\n").appendSibling(new TextComponentTranslation("tj.multiblock.temperature.tooltip.2", TJValues.thousandFormat.format(max)))))),
+                    priority, "tj.multiblock.temperature", TJValues.thousandFormat.format(current), TJValues.thousandFormat.format(max));
+        } else return this.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                        new TextComponentTranslation("tj.multiblock.temperature.tooltip.1", TJValues.thousandFormat.format(current))
+                                .appendText("\n").appendSibling(new TextComponentTranslation("tj.multiblock.temperature.tooltip.2", TJValues.thousandFormat.format(max)))))),
+                "tj.multiblock.temperature", TJValues.thousandFormat.format(current), TJValues.thousandFormat.format(max));
     }
 
     public GUIDisplayBuilder addMufflerDisplayLine(boolean isMufflerFaceFree) {

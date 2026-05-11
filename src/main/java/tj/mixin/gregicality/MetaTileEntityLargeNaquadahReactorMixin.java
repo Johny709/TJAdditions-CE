@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
+import tj.TJValues;
 import tj.builder.multicontrollers.MultiblockDisplayBuilder;
 import tj.builder.multicontrollers.MultiblockDisplaysUtility;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
@@ -85,7 +86,7 @@ public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMu
                                 text.add(new TextComponentString(String.format("%s: %dmb", booster.getLocalizedName(), boosterAmount)).setStyle(new Style().setColor(TextFormatting.AQUA)));
                         }
                         text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", workableHandler.getProduction())));
-                        text.add(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.large_combustion_engine.cycles", 20 - workableHandler.getCurrentCycle())));
+                        text.add(new TextComponentTranslation("tj.multiblock.large_combustion_engine.cycles", TJValues.thousandFormat.format(20 - workableHandler.getCurrentCycle())));
                     }).isWorking(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress());
             ci.cancel();
         }
@@ -116,7 +117,7 @@ public abstract class MetaTileEntityLargeNaquadahReactorMixin extends GAFueledMu
                             text.addTextComponent(new TextComponentString(String.format("%s: %dmb", booster.getLocalizedName(), boosterAmount)).setStyle(new Style().setColor(TextFormatting.AQUA)));
                     }
                     text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.extreme_turbine.energy", workableHandler.getProduction())));
-                    text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.large_combustion_engine.cycles", 20 - workableHandler.getCurrentCycle())));
+                    text.addTextComponent(new TextComponentTranslation("tj.multiblock.large_combustion_engine.cycles", TJValues.thousandFormat.format(20 - workableHandler.getCurrentCycle())));
                 }).addIsWorkingLine(workableHandler.isWorkingEnabled(), workableHandler.isActive(), workableHandler.getProgress(), workableHandler.getMaxProgress())
                 .addRecipeInputLine(workableHandler)
                 .addRecipeOutputLine(workableHandler);

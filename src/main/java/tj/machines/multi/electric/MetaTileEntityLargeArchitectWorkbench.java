@@ -29,6 +29,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
+import tj.TJValues;
 import tj.capability.impl.workable.ArchitectWorkbenchWorkableHandler;
 import tj.builder.multicontrollers.ExtendableMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
@@ -83,7 +84,7 @@ public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockC
             builder.addVoltageInLine(this.inputEnergyContainer)
                     .addVoltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
                     .addEnergyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
-                    .addTranslationLine("tj.multiblock.max_parallel", this.parallel)
+                    .addTranslationLine("tj.multiblock.parallel", TJValues.thousandFormat.format(this.parallel))
                     .customLine(text -> text.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
                             .appendText(" ")
                             .appendSibling(this.workableHandler.isDistinct()

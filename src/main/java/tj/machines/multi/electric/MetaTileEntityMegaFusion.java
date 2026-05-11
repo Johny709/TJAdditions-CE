@@ -30,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
@@ -120,7 +121,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
 
     @Override
     public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setEUt(overclockManager.getEUt() * overclockManager.getParallel());
+        overclockManager.setEUt(overclockManager.getEUt() * overclockManager.getParallelsPerformed());
         overclockManager.setDuration(overclockManager.getDuration() * this.batchMode.getAmount());
     }
 
@@ -153,12 +154,13 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
         builder.addEnergyStoredLine(this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity(), 2)
-                .addTranslationLine("tj.multiblock.industrial_fusion_reactor.heat", this.heat)
+                .addTranslationLine("tj.multiblock.industrial_fusion_reactor.heat", TJValues.thousandFormat.format(this.heat))
                 .customLine(text -> {
                     if (this.recipe != null) {
-                        long energyToStart = this.recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L);
-                        text.addTextComponent(new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart))
-                                .setStyle(new Style().setColor(this.heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)));
+                        final long energyToStart = this.recipe.getRecipePropertyStorage().getRecipePropertyValue(FusionEUToStartProperty.getInstance(), 0L);
+                        text.addTranslationLine(text1 -> text1.setStyle(new Style().setColor(this.heat >= energyToStart ? TextFormatting.GREEN : TextFormatting.RED)
+                                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.industrial_fusion_reactor.required_heat.tooltip", "§c" + TJValues.thousandFormat.format(energyToStart))))),
+                                "tj.multiblock.industrial_fusion_reactor.required_heat", TJValues.thousandFormat.format(energyToStart));
                     }
                 });
     }

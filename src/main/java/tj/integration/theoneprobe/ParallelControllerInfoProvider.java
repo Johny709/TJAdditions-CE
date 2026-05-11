@@ -13,6 +13,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import tj.TJValues;
 import tj.capability.IParallelController;
 import tj.capability.TJCapabilities;
+import tj.util.TJUtility;
 
 public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IParallelController> {
 
@@ -23,20 +24,20 @@ public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IPara
 
     @Override
     protected void addProbeInfo(IParallelController capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
-        long energyStored = capability.getEnergyStored();
-        long energyCapacity = capability.getEnergyCapacity();
-        long maxEUt = capability.getMaxEUt();
-        int energyBonus = capability.getEUBonus();
-        long totalEnergy = capability.getTotalEnergyConsumption();
-        long voltageTier = capability.getVoltageTier();
-        RecipeMap<?> multiblockRecipe = capability.getMultiblockRecipe();
+        final long energyStored = capability.getEnergyStored();
+        final long energyCapacity = capability.getEnergyCapacity();
+        final long maxEUt = capability.getMaxEUt();
+        final int energyBonus = capability.getEUBonus();
+        final long totalEnergy = capability.getTotalEnergyConsumption();
+        final long voltageTier = capability.getVoltageTier();
+        final RecipeMap<?> multiblockRecipe = capability.getMultiblockRecipe();
 
-        IProbeInfo controllerInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-        controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.maxeut*}§e " + TJValues.thousandFormat.format(maxEUt) + " §7(" + GAValues.VN[GAUtility.getTierByVoltage(maxEUt)] + "§7)");
+        final IProbeInfo controllerInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+        controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.maxeut*}§e " + TJValues.thousandFormat.format(maxEUt) + " §7(" + GAValues.VN[TJUtility.getTierByVoltage(maxEUt)] + "§7)");
         if (energyStored > 0 && energyCapacity > 0) {
-            int energyPercent = (int) Math.floor(energyStored / (energyCapacity * 1.0) * 100);
-            String displayEnergy = String.format("%s/%s EU ", TJValues.thousandFormat.format(energyStored), TJValues.thousandFormat.format(energyCapacity));
-            IProbeInfo energyStoredInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+            final int energyPercent = (int) Math.floor(energyStored / (energyCapacity * 1.0) * 100);
+            final String displayEnergy = String.format("%s/%s EU ", TJValues.thousandFormat.format(energyStored), TJValues.thousandFormat.format(energyCapacity));
+            final IProbeInfo energyStoredInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
             energyStoredInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.energy_stored*} ");
             energyStoredInfo.progress(energyPercent, 100, probeInfo.defaultProgressStyle()
                     .prefix(displayEnergy)

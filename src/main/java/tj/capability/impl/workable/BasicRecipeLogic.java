@@ -174,7 +174,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         this.addItemOutputs(parallels, recipe);
         this.addChancedOutputs(parallels, recipe);
         this.addFluidOutputs(parallels, recipe);
-        this.overclockManager.setParallel(parallels);
+        this.overclockManager.setParallelsPerformed(parallels);
         return true;
     }
 
@@ -386,6 +386,10 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
 
     public int getParallel() {
         return this.overclockManager.getParallel();
+    }
+
+    public int getParallelsPerformed() {
+        return this.overclockManager.getParallelsPerformed();
     }
 
     @Override

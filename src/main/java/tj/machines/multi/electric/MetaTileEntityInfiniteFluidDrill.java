@@ -31,6 +31,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.TJValues;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.capability.impl.workable.InfiniteFluidDrillWorkableHandler;
@@ -82,7 +83,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
         tooltip.add(I18n.format("tj.multiblock.drilling_rig.voltage", GAValues.VN[9], GAValues.VN[14]));
         tooltip.add(I18n.format("gtadditions.multiblock.drilling_rig.tooltip.void.2"));
         tooltip.add(I18n.format("gtadditions.multiblock.drilling_rig.tooltip.4", outputFluid, GAValues.VN[9]));
-        tooltip.add(I18n.format("tj.multiblock.drilling_rig.tooltip.drilling_mud", drillingMud, drillingMud));
+        tooltip.add(I18n.format("tj.multiblock.drilling_rig.tooltip.drilling_mud", TJValues.thousandFormat.format(drillingMud), TJValues.thousandFormat.format(drillingMud)));
         tooltip.add(I18n.format("gtadditions.multiblock.large_chemical_reactor.tooltip.1"));
     }
 
