@@ -16,6 +16,7 @@ public class TJMetaItem1 extends MaterialMetaItem {
     public void registerSubItems() {
         GAUGE_DROPPER = addItem(992, "gauge_dropper").addComponents(new GaugeDropperBehavior()).setMaxStackSize(1);
         VOID_ADVANCED_ITEM_COVER = addItem(993, "void_advanced_item_cover");
+        VOID_ADVANCED_FLUID_COVER = addItem(994, "void_advanced_fluid_cover");
         VOID_ITEM_COVER = addItem(996, "void_item_cover").addComponents(new VoidItemCoverBehaviour());
         VOID_FLUID_COVER = addItem(997, "void_fluid_cover").addComponents(new VoidFluidCoverBehaviour());
         VOID_ENERGY_COVER = addItem(998, "void_energy_cover").addComponents(new VoidEnergyCoverBehaviour());

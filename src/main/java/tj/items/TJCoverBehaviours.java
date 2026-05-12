@@ -36,6 +36,7 @@ public class TJCoverBehaviours {
         registerBehavior(167, new ResourceLocation(TJ.MODID, "void_fluid_cover"), VOID_FLUID_COVER, VoidCoverFluid::new);
         registerBehavior(168, new ResourceLocation(TJ.MODID,"void_energy_cover"), VOID_ENERGY_COVER, VoidCoverEnergy::new);
         registerBehavior(169, new ResourceLocation(TJ.MODID, "void_advanced_item_cover"), VOID_ADVANCED_ITEM_COVER, VoidCoverAdvancedItem::new);
+        registerBehavior(170, new ResourceLocation(TJ.MODID, "void_advanced_fluid_cover"), VOID_ADVANCED_FLUID_COVER, VoidCoverAdvancedFluid::new);
     }
 
     public static void registerBehavior(int coverNetworkId, ResourceLocation coverId, MetaItem<?>.MetaValueItem placerItem, BiFunction<ICoverable, EnumFacing, CoverBehavior> behaviorCreator) {

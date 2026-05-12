@@ -32,10 +32,10 @@ import java.util.stream.IntStream;
 
 public class VoidCoverFluid extends CoverBehavior implements CoverWithUI, ITickable {
 
-    private final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
+    protected final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
             .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
             .collect(Collectors.toList()));
-    private final IFluidHandler fluidHandler;
+    protected final IFluidHandler fluidHandler;
 
     public VoidCoverFluid(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
