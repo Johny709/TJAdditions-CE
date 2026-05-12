@@ -14,7 +14,6 @@ import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.util.Position;
-import gregtech.common.covers.filter.SimpleItemFilter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -26,23 +25,28 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import tj.gui.TJGuiTextures;
+import tj.gui.widgets.NewTextFieldWidget;
+import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.impl.SelectionWidgetGroup;
+import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
 import tj.util.TJItemUtils;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 
 public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITickable, IControllable {
 
-    private int speed = 1;
-    private long timer = 1L;
-    private final SimpleItemFilter itemFilter;
+    private final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, Integer.MAX_VALUE);
     private final IItemHandler itemHandler;
     private boolean isWorking;
+    private int speed = 1;
+    private long timer = 1L;
 
     public CreativeItemCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
-        this.itemFilter = new SimpleItemFilter();
         this.itemHandler = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
     }
 
@@ -66,34 +70,78 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        WidgetGroup itemFilterGroup = new WidgetGroup(new Position(51, 25));
-        itemFilterGroup.addWidget(new LabelWidget(-15, -15, "cover.creative_item.title"));
-        itemFilterGroup.addWidget(new ImageWidget(10, 55, 55, 18, GuiTextures.DISPLAY));
-        itemFilterGroup.addWidget(new AdvancedTextWidget(12, 60, this::displayText, 0xFFFFFF));
-        itemFilterGroup.addWidget(new ClickButtonWidget(-8, 55, 18, 18, "+", this::onIncrement));
-        itemFilterGroup.addWidget(new ClickButtonWidget(65, 55, 18, 18, "-", this::onDecrement));
-        itemFilterGroup.addWidget(new ToggleButtonWidget(83, 55, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::onReset)
-                .setTooltipText("machine.universal.toggle.reset"));
-        itemFilterGroup.addWidget(new ToggleButtonWidget(101, 55, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                .setTooltipText("machine.universal.toggle.run.mode"));
-        this.itemFilter.initUI(itemFilterGroup::addWidget);
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
-                .widget(itemFilterGroup)
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 25));
+        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 25, 54, 54);
+        for (int i = 0; i < this.itemFilter.getSlots(); i++) {
+            final int index = i;
+            widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilter)
+                    .setBackgroundTextures(GuiTextures.SLOT));
+            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(0, -20, 54, 18, true, () -> String.valueOf(this.itemFilter.getStackInSlot(index).getCount()), (text, id) -> {
+                ItemStack stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, true);
+                if (stack.isEmpty()) return;
+                stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, false);
+                stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+                this.itemFilter.insertItem(index, stack, false);
+            }).setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                    .setUpdateOnTyping(true)
+                    .setMaxStringLength(11));
+            selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
+        }
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+                        .setItemLabel(this.getPickItem()).setLocale("cover.creative_item.title"))
+                .widget(new ImageWidget(61, 80, 55, 18, GuiTextures.DISPLAY))
+                .widget(new AdvancedTextWidget(63, 85, this::displayText, 0xFFFFFF))
+                .widget(new ClickButtonWidget(43, 80, 18, 18, "+", this::onIncrement))
+                .widget(new ClickButtonWidget(116, 80, 18, 18, "-", this::onDecrement))
+                .widget(new ToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::onReset)
+                        .setTooltipText("machine.universal.toggle.reset"))
+                .widget(new ToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                        .setTooltipText("machine.universal.toggle.run.mode"))
+                .widget(widgetGroup)
+                .widget(selectionWidgetGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
                 .build(this, player);
     }
 
     @Override
     public void onAttached(ItemStack itemStack) {
-        NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
+        final NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
         if (compound.hasKey("speed"))
             this.speed = compound.getInteger("speed");
         if (compound.hasKey("power"))
             this.isWorking = compound.getBoolean("power");
         for (int i = 0; i < 9; i++) {
             if (compound.hasKey("slot:" + i))
-                this.itemFilter.getItemFilterSlots().setStackInSlot(i, new ItemStack(compound.getCompoundTag("slot:" + i)));
+                this.itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("slot:" + i)));
         }
+    }
+
+    @Override
+    public void update() {
+        if (this.isWorking && ++this.timer % this.speed == 0) {
+            for (int i = 0; i < 9; i++) {
+                final ItemStack filterStack = this.itemFilter.getStackInSlot(i).copy();
+                TJItemUtils.insertIntoItemHandler(this.itemHandler, filterStack, false);
+            }
+        }
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setInteger("Speed", this.speed);
+        data.setTag("itemFilter", this.itemFilter.serializeNBT());
+        data.setBoolean("IsWorking", this.isWorking);
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.itemFilter.deserializeNBT(data.getCompoundTag("itemFilter"));
+        this.isWorking = data.getBoolean("IsWorking");
+        if (data.hasKey("Speed"))
+            this.speed = data.getInteger("Speed");
     }
 
     @Override
@@ -130,35 +178,5 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
                 : 1;
         this.speed = MathHelper.clamp(this.speed -value, 1, Integer.MAX_VALUE);
         this.markAsDirty();
-    }
-
-    @Override
-    public void writeToNBT(NBTTagCompound data) {
-        super.writeToNBT(data);
-        NBTTagCompound compound = new NBTTagCompound();
-        this.itemFilter.writeToNBT(compound);
-        data.setInteger("Speed", this.speed);
-        data.setTag("CreativeFilterItem", compound);
-        data.setBoolean("IsWorking", this.isWorking);
-    }
-
-    @Override
-    public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
-        NBTTagCompound tagCompound = data.getCompoundTag("CreativeFilterItem");
-        this.itemFilter.readFromNBT(tagCompound);
-        this.isWorking = data.getBoolean("IsWorking");
-        if (data.hasKey("Speed"))
-            this.speed = data.getInteger("Speed");
-    }
-
-    @Override
-    public void update() {
-        if (this.isWorking && ++this.timer % this.speed == 0) {
-            for (int i = 0; i < 9; i++) {
-                ItemStack filterStack = this.itemFilter.getItemFilterSlots().getStackInSlot(i).copy();
-                TJItemUtils.insertIntoItemHandler(this.itemHandler, filterStack, false);
-            }
-        }
     }
 }
