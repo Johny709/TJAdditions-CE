@@ -12,7 +12,6 @@ import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
-import gregtech.common.covers.filter.SimpleItemFilter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -20,13 +19,15 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.textures.TJTextures;
 
 public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickable {
 
-    private final SimpleItemFilter itemFilter = new SimpleItemFilter();
+    private final ItemStackHandler itemFilter = new ItemStackHandler(9);
     private final IItemHandler itemHandler;
 
     public VoidCoverItem(ICoverable coverHolder, EnumFacing attachedSide) {
@@ -44,7 +45,7 @@ public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickab
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("voidFilter");
         for (int i = 0; i < 9; i++) {
             if (compound.hasKey("slot:" + i))
-                this.itemFilter.getItemFilterSlots().setStackInSlot(i, new ItemStack(compound.getCompoundTag("slot:" + i)));
+                this.itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("slot:" + i)));
         }
     }
 
@@ -64,7 +65,10 @@ public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickab
     @Override
     public ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(53, 27));
-        this.itemFilter.initUI(widgetGroup::addWidget);
+        for (int i = 0; i < this.itemFilter.getSlots(); i++) {
+            widgetGroup.addWidget(new TJPhantomItemSlotWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilter)
+                    .setBackgroundTextures(GuiTextures.SLOT));
+        }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("metaitem.void_item_cover.name"))
@@ -76,20 +80,22 @@ public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickab
     @Override
     public void update() {
         for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-            if (this.itemFilter.matchItemStack(this.itemHandler.getStackInSlot(i)) != null)
-                this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
+            for (int j = 0; j < this.itemFilter.getSlots(); j++) {
+                if (this.itemHandler.getStackInSlot(i).isItemEqual(this.itemFilter.getStackInSlot(j)))
+                    this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
+            }
         }
     }
 
     @Override
     public void writeToNBT(NBTTagCompound tagCompound) {
         super.writeToNBT(tagCompound);
-        this.itemFilter.writeToNBT(tagCompound);
+        tagCompound.setTag("itemFilter", this.itemFilter.serializeNBT());
     }
 
     @Override
     public void readFromNBT(NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
-        this.itemFilter.readFromNBT(tagCompound);
+        this.itemFilter.deserializeNBT(tagCompound.getCompoundTag("itemFilter"));
     }
 }

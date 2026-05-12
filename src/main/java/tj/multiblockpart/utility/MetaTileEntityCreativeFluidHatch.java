@@ -93,7 +93,8 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
             final int x = 18 + 18 * (i % 4);
             final int y = 18 * (i / 4);
             widgetGroup.addWidget(new TJPhantomFluidSlotWidget(x, y, 18, 18, i, this.importFluids, fluidStack -> {})
-                    .setBackgroundTexture(GuiTextures.FLUID_SLOT));
+                    .setBackgroundTexture(GuiTextures.FLUID_SLOT)
+                    .setSpecialDrainingMode(true));
             selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(21, -14, 72, 18, () -> String.valueOf(this.importFluids.getTankAt(finalI).getFluidAmount()), (text, id) -> {
                 final FluidStack fluidStack = this.importFluids.getTankAt(finalI).getFluid();
                 if (fluidStack != null) {

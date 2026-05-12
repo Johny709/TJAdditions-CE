@@ -33,6 +33,7 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
     private final int slotIndex;
     private TextureArea backgroundTexture;
     private FluidStack fluidStack;
+    private boolean specialDrainingMode;
 
     public TJPhantomFluidSlotWidget(int x, int y, int width, int height, int slotIndex, IMultipleTankHandler tanks, Consumer<FluidStack> fluidStackConsumer) {
         super(new Position(x, y), new Size(width, height));
@@ -43,6 +44,14 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
 
     public TJPhantomFluidSlotWidget setBackgroundTexture(TextureArea backgroundTexture) {
         this.backgroundTexture = backgroundTexture;
+        return this;
+    }
+
+    /**
+     * Extracts {@link Integer#MIN_VALUE} of fluid from fluid tank handler. Use this for special fluid tank handler behaviours.
+     */
+    public TJPhantomFluidSlotWidget setSpecialDrainingMode(boolean specialDrainingMode) {
+        this.specialDrainingMode = specialDrainingMode;
         return this;
     }
 
@@ -125,7 +134,7 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
         if (id == 1) {
             try {
                 this.fluidStack = FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag());
-                this.tanks.getTankAt(this.slotIndex).drain(Integer.MIN_VALUE, true);
+                this.tanks.getTankAt(this.slotIndex).drain(this.specialDrainingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, true);
                 this.tanks.getTankAt(this.slotIndex).fill(this.fluidStack, true);
                 if (this.fluidStackConsumer != null)
                     this.fluidStackConsumer.accept(this.fluidStack);
@@ -134,7 +143,7 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
             }
         } else if (id == 2) {
             this.fluidStack = null;
-            this.tanks.getTankAt(this.slotIndex).drain(Integer.MIN_VALUE, true);
+            this.tanks.getTankAt(this.slotIndex).drain(this.specialDrainingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, true);
             if (this.fluidStackConsumer != null)
                 this.fluidStackConsumer.accept(null);
         }
