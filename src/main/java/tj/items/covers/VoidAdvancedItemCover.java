@@ -7,6 +7,7 @@ import codechicken.lib.vec.Matrix4;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.widgets.CycleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
 import net.minecraft.entity.player.EntityPlayer;
@@ -16,7 +17,6 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.TJCycleButtonWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.SelectionWidgetGroup;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
@@ -48,6 +48,14 @@ public class VoidAdvancedItemCover extends VoidItemCover {
     }
 
     @Override
+    public void onAttached(ItemStack itemStack) {
+        super.onAttached(itemStack);
+        final NBTTagCompound compound = itemStack.getOrCreateSubCompound("voidFilter");
+        if (compound.hasKey("voidMode"))
+            this.voidMode = VoidMode.values()[compound.getInteger("voidMode")];
+    }
+
+    @Override
     public ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(63, 27));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(63, 27, 54, 54);
@@ -66,9 +74,7 @@ public class VoidAdvancedItemCover extends VoidItemCover {
                     .setMaxStringLength(11));
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
-        widgetGroup.addWidget(new TJCycleButtonWidget(0, 54, 54, 54, VoidMode.class, () -> this.voidMode, this::setVoidMode)
-                .setToggle(true)
-                .setButtonTexture(GuiTextures.TOGGLE_BUTTON_BACK));
+        widgetGroup.addWidget(new CycleButtonWidget(0, 54, 54, 54, VoidMode.class, () -> this.voidMode, this::setVoidMode));
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("metaitem.void_advanced_item_cover.name"))
