@@ -66,7 +66,7 @@ public class VoidCoverAdvancedItem extends VoidCoverItem {
                     .setMaxStringLength(11));
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
-        widgetGroup.addWidget(new TJCycleButtonWidget(0, 54, 54, 54, VoidMode.class, this::getVoidMode, this::setVoidMode)
+        widgetGroup.addWidget(new TJCycleButtonWidget(0, 54, 54, 54, VoidMode.class, () -> this.voidMode, this::setVoidMode)
                 .setToggle(true)
                 .setButtonTexture(GuiTextures.TOGGLE_BUTTON_BACK));
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
@@ -84,10 +84,15 @@ public class VoidCoverAdvancedItem extends VoidCoverItem {
         for (int i = 0; i < this.itemHandler.getSlots(); i++) {
             for (int j = 0; j < this.itemFilter.getSlots(); j++) {
                 if ((stack = this.itemHandler.getStackInSlot(i)).isItemEqual(stack1 = this.itemFilter.getStackInSlot(j))) {
-                    if (this.voidMode == VoidMode.SUPPLY) {
-                        this.itemHandler.extractItem(i, stack1.getCount(), false);
-                    } else if (this.voidMode == VoidMode.NORMAL || this.voidMode == VoidMode.EXACT && stack.getCount() >= stack1.getCount())
-                        this.itemFilter.extractItem(i, Integer.MAX_VALUE, false);
+                    switch (this.voidMode) {
+                        case NORMAL: this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
+                            break;
+                        case SUPPLY: this.itemHandler.extractItem(i, stack1.getCount(), false);
+                            break;
+                        case EXACT:
+                            if (stack.getCount() > stack1.getCount())
+                                this.itemHandler.extractItem(i, stack.getCount() - stack1.getCount(), false);
+                    }
                 }
             }
         }
@@ -103,10 +108,6 @@ public class VoidCoverAdvancedItem extends VoidCoverItem {
     public void readFromNBT(NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
         this.voidMode = VoidMode.values()[tagCompound.getInteger("voidMode")];
-    }
-
-    public VoidMode getVoidMode() {
-        return this.voidMode;
     }
 
     public void setVoidMode(VoidMode voidMode) {

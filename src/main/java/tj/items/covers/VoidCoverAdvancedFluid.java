@@ -66,7 +66,7 @@ public class VoidCoverAdvancedFluid extends VoidCoverFluid {
                     .setMaxStringLength(11));
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
-        widgetGroup.addWidget(new TJCycleButtonWidget(0, 54, 54, 54, VoidMode.class, this::getVoidMode, this::setVoidMode)
+        widgetGroup.addWidget(new TJCycleButtonWidget(0, 54, 54, 54, VoidMode.class, () -> this.voidMode, this::setVoidMode)
                 .setToggle(true)
                 .setButtonTexture(GuiTextures.TOGGLE_BUTTON_BACK));
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
@@ -83,13 +83,18 @@ public class VoidCoverAdvancedFluid extends VoidCoverFluid {
         for (int i = 0; i < 9; i++) {
             final FluidStack stack = this.fluidFilter.getTankAt(i).getFluid();
             if (stack == null) continue;
-            if (this.voidMode == VoidMode.NORMAL || this.voidMode == VoidMode.SUPPLY) {
-                this.fluidHandler.drain(stack, true);
-                continue;
+            switch (this.voidMode) {
+                case NORMAL:
+                case SUPPLY:
+                    this.fluidHandler.drain(stack, true);
+                    break;
+                case EXACT:
+                    final FluidStack stack1 = this.fluidHandler.drain(stack, false);
+                    if (stack1 != null && stack1.amount > stack.amount) {
+                        stack1.amount -= stack.amount;
+                        this.fluidHandler.drain(stack1, true);
+                    }
             }
-            final FluidStack stack1 = this.fluidHandler.drain(stack, false);
-            if (this.voidMode == VoidMode.EXACT && stack1 != null && stack.amount >= stack1.amount)
-                this.fluidHandler.drain(stack1, true);
         }
     }
 
@@ -103,10 +108,6 @@ public class VoidCoverAdvancedFluid extends VoidCoverFluid {
     public void readFromNBT(NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
         this.voidMode = VoidMode.values()[tagCompound.getInteger("voidMode")];
-    }
-
-    public VoidMode getVoidMode() {
-        return this.voidMode;
     }
 
     public void setVoidMode(VoidMode voidMode) {

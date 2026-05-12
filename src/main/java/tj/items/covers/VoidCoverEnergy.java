@@ -21,7 +21,7 @@ import tj.textures.TJTextures;
 
 public class VoidCoverEnergy extends CoverBehavior implements CoverWithUI, ITickable {
 
-    private final IEnergyContainer energyContainer;
+    protected final IEnergyContainer energyContainer;
 
     public VoidCoverEnergy(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
