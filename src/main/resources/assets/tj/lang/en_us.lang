@@ -824,6 +824,7 @@ metaitem.creative_energy_cover.set.amps=Set Amps
 metaitem.creative_energy_cover.simulate_voltage=§fSimulate Voltage: §1%b
 metaitem.void_item_cover.name=Void Item Cover
 metaitem.void_item_cover.description=Voids up to §62,147,483,647/t§7 of §6items§7 per slot. Put or drag §6items§7 into slots to void them.
+metaitem.void_advanced_item_cover.name=Void Advanced Item Cover
 metaitem.void_fluid_cover.name=Void Fluid Cover
 metaitem.void_fluid_cover.description=Voids up to §b2,147,483,647L/t§7 of §bfluids§7 per slot. Put or drag §bfluids§7 into slots to void them.
 metaitem.void_energy_cover.name=Void Energy Cover
@@ -950,6 +951,10 @@ metaitem.turbine_upgrade.description=Can be applied on XL turbines to increase r
 metaitem.toolbox.name=Toolbox
 metaitem.toolbox.description=To store tools. Can be also used for fixing maintenance. Right-click on maintenance hatch with tools or tape inside.
 metaitem.gauge_dropper.name=Gauge Dropper
+
+void_cover.mode.normal=Normal
+void_cover.mode.supply=Supply
+void_cover.mode.exact=Exact
 
 item.unbreakable_hoe.name=Unbreakable Hoe
 item.unbreakable_axe.name=Unbreakable Axe

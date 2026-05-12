@@ -19,16 +19,16 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
 
 public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickable {
 
-    private final ItemStackHandler itemFilter = new ItemStackHandler(9);
-    private final IItemHandler itemHandler;
+    protected final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, Integer.MAX_VALUE);
+    protected final IItemHandler itemHandler;
 
     public VoidCoverItem(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
