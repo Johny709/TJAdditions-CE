@@ -7,16 +7,19 @@ import codechicken.lib.vec.Matrix4;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.widgets.CycleButtonWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.TJCycleButtonWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.textures.TJTextures;
+
+import java.util.regex.Pattern;
 
 import static tj.gui.TJGuiTextures.MINUS_BUTTON;
 import static tj.gui.TJGuiTextures.PLUS_BUTTON;
@@ -46,12 +49,23 @@ public class VoidAdvancedEnergyCover extends VoidEnergyCover {
     }
 
     @Override
+    public void onAttached(ItemStack itemStack) {
+        final NBTTagCompound compound = itemStack.getOrCreateSubCompound("voidFilter");
+        if (compound.hasKey("throughput"))
+            this.throughput = compound.getLong("throughput");
+        if (compound.hasKey("voidMode"))
+            this.voidMode = VoidMode.values()[compound.getInteger("voidMode")];
+    }
+
+    @Override
     public ModularUI createUI(EntityPlayer player) {
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
                 .widget(new ToggleButtonWidget(7, 30, 18, 18, PLUS_BUTTON, () -> false, b -> this.setThroughput(this.throughput * 2)))
                 .widget(new ToggleButtonWidget(151, 30, 18, 18, MINUS_BUTTON, () -> false, b -> this.setThroughput(this.throughput / 2D)))
-                .widget(new NewTextFieldWidget<>(27, 30, 119, 18, true, () -> String.valueOf(this.throughput), this::setThroughput))
-                .widget(new TJCycleButtonWidget(27, 48, 119, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode))
+                .widget(new NewTextFieldWidget<>(27, 30, 119, 18, true, () -> String.valueOf(this.throughput), this::setThroughput)
+                        .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                        .setUpdateOnTyping(true))
+                .widget(new CycleButtonWidget(27, 48, 119, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode))
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("metaitem.void_energy_cover.name"))
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
@@ -75,12 +89,14 @@ public class VoidAdvancedEnergyCover extends VoidEnergyCover {
     public void writeToNBT(NBTTagCompound tagCompound) {
         super.writeToNBT(tagCompound);
         tagCompound.setInteger("voidMode", this.voidMode.ordinal());
+        tagCompound.setLong("throughput", this.throughput);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
         this.voidMode = VoidMode.values()[tagCompound.getInteger("voidMode")];
+        this.throughput = tagCompound.getLong("throughput");
     }
 
     public void setThroughput(double throughput) {
