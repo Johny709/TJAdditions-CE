@@ -15,6 +15,7 @@ import gregtech.api.util.Position;
 import gregtech.common.covers.filter.SimpleItemFilter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -39,6 +40,15 @@ public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickab
     }
 
     @Override
+    public void onAttached(ItemStack itemStack) {
+        final NBTTagCompound compound = itemStack.getOrCreateSubCompound("voidFilter");
+        for (int i = 0; i < 9; i++) {
+            if (compound.hasKey("slot:" + i))
+                this.itemFilter.getItemFilterSlots().setStackInSlot(i, new ItemStack(compound.getCompoundTag("slot:" + i)));
+        }
+    }
+
+    @Override
     public void renderCover(CCRenderState ccRenderState, Matrix4 matrix4, IVertexOperation[] iVertexOperations, Cuboid6 cuboid6, BlockRenderLayer blockRenderLayer) {
         TJTextures.VOID_ITEM_COVER_OVERLAY.renderSided(this.attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
         TJTextures.OUTSIDE_OVERLAY_BASE.renderSided(this.attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
@@ -53,7 +63,7 @@ public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickab
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        WidgetGroup widgetGroup = new WidgetGroup(new Position(53, 27));
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(53, 27));
         this.itemFilter.initUI(widgetGroup::addWidget);
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
