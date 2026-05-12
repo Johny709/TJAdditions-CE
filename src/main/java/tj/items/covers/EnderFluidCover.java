@@ -35,7 +35,7 @@ import static tj.TJValues.DUMMY_TANK;
 import static tj.gui.TJGuiTextures.FLUID_FILTER;
 import static tj.textures.TJTextures.PORTAL_OVERLAY;
 
-public class EnderCoverFluid extends AbstractEnderCover<FluidTank> {
+public class EnderFluidCover extends AbstractEnderCover<FluidTank> {
 
     private final IFluidHandler fluidTank;
     private final SimpleFluidFilter fluidFilter;
@@ -43,7 +43,7 @@ public class EnderCoverFluid extends AbstractEnderCover<FluidTank> {
     private final int tier;
     private boolean isFilterBlacklist = true;
 
-    public EnderCoverFluid(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
+    public EnderFluidCover(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
         super(coverHolder, attachedSide);
         this.tier = tier;
         this.fluidTank = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);

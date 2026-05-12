@@ -19,11 +19,11 @@ import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.textures.TJTextures;
 
-public class VoidCoverEnergy extends CoverBehavior implements CoverWithUI, ITickable {
+public class VoidEnergyCover extends CoverBehavior implements CoverWithUI, ITickable {
 
     protected final IEnergyContainer energyContainer;
 
-    public VoidCoverEnergy(ICoverable coverHolder, EnumFacing attachedSide) {
+    public VoidEnergyCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
         this.energyContainer = this.coverHolder.getCapability(GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER, this.attachedSide);
     }

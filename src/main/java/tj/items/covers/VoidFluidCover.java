@@ -5,6 +5,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
@@ -17,27 +18,33 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
-import tj.items.handlers.LargeItemStackHandler;
+import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.textures.TJTextures;
 
-public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickable {
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-    protected final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, Integer.MAX_VALUE);
-    protected final IItemHandler itemHandler;
+public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITickable {
 
-    public VoidCoverItem(ICoverable coverHolder, EnumFacing attachedSide) {
+    protected final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
+            .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
+            .collect(Collectors.toList()));
+    protected final IFluidHandler fluidHandler;
+
+    public VoidFluidCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
-        this.itemHandler = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.attachedSide);
+        this.fluidHandler = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, this.attachedSide);
     }
 
     @Override
     public boolean canAttach() {
-        return this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.attachedSide) != null;
+        return this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, this.attachedSide) != null;
     }
 
     @Override
@@ -45,13 +52,13 @@ public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickab
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("voidFilter");
         for (int i = 0; i < 9; i++) {
             if (compound.hasKey("slot:" + i))
-                this.itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("slot:" + i)));
+                this.fluidFilter.getTankAt(i).fill(FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("slot:" + i)), true);
         }
     }
 
     @Override
     public void renderCover(CCRenderState ccRenderState, Matrix4 matrix4, IVertexOperation[] iVertexOperations, Cuboid6 cuboid6, BlockRenderLayer blockRenderLayer) {
-        TJTextures.VOID_ITEM_COVER_OVERLAY.renderSided(this.attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
+        TJTextures.VOID_FLUID_COVER_OVERLAY.renderSided(this.attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
         TJTextures.OUTSIDE_OVERLAY_BASE.renderSided(this.attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
     }
 
@@ -65,13 +72,19 @@ public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickab
     @Override
     public ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(53, 27));
-        for (int i = 0; i < this.itemFilter.getSlots(); i++) {
-            widgetGroup.addWidget(new TJPhantomItemSlotWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilter)
-                    .setBackgroundTextures(GuiTextures.SLOT));
+        for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
+            final int index = i;
+            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18, i, this.fluidFilter, fluid -> {
+                if (fluid != null) {
+                    fluid.amount = Integer.MAX_VALUE;
+                    this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
+                    this.fluidFilter.getTankAt(index).fill(fluid, true);
+                }
+            }).setBackgroundTexture(GuiTextures.FLUID_SLOT));
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setItemLabel(this.getPickItem()).setLocale("metaitem.void_item_cover.name"))
+                        .setItemLabel(this.getPickItem()).setLocale("metaitem.void_fluid_cover.name"))
                 .widget(widgetGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
                 .build(this, player);
@@ -79,23 +92,22 @@ public class VoidCoverItem extends CoverBehavior implements CoverWithUI, ITickab
 
     @Override
     public void update() {
-        for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-            for (int j = 0; j < this.itemFilter.getSlots(); j++) {
-                if (this.itemHandler.getStackInSlot(i).isItemEqual(this.itemFilter.getStackInSlot(j)))
-                    this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
-            }
+        for (int i = 0; i < 9; i++) {
+            final FluidStack stack = this.fluidFilter.getTankAt(i).getFluid();
+            if (stack != null)
+                this.fluidHandler.drain(stack, true);
         }
     }
 
     @Override
     public void writeToNBT(NBTTagCompound tagCompound) {
         super.writeToNBT(tagCompound);
-        tagCompound.setTag("itemFilter", this.itemFilter.serializeNBT());
+        tagCompound.setTag("fluidFilter", this.fluidFilter.serializeNBT());
     }
 
     @Override
     public void readFromNBT(NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
-        this.itemFilter.deserializeNBT(tagCompound.getCompoundTag("itemFilter"));
+        this.fluidFilter.deserializeNBT(tagCompound.getCompoundTag("fluidFilter"));
     }
 }

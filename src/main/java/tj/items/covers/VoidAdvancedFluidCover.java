@@ -10,25 +10,25 @@ import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.fluids.FluidStack;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJCycleButtonWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.SelectionWidgetGroup;
-import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.textures.TJTextures;
 
 import java.util.regex.Pattern;
 
-public class VoidCoverAdvancedItem extends VoidCoverItem {
+public class VoidAdvancedFluidCover extends VoidFluidCover {
 
     private VoidMode voidMode = VoidMode.NORMAL;
 
-    public VoidCoverAdvancedItem(ICoverable coverHolder, EnumFacing attachedSide) {
+    public VoidAdvancedFluidCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
     }
 
@@ -51,16 +51,16 @@ public class VoidCoverAdvancedItem extends VoidCoverItem {
     public ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(63, 27));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(63, 27, 54, 54);
-        for (int i = 0; i < this.itemFilter.getSlots(); i++) {
+        for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             final int index = i;
-            widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilter)
-                    .setBackgroundTextures(GuiTextures.SLOT));
-            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(0, -20, 54, 18, true, () -> String.valueOf(this.itemFilter.getStackInSlot(index).getCount()), (text, id) -> {
-                ItemStack stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, true);
-                if (stack.isEmpty()) return;
-                stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, false);
-                stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-                this.itemFilter.insertItem(index, stack, false);
+            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.fluidFilter, null)
+                    .setBackgroundTexture(GuiTextures.FLUID_SLOT));
+            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(0, -20, 54, 18, true, () -> String.valueOf(this.fluidFilter.getTankAt(index).getFluidAmount()), (text, id) -> {
+                FluidStack stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
+                if (stack == null) return;
+                stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
+                stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+                this.fluidFilter.getTankAt(index).fill(stack, true);
             }).setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                     .setUpdateOnTyping(true)
                     .setMaxStringLength(11));
@@ -80,20 +80,20 @@ public class VoidCoverAdvancedItem extends VoidCoverItem {
 
     @Override
     public void update() {
-        ItemStack stack, stack1;
-        for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-            for (int j = 0; j < this.itemFilter.getSlots(); j++) {
-                if ((stack = this.itemHandler.getStackInSlot(i)).isItemEqual(stack1 = this.itemFilter.getStackInSlot(j))) {
-                    switch (this.voidMode) {
-                        case NORMAL: this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
-                            break;
-                        case SUPPLY: this.itemHandler.extractItem(i, stack1.getCount(), false);
-                            break;
-                        case EXACT:
-                            if (stack.getCount() > stack1.getCount())
-                                this.itemHandler.extractItem(i, stack.getCount() - stack1.getCount(), false);
+        for (int i = 0; i < 9; i++) {
+            final FluidStack stack = this.fluidFilter.getTankAt(i).getFluid();
+            if (stack == null) continue;
+            switch (this.voidMode) {
+                case NORMAL:
+                case SUPPLY:
+                    this.fluidHandler.drain(stack, true);
+                    break;
+                case EXACT:
+                    final FluidStack stack1 = this.fluidHandler.drain(stack, false);
+                    if (stack1 != null && stack1.amount > stack.amount) {
+                        stack1.amount -= stack.amount;
+                        this.fluidHandler.drain(stack1, true);
                     }
-                }
             }
         }
     }

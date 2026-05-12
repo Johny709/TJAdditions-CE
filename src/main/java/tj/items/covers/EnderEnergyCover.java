@@ -29,13 +29,13 @@ import static tj.gui.TJGuiTextures.BAR_HEAT;
 import static tj.gui.TJGuiTextures.BAR_STEEL;
 import static tj.textures.TJTextures.PORTAL_OVERLAY;
 
-public class EnderCoverEnergy extends AbstractEnderCover<BasicEnergyHandler> {
+public class EnderEnergyCover extends AbstractEnderCover<BasicEnergyHandler> {
 
     private final IEnergyContainer energyContainer;
     private final long capacity;
     private final int tier;
 
-    public EnderCoverEnergy(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
+    public EnderEnergyCover(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
         super(coverHolder, attachedSide);
         this.tier = tier;
         this.energyContainer = this.coverHolder.getCapability(CAPABILITY_ENERGY_CONTAINER, null);

@@ -32,7 +32,7 @@ import tj.util.TJItemUtils;
 import java.util.List;
 
 
-public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITickable, IControllable {
+public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITickable, IControllable {
 
     private int speed = 1;
     private long timer = 1L;
@@ -40,7 +40,7 @@ public class CoverCreativeItem extends CoverBehavior implements CoverWithUI, ITi
     private final IItemHandler itemHandler;
     private boolean isWorking;
 
-    public CoverCreativeItem(ICoverable coverHolder, EnumFacing attachedSide) {
+    public CreativeItemCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
         this.itemFilter = new SimpleItemFilter();
         this.itemHandler = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);

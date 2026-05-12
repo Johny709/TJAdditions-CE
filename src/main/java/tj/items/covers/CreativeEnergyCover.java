@@ -30,7 +30,7 @@ import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
 import static gregtech.api.gui.GuiTextures.DISPLAY;
 import static tj.gui.TJGuiTextures.*;
 
-public class CoverCreativeEnergy extends CoverBehavior implements ITickable, CoverWithUI {
+public class CreativeEnergyCover extends CoverBehavior implements ITickable, CoverWithUI {
 
     private final IEnergyContainer energyContainer;
     private boolean simulateVoltage;
@@ -40,7 +40,7 @@ public class CoverCreativeEnergy extends CoverBehavior implements ITickable, Cov
     private long voltage;
     private long amps;
 
-    public CoverCreativeEnergy(ICoverable coverHolder, EnumFacing attachedSide) {
+    public CreativeEnergyCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
         this.energyContainer = coverHolder.getCapability(GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER, null);
     }

@@ -21,12 +21,12 @@ import tj.textures.TJTextures;
 import static tj.gui.TJGuiTextures.MINUS_BUTTON;
 import static tj.gui.TJGuiTextures.PLUS_BUTTON;
 
-public class VoidCoverAdvancedEnergy extends VoidCoverEnergy {
+public class VoidAdvancedEnergyCover extends VoidEnergyCover {
 
     private VoidMode voidMode = VoidMode.NORMAL;
     private long throughput;
 
-    public VoidCoverAdvancedEnergy(ICoverable coverHolder, EnumFacing attachedSide) {
+    public VoidAdvancedEnergyCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
     }
 

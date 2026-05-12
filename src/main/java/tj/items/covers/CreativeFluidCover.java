@@ -35,7 +35,7 @@ import java.util.Optional;
 
 import static gregtech.api.unification.material.Materials.Lava;
 
-public class CoverCreativeFluid extends CoverBehavior implements CoverWithUI, ITickable, IControllable {
+public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, ITickable, IControllable {
 
     private int speed = 1;
     private long timer = 1L;
@@ -43,7 +43,7 @@ public class CoverCreativeFluid extends CoverBehavior implements CoverWithUI, IT
     private final IFluidHandler fluidHandler;
     private boolean isWorking;
 
-    public CoverCreativeFluid(ICoverable coverHolder, EnumFacing attachedSide) {
+    public CreativeFluidCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
         this.fluidFilter = new SimpleFluidFilter();
         this.fluidHandler = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
