@@ -38,6 +38,10 @@ public class TJCoverBehaviours {
         registerBehavior(169, new ResourceLocation(TJ.MODID, "void_advanced_item_cover"), VOID_ADVANCED_ITEM_COVER, VoidAdvancedItemCover::new);
         registerBehavior(170, new ResourceLocation(TJ.MODID, "void_advanced_fluid_cover"), VOID_ADVANCED_FLUID_COVER, VoidAdvancedFluidCover::new);
         registerBehavior(171, new ResourceLocation(TJ.MODID, "void_advanced_energy_cover"), VOID_ADVANCED_ENERGY_COVER, VoidAdvancedEnergyCover::new);
+        for (int i = 0; i < DUAL_COVERS.length; i++) { // occupies IDs 172 - 186
+            final int index = i;
+            registerBehavior(172 + i, new ResourceLocation(TJ.MODID, "dual_cover." + GAValues.VN[i].toLowerCase()), DUAL_COVERS[i], (cover, face) -> new DualCover(cover, face, index));
+        }
     }
 
     public static void registerBehavior(int coverNetworkId, ResourceLocation coverId, MetaItem<?>.MetaValueItem placerItem, BiFunction<ICoverable, EnumFacing, CoverBehavior> behaviorCreator) {

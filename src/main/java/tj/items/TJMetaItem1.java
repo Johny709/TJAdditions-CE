@@ -42,7 +42,13 @@ public class TJMetaItem1 extends MaterialMetaItem {
             ENDER_ITEM_COVERS[i] = addItem(enderCoverID++, "ender_item_cover_" + GAValues.VN[i + 3].toLowerCase()).addComponents(new EnderCoverBehaviour(EnderCoverBehaviour.EnderCoverType.ITEM, i + 3));
             ENDER_ENERGY_COVERS[i] = addItem(enderCoverID++, "ender_energy_cover_" + GAValues.VN[i + 3].toLowerCase()).addComponents(new EnderCoverBehaviour(EnderCoverBehaviour.EnderCoverType.ENERGY, i + 3));
         }
-        for (int i = 0; i < TURBINE_UPGRADES.length; i++) {
+        for (int i = 0; i < DUAL_COVERS.length; i++) { // occupies range 1170 - 1184
+            DUAL_COVERS[i] = addItem(1170 + i, "dual_cover." + GAValues.VN[i].toLowerCase());
+        }
+        for (int i = 0; i < DUAL_COVERS.length; i++) { // occupies range 1185 - 1199
+
+        }
+        for (int i = 0; i < TURBINE_UPGRADES.length; i++) { // occupies range 1200 - 1205
             TURBINE_UPGRADES[i] = addItem(1200 + i, "turbine_upgrade").addComponents(new TurbineUpgradeBehaviour(TJValues.VC[i + GAValues.UHV], 4 + 4 * i)).setMaxStackSize(1);
         }
     }

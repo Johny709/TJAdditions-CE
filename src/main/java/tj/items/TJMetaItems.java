@@ -41,6 +41,7 @@ public class TJMetaItems {
     public static final MetaItem<?>.MetaValueItem[] ENDER_ITEM_COVERS = new MetaItem.MetaValueItem[12];
     public static final MetaItem<?>.MetaValueItem[] ENDER_ENERGY_COVERS = new MetaItem.MetaValueItem[12];
     public static final MetaItem<?>.MetaValueItem[] TURBINE_UPGRADES = new MetaItem.MetaValueItem[6];
+    public static final MetaItem<?>.MetaValueItem[] DUAL_COVERS = new MetaItem.MetaValueItem[15];
 
     public static void init() {
         TJMetaItem1 item = new TJMetaItem1();
