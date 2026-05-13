@@ -97,6 +97,40 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
     }
 
     @Override
+    public void onAttached(ItemStack itemStack) {
+        super.onAttached(itemStack);
+        final NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
+        if (compound.hasKey("conveyorMode"))
+            this.conveyorMode = CoverConveyor.ConveyorMode.values()[compound.getInteger("conveyorMode")];
+        if (compound.hasKey("pumpMode"))
+            this.pumpMode = CoverPump.PumpMode.values()[compound.getInteger("pumpMode")];
+        if (compound.hasKey("itemTransferRate"))
+            this.itemTransferRate = compound.getInteger("itemTransferRate");
+        if (compound.hasKey("fluidTransferRate"))
+            this.fluidTransferRate = compound.getInteger("fluidTransferRate");
+        if (compound.hasKey("itemBlacklist"))
+            this.isItemBlacklist = compound.getBoolean("itemBlacklist");
+        if (compound.hasKey("fluidBlacklist"))
+            this.isFluidBlacklist = compound.getBoolean("fluidBlacklist");
+        if (compound.hasKey("itemWorking"))
+            this.isConveyorWorking = compound.getBoolean("itemWorking");
+        if (compound.hasKey("fluidWorking"))
+            this.isPumpWorking = compound.getBoolean("fluidWorking");
+        for (int i = 0; i < this.itemFilter.getSlots(); i++) {
+            if (compound.hasKey("itemSlot:" + i)) {
+                this.itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("itemSlot:" + i)));
+                this.itemType.add(this.itemFilter.getStackInSlot(i).getItem());
+            }
+        }
+        for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
+            if (compound.hasKey("fluidSlot:" + i)) {
+                this.fluidFilter.getTankAt(i).fill(FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("fluidSlot:" + i)), true);
+                this.fluidType.add(this.fluidFilter.getTankAt(i).getFluid());
+            }
+        }
+    }
+
+    @Override
     public void renderCover(CCRenderState ccRenderState, Matrix4 matrix4, IVertexOperation[] iVertexOperations, Cuboid6 cuboid6, BlockRenderLayer blockRenderLayer) {
         Textures.PUMP_OVERLAY.renderSided(this.attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);
         Textures.CONVEYOR_OVERLAY.renderSided(attachedSide, cuboid6, ccRenderState, iVertexOperations, matrix4);

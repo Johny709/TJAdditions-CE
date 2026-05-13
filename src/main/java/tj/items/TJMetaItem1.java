@@ -43,7 +43,7 @@ public class TJMetaItem1 extends MaterialMetaItem {
             ENDER_ENERGY_COVERS[i] = addItem(enderCoverID++, "ender_energy_cover_" + GAValues.VN[i + 3].toLowerCase()).addComponents(new EnderCoverBehaviour(EnderCoverBehaviour.EnderCoverType.ENERGY, i + 3));
         }
         for (int i = 0; i < DUAL_COVERS.length; i++) { // occupies range 1170 - 1184
-            DUAL_COVERS[i] = addItem(1170 + i, "dual_cover." + GAValues.VN[i].toLowerCase());
+            DUAL_COVERS[i] = addItem(1170 + i, "dual_cover." + GAValues.VN[i].toLowerCase()).addComponents(new DualCoverBehaviour(i));
         }
         for (int i = 0; i < DUAL_COVERS.length; i++) { // occupies range 1185 - 1199
 

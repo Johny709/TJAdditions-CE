@@ -968,6 +968,7 @@ metaitem.dual_cover.uiv.name=Dual Cover (UIV)
 metaitem.dual_cover.umv.name=Dual Cover (UMV)
 metaitem.dual_cover.uxv.name=Dual Cover (UXV)
 metaitem.dual_cover.max.name=Dual Cover (MAX)
+metaitem.dual_cover.description=Functions both as §6conveyors§7 and §bpumps§7 for transporting §6items§7 and §bfluids.
 
 void_cover.mode.normal=Normal
 void_cover.mode.supply=Supply
