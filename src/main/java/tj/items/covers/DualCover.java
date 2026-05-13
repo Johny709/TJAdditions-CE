@@ -63,26 +63,26 @@ import static gregtech.common.items.MetaItems.CONVEYOR_MODULE_UV;
 
 public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
 
-    private final IItemHandler itemHandler = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-    private final IFluidHandler fluidHandler = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
-    private final LargeItemStackHandler itemFilter = new LargeItemStackHandler(16, 1);
-    private final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 16)
+    protected final IItemHandler itemHandler = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+    protected final IFluidHandler fluidHandler = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
+    protected final LargeItemStackHandler itemFilter = new LargeItemStackHandler(16, 1);
+    protected final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 16)
             .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
             .collect(Collectors.toList()));
-    private final BlockPos posOffset = this.coverHolder.getPos().offset(this.attachedSide);
-    private final Set<Item> itemType = new HashSet<>();
-    private final Set<FluidStack> fluidType = new HashSet<>();
-    private final int maxItemTransferRate;
-    private final int maxFluidTransferRate;
-    private final int tier;
-    private CoverConveyor.ConveyorMode conveyorMode = CoverConveyor.ConveyorMode.EXPORT;
-    private CoverPump.PumpMode pumpMode = CoverPump.PumpMode.EXPORT;
-    private boolean isConveyorWorking;
-    private boolean isPumpWorking;
-    private boolean isItemBlacklist;
-    private boolean isFluidBlacklist;
-    private int itemTransferRate;
-    private int fluidTransferRate;
+    protected final BlockPos posOffset = this.coverHolder.getPos().offset(this.attachedSide);
+    protected final Set<Item> itemType = new HashSet<>();
+    protected final Set<FluidStack> fluidType = new HashSet<>();
+    protected final int maxItemTransferRate;
+    protected final int maxFluidTransferRate;
+    protected final int tier;
+    protected CoverConveyor.ConveyorMode conveyorMode = CoverConveyor.ConveyorMode.EXPORT;
+    protected CoverPump.PumpMode pumpMode = CoverPump.PumpMode.EXPORT;
+    protected boolean isConveyorWorking;
+    protected boolean isPumpWorking;
+    protected boolean isItemBlacklist;
+    protected boolean isFluidBlacklist;
+    protected int itemTransferRate;
+    protected int fluidTransferRate;
 
     public DualCover(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
         super(coverHolder, attachedSide);
@@ -265,7 +265,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
             this.fluidType.add(this.fluidFilter.getTankAt(i).getFluid());
     }
 
-    private void transferItems(IItemHandler itemHandler, IItemHandler destItemHandler) {
+    protected void transferItems(IItemHandler itemHandler, IItemHandler destItemHandler) {
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             final ItemStack stack = itemHandler.getStackInSlot(i);
             if (stack.isEmpty() || this.isItemBlacklist == this.itemType.contains(stack.getItem())) continue;
@@ -275,7 +275,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
         }
     }
 
-    private void transferFluids(IFluidHandler fluidHandler, IFluidHandler destFluidHandler) {
+    protected void transferFluids(IFluidHandler fluidHandler, IFluidHandler destFluidHandler) {
         final IFluidTankProperties[] tanks = fluidHandler.getTankProperties();
         for (IFluidTankProperties tank : tanks) {
             FluidStack fluidStack = tank.getContents();

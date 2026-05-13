@@ -42,6 +42,10 @@ public class TJCoverBehaviours {
             final int index = i;
             registerBehavior(172 + i, new ResourceLocation(TJ.MODID, "dual_cover." + GAValues.VN[i].toLowerCase()), DUAL_COVERS[i], (cover, face) -> new DualCover(cover, face, index));
         }
+        for (int i = 0; i < CONTROLLABLE_DUAL_COVERS.length; i++) {
+            final int index = i;
+            registerBehavior(187 + i, new ResourceLocation(TJ.MODID, "controllable_dual_cover." + GAValues.VN[i].toLowerCase()), CONTROLLABLE_DUAL_COVERS[i], (cover, face) -> new ControllableDualCover(cover, face, index));
+        }
     }
 
     public static void registerBehavior(int coverNetworkId, ResourceLocation coverId, MetaItem<?>.MetaValueItem placerItem, BiFunction<ICoverable, EnumFacing, CoverBehavior> behaviorCreator) {
