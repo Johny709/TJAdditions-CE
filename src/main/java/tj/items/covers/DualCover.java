@@ -6,6 +6,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
+import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
@@ -14,19 +15,23 @@ import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.ClickButtonWidget;
 import gregtech.api.gui.widgets.CycleButtonWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
+import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import gregtech.api.items.metaitem.MetaItem;
 import gregtech.api.render.Textures;
+import gregtech.api.util.Position;
 import gregtech.common.covers.CoverConveyor;
 import gregtech.common.covers.CoverPump;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
@@ -36,9 +41,16 @@ import tj.builder.WidgetTabBuilder;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
+import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.items.handlers.LargeItemStackHandler;
 import tj.util.TJItemUtils;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static gregicadditions.item.GAMetaItems.*;
 import static gregicadditions.item.GAMetaItems.CONVEYOR_MODULE_MAX;
@@ -53,7 +65,13 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
 
     private final IItemHandler itemHandler = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
     private final IFluidHandler fluidHandler = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
+    private final LargeItemStackHandler itemFilter = new LargeItemStackHandler(16, 1);
+    private final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 16)
+            .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
+            .collect(Collectors.toList()));
     private final BlockPos posOffset = this.coverHolder.getPos().offset(this.attachedSide);
+    private final Set<Item> itemType = new HashSet<>();
+    private final Set<FluidStack> fluidType = new HashSet<>();
     private final int maxItemTransferRate;
     private final int maxFluidTransferRate;
     private final int tier;
@@ -61,13 +79,15 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
     private CoverPump.PumpMode pumpMode = CoverPump.PumpMode.EXPORT;
     private boolean isConveyorWorking;
     private boolean isPumpWorking;
+    private boolean isItemBlacklist;
+    private boolean isFluidBlacklist;
     private int itemTransferRate;
     private int fluidTransferRate;
 
     public DualCover(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
         super(coverHolder, attachedSide);
-        this.maxItemTransferRate = (int) Math.min(Integer.MAX_VALUE,  320L << tier * 2);
-        this.maxFluidTransferRate = (int) Math.min(Integer.MAX_VALUE, 2L << tier * 2);
+        this.maxItemTransferRate = (int) Math.min(Integer.MAX_VALUE, 2L << tier * 2);
+        this.maxFluidTransferRate = (int) Math.min(Integer.MAX_VALUE, 320L << tier * 2);
         this.tier = tier;
     }
 
@@ -94,6 +114,20 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
     public ModularUI createUI(EntityPlayer player) {
         final MetaItem<?>.MetaValueItem[] conveyors = {null, CONVEYOR_MODULE_LV, CONVEYOR_MODULE_MV, CONVEYOR_MODULE_HV, CONVEYOR_MODULE_EV, CONVEYOR_MODULE_IV, CONVEYOR_MODULE_LUV, CONVEYOR_MODULE_ZPM, CONVEYOR_MODULE_UV, CONVEYOR_MODULE_UHV, CONVEYOR_MODULE_UEV, CONVEYOR_MODULE_UIV, CONVEYOR_MODULE_UMV, CONVEYOR_MODULE_UXV, CONVEYOR_MODULE_MAX};
         final MetaItem<?>.MetaValueItem[] pumps = {null, ELECTRIC_PUMP_LV, ELECTRIC_PUMP_MV, ELECTRIC_PUMP_HV, ELECTRIC_PUMP_EV, ELECTRIC_PUMP_IV, ELECTRIC_PUMP_LUV, ELECTRIC_PUMP_ZPM, ELECTRIC_PUMP_UV, ELECTRIC_PUMP_UHV, ELECTRIC_PUMP_UEV, ELECTRIC_PUMP_UIV, ELECTRIC_PUMP_UMV, ELECTRIC_PUMP_UXV, ELECTRIC_PUMP_MAX};
+        final WidgetGroup itemWidgetGroup = new WidgetGroup(new Position(10, 95));
+        final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(10, 115));
+        for (int i = 0; i < this.itemFilter.getSlots(); i++) {
+            itemWidgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, this.itemFilter, item -> {
+                if (!item.isEmpty())
+                    this.itemType.add(item.getItem());
+            }, item -> this.itemType.remove(item.getItem())).setBackgroundTextures(GuiTextures.SLOT));
+        }
+        for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
+            fluidWidgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, this.fluidFilter, fluid -> {
+                if (fluid != null)
+                    this.fluidType.add(fluid);
+            }, this.fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT));
+        }
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
                 .addTab(String.format("metaitem.conveyor.module.%s.name", GAValues.VN[tier].toLowerCase()), this.tier > 0 ? conveyors[this.tier].getStackForm() : this.getPickItem(), tab -> {
@@ -107,7 +141,11 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setUpdateOnTyping(true));
                     tab.add(new CycleButtonWidget(10, 65, 75, 20, CoverConveyor.ConveyorMode.class, () -> this.conveyorMode, this::setConveyorMode));
-                    tab.add(new ToggleButtonWidget(151, 168, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking));
+                    tab.add(itemWidgetGroup);
+                    tab.add(new ToggleButtonWidget(151, 95, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isItemBlacklist, this::setItemBlacklist)
+                            .setTooltipText("cover.filter.blacklist"));
+                    tab.add(new ToggleButtonWidget(151, 168, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
+                            .setTooltipText("machine.universal.toggle.run.mode"));
                 }).addTab(String.format("metaitem.electric.pump.%s.name", GAValues.VN[tier].toLowerCase()), this.tier > 0 ? pumps[this.tier].getStackForm() : this.getPickItem(), tab -> {
                     tab.add(new ClickButtonWidget(10, 20, 34, 20, "-100", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(128, 20, 34, 20, "+100", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 500 : 100))));
@@ -121,7 +159,11 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setUpdateOnTyping(true));
                     tab.add(new CycleButtonWidget(10, 85, 75, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
-                    tab.add(new ToggleButtonWidget(151, 168, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isPumpWorking, this::setPumpWorking));
+                    tab.add(fluidWidgetGroup);
+                    tab.add(new ToggleButtonWidget(151, 115, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isFluidBlacklist, this::setFluidBlacklist)
+                            .setTooltipText("cover.filter.blacklist"));
+                    tab.add(new ToggleButtonWidget(151, 168, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isPumpWorking, this::setPumpWorking)
+                            .setTooltipText("machine.universal.toggle.run.mode"));
                 });
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 272)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
@@ -166,6 +208,8 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
         tagCompound.setBoolean("pumpWorking", this.isPumpWorking);
         tagCompound.setInteger("conveyorMode", this.conveyorMode.ordinal());
         tagCompound.setInteger("pumpMode", this.pumpMode.ordinal());
+        tagCompound.setTag("itemFilter", this.itemFilter.serializeNBT());
+        tagCompound.setTag("fluidFilter", this.fluidFilter.serializeNBT());
     }
 
     @Override
@@ -177,12 +221,18 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
         this.isPumpWorking = tagCompound.getBoolean("pumpWorking");
         this.conveyorMode = CoverConveyor.ConveyorMode.values()[tagCompound.getInteger("conveyorMode")];
         this.pumpMode = CoverPump.PumpMode.values()[tagCompound.getInteger("pumpMode")];
+        this.itemFilter.deserializeNBT(tagCompound.getCompoundTag("itemFilter"));
+        this.fluidFilter.deserializeNBT(tagCompound.getCompoundTag("fluidFilter"));
+        for (int i = 0; i < this.itemFilter.getSlots(); i++)
+            this.itemType.add(this.itemFilter.getStackInSlot(i).getItem());
+        for (int i = 0; i < this.fluidFilter.getTanks(); i++)
+            this.fluidType.add(this.fluidFilter.getTankAt(i).getFluid());
     }
 
     private void transferItems(IItemHandler itemHandler, IItemHandler destItemHandler) {
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             final ItemStack stack = itemHandler.getStackInSlot(i);
-            if (stack.isEmpty()) continue;
+            if (stack.isEmpty() || this.isItemBlacklist == this.itemType.contains(stack.getItem())) continue;
             final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
             final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemTransferRate, stack.getCount() - inserted), false);
             TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
@@ -193,7 +243,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
         final IFluidTankProperties[] tanks = fluidHandler.getTankProperties();
         for (IFluidTankProperties tank : tanks) {
             FluidStack fluidStack = tank.getContents();
-            if (fluidStack == null) continue;
+            if (fluidStack == null || this.isFluidBlacklist == this.fluidType.contains(fluidStack)) continue;
             fluidStack = fluidHandler.drain(fluidStack, false);
             if (fluidStack == null) continue;
             fluidStack.amount = Math.min(fluidStack.amount, this.fluidTransferRate);
@@ -239,6 +289,16 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
 
     public void setPumpMode(CoverPump.PumpMode pumpMode) {
         this.pumpMode = pumpMode;
+        this.markAsDirty();
+    }
+
+    public void setItemBlacklist(boolean itemBlacklist) {
+        this.isItemBlacklist = itemBlacklist;
+        this.markAsDirty();
+    }
+
+    public void setFluidBlacklist(boolean fluidBlacklist) {
+        this.isFluidBlacklist = fluidBlacklist;
         this.markAsDirty();
     }
 }

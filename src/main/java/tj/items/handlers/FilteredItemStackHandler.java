@@ -1,6 +1,6 @@
 package tj.items.handlers;
 
-import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.cover.ICoverable;
 import net.minecraft.item.ItemStack;
 import org.apache.logging.log4j.util.TriConsumer;
 
@@ -13,22 +13,22 @@ import java.util.function.BiPredicate;
  */
 public class FilteredItemStackHandler extends LargeItemStackHandler {
 
-    private final MetaTileEntity tileEntity;
+    private final ICoverable holder;
     private TriConsumer<Integer, ItemStack, Boolean> onContentsChangedPre;
     private BiConsumer<Integer, ItemStack> onContentsChangedPost;
     private BiPredicate<Integer, ItemStack> itemStackPredicate;
 
-    public FilteredItemStackHandler(MetaTileEntity tileEntity) {
-        this(tileEntity, 1, 64);
+    public FilteredItemStackHandler(ICoverable holder) {
+        this(holder, 1, 64);
     }
 
-    public FilteredItemStackHandler(MetaTileEntity tileEntity, int slots) {
-        this(tileEntity, slots, 64);
+    public FilteredItemStackHandler(ICoverable holder, int slots) {
+        this(holder, slots, 64);
     }
 
-    public FilteredItemStackHandler(MetaTileEntity tileEntity, int slots, int capacity) {
+    public FilteredItemStackHandler(ICoverable holder, int slots, int capacity) {
         super(slots, capacity);
-        this.tileEntity = tileEntity;
+        this.holder = holder;
     }
 
     /**
@@ -80,7 +80,7 @@ public class FilteredItemStackHandler extends LargeItemStackHandler {
     protected void onContentsChanged(int slot) {
         if (this.onContentsChangedPost != null)
             this.onContentsChangedPost.accept(slot, this.getStackInSlot(slot));
-        if (this.tileEntity != null)
-            this.tileEntity.markDirty();
+        if (this.holder != null)
+            this.holder.markDirty();
     }
 }

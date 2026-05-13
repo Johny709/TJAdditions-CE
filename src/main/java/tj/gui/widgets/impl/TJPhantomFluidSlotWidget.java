@@ -28,18 +28,24 @@ import java.util.function.Consumer;
 
 public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredientTarget, IIngredientSlot {
 
-    private final Consumer<FluidStack> fluidStackConsumer;
+    private final Consumer<FluidStack> onUpdate;
+    private final Consumer<FluidStack> onExtracted;
     private final IMultipleTankHandler tanks;
     private final int slotIndex;
     private TextureArea backgroundTexture;
     private FluidStack fluidStack;
     private boolean specialDrainingMode;
 
-    public TJPhantomFluidSlotWidget(int x, int y, int width, int height, int slotIndex, IMultipleTankHandler tanks, Consumer<FluidStack> fluidStackConsumer) {
+    public TJPhantomFluidSlotWidget(int x, int y, int width, int height, int slotIndex, IMultipleTankHandler tanks, Consumer<FluidStack> onUpdate) {
+        this(x, y, width, height, slotIndex, tanks, onUpdate, null);
+    }
+
+    public TJPhantomFluidSlotWidget(int x, int y, int width, int height, int slotIndex, IMultipleTankHandler tanks, Consumer<FluidStack> onUpdate, Consumer<FluidStack> onExtracted) {
         super(new Position(x, y), new Size(width, height));
-        this.fluidStackConsumer = fluidStackConsumer;
         this.tanks = tanks;
         this.slotIndex = slotIndex;
+        this.onUpdate = onUpdate;
+        this.onExtracted = onExtracted;
     }
 
     public TJPhantomFluidSlotWidget setBackgroundTexture(TextureArea backgroundTexture) {
@@ -136,16 +142,18 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
                 this.fluidStack = FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag());
                 this.tanks.getTankAt(this.slotIndex).drain(this.specialDrainingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, true);
                 this.tanks.getTankAt(this.slotIndex).fill(this.fluidStack, true);
-                if (this.fluidStackConsumer != null)
-                    this.fluidStackConsumer.accept(this.fluidStack);
+                if (this.onUpdate != null)
+                    this.onUpdate.accept(this.fluidStack);
             } catch (IOException e) {
                 GTLog.logger.info(e.getMessage());
             }
         } else if (id == 2) {
             this.fluidStack = null;
-            this.tanks.getTankAt(this.slotIndex).drain(this.specialDrainingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, true);
-            if (this.fluidStackConsumer != null)
-                this.fluidStackConsumer.accept(null);
+            final FluidStack extracted = this.tanks.getTankAt(this.slotIndex).drain(this.specialDrainingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, true);
+            if (this.onUpdate != null)
+                this.onUpdate.accept(null);
+            if (this.onExtracted != null)
+                this.onExtracted.accept(extracted);
         }
     }
 
