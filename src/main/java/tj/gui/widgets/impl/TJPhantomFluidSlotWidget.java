@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredientTarget, IIngredientSlot {
 
@@ -35,6 +36,8 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
     private TextureArea backgroundTexture;
     private FluidStack fluidStack;
     private boolean specialDrainingMode;
+    private Predicate<FluidStack> putFluidsPredicate;
+    private Predicate<FluidStack> takeFluidsPredicate;
 
     public TJPhantomFluidSlotWidget(int x, int y, int width, int height, int slotIndex, IMultipleTankHandler tanks, Consumer<FluidStack> onUpdate) {
         this(x, y, width, height, slotIndex, tanks, onUpdate, null);
@@ -58,6 +61,23 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
      */
     public TJPhantomFluidSlotWidget setSpecialDrainingMode(boolean specialDrainingMode) {
         this.specialDrainingMode = specialDrainingMode;
+        return this;
+    }
+
+    /**
+     * Set condition for fluid to be placed into slot either by dragging from JEI or placing fluid held by mouse into slot.
+     * Will always be true if supplier not set or null.
+     */
+    public TJPhantomFluidSlotWidget setPutFluidsPredicate(Predicate<FluidStack> putFluidsPredicate) {
+        this.putFluidsPredicate = putFluidsPredicate;
+        return this;
+    }
+
+    /**
+     * Set condition for fluid to be removed from slot. Will always be true if supplier not set or null.
+     */
+    public TJPhantomFluidSlotWidget setTakeFluidsPredicate(Predicate<FluidStack> takeItemsPredicate) {
+        this.takeFluidsPredicate = takeItemsPredicate;
         return this;
     }
 
@@ -123,6 +143,8 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
             } catch (IOException e) {
                 GTLog.logger.info(e.getMessage());
             }
+        } else if (id == 2) {
+            this.fluidStack = null;
         }
     }
 
@@ -139,21 +161,29 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
     public void handleClientAction(int id, PacketBuffer buffer) {
         if (id == 1) {
             try {
-                this.fluidStack = FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag());
-                this.tanks.getTankAt(this.slotIndex).drain(this.specialDrainingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, true);
-                this.tanks.getTankAt(this.slotIndex).fill(this.fluidStack, true);
-                if (this.onUpdate != null)
-                    this.onUpdate.accept(this.fluidStack);
+                final FluidStack fluidStack = FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag());
+                if (this.putFluidsPredicate == null || this.putFluidsPredicate.test(fluidStack)) {
+                    this.fluidStack = fluidStack;
+                    this.tanks.getTankAt(this.slotIndex).drain(this.specialDrainingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, true);
+                    this.tanks.getTankAt(this.slotIndex).fill(this.fluidStack, true);
+                    if (this.onUpdate != null)
+                        this.onUpdate.accept(this.fluidStack);
+                } else if (this.fluidStack != null) {
+                    this.writeUpdateInfo(1, buffer1 -> buffer1.writeCompoundTag(this.fluidStack.writeToNBT(new NBTTagCompound())));
+                } else this.writeUpdateInfo(2, buffer1 -> {});
             } catch (IOException e) {
                 GTLog.logger.info(e.getMessage());
             }
         } else if (id == 2) {
-            this.fluidStack = null;
-            final FluidStack extracted = this.tanks.getTankAt(this.slotIndex).drain(this.specialDrainingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, true);
-            if (this.onUpdate != null)
-                this.onUpdate.accept(null);
-            if (this.onExtracted != null)
-                this.onExtracted.accept(extracted);
+            final FluidStack extracted = this.tanks.getTankAt(this.slotIndex).drain(this.specialDrainingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, false);
+            if (extracted == null) return;
+            if (this.takeFluidsPredicate == null || this.takeFluidsPredicate.test(extracted)) {
+                final FluidStack fluidStack = this.tanks.getTankAt(this.slotIndex).drain(this.specialDrainingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, true);
+                if (this.onUpdate != null)
+                    this.onUpdate.accept(null);
+                if (this.onExtracted != null && fluidStack != null)
+                    this.onExtracted.accept(fluidStack);
+            } else this.writeUpdateInfo(1, buffer1 -> buffer1.writeCompoundTag(extracted.writeToNBT(new NBTTagCompound())));
         }
     }
 

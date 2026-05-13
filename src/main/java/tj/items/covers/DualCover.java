@@ -120,13 +120,15 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
             itemWidgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, this.itemFilter, item -> {
                 if (!item.isEmpty())
                     this.itemType.add(item.getItem());
-            }, item -> this.itemType.remove(item.getItem())).setBackgroundTextures(GuiTextures.SLOT));
+            }, item -> this.itemType.remove(item.getItem())).setBackgroundTextures(GuiTextures.SLOT)
+                    .setPutItemsPredicate(item -> !this.itemType.contains(item.getItem())));
         }
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             fluidWidgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, this.fluidFilter, fluid -> {
                 if (fluid != null)
                     this.fluidType.add(fluid);
-            }, this.fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT));
+            }, this.fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
+                    .setPutFluidsPredicate(fluid -> !this.fluidType.contains(fluid)));
         }
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
