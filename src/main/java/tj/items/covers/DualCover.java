@@ -22,6 +22,8 @@ import gregtech.api.render.Textures;
 import gregtech.api.util.Position;
 import gregtech.common.covers.CoverConveyor;
 import gregtech.common.covers.CoverPump;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -46,8 +48,6 @@ import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.util.TJItemUtils;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -70,8 +70,8 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
             .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
             .collect(Collectors.toList()));
     protected final BlockPos posOffset = this.coverHolder.getPos().offset(this.attachedSide);
-    protected final Set<Item> itemType = new HashSet<>();
-    protected final Set<FluidStack> fluidType = new HashSet<>();
+    protected final Object2ObjectMap<Item, ItemStack> itemType = new Object2ObjectOpenHashMap<>();
+    protected final Object2ObjectMap<FluidStack, FluidStack> fluidType = new Object2ObjectOpenHashMap<>();
     protected final int maxItemTransferRate;
     protected final int maxFluidTransferRate;
     protected final int tier;
@@ -86,8 +86,8 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
 
     public DualCover(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
         super(coverHolder, attachedSide);
-        this.maxItemTransferRate = (int) Math.min(Integer.MAX_VALUE, 2L << tier * 2);
-        this.maxFluidTransferRate = (int) Math.min(Integer.MAX_VALUE, 320L << tier * 2);
+        this.maxItemTransferRate = this.itemTransferRate = (int) Math.min(Integer.MAX_VALUE, 2L << tier * 2);
+        this.maxFluidTransferRate = this.fluidTransferRate = (int) Math.min(Integer.MAX_VALUE, 320L << tier * 2);
         this.tier = tier;
     }
 
@@ -119,13 +119,14 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
             if (compound.hasKey("itemSlot:" + i)) {
                 this.itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("itemSlot:" + i)));
-                this.itemType.add(this.itemFilter.getStackInSlot(i).getItem());
+                final ItemStack stack = this.itemFilter.getStackInSlot(i);
+                this.itemType.put(stack.getItem(), stack);
             }
         }
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             if (compound.hasKey("fluidSlot:" + i)) {
                 this.fluidFilter.getTankAt(i).fill(FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("fluidSlot:" + i)), true);
-                this.fluidType.add(this.fluidFilter.getTankAt(i).getFluid());
+                this.fluidType.put(this.fluidFilter.getTankAt(i).getFluid(), this.fluidFilter.getTankAt(i).getFluid());
             }
         }
     }
@@ -153,16 +154,16 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
             itemWidgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, this.itemFilter, item -> {
                 if (!item.isEmpty())
-                    this.itemType.add(item.getItem());
+                    this.itemType.put(item.getItem(), item);
             }, item -> this.itemType.remove(item.getItem())).setBackgroundTextures(GuiTextures.SLOT)
-                    .setPutItemsPredicate(item -> !this.itemType.contains(item.getItem())));
+                    .setPutItemsPredicate(item -> !this.itemType.containsKey(item.getItem())));
         }
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             fluidWidgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, this.fluidFilter, fluid -> {
                 if (fluid != null)
-                    this.fluidType.add(fluid);
+                    this.fluidType.put(fluid, fluid);
             }, this.fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
-                    .setPutFluidsPredicate(fluid -> !this.fluidType.contains(fluid)));
+                    .setPutFluidsPredicate(fluid -> !this.fluidType.containsKey(fluid)));
         }
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
@@ -260,15 +261,15 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
         this.itemFilter.deserializeNBT(tagCompound.getCompoundTag("itemFilter"));
         this.fluidFilter.deserializeNBT(tagCompound.getCompoundTag("fluidFilter"));
         for (int i = 0; i < this.itemFilter.getSlots(); i++)
-            this.itemType.add(this.itemFilter.getStackInSlot(i).getItem());
+            this.itemType.put(this.itemFilter.getStackInSlot(i).getItem(), this.itemFilter.getStackInSlot(i));
         for (int i = 0; i < this.fluidFilter.getTanks(); i++)
-            this.fluidType.add(this.fluidFilter.getTankAt(i).getFluid());
+            this.fluidType.put(this.fluidFilter.getTankAt(i).getFluid(), this.fluidFilter.getTankAt(i).getFluid());
     }
 
     protected void transferItems(IItemHandler itemHandler, IItemHandler destItemHandler) {
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             final ItemStack stack = itemHandler.getStackInSlot(i);
-            if (stack.isEmpty() || this.isItemBlacklist == this.itemType.contains(stack.getItem())) continue;
+            if (stack.isEmpty() || this.isItemBlacklist == this.itemType.containsKey(stack.getItem())) continue;
             final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
             final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemTransferRate, stack.getCount() - inserted), false);
             TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
@@ -279,7 +280,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
         final IFluidTankProperties[] tanks = fluidHandler.getTankProperties();
         for (IFluidTankProperties tank : tanks) {
             FluidStack fluidStack = tank.getContents();
-            if (fluidStack == null || this.isFluidBlacklist == this.fluidType.contains(fluidStack)) continue;
+            if (fluidStack == null || this.isFluidBlacklist == this.fluidType.containsKey(fluidStack)) continue;
             fluidStack = fluidHandler.drain(fluidStack, false);
             if (fluidStack == null) continue;
             fluidStack.amount = Math.min(fluidStack.amount, this.fluidTransferRate);

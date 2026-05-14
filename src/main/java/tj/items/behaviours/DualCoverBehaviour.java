@@ -16,6 +16,8 @@ import gregtech.api.items.metaitem.stats.IItemBehaviour;
 import gregtech.api.util.Position;
 import gregtech.common.covers.CoverConveyor;
 import gregtech.common.covers.CoverPump;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -91,7 +93,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
         final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 16)
                 .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
                 .collect(Collectors.toList()));
-        final Set<Item> itemType = new HashSet<>();
+        final Object2ObjectMap<Item, ItemStack> itemType = new Object2ObjectOpenHashMap<>();
         final Set<FluidStack> fluidType = new HashSet<>();
         final WidgetGroup itemWidgetGroup = new WidgetGroup(new Position(10, 95));
         final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(10, 115));
@@ -99,11 +101,11 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
             final int index = i;
             itemWidgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, itemFilter, item -> {
                 if (!item.isEmpty()) {
-                    itemType.add(item.getItem());
+                    itemType.put(item.getItem(), item);
                     compound.setTag("itemSlot:" + index, item.serializeNBT());
                 } else compound.removeTag("itemSlot:" + index);
             }, item -> itemType.remove(item.getItem())).setBackgroundTextures(GuiTextures.SLOT)
-                    .setPutItemsPredicate(item -> !itemType.contains(item.getItem())));
+                    .setPutItemsPredicate(item -> !itemType.containsKey(item.getItem())));
         }
         for (int i = 0; i < fluidFilter.getTanks(); i++) {
             final int index = i;
@@ -207,7 +209,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                     for (int i = 0; i < itemFilter.getSlots(); i++) {
                         if (compound.hasKey("itemSlot:" + i)) {
                             itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("itemSlot" + i)));
-                            itemType.add(itemFilter.getStackInSlot(i).getItem());
+                            itemType.put(itemFilter.getStackInSlot(i).getItem(), itemFilter.getStackInSlot(i));
                         }
                     }
                     for (int i = 0; i < fluidFilter.getTanks(); i++) {

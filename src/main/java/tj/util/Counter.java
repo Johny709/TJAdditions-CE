@@ -1,6 +1,9 @@
 package tj.util;
 
 public final class Counter {
+
+    public static final Counter DUMMY_COUNTER = new Counter(0);
+
     private long value;
 
     public Counter(long initialValue) {

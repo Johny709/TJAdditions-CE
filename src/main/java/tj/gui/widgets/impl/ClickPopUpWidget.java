@@ -93,7 +93,7 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
         if (contains && (actionResult = this.textConditions.get(index).test(componentData, textId, clickData, player)) == EnumActionResult.PASS)
             return;
         if (!contains || actionResult == EnumActionResult.SUCCESS)
-            this.handleButtonPress(textId);
-        else this.handleButtonPress(String.valueOf(index));
+            this.setPopupIndex(textId);
+        else this.setPopupIndex(String.valueOf(index));
     }
 }

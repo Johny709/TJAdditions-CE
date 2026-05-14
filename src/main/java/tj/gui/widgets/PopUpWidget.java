@@ -5,6 +5,7 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.resources.AdoptableTextureArea;
 import gregtech.api.gui.widgets.AbstractWidgetGroup;
 import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -30,6 +31,10 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     protected AdoptableTextureArea textureArea;
     protected IntSupplier indexSupplier;
     protected int selectedIndex;
+
+    public PopUpWidget() {
+        this(0, 0, 0, 0);
+    }
 
     public PopUpWidget(int x, int y, int width, int height) {
         super(new Position(x, y), new Size(width, height));
@@ -97,8 +102,11 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     @Override
     public void detectAndSendChanges() {
         if (this.indexSupplier != null) {
-            this.selectedIndex = this.indexSupplier.getAsInt();
-            this.writeUpdateInfo(2, buffer -> buffer.writeInt(this.selectedIndex));
+            final int selectedIndex = this.indexSupplier.getAsInt();
+            if (selectedIndex != this.selectedIndex) {
+                this.selectedIndex = selectedIndex;
+                this.writeUpdateInfo(2, buffer -> buffer.writeInt(this.selectedIndex));
+            }
         }
         this.widgetMap.get(this.selectedIndex).getRight().detectAndSendChanges();
     }
@@ -183,6 +191,15 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
         super.readUpdateInfo(id, buffer);
         if (id == 2) {
             this.selectedIndex = buffer.readInt();
+        }
+    }
+
+    protected void setPopupIndex(String index) {
+        try {
+            this.selectedIndex = Integer.parseInt(index);
+            this.writeUpdateInfo(2, buffer -> buffer.writeInt(this.selectedIndex));
+        } catch (NumberFormatException e) {
+            GTLog.logger.info(e.getMessage());
         }
     }
 }

@@ -9,7 +9,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
 /**
- * Recommended to use TJSlotWidget for player interacting with this.
+ * Recommended to use {@link tj.gui.widgets.TJSlotWidget} for player interacting with this.
  */
 public class FilteredItemStackHandler extends LargeItemStackHandler {
 
@@ -70,9 +70,8 @@ public class FilteredItemStackHandler extends LargeItemStackHandler {
     @Override
     @Nonnull
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
-        ItemStack upgradeStack = this.getStackInSlot(slot);
         if (!simulate && this.onContentsChangedPre != null)
-            this.onContentsChangedPre.accept(slot, upgradeStack, false);
+            this.onContentsChangedPre.accept(slot, this.getStackInSlot(slot), false);
         return super.extractItem(slot, amount, simulate);
     }
 

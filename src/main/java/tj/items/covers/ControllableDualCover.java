@@ -14,15 +14,28 @@ import gregtech.api.util.Position;
 import gregtech.common.covers.CoverConveyor;
 import gregtech.common.covers.CoverPump;
 import gregtech.common.covers.TransferMode;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
+import net.minecraftforge.items.IItemHandler;
 import tj.builder.WidgetTabBuilder;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.NewTextFieldWidget;
+import tj.gui.widgets.PopUpWidget;
 import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.items.handlers.FilteredItemStackHandler;
+import tj.util.Counter;
+import tj.util.TJItemUtils;
 
 import java.util.regex.Pattern;
 
@@ -34,8 +47,30 @@ import static tj.items.TJMetaItems.*;
 
 public class ControllableDualCover extends DualCover {
 
+    private final FilteredItemStackHandler itemFilterSlot = new FilteredItemStackHandler(this.coverHolder, 1, 1)
+            .setItemStackPredicate((slot, itemStack) -> ITEM_FILTER.isItemEqual(itemStack) || SMART_FILTER.isItemEqual(itemStack) || ORE_DICTIONARY_FILTER.isItemEqual(itemStack))
+            .setOnContentsChangedPre((slot, itemStack, insert) -> {
+                if (!insert) return;
+                this.itemFilterType = ITEM_FILTER.isItemEqual(itemStack) ? FilterType.NORMAL : SMART_FILTER.isItemEqual(itemStack) ? FilterType.SMART : ORE_DICTIONARY_FILTER.isItemEqual(itemStack) ? FilterType.ORE_DICT : null;
+            }).setOnContentsChangedPost((slot, itemStack) -> {
+                if (itemStack.isEmpty())
+                    this.itemFilterType = null;
+            });
+    private final FilteredItemStackHandler fluidFilterSlot = new FilteredItemStackHandler(this.coverHolder, 1, 1)
+            .setItemStackPredicate((slot, itemStack) -> FLUID_FILTER.isItemEqual(itemStack) || SMART_FILTER.isItemEqual(itemStack))
+            .setOnContentsChangedPre((slot, itemStack, insert) -> {
+                if (!insert) return;
+                this.fluidFilterType = FLUID_FILTER.isItemEqual(itemStack) ? FilterType.NORMAL : SMART_FILTER.isItemEqual(itemStack) ? FilterType.SMART : null;
+            }).setOnContentsChangedPost((slot, itemStack) -> {
+                if (itemStack.isEmpty())
+                    this.fluidFilterType = null;
+            });
+    private final Object2ObjectMap<Item, Counter> itemExact = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<FluidStack, Counter> fluidExact = new Object2ObjectOpenHashMap<>();
     private TransferMode robotArmMode = TransferMode.TRANSFER_ANY;
     private TransferMode regulatorMode = TransferMode.TRANSFER_ANY;
+    private FilterType itemFilterType;
+    private FilterType fluidFilterType;
 
     public ControllableDualCover(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
         super(coverHolder, attachedSide, tier);
@@ -45,22 +80,42 @@ public class ControllableDualCover extends DualCover {
     public ModularUI createUI(EntityPlayer player) {
         final MetaItem<?>.MetaValueItem[] robotArms = {null, ROBOT_ARM_LV, ROBOT_ARM_MV, ROBOT_ARM_HV, ROBOT_ARM_EV, ROBOT_ARM_IV, ROBOT_ARM_LUV, ROBOT_ARM_ZPM, ROBOT_ARM_UV, ROBOT_ARM_UHV, ROBOT_ARM_UEV, ROBOT_ARM_UIV, ROBOT_ARM_UMV, ROBOT_ARM_UXV, ROBOT_ARM_MAX};
         final MetaItem<?>.MetaValueItem[] regulators = {null, FLUID_REGULATOR_LV, FLUID_REGULATOR_MV, FLUID_REGULATOR_HV, FLUID_REGULATOR_EV, FLUID_REGULATOR_IV, FLUID_REGULATOR_LUV, FLUID_REGULATOR_ZPM, FLUID_REGULATOR_UV, FLUID_REGULATOR_UHV, null, null, FLUID_REGULATOR_UMV, null, FLUID_REGULATOR_MAX};
-        final WidgetGroup itemWidgetGroup = new WidgetGroup(new Position(10, 95));
-        final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(10, 115));
+        final WidgetGroup itemWidgetGroup = new WidgetGroup(new Position(7, 95));
+        final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(7, 115));
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
             itemWidgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, this.itemFilter, item -> {
                 if (!item.isEmpty())
-                    this.itemType.add(item.getItem());
+                    this.itemType.put(item.getItem(), item);
             }, item -> this.itemType.remove(item.getItem())).setBackgroundTextures(GuiTextures.SLOT)
-                    .setPutItemsPredicate(item -> !this.itemType.contains(item.getItem())));
+                    .setPutItemsPredicate(item -> this.itemType.get(item.getItem()) == null));
         }
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             fluidWidgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, this.fluidFilter, fluid -> {
                 if (fluid != null)
-                    this.fluidType.add(fluid);
+                    this.fluidType.put(fluid, fluid);
             }, this.fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
-                    .setPutFluidsPredicate(fluid -> !this.fluidType.contains(fluid)));
+                    .setPutFluidsPredicate(fluid -> this.fluidType.get(fluid) == null));
         }
+        final PopUpWidget<?> itemFilterPopup = new PopUpWidget<>()
+                .setIndexSupplier(() -> {
+                    final ItemStack itemStack = this.itemFilterSlot.getStackInSlot(0);
+                    return ITEM_FILTER.isItemEqual(itemStack) ? 1 : SMART_FILTER.isItemEqual(itemStack) ? 2 : ORE_DICTIONARY_FILTER.isItemEqual(itemStack) ? 3 : 0;
+                }).addPopup(widgetGroup -> true)
+                .addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(itemWidgetGroup);
+                    return false;
+                }).addPopup(widgetGroup -> false)
+                .addPopup(widgetGroup -> false);
+        final PopUpWidget<?> fluidFilterPopup = new PopUpWidget<>()
+                .setIndexSupplier(() -> {
+                    final ItemStack itemStack = this.fluidFilterSlot.getStackInSlot(0);
+                    return FLUID_FILTER.isItemEqual(itemStack) ? 1 : SMART_FILTER.isItemEqual(itemStack) ? 2 : 0;
+                })
+                .addPopup(widgetGroup -> true)
+                .addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(fluidWidgetGroup);
+                    return false;
+                }).addPopup(widgetGroup -> false);
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
                 .addTab(String.format("metaitem.robot.arm.%s.name", GAValues.VN[tier].toLowerCase()), this.tier > 0 ? robotArms[this.tier].getStackForm() : this.getPickItem(), tab -> {
@@ -76,8 +131,10 @@ public class ControllableDualCover extends DualCover {
                     tab.add(new CycleButtonWidget(10, 65, 75, 20, CoverConveyor.ConveyorMode.class, () -> this.conveyorMode, this::setConveyorMode));
                     tab.add(new CycleButtonWidget(91, 65, 75, 20, TransferMode.class, () -> this.robotArmMode, this::setRobotArmMode)
                             .setTooltipHoverString("cover.robotic_arm.transfer_mode.description"));
-                    tab.add(itemWidgetGroup);
-                    tab.add(new ToggleButtonWidget(151, 95, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isItemBlacklist, this::setItemBlacklist)
+                    tab.add(new TJSlotWidget<>(this.itemFilterSlot, 0, 91, 95)
+                            .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
+                    tab.add(itemFilterPopup);
+                    tab.add(new ToggleButtonWidget(91, 113, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isItemBlacklist, this::setItemBlacklist)
                             .setTooltipText("cover.filter.blacklist"));
                     tab.add(new ToggleButtonWidget(151, 168, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
                             .setTooltipText("machine.universal.toggle.run.mode"));
@@ -96,8 +153,10 @@ public class ControllableDualCover extends DualCover {
                     tab.add(new CycleButtonWidget(10, 85, 75, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
                     tab.add(new CycleButtonWidget(88, 85, 75, 18, TransferMode.class, () -> this.regulatorMode, this::setRegulatorMode)
                             .setTooltipHoverString("cover.fluid_regulator.transfer_mode.description"));
-                    tab.add(fluidWidgetGroup);
-                    tab.add(new ToggleButtonWidget(151, 115, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isFluidBlacklist, this::setFluidBlacklist)
+                    tab.add(new TJSlotWidget<>(this.fluidFilterSlot, 0, 88, 115)
+                            .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
+                    tab.add(fluidFilterPopup);
+                    tab.add(new ToggleButtonWidget(88, 133, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isFluidBlacklist, this::setFluidBlacklist)
                             .setTooltipText("cover.filter.blacklist"));
                     tab.add(new ToggleButtonWidget(151, 168, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isPumpWorking, this::setPumpWorking)
                             .setTooltipText("machine.universal.toggle.run.mode"));
@@ -111,10 +170,118 @@ public class ControllableDualCover extends DualCover {
     }
 
     @Override
+    protected void transferItems(IItemHandler itemHandler, IItemHandler destItemHandler) {
+        switch (this.robotArmMode) {
+            case TRANSFER_ANY:
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    final ItemStack stack = itemHandler.getStackInSlot(i);
+                    if (!stack.isEmpty() && (this.itemFilterType == null || this.isItemBlacklist == (this.itemType.get(stack.getItem()) == null))) {
+                        final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                        final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemTransferRate, stack.getCount() - inserted), false);
+                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                    }
+                }
+                break;
+            case TRANSFER_EXACT:
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    final ItemStack stack = itemHandler.getStackInSlot(i);
+                    ItemStack filterStack = null;
+                    if (!stack.isEmpty() && (this.itemFilterType == null || this.isItemBlacklist == ((filterStack = this.itemType.get(stack.getItem())) == null))) {
+                        final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                        final int extract = filterStack != null ? filterStack.getCount() : this.itemTransferRate;
+                        final ItemStack otherStack = itemHandler.extractItem(i, Math.min(extract, stack.getCount() - inserted), true);
+                        if (stack.getCount() >= extract) {
+                            itemHandler.extractItem(i, extract, false);
+                            TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                        }
+                    }
+                }
+                break;
+            case KEEP_EXACT:
+                for (int i = 0; i < destItemHandler.getSlots(); i++) {
+                    final ItemStack stack = destItemHandler.getStackInSlot(i);
+                    this.itemExact.computeIfAbsent(stack.getItem(), k -> new Counter(0))
+                            .increment(stack.getCount());
+                }
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    final ItemStack stack = itemHandler.getStackInSlot(i);
+                    ItemStack filterStack = null;
+                    if (!stack.isEmpty() && (this.itemFilterType == null || this.isItemBlacklist == ((filterStack = this.itemType.get(stack.getItem())) == null))) {
+                        final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min((filterStack != null ? filterStack.getCount() : this.itemTransferRate) - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue(), stack.getCount() - inserted)), false);
+                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                    }
+                }
+                this.itemExact.clear();
+        }
+    }
+
+    @Override
+    protected void transferFluids(IFluidHandler fluidHandler, IFluidHandler destFluidHandler) {
+        final IFluidTankProperties[] tanks = fluidHandler.getTankProperties();
+        switch (this.regulatorMode) {
+            case TRANSFER_ANY:
+                for (IFluidTankProperties tank : tanks) {
+                    FluidStack fluidStack = tank.getContents();
+                    if (fluidStack != null && (this.fluidFilterType == null || this.isFluidBlacklist == (this.fluidType.get(fluidStack) == null))) {
+                        fluidStack = fluidHandler.drain(fluidStack, false);
+                        if (fluidStack == null) continue;
+                        fluidStack.amount = Math.min(fluidStack.amount, this.fluidTransferRate);
+                        fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                        fluidHandler.drain(fluidStack, true);
+                    }
+                }
+                break;
+            case TRANSFER_EXACT:
+                for (IFluidTankProperties tank : tanks) {
+                    FluidStack fluidStack = tank.getContents();
+                    FluidStack filterStack = null;
+                    if (fluidStack != null && (this.fluidFilterType == null || this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null))) {
+                        fluidStack = fluidHandler.drain(fluidStack, false);
+                        if (fluidStack == null) continue;
+                        final int extract = filterStack != null ? filterStack.amount : this.fluidTransferRate;
+                        if (fluidStack.amount >= extract) {
+                            fluidStack.amount = Math.min(fluidStack.amount, extract);
+                            fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                            fluidHandler.drain(fluidStack, true);
+                        }
+                    }
+                }
+                break;
+            case KEEP_EXACT:
+                for (IFluidTankProperties tank : tanks) {
+                    final FluidStack stack = tank.getContents();
+                    if (stack != null) {
+                        this.fluidExact.computeIfAbsent(stack, k -> new Counter(0))
+                                .increment(stack.amount);
+                    }
+                }
+                for (IFluidTankProperties tank : tanks) {
+                    FluidStack fluidStack = tank.getContents();
+                    FluidStack filterStack = null;
+                    if (fluidStack != null && (this.fluidFilterType == null || this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null))) {
+                        fluidStack = fluidHandler.drain(fluidStack, false);
+                        if (fluidStack == null) continue;
+                        fluidStack.amount = (int) Math.max(0, Math.min((filterStack != null ? filterStack.amount : this.fluidTransferRate) - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue(), fluidStack.amount));
+                        if (fluidStack.amount > 0) {
+                            fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                            fluidHandler.drain(fluidStack, true);
+                        }
+                    }
+                }
+                this.fluidExact.clear();
+        }
+    }
+
+    @Override
     public void writeToNBT(NBTTagCompound tagCompound) {
         super.writeToNBT(tagCompound);
         tagCompound.setInteger("robotArmMode", this.robotArmMode.ordinal());
         tagCompound.setInteger("regulatorMode", this.regulatorMode.ordinal());
+        tagCompound.setInteger("itemFilterType", this.itemFilterType.ordinal());
+        tagCompound.setInteger("fluidFilterType", this.fluidFilterType.ordinal());
+        tagCompound.setTag("itemFilterSlot", this.itemFilterSlot.serializeNBT());
+        tagCompound.setTag("fluidFilterSlot", this.fluidFilterSlot.serializeNBT());
     }
 
     @Override
@@ -122,6 +289,10 @@ public class ControllableDualCover extends DualCover {
         super.readFromNBT(tagCompound);
         this.robotArmMode = TransferMode.values()[tagCompound.getInteger("robotArmMode")];
         this.regulatorMode = TransferMode.values()[tagCompound.getInteger("regulatorMode")];
+        this.itemFilterType = FilterType.values()[tagCompound.getInteger("itemFilterType")];
+        this.fluidFilterType = FilterType.values()[tagCompound.getInteger("fluidFilterType")];
+        this.itemFilterSlot.deserializeNBT(tagCompound.getCompoundTag("itemFilterSlot"));
+        this.fluidFilterSlot.deserializeNBT(tagCompound.getCompoundTag("fluidFilterSlot"));
     }
 
     public void setRobotArmMode(TransferMode robotArmMode) {
@@ -132,5 +303,11 @@ public class ControllableDualCover extends DualCover {
     public void setRegulatorMode(TransferMode regulatorMode) {
         this.regulatorMode = regulatorMode;
         this.markAsDirty();
+    }
+
+    public enum FilterType {
+        NORMAL,
+        SMART,
+        ORE_DICT
     }
 }
