@@ -33,9 +33,12 @@ import tj.builder.WidgetTabBuilder;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
 import tj.gui.widgets.NewTextFieldWidget;
+import tj.gui.widgets.PopUpWidget;
 import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.util.references.BooleanReference;
 import tj.util.references.IntegerReference;
@@ -97,6 +100,24 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
         final BooleanReference fluidWorking = new BooleanReference();
         final ItemStack itemStack = player.getHeldItemMainhand();
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
+        final FilteredItemStackHandler itemFilterSlot = new FilteredItemStackHandler(null, 1, 1)
+                .setItemStackPredicate((slot, itemStack1) -> ITEM_FILTER.isItemEqual(itemStack1))
+                .setOnContentsChangedPre((slot, itemStack1, insert) -> {
+                    if (!insert) return;
+                    compound.setTag("itemFilterSlot", itemStack1.serializeNBT());
+                }).setOnContentsChangedPost((slot, itemStack1) -> {
+                    if (itemStack1.isEmpty())
+                        compound.removeTag("itemFilterSlot");
+                });
+        final FilteredItemStackHandler fluidFilterSlot = new FilteredItemStackHandler(null, 1, 1)
+                .setItemStackPredicate((slot, itemStack1) -> FLUID_FILTER.isItemEqual(itemStack1))
+                .setOnContentsChangedPre((slot, itemStack1, insert) -> {
+                    if (!insert) return;
+                    compound.setTag("fluidFilterSlot", itemStack1.serializeNBT());
+                }).setOnContentsChangedPost((slot, itemStack1) -> {
+                    if (itemStack1.isEmpty())
+                        compound.removeTag("fluidFilterSlot");
+                });
         final LargeItemStackHandler itemFilter = new LargeItemStackHandler(16, 1);
         final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 16)
                 .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
@@ -125,6 +146,26 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
             }, fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
                     .setPutFluidsPredicate(fluid -> !fluidType.contains(fluid)));
         }
+        final PopUpWidget<?> itemFilterPopup = new PopUpWidget<>()
+                .setIndexSupplier(() -> {
+                    final ItemStack itemStack1 = itemFilterSlot.getStackInSlot(0);
+                    return ITEM_FILTER.isItemEqual(itemStack1) ? 1 : 0;
+                }).addPopup(widgetGroup -> true)
+                .addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(itemWidgetGroup);
+                    return false;
+                }).addPopup(widgetGroup -> false)
+                .addPopup(widgetGroup -> false);
+        final PopUpWidget<?> fluidFilterPopup = new PopUpWidget<>()
+                .setIndexSupplier(() -> {
+                    final ItemStack itemStack1 = fluidFilterSlot.getStackInSlot(0);
+                    return FLUID_FILTER.isItemEqual(itemStack1) ? 1 : 0;
+                })
+                .addPopup(widgetGroup -> true)
+                .addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(fluidWidgetGroup);
+                    return false;
+                }).addPopup(widgetGroup -> false);
         final BiConsumer<String, String> setItemTransferRate2 = (text, id) -> {
             itemTransferRate.setValue((int) Math.max(1, Math.min(this.maxItemTransferRate, Double.parseDouble(text))));
             compound.setInteger("itemTransferRate", itemTransferRate.getValue());
@@ -149,8 +190,10 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                         conveyorMode.setValue(conveyorMode1);
                         compound.setInteger("conveyorMode", conveyorMode1.ordinal());
                     }));
-                    tab.add(itemWidgetGroup);
-                    tab.add(new ToggleButtonWidget(151, 95, 18, 18, GuiTextures.BUTTON_BLACKLIST, itemBlacklist::isValue, b -> {
+                    tab.add(new TJSlotWidget<>(itemFilterSlot, 0, 91, 95)
+                            .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
+                    tab.add(itemFilterPopup);
+                    tab.add(new ToggleButtonWidget(91, 113, 18, 18, GuiTextures.BUTTON_BLACKLIST, itemBlacklist::isValue, b -> {
                         itemBlacklist.setValue(b);
                         compound.setBoolean("itemBlacklist", itemBlacklist.isValue());
                     }).setTooltipText("cover.filter.blacklist"));
@@ -174,8 +217,10 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                         pumpMode.setValue(pumpMode1);
                         compound.setInteger("pumpMode", pumpMode1.ordinal());
                     }));
-                    tab.add(fluidWidgetGroup);
-                    tab.add(new ToggleButtonWidget(151, 115, 18, 18, GuiTextures.BUTTON_BLACKLIST, fluidBlacklist::isValue, b -> {
+                    tab.add(new TJSlotWidget<>(fluidFilterSlot, 0, 88, 115)
+                            .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
+                    tab.add(fluidFilterPopup);
+                    tab.add(new ToggleButtonWidget(88, 133, 18, 18, GuiTextures.BUTTON_BLACKLIST, fluidBlacklist::isValue, b -> {
                         fluidBlacklist.setValue(b);
                         compound.setBoolean("fluidBlacklist", fluidBlacklist.isValue());
                     }).setTooltipText("cover.filter.blacklist"));
@@ -206,6 +251,10 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                         itemWorking.setValue(compound.getBoolean("itemWorking"));
                     if (compound.hasKey("fluidWorking"))
                         fluidWorking.setValue(compound.getBoolean("fluidWorking"));
+                    if (compound.hasKey("itemFilterSlot"))
+                        itemFilterSlot.insertItem(0, new ItemStack(compound.getCompoundTag("itemFilterSlot")), false);
+                    if (compound.hasKey("fluidFilterSlot"))
+                        fluidFilterSlot.insertItem(0, new ItemStack(compound.getCompoundTag("fluidFilterSlot")), false);
                     for (int i = 0; i < itemFilter.getSlots(); i++) {
                         if (compound.hasKey("itemSlot:" + i)) {
                             itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("itemSlot" + i)));

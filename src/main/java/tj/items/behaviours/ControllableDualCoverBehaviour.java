@@ -178,10 +178,10 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                         robotArmMode.setValue(robotArmMode1);
                         compound.setInteger("robotArmMode", robotArmMode1.ordinal());
                     }).setTooltipHoverString("cover.robotic_arm.transfer_mode.description"));
-                    tab.add(new TJSlotWidget<>(itemFilterSlot, 0, 91, 95)
+                    tab.add(new TJSlotWidget<>(itemFilterSlot, 0, 91, 131)
                             .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
                     tab.add(itemFilterPopup);
-                    tab.add(new ToggleButtonWidget(91, 113, 18, 18, GuiTextures.BUTTON_BLACKLIST, itemBlacklist::isValue, b -> {
+                    tab.add(new ToggleButtonWidget(91, 149, 18, 18, GuiTextures.BUTTON_BLACKLIST, itemBlacklist::isValue, b -> {
                         itemBlacklist.setValue(b);
                         compound.setBoolean("itemBlacklist", itemBlacklist.isValue());
                     }).setTooltipText("cover.filter.blacklist"));
@@ -209,10 +209,10 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                         regulatorMode.setValue(regulatorMode1);
                         compound.setInteger("regulatorMode", regulatorMode1.ordinal());
                     }).setTooltipHoverString("cover.fluid_regulator.transfer_mode.description"));
-                    tab.add(new TJSlotWidget<>(fluidFilterSlot, 0, 88, 115)
+                    tab.add(new TJSlotWidget<>(fluidFilterSlot, 0, 88, 151)
                             .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
                     tab.add(fluidFilterPopup);
-                    tab.add(new ToggleButtonWidget(88, 133, 18, 18, GuiTextures.BUTTON_BLACKLIST, fluidBlacklist::isValue, b -> {
+                    tab.add(new ToggleButtonWidget(88, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, fluidBlacklist::isValue, b -> {
                         fluidBlacklist.setValue(b);
                         compound.setBoolean("fluidBlacklist", fluidBlacklist.isValue());
                     }).setTooltipText("cover.filter.blacklist"));
@@ -223,7 +223,7 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                 });
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 272)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setLocale(String.format("metaitem.dual_cover.%s.name", GAValues.VN[this.tier].toLowerCase())))
+                        .setLocale(String.format("metaitem.controllable_dual_cover.%s.name", GAValues.VN[this.tier].toLowerCase())))
                 .widget(tabBuilder.build())
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 190, itemStack))
                 .bindOpenListener(() -> {
@@ -248,9 +248,9 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     if (compound.hasKey("fluidWorking"))
                         fluidWorking.setValue(compound.getBoolean("fluidWorking"));
                     if (compound.hasKey("itemFilterSlot"))
-                        itemFilterSlot.deserializeNBT(compound.getCompoundTag("itemFilterSlot"));
+                        itemFilterSlot.insertItem(0, new ItemStack(compound.getCompoundTag("itemFilterSlot")), false);
                     if (compound.hasKey("fluidFilterSlot"))
-                        fluidFilterSlot.deserializeNBT(compound.getCompoundTag("fluidFilterSlot"));
+                        fluidFilterSlot.insertItem(0, new ItemStack(compound.getCompoundTag("fluidFilterSlot")), false);
                     for (int i = 0; i < itemFilter.getSlots(); i++) {
                         if (compound.hasKey("itemSlot:" + i)) {
                             itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("itemSlot" + i)));
