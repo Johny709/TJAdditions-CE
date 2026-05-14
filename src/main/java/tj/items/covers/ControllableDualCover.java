@@ -77,6 +77,20 @@ public class ControllableDualCover extends DualCover {
     }
 
     @Override
+    public void onAttached(ItemStack itemStack) {
+        super.onAttached(itemStack);
+        final NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
+        if (compound.hasKey("robotArmMode"))
+            this.robotArmMode = TransferMode.values()[compound.getInteger("robotArmMode")];
+        if (compound.hasKey("regulatorMode"))
+            this.regulatorMode = TransferMode.values()[compound.getInteger("regulatorMode")];
+        if (compound.hasKey("itemFilterSlot"))
+            this.itemFilterSlot.insertItem(0, new ItemStack(compound.getCompoundTag("itemFilterSlot")), false);
+        if (compound.hasKey("fluidFilterSlot"))
+            this.fluidFilterSlot.insertItem(0, new ItemStack(compound.getCompoundTag("fluidFilterSlot")), false);
+    }
+
+    @Override
     public ModularUI createUI(EntityPlayer player) {
         final MetaItem<?>.MetaValueItem[] robotArms = {null, ROBOT_ARM_LV, ROBOT_ARM_MV, ROBOT_ARM_HV, ROBOT_ARM_EV, ROBOT_ARM_IV, ROBOT_ARM_LUV, ROBOT_ARM_ZPM, ROBOT_ARM_UV, ROBOT_ARM_UHV, ROBOT_ARM_UEV, ROBOT_ARM_UIV, ROBOT_ARM_UMV, ROBOT_ARM_UXV, ROBOT_ARM_MAX};
         final MetaItem<?>.MetaValueItem[] regulators = {null, FLUID_REGULATOR_LV, FLUID_REGULATOR_MV, FLUID_REGULATOR_HV, FLUID_REGULATOR_EV, FLUID_REGULATOR_IV, FLUID_REGULATOR_LUV, FLUID_REGULATOR_ZPM, FLUID_REGULATOR_UV, FLUID_REGULATOR_UHV, null, null, FLUID_REGULATOR_UMV, null, FLUID_REGULATOR_MAX};
@@ -249,7 +263,7 @@ public class ControllableDualCover extends DualCover {
                 }
                 break;
             case KEEP_EXACT:
-                for (IFluidTankProperties tank : tanks) {
+                for (IFluidTankProperties tank : destFluidHandler.getTankProperties()) {
                     final FluidStack stack = tank.getContents();
                     if (stack != null) {
                         this.fluidExact.computeIfAbsent(stack, k -> new Counter(0))
@@ -262,7 +276,7 @@ public class ControllableDualCover extends DualCover {
                     if (fluidStack != null && (this.fluidFilterType == null || this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null))) {
                         fluidStack = fluidHandler.drain(fluidStack, false);
                         if (fluidStack == null) continue;
-                        fluidStack.amount = (int) Math.max(0, Math.min((filterStack != null ? filterStack.amount : this.fluidTransferRate) - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue(), fluidStack.amount));
+                        fluidStack.amount = (int) Math.min(fluidStack.amount, (filterStack != null ? filterStack.amount : this.fluidTransferRate) - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue());
                         if (fluidStack.amount > 0) {
                             fluidStack.amount = destFluidHandler.fill(fluidStack, true);
                             fluidHandler.drain(fluidStack, true);

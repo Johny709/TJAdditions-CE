@@ -46,7 +46,7 @@ public class TJMetaItem1 extends MaterialMetaItem {
             DUAL_COVERS[i] = addItem(1170 + i, "dual_cover." + GAValues.VN[i].toLowerCase()).addComponents(new DualCoverBehaviour(i));
         }
         for (int i = 0; i < DUAL_COVERS.length; i++) { // occupies range 1185 - 1199
-            CONTROLLABLE_DUAL_COVERS[i] = addItem(1185 + i, "controllable_dual_cover." + GAValues.VN[i].toLowerCase());
+            CONTROLLABLE_DUAL_COVERS[i] = addItem(1185 + i, "controllable_dual_cover." + GAValues.VN[i].toLowerCase()).addComponents(new ControllableDualCoverBehaviour(i));
         }
         for (int i = 0; i < TURBINE_UPGRADES.length; i++) { // occupies range 1200 - 1205
             TURBINE_UPGRADES[i] = addItem(1200 + i, "turbine_upgrade").addComponents(new TurbineUpgradeBehaviour(TJValues.VC[i + GAValues.UHV], 4 + 4 * i)).setMaxStackSize(1);

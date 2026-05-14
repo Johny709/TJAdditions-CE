@@ -984,6 +984,7 @@ metaitem.controllable_dual_cover.uiv.name=Controllable Dual Cover (UIV)
 metaitem.controllable_dual_cover.umv.name=Controllable Dual Cover (UMV)
 metaitem.controllable_dual_cover.uxv.name=Controllable Dual Cover (UXV)
 metaitem.controllable_dual_cover.max.name=Controllable Dual Cover (MAX)
+metaitem.controllable_dual_cover.description=Functions both as §6robot arms§7 and §bregulators§7 for transporting §6items§7 and §bfluids.
 
 void_cover.mode.normal=Normal
 void_cover.mode.supply=Supply
