@@ -31,6 +31,7 @@ import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.PopUpWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
+import tj.gui.widgets.impl.SelectionWidgetGroup;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.items.handlers.FilteredItemStackHandler;
@@ -48,19 +49,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static gregicadditions.item.GAMetaItems.*;
-import static gregicadditions.item.GAMetaItems.CONVEYOR_MODULE_MAX;
-import static gregicadditions.item.GAMetaItems.CONVEYOR_MODULE_UMV;
-import static gregicadditions.item.GAMetaItems.CONVEYOR_MODULE_UXV;
-import static gregicadditions.item.GAMetaItems.ELECTRIC_PUMP_MAX;
-import static gregicadditions.item.GAMetaItems.ELECTRIC_PUMP_UEV;
-import static gregicadditions.item.GAMetaItems.ELECTRIC_PUMP_UHV;
-import static gregicadditions.item.GAMetaItems.ELECTRIC_PUMP_UIV;
-import static gregicadditions.item.GAMetaItems.ELECTRIC_PUMP_UMV;
-import static gregicadditions.item.GAMetaItems.ELECTRIC_PUMP_UXV;
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLocation.LEFT;
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
 import static gregtech.common.items.MetaItems.*;
-import static gregtech.common.items.MetaItems.ELECTRIC_PUMP_UV;
+import static tj.items.TJMetaItems.*;
 
 public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
 
@@ -70,8 +62,8 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
 
     @Override
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
-        final MetaItem<?>.MetaValueItem[] conveyors = {null, CONVEYOR_MODULE_LV, CONVEYOR_MODULE_MV, CONVEYOR_MODULE_HV, CONVEYOR_MODULE_EV, CONVEYOR_MODULE_IV, CONVEYOR_MODULE_LUV, CONVEYOR_MODULE_ZPM, CONVEYOR_MODULE_UV, CONVEYOR_MODULE_UHV, CONVEYOR_MODULE_UEV, CONVEYOR_MODULE_UIV, CONVEYOR_MODULE_UMV, CONVEYOR_MODULE_UXV, CONVEYOR_MODULE_MAX};
-        final MetaItem<?>.MetaValueItem[] pumps = {null, ELECTRIC_PUMP_LV, ELECTRIC_PUMP_MV, ELECTRIC_PUMP_HV, ELECTRIC_PUMP_EV, ELECTRIC_PUMP_IV, ELECTRIC_PUMP_LUV, ELECTRIC_PUMP_ZPM, ELECTRIC_PUMP_UV, ELECTRIC_PUMP_UHV, ELECTRIC_PUMP_UEV, ELECTRIC_PUMP_UIV, ELECTRIC_PUMP_UMV, ELECTRIC_PUMP_UXV, ELECTRIC_PUMP_MAX};
+        final MetaItem<?>.MetaValueItem[] robotArms = {null, ROBOT_ARM_LV, ROBOT_ARM_MV, ROBOT_ARM_HV, ROBOT_ARM_EV, ROBOT_ARM_IV, ROBOT_ARM_LUV, ROBOT_ARM_ZPM, ROBOT_ARM_UV, ROBOT_ARM_UHV, ROBOT_ARM_UEV, ROBOT_ARM_UIV, ROBOT_ARM_UMV, ROBOT_ARM_UXV, ROBOT_ARM_MAX};
+        final MetaItem<?>.MetaValueItem[] regulators = {null, FLUID_REGULATOR_LV, FLUID_REGULATOR_MV, FLUID_REGULATOR_HV, FLUID_REGULATOR_EV, FLUID_REGULATOR_IV, FLUID_REGULATOR_LUV, FLUID_REGULATOR_ZPM, FLUID_REGULATOR_UV, FLUID_REGULATOR_UHV, null, null, FLUID_REGULATOR_UMV, null, FLUID_REGULATOR_MAX};
         final ObjectReference<CoverConveyor.ConveyorMode> conveyorMode = new ObjectReference<>(CoverConveyor.ConveyorMode.EXPORT);
         final ObjectReference<CoverPump.PumpMode> pumpMode = new ObjectReference<>(CoverPump.PumpMode.EXPORT);
         final ObjectReference<TransferMode> robotArmMode = new ObjectReference<>(TransferMode.TRANSFER_ANY);
@@ -102,16 +94,26 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     if (itemStack1.isEmpty())
                         compound.removeTag("fluidFilterSlot");
                 });
-        final LargeItemStackHandler itemFilter = new LargeItemStackHandler(16, 1);
+        final LargeItemStackHandler itemFilter = new LargeItemStackHandler(16, Integer.MAX_VALUE);
         final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 16)
                 .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
                 .collect(Collectors.toList()));
         final Object2ObjectMap<Item, ItemStack> itemType = new Object2ObjectOpenHashMap<>();
         final Set<FluidStack> fluidType = new HashSet<>();
-        final WidgetGroup itemWidgetGroup = new WidgetGroup(new Position(10, 95));
-        final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(10, 115));
+        final WidgetGroup itemWidgetGroup = new WidgetGroup(new Position(7, 95));
+        final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(7, 115));
+        final SelectionWidgetGroup itemSelectionWidgetGroup = new SelectionWidgetGroup(7, 95, 72, 72);
+        final SelectionWidgetGroup fluidSelectionWidgetGroup = new SelectionWidgetGroup(7, 115, 72, 72);
         for (int i = 0; i < itemFilter.getSlots(); i++) {
             final int index = i;
+            final BiConsumer<String, String> setItemCount = (text, id) -> {
+                ItemStack stack = itemFilter.extractItem(index, Integer.MAX_VALUE, true);
+                if (stack.isEmpty()) return;
+                stack = itemFilter.extractItem(index, Integer.MAX_VALUE, false);
+                stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+                compound.setTag("itemSlot:" + index, stack.serializeNBT());
+                itemFilter.insertItem(index, stack, false);
+            };
             itemWidgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, itemFilter, item -> {
                 if (!item.isEmpty()) {
                     itemType.put(item.getItem(), item);
@@ -119,9 +121,24 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                 } else compound.removeTag("itemSlot:" + index);
             }, item -> itemType.remove(item.getItem())).setBackgroundTextures(GuiTextures.SLOT)
                     .setPutItemsPredicate(item -> !itemType.containsKey(item.getItem())));
+            itemSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(83, 0, 75, 18, true, () -> String.valueOf(itemFilter.getStackInSlot(index).getCount()), setItemCount)
+                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                    .setUpdateOnTyping(true));
+            itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(83, 18, 38, 18, "/2", data -> setItemCount.accept(String.valueOf((long) itemFilter.getStackInSlot(index).getCount() / 2), "")));
+            itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(121, 18, 38, 18, "*2", data -> setItemCount.accept(String.valueOf((long) itemFilter.getStackInSlot(index).getCount() * 2), "")));
+            itemSelectionWidgetGroup.addSelectionBox(i, 18 * (i % 4), 18 * (i / 4), 18, 18);
         }
         for (int i = 0; i < fluidFilter.getTanks(); i++) {
             final int index = i;
+            final BiConsumer<String, String> setFluidCount = (text, id) -> {
+                FluidStack stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
+                if (stack == null) return;
+                stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
+                if (stack == null) return;
+                stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+                compound.setTag("fluidSlot:" + index, stack.writeToNBT(new NBTTagCompound()));
+                fluidFilter.getTankAt(index).fill(stack, true);
+            };
             fluidWidgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, fluidFilter, fluid -> {
                 if (fluid != null) {
                     fluidType.add(fluid);
@@ -129,14 +146,21 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                 } else compound.removeTag("fluidSlot:" + index);
             }, fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
                     .setPutFluidsPredicate(fluid -> !fluidType.contains(fluid)));
+            fluidSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(81, 0, 75, 18, true, () -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount()), setFluidCount)
+                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                    .setUpdateOnTyping(true));
+            fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(81, 18, 38, 18, "/2", data -> setFluidCount.accept(String.valueOf((long) fluidFilter.getTankAt(index).getFluidAmount() / 2), "")));
+            fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(119, 18, 38, 18, "*2", data -> setFluidCount.accept(String.valueOf((long) fluidFilter.getTankAt(index).getFluidAmount() * 2), "")));
+            fluidSelectionWidgetGroup.addSelectionBox(i, 18 * (i % 4), 18 * (i / 4), 18, 18);
         }
         final PopUpWidget<?> itemFilterPopup = new PopUpWidget<>()
                 .setIndexSupplier(() -> {
                     final ItemStack itemStack1 = itemFilterSlot.getStackInSlot(0);
                     return ITEM_FILTER.isItemEqual(itemStack1) ? 1 : SMART_FILTER.isItemEqual(itemStack1) ? 2 : ORE_DICTIONARY_FILTER.isItemEqual(itemStack1) ? 3 : 0;
-                }).addPopup(widgetGroup -> true)
+                }).addPopup(widgetGroup -> false)
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(itemWidgetGroup);
+                    widgetGroup.addWidget(itemSelectionWidgetGroup);
                     return false;
                 }).addPopup(widgetGroup -> false)
                 .addPopup(widgetGroup -> false);
@@ -145,9 +169,10 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     final ItemStack itemStack1 = fluidFilterSlot.getStackInSlot(0);
                     return FLUID_FILTER.isItemEqual(itemStack1) ? 1 : SMART_FILTER.isItemEqual(itemStack1) ? 2 : 0;
                 })
-                .addPopup(widgetGroup -> true)
+                .addPopup(widgetGroup -> false)
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(fluidWidgetGroup);
+                    widgetGroup.addWidget(fluidSelectionWidgetGroup);
                     return false;
                 }).addPopup(widgetGroup -> false);
         final BiConsumer<String, String> setItemTransferRate2 = (text, id) -> {
@@ -160,7 +185,7 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
         };
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
-                .addTab(String.format("metaitem.conveyor.module.%s.name", GAValues.VN[tier].toLowerCase()), this.tier > 0 ? conveyors[this.tier].getStackForm() : null, tab -> {
+                .addTab(String.format("metaitem.fluid.regulator.%s.name", GAValues.VN[tier].toLowerCase()), this.tier > 0 ? robotArms[this.tier].getStackForm() : null, tab -> {
                     tab.add(new ClickButtonWidget(10, 20, 20, 20, "-10", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() - (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(146, 20, 20, 20, "+10", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() + (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(30, 20, 20, 20, "-1", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() - (data.isShiftClick ? 5 : 1))));
@@ -174,7 +199,7 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                         conveyorMode.setValue(conveyorMode1);
                         compound.setInteger("conveyorMode", conveyorMode1.ordinal());
                     }));
-                    tab.add(new CycleButtonWidget(91, 65, 75, 20, TransferMode.class, robotArmMode::getValue, robotArmMode1 -> {
+                    tab.add(new CycleButtonWidget(91, 65, 76, 20, TransferMode.class, robotArmMode::getValue, robotArmMode1 -> {
                         robotArmMode.setValue(robotArmMode1);
                         compound.setInteger("robotArmMode", robotArmMode1.ordinal());
                     }).setTooltipHoverString("cover.robotic_arm.transfer_mode.description"));
@@ -189,7 +214,7 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                         itemWorking.setValue(w);
                         compound.setBoolean("itemWorking", itemWorking.isValue());
                     }).setTooltipText("machine.universal.toggle.run.mode"));
-                }).addTab(String.format("metaitem.electric.pump.%s.name", GAValues.VN[tier].toLowerCase()), this.tier > 0 ? pumps[this.tier].getStackForm() : null, tab -> {
+                }).addTab(String.format("metaitem.electric.pump.%s.name", GAValues.VN[tier].toLowerCase()), this.tier > 0 ? regulators[this.tier].getStackForm() : null, tab -> {
                     tab.add(new ClickButtonWidget(10, 20, 34, 20, "-100", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() - (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(128, 20, 34, 20, "+100", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() + (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(44, 20, 22, 20, "-10", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() - (data.isShiftClick ? 50 : 10))));
@@ -205,7 +230,7 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                         pumpMode.setValue(pumpMode1);
                         compound.setInteger("pumpMode", pumpMode1.ordinal());
                     }));
-                    tab.add(new CycleButtonWidget(88, 85, 75, 18, TransferMode.class, regulatorMode::getValue, regulatorMode1 -> {
+                    tab.add(new CycleButtonWidget(88, 85, 76, 18, TransferMode.class, regulatorMode::getValue, regulatorMode1 -> {
                         regulatorMode.setValue(regulatorMode1);
                         compound.setInteger("regulatorMode", regulatorMode1.ordinal());
                     }).setTooltipHoverString("cover.fluid_regulator.transfer_mode.description"));
@@ -253,7 +278,7 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                         fluidFilterSlot.insertItem(0, new ItemStack(compound.getCompoundTag("fluidFilterSlot")), false);
                     for (int i = 0; i < itemFilter.getSlots(); i++) {
                         if (compound.hasKey("itemSlot:" + i)) {
-                            itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("itemSlot" + i)));
+                            itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("itemSlot:" + i)));
                             itemType.put(itemFilter.getStackInSlot(i).getItem(), itemFilter.getStackInSlot(i));
                         }
                     }

@@ -31,11 +31,13 @@ import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.PopUpWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
+import tj.gui.widgets.impl.SelectionWidgetGroup;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.util.Counter;
 import tj.util.TJItemUtils;
 
+import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 import static gregicadditions.item.GAMetaItems.*;
@@ -81,19 +83,52 @@ public class ControllableDualCover extends DualCover {
         final MetaItem<?>.MetaValueItem[] regulators = {null, FLUID_REGULATOR_LV, FLUID_REGULATOR_MV, FLUID_REGULATOR_HV, FLUID_REGULATOR_EV, FLUID_REGULATOR_IV, FLUID_REGULATOR_LUV, FLUID_REGULATOR_ZPM, FLUID_REGULATOR_UV, FLUID_REGULATOR_UHV, null, null, FLUID_REGULATOR_UMV, null, FLUID_REGULATOR_MAX};
         final WidgetGroup itemWidgetGroup = new WidgetGroup(new Position(7, 95));
         final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(7, 115));
+        final SelectionWidgetGroup itemSelectionWidgetGroup = new SelectionWidgetGroup(7, 95, 72, 72);
+        final SelectionWidgetGroup fluidSelectionWidgetGroup = new SelectionWidgetGroup(7, 115, 72, 72);
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
+            final int index = i;
+            final BiConsumer<String, String> setItemCount = (text, id) -> {
+                ItemStack stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, true);
+                if (stack.isEmpty()) return;
+                stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, false);
+                stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+                this.itemFilter.insertItem(index, stack, false);
+                this.itemType.put(stack.getItem(), stack);
+            };
             itemWidgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, this.itemFilter, item -> {
                 if (!item.isEmpty())
                     this.itemType.put(item.getItem(), item);
             }, item -> this.itemType.remove(item.getItem())).setBackgroundTextures(GuiTextures.SLOT)
                     .setPutItemsPredicate(item -> this.itemType.get(item.getItem()) == null));
+            itemSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(83, 0, 75, 18, true, () -> String.valueOf(itemFilter.getStackInSlot(index).getCount()), setItemCount)
+                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                    .setUpdateOnTyping(true));
+            itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(83, 18, 38, 18, "/2", data -> setItemCount.accept(String.valueOf((long) this.itemFilter.getStackInSlot(index).getCount() / 2), "")));
+            itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(121, 18, 38, 18, "*2", data -> setItemCount.accept(String.valueOf((long) this.itemFilter.getStackInSlot(index).getCount() * 2), "")));
+            itemSelectionWidgetGroup.addSelectionBox(i, 18 * (i % 4), 18 * (i / 4), 18, 18);
         }
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
+            final int index = i;
+            final BiConsumer<String, String> setFluidCount = (text, id) -> {
+                FluidStack stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
+                if (stack == null) return;
+                stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
+                if (stack == null) return;
+                stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+                this.fluidFilter.getTankAt(index).fill(stack, true);
+                this.fluidType.put(stack, stack);
+            };
             fluidWidgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, this.fluidFilter, fluid -> {
                 if (fluid != null)
                     this.fluidType.put(fluid, fluid);
             }, this.fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
                     .setPutFluidsPredicate(fluid -> this.fluidType.get(fluid) == null));
+            fluidSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(81, 0, 75, 18, true, () -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount()), setFluidCount)
+                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                    .setUpdateOnTyping(true));
+            fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(81, 18, 38, 18, "/2", data -> setFluidCount.accept(String.valueOf((long) this.fluidFilter.getTankAt(index).getFluidAmount() / 2), "")));
+            fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(119, 18, 38, 18, "*2", data -> setFluidCount.accept(String.valueOf((long) this.fluidFilter.getTankAt(index).getFluidAmount() * 2), "")));
+            fluidSelectionWidgetGroup.addSelectionBox(i, 18 * (i % 4), 18 * (i / 4), 18, 18);
         }
         final PopUpWidget<?> itemFilterPopup = new PopUpWidget<>()
                 .setIndexSupplier(() -> {
@@ -102,6 +137,7 @@ public class ControllableDualCover extends DualCover {
                 }).addPopup(widgetGroup -> true)
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(itemWidgetGroup);
+                    widgetGroup.addWidget(itemSelectionWidgetGroup);
                     return false;
                 }).addPopup(widgetGroup -> false)
                 .addPopup(widgetGroup -> false);
@@ -113,6 +149,7 @@ public class ControllableDualCover extends DualCover {
                 .addPopup(widgetGroup -> true)
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(fluidWidgetGroup);
+                    widgetGroup.addWidget(fluidSelectionWidgetGroup);
                     return false;
                 }).addPopup(widgetGroup -> false);
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
@@ -128,7 +165,7 @@ public class ControllableDualCover extends DualCover {
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setUpdateOnTyping(true));
                     tab.add(new CycleButtonWidget(10, 65, 75, 20, CoverConveyor.ConveyorMode.class, () -> this.conveyorMode, this::setConveyorMode));
-                    tab.add(new CycleButtonWidget(91, 65, 75, 20, TransferMode.class, () -> this.robotArmMode, this::setRobotArmMode)
+                    tab.add(new CycleButtonWidget(91, 65, 76, 20, TransferMode.class, () -> this.robotArmMode, this::setRobotArmMode)
                             .setTooltipHoverString("cover.robotic_arm.transfer_mode.description"));
                     tab.add(new TJSlotWidget<>(this.itemFilterSlot, 0, 91, 131)
                             .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
@@ -150,7 +187,7 @@ public class ControllableDualCover extends DualCover {
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setUpdateOnTyping(true));
                     tab.add(new CycleButtonWidget(10, 85, 75, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
-                    tab.add(new CycleButtonWidget(88, 85, 75, 18, TransferMode.class, () -> this.regulatorMode, this::setRegulatorMode)
+                    tab.add(new CycleButtonWidget(88, 85, 76, 18, TransferMode.class, () -> this.regulatorMode, this::setRegulatorMode)
                             .setTooltipHoverString("cover.fluid_regulator.transfer_mode.description"));
                     tab.add(new TJSlotWidget<>(this.fluidFilterSlot, 0, 88, 151)
                             .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));

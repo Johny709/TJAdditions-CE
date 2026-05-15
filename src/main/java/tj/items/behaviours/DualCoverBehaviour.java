@@ -100,7 +100,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
         final BooleanReference fluidWorking = new BooleanReference();
         final ItemStack itemStack = player.getHeldItemMainhand();
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
-        final FilteredItemStackHandler itemFilterSlot = new FilteredItemStackHandler(null, 1, 1)
+        final FilteredItemStackHandler itemFilterSlot = new FilteredItemStackHandler(null, 1, Integer.MAX_VALUE)
                 .setItemStackPredicate((slot, itemStack1) -> ITEM_FILTER.isItemEqual(itemStack1))
                 .setOnContentsChangedPre((slot, itemStack1, insert) -> {
                     if (!insert) return;
@@ -118,7 +118,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                     if (itemStack1.isEmpty())
                         compound.removeTag("fluidFilterSlot");
                 });
-        final LargeItemStackHandler itemFilter = new LargeItemStackHandler(16, 1);
+        final LargeItemStackHandler itemFilter = new LargeItemStackHandler(16, Integer.MAX_VALUE);
         final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 16)
                 .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
                 .collect(Collectors.toList()));
