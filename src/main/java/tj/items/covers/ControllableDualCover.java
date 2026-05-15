@@ -4,10 +4,7 @@ import gregicadditions.GAValues;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.ClickButtonWidget;
-import gregtech.api.gui.widgets.CycleButtonWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
-import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import gregtech.api.items.metaitem.MetaItem;
 import gregtech.api.util.Position;
@@ -185,12 +182,19 @@ public class ControllableDualCover extends DualCover {
                     tab.add(new CycleButtonWidget(10, 65, 75, 20, CoverConveyor.ConveyorMode.class, () -> this.conveyorMode, this::setConveyorMode));
                     tab.add(new CycleButtonWidget(91, 65, 76, 20, TransferMode.class, () -> this.robotArmMode, this::setRobotArmMode)
                             .setTooltipHoverString("cover.robotic_arm.transfer_mode.description"));
-                    tab.add(new TJSlotWidget<>(this.itemFilterSlot, 0, 91, 131)
+                    tab.add(new ImageWidget(-28, 127, 26, 44, GuiTextures.BORDERED_BACKGROUND));
+                    tab.add(new TJSlotWidget<>(this.itemFilterSlot, 0, -24, 131)
                             .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
                     tab.add(itemFilterPopup);
-                    tab.add(new ToggleButtonWidget(91, 149, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isItemBlacklist, this::setItemBlacklist)
+                    tab.add(new ToggleButtonWidget(-24, 149, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isItemBlacklist, this::setItemBlacklist)
                             .setTooltipText("cover.filter.blacklist"));
-                    tab.add(new ToggleButtonWidget(151, 168, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
+                    tab.add(new NewTextFieldWidget<>(91, 133, 76, 18, true, () -> String.valueOf(this.itemTicks), this::setItemTicks)
+                            .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setUpdateOnTyping(true));
+                    tab.add(new ClickButtonWidget(91, 151, 38, 18, "/2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks / 2), "")));
+                    tab.add(new ClickButtonWidget(129, 151, 38, 18, "*2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks * 2), "")));
+                    tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
+                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
                             .setTooltipText("machine.universal.toggle.run.mode"));
                 }).addTab(String.format("metaitem.fluid.regulator.%s.name", GAValues.VN[this.tier].toLowerCase()), this.tier > 0 ? regulators[this.tier].getStackForm() : this.getPickItem(), tab -> {
                     tab.add(new ClickButtonWidget(10, 20, 34, 20, "-100", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 500 : 100))));
@@ -207,12 +211,19 @@ public class ControllableDualCover extends DualCover {
                     tab.add(new CycleButtonWidget(10, 85, 75, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
                     tab.add(new CycleButtonWidget(88, 85, 76, 18, TransferMode.class, () -> this.regulatorMode, this::setRegulatorMode)
                             .setTooltipHoverString("cover.fluid_regulator.transfer_mode.description"));
-                    tab.add(new TJSlotWidget<>(this.fluidFilterSlot, 0, 88, 151)
+                    tab.add(new ImageWidget(-28, 147, 26, 44, GuiTextures.BORDERED_BACKGROUND));
+                    tab.add(new TJSlotWidget<>(this.fluidFilterSlot, 0, -24, 151)
                             .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
                     tab.add(fluidFilterPopup);
-                    tab.add(new ToggleButtonWidget(88, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isFluidBlacklist, this::setFluidBlacklist)
+                    tab.add(new ToggleButtonWidget(-24, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isFluidBlacklist, this::setFluidBlacklist)
                             .setTooltipText("cover.filter.blacklist"));
-                    tab.add(new ToggleButtonWidget(151, 168, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isPumpWorking, this::setPumpWorking)
+                    tab.add(new NewTextFieldWidget<>(88, 151, 76, 18, true, () -> String.valueOf(this.fluidTicks), this::setFluidTicks)
+                            .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setUpdateOnTyping(true));
+                    tab.add(new ClickButtonWidget(88, 169, 38, 18, "/2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks / 2), "")));
+                    tab.add(new ClickButtonWidget(126, 169, 38, 18, "*2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks * 2), "")));
+                    tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
+                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isPumpWorking, this::setPumpWorking)
                             .setTooltipText("machine.universal.toggle.run.mode"));
                 });
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 272)

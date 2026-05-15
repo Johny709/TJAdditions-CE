@@ -4,10 +4,7 @@ import gregicadditions.GAValues;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.ClickButtonWidget;
-import gregtech.api.gui.widgets.CycleButtonWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
-import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import gregtech.api.items.gui.PlayerInventoryHolder;
 import gregtech.api.items.metaitem.MetaItem;
@@ -68,6 +65,8 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
         final ObjectReference<CoverPump.PumpMode> pumpMode = new ObjectReference<>(CoverPump.PumpMode.EXPORT);
         final ObjectReference<TransferMode> robotArmMode = new ObjectReference<>(TransferMode.TRANSFER_ANY);
         final ObjectReference<TransferMode> regulatorMode = new ObjectReference<>(TransferMode.TRANSFER_ANY);
+        final IntegerReference itemTicks = new IntegerReference(20);
+        final IntegerReference fluidTicks = new IntegerReference(20);
         final IntegerReference itemSupplyThroughput = new IntegerReference();
         final IntegerReference fluidSupplyThroughput = new IntegerReference();
         final IntegerReference itemTransferRate = new IntegerReference();
@@ -225,14 +224,25 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                         robotArmMode.setValue(robotArmMode1);
                         compound.setInteger("robotArmMode", robotArmMode1.ordinal());
                     }).setTooltipHoverString("cover.robotic_arm.transfer_mode.description"));
-                    tab.add(new TJSlotWidget<>(itemFilterSlot, 0, 91, 131)
+                    tab.add(new ImageWidget(-28, 127, 26, 44, GuiTextures.BORDERED_BACKGROUND));
+                    tab.add(new TJSlotWidget<>(itemFilterSlot, 0, -24, 131)
                             .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
                     tab.add(itemFilterPopup);
-                    tab.add(new ToggleButtonWidget(91, 149, 18, 18, GuiTextures.BUTTON_BLACKLIST, itemBlacklist::isValue, b -> {
+                    tab.add(new ToggleButtonWidget(-24, 149, 18, 18, GuiTextures.BUTTON_BLACKLIST, itemBlacklist::isValue, b -> {
                         itemBlacklist.setValue(b);
                         compound.setBoolean("itemBlacklist", itemBlacklist.isValue());
                     }).setTooltipText("cover.filter.blacklist"));
-                    tab.add(new ToggleButtonWidget(151, 168, 18, 18, TJGuiTextures.POWER_BUTTON, itemWorking::isValue, w -> {
+                    final BiConsumer<String, String> setItemTicks = (text, id) -> {
+                        itemTicks.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+                        compound.setInteger("itemTicks", itemTicks.getValue());
+                    };
+                    tab.add(new NewTextFieldWidget<>(91, 133, 76, 18, true, () -> String.valueOf(itemTicks.getValue()), setItemTicks)
+                            .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setUpdateOnTyping(true));
+                    tab.add(new ClickButtonWidget(91, 151, 38, 18, "/2", data -> setItemTicks.accept(String.valueOf((long) itemTicks.getValue() / 2), "")));
+                    tab.add(new ClickButtonWidget(129, 151, 38, 18, "*2", data -> setItemTicks.accept(String.valueOf((long) itemTicks.getValue() * 2), "")));
+                    tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
+                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, itemWorking::isValue, w -> {
                         itemWorking.setValue(w);
                         compound.setBoolean("itemWorking", itemWorking.isValue());
                     }).setTooltipText("machine.universal.toggle.run.mode"));
@@ -256,14 +266,25 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                         regulatorMode.setValue(regulatorMode1);
                         compound.setInteger("regulatorMode", regulatorMode1.ordinal());
                     }).setTooltipHoverString("cover.fluid_regulator.transfer_mode.description"));
-                    tab.add(new TJSlotWidget<>(fluidFilterSlot, 0, 88, 151)
+                    tab.add(new ImageWidget(-28, 147, 26, 44, GuiTextures.BORDERED_BACKGROUND));
+                    tab.add(new TJSlotWidget<>(fluidFilterSlot, 0, -24, 151)
                             .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
                     tab.add(fluidFilterPopup);
-                    tab.add(new ToggleButtonWidget(88, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, fluidBlacklist::isValue, b -> {
+                    tab.add(new ToggleButtonWidget(-24, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, fluidBlacklist::isValue, b -> {
                         fluidBlacklist.setValue(b);
                         compound.setBoolean("fluidBlacklist", fluidBlacklist.isValue());
                     }).setTooltipText("cover.filter.blacklist"));
-                    tab.add(new ToggleButtonWidget(151, 168, 18, 18, TJGuiTextures.POWER_BUTTON, fluidWorking::isValue, w -> {
+                    final BiConsumer<String, String> setFluidTicks = (text, id) -> {
+                        fluidTicks.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+                        compound.setInteger("fluidTicks", fluidTicks.getValue());
+                    };
+                    tab.add(new NewTextFieldWidget<>(88, 151, 76, 18, true, () -> String.valueOf(fluidTicks.getValue()), setFluidTicks)
+                            .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setUpdateOnTyping(true));
+                    tab.add(new ClickButtonWidget(88, 169, 38, 18, "/2", data -> setFluidTicks.accept(String.valueOf((long) fluidTicks.getValue() / 2), "")));
+                    tab.add(new ClickButtonWidget(126, 169, 38, 18, "*2", data -> setFluidTicks.accept(String.valueOf((long) fluidTicks.getValue() * 2), "")));
+                    tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
+                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, fluidWorking::isValue, w -> {
                         fluidWorking.setValue(w);
                         compound.setBoolean("fluidWorking", fluidWorking.isValue());
                     }).setTooltipText("machine.universal.toggle.run.mode"));
@@ -274,6 +295,10 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                 .widget(tabBuilder.build())
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 190, itemStack))
                 .bindOpenListener(() -> {
+                    if (compound.hasKey("itemTicks"))
+                        itemTicks.setValue(compound.getInteger("itemTicks"));
+                    if (compound.hasKey("fluidTicks"))
+                        fluidTicks.setValue(compound.getInteger("fluidTicks"));
                     if (compound.hasKey("conveyorMode"))
                         conveyorMode.setValue(CoverConveyor.ConveyorMode.values()[compound.getInteger("conveyorMode")]);
                     if (compound.hasKey("pumpMode"))
