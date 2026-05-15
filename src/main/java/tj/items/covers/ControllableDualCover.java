@@ -52,6 +52,8 @@ public class ControllableDualCover extends DualCover {
     private final Object2ObjectMap<FluidStack, Counter> fluidExact = new Object2ObjectOpenHashMap<>();
     private TransferMode robotArmMode = TransferMode.TRANSFER_ANY;
     private TransferMode regulatorMode = TransferMode.TRANSFER_ANY;
+    private int itemSupplyThroughput;
+    private int fluidSupplyThroughput;
 
     public ControllableDualCover(ICoverable coverHolder, EnumFacing attachedSide, int tier) {
         super(coverHolder, attachedSide, tier);
@@ -75,6 +77,10 @@ public class ControllableDualCover extends DualCover {
             this.robotArmMode = TransferMode.values()[compound.getInteger("robotArmMode")];
         if (compound.hasKey("regulatorMode"))
             this.regulatorMode = TransferMode.values()[compound.getInteger("regulatorMode")];
+        if (compound.hasKey("itemSupplyThroughput"))
+            this.itemSupplyThroughput = compound.getInteger("itemSupplyThroughput");
+        if (compound.hasKey("fluidSupplyThroughput"))
+            this.fluidSupplyThroughput = compound.getInteger("fluidSupplyThroughput");
     }
 
     @Override
@@ -100,11 +106,11 @@ public class ControllableDualCover extends DualCover {
                     this.itemType.put(item.getItem(), item);
             }, item -> this.itemType.remove(item.getItem())).setBackgroundTextures(GuiTextures.SLOT)
                     .setPutItemsPredicate(item -> this.itemType.get(item.getItem()) == null));
-            itemSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(83, 0, 75, 18, true, () -> String.valueOf(itemFilter.getStackInSlot(index).getCount()), setItemCount)
+            itemSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(84, 0, 76, 18, true, () -> String.valueOf(itemFilter.getStackInSlot(index).getCount()), setItemCount)
                     .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                     .setUpdateOnTyping(true));
-            itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(83, 18, 38, 18, "/2", data -> setItemCount.accept(String.valueOf((long) this.itemFilter.getStackInSlot(index).getCount() / 2), "")));
-            itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(121, 18, 38, 18, "*2", data -> setItemCount.accept(String.valueOf((long) this.itemFilter.getStackInSlot(index).getCount() * 2), "")));
+            itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(84, 18, 38, 18, "/2", data -> setItemCount.accept(String.valueOf((long) this.itemFilter.getStackInSlot(index).getCount() / 2), "")));
+            itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(122, 18, 38, 18, "*2", data -> setItemCount.accept(String.valueOf((long) this.itemFilter.getStackInSlot(index).getCount() * 2), "")));
             itemSelectionWidgetGroup.addSelectionBox(i, 18 * (i % 4), 18 * (i / 4), 18, 18);
         }
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
@@ -123,7 +129,7 @@ public class ControllableDualCover extends DualCover {
                     this.fluidType.put(fluid, fluid);
             }, this.fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
                     .setPutFluidsPredicate(fluid -> this.fluidType.get(fluid) == null));
-            fluidSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(81, 0, 75, 18, true, () -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount()), setFluidCount)
+            fluidSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(81, 0, 76, 18, true, () -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount()), setFluidCount)
                     .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                     .setUpdateOnTyping(true));
             fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(81, 18, 38, 18, "/2", data -> setFluidCount.accept(String.valueOf((long) this.fluidFilter.getTankAt(index).getFluidAmount() / 2), "")));
@@ -134,8 +140,14 @@ public class ControllableDualCover extends DualCover {
                 .setIndexSupplier(() -> {
                     final ItemStack itemStack = this.itemFilterSlot.getStackInSlot(0);
                     return ITEM_FILTER.isItemEqual(itemStack) ? 1 : SMART_FILTER.isItemEqual(itemStack) ? 2 : ORE_DICTIONARY_FILTER.isItemEqual(itemStack) ? 3 : 0;
-                }).addPopup(widgetGroup -> true)
-                .addPopup(widgetGroup -> {
+                }).addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(new NewTextFieldWidget<>(91, 95, 76, 18, true, () -> String.valueOf(this.itemSupplyThroughput), this::setItemSupplyThroughput)
+                            .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setUpdateOnTyping(true));
+                    widgetGroup.addWidget(new ClickButtonWidget(91, 113, 38, 18, "/2", data -> this.setItemSupplyThroughput(String.valueOf((long) this.itemSupplyThroughput / 2), "")));
+                    widgetGroup.addWidget(new ClickButtonWidget(129, 113, 38, 18, "*2", data -> this.setItemSupplyThroughput(String.valueOf((long) this.itemSupplyThroughput * 2), "")));
+                    return false;
+                }).addPopup(widgetGroup -> {
                     widgetGroup.addWidget(itemWidgetGroup);
                     widgetGroup.addWidget(itemSelectionWidgetGroup);
                     return false;
@@ -146,15 +158,21 @@ public class ControllableDualCover extends DualCover {
                     final ItemStack itemStack = this.fluidFilterSlot.getStackInSlot(0);
                     return FLUID_FILTER.isItemEqual(itemStack) ? 1 : SMART_FILTER.isItemEqual(itemStack) ? 2 : 0;
                 })
-                .addPopup(widgetGroup -> true)
                 .addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(new NewTextFieldWidget<>(88, 115, 76, 18, true, () -> String.valueOf(this.fluidSupplyThroughput), this::setFluidSupplyThroughput)
+                            .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setUpdateOnTyping(true));
+                    widgetGroup.addWidget(new ClickButtonWidget(88, 133, 38, 18, "/2", data -> this.setFluidSupplyThroughput(String.valueOf((long) this.fluidSupplyThroughput / 2), "")));
+                    widgetGroup.addWidget(new ClickButtonWidget(126, 133, 38, 18, "*2", data -> this.setFluidSupplyThroughput(String.valueOf((long) this.fluidSupplyThroughput * 2), "")));
+                    return false;
+                }).addPopup(widgetGroup -> {
                     widgetGroup.addWidget(fluidWidgetGroup);
                     widgetGroup.addWidget(fluidSelectionWidgetGroup);
                     return false;
                 }).addPopup(widgetGroup -> false);
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
-                .addTab(String.format("metaitem.robot.arm.%s.name", GAValues.VN[tier].toLowerCase()), this.tier > 0 ? robotArms[this.tier].getStackForm() : this.getPickItem(), tab -> {
+                .addTab(String.format("metaitem.robot.arm.%s.name", GAValues.VN[this.tier].toLowerCase()), this.tier > 0 ? robotArms[this.tier].getStackForm() : this.getPickItem(), tab -> {
                     tab.add(new ClickButtonWidget(10, 20, 20, 20, "-10", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(146, 20, 20, 20, "+10", data -> this.setItemTransferRate(this.itemTransferRate + (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(30, 20, 20, 20, "-1", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 5 : 1))));
@@ -174,7 +192,7 @@ public class ControllableDualCover extends DualCover {
                             .setTooltipText("cover.filter.blacklist"));
                     tab.add(new ToggleButtonWidget(151, 168, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
                             .setTooltipText("machine.universal.toggle.run.mode"));
-                }).addTab(String.format("metaitem.fluid.regulator.%s.name", GAValues.VN[tier].toLowerCase()), this.tier > 0 ? regulators[this.tier].getStackForm() : this.getPickItem(), tab -> {
+                }).addTab(String.format("metaitem.fluid.regulator.%s.name", GAValues.VN[this.tier].toLowerCase()), this.tier > 0 ? regulators[this.tier].getStackForm() : this.getPickItem(), tab -> {
                     tab.add(new ClickButtonWidget(10, 20, 34, 20, "-100", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(128, 20, 34, 20, "+100", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(44, 20, 22, 20, "-10", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 50 : 10))));
@@ -212,12 +230,13 @@ public class ControllableDualCover extends DualCover {
                 super.transferItems(itemHandler, destItemHandler);
                 break;
             case TRANSFER_EXACT:
+                if (this.itemSupplyThroughput > this.maxItemTransferRate) break;
                 for (int i = 0; i < itemHandler.getSlots(); i++) {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     ItemStack filterStack = null;
                     if (!stack.isEmpty() && (this.itemFilterType == null || this.isItemBlacklist == ((filterStack = this.itemType.get(stack.getItem())) == null))) {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final int extract = filterStack != null ? filterStack.getCount() : this.itemTransferRate;
+                        final int extract = filterStack != null ? filterStack.getCount() : this.itemSupplyThroughput;
                         final ItemStack otherStack = itemHandler.extractItem(i, Math.min(extract, stack.getCount() - inserted), true);
                         if (stack.getCount() >= extract) {
                             itemHandler.extractItem(i, extract, false);
@@ -237,7 +256,7 @@ public class ControllableDualCover extends DualCover {
                     ItemStack filterStack = null;
                     if (!stack.isEmpty() && (this.itemFilterType == null || this.isItemBlacklist == ((filterStack = this.itemType.get(stack.getItem())) == null))) {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min((filterStack != null ? filterStack.getCount() : this.itemTransferRate) - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue(), stack.getCount() - inserted)), false);
+                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, (filterStack != null ? filterStack.getCount() : this.itemTransferRate) - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
                 }
@@ -252,6 +271,7 @@ public class ControllableDualCover extends DualCover {
                 super.transferFluids(fluidHandler, destFluidHandler);
                 break;
             case TRANSFER_EXACT:
+                if (this.itemSupplyThroughput > this.maxFluidTransferRate) break;
                 final IFluidTankProperties[] tanks = fluidHandler.getTankProperties();
                 for (IFluidTankProperties tank : tanks) {
                     FluidStack fluidStack = tank.getContents();
@@ -259,7 +279,7 @@ public class ControllableDualCover extends DualCover {
                     if (fluidStack != null && (this.fluidFilterType == null || this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null))) {
                         fluidStack = fluidHandler.drain(fluidStack, false);
                         if (fluidStack == null) continue;
-                        final int extract = filterStack != null ? filterStack.amount : this.fluidTransferRate;
+                        final int extract = filterStack != null ? filterStack.amount : this.fluidSupplyThroughput;
                         if (fluidStack.amount >= extract) {
                             fluidStack.amount = Math.min(fluidStack.amount, extract);
                             fluidStack.amount = destFluidHandler.fill(fluidStack, true);
@@ -283,7 +303,7 @@ public class ControllableDualCover extends DualCover {
                     if (fluidStack != null && (this.fluidFilterType == null || this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null))) {
                         fluidStack = fluidHandler.drain(fluidStack, false);
                         if (fluidStack == null) continue;
-                        fluidStack.amount = (int) Math.min(fluidStack.amount, (filterStack != null ? filterStack.amount : this.fluidTransferRate) - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue());
+                        fluidStack.amount = (int) Math.min(fluidStack.amount, Math.min(this.fluidTransferRate, (filterStack != null ? filterStack.amount : this.itemSupplyThroughput) - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue()));
                         if (fluidStack.amount > 0) {
                             fluidStack.amount = destFluidHandler.fill(fluidStack, true);
                             fluidHandler.drain(fluidStack, true);
@@ -299,6 +319,8 @@ public class ControllableDualCover extends DualCover {
         super.writeToNBT(tagCompound);
         tagCompound.setInteger("robotArmMode", this.robotArmMode.ordinal());
         tagCompound.setInteger("regulatorMode", this.regulatorMode.ordinal());
+        tagCompound.setInteger("itemSupplyThroughput", this.itemSupplyThroughput);
+        tagCompound.setInteger("fluidSupplyThroughput", this.fluidSupplyThroughput);
     }
 
     @Override
@@ -306,6 +328,18 @@ public class ControllableDualCover extends DualCover {
         super.readFromNBT(tagCompound);
         this.robotArmMode = TransferMode.values()[tagCompound.getInteger("robotArmMode")];
         this.regulatorMode = TransferMode.values()[tagCompound.getInteger("regulatorMode")];
+        this.itemSupplyThroughput = tagCompound.getInteger("itemSupplyThroughput");
+        this.fluidSupplyThroughput = tagCompound.getInteger("fluidSupplyThroughput");
+    }
+
+    public void setItemSupplyThroughput(String text, String id) {
+        this.itemSupplyThroughput = (int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+        this.markAsDirty();
+    }
+
+    public void setFluidSupplyThroughput(String text, String id) {
+        this.fluidSupplyThroughput = (int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+        this.markAsDirty();
     }
 
     public void setRobotArmMode(TransferMode robotArmMode) {
