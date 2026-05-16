@@ -62,9 +62,7 @@ public class ModularArmorBehaviour implements ISpecialArmorLogic {
                     @Override
                     public int getTier() {
                         final NBTTagCompound compound = this.itemStack.getTagCompound();
-                        if (compound == null)
-                            return super.getTier();
-                        return compound.getInteger("tier");
+                        return compound != null ? compound.getInteger("tier") : super.getTier();
                     }
                 };
             }
