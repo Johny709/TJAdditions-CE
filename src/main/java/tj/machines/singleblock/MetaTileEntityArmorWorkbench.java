@@ -13,6 +13,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.TieredMetaTileEntity;
 import gregtech.api.util.Position;
+import gregtech.common.items.MetaItems;
 import gregtech.common.metatileentities.electric.MetaTileEntityBatteryBuffer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -69,6 +70,7 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
                             case 0: return itemStack.hasCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
                             case 1: return this.getEnergyBufferTier(itemStack) >= 0;
                             case 2: return equipmentSlot == EntityEquipmentSlot.HEAD && GAMetaItems.NIGHTVISION_GOGGLES.isItemEqual(itemStack);
+                            case 3: return equipmentSlot == EntityEquipmentSlot.HEAD && MetaItems.REBREATHER.isItemEqual(itemStack);
                             default: return false;
                         }
                     }).setOnContentsChangedPre((slot, itemStack, insert) -> {
@@ -88,6 +90,11 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
                                 if (equipmentSlot == EntityEquipmentSlot.HEAD) {
                                     compound.setBoolean("nightVision", true);
                                 }
+                                break;
+                            case 3:
+                                if (equipmentSlot == EntityEquipmentSlot.HEAD) {
+                                    compound.setBoolean("waterBreathing", true);
+                                }
                         }
                     }).setOnContentsChangedPost((slot, itemStack) -> {
                         if (!itemStack.isEmpty()) return;
@@ -104,6 +111,11 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
                             case 2:
                                 if (equipmentSlot == EntityEquipmentSlot.HEAD) {
                                     compound.removeTag("nightVision");
+                                }
+                                break;
+                            case 3:
+                                if (equipmentSlot == EntityEquipmentSlot.HEAD) {
+                                    compound.removeTag("waterBreathing");
                                 }
                         }
                     }));

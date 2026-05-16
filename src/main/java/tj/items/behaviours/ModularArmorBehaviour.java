@@ -75,14 +75,20 @@ public class ModularArmorBehaviour implements ISpecialArmorLogic {
     public void onArmorTick(World world, EntityPlayer player, ItemStack itemStack) {
         if (!world.isRemote && world.getTotalWorldTime() % 20 == 0) {
             final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(itemStack);
+            final IElectricItem electricItem = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+            if (electricItem == null) return;
             switch (this.equipmentSlot) {
                 case HEAD:
                     if (compound.hasKey("nightVision") && compound.getBoolean("nightVision")) {
-                        final IElectricItem electricItem = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
-                        if (electricItem == null) return;
                         if (compound.getLong("Charge") >= 1000) {
                             electricItem.discharge(1000, 1, true, false, false);
                             player.addPotionEffect(new PotionEffect(Potion.getPotionById(16), 40));
+                        }
+                    }
+                    if (compound.hasKey("waterBreathing") && compound.getBoolean("waterBreathing")) {
+                        if (compound.getLong("Charge") >= 1000) {
+                            electricItem.discharge(1000, 1, true, false, false);
+                            player.addPotionEffect(new PotionEffect(Potion.getPotionById(13), 40));
                         }
                     }
             }
