@@ -6,6 +6,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
+import gregtech.api.GTValues;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
@@ -218,6 +219,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
                 .addTab(String.format("metaitem.conveyor.module.%s.name", GAValues.VN[this.tier].toLowerCase()), this.tier > 0 ? conveyors[this.tier].getStackForm() : this.getPickItem(), tab -> {
+                    tab.add(new LabelWidget(10, 5, "cover.conveyor.title", GTValues.VN[this.tier]));
                     tab.add(new ClickButtonWidget(10, 20, 20, 20, "-10", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(146, 20, 20, 20, "+10", data -> this.setItemTransferRate(this.itemTransferRate + (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(30, 20, 20, 20, "-1", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 5 : 1))));
@@ -236,6 +238,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                             .setTooltipText("cover.filter.blacklist"));
                     tab.add(new NewTextFieldWidget<>(91, 133, 76, 18, true, () -> String.valueOf(this.itemTicks), this::setItemTicks)
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setTooltipText("machine.universal.ticks.operation")
                             .setUpdateOnTyping(true));
                     tab.add(new ClickButtonWidget(91, 151, 38, 18, "/2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks / 2), "")));
                     tab.add(new ClickButtonWidget(129, 151, 38, 18, "*2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks * 2), "")));
@@ -243,6 +246,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                     tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
                             .setTooltipText("machine.universal.toggle.run.mode"));
                 }).addTab(String.format("metaitem.electric.pump.%s.name", GAValues.VN[this.tier].toLowerCase()), this.tier > 0 ? pumps[this.tier].getStackForm() : this.getPickItem(), tab -> {
+                    tab.add(new LabelWidget(10, 5, "cover.pump.title", GTValues.VN[this.tier]));
                     tab.add(new ClickButtonWidget(10, 20, 34, 20, "-100", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(128, 20, 34, 20, "+100", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(44, 20, 22, 20, "-10", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 50 : 10))));
@@ -263,6 +267,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                             .setTooltipText("cover.filter.blacklist"));
                     tab.add(new NewTextFieldWidget<>(88, 151, 76, 18, true, () -> String.valueOf(this.fluidTicks), this::setFluidTicks)
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setTooltipText("machine.universal.ticks.operation")
                             .setUpdateOnTyping(true));
                     tab.add(new ClickButtonWidget(88, 169, 38, 18, "/2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks / 2), "")));
                     tab.add(new ClickButtonWidget(126, 169, 38, 18, "*2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks * 2), "")));

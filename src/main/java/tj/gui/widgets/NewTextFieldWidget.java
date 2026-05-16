@@ -315,13 +315,16 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
             }
         }
         if (this.formatSupplier != null) {
-            final String[] formatArgs = this.formatSupplier.get();
-            this.writeUpdateInfo(3, buffer -> {
-                buffer.writeInt(formatArgs.length);
-                for (String format : formatArgs) {
-                    buffer.writeString(format);
-                }
-            });
+            final String[] format = this.formatSupplier.get();
+            if (!Arrays.equals(format, this.format)) {
+                this.format = format;
+                this.writeUpdateInfo(3, buffer -> {
+                    buffer.writeInt(this.format.length);
+                    for (String f : this.format) {
+                        buffer.writeString(f);
+                    }
+                });
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 package tj.items.behaviours;
 
 import gregicadditions.GAValues;
+import gregtech.api.GTValues;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -63,6 +64,7 @@ import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLoc
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
 import static gregtech.common.items.MetaItems.*;
 import static gregtech.common.items.MetaItems.ELECTRIC_PUMP_UV;
+import static tj.items.TJMetaItems.DUAL_COVERS;
 
 public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
 
@@ -91,8 +93,8 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
         final ObjectReference<CoverPump.PumpMode> pumpMode = new ObjectReference<>(CoverPump.PumpMode.EXPORT);
         final IntegerReference itemTicks = new IntegerReference(20);
         final IntegerReference fluidTicks = new IntegerReference(20);
-        final IntegerReference itemTransferRate = new IntegerReference();
-        final IntegerReference fluidTransferRate = new IntegerReference();
+        final IntegerReference itemTransferRate = new IntegerReference(this.maxItemTransferRate);
+        final IntegerReference fluidTransferRate = new IntegerReference(this.maxFluidTransferRate);
         final BooleanReference itemBlacklist = new BooleanReference();
         final BooleanReference fluidBlacklist = new BooleanReference();
         final BooleanReference itemWorking = new BooleanReference();
@@ -176,6 +178,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
                 .addTab(String.format("metaitem.conveyor.module.%s.name", GAValues.VN[this.tier].toLowerCase()), this.tier > 0 ? conveyors[this.tier].getStackForm() : null, tab -> {
+                    tab.add(new LabelWidget(10, 5, "cover.conveyor.title", GTValues.VN[this.tier]));
                     tab.add(new ClickButtonWidget(10, 20, 20, 20, "-10", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() - (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(146, 20, 20, 20, "+10", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() + (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(30, 20, 20, 20, "-1", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() - (data.isShiftClick ? 5 : 1))));
@@ -203,6 +206,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                     };
                     tab.add(new NewTextFieldWidget<>(91, 133, 76, 18, true, () -> String.valueOf(itemTicks.getValue()), setItemTicks)
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setTooltipText("machine.universal.ticks.operation")
                             .setUpdateOnTyping(true));
                     tab.add(new ClickButtonWidget(91, 151, 38, 18, "/2", data -> setItemTicks.accept(String.valueOf((long) itemTicks.getValue() / 2), "")));
                     tab.add(new ClickButtonWidget(129, 151, 38, 18, "*2", data -> setItemTicks.accept(String.valueOf((long) itemTicks.getValue() * 2), "")));
@@ -212,6 +216,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                         compound.setBoolean("itemWorking", itemWorking.isValue());
                     }).setTooltipText("machine.universal.toggle.run.mode"));
                 }).addTab(String.format("metaitem.electric.pump.%s.name", GAValues.VN[this.tier].toLowerCase()), this.tier > 0 ? pumps[this.tier].getStackForm() : null, tab -> {
+                    tab.add(new LabelWidget(10, 5, "cover.pump.title", GTValues.VN[this.tier]));
                     tab.add(new ClickButtonWidget(10, 20, 34, 20, "-100", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() - (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(128, 20, 34, 20, "+100", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() + (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(44, 20, 22, 20, "-10", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() - (data.isShiftClick ? 50 : 10))));
@@ -241,6 +246,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                     };
                     tab.add(new NewTextFieldWidget<>(88, 151, 76, 18, true, () -> String.valueOf(fluidTicks.getValue()), setFluidTicks)
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setTooltipText("machine.universal.ticks.operation")
                             .setUpdateOnTyping(true));
                     tab.add(new ClickButtonWidget(88, 169, 38, 18, "/2", data -> setFluidTicks.accept(String.valueOf((long) fluidTicks.getValue() / 2), "")));
                     tab.add(new ClickButtonWidget(126, 169, 38, 18, "*2", data -> setFluidTicks.accept(String.valueOf((long) fluidTicks.getValue() * 2), "")));
@@ -252,7 +258,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                 });
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 272)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setLocale(String.format("metaitem.dual_cover.%s.name", GAValues.VN[this.tier].toLowerCase())))
+                        .setItemLabel(DUAL_COVERS[this.tier].getStackForm()).setLocale(String.format("metaitem.dual_cover.%s.name", GAValues.VN[this.tier].toLowerCase())))
                 .widget(tabBuilder.build())
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 190, itemStack))
                 .bindOpenListener(() -> {

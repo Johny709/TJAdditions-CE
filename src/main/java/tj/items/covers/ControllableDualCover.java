@@ -1,6 +1,7 @@
 package tj.items.covers;
 
 import gregicadditions.GAValues;
+import gregtech.api.GTValues;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -22,6 +23,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.items.IItemHandler;
+import org.apache.commons.lang3.ArrayUtils;
 import tj.builder.WidgetTabBuilder;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.NewTextFieldWidget;
@@ -104,7 +106,9 @@ public class ControllableDualCover extends DualCover {
             }, item -> this.itemType.remove(item.getItem())).setBackgroundTextures(GuiTextures.SLOT)
                     .setPutItemsPredicate(item -> this.itemType.get(item.getItem()) == null));
             itemSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(84, 0, 76, 18, true, () -> String.valueOf(itemFilter.getStackInSlot(index).getCount()), setItemCount)
+                    .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(itemFilter.getStackInSlot(index).getCount())))
                     .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                    .setTooltipText("tj.machine.universal.item_amount")
                     .setUpdateOnTyping(true));
             itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(84, 18, 38, 18, "/2", data -> setItemCount.accept(String.valueOf((long) this.itemFilter.getStackInSlot(index).getCount() / 2), "")));
             itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(122, 18, 38, 18, "*2", data -> setItemCount.accept(String.valueOf((long) this.itemFilter.getStackInSlot(index).getCount() * 2), "")));
@@ -127,7 +131,9 @@ public class ControllableDualCover extends DualCover {
             }, this.fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
                     .setPutFluidsPredicate(fluid -> this.fluidType.get(fluid) == null));
             fluidSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(81, 0, 76, 18, true, () -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount()), setFluidCount)
+                    .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(fluidFilter.getTankAt(index).getFluidAmount())))
                     .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                    .setTooltipText("tj.machine.universal.fluid_amount")
                     .setUpdateOnTyping(true));
             fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(81, 18, 38, 18, "/2", data -> setFluidCount.accept(String.valueOf((long) this.fluidFilter.getTankAt(index).getFluidAmount() / 2), "")));
             fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(119, 18, 38, 18, "*2", data -> setFluidCount.accept(String.valueOf((long) this.fluidFilter.getTankAt(index).getFluidAmount() * 2), "")));
@@ -139,7 +145,9 @@ public class ControllableDualCover extends DualCover {
                     return ITEM_FILTER.isItemEqual(itemStack) ? 1 : SMART_FILTER.isItemEqual(itemStack) ? 2 : ORE_DICTIONARY_FILTER.isItemEqual(itemStack) ? 3 : 0;
                 }).addPopup(widgetGroup -> {
                     widgetGroup.addWidget(new NewTextFieldWidget<>(91, 95, 76, 18, true, () -> String.valueOf(this.itemSupplyThroughput), this::setItemSupplyThroughput)
+                            .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.itemSupplyThroughput)))
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setTooltipText("tj.machine.universal.item_amount")
                             .setUpdateOnTyping(true));
                     widgetGroup.addWidget(new ClickButtonWidget(91, 113, 38, 18, "/2", data -> this.setItemSupplyThroughput(String.valueOf((long) this.itemSupplyThroughput / 2), "")));
                     widgetGroup.addWidget(new ClickButtonWidget(129, 113, 38, 18, "*2", data -> this.setItemSupplyThroughput(String.valueOf((long) this.itemSupplyThroughput * 2), "")));
@@ -157,7 +165,9 @@ public class ControllableDualCover extends DualCover {
                 })
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(new NewTextFieldWidget<>(88, 115, 76, 18, true, () -> String.valueOf(this.fluidSupplyThroughput), this::setFluidSupplyThroughput)
+                            .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.fluidSupplyThroughput)))
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setTooltipText("tj.machine.universal.fluid_amount")
                             .setUpdateOnTyping(true));
                     widgetGroup.addWidget(new ClickButtonWidget(88, 133, 38, 18, "/2", data -> this.setFluidSupplyThroughput(String.valueOf((long) this.fluidSupplyThroughput / 2), "")));
                     widgetGroup.addWidget(new ClickButtonWidget(126, 133, 38, 18, "*2", data -> this.setFluidSupplyThroughput(String.valueOf((long) this.fluidSupplyThroughput * 2), "")));
@@ -170,6 +180,7 @@ public class ControllableDualCover extends DualCover {
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
                 .addTab(String.format("metaitem.robot.arm.%s.name", GAValues.VN[this.tier].toLowerCase()), this.tier > 0 ? robotArms[this.tier].getStackForm() : this.getPickItem(), tab -> {
+                    tab.add(new LabelWidget(10, 5, "cover.robotic_arm.title", GTValues.VN[this.tier]));
                     tab.add(new ClickButtonWidget(10, 20, 20, 20, "-10", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(146, 20, 20, 20, "+10", data -> this.setItemTransferRate(this.itemTransferRate + (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(30, 20, 20, 20, "-1", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 5 : 1))));
@@ -190,6 +201,7 @@ public class ControllableDualCover extends DualCover {
                             .setTooltipText("cover.filter.blacklist"));
                     tab.add(new NewTextFieldWidget<>(91, 133, 76, 18, true, () -> String.valueOf(this.itemTicks), this::setItemTicks)
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setTooltipText("machine.universal.ticks.operation")
                             .setUpdateOnTyping(true));
                     tab.add(new ClickButtonWidget(91, 151, 38, 18, "/2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks / 2), "")));
                     tab.add(new ClickButtonWidget(129, 151, 38, 18, "*2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks * 2), "")));
@@ -197,6 +209,7 @@ public class ControllableDualCover extends DualCover {
                     tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
                             .setTooltipText("machine.universal.toggle.run.mode"));
                 }).addTab(String.format("metaitem.fluid.regulator.%s.name", GAValues.VN[this.tier].toLowerCase()), this.tier > 0 ? regulators[this.tier].getStackForm() : this.getPickItem(), tab -> {
+                    tab.add(new LabelWidget(10, 5, "cover.fluid_regulator.title", GTValues.VN[this.tier]));
                     tab.add(new ClickButtonWidget(10, 20, 34, 20, "-100", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(128, 20, 34, 20, "+100", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(44, 20, 22, 20, "-10", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 50 : 10))));
@@ -219,6 +232,7 @@ public class ControllableDualCover extends DualCover {
                             .setTooltipText("cover.filter.blacklist"));
                     tab.add(new NewTextFieldWidget<>(88, 151, 76, 18, true, () -> String.valueOf(this.fluidTicks), this::setFluidTicks)
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setTooltipText("machine.universal.ticks.operation")
                             .setUpdateOnTyping(true));
                     tab.add(new ClickButtonWidget(88, 169, 38, 18, "/2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks / 2), "")));
                     tab.add(new ClickButtonWidget(126, 169, 38, 18, "*2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks * 2), "")));
