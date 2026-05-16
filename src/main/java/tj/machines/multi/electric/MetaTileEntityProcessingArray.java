@@ -104,14 +104,13 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
                         this.markDirty();
                     }
                 }).setOnContentsChangedPost((slot, stack) -> {
-                    if (stack.isEmpty()) {
-                        this.currentRecipeMap = RecipeMaps.FURNACE_RECIPES;
-                        this.machineVoltage = 0;
-                        this.machineTier = 0;
-                        this.metaId = -1;
-                        this.tier = 0;
-                        this.writeCustomData(100, buffer -> buffer.writeInt(this.metaId));
-                    }
+                    if (!stack.isEmpty()) return;
+                    this.currentRecipeMap = RecipeMaps.FURNACE_RECIPES;
+                    this.machineVoltage = 0;
+                    this.machineTier = 0;
+                    this.metaId = -1;
+                    this.tier = 0;
+                    this.writeCustomData(100, buffer -> buffer.writeInt(this.metaId));
                 });
     }
 

@@ -2,9 +2,10 @@ package tj.items.behaviours;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import gregtech.api.GTValues;
+import gregicadditions.GAValues;
 import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.IElectricItem;
+import gregtech.api.capability.impl.ElectricItem;
 import gregtech.api.items.armor.ArmorMetaItem;
 import gregtech.api.items.armor.ISpecialArmorLogic;
 import gregtech.api.items.metaitem.ElectricStats;
@@ -14,8 +15,10 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.ISpecialArmor;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
 import javax.annotation.Nonnull;
 
@@ -47,7 +50,25 @@ public class ModularArmorBehaviour implements ISpecialArmorLogic {
 
     @Override
     public void addToolComponents(ArmorMetaItem.ArmorMetaValueItem metaValueItem) {
-        metaValueItem.addStats(ElectricStats.createElectricItem(1000000L, GTValues.LV));
+        metaValueItem.addStats(new ElectricStats(0, 0, true, false) {
+            @Override
+            public ICapabilityProvider createProvider(ItemStack itemStack) {
+                return new ElectricItem(itemStack, 0, 0, true, false) {
+                    @Override
+                    public long getTransferLimit() {
+                        return GAValues.V[this.getTier()];
+                    }
+
+                    @Override
+                    public int getTier() {
+                        final NBTTagCompound compound = this.itemStack.getTagCompound();
+                        if (compound == null)
+                            return super.getTier();
+                        return compound.getInteger("tier");
+                    }
+                };
+            }
+        });
     }
 
     @Override

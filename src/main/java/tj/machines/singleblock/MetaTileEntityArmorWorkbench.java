@@ -1,5 +1,10 @@
 package tj.machines.singleblock;
 
+import gregicadditions.machines.overrides.GAMetaTileEntityBatteryBuffer;
+import gregtech.api.GregTechAPI;
+import gregtech.api.block.machines.BlockMachine;
+import gregtech.api.capability.GregtechCapabilities;
+import gregtech.api.capability.IElectricItem;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.WidgetGroup;
@@ -7,9 +12,12 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.TieredMetaTileEntity;
 import gregtech.api.util.Position;
+import gregtech.common.metatileentities.electric.MetaTileEntityBatteryBuffer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import tj.gui.TJGuiTextures;
@@ -18,6 +26,7 @@ import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.items.TJMetaItems;
 import tj.items.handlers.FilteredItemStackHandler;
+import tj.util.TJItemUtils;
 
 public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
 
@@ -33,22 +42,56 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
                     default: return false;
                 }
             }).setOnContentsChangedPre((slot, itemStack, insert) -> {
-
+                final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(itemStack);
+                final FilteredItemStackHandler armorSlot = this.armorSlotMap.get(slot);
+                for (int i = 0; i < armorSlot.getSlots(); i++) {
+                    if (compound.hasKey("slot:" + i))
+                        armorSlot.setStackInSlot(i, new ItemStack(compound.getCompoundTag("slot:" + i)));
+                }
             }).setOnContentsChangedPost((slot, itemStack) -> {
-                if (itemStack.isEmpty()) {
-                    final FilteredItemStackHandler armorSlot = this.armorSlotMap.get(slot);
-                    for (int i = 0; i < armorSlot.getSlots(); i++) {
-                        armorSlot.extractItem(i, Integer.MAX_VALUE, false);
-                    }
+                if (!itemStack.isEmpty()) return;
+                final FilteredItemStackHandler armorSlot = this.armorSlotMap.get(slot);
+                for (int i = 0; i < armorSlot.getSlots(); i++) {
+                    armorSlot.extractItem(i, Integer.MAX_VALUE, false);
                 }
             });
 
     public MetaTileEntityArmorWorkbench(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, 1);
-        this.armorSlotMap.put(0, new FilteredItemStackHandler(this, 7, 1));
-        this.armorSlotMap.put(1, new FilteredItemStackHandler(this, 7, 1));
-        this.armorSlotMap.put(2, new FilteredItemStackHandler(this, 7, 1));
-        this.armorSlotMap.put(3, new FilteredItemStackHandler(this, 7, 1));
+        for (int i = 0; i < this.armorSlots.getSlots(); i++) {
+            final int index = i;
+            this.armorSlotMap.put(i, new FilteredItemStackHandler(this, 7, 1)
+                    .setItemStackPredicate((slot, itemStack) -> {
+                        switch (slot) {
+                            case 0: return itemStack.hasCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+                            case 1: return this.getEnergyBufferTier(itemStack) >= 0;
+                            default: return false;
+                        }
+                    }).setOnContentsChangedPre((slot, itemStack, insert) -> {
+                        if (!insert) return;
+                        final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(this.armorSlots.getStackInSlot(index));
+                        compound.setTag("slot:" + slot, itemStack.serializeNBT());
+                        switch (slot) {
+                            case 0:
+                                final IElectricItem electricItem = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+                                if (electricItem != null)
+                                    compound.setLong("MaxCharge", electricItem.getMaxCharge());
+                                break;
+                            case 1: compound.setInteger("tier", this.getEnergyBufferTier(itemStack));
+                        }
+                    }).setOnContentsChangedPost((slot, itemStack) -> {
+                        if (!itemStack.isEmpty()) return;
+                        final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(this.armorSlots.getStackInSlot(index));
+                        compound.removeTag("slot:" + slot);
+                        switch (slot) {
+                            case 0:
+                                compound.removeTag("MaxCharge");
+                                compound.removeTag("Charge");
+                                break;
+                            case 1: compound.removeTag("tier");
+                        }
+                    }));
+        }
     }
 
     @Override
@@ -134,5 +177,17 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
         for (int i = 0; i < this.armorSlots.getSlots(); i++) {
             this.armorSlotMap.get(i).deserializeNBT(data.getCompoundTag("armorSlot:" + i));
         }
+    }
+
+    private int getEnergyBufferTier(ItemStack stack) {
+        if (Block.getBlockFromItem(stack.getItem()) instanceof BlockMachine) {
+            final MetaTileEntity metaTileEntity = GregTechAPI.META_TILE_ENTITY_REGISTRY.getObjectById(stack.getMetadata());
+            if (metaTileEntity instanceof MetaTileEntityBatteryBuffer) {
+                return ((MetaTileEntityBatteryBuffer) metaTileEntity).getTier();
+            } else if (metaTileEntity instanceof GAMetaTileEntityBatteryBuffer) {
+                return ((GAMetaTileEntityBatteryBuffer) metaTileEntity).getTier();
+            }
+        }
+        return -1;
     }
 }

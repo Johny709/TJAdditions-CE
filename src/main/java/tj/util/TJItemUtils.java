@@ -3,6 +3,7 @@ package tj.util;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandler;
 
@@ -339,5 +340,14 @@ public final class TJItemUtils {
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Gets the {@link NBTTagCompound} from {@link ItemStack}. If the itemStack has null compound, then a new one is created and returned.
+     */
+    public static NBTTagCompound getCompoundFromStack(ItemStack stack) {
+        if (stack.getTagCompound() == null)
+            stack.setTagCompound(new NBTTagCompound());
+        return stack.getTagCompound();
     }
 }

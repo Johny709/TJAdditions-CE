@@ -72,8 +72,8 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                 if (!insert) return;
                 this.itemFilterType = ITEM_FILTER.isItemEqual(itemStack) ? FilterType.NORMAL : null;
             }).setOnContentsChangedPost((slot, itemStack) -> {
-                if (itemStack.isEmpty())
-                    this.itemFilterType = null;
+                if (!itemStack.isEmpty()) return;
+                this.itemFilterType = null;
             });
     protected final FilteredItemStackHandler fluidFilterSlot = new FilteredItemStackHandler(this.coverHolder, 1, 1)
             .setItemStackPredicate((slot, itemStack) -> FLUID_FILTER.isItemEqual(itemStack))
@@ -81,8 +81,8 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                 if (!insert) return;
                 this.fluidFilterType = FLUID_FILTER.isItemEqual(itemStack) ? FilterType.NORMAL : null;
             }).setOnContentsChangedPost((slot, itemStack) -> {
-                if (itemStack.isEmpty())
-                    this.fluidFilterType = null;
+                if (!itemStack.isEmpty()) return;
+                this.fluidFilterType = null;
             });
     protected final LargeItemStackHandler itemFilter = new LargeItemStackHandler(16, Integer.MAX_VALUE);
     protected final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 16)

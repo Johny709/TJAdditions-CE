@@ -107,8 +107,8 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                     if (!insert) return;
                     compound.setTag("itemFilterSlot", itemStack1.serializeNBT());
                 }).setOnContentsChangedPost((slot, itemStack1) -> {
-                    if (itemStack1.isEmpty())
-                        compound.removeTag("itemFilterSlot");
+                    if (!itemStack1.isEmpty()) return;
+                    compound.removeTag("itemFilterSlot");
                 });
         final FilteredItemStackHandler fluidFilterSlot = new FilteredItemStackHandler(null, 1, 1)
                 .setItemStackPredicate((slot, itemStack1) -> FLUID_FILTER.isItemEqual(itemStack1))
@@ -116,8 +116,8 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                     if (!insert) return;
                     compound.setTag("fluidFilterSlot", itemStack1.serializeNBT());
                 }).setOnContentsChangedPost((slot, itemStack1) -> {
-                    if (itemStack1.isEmpty())
-                        compound.removeTag("fluidFilterSlot");
+                    if (!itemStack1.isEmpty()) return;
+                    compound.removeTag("fluidFilterSlot");
                 });
         final LargeItemStackHandler itemFilter = new LargeItemStackHandler(16, Integer.MAX_VALUE);
         final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 16)
