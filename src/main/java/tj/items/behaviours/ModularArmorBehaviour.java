@@ -19,6 +19,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.common.ISpecialArmor;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
 
@@ -37,10 +38,8 @@ public class ModularArmorBehaviour implements ISpecialArmorLogic {
 
     @Override
     public int getArmorDisplay(EntityPlayer entityPlayer, @Nonnull ItemStack itemStack, int i) {
-        IElectricItem item = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
-        if (item != null && item.getCharge() > 0)
-            return 6;
-        return 3;
+        final IElectricItem electricItem = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+        return electricItem != null && electricItem.getCharge() > 0 ? (6 + TJItemUtils.getCompoundFromStack(itemStack).getInteger("tier")) : 3;
     }
 
     @Override
@@ -70,8 +69,10 @@ public class ModularArmorBehaviour implements ISpecialArmorLogic {
     }
 
     @Override
-    public void damageArmor(EntityLivingBase entityLivingBase, ItemStack itemStack, DamageSource damageSource, int i, EntityEquipmentSlot entityEquipmentSlot) {
-
+    public void damageArmor(EntityLivingBase entityLivingBase, ItemStack itemStack, DamageSource damageSource, int damage, EntityEquipmentSlot entityEquipmentSlot) {
+        final IElectricItem electricItem = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+        if (electricItem == null) return;
+        electricItem.discharge(damage, Math.max(32, 32 * TJItemUtils.getCompoundFromStack(itemStack).getInteger("tier")), true, false, false);
     }
 
     @Override
@@ -81,7 +82,7 @@ public class ModularArmorBehaviour implements ISpecialArmorLogic {
 
     @Override
     public String getArmorTexture(ItemStack itemStack, Entity entity, EntityEquipmentSlot slot, String s) {
-        IElectricItem item = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+        final IElectricItem item = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
         if (item != null && item.getCharge() > 0)
             return slot == EntityEquipmentSlot.HEAD || slot == EntityEquipmentSlot.CHEST ? "gregtech:textures/armor/e2_helmet_chest.png" : "gregtech:textures/armor/e2_leggings_boots.png";
         return slot == EntityEquipmentSlot.HEAD || slot == EntityEquipmentSlot.CHEST ? "gregtech:textures/armor/e1_helmet_chest.png" : "gregtech:textures/armor/e1_leggings_boots.png";
