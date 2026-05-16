@@ -1,5 +1,6 @@
 package tj.machines.singleblock;
 
+import gregicadditions.item.GAMetaItems;
 import gregicadditions.machines.overrides.GAMetaTileEntityBatteryBuffer;
 import gregtech.api.GregTechAPI;
 import gregtech.api.block.machines.BlockMachine;
@@ -17,6 +18,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -62,14 +64,17 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
             final int index = i;
             this.armorSlotMap.put(i, new FilteredItemStackHandler(this, 7, 1)
                     .setItemStackPredicate((slot, itemStack) -> {
+                        final EntityEquipmentSlot equipmentSlot = EntityEquipmentSlot.values()[5 - index];
                         switch (slot) {
                             case 0: return itemStack.hasCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
                             case 1: return this.getEnergyBufferTier(itemStack) >= 0;
+                            case 2: return equipmentSlot == EntityEquipmentSlot.HEAD && GAMetaItems.NIGHTVISION_GOGGLES.isItemEqual(itemStack);
                             default: return false;
                         }
                     }).setOnContentsChangedPre((slot, itemStack, insert) -> {
                         if (!insert) return;
                         final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(this.armorSlots.getStackInSlot(index));
+                        final EntityEquipmentSlot equipmentSlot = EntityEquipmentSlot.values()[5 - index];
                         compound.setTag("slot:" + slot, itemStack.serializeNBT());
                         switch (slot) {
                             case 0:
@@ -78,10 +83,16 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
                                     compound.setLong("MaxCharge", electricItem.getMaxCharge());
                                 break;
                             case 1: compound.setInteger("tier", this.getEnergyBufferTier(itemStack));
+                                break;
+                            case 2:
+                                if (equipmentSlot == EntityEquipmentSlot.HEAD) {
+                                    compound.setBoolean("nightVision", true);
+                                }
                         }
                     }).setOnContentsChangedPost((slot, itemStack) -> {
                         if (!itemStack.isEmpty()) return;
                         final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(this.armorSlots.getStackInSlot(index));
+                        final EntityEquipmentSlot equipmentSlot = EntityEquipmentSlot.values()[5 - index];
                         compound.removeTag("slot:" + slot);
                         switch (slot) {
                             case 0:
@@ -89,6 +100,11 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
                                 compound.removeTag("Charge");
                                 break;
                             case 1: compound.removeTag("tier");
+                                break;
+                            case 2:
+                                if (equipmentSlot == EntityEquipmentSlot.HEAD) {
+                                    compound.removeTag("nightVision");
+                                }
                         }
                     }));
         }

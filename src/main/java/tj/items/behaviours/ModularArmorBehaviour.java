@@ -16,7 +16,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
+import net.minecraft.world.World;
 import net.minecraftforge.common.ISpecialArmor;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import tj.util.TJItemUtils;
@@ -69,10 +72,28 @@ public class ModularArmorBehaviour implements ISpecialArmorLogic {
     }
 
     @Override
+    public void onArmorTick(World world, EntityPlayer player, ItemStack itemStack) {
+        if (!world.isRemote && world.getTotalWorldTime() % 20 == 0) {
+            final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(itemStack);
+            switch (this.equipmentSlot) {
+                case HEAD:
+                    if (compound.hasKey("nightVision") && compound.getBoolean("nightVision")) {
+                        final IElectricItem electricItem = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+                        if (electricItem == null) return;
+                        if (compound.getLong("Charge") >= 1000) {
+                            electricItem.discharge(1000, 1, true, false, false);
+                            player.addPotionEffect(new PotionEffect(Potion.getPotionById(16), 40));
+                        }
+                    }
+            }
+        }
+    }
+
+    @Override
     public void damageArmor(EntityLivingBase entityLivingBase, ItemStack itemStack, DamageSource damageSource, int damage, EntityEquipmentSlot entityEquipmentSlot) {
         final IElectricItem electricItem = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
         if (electricItem == null) return;
-        electricItem.discharge(damage, Math.max(32, 32 * TJItemUtils.getCompoundFromStack(itemStack).getInteger("tier")), true, false, false);
+        electricItem.discharge(damage * 32L, TJItemUtils.getCompoundFromStack(itemStack).getInteger("tier"), true, false, false);
     }
 
     @Override
