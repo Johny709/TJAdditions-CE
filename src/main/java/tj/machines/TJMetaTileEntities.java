@@ -160,6 +160,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityCreativeItemBus CREATIVE_ITEM_BUS;
     public static MetaTileEntityCreativeEnergyHatch CREATIVE_ENERGY_HATCH;
     public static MetaTileEntityFilingCabinet FILING_CABINET;
+    public static MetaTileEntityArmorWorkbench ARMOR_WORKBENCH;
 
     public static void init() {
 
@@ -289,6 +290,7 @@ public class TJMetaTileEntities {
         INFINITY_CHEST = GregTechAPI.registerMetaTileEntity(5424, new MetaTileEntityCompressedChest(TJId("infinity_chest"), true));
         INFINITY_CRATE = GregTechAPI.registerMetaTileEntity(5425, new MetaTileEntityCompressedCrate(TJId("infinity_crate"), true));
         FILING_CABINET = GregTechAPI.registerMetaTileEntity(5426, new MetaTileEntityFilingCabinet(TJId("filing_cabinet")));
+        ARMOR_WORKBENCH = GregTechAPI.registerMetaTileEntity(5427, new MetaTileEntityArmorWorkbench(TJId("armor_workbench")));
 
         // range 5500+ -> misc
         ACCELERATOR_ANCHOR_POINT = GregTechAPI.registerMetaTileEntity(5500, new MetaTileEntityAcceleratorAnchorPoint(TJId("accelerator_anchor_point")));
