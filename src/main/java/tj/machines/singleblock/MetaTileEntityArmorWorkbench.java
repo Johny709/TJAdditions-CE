@@ -55,69 +55,30 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
                 if (!itemStack.isEmpty()) return;
                 final FilteredItemStackHandler armorSlot = this.armorSlotMap.get(slot);
                 for (int i = 0; i < armorSlot.getSlots(); i++) {
-                    armorSlot.extractItem(i, Integer.MAX_VALUE, false);
+                    armorSlot.setStackInSlot(i, ItemStack.EMPTY);
                 }
             });
+
+    /**
+     * Remove tags if the item in the slot is empty from being extracted otherwise just update the NBT values.
+     */
+    private String[] removeTags = new String[0];
 
     public MetaTileEntityArmorWorkbench(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, 1);
         for (int i = 0; i < this.armorSlots.getSlots(); i++) {
             final int index = i;
             this.armorSlotMap.put(i, new FilteredItemStackHandler(this, 7, 1)
-                    .setItemStackPredicate((slot, itemStack) -> {
-                        final EntityEquipmentSlot equipmentSlot = EntityEquipmentSlot.values()[5 - index];
-                        switch (slot) {
-                            case 0: return itemStack.hasCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
-                            case 1: return this.getEnergyBufferTier(itemStack) >= 0;
-                            case 2: return equipmentSlot == EntityEquipmentSlot.HEAD && GAMetaItems.NIGHTVISION_GOGGLES.isItemEqual(itemStack);
-                            case 3: return equipmentSlot == EntityEquipmentSlot.HEAD && MetaItems.REBREATHER.isItemEqual(itemStack);
-                            default: return false;
-                        }
-                    }).setOnContentsChangedPre((slot, itemStack, insert) -> {
-                        if (!insert) return;
-                        final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(this.armorSlots.getStackInSlot(index));
-                        final EntityEquipmentSlot equipmentSlot = EntityEquipmentSlot.values()[5 - index];
-                        compound.setTag("slot:" + slot, itemStack.serializeNBT());
-                        switch (slot) {
-                            case 0:
-                                final IElectricItem electricItem = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
-                                if (electricItem != null)
-                                    compound.setLong("MaxCharge", electricItem.getMaxCharge());
-                                break;
-                            case 1: compound.setInteger("tier", this.getEnergyBufferTier(itemStack));
-                                break;
-                            case 2:
-                                if (equipmentSlot == EntityEquipmentSlot.HEAD) {
-                                    compound.setBoolean("nightVision", true);
-                                }
-                                break;
-                            case 3:
-                                if (equipmentSlot == EntityEquipmentSlot.HEAD) {
-                                    compound.setBoolean("waterBreathing", true);
-                                }
-                        }
-                    }).setOnContentsChangedPost((slot, itemStack) -> {
-                        if (!itemStack.isEmpty()) return;
-                        final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(this.armorSlots.getStackInSlot(index));
-                        final EntityEquipmentSlot equipmentSlot = EntityEquipmentSlot.values()[5 - index];
-                        compound.removeTag("slot:" + slot);
-                        switch (slot) {
-                            case 0:
-                                compound.removeTag("MaxCharge");
-                                compound.removeTag("Charge");
-                                break;
-                            case 1: compound.removeTag("tier");
-                                break;
-                            case 2:
-                                if (equipmentSlot == EntityEquipmentSlot.HEAD) {
-                                    compound.removeTag("nightVision");
-                                }
-                                break;
-                            case 3:
-                                if (equipmentSlot == EntityEquipmentSlot.HEAD) {
-                                    compound.removeTag("waterBreathing");
-                                }
-                        }
+                    .setItemStackPredicate((slot, itemStack) -> this.setUpgrades(EntityEquipmentSlot.values()[5 - index], slot, itemStack, this.armorSlots.getStackInSlot(index), true, true))
+                    .setOnContentsChangedPre((slot, itemStack, insert) -> this.setUpgrades(EntityEquipmentSlot.values()[5 - index], slot, itemStack, this.armorSlots.getStackInSlot(index), false, insert))
+                    .setOnContentsChangedPost((slot, itemStack) -> {
+                        final ItemStack armorStack = this.armorSlots.getStackInSlot(index);
+                        if (itemStack.isEmpty()) {
+                            final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(armorStack);
+                            compound.removeTag("slot:" + slot);
+                            for (String tag : this.removeTags)
+                                compound.removeTag(tag);
+                        } else this.setUpgrades(EntityEquipmentSlot.values()[5 - index], slot, itemStack, armorStack, false, true);
                     }));
         }
     }
@@ -205,6 +166,56 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
         for (int i = 0; i < this.armorSlots.getSlots(); i++) {
             this.armorSlotMap.get(i).deserializeNBT(data.getCompoundTag("armorSlot:" + i));
         }
+    }
+
+    private boolean setUpgrades(EntityEquipmentSlot equipmentSlot, int slot, ItemStack upgradeStack, ItemStack armorStack, boolean check, boolean insert) {
+        final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(armorStack);
+        boolean applied = false;
+        switch (equipmentSlot) {
+            case HEAD:
+                if ((!insert || !compound.hasKey("nightVision")) && GAMetaItems.NIGHTVISION_GOGGLES.isItemEqual(upgradeStack)) {
+                    applied = true;
+                    if (!check)
+                        compound.setBoolean("nightVision", true);
+                    if (!insert)
+                        this.removeTags = new String[]{"nightVision"};
+                }
+                if ((!insert || !compound.hasKey("waterBreathing")) && MetaItems.REBREATHER.isItemEqual(upgradeStack)) {
+                    applied = true;
+                    if (!check)
+                        compound.setBoolean("waterBreathing", true);
+                    if (!insert)
+                        this.removeTags = new String[]{"waterBreathing"};
+                }
+                break;
+            case CHEST:
+                break;
+            case LEGS:
+                break;
+            case FEET:
+        }
+        if ((!insert || !compound.hasKey("MaxCharge")) && upgradeStack.hasCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null)) {
+            applied = true;
+            if (!check) {
+                final IElectricItem electricItem = upgradeStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+                if (electricItem != null) {
+                    compound.setLong("MaxCharge", electricItem.getMaxCharge());
+                    compound.setLong("Charge", Math.min(compound.getLong("Charge"), electricItem.getMaxCharge()));
+                }
+            }
+            if (!insert)
+                this.removeTags = new String[]{"MaxCharge", "Charge"};
+        }
+        if ((!insert || !compound.hasKey("tier")) && this.getEnergyBufferTier(upgradeStack) >= 0) {
+            applied = true;
+            if (!check)
+                compound.setInteger("tier", this.getEnergyBufferTier(upgradeStack));
+            if (!insert)
+                this.removeTags = new String[]{"tier"};
+        }
+        if (!check && applied)
+            compound.setTag("slot:" + slot, upgradeStack.serializeNBT());
+        return applied;
     }
 
     private int getEnergyBufferTier(ItemStack stack) {
