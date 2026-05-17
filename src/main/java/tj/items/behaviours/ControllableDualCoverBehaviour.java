@@ -5,6 +5,7 @@ import gregtech.api.GTValues;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import gregtech.api.items.gui.PlayerInventoryHolder;
@@ -13,6 +14,7 @@ import gregtech.api.util.Position;
 import gregtech.common.covers.CoverConveyor;
 import gregtech.common.covers.CoverPump;
 import gregtech.common.covers.TransferMode;
+import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.resources.I18n;
@@ -43,6 +45,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -103,6 +106,21 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                 .collect(Collectors.toList()));
         final Object2ObjectMap<Item, ItemStack> itemType = new Object2ObjectOpenHashMap<>();
         final Set<FluidStack> fluidType = new HashSet<>();
+        final OreDictionaryItemFilter oreDictionaryItemFilter = new OreDictionaryItemFilter() {
+            @Override
+            public void initUI(Consumer<Widget> widgetGroup) {
+                widgetGroup.accept(new LabelWidget(10, 90, "cover.ore_dictionary_filter.title1"));
+                widgetGroup.accept(new LabelWidget(10, 100, "cover.ore_dictionary_filter.title2"));
+                widgetGroup.accept(new TextFieldWidget(10, 115, 100, 12, true, () -> this.oreDictionaryFilter, oreDictionaryFilter -> {
+                    this.oreDictionaryFilter = oreDictionaryFilter;
+                    final NBTTagCompound tagCompound = new NBTTagCompound();
+                    this.writeToNBT(tagCompound);
+                    compound.setTag("oreDictFilter", tagCompound);
+                    this.markDirty();
+                }).setMaxStringLength(64)
+                        .setValidator(str -> Pattern.compile("\\*?[a-zA-Z0-9_]*\\*?").matcher(str).matches()));
+            }
+        };
         final WidgetGroup itemWidgetGroup = new WidgetGroup(new Position(7, 95));
         final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(7, 115));
         final SelectionWidgetGroup itemSelectionWidgetGroup = new SelectionWidgetGroup(7, 95, 72, 72);
@@ -182,7 +200,10 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     widgetGroup.addWidget(itemSelectionWidgetGroup);
                     return false;
                 }).addPopup(widgetGroup -> false)
-                .addPopup(widgetGroup -> false);
+                .addPopup(widgetGroup -> {
+                    oreDictionaryItemFilter.initUI(widgetGroup::addWidget);
+                    return false;
+                });
         final PopUpWidget<?> fluidFilterPopup = new PopUpWidget<>()
                 .setIndexSupplier(() -> {
                     final ItemStack itemStack1 = fluidFilterSlot.getStackInSlot(0);
@@ -341,6 +362,8 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                         itemFilterSlot.insertItem(0, new ItemStack(compound.getCompoundTag("itemFilterSlot")), false);
                     if (compound.hasKey("fluidFilterSlot"))
                         fluidFilterSlot.insertItem(0, new ItemStack(compound.getCompoundTag("fluidFilterSlot")), false);
+                    if (compound.hasKey("oreDictFilter"))
+                        oreDictionaryItemFilter.readFromNBT(compound.getCompoundTag("oreDictFilter"));
                     for (int i = 0; i < itemFilter.getSlots(); i++) {
                         if (compound.hasKey("itemSlot:" + i)) {
                             itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("itemSlot:" + i)));

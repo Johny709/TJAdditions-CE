@@ -320,12 +320,14 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
         tagCompound.setBoolean("pumpWorking", this.isPumpWorking);
         tagCompound.setInteger("conveyorMode", this.conveyorMode.ordinal());
         tagCompound.setInteger("pumpMode", this.pumpMode.ordinal());
-        tagCompound.setInteger("itemFilterType", this.itemFilterType.ordinal());
-        tagCompound.setInteger("fluidFilterType", this.fluidFilterType.ordinal());
         tagCompound.setTag("itemFilter", this.itemFilter.serializeNBT());
         tagCompound.setTag("fluidFilter", this.fluidFilter.serializeNBT());
         tagCompound.setTag("itemFilterSlot", this.itemFilterSlot.serializeNBT());
         tagCompound.setTag("fluidFilterSlot", this.fluidFilterSlot.serializeNBT());
+        if (this.itemFilterType != null)
+            tagCompound.setInteger("itemFilterType", this.itemFilterType.ordinal());
+        if (this.fluidFilterType != null)
+            tagCompound.setInteger("fluidFilterType", this.fluidFilterType.ordinal());
     }
 
     @Override
@@ -339,8 +341,6 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
         this.isPumpWorking = tagCompound.getBoolean("pumpWorking");
         this.conveyorMode = CoverConveyor.ConveyorMode.values()[tagCompound.getInteger("conveyorMode")];
         this.pumpMode = CoverPump.PumpMode.values()[tagCompound.getInteger("pumpMode")];
-        this.itemFilterType = FilterType.values()[tagCompound.getInteger("itemFilterType")];
-        this.fluidFilterType = FilterType.values()[tagCompound.getInteger("fluidFilterType")];
         this.itemFilter.deserializeNBT(tagCompound.getCompoundTag("itemFilter"));
         this.fluidFilter.deserializeNBT(tagCompound.getCompoundTag("fluidFilter"));
         this.itemFilterSlot.deserializeNBT(tagCompound.getCompoundTag("itemFilterSlot"));
@@ -349,6 +349,10 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
             this.itemType.put(this.itemFilter.getStackInSlot(i).getItem(), this.itemFilter.getStackInSlot(i));
         for (int i = 0; i < this.fluidFilter.getTanks(); i++)
             this.fluidType.put(this.fluidFilter.getTankAt(i).getFluid(), this.fluidFilter.getTankAt(i).getFluid());
+        if (tagCompound.hasKey("itemFilterType"))
+            this.itemFilterType = FilterType.values()[tagCompound.getInteger("itemFilterType")];
+        if (tagCompound.hasKey("fluidFilterType"))
+            this.fluidFilterType = FilterType.values()[tagCompound.getInteger("fluidFilterType")];
     }
 
     protected void transferItems(IItemHandler itemHandler, IItemHandler destItemHandler) {
