@@ -275,6 +275,20 @@ public class ControllableDualCover extends DualCover {
             case TRANSFER_EXACT:
                 if (this.itemSupplyThroughput > this.maxItemTransferRate) break;
                 switch (this.itemFilterType) {
+                    case NORMAL:
+                        for (int i = 0; i < itemHandler.getSlots(); i++) {
+                            final ItemStack stack = itemHandler.getStackInSlot(i);
+                            final ItemStack filterStack;
+                            if (!stack.isEmpty() && this.isItemBlacklist == ((filterStack = this.itemType.get(stack.getItem())) == null)) {
+                                final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                                if (filterStack != null && stack.getCount() >= filterStack.getCount()) {
+                                    final ItemStack otherStack = itemHandler.extractItem(i, Math.min(filterStack.getCount(), stack.getCount() - inserted), true);
+                                    itemHandler.extractItem(i, otherStack.getCount(), false);
+                                    TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                                }
+                            }
+                        }
+                        break;
                     case ORE_DICT:
                         for (int i = 0; i < itemHandler.getSlots(); i++) {
                             final ItemStack stack = itemHandler.getStackInSlot(i);
@@ -291,12 +305,10 @@ public class ControllableDualCover extends DualCover {
                     default:
                         for (int i = 0; i < itemHandler.getSlots(); i++) {
                             final ItemStack stack = itemHandler.getStackInSlot(i);
-                            ItemStack filterStack = null;
-                            if (!stack.isEmpty() && (this.itemFilterType == null || this.isItemBlacklist == ((filterStack = this.itemType.get(stack.getItem())) == null))) {
+                            if (!stack.isEmpty()) {
                                 final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                                final int extract = filterStack != null ? filterStack.getCount() : this.itemSupplyThroughput;
-                                if (stack.getCount() >= extract) {
-                                    final ItemStack otherStack = itemHandler.extractItem(i, Math.min(extract, stack.getCount() - inserted), true);
+                                if (stack.getCount() >= this.itemSupplyThroughput) {
+                                    final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemSupplyThroughput, stack.getCount() - inserted), true);
                                     itemHandler.extractItem(i, otherStack.getCount(), false);
                                     TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                                 }
@@ -311,6 +323,18 @@ public class ControllableDualCover extends DualCover {
                             .increment(stack.getCount());
                 }
                 switch (this.itemFilterType) {
+                    case NORMAL:
+                        for (int i = 0; i < itemHandler.getSlots(); i++) {
+                            final ItemStack stack = itemHandler.getStackInSlot(i);
+                            final ItemStack filterStack;
+                            if (!stack.isEmpty() && this.isItemBlacklist == ((filterStack = this.itemType.get(stack.getItem())) == null)) {
+                                if (filterStack == null) continue;
+                                final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                                final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, filterStack.getCount() - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
+                                TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                            }
+                        }
+                        break;
                     case ORE_DICT:
                         for (int i = 0; i < itemHandler.getSlots(); i++) {
                             final ItemStack stack = itemHandler.getStackInSlot(i);
@@ -324,10 +348,9 @@ public class ControllableDualCover extends DualCover {
                     default:
                         for (int i = 0; i < itemHandler.getSlots(); i++) {
                             final ItemStack stack = itemHandler.getStackInSlot(i);
-                            ItemStack filterStack = null;
-                            if (!stack.isEmpty() && (this.itemFilterType == null || this.isItemBlacklist == ((filterStack = this.itemType.get(stack.getItem())) == null))) {
+                            if (!stack.isEmpty()) {
                                 final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                                final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, (filterStack != null ? filterStack.getCount() : this.itemTransferRate) - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
+                                final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, this.itemTransferRate - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
                                 TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                             }
                         }
@@ -343,21 +366,37 @@ public class ControllableDualCover extends DualCover {
                 super.transferFluids(fluidHandler, destFluidHandler);
                 break;
             case TRANSFER_EXACT:
-                if (this.itemSupplyThroughput > this.maxFluidTransferRate) break;
+                if (this.fluidSupplyThroughput > this.maxFluidTransferRate) break;
                 final IFluidTankProperties[] tanks = fluidHandler.getTankProperties();
-                for (IFluidTankProperties tank : tanks) {
-                    FluidStack fluidStack = tank.getContents();
-                    FluidStack filterStack = null;
-                    if (fluidStack != null && (this.fluidFilterType == null || this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null))) {
-                        fluidStack = fluidHandler.drain(fluidStack, false);
-                        if (fluidStack == null) continue;
-                        final int extract = filterStack != null ? filterStack.amount : this.fluidSupplyThroughput;
-                        if (fluidStack.amount >= extract) {
-                            fluidStack.amount = Math.min(fluidStack.amount, extract);
-                            fluidStack.amount = destFluidHandler.fill(fluidStack, true);
-                            fluidHandler.drain(fluidStack, true);
+                switch (this.fluidFilterType) {
+                    case NORMAL:
+                        for (IFluidTankProperties tank : tanks) {
+                            FluidStack fluidStack = tank.getContents();
+                            final FluidStack filterStack;
+                            if (fluidStack != null && this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null)) {
+                                fluidStack = fluidHandler.drain(fluidStack, false);
+                                if (fluidStack == null || filterStack == null) continue;
+                                if (fluidStack.amount >= filterStack.amount) {
+                                    fluidStack.amount = Math.min(fluidStack.amount, filterStack.amount);
+                                    fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                                    fluidHandler.drain(fluidStack, true);
+                                }
+                            }
                         }
-                    }
+                        break;
+                    default:
+                        for (IFluidTankProperties tank : tanks) {
+                            FluidStack fluidStack = tank.getContents();
+                            if (fluidStack != null) {
+                                fluidStack = fluidHandler.drain(fluidStack, false);
+                                if (fluidStack == null) continue;
+                                if (fluidStack.amount >= this.fluidSupplyThroughput) {
+                                    fluidStack.amount = Math.min(fluidStack.amount, this.fluidSupplyThroughput);
+                                    fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                                    fluidHandler.drain(fluidStack, true);
+                                }
+                            }
+                        }
                 }
                 break;
             case KEEP_EXACT:
@@ -369,18 +408,35 @@ public class ControllableDualCover extends DualCover {
                     }
                 }
                 final IFluidTankProperties[] tanks1 = fluidHandler.getTankProperties();
-                for (IFluidTankProperties tank : tanks1) {
-                    FluidStack fluidStack = tank.getContents();
-                    FluidStack filterStack = null;
-                    if (fluidStack != null && (this.fluidFilterType == null || this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null))) {
-                        fluidStack = fluidHandler.drain(fluidStack, false);
-                        if (fluidStack == null) continue;
-                        fluidStack.amount = (int) Math.min(fluidStack.amount, Math.min(this.fluidTransferRate, (filterStack != null ? filterStack.amount : this.itemSupplyThroughput) - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue()));
-                        if (fluidStack.amount > 0) {
-                            fluidStack.amount = destFluidHandler.fill(fluidStack, true);
-                            fluidHandler.drain(fluidStack, true);
+                switch (this.fluidFilterType) {
+                    case NORMAL:
+                        for (IFluidTankProperties tank : tanks1) {
+                            FluidStack fluidStack = tank.getContents();
+                            final FluidStack filterStack;
+                            if (fluidStack != null && this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null)) {
+                                fluidStack = fluidHandler.drain(fluidStack, false);
+                                if (fluidStack == null || filterStack == null) continue;
+                                fluidStack.amount = (int) Math.min(fluidStack.amount, Math.min(this.fluidSupplyThroughput, filterStack.amount - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue()));
+                                if (fluidStack.amount > 0) {
+                                    fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                                    fluidHandler.drain(fluidStack, true);
+                                }
+                            }
                         }
-                    }
+                        break;
+                    default:
+                        for (IFluidTankProperties tank : tanks1) {
+                            FluidStack fluidStack = tank.getContents();
+                            if (fluidStack != null) {
+                                fluidStack = fluidHandler.drain(fluidStack, false);
+                                if (fluidStack == null) continue;
+                                fluidStack.amount = (int) Math.min(fluidStack.amount, Math.min(this.fluidSupplyThroughput, this.fluidSupplyThroughput - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue()));
+                                if (fluidStack.amount > 0) {
+                                    fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                                    fluidHandler.drain(fluidStack, true);
+                                }
+                            }
+                        }
                 }
                 this.fluidExact.clear();
         }
