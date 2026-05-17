@@ -2,6 +2,8 @@ package tj.items.covers;
 
 import gregicadditions.GAValues;
 import gregtech.api.GTValues;
+import gregtech.api.capability.IMultipleTankHandler;
+import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -9,11 +11,17 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import gregtech.api.items.metaitem.MetaItem;
+import gregtech.api.recipes.CountableIngredient;
+import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.RecipeMap;
+import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.util.Position;
 import gregtech.common.covers.CoverConveyor;
 import gregtech.common.covers.CoverPump;
 import gregtech.common.covers.TransferMode;
 import gregtech.common.covers.filter.OreDictionaryItemFilter;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,12 +29,17 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IStringSerializable;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
+import tj.capability.ParallelRecipeLRUCache;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.PopUpWidget;
@@ -37,6 +50,8 @@ import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.util.Counter;
 import tj.util.TJItemUtils;
+import tj.util.wrappers.GTFluidStackWrapper;
+import tj.util.wrappers.GTItemStackWrapper;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -50,6 +65,8 @@ import static tj.items.TJMetaItems.*;
 
 public class ControllableDualCover extends DualCover {
 
+    private final ItemStackHandler itemRecipeSearchSlot = new ItemStackHandler(1);
+    private final IMultipleTankHandler fluidRecipeSearchSlot = new FluidTankList(true, new FluidTank(Integer.MAX_VALUE));
     private final Object2ObjectMap<Item, Counter> itemExact = new Object2ObjectOpenHashMap<>();
     private final Object2ObjectMap<FluidStack, Counter> fluidExact = new Object2ObjectOpenHashMap<>();
     private final OreDictionaryItemFilter oreDictionaryItemFilter = new OreDictionaryItemFilter() {
@@ -62,8 +79,13 @@ public class ControllableDualCover extends DualCover {
                     .setValidator(str -> Pattern.compile("\\*?[a-zA-Z0-9_]*\\*?").matcher(str).matches()));
         }
     };
+    private final Int2ObjectMap<GTItemStackWrapper> itemRecipeMap = new Int2ObjectOpenHashMap<>();
+    private final Int2ObjectMap<GTFluidStackWrapper> fluidRecipeMap = new Int2ObjectOpenHashMap<>();
+    private final ParallelRecipeLRUCache recipeLRUCache = new ParallelRecipeLRUCache(10);
     private TransferMode robotArmMode = TransferMode.TRANSFER_ANY;
     private TransferMode regulatorMode = TransferMode.TRANSFER_ANY;
+    private RecipeMode itemRecipeMode = RecipeMode.ELECTROLYZER;
+    private RecipeMode fluidRecipeMode = RecipeMode.ELECTROLYZER;
     private int itemSupplyThroughput;
     private int fluidSupplyThroughput;
 
@@ -89,6 +111,10 @@ public class ControllableDualCover extends DualCover {
             this.robotArmMode = TransferMode.values()[compound.getInteger("robotArmMode")];
         if (compound.hasKey("regulatorMode"))
             this.regulatorMode = TransferMode.values()[compound.getInteger("regulatorMode")];
+        if (compound.hasKey("itemRecipeMode"))
+            this.itemRecipeMode = RecipeMode.values()[compound.getInteger("itemRecipeMode")];
+        if (compound.hasKey("fluidRecipeMode"))
+            this.fluidRecipeMode = RecipeMode.values()[compound.getInteger("fluidRecipeMode")];
         if (compound.hasKey("itemSupplyThroughput"))
             this.itemSupplyThroughput = compound.getInteger("itemSupplyThroughput");
         if (compound.hasKey("fluidSupplyThroughput"))
@@ -171,8 +197,10 @@ public class ControllableDualCover extends DualCover {
                     widgetGroup.addWidget(itemWidgetGroup);
                     widgetGroup.addWidget(itemSelectionWidgetGroup);
                     return false;
-                }).addPopup(widgetGroup -> false)
-                .addPopup(widgetGroup -> {
+                }).addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(new CycleButtonWidget(10, 133, 76, 18, RecipeMode.class, () -> this.itemRecipeMode, this::setItemRecipeMode));
+                    return false;
+                }).addPopup(widgetGroup -> {
                     this.oreDictionaryItemFilter.initUI(widgetGroup::addWidget);
                     return false;
                 });
@@ -194,7 +222,10 @@ public class ControllableDualCover extends DualCover {
                     widgetGroup.addWidget(fluidWidgetGroup);
                     widgetGroup.addWidget(fluidSelectionWidgetGroup);
                     return false;
-                }).addPopup(widgetGroup -> false);
+                }).addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(new CycleButtonWidget(10, 151, 76, 18, RecipeMode.class, () -> this.fluidRecipeMode, this::setFluidRecipeMode));
+                    return false;
+                });
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
                 .addTab(String.format("metaitem.robot.arm.%s.name", GAValues.VN[this.tier].toLowerCase()), this.tier > 0 ? robotArms[this.tier].getStackForm() : this.getPickItem(), tab -> {
@@ -269,176 +300,22 @@ public class ControllableDualCover extends DualCover {
     @Override
     protected void transferItems(IItemHandler itemHandler, IItemHandler destItemHandler) {
         switch (this.robotArmMode) {
-            case TRANSFER_ANY:
-                super.transferItems(itemHandler, destItemHandler);
+            case TRANSFER_ANY: super.transferItems(itemHandler, destItemHandler);
                 break;
-            case TRANSFER_EXACT:
-                if (this.itemSupplyThroughput > this.maxItemTransferRate) break;
-                switch (this.itemFilterType) {
-                    case NORMAL:
-                        for (int i = 0; i < itemHandler.getSlots(); i++) {
-                            final ItemStack stack = itemHandler.getStackInSlot(i);
-                            final ItemStack filterStack;
-                            if (!stack.isEmpty() && this.isItemBlacklist == ((filterStack = this.itemType.get(stack.getItem())) == null)) {
-                                final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                                if (filterStack != null && stack.getCount() >= filterStack.getCount()) {
-                                    final ItemStack otherStack = itemHandler.extractItem(i, Math.min(filterStack.getCount(), stack.getCount() - inserted), true);
-                                    itemHandler.extractItem(i, otherStack.getCount(), false);
-                                    TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
-                                }
-                            }
-                        }
-                        break;
-                    case ORE_DICT:
-                        for (int i = 0; i < itemHandler.getSlots(); i++) {
-                            final ItemStack stack = itemHandler.getStackInSlot(i);
-                            if (!stack.isEmpty() && this.oreDictionaryItemFilter.matchItemStack(stack) != null) {
-                                final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                                if (stack.getCount() >= this.itemSupplyThroughput) {
-                                    final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemSupplyThroughput, stack.getCount() - inserted), true);
-                                    itemHandler.extractItem(i, otherStack.getCount(), false);
-                                    TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
-                                }
-                            }
-                        }
-                        break;
-                    default:
-                        for (int i = 0; i < itemHandler.getSlots(); i++) {
-                            final ItemStack stack = itemHandler.getStackInSlot(i);
-                            if (!stack.isEmpty()) {
-                                final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                                if (stack.getCount() >= this.itemSupplyThroughput) {
-                                    final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemSupplyThroughput, stack.getCount() - inserted), true);
-                                    itemHandler.extractItem(i, otherStack.getCount(), false);
-                                    TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
-                                }
-                            }
-                        }
-                }
+            case TRANSFER_EXACT: this.transferItemsSupply(itemHandler, destItemHandler);
                 break;
-            case KEEP_EXACT:
-                for (int i = 0; i < destItemHandler.getSlots(); i++) {
-                    final ItemStack stack = destItemHandler.getStackInSlot(i);
-                    this.itemExact.computeIfAbsent(stack.getItem(), k -> new Counter(0))
-                            .increment(stack.getCount());
-                }
-                switch (this.itemFilterType) {
-                    case NORMAL:
-                        for (int i = 0; i < itemHandler.getSlots(); i++) {
-                            final ItemStack stack = itemHandler.getStackInSlot(i);
-                            final ItemStack filterStack;
-                            if (!stack.isEmpty() && this.isItemBlacklist == ((filterStack = this.itemType.get(stack.getItem())) == null)) {
-                                if (filterStack == null) continue;
-                                final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                                final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, filterStack.getCount() - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
-                                TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
-                            }
-                        }
-                        break;
-                    case ORE_DICT:
-                        for (int i = 0; i < itemHandler.getSlots(); i++) {
-                            final ItemStack stack = itemHandler.getStackInSlot(i);
-                            if (!stack.isEmpty() && this.oreDictionaryItemFilter.matchItemStack(stack) != null) {
-                                final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                                final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, this.itemTransferRate - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
-                                TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
-                            }
-                        }
-                        break;
-                    default:
-                        for (int i = 0; i < itemHandler.getSlots(); i++) {
-                            final ItemStack stack = itemHandler.getStackInSlot(i);
-                            if (!stack.isEmpty()) {
-                                final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                                final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, this.itemTransferRate - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
-                                TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
-                            }
-                        }
-                }
-                this.itemExact.clear();
+            case KEEP_EXACT: this.transferItemsExact(itemHandler, destItemHandler);
         }
     }
 
     @Override
     protected void transferFluids(IFluidHandler fluidHandler, IFluidHandler destFluidHandler) {
         switch (this.regulatorMode) {
-            case TRANSFER_ANY:
-                super.transferFluids(fluidHandler, destFluidHandler);
+            case TRANSFER_ANY: super.transferFluids(fluidHandler, destFluidHandler);
                 break;
-            case TRANSFER_EXACT:
-                if (this.fluidSupplyThroughput > this.maxFluidTransferRate) break;
-                final IFluidTankProperties[] tanks = fluidHandler.getTankProperties();
-                switch (this.fluidFilterType) {
-                    case NORMAL:
-                        for (IFluidTankProperties tank : tanks) {
-                            FluidStack fluidStack = tank.getContents();
-                            final FluidStack filterStack;
-                            if (fluidStack != null && this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null)) {
-                                fluidStack = fluidHandler.drain(fluidStack, false);
-                                if (fluidStack == null || filterStack == null) continue;
-                                if (fluidStack.amount >= filterStack.amount) {
-                                    fluidStack.amount = Math.min(fluidStack.amount, filterStack.amount);
-                                    fluidStack.amount = destFluidHandler.fill(fluidStack, true);
-                                    fluidHandler.drain(fluidStack, true);
-                                }
-                            }
-                        }
-                        break;
-                    default:
-                        for (IFluidTankProperties tank : tanks) {
-                            FluidStack fluidStack = tank.getContents();
-                            if (fluidStack != null) {
-                                fluidStack = fluidHandler.drain(fluidStack, false);
-                                if (fluidStack == null) continue;
-                                if (fluidStack.amount >= this.fluidSupplyThroughput) {
-                                    fluidStack.amount = Math.min(fluidStack.amount, this.fluidSupplyThroughput);
-                                    fluidStack.amount = destFluidHandler.fill(fluidStack, true);
-                                    fluidHandler.drain(fluidStack, true);
-                                }
-                            }
-                        }
-                }
+            case TRANSFER_EXACT: this.transferFluidsSupply(fluidHandler, destFluidHandler);
                 break;
-            case KEEP_EXACT:
-                for (IFluidTankProperties tank : destFluidHandler.getTankProperties()) {
-                    final FluidStack stack = tank.getContents();
-                    if (stack != null) {
-                        this.fluidExact.computeIfAbsent(stack, k -> new Counter(0))
-                                .increment(stack.amount);
-                    }
-                }
-                final IFluidTankProperties[] tanks1 = fluidHandler.getTankProperties();
-                switch (this.fluidFilterType) {
-                    case NORMAL:
-                        for (IFluidTankProperties tank : tanks1) {
-                            FluidStack fluidStack = tank.getContents();
-                            final FluidStack filterStack;
-                            if (fluidStack != null && this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null)) {
-                                fluidStack = fluidHandler.drain(fluidStack, false);
-                                if (fluidStack == null || filterStack == null) continue;
-                                fluidStack.amount = (int) Math.min(fluidStack.amount, Math.min(this.fluidSupplyThroughput, filterStack.amount - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue()));
-                                if (fluidStack.amount > 0) {
-                                    fluidStack.amount = destFluidHandler.fill(fluidStack, true);
-                                    fluidHandler.drain(fluidStack, true);
-                                }
-                            }
-                        }
-                        break;
-                    default:
-                        for (IFluidTankProperties tank : tanks1) {
-                            FluidStack fluidStack = tank.getContents();
-                            if (fluidStack != null) {
-                                fluidStack = fluidHandler.drain(fluidStack, false);
-                                if (fluidStack == null) continue;
-                                fluidStack.amount = (int) Math.min(fluidStack.amount, Math.min(this.fluidSupplyThroughput, this.fluidSupplyThroughput - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue()));
-                                if (fluidStack.amount > 0) {
-                                    fluidStack.amount = destFluidHandler.fill(fluidStack, true);
-                                    fluidHandler.drain(fluidStack, true);
-                                }
-                            }
-                        }
-                }
-                this.fluidExact.clear();
+            case KEEP_EXACT: this.transferFluidsExact(fluidHandler, destFluidHandler);
         }
     }
 
@@ -447,6 +324,8 @@ public class ControllableDualCover extends DualCover {
         super.writeToNBT(tagCompound);
         tagCompound.setInteger("robotArmMode", this.robotArmMode.ordinal());
         tagCompound.setInteger("regulatorMode", this.regulatorMode.ordinal());
+        tagCompound.setInteger("itemRecipeMode", this.itemRecipeMode.ordinal());
+        tagCompound.setInteger("fluidRecipeMode", this.fluidRecipeMode.ordinal());
         tagCompound.setInteger("itemSupplyThroughput", this.itemSupplyThroughput);
         tagCompound.setInteger("fluidSupplyThroughput", this.fluidSupplyThroughput);
         final NBTTagCompound compound = new NBTTagCompound();
@@ -459,9 +338,296 @@ public class ControllableDualCover extends DualCover {
         super.readFromNBT(tagCompound);
         this.robotArmMode = TransferMode.values()[tagCompound.getInteger("robotArmMode")];
         this.regulatorMode = TransferMode.values()[tagCompound.getInteger("regulatorMode")];
+        this.itemRecipeMode = RecipeMode.values()[tagCompound.getInteger("itemRecipeMode")];
+        this.fluidRecipeMode = RecipeMode.values()[tagCompound.getInteger("fluidRecipeMode")];
         this.itemSupplyThroughput = tagCompound.getInteger("itemSupplyThroughput");
         this.fluidSupplyThroughput = tagCompound.getInteger("fluidSupplyThroughput");
         this.oreDictionaryItemFilter.readFromNBT(tagCompound.getCompoundTag("oreDictFilter"));
+    }
+
+    private void transferItemsSupply(IItemHandler itemHandler, IItemHandler destItemHandler) {
+        if (this.itemSupplyThroughput > this.maxItemTransferRate) return;
+        switch (this.itemFilterType) {
+            case NORMAL:
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    final ItemStack stack = itemHandler.getStackInSlot(i);
+                    final ItemStack filterStack;
+                    if (!stack.isEmpty() && this.isItemBlacklist == ((filterStack = this.itemType.get(stack.getItem())) == null)) {
+                        final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                        if (filterStack != null && stack.getCount() >= filterStack.getCount()) {
+                            final ItemStack otherStack = itemHandler.extractItem(i, Math.min(filterStack.getCount(), stack.getCount() - inserted), true);
+                            itemHandler.extractItem(i, otherStack.getCount(), false);
+                            TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                        }
+                    }
+                }
+                break;
+            case SMART:
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    final ItemStack stack = itemHandler.getStackInSlot(i);
+                    if (!stack.isEmpty()) {
+                        GTItemStackWrapper itemStackWrapper = this.itemRecipeMap.get(i);
+                        if (itemStackWrapper == null || !itemStackWrapper.getItemStack().isItemEqual(stack)) {
+                            this.itemRecipeSearchSlot.setStackInSlot(0, stack);
+                            Recipe recipe = this.recipeLRUCache.get(this.itemRecipeSearchSlot, TJValues.DUMMY_FLUID_HANDLER);
+                            if (recipe == null) {
+                                recipe = this.itemRecipeMode.getRecipeMap().findRecipe(Integer.MAX_VALUE, this.itemRecipeSearchSlot, TJValues.DUMMY_FLUID_HANDLER, Integer.MAX_VALUE);
+                                this.recipeLRUCache.put(recipe);
+                            }
+                            if (recipe != null) {
+                                itemStackWrapper = new GTItemStackWrapper(stack, 0);
+                                for (CountableIngredient ingredient : recipe.getInputs()) {
+                                    if (ingredient.getIngredient().apply(stack))
+                                        itemStackWrapper.increment(ingredient.getCount());
+                                }
+                                this.itemRecipeMap.put(i, itemStackWrapper);
+                            } else continue;
+                        }
+                        final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                        if (stack.getCount() >= itemStackWrapper.getCount()) {
+                            final ItemStack otherStack = itemHandler.extractItem(i, Math.min(itemStackWrapper.getCount(), stack.getCount() - inserted), true);
+                            itemHandler.extractItem(i, otherStack.getCount(), false);
+                            TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                        }
+                    }
+                }
+                break;
+            case ORE_DICT:
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    final ItemStack stack = itemHandler.getStackInSlot(i);
+                    if (!stack.isEmpty() && this.oreDictionaryItemFilter.matchItemStack(stack) != null) {
+                        final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                        if (stack.getCount() >= this.itemSupplyThroughput) {
+                            final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemSupplyThroughput, stack.getCount() - inserted), true);
+                            itemHandler.extractItem(i, otherStack.getCount(), false);
+                            TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                        }
+                    }
+                }
+                break;
+            default:
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    final ItemStack stack = itemHandler.getStackInSlot(i);
+                    if (!stack.isEmpty()) {
+                        final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                        if (stack.getCount() >= this.itemSupplyThroughput) {
+                            final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemSupplyThroughput, stack.getCount() - inserted), true);
+                            itemHandler.extractItem(i, otherStack.getCount(), false);
+                            TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                        }
+                    }
+                }
+        }
+    }
+
+    private void transferItemsExact(IItemHandler itemHandler, IItemHandler destItemHandler) {
+        for (int i = 0; i < destItemHandler.getSlots(); i++) {
+            final ItemStack stack = destItemHandler.getStackInSlot(i);
+            this.itemExact.computeIfAbsent(stack.getItem(), k -> new Counter(0))
+                    .increment(stack.getCount());
+        }
+        switch (this.itemFilterType) {
+            case NORMAL:
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    final ItemStack stack = itemHandler.getStackInSlot(i);
+                    final ItemStack filterStack;
+                    if (!stack.isEmpty() && this.isItemBlacklist == ((filterStack = this.itemType.get(stack.getItem())) == null)) {
+                        if (filterStack == null) continue;
+                        final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, filterStack.getCount() - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
+                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                    }
+                }
+                break;
+            case SMART:
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    final ItemStack stack = itemHandler.getStackInSlot(i);
+                    if (!stack.isEmpty()) {
+                        GTItemStackWrapper itemStackWrapper = this.itemRecipeMap.get(i);
+                        if (itemStackWrapper == null || !itemStackWrapper.getItemStack().isItemEqual(stack)) {
+                            this.itemRecipeSearchSlot.setStackInSlot(0, stack);
+                            Recipe recipe = this.recipeLRUCache.get(this.itemRecipeSearchSlot, TJValues.DUMMY_FLUID_HANDLER);
+                            if (recipe == null) {
+                                recipe = this.itemRecipeMode.getRecipeMap().findRecipe(Integer.MAX_VALUE, this.itemRecipeSearchSlot, TJValues.DUMMY_FLUID_HANDLER, Integer.MAX_VALUE);
+                                this.recipeLRUCache.put(recipe);
+                            }
+                            if (recipe != null) {
+                                itemStackWrapper = new GTItemStackWrapper(stack, 0);
+                                for (CountableIngredient ingredient : recipe.getInputs()) {
+                                    if (ingredient.getIngredient().apply(stack))
+                                        itemStackWrapper.increment(ingredient.getCount());
+                                }
+                                this.itemRecipeMap.put(i , itemStackWrapper);
+                            } else continue;
+                        }
+                        final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(itemStackWrapper.getCount(), itemStackWrapper.getCount() - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
+                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                    }
+                }
+                break;
+            case ORE_DICT:
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    final ItemStack stack = itemHandler.getStackInSlot(i);
+                    if (!stack.isEmpty() && this.oreDictionaryItemFilter.matchItemStack(stack) != null) {
+                        final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, this.itemTransferRate - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
+                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                    }
+                }
+                break;
+            default:
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    final ItemStack stack = itemHandler.getStackInSlot(i);
+                    if (!stack.isEmpty()) {
+                        final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, this.itemTransferRate - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
+                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                    }
+                }
+        }
+        this.itemExact.clear();
+    }
+
+    private void transferFluidsSupply(IFluidHandler fluidHandler, IFluidHandler destFluidHandler) {
+        if (this.fluidSupplyThroughput > this.maxFluidTransferRate) return;
+        final IFluidTankProperties[] tanks = fluidHandler.getTankProperties();
+        switch (this.fluidFilterType) {
+            case NORMAL:
+                for (IFluidTankProperties tank : tanks) {
+                    FluidStack fluidStack = tank.getContents();
+                    final FluidStack filterStack;
+                    if (fluidStack != null && this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null)) {
+                        fluidStack = fluidHandler.drain(fluidStack, false);
+                        if (fluidStack == null || filterStack == null) continue;
+                        if (fluidStack.amount >= filterStack.amount) {
+                            fluidStack.amount = Math.min(fluidStack.amount, filterStack.amount);
+                            fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                            fluidHandler.drain(fluidStack, true);
+                        }
+                    }
+                }
+                break;
+            case SMART:
+                for (int i = 0; i < tanks.length; i++) {
+                    FluidStack fluidStack = tanks[i].getContents();
+                    if (fluidStack != null) {
+                        GTFluidStackWrapper fluidStackWrapper = this.fluidRecipeMap.get(i);
+                        if (fluidStackWrapper == null || !fluidStackWrapper.getFluidStack().isFluidEqual(fluidStack)) {
+                            this.fluidRecipeSearchSlot.getTankAt(0).drain(Integer.MAX_VALUE, true);
+                            this.fluidRecipeSearchSlot.getTankAt(0).fill(fluidStack, true);
+                            Recipe recipe = this.recipeLRUCache.get(TJValues.DUMMY_ITEM_HANDLER, this.fluidRecipeSearchSlot);
+                            if (recipe == null) {
+                                recipe = this.fluidRecipeMode.getRecipeMap().findRecipe(Integer.MAX_VALUE, TJValues.DUMMY_ITEM_HANDLER, this.fluidRecipeSearchSlot, Integer.MAX_VALUE);
+                                this.recipeLRUCache.put(recipe);
+                            }
+                            if (recipe != null) {
+                                fluidStackWrapper = new GTFluidStackWrapper(fluidStack, 0);
+                                for (FluidStack stack : recipe.getFluidInputs()) {
+                                    if (stack.isFluidEqual(fluidStack))
+                                        fluidStackWrapper.increment(stack.amount);
+                                }
+                                this.fluidRecipeMap.put(i, fluidStackWrapper);
+                            } else continue;
+                        }
+                        fluidStack = fluidHandler.drain(fluidStack, false);
+                        if (fluidStack == null) continue;
+                        if (fluidStack.amount >= fluidStackWrapper.getCount()) {
+                            fluidStack.amount = Math.min(fluidStack.amount, fluidStackWrapper.getCount());
+                            fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                            fluidHandler.drain(fluidStack, true);
+                        }
+                    }
+                }
+                break;
+            default:
+                for (IFluidTankProperties tank : tanks) {
+                    FluidStack fluidStack = tank.getContents();
+                    if (fluidStack != null) {
+                        fluidStack = fluidHandler.drain(fluidStack, false);
+                        if (fluidStack == null) continue;
+                        if (fluidStack.amount >= this.fluidSupplyThroughput) {
+                            fluidStack.amount = Math.min(fluidStack.amount, this.fluidSupplyThroughput);
+                            fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                            fluidHandler.drain(fluidStack, true);
+                        }
+                    }
+                }
+        }
+    }
+
+    private void transferFluidsExact(IFluidHandler fluidHandler, IFluidHandler destFluidHandler) {
+        for (IFluidTankProperties tank : destFluidHandler.getTankProperties()) {
+            final FluidStack stack = tank.getContents();
+            if (stack != null) {
+                this.fluidExact.computeIfAbsent(stack, k -> new Counter(0))
+                        .increment(stack.amount);
+            }
+        }
+        final IFluidTankProperties[] tanks1 = fluidHandler.getTankProperties();
+        switch (this.fluidFilterType) {
+            case NORMAL:
+                for (IFluidTankProperties tank : tanks1) {
+                    FluidStack fluidStack = tank.getContents();
+                    final FluidStack filterStack;
+                    if (fluidStack != null && this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null)) {
+                        fluidStack = fluidHandler.drain(fluidStack, false);
+                        if (fluidStack == null || filterStack == null) continue;
+                        fluidStack.amount = (int) Math.min(fluidStack.amount, Math.min(this.fluidSupplyThroughput, filterStack.amount - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue()));
+                        if (fluidStack.amount > 0) {
+                            fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                            fluidHandler.drain(fluidStack, true);
+                        }
+                    }
+                }
+                break;
+            case SMART:
+                for (int i = 0; i < tanks1.length; i++) {
+                    FluidStack fluidStack = tanks1[i].getContents();
+                    if (fluidStack != null) {
+                        GTFluidStackWrapper fluidStackWrapper = this.fluidRecipeMap.get(i);
+                        if (fluidStackWrapper == null || !fluidStackWrapper.getFluidStack().isFluidEqual(fluidStack)) {
+                            this.fluidRecipeSearchSlot.getTankAt(0).drain(Integer.MAX_VALUE, true);
+                            this.fluidRecipeSearchSlot.getTankAt(0).fill(fluidStack, true);
+                            Recipe recipe = this.recipeLRUCache.get(TJValues.DUMMY_ITEM_HANDLER, this.fluidRecipeSearchSlot);
+                            if (recipe == null) {
+                                recipe = this.fluidRecipeMode.getRecipeMap().findRecipe(Integer.MAX_VALUE, TJValues.DUMMY_ITEM_HANDLER, this.fluidRecipeSearchSlot, Integer.MAX_VALUE);
+                                this.recipeLRUCache.put(recipe);
+                            }
+                            if (recipe != null) {
+                                fluidStackWrapper = new GTFluidStackWrapper(fluidStack, 0);
+                                for (FluidStack stack : recipe.getFluidInputs()) {
+                                    if (stack.isFluidEqual(fluidStack))
+                                        fluidStackWrapper.increment(stack.amount);
+                                }
+                                this.fluidRecipeMap.put(i, fluidStackWrapper);
+                            } else continue;
+                        }
+                        fluidStack = fluidHandler.drain(fluidStack, false);
+                        if (fluidStack == null) continue;
+                        fluidStack.amount = (int) Math.min(fluidStack.amount, Math.min(fluidStackWrapper.getCount(), fluidStackWrapper.getCount() - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue()));
+                        if (fluidStack.amount > 0) {
+                            fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                            fluidHandler.drain(fluidStack, true);
+                        }
+                    }
+                }
+                break;
+            default:
+                for (IFluidTankProperties tank : tanks1) {
+                    FluidStack fluidStack = tank.getContents();
+                    if (fluidStack != null) {
+                        fluidStack = fluidHandler.drain(fluidStack, false);
+                        if (fluidStack == null) continue;
+                        fluidStack.amount = (int) Math.min(fluidStack.amount, Math.min(this.fluidSupplyThroughput, this.fluidSupplyThroughput - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue()));
+                        if (fluidStack.amount > 0) {
+                            fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                            fluidHandler.drain(fluidStack, true);
+                        }
+                    }
+                }
+        }
+        this.fluidExact.clear();
     }
 
     public void setItemSupplyThroughput(String text, String id) {
@@ -482,5 +648,38 @@ public class ControllableDualCover extends DualCover {
     public void setRegulatorMode(TransferMode regulatorMode) {
         this.regulatorMode = regulatorMode;
         this.markAsDirty();
+    }
+
+    public void setItemRecipeMode(RecipeMode itemRecipeMode) {
+        this.itemRecipeMode = itemRecipeMode;
+        this.recipeLRUCache.clear();
+        this.markAsDirty();
+    }
+
+    public void setFluidRecipeMode(RecipeMode fluidRecipeMode) {
+        this.fluidRecipeMode = fluidRecipeMode;
+        this.recipeLRUCache.clear();
+        this.markAsDirty();
+    }
+
+    public enum RecipeMode implements IStringSerializable {
+        ELECTROLYZER(RecipeMaps.ELECTROLYZER_RECIPES),
+        SIFTER(RecipeMaps.SIFTER_RECIPES),
+        CENTRIFUGE(RecipeMaps.CENTRIFUGE_RECIPES);
+
+        private final RecipeMap<?> recipeMap;
+
+        RecipeMode(RecipeMap<?> recipeMap) {
+            this.recipeMap = recipeMap;
+        }
+
+        public RecipeMap<?> getRecipeMap() {
+            return this.recipeMap;
+        }
+
+        @Override
+        public String getName() {
+            return "recipemap." + this.recipeMap.getUnlocalizedName() + ".name";
+        }
     }
 }

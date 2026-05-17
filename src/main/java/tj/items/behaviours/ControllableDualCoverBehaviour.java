@@ -35,6 +35,7 @@ import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.SelectionWidgetGroup;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.items.covers.ControllableDualCover;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.util.references.BooleanReference;
@@ -70,6 +71,8 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
         final ObjectReference<CoverPump.PumpMode> pumpMode = new ObjectReference<>(CoverPump.PumpMode.EXPORT);
         final ObjectReference<TransferMode> robotArmMode = new ObjectReference<>(TransferMode.TRANSFER_ANY);
         final ObjectReference<TransferMode> regulatorMode = new ObjectReference<>(TransferMode.TRANSFER_ANY);
+        final ObjectReference<ControllableDualCover.RecipeMode> itemRecipeMode = new ObjectReference<>(ControllableDualCover.RecipeMode.ELECTROLYZER);
+        final ObjectReference<ControllableDualCover.RecipeMode> fluidRecipeMode = new ObjectReference<>(ControllableDualCover.RecipeMode.ELECTROLYZER);
         final IntegerReference itemTicks = new IntegerReference(20);
         final IntegerReference fluidTicks = new IntegerReference(20);
         final IntegerReference itemSupplyThroughput = new IntegerReference();
@@ -199,8 +202,13 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     widgetGroup.addWidget(itemWidgetGroup);
                     widgetGroup.addWidget(itemSelectionWidgetGroup);
                     return false;
-                }).addPopup(widgetGroup -> false)
-                .addPopup(widgetGroup -> {
+                }).addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(new CycleButtonWidget(10, 133, 76, 18, ControllableDualCover.RecipeMode.class, itemRecipeMode::getValue, itemRecipeMode1 -> {
+                        itemRecipeMode.setValue(itemRecipeMode1);
+                        compound.setInteger("itemRecipeMode", itemRecipeMode1.ordinal());
+                    }));
+                    return false;
+                }).addPopup(widgetGroup -> {
                     oreDictionaryItemFilter.initUI(widgetGroup::addWidget);
                     return false;
                 });
@@ -226,7 +234,13 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     widgetGroup.addWidget(fluidWidgetGroup);
                     widgetGroup.addWidget(fluidSelectionWidgetGroup);
                     return false;
-                }).addPopup(widgetGroup -> false);
+                }).addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(new CycleButtonWidget(10, 151, 76, 18, ControllableDualCover.RecipeMode.class, fluidRecipeMode::getValue, fluidRecipeMode1 -> {
+                        fluidRecipeMode.setValue(fluidRecipeMode1);
+                        compound.setInteger("fluidRecipeMode", fluidRecipeMode1.ordinal());
+                    }));
+                    return false;
+                });
         final BiConsumer<String, String> setItemTransferRate2 = (text, id) -> {
             itemTransferRate.setValue((int) Math.max(1, Math.min(this.maxItemTransferRate, Double.parseDouble(text))));
             compound.setInteger("itemTransferRate", itemTransferRate.getValue());
@@ -342,6 +356,10 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                         robotArmMode.setValue(TransferMode.values()[compound.getInteger("robotArmMode")]);
                     if (compound.hasKey("regulatorMode"))
                         regulatorMode.setValue(TransferMode.values()[compound.getInteger("regulatorMode")]);
+                    if (compound.hasKey("itemRecipeMode"))
+                        itemRecipeMode.setValue(ControllableDualCover.RecipeMode.values()[compound.getInteger("itemRecipeMode")]);
+                    if (compound.hasKey("fluidRecipeMode"))
+                        fluidRecipeMode.setValue(ControllableDualCover.RecipeMode.values()[compound.getInteger("fluidRecipeMode")]);
                     if (compound.hasKey("itemSupplyThroughput"))
                         itemSupplyThroughput.setValue(compound.getInteger("itemSupplyThroughput"));
                     if (compound.hasKey("fluidSupplyThroughput"))
