@@ -7,7 +7,6 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import gregtech.api.items.metaitem.MetaItem;
@@ -19,7 +18,6 @@ import gregtech.api.util.Position;
 import gregtech.common.covers.CoverConveyor;
 import gregtech.common.covers.CoverPump;
 import gregtech.common.covers.TransferMode;
-import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -56,7 +54,6 @@ import tj.util.wrappers.GTItemStackWrapper;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import static gregicadditions.item.GAMetaItems.*;
@@ -71,16 +68,6 @@ public class ControllableDualCover extends DualCover {
     private final IMultipleTankHandler fluidRecipeSearchSlot = new FluidTankList(true, new FluidTank(Integer.MAX_VALUE));
     private final Object2ObjectMap<ItemStack, Counter> itemExact = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
     private final Object2ObjectMap<FluidStack, Counter> fluidExact = new Object2ObjectOpenHashMap<>();
-    private final OreDictionaryItemFilter oreDictionaryItemFilter = new OreDictionaryItemFilter() {
-        @Override
-        public void initUI(Consumer<Widget> widgetGroup) {
-            widgetGroup.accept(new LabelWidget(10, 90, "cover.ore_dictionary_filter.title1"));
-            widgetGroup.accept(new LabelWidget(10, 100, "cover.ore_dictionary_filter.title2"));
-            widgetGroup.accept(new TextFieldWidget(10, 115, 100, 12, true, () -> this.oreDictionaryFilter, this::setOreDictionaryFilter)
-                    .setMaxStringLength(64)
-                    .setValidator(str -> Pattern.compile("\\*?[a-zA-Z0-9_]*\\*?").matcher(str).matches()));
-        }
-    };
     private final Int2ObjectMap<GTItemStackWrapper> itemRecipeMap = new Int2ObjectOpenHashMap<>();
     private final Int2ObjectMap<GTFluidStackWrapper> fluidRecipeMap = new Int2ObjectOpenHashMap<>();
     private final ParallelRecipeLRUCache recipeLRUCache = new ParallelRecipeLRUCache(10);
@@ -121,8 +108,6 @@ public class ControllableDualCover extends DualCover {
             this.itemSupplyThroughput = compound.getInteger("itemSupplyThroughput");
         if (compound.hasKey("fluidSupplyThroughput"))
             this.fluidSupplyThroughput = compound.getInteger("fluidSupplyThroughput");
-        if (compound.hasKey("oreDictFilter"))
-            this.oreDictionaryItemFilter.readFromNBT(compound.getCompoundTag("oreDictFilter"));
     }
 
     @Override
@@ -182,18 +167,20 @@ public class ControllableDualCover extends DualCover {
             fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(119, 18, 38, 18, "*2", data -> setFluidCount.accept(String.valueOf((long) this.fluidFilter.getTankAt(index).getFluidAmount() * 2), "")));
             fluidSelectionWidgetGroup.addSelectionBox(i, 18 * (i % 4), 18 * (i / 4), 18, 18);
         }
+        final WidgetGroup itemSupplyWidgetGroup = new WidgetGroup();
+        itemSupplyWidgetGroup.addWidget(new NewTextFieldWidget<>(91, 95, 76, 18, true, () -> String.valueOf(this.itemSupplyThroughput), this::setItemSupplyThroughput)
+                .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.itemSupplyThroughput)))
+                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                .setTooltipText("tj.machine.universal.item_amount")
+                .setUpdateOnTyping(true));
+        itemSupplyWidgetGroup.addWidget(new ClickButtonWidget(91, 113, 38, 18, "/2", data -> this.setItemSupplyThroughput(String.valueOf((long) this.itemSupplyThroughput / 2), "")));
+        itemSupplyWidgetGroup.addWidget(new ClickButtonWidget(129, 113, 38, 18, "*2", data -> this.setItemSupplyThroughput(String.valueOf((long) this.itemSupplyThroughput * 2), "")));
         final PopUpWidget<?> itemFilterPopup = new PopUpWidget<>()
                 .setIndexSupplier(() -> {
                     final ItemStack itemStack = this.itemFilterSlot.getStackInSlot(0);
                     return ITEM_FILTER.isItemEqual(itemStack) ? 1 : SMART_FILTER.isItemEqual(itemStack) ? 2 : ORE_DICTIONARY_FILTER.isItemEqual(itemStack) ? 3 : 0;
                 }).addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(new NewTextFieldWidget<>(91, 95, 76, 18, true, () -> String.valueOf(this.itemSupplyThroughput), this::setItemSupplyThroughput)
-                            .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.itemSupplyThroughput)))
-                            .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                            .setTooltipText("tj.machine.universal.item_amount")
-                            .setUpdateOnTyping(true));
-                    widgetGroup.addWidget(new ClickButtonWidget(91, 113, 38, 18, "/2", data -> this.setItemSupplyThroughput(String.valueOf((long) this.itemSupplyThroughput / 2), "")));
-                    widgetGroup.addWidget(new ClickButtonWidget(129, 113, 38, 18, "*2", data -> this.setItemSupplyThroughput(String.valueOf((long) this.itemSupplyThroughput * 2), "")));
+                    widgetGroup.addWidget(itemSupplyWidgetGroup);
                     return false;
                 }).addPopup(widgetGroup -> {
                     widgetGroup.addWidget(itemWidgetGroup);
@@ -203,6 +190,7 @@ public class ControllableDualCover extends DualCover {
                     widgetGroup.addWidget(new CycleButtonWidget(10, 133, 76, 18, RecipeMode.class, () -> this.itemRecipeMode, this::setItemRecipeMode));
                     return false;
                 }).addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(itemSupplyWidgetGroup);
                     this.oreDictionaryItemFilter.initUI(widgetGroup::addWidget);
                     return false;
                 });
@@ -330,9 +318,6 @@ public class ControllableDualCover extends DualCover {
         tagCompound.setInteger("fluidRecipeMode", this.fluidRecipeMode.ordinal());
         tagCompound.setInteger("itemSupplyThroughput", this.itemSupplyThroughput);
         tagCompound.setInteger("fluidSupplyThroughput", this.fluidSupplyThroughput);
-        final NBTTagCompound compound = new NBTTagCompound();
-        this.oreDictionaryItemFilter.writeToNBT(compound);
-        tagCompound.setTag("oreDictFilter", compound);
     }
 
     @Override
@@ -344,7 +329,6 @@ public class ControllableDualCover extends DualCover {
         this.fluidRecipeMode = RecipeMode.values()[tagCompound.getInteger("fluidRecipeMode")];
         this.itemSupplyThroughput = tagCompound.getInteger("itemSupplyThroughput");
         this.fluidSupplyThroughput = tagCompound.getInteger("fluidSupplyThroughput");
-        this.oreDictionaryItemFilter.readFromNBT(tagCompound.getCompoundTag("oreDictFilter"));
     }
 
     private void transferItemsSupply(IItemHandler itemHandler, IItemHandler destItemHandler) {

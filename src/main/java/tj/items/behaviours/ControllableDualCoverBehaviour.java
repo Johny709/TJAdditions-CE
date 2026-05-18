@@ -181,22 +181,24 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
             fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(119, 18, 38, 18, "*2", data -> setFluidCount.accept(String.valueOf((long) fluidFilter.getTankAt(index).getFluidAmount() * 2), "")));
             fluidSelectionWidgetGroup.addSelectionBox(i, 18 * (i % 4), 18 * (i / 4), 18, 18);
         }
+        final BiConsumer<String, String> setItemSupplyThroughput = (text, id) -> {
+            itemSupplyThroughput.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+            compound.setInteger("itemSupplyThroughput", itemSupplyThroughput.getValue());
+        };
+        final WidgetGroup itemSupplyWidgetGroup = new WidgetGroup();
+        itemSupplyWidgetGroup.addWidget(new NewTextFieldWidget<>(91, 95, 76, 18, true, () -> String.valueOf(itemSupplyThroughput.getValue()), setItemSupplyThroughput)
+                .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(itemSupplyThroughput.getValue())))
+                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                .setTooltipText("tj.machine.universal.item_amount")
+                .setUpdateOnTyping(true));
+        itemSupplyWidgetGroup.addWidget(new ClickButtonWidget(91, 113, 38, 18, "/2", data -> setItemSupplyThroughput.accept(String.valueOf((long) itemSupplyThroughput.getValue() / 2), "")));
+        itemSupplyWidgetGroup.addWidget(new ClickButtonWidget(129, 113, 38, 18, "*2", data -> setItemSupplyThroughput.accept(String.valueOf((long) itemSupplyThroughput.getValue() * 2), "")));
         final PopUpWidget<?> itemFilterPopup = new PopUpWidget<>()
                 .setIndexSupplier(() -> {
                     final ItemStack itemStack1 = itemFilterSlot.getStackInSlot(0);
                     return ITEM_FILTER.isItemEqual(itemStack1) ? 1 : SMART_FILTER.isItemEqual(itemStack1) ? 2 : ORE_DICTIONARY_FILTER.isItemEqual(itemStack1) ? 3 : 0;
                 }).addPopup(widgetGroup -> {
-                    final BiConsumer<String, String> setItemSupplyThroughput = (text, id) -> {
-                        itemSupplyThroughput.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-                        compound.setInteger("itemSupplyThroughput", itemSupplyThroughput.getValue());
-                    };
-                    widgetGroup.addWidget(new NewTextFieldWidget<>(91, 95, 76, 18, true, () -> String.valueOf(itemSupplyThroughput.getValue()), setItemSupplyThroughput)
-                            .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(itemSupplyThroughput.getValue())))
-                            .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                            .setTooltipText("tj.machine.universal.item_amount")
-                            .setUpdateOnTyping(true));
-                    widgetGroup.addWidget(new ClickButtonWidget(91, 113, 38, 18, "/2", data -> setItemSupplyThroughput.accept(String.valueOf((long) itemSupplyThroughput.getValue() / 2), "")));
-                    widgetGroup.addWidget(new ClickButtonWidget(129, 113, 38, 18, "*2", data -> setItemSupplyThroughput.accept(String.valueOf((long) itemSupplyThroughput.getValue() * 2), "")));
+                    widgetGroup.addWidget(itemSupplyWidgetGroup);
                     return false;
                 }).addPopup(widgetGroup -> {
                     widgetGroup.addWidget(itemWidgetGroup);
@@ -209,6 +211,7 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     }));
                     return false;
                 }).addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(itemSupplyWidgetGroup);
                     oreDictionaryItemFilter.initUI(widgetGroup::addWidget);
                     return false;
                 });

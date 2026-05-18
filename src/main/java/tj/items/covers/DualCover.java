@@ -13,6 +13,7 @@ import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import gregtech.api.items.metaitem.MetaItem;
@@ -20,6 +21,7 @@ import gregtech.api.render.Textures;
 import gregtech.api.util.Position;
 import gregtech.common.covers.CoverConveyor;
 import gregtech.common.covers.CoverPump;
+import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -50,6 +52,7 @@ import tj.items.handlers.LargeItemStackHandler;
 import tj.util.TJItemUtils;
 import tj.util.map.Strategies;
 
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -68,10 +71,10 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
     protected final IItemHandler itemHandler = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
     protected final IFluidHandler fluidHandler = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
     protected final FilteredItemStackHandler itemFilterSlot = new FilteredItemStackHandler(this.coverHolder, 1, Integer.MAX_VALUE)
-            .setItemStackPredicate((slot, itemStack) -> ITEM_FILTER.isItemEqual(itemStack))
+            .setItemStackPredicate((slot, itemStack) -> ITEM_FILTER.isItemEqual(itemStack) || ORE_DICTIONARY_FILTER.isItemEqual(itemStack))
             .setOnContentsChangedPre((slot, itemStack, insert) -> {
                 if (!insert) return;
-                this.itemFilterType = ITEM_FILTER.isItemEqual(itemStack) ? FilterType.NORMAL : null;
+                this.itemFilterType = ITEM_FILTER.isItemEqual(itemStack) ? FilterType.NORMAL : ORE_DICTIONARY_FILTER.isItemEqual(itemStack) ? FilterType.ORE_DICT : FilterType.NONE;
             }).setOnContentsChangedPost((slot, itemStack) -> {
                 if (!itemStack.isEmpty()) return;
                 this.itemFilterType = FilterType.NONE;
@@ -80,7 +83,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
             .setItemStackPredicate((slot, itemStack) -> FLUID_FILTER.isItemEqual(itemStack))
             .setOnContentsChangedPre((slot, itemStack, insert) -> {
                 if (!insert) return;
-                this.fluidFilterType = FLUID_FILTER.isItemEqual(itemStack) ? FilterType.NORMAL : null;
+                this.fluidFilterType = FLUID_FILTER.isItemEqual(itemStack) ? FilterType.NORMAL : FilterType.NONE;
             }).setOnContentsChangedPost((slot, itemStack) -> {
                 if (!itemStack.isEmpty()) return;
                 this.fluidFilterType = FilterType.NONE;
@@ -89,6 +92,16 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
     protected final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 16)
             .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
             .collect(Collectors.toList()));
+    protected final OreDictionaryItemFilter oreDictionaryItemFilter = new OreDictionaryItemFilter() {
+        @Override
+        public void initUI(Consumer<Widget> widgetGroup) {
+            widgetGroup.accept(new LabelWidget(10, 90, "cover.ore_dictionary_filter.title1"));
+            widgetGroup.accept(new LabelWidget(10, 100, "cover.ore_dictionary_filter.title2"));
+            widgetGroup.accept(new TextFieldWidget(10, 115, 100, 12, true, () -> this.oreDictionaryFilter, this::setOreDictionaryFilter)
+                    .setMaxStringLength(64)
+                    .setValidator(str -> Pattern.compile("\\*?[a-zA-Z0-9_]*\\*?").matcher(str).matches()));
+        }
+    };
     protected final BlockPos posSideOf = this.coverHolder.getPos().offset(this.attachedSide);
     protected final Object2ObjectMap<ItemStack, ItemStack> itemType = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
     protected final Object2ObjectMap<FluidStack, FluidStack> fluidType = new Object2ObjectOpenHashMap<>();
@@ -148,6 +161,8 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
             this.itemFilterSlot.insertItem(0, new ItemStack(compound.getCompoundTag("itemFilterSlot")), false);
         if (compound.hasKey("fluidFilterSlot"))
             this.fluidFilterSlot.insertItem(0, new ItemStack(compound.getCompoundTag("fluidFilterSlot")), false);
+        if (compound.hasKey("oreDictFilter"))
+            this.oreDictionaryItemFilter.readFromNBT(compound.getCompoundTag("oreDictFilter"));
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
             if (compound.hasKey("itemSlot:" + i)) {
                 this.itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("itemSlot:" + i)));
@@ -205,8 +220,10 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(itemWidgetGroup);
                     return false;
-                }).addPopup(widgetGroup -> false)
-                .addPopup(widgetGroup -> false);
+                }).addPopup(widgetGroup -> {
+                    this.oreDictionaryItemFilter.initUI(widgetGroup::addWidget);
+                    return false;
+                });
         final PopUpWidget<?> fluidFilterPopup = new PopUpWidget<>()
                 .setIndexSupplier(() -> {
                     final ItemStack itemStack = this.fluidFilterSlot.getStackInSlot(0);
@@ -216,7 +233,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(fluidWidgetGroup);
                     return false;
-                }).addPopup(widgetGroup -> false);
+                });
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
                 .addTab(String.format("metaitem.conveyor.module.%s.name", GAValues.VN[this.tier].toLowerCase()), this.tier > 0 ? conveyors[this.tier].getStackForm() : this.getPickItem(), tab -> {
@@ -327,6 +344,9 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
         tagCompound.setTag("fluidFilterSlot", this.fluidFilterSlot.serializeNBT());
         tagCompound.setInteger("itemFilterType", this.itemFilterType.ordinal());
         tagCompound.setInteger("fluidFilterType", this.fluidFilterType.ordinal());
+        final NBTTagCompound compound = new NBTTagCompound();
+        this.oreDictionaryItemFilter.writeToNBT(compound);
+        tagCompound.setTag("oreDictFilter", compound);
     }
 
     @Override
@@ -350,24 +370,59 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
             this.fluidType.put(this.fluidFilter.getTankAt(i).getFluid(), this.fluidFilter.getTankAt(i).getFluid());
         this.itemFilterType = FilterType.values()[tagCompound.getInteger("itemFilterType")];
         this.fluidFilterType = FilterType.values()[tagCompound.getInteger("fluidFilterType")];
+        this.oreDictionaryItemFilter.readFromNBT(tagCompound.getCompoundTag("oreDictFilter"));
     }
 
     protected void transferItems(IItemHandler itemHandler, IItemHandler destItemHandler) {
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            final ItemStack stack = itemHandler.getStackInSlot(i);
-            if (!stack.isEmpty() && (this.itemFilterType == null || this.isItemBlacklist == (this.itemType.get(stack) == null))) {
-                final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemTransferRate, stack.getCount() - inserted), false);
-                TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
-            }
+        switch (this.fluidFilterType) {
+            case NORMAL:
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    final ItemStack stack = itemHandler.getStackInSlot(i);
+                    if (!stack.isEmpty() && this.isItemBlacklist == (this.itemType.get(stack) == null)) {
+                        final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                        final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemTransferRate, stack.getCount() - inserted), false);
+                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                    }
+                }
+                break;
+            case ORE_DICT:
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    final ItemStack stack = itemHandler.getStackInSlot(i);
+                    if (!stack.isEmpty() && this.oreDictionaryItemFilter.matchItemStack(stack) != null) {
+                        final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                        final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemTransferRate, stack.getCount() - inserted), false);
+                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                    }
+                }
+                break;
+            default:
+                for (int i = 0; i < itemHandler.getSlots(); i++) {
+                    final ItemStack stack = itemHandler.getStackInSlot(i);
+                    if (!stack.isEmpty()) {
+                        final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                        final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemTransferRate, stack.getCount() - inserted), false);
+                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                    }
+                }
         }
     }
 
     protected void transferFluids(IFluidHandler fluidHandler, IFluidHandler destFluidHandler) {
         final IFluidTankProperties[] tanks = fluidHandler.getTankProperties();
-        for (IFluidTankProperties tank : tanks) {
+        if (this.fluidFilterType == FilterType.NORMAL) {
+            for (IFluidTankProperties tank : tanks) {
+                FluidStack fluidStack = tank.getContents();
+                if (fluidStack != null && this.isFluidBlacklist == (this.fluidType.get(fluidStack) == null)) {
+                    fluidStack = fluidHandler.drain(fluidStack, false);
+                    if (fluidStack == null) continue;
+                    fluidStack.amount = Math.min(fluidStack.amount, this.fluidTransferRate);
+                    fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                    fluidHandler.drain(fluidStack, true);
+                }
+            }
+        } else for (IFluidTankProperties tank : tanks) {
             FluidStack fluidStack = tank.getContents();
-            if (fluidStack != null && (this.fluidFilterType == null || this.isFluidBlacklist == (this.fluidType.get(fluidStack) == null))) {
+            if (fluidStack != null) {
                 fluidStack = fluidHandler.drain(fluidStack, false);
                 if (fluidStack == null) continue;
                 fluidStack.amount = Math.min(fluidStack.amount, this.fluidTransferRate);

@@ -5,6 +5,7 @@ import gregtech.api.GTValues;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import gregtech.api.items.gui.ItemUIFactory;
@@ -14,6 +15,7 @@ import gregtech.api.items.metaitem.stats.IItemBehaviour;
 import gregtech.api.util.Position;
 import gregtech.common.covers.CoverConveyor;
 import gregtech.common.covers.CoverPump;
+import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import net.minecraft.client.resources.I18n;
@@ -46,6 +48,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -102,7 +105,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
         final ItemStack itemStack = player.getHeldItemMainhand();
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
         final FilteredItemStackHandler itemFilterSlot = new FilteredItemStackHandler(null, 1, Integer.MAX_VALUE)
-                .setItemStackPredicate((slot, itemStack1) -> ITEM_FILTER.isItemEqual(itemStack1))
+                .setItemStackPredicate((slot, itemStack1) -> ITEM_FILTER.isItemEqual(itemStack1) || ORE_DICTIONARY_FILTER.isItemEqual(itemStack))
                 .setOnContentsChangedPre((slot, itemStack1, insert) -> {
                     if (!insert) return;
                     compound.setTag("itemFilterSlot", itemStack1.serializeNBT());
@@ -125,6 +128,21 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                 .collect(Collectors.toList()));
         final Object2ObjectMap<ItemStack, ItemStack> itemType = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
         final Set<FluidStack> fluidType = new HashSet<>();
+        final OreDictionaryItemFilter oreDictionaryItemFilter = new OreDictionaryItemFilter() {
+            @Override
+            public void initUI(Consumer<Widget> widgetGroup) {
+                widgetGroup.accept(new LabelWidget(10, 90, "cover.ore_dictionary_filter.title1"));
+                widgetGroup.accept(new LabelWidget(10, 100, "cover.ore_dictionary_filter.title2"));
+                widgetGroup.accept(new TextFieldWidget(10, 115, 100, 12, true, () -> this.oreDictionaryFilter, oreDictionaryFilter -> {
+                    this.oreDictionaryFilter = oreDictionaryFilter;
+                    final NBTTagCompound tagCompound = new NBTTagCompound();
+                    this.writeToNBT(tagCompound);
+                    compound.setTag("oreDictFilter", tagCompound);
+                    this.markDirty();
+                }).setMaxStringLength(64)
+                        .setValidator(str -> Pattern.compile("\\*?[a-zA-Z0-9_]*\\*?").matcher(str).matches()));
+            }
+        };
         final WidgetGroup itemWidgetGroup = new WidgetGroup(new Position(10, 95));
         final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(10, 115));
         for (int i = 0; i < itemFilter.getSlots(); i++) {
@@ -155,8 +173,10 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(itemWidgetGroup);
                     return false;
-                }).addPopup(widgetGroup -> false)
-                .addPopup(widgetGroup -> false);
+                }).addPopup(widgetGroup -> {
+                    oreDictionaryItemFilter.initUI(widgetGroup::addWidget);
+                    return false;
+                });
         final PopUpWidget<?> fluidFilterPopup = new PopUpWidget<>()
                 .setIndexSupplier(() -> {
                     final ItemStack itemStack1 = fluidFilterSlot.getStackInSlot(0);
@@ -166,7 +186,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(fluidWidgetGroup);
                     return false;
-                }).addPopup(widgetGroup -> false);
+                });
         final BiConsumer<String, String> setItemTransferRate2 = (text, id) -> {
             itemTransferRate.setValue((int) Math.max(1, Math.min(this.maxItemTransferRate, Double.parseDouble(text))));
             compound.setInteger("itemTransferRate", itemTransferRate.getValue());
@@ -286,6 +306,8 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                         itemFilterSlot.insertItem(0, new ItemStack(compound.getCompoundTag("itemFilterSlot")), false);
                     if (compound.hasKey("fluidFilterSlot"))
                         fluidFilterSlot.insertItem(0, new ItemStack(compound.getCompoundTag("fluidFilterSlot")), false);
+                    if (compound.hasKey("oreDictFilter"))
+                        oreDictionaryItemFilter.readFromNBT(compound.getCompoundTag("oreDictFilter"));
                     for (int i = 0; i < itemFilter.getSlots(); i++) {
                         if (compound.hasKey("itemSlot:" + i)) {
                             itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("itemSlot" + i)));
