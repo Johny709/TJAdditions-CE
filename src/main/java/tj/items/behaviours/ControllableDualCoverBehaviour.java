@@ -16,10 +16,9 @@ import gregtech.common.covers.CoverPump;
 import gregtech.common.covers.TransferMode;
 import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
@@ -38,6 +37,7 @@ import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.items.covers.ControllableDualCover;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.handlers.LargeItemStackHandler;
+import tj.util.map.Strategies;
 import tj.util.references.BooleanReference;
 import tj.util.references.IntegerReference;
 import tj.util.references.ObjectReference;
@@ -107,7 +107,7 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
         final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 16)
                 .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
                 .collect(Collectors.toList()));
-        final Object2ObjectMap<Item, ItemStack> itemType = new Object2ObjectOpenHashMap<>();
+        final Object2ObjectMap<ItemStack, ItemStack> itemType = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
         final Set<FluidStack> fluidType = new HashSet<>();
         final OreDictionaryItemFilter oreDictionaryItemFilter = new OreDictionaryItemFilter() {
             @Override
@@ -140,11 +140,11 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
             };
             itemWidgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, itemFilter, item -> {
                 if (!item.isEmpty()) {
-                    itemType.put(item.getItem(), item);
+                    itemType.put(item, item);
                     compound.setTag("itemSlot:" + index, item.serializeNBT());
                 } else compound.removeTag("itemSlot:" + index);
-            }, item -> itemType.remove(item.getItem())).setBackgroundTextures(GuiTextures.SLOT)
-                    .setPutItemsPredicate(item -> !itemType.containsKey(item.getItem())));
+            }, itemType::remove).setBackgroundTextures(GuiTextures.SLOT)
+                    .setPutItemsPredicate(item -> !itemType.containsKey(item)));
             itemSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(84, 0, 76, 18, true, () -> String.valueOf(itemFilter.getStackInSlot(index).getCount()), setItemCount)
                     .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(itemFilter.getStackInSlot(index).getCount())))
                     .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
@@ -385,7 +385,7 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     for (int i = 0; i < itemFilter.getSlots(); i++) {
                         if (compound.hasKey("itemSlot:" + i)) {
                             itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("itemSlot:" + i)));
-                            itemType.put(itemFilter.getStackInSlot(i).getItem(), itemFilter.getStackInSlot(i));
+                            itemType.put(itemFilter.getStackInSlot(i), itemFilter.getStackInSlot(i));
                         }
                     }
                     for (int i = 0; i < fluidFilter.getTanks(); i++) {

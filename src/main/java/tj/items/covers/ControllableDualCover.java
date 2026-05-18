@@ -23,9 +23,9 @@ import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -50,9 +50,11 @@ import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.util.Counter;
 import tj.util.TJItemUtils;
+import tj.util.map.Strategies;
 import tj.util.wrappers.GTFluidStackWrapper;
 import tj.util.wrappers.GTItemStackWrapper;
 
+import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -67,7 +69,7 @@ public class ControllableDualCover extends DualCover {
 
     private final ItemStackHandler itemRecipeSearchSlot = new ItemStackHandler(1);
     private final IMultipleTankHandler fluidRecipeSearchSlot = new FluidTankList(true, new FluidTank(Integer.MAX_VALUE));
-    private final Object2ObjectMap<Item, Counter> itemExact = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<ItemStack, Counter> itemExact = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
     private final Object2ObjectMap<FluidStack, Counter> fluidExact = new Object2ObjectOpenHashMap<>();
     private final OreDictionaryItemFilter oreDictionaryItemFilter = new OreDictionaryItemFilter() {
         @Override
@@ -139,13 +141,13 @@ public class ControllableDualCover extends DualCover {
                 stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, false);
                 stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
                 this.itemFilter.insertItem(index, stack, false);
-                this.itemType.put(stack.getItem(), stack);
+                this.itemType.put(stack, stack);
             };
             itemWidgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, this.itemFilter, item -> {
                 if (!item.isEmpty())
-                    this.itemType.put(item.getItem(), item);
-            }, item -> this.itemType.remove(item.getItem())).setBackgroundTextures(GuiTextures.SLOT)
-                    .setPutItemsPredicate(item -> this.itemType.get(item.getItem()) == null));
+                    this.itemType.put(item, item);
+            }, this.itemType::remove).setBackgroundTextures(GuiTextures.SLOT)
+                    .setPutItemsPredicate(item -> this.itemType.get(item) == null));
             itemSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(84, 0, 76, 18, true, () -> String.valueOf(itemFilter.getStackInSlot(index).getCount()), setItemCount)
                     .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(itemFilter.getStackInSlot(index).getCount())))
                     .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
@@ -423,7 +425,7 @@ public class ControllableDualCover extends DualCover {
     private void transferItemsExact(IItemHandler itemHandler, IItemHandler destItemHandler) {
         for (int i = 0; i < destItemHandler.getSlots(); i++) {
             final ItemStack stack = destItemHandler.getStackInSlot(i);
-            this.itemExact.computeIfAbsent(stack.getItem(), k -> new Counter(0))
+            this.itemExact.computeIfAbsent(stack, k -> new Counter(0))
                     .increment(stack.getCount());
         }
         switch (this.itemFilterType) {
@@ -431,10 +433,10 @@ public class ControllableDualCover extends DualCover {
                 for (int i = 0; i < itemHandler.getSlots(); i++) {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     final ItemStack filterStack;
-                    if (!stack.isEmpty() && this.isItemBlacklist == ((filterStack = this.itemType.get(stack.getItem())) == null)) {
+                    if (!stack.isEmpty() && this.isItemBlacklist == ((filterStack = this.itemType.get(stack)) == null)) {
                         if (filterStack == null) continue;
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, filterStack.getCount() - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
+                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, filterStack.getCount() - this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER).getValue()))), false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
                 }
@@ -461,7 +463,7 @@ public class ControllableDualCover extends DualCover {
                             } else continue;
                         }
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(itemStackWrapper.getCount(), itemStackWrapper.getCount() - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
+                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(itemStackWrapper.getCount(), itemStackWrapper.getCount() - this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER).getValue()))), false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
                 }
@@ -471,7 +473,7 @@ public class ControllableDualCover extends DualCover {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty() && this.oreDictionaryItemFilter.matchItemStack(stack) != null) {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, this.itemTransferRate - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
+                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, this.itemTransferRate - this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER).getValue()))), false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
                 }
@@ -481,7 +483,7 @@ public class ControllableDualCover extends DualCover {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty()) {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, this.itemTransferRate - this.itemExact.getOrDefault(stack.getItem(), Counter.DUMMY_COUNTER).getValue()))), false);
+                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, this.itemTransferRate - this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER).getValue()))), false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
                 }
@@ -677,6 +679,7 @@ public class ControllableDualCover extends DualCover {
             return this.recipeMap;
         }
 
+        @Nonnull
         @Override
         public String getName() {
             return "recipemap." + this.recipeMap.getUnlocalizedName() + ".name";
