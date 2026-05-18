@@ -18,8 +18,6 @@ import gregtech.api.util.Position;
 import gregtech.common.covers.CoverConveyor;
 import gregtech.common.covers.CoverPump;
 import gregtech.common.covers.TransferMode;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -68,8 +66,8 @@ public class ControllableDualCover extends DualCover {
     private final IMultipleTankHandler fluidRecipeSearchSlot = new FluidTankList(true, new FluidTank(Integer.MAX_VALUE));
     private final Object2ObjectMap<ItemStack, Counter> itemExact = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
     private final Object2ObjectMap<FluidStack, Counter> fluidExact = new Object2ObjectOpenHashMap<>();
-    private final Int2ObjectMap<GTItemStackWrapper> itemRecipeMap = new Int2ObjectOpenHashMap<>();
-    private final Int2ObjectMap<GTFluidStackWrapper> fluidRecipeMap = new Int2ObjectOpenHashMap<>();
+    private final Object2ObjectMap<ItemStack, GTItemStackWrapper> itemRecipeMap = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
+    private final Object2ObjectMap<FluidStack, GTFluidStackWrapper> fluidRecipeMap = new Object2ObjectOpenHashMap<>();
     private final ParallelRecipeLRUCache recipeLRUCache = new ParallelRecipeLRUCache(10);
     private TransferMode robotArmMode = TransferMode.TRANSFER_ANY;
     private TransferMode regulatorMode = TransferMode.TRANSFER_ANY;
@@ -341,8 +339,9 @@ public class ControllableDualCover extends DualCover {
                     if (!stack.isEmpty() && this.isItemBlacklist == ((filterStack = this.itemType.get(stack.getItem())) == null)) {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
                         if (filterStack != null && stack.getCount() >= filterStack.getCount()) {
-                            final ItemStack otherStack = itemHandler.extractItem(i, Math.min(filterStack.getCount(), stack.getCount() - inserted), true);
-                            itemHandler.extractItem(i, otherStack.getCount(), false);
+                            final int extract = Math.min(filterStack.getCount(), stack.getCount() - inserted);
+                            if (extract < 1) continue;
+                            final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                             TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                         }
                     }
@@ -352,8 +351,8 @@ public class ControllableDualCover extends DualCover {
                 for (int i = 0; i < itemHandler.getSlots(); i++) {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty()) {
-                        GTItemStackWrapper itemStackWrapper = this.itemRecipeMap.get(i);
-                        if (itemStackWrapper == null || !itemStackWrapper.getItemStack().isItemEqual(stack)) {
+                        GTItemStackWrapper itemStackWrapper = this.itemRecipeMap.get(stack);
+                        if (itemStackWrapper == null || itemStackWrapper.getItemStack().isItemEqual(stack)) {
                             this.itemRecipeSearchSlot.setStackInSlot(0, stack);
                             Recipe recipe = this.recipeLRUCache.get(this.itemRecipeSearchSlot, TJValues.DUMMY_FLUID_HANDLER);
                             if (recipe == null) {
@@ -366,13 +365,14 @@ public class ControllableDualCover extends DualCover {
                                     if (ingredient.getIngredient().apply(stack))
                                         itemStackWrapper.increment(ingredient.getCount());
                                 }
-                                this.itemRecipeMap.put(i, itemStackWrapper);
+                                this.itemRecipeMap.put(stack, itemStackWrapper);
                             } else continue;
                         }
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
                         if (stack.getCount() >= itemStackWrapper.getCount()) {
-                            final ItemStack otherStack = itemHandler.extractItem(i, Math.min(itemStackWrapper.getCount(), stack.getCount() - inserted), true);
-                            itemHandler.extractItem(i, otherStack.getCount(), false);
+                            final int extract = Math.min(stack.getCount() - inserted, itemStackWrapper.getCount());
+                            if (extract < 1) continue;
+                            final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                             TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                         }
                     }
@@ -384,8 +384,9 @@ public class ControllableDualCover extends DualCover {
                     if (!stack.isEmpty() && this.oreDictionaryItemFilter.matchItemStack(stack) != null) {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
                         if (stack.getCount() >= this.itemSupplyThroughput) {
-                            final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemSupplyThroughput, stack.getCount() - inserted), true);
-                            itemHandler.extractItem(i, otherStack.getCount(), false);
+                            final int extract = Math.min(this.itemSupplyThroughput, stack.getCount() - inserted);
+                            if (extract < 1) continue;
+                            final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                             TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                         }
                     }
@@ -397,8 +398,9 @@ public class ControllableDualCover extends DualCover {
                     if (!stack.isEmpty()) {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
                         if (stack.getCount() >= this.itemSupplyThroughput) {
-                            final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemSupplyThroughput, stack.getCount() - inserted), true);
-                            itemHandler.extractItem(i, otherStack.getCount(), false);
+                            final int extract = Math.min(this.itemSupplyThroughput, stack.getCount() - inserted);
+                            if (extract < 1) continue;
+                            final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                             TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                         }
                     }
@@ -420,7 +422,9 @@ public class ControllableDualCover extends DualCover {
                     if (!stack.isEmpty() && this.isItemBlacklist == ((filterStack = this.itemType.get(stack)) == null)) {
                         if (filterStack == null) continue;
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, filterStack.getCount() - this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER).getValue()))), false);
+                        final int extract = (int) Math.min(stack.getCount() - inserted, filterStack.getCount() - this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER).getValue());
+                        if (extract < 1) continue;
+                        final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
                 }
@@ -429,8 +433,8 @@ public class ControllableDualCover extends DualCover {
                 for (int i = 0; i < itemHandler.getSlots(); i++) {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty()) {
-                        GTItemStackWrapper itemStackWrapper = this.itemRecipeMap.get(i);
-                        if (itemStackWrapper == null || !itemStackWrapper.getItemStack().isItemEqual(stack)) {
+                        GTItemStackWrapper itemStackWrapper = this.itemRecipeMap.get(stack);
+                        if (itemStackWrapper == null) {
                             this.itemRecipeSearchSlot.setStackInSlot(0, stack);
                             Recipe recipe = this.recipeLRUCache.get(this.itemRecipeSearchSlot, TJValues.DUMMY_FLUID_HANDLER);
                             if (recipe == null) {
@@ -443,11 +447,15 @@ public class ControllableDualCover extends DualCover {
                                     if (ingredient.getIngredient().apply(stack))
                                         itemStackWrapper.increment(ingredient.getCount());
                                 }
-                                this.itemRecipeMap.put(i , itemStackWrapper);
+                                this.itemRecipeMap.put(stack, itemStackWrapper);
                             } else continue;
                         }
+                        final Counter counter = this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER);
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(itemStackWrapper.getCount(), itemStackWrapper.getCount() - this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER).getValue()))), false);
+                        final int extract = (int) Math.min(stack.getCount() - inserted, itemStackWrapper.getCount() - counter.getValue());
+                        if (extract < 1) continue;
+                        final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
+                        counter.increment(otherStack.getCount());
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
                 }
@@ -457,7 +465,9 @@ public class ControllableDualCover extends DualCover {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty() && this.oreDictionaryItemFilter.matchItemStack(stack) != null) {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, this.itemTransferRate - this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER).getValue()))), false);
+                        final int extract = (int) Math.min(stack.getCount() - inserted, this.itemTransferRate - this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER).getValue());
+                        if (extract < 1) continue;
+                        final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
                 }
@@ -467,7 +477,9 @@ public class ControllableDualCover extends DualCover {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty()) {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final ItemStack otherStack = itemHandler.extractItem(i, (int) Math.max(0, Math.min(stack.getCount() - inserted, Math.min(this.itemTransferRate, this.itemTransferRate - this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER).getValue()))), false);
+                        final int extract = (int) Math.min(stack.getCount() - inserted, this.itemTransferRate - this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER).getValue());
+                        if (extract < 1) continue;
+                        final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
                 }
@@ -487,7 +499,7 @@ public class ControllableDualCover extends DualCover {
                         fluidStack = fluidHandler.drain(fluidStack, false);
                         if (fluidStack == null || filterStack == null) continue;
                         if (fluidStack.amount >= filterStack.amount) {
-                            fluidStack.amount = Math.min(fluidStack.amount, filterStack.amount);
+                            fluidStack.amount = filterStack.amount;
                             fluidStack.amount = destFluidHandler.fill(fluidStack, true);
                             fluidHandler.drain(fluidStack, true);
                         }
@@ -495,11 +507,11 @@ public class ControllableDualCover extends DualCover {
                 }
                 break;
             case SMART:
-                for (int i = 0; i < tanks.length; i++) {
-                    FluidStack fluidStack = tanks[i].getContents();
+                for (IFluidTankProperties iFluidTankProperties : tanks) {
+                    FluidStack fluidStack = iFluidTankProperties.getContents();
                     if (fluidStack != null) {
-                        GTFluidStackWrapper fluidStackWrapper = this.fluidRecipeMap.get(i);
-                        if (fluidStackWrapper == null || !fluidStackWrapper.getFluidStack().isFluidEqual(fluidStack)) {
+                        GTFluidStackWrapper fluidStackWrapper = this.fluidRecipeMap.get(fluidStack);
+                        if (fluidStackWrapper == null) {
                             this.fluidRecipeSearchSlot.getTankAt(0).drain(Integer.MAX_VALUE, true);
                             this.fluidRecipeSearchSlot.getTankAt(0).fill(fluidStack, true);
                             Recipe recipe = this.recipeLRUCache.get(TJValues.DUMMY_ITEM_HANDLER, this.fluidRecipeSearchSlot);
@@ -513,14 +525,15 @@ public class ControllableDualCover extends DualCover {
                                     if (stack.isFluidEqual(fluidStack))
                                         fluidStackWrapper.increment(stack.amount);
                                 }
-                                this.fluidRecipeMap.put(i, fluidStackWrapper);
+                                this.fluidRecipeMap.put(fluidStack, fluidStackWrapper);
                             } else continue;
                         }
                         fluidStack = fluidHandler.drain(fluidStack, false);
                         if (fluidStack == null) continue;
                         if (fluidStack.amount >= fluidStackWrapper.getCount()) {
-                            fluidStack.amount = Math.min(fluidStack.amount, fluidStackWrapper.getCount());
+                            fluidStack.amount = fluidStackWrapper.getCount();
                             fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                            fluidStackWrapper.decrement(fluidStack.amount);
                             fluidHandler.drain(fluidStack, true);
                         }
                     }
@@ -533,7 +546,7 @@ public class ControllableDualCover extends DualCover {
                         fluidStack = fluidHandler.drain(fluidStack, false);
                         if (fluidStack == null) continue;
                         if (fluidStack.amount >= this.fluidSupplyThroughput) {
-                            fluidStack.amount = Math.min(fluidStack.amount, this.fluidSupplyThroughput);
+                            fluidStack.amount = this.fluidSupplyThroughput;
                             fluidStack.amount = destFluidHandler.fill(fluidStack, true);
                             fluidHandler.drain(fluidStack, true);
                         }
@@ -543,6 +556,7 @@ public class ControllableDualCover extends DualCover {
     }
 
     private void transferFluidsExact(IFluidHandler fluidHandler, IFluidHandler destFluidHandler) {
+        final IFluidTankProperties[] tanks = fluidHandler.getTankProperties();
         for (IFluidTankProperties tank : destFluidHandler.getTankProperties()) {
             final FluidStack stack = tank.getContents();
             if (stack != null) {
@@ -550,10 +564,9 @@ public class ControllableDualCover extends DualCover {
                         .increment(stack.amount);
             }
         }
-        final IFluidTankProperties[] tanks1 = fluidHandler.getTankProperties();
         switch (this.fluidFilterType) {
             case NORMAL:
-                for (IFluidTankProperties tank : tanks1) {
+                for (IFluidTankProperties tank : tanks) {
                     FluidStack fluidStack = tank.getContents();
                     final FluidStack filterStack;
                     if (fluidStack != null && this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null)) {
@@ -568,11 +581,11 @@ public class ControllableDualCover extends DualCover {
                 }
                 break;
             case SMART:
-                for (int i = 0; i < tanks1.length; i++) {
-                    FluidStack fluidStack = tanks1[i].getContents();
+                for (IFluidTankProperties iFluidTankProperties : tanks) {
+                    FluidStack fluidStack = iFluidTankProperties.getContents();
                     if (fluidStack != null) {
-                        GTFluidStackWrapper fluidStackWrapper = this.fluidRecipeMap.get(i);
-                        if (fluidStackWrapper == null || !fluidStackWrapper.getFluidStack().isFluidEqual(fluidStack)) {
+                        GTFluidStackWrapper fluidStackWrapper = this.fluidRecipeMap.get(fluidStack);
+                        if (fluidStackWrapper == null) {
                             this.fluidRecipeSearchSlot.getTankAt(0).drain(Integer.MAX_VALUE, true);
                             this.fluidRecipeSearchSlot.getTankAt(0).fill(fluidStack, true);
                             Recipe recipe = this.recipeLRUCache.get(TJValues.DUMMY_ITEM_HANDLER, this.fluidRecipeSearchSlot);
@@ -586,21 +599,23 @@ public class ControllableDualCover extends DualCover {
                                     if (stack.isFluidEqual(fluidStack))
                                         fluidStackWrapper.increment(stack.amount);
                                 }
-                                this.fluidRecipeMap.put(i, fluidStackWrapper);
+                                this.fluidRecipeMap.put(fluidStack, fluidStackWrapper);
                             } else continue;
                         }
                         fluidStack = fluidHandler.drain(fluidStack, false);
                         if (fluidStack == null) continue;
-                        fluidStack.amount = (int) Math.min(fluidStack.amount, Math.min(fluidStackWrapper.getCount(), fluidStackWrapper.getCount() - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue()));
+                        final Counter counter = this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER);
+                        fluidStack.amount = (int) Math.min(fluidStack.amount, fluidStackWrapper.getCount() - counter.getValue());
                         if (fluidStack.amount > 0) {
                             fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                            counter.increment(fluidStack.amount);
                             fluidHandler.drain(fluidStack, true);
                         }
                     }
                 }
                 break;
             default:
-                for (IFluidTankProperties tank : tanks1) {
+                for (IFluidTankProperties tank : tanks) {
                     FluidStack fluidStack = tank.getContents();
                     if (fluidStack != null) {
                         fluidStack = fluidHandler.drain(fluidStack, false);
@@ -639,12 +654,16 @@ public class ControllableDualCover extends DualCover {
     public void setItemRecipeMode(RecipeMode itemRecipeMode) {
         this.itemRecipeMode = itemRecipeMode;
         this.recipeLRUCache.clear();
+        this.itemRecipeMap.clear();
+        this.fluidRecipeMap.clear();
         this.markAsDirty();
     }
 
     public void setFluidRecipeMode(RecipeMode fluidRecipeMode) {
         this.fluidRecipeMode = fluidRecipeMode;
         this.recipeLRUCache.clear();
+        this.itemRecipeMap.clear();
+        this.fluidRecipeMap.clear();
         this.markAsDirty();
     }
 

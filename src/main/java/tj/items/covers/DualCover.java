@@ -380,7 +380,9 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty() && this.isItemBlacklist == (this.itemType.get(stack) == null)) {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemTransferRate, stack.getCount() - inserted), false);
+                        final int extract = Math.min(this.itemTransferRate, stack.getCount() - inserted);
+                        if (extract < 1) continue;
+                        final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
                 }
@@ -390,7 +392,9 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty() && this.oreDictionaryItemFilter.matchItemStack(stack) != null) {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemTransferRate, stack.getCount() - inserted), false);
+                        final int extract = Math.min(this.itemTransferRate, stack.getCount() - inserted);
+                        if (extract < 1) continue;
+                        final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
                 }

@@ -27,6 +27,11 @@ public final class GTFluidStackWrapper {
         this.count = (int) Math.min(Integer.MAX_VALUE, this.countLong);
     }
 
+    public void decrement(long count) {
+        this.countLong -= count;
+        this.count = (int) Math.min(Integer.MAX_VALUE, this.countLong);
+    }
+
     public void setCount(long count) {
         this.countLong = count;
         this.count = (int) Math.min(Integer.MAX_VALUE, this.countLong);
