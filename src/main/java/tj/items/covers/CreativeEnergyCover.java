@@ -20,8 +20,11 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
+import tj.gui.TJGuiTextures;
 import tj.gui.widgets.PopUpWidgetGroup;
+import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJTextFieldWidget;
+import tj.items.TJMetaItems;
 import tj.textures.TJTextures;
 
 import java.util.regex.Pattern;
@@ -79,7 +82,8 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
     public ModularUI createUI(EntityPlayer player) {
         return ModularUI.builder(BORDERED_BACKGROUND, 176, 170)
                 .bindPlayerInventory(player.inventory, 90)
-                .label(30, 4, "metaitem.creative.energy.cover.name")
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+                        .setItemLabel(TJMetaItems.CREATIVE_ENERGY_COVER.getStackForm()).setLocale("metaitem.creative.energy.cover.name"))
                 .widget(new ImageWidget(26, 40, 124, 18, DISPLAY))
                 .widget(new ToggleButtonWidget(7, 22, 18, 18, POWER_BUTTON, this::isActive, this::setActive)
                         .setTooltipText("machine.universal.toggle.run.mode"))

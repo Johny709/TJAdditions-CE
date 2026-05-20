@@ -29,6 +29,7 @@ import tj.gui.TJGuiUtils;
 import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
+import tj.items.TJMetaItems;
 import tj.util.references.BooleanReference;
 import tj.util.references.IntegerReference;
 
@@ -79,7 +80,7 @@ public class VoidFluidCoverBehaviour implements IItemBehaviour, ItemUIFactory {
         };
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setLocale("metaitem.void_fluid_cover.name"))
+                        .setItemLabel(TJMetaItems.VOID_FLUID_COVER.getStackForm()).setLocale("metaitem.void_fluid_cover.name"))
                 .widget(new NewTextFieldWidget<>(45, 7, 90, 18, true, () -> String.valueOf(tickTime.getValue()), setTickTime)
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setTooltipText("machine.universal.ticks.operation")

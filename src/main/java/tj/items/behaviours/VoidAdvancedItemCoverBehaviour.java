@@ -20,6 +20,7 @@ import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.SelectionWidgetGroup;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.items.TJMetaItems;
 import tj.items.covers.VoidMode;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.util.map.Strategies;
@@ -78,7 +79,7 @@ public class VoidAdvancedItemCoverBehaviour extends VoidItemCoverBehaviour {
         };
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 208)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setLocale("metaitem.void_advanced_item_cover.name"))
+                        .setItemLabel(TJMetaItems.VOID_ADVANCED_ITEM_COVER.getStackForm()).setLocale("metaitem.void_advanced_item_cover.name"))
                 .widget(new NewTextFieldWidget<>(45, 7, 90, 18, true, () -> String.valueOf(tickTime.getValue()), setTickTime)
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setTooltipText("machine.universal.ticks.operation")

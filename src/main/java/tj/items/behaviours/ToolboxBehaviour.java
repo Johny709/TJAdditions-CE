@@ -28,8 +28,11 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.items.ItemStackHandler;
+import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
+import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
+import tj.items.TJMetaItems;
 import tj.items.handlers.FilteredItemStackHandler;
 
 import java.util.List;
@@ -146,12 +149,13 @@ public class ToolboxBehaviour implements IItemBehaviour, ItemUIFactory {
             widgetGroup.addWidget(new TJSlotWidget<>(toolboxInventory, i, 18 * (i % 9), 18 * (i / 9))
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
-        return ModularUI.defaultBuilder()
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 166)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+                        .setItemLabel(TJMetaItems.TOOLBOX.getStackForm()).setLocale("metaitem.toolbox.name"))
                 .bindOpenListener(() -> toolboxInventory.deserializeNBT(compound.getCompoundTag("inventory")))
                 .bindCloseListener(() -> compound.setTag("inventory", toolboxInventory.serializeNBT()))
                 .widget(widgetGroup)
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 84, playerStack))
-                .label(7, 5, "metaitem.toolbox.name")
                 .build(holder, player);
     }
 

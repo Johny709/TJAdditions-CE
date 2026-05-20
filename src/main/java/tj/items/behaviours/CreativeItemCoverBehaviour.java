@@ -24,6 +24,7 @@ import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.SelectionWidgetGroup;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.items.TJMetaItems;
 import tj.items.handlers.LargeItemStackHandler;
 
 import java.util.List;
@@ -81,7 +82,7 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setLocale("cover.creative_item.title"))
+                        .setItemLabel(TJMetaItems.CREATIVE_ITEM_COVER.getStackForm()).setLocale("cover.creative_item.title"))
                 .widget(new ImageWidget(61, 80, 55, 18, GuiTextures.DISPLAY))
                 .widget(new AdvancedTextWidget(63, 85, textList -> textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", compound.getInteger("speed"))), 0xFFFFFF))
                 .widget(new ClickButtonWidget(43, 80, 18, 18, "+", onIncrement))

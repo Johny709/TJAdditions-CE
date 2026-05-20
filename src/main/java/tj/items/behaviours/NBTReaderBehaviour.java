@@ -17,6 +17,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import tj.gui.TJGuiTextures;
+import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.items.TJMetaItems;
 
@@ -54,12 +56,13 @@ public class NBTReaderBehaviour implements IItemBehaviour, ItemUIFactory {
         ScrollableDisplayWidget scrollWidget = new ScrollableDisplayWidget(10, 15, 180, 114);
         scrollWidget.addWidget(new AdvancedTextWidget(2, 5, textList -> textList.add(new TextComponentString(data)), 0xFFFFFF)
                 .setMaxWidthLimit(174));
-        ModularUI.Builder builder = new ModularUI.Builder(GuiTextures.BORDERED_BACKGROUND, 176, 226)
-                .label(7, 4, name)
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 226)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+                        .setItemLabel(TJMetaItems.NBT_READER.getStackForm()).setLocale(name))
                 .image(7, 12, 162, 120, GuiTextures.DISPLAY)
                 .bindPlayerInventory(player.inventory, 145)
-                .widget(scrollWidget);
-        return builder.build(holder, player);
+                .widget(scrollWidget)
+                .build(holder, player);
     }
 
     @Override

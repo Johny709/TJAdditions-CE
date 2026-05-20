@@ -22,9 +22,12 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
+import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
 import tj.gui.widgets.NewTextFieldWidget;
+import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.items.TJMetaItems;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -51,7 +54,9 @@ public class GaugeDropperBehavior implements IItemBehaviour, ItemUIFactory, IIte
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
         final ItemStack playerStack = player.getHeldItemMainhand();
         final NBTTagCompound compound = playerStack.getOrCreateSubCompound("settings");
-        return ModularUI.defaultBuilder()
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 166)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+                        .setItemLabel(TJMetaItems.TOOLBOX.getStackForm()).setLocale("metaitem.gauge_dropper.name"))
                 .widget(new NewTextFieldWidget<>(27, 30, 119, 18, true, () -> String.valueOf(compound.getInteger("capacity")), (text, id) -> compound.setInteger("capacity", (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))))
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setUpdateOnTyping(true)
@@ -65,7 +70,6 @@ public class GaugeDropperBehavior implements IItemBehaviour, ItemUIFactory, IIte
                         .useToggleTexture(true))
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 84, playerStack))
                 .bindCloseListener(() -> playerStack.getOrCreateSubCompound("settings").merge(compound))
-                .label(50, 4, "metaitem.gauge_dropper.name")
                 .build(holder, player);
     }
 

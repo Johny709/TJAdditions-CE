@@ -13,9 +13,12 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
+import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
 import tj.gui.widgets.PopUpWidgetGroup;
+import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJTextFieldWidget;
+import tj.items.TJMetaItems;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -54,7 +57,8 @@ public class CreativeEnergyCoverBehaviour implements IItemBehaviour, ItemUIFacto
         if (!compound.hasKey("amps"))
             compound.setLong("amps", 0);
         return ModularUI.builder(BORDERED_BACKGROUND, 176, 170)
-                .label(30, 4, "metaitem.creative.energy.cover.name")
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+                        .setItemLabel(TJMetaItems.CREATIVE_ENERGY_COVER.getStackForm()).setLocale("metaitem.creative.energy.cover.name"))
                 .widget(new ImageWidget(26, 40, 124, 18, DISPLAY))
                 .widget(new ToggleButtonWidget(7, 22, 18, 18, POWER_BUTTON, () -> compound.getBoolean("active"), b -> compound.setBoolean("active", !compound.getBoolean("active")))
                         .setTooltipText("machine.universal.toggle.run.mode"))

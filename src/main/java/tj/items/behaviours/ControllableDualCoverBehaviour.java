@@ -343,7 +343,7 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                 });
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 272)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setItemLabel(CONTROLLABLE_DUAL_COVERS[this.tier].getStackForm()).setLocale(String.format("metaitem.controllable_dual_cover.%s.name", GAValues.VN[this.tier].toLowerCase())))
+                        .setItemLabel(CONTROLLABLE_DUAL_COVERS[this.tier].getStackForm()).setItemLabel(CONTROLLABLE_DUAL_COVERS[this.tier].getStackForm()).setLocale(String.format("metaitem.controllable_dual_cover.%s.name", GAValues.VN[this.tier].toLowerCase())))
                 .widget(tabBuilder.build())
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 190, itemStack))
                 .bindOpenListener(() -> {

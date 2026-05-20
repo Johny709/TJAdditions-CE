@@ -15,6 +15,7 @@ import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
 import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJLabelWidget;
+import tj.items.TJMetaItems;
 import tj.items.covers.VoidMode;
 import tj.util.references.ObjectReference;
 
@@ -32,6 +33,8 @@ public class VoidAdvancedEnergyCoverBehaviour extends VoidEnergyCoverBehaviour i
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("voidFilter");
         final ObjectReference<VoidMode> voidMode = new ObjectReference<>(VoidMode.NORMAL);
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+                        .setItemLabel(TJMetaItems.VOID_ADVANCED_ENERGY_COVER.getStackForm()).setLocale("metaitem.void_energy_cover.name"))
                 .widget(new ToggleButtonWidget(7, 30, 18, 18, PLUS_BUTTON, () -> false, b -> compound.setLong("throughput", Math.max(1, Math.min(Long.MAX_VALUE, compound.getLong("throughput") * 2)))))
                 .widget(new ToggleButtonWidget(151, 30, 18, 18, MINUS_BUTTON, () -> false, b -> compound.setLong("throughput", Math.max(1, Math.min(Long.MAX_VALUE, compound.getLong("throughput") / 2)))))
                 .widget(new NewTextFieldWidget<>(27, 30, 119, 18, true, () -> String.valueOf(compound.getLong("throughout")), (text, id) -> compound.setLong("throughput", (long) Math.max(1, Math.min(Long.MAX_VALUE, Double.parseDouble(text)))))

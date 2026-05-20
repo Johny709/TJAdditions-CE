@@ -27,6 +27,7 @@ import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.SelectionWidgetGroup;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
+import tj.items.TJMetaItems;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -87,7 +88,7 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setLocale("cover.creative_fluid.title"))
+                        .setItemLabel(TJMetaItems.CREATIVE_FLUID_COVER.getStackForm()).setLocale("cover.creative_fluid.title"))
                 .widget(new ImageWidget(61, 80, 55, 18, GuiTextures.DISPLAY))
                 .widget(new AdvancedTextWidget(63, 85, textList -> textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", compound.getInteger("speed"))), 0xFFFFFF))
                 .widget(new ClickButtonWidget(43, 80, 18, 18, "+", onIncrement))

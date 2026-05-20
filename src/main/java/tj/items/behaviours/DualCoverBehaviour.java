@@ -278,7 +278,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                 });
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 272)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setItemLabel(DUAL_COVERS[this.tier].getStackForm()).setLocale(String.format("metaitem.dual_cover.%s.name", GAValues.VN[this.tier].toLowerCase())))
+                        .setItemLabel(DUAL_COVERS[this.tier].getStackForm()).setItemLabel(DUAL_COVERS[this.tier].getStackForm()).setLocale(String.format("metaitem.dual_cover.%s.name", GAValues.VN[this.tier].toLowerCase())))
                 .widget(tabBuilder.build())
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 190, itemStack))
                 .bindOpenListener(() -> {
