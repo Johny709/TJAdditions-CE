@@ -5,11 +5,13 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.ClickButtonWidget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.items.gui.ItemUIFactory;
 import gregtech.api.items.gui.PlayerInventoryHolder;
 import gregtech.api.items.metaitem.stats.IItemBehaviour;
 import gregtech.api.util.Position;
+import gregtech.api.util.function.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.resources.I18n;
@@ -27,6 +29,7 @@ import tj.gui.TJGuiUtils;
 import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
+import tj.util.references.BooleanReference;
 import tj.util.references.IntegerReference;
 
 import java.util.List;
@@ -64,10 +67,15 @@ public class VoidFluidCoverBehaviour implements IItemBehaviour, ItemUIFactory {
             }, fluidType::remove).setPutFluidsPredicate(fluid -> !fluidType.containsKey(fluid))
                     .setBackgroundTexture(GuiTextures.FLUID_SLOT));
         }
+        final BooleanReference isWorking = new BooleanReference();
         final IntegerReference tickTime = new IntegerReference(20);
         final BiConsumer<String, String> setTickTime = (text, id) -> {
             tickTime.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
             compound.setInteger("tickTime", tickTime.getValue());
+        };
+        final BooleanConsumer setWorking = working -> {
+            isWorking.setValue(working);
+            compound.setBoolean("isWorking", working);
         };
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
@@ -78,9 +86,13 @@ public class VoidFluidCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                         .setUpdateOnTyping(true))
                 .widget(new ClickButtonWidget(27, 7, 18, 18, "/2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() / 2), "")))
                 .widget(new ClickButtonWidget(135, 7, 18, 18, "*2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() * 2), "")))
+                .widget(new ToggleButtonWidget(151, 85, 18, 18, TJGuiTextures.POWER_BUTTON, isWorking::isValue, setWorking)
+                        .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(widgetGroup)
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 105, itemStack))
                 .bindOpenListener(() -> {
+                    if (compound.hasKey("isWorking"))
+                        isWorking.setValue(compound.getBoolean("isWorking"));
                     if (compound.hasKey("tickTime"))
                         tickTime.setValue(compound.getInteger("tickTime"));
                     for (int i = 0; i < fluidFilter.getTanks(); i++) {

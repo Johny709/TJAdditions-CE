@@ -9,6 +9,7 @@ import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.ClickButtonWidget;
 import gregtech.api.gui.widgets.CycleButtonWidget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
 import net.minecraft.entity.player.EntityPlayer;
@@ -91,6 +92,8 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
                         .setUpdateOnTyping(true))
                 .widget(new ClickButtonWidget(27, 7, 18, 18, "/2", data -> this.setTickTime(String.valueOf((long) this.tickTime / 2), "")))
                 .widget(new ClickButtonWidget(135, 7, 18, 18, "*2", data -> this.setTickTime(String.valueOf((long) this.tickTime * 2), "")))
+                .widget(new ToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isWorking, this::setWorking)
+                        .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 126)
