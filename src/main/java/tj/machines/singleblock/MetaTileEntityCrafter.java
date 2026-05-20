@@ -3,7 +3,6 @@ package tj.machines.singleblock;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -139,10 +138,10 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                 .setItemOutputSupplier(this.recipeLogic::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
-        return ModularUI.builder(BACKGROUND, 176, 216)
-                .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
-                .image(-28, 188, 26, 26, GuiTextures.BORDERED_BACKGROUND)
-                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
+        return ModularUI.builder(BORDERED_BACKGROUND, 176, 216)
+                .image(-28, 0, 26, 104, BORDERED_BACKGROUND)
+                .image(-28, 188, 26, 26, BORDERED_BACKGROUND)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
                         .setLocale("tj.multiblock.bars.energy", null)

@@ -2,6 +2,7 @@ package tj.mixin.gregtech;
 
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.FluidTankList;
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.gui.widgets.ProgressWidget;
@@ -78,7 +79,7 @@ public abstract class RecipeMapMixin implements IRecipeMap {
 
     @Override
     public ModularUI.Builder createUITemplateAdvanced(DoubleSupplier progressSupplier, IItemHandlerModifiable importItems, IItemHandlerModifiable exportItems, FluidTankList importFluids, FluidTankList exportFluids, RecipeOutputDisplayWidget displayWidget) {
-        ModularUI.Builder builder = ModularUI.defaultBuilder();
+        ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 166);
         builder.widget(new ProgressWidget(progressSupplier, 77, 22, 21, 20, this.progressBarTexture, this.moveType));
         this.addInventorySlotGroupAdvanced(builder, importItems, importFluids, false, displayWidget);
         this.addInventorySlotGroupAdvanced(builder, exportItems, exportFluids, true, displayWidget);

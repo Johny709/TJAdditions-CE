@@ -119,11 +119,11 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                 .setFluidOutputTankSupplier(this::getExportFluids);
         final TankWidget tankWidget = new TankWidget(this.importFluids.getTankAt(0), 69, 58, 18, 18)
                 .setHideTooltip(true).setAlwaysShowFull(true);
-        return ModularUI.defaultBuilder()
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 166)
                 .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
                 .image(-28, 120, 26, 44, GuiTextures.BORDERED_BACKGROUND)
                 .image(93, 168, 80, 26, GuiTextures.BORDERED_BACKGROUND)
-                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
                         .setLocale("tj.multiblock.bars.energy", null)

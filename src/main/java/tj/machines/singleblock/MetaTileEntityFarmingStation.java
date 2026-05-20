@@ -7,7 +7,6 @@ import gregtech.api.GTValues;
 import gregtech.api.capability.impl.FilteredFluidHandler;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
-import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.items.toolitem.ToolMetaItem;
@@ -142,10 +141,10 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                     .setBackgroundTexture(SLOT));
             scrollableWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 3), 18 * (i / 3), 18, 18, displayWidget::getItemOutputAt, null));
         }
-        return ModularUI.builder(GuiTextures.BACKGROUND, 176, 182)
-                .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
-                .image(-28, 154, 26, 26, GuiTextures.BORDERED_BACKGROUND)
-                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
+        return ModularUI.builder(BORDERED_BACKGROUND, 176, 182)
+                .image(-28, 0, 26, 104, BORDERED_BACKGROUND)
+                .image(-28, 154, 26, 26, BORDERED_BACKGROUND)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
                         .setLocale("tj.multiblock.bars.energy", null)
