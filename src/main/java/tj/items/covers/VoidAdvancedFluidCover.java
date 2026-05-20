@@ -16,6 +16,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJLabelWidget;
@@ -62,8 +63,12 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(63, 27, 54, 54);
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             final int index = i;
-            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.fluidFilter, null)
-                    .setBackgroundTexture(GuiTextures.FLUID_SLOT));
+            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.fluidFilter, fluid -> {
+                if (fluid == null) return;
+                this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
+                this.fluidFilter.getTankAt(index).fill(fluid, true);
+                this.fluidType.put(fluid, fluid);
+            }).setBackgroundTexture(GuiTextures.FLUID_SLOT));
             selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(0, -20, 54, 18, true, () -> String.valueOf(this.fluidFilter.getTankAt(index).getFluidAmount()), (text, id) -> {
                 FluidStack stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
                 if (stack == null) return;
@@ -87,21 +92,33 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
 
     @Override
     public void update() {
-        for (int i = 0; i < 9; i++) {
-            final FluidStack stack = this.fluidFilter.getTankAt(i).getFluid();
-            if (stack == null) continue;
-            switch (this.voidMode) {
-                case NORMAL:
-                case SUPPLY:
-                    this.fluidHandler.drain(stack, true);
-                    break;
-                case EXACT:
-                    final FluidStack stack1 = this.fluidHandler.drain(stack, false);
-                    if (stack1 != null && stack1.amount > stack.amount) {
-                        stack1.amount -= stack.amount;
-                        this.fluidHandler.drain(stack1, true);
-                    }
-            }
+        switch (this.voidMode) {
+            case SUPPLY:
+                for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
+                    final FluidStack fluidStack = fluidTankProperties.getContents();
+                    if (fluidStack == null) continue;
+                    final FluidStack filterStack = this.fluidType.get(fluidStack);
+                    if (filterStack == null) continue;
+                    this.fluidHandler.drain(filterStack, true);
+                }
+                break;
+            case EXACT:
+                for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
+                    final FluidStack fluidStack = fluidTankProperties.getContents();
+                    if (fluidStack == null) continue;
+                    final FluidStack filterStack = this.fluidType.get(fluidStack);
+                    if (filterStack != null && fluidStack.amount > filterStack.amount)
+                        fluidStack.amount = filterStack.amount;
+                }
+                break;
+            default:
+                for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
+                    final FluidStack fluidStack = fluidTankProperties.getContents();
+                    if (fluidStack == null) continue;
+                    final FluidStack filterStack = this.fluidType.get(fluidStack);
+                    if (filterStack != null)
+                        this.fluidHandler.drain(filterStack, true);
+                }
         }
     }
 

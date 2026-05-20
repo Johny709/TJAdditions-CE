@@ -13,6 +13,8 @@ import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -22,6 +24,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
@@ -32,14 +35,14 @@ import java.util.stream.IntStream;
 
 public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITickable {
 
+    protected Object2ObjectMap<FluidStack, FluidStack> fluidType = new Object2ObjectOpenHashMap<>();
     protected final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
             .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
             .collect(Collectors.toList()));
-    protected final IFluidHandler fluidHandler;
+    protected final IFluidHandler fluidHandler = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, this.attachedSide);
 
     public VoidFluidCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
-        this.fluidHandler = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, this.attachedSide);
     }
 
     @Override
@@ -75,12 +78,13 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             final int index = i;
             widgetGroup.addWidget(new TJPhantomFluidSlotWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18, i, this.fluidFilter, fluid -> {
-                if (fluid != null) {
-                    fluid.amount = Integer.MAX_VALUE;
-                    this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
-                    this.fluidFilter.getTankAt(index).fill(fluid, true);
-                }
-            }).setBackgroundTexture(GuiTextures.FLUID_SLOT));
+                if (fluid == null) return;
+                fluid.amount = Integer.MAX_VALUE;
+                this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
+                this.fluidFilter.getTankAt(index).fill(fluid, true);
+                this.fluidType.put(fluid, fluid);
+            }, this.fluidType::remove).setPutFluidsPredicate(fluid -> !this.fluidType.containsKey(fluid))
+                    .setBackgroundTexture(GuiTextures.FLUID_SLOT));
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
@@ -92,10 +96,12 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
 
     @Override
     public void update() {
-        for (int i = 0; i < 9; i++) {
-            final FluidStack stack = this.fluidFilter.getTankAt(i).getFluid();
-            if (stack != null)
-                this.fluidHandler.drain(stack, true);
+        for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
+            final FluidStack fluidStack = fluidTankProperties.getContents();
+            if (fluidStack == null) continue;
+            final FluidStack filterStack = this.fluidType.get(fluidStack);
+            if (filterStack != null)
+                this.fluidHandler.drain(filterStack, true);
         }
     }
 
@@ -109,5 +115,10 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
     public void readFromNBT(NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
         this.fluidFilter.deserializeNBT(tagCompound.getCompoundTag("fluidFilter"));
+        for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
+            final FluidStack stack = this.fluidFilter.getTankAt(i).getFluid();
+            if (stack == null) continue;
+            this.fluidType.put(stack, stack);
+        }
     }
 }

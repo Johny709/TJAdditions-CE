@@ -6,6 +6,8 @@ import gregtech.api.gui.widgets.CycleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.items.gui.PlayerInventoryHolder;
 import gregtech.api.util.Position;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,6 +19,7 @@ import tj.gui.widgets.impl.SelectionWidgetGroup;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.items.covers.VoidMode;
 import tj.items.handlers.LargeItemStackHandler;
+import tj.util.map.Strategies;
 import tj.util.references.ObjectReference;
 
 import java.util.regex.Pattern;
@@ -27,16 +30,19 @@ public class VoidAdvancedItemCoverBehaviour extends VoidItemCoverBehaviour {
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
         final ItemStack itemStack = player.getHeldItemMainhand();
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("voidFilter");
+        final Object2ObjectMap<ItemStack, ItemStack> itemType = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
         final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, Integer.MAX_VALUE);
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(63, 27));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(63, 27, 54, 54);
         for (int i = 0; i < itemFilter.getSlots(); i++) {
             final int index = i;
             widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, itemFilter, item -> {
-                if (!item.isEmpty())
+                if (!item.isEmpty()) {
                     compound.setTag("slot:" + index, item.serializeNBT());
-                else compound.removeTag("slot:" + index);
-            }).setBackgroundTextures(GuiTextures.SLOT));
+                    itemType.put(item, item);
+                } else compound.removeTag("slot:" + index);
+            }, itemType::remove).setPutItemsPredicate(item -> !itemType.containsKey(item))
+                    .setBackgroundTextures(GuiTextures.SLOT));
             selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(0, -20, 54, 18, true, () -> String.valueOf(itemFilter.getStackInSlot(index).getCount()), (text, id) -> {
                 ItemStack stack = itemFilter.extractItem(index, Integer.MAX_VALUE, true);
                 if (stack.isEmpty()) return;
@@ -64,8 +70,10 @@ public class VoidAdvancedItemCoverBehaviour extends VoidItemCoverBehaviour {
                     if (compound.hasKey("voidMode"))
                         voidMode.setValue(VoidMode.values()[compound.getInteger("voidMode")]);
                     for (int i = 0; i < itemFilter.getSlots(); i++) {
-                        if (compound.hasKey("slot:" + i))
+                        if (compound.hasKey("slot:" + i)) {
                             itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("slot:" + i)));
+                            itemType.put(itemFilter.getStackInSlot(i), itemFilter.getStackInSlot(i));
+                        }
                     }
                 }).bindCloseListener(() -> itemStack.getOrCreateSubCompound("voidFilter").merge(compound))
                 .build(holder, player);

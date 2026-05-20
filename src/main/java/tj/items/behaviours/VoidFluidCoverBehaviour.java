@@ -9,6 +9,8 @@ import gregtech.api.items.gui.ItemUIFactory;
 import gregtech.api.items.gui.PlayerInventoryHolder;
 import gregtech.api.items.metaitem.stats.IItemBehaviour;
 import gregtech.api.util.Position;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -42,17 +44,20 @@ public class VoidFluidCoverBehaviour implements IItemBehaviour, ItemUIFactory {
         final ItemStack itemStack = player.getHeldItemMainhand();
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("voidFilter");
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(53, 27));
-        final IMultipleTankHandler tanks = new FluidTankList(true, IntStream.range(0, 9)
+        final Object2ObjectMap<FluidStack, FluidStack> fluidType = new Object2ObjectOpenHashMap<>();
+        final IMultipleTankHandler fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
                 .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
                 .collect(Collectors.toList()));
-        for (int i = 0; i < tanks.getTanks(); i++) {
+        for (int i = 0; i < fluidFilter.getTanks(); i++) {
             final int index = i;
-            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18, i, tanks, fluid -> {
+            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18, i, fluidFilter, fluid -> {
                 if (fluid != null) {
                     fluid.amount = Integer.MAX_VALUE;
                     compound.setTag("slot:" + index, fluid.writeToNBT(new NBTTagCompound()));
+                    fluidType.put(fluid, fluid);
                 } else compound.removeTag("slot:" + index);
-            }).setBackgroundTexture(GuiTextures.FLUID_SLOT));
+            }, fluidType::remove).setPutFluidsPredicate(fluid -> !fluidType.containsKey(fluid))
+                    .setBackgroundTexture(GuiTextures.FLUID_SLOT));
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
@@ -60,9 +65,11 @@ public class VoidFluidCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                 .widget(widgetGroup)
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 105, itemStack))
                 .bindOpenListener(() -> {
-                    for (int i = 0; i < tanks.getTanks(); i++) {
-                        if (compound.hasKey("slot:" + i))
-                            tanks.getTankAt(i).fill(FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("slot:" + i)), true);
+                    for (int i = 0; i < fluidFilter.getTanks(); i++) {
+                        if (compound.hasKey("slot:" + i)) {
+                            fluidFilter.getTankAt(i).fill(FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("slot:" + i)), true);
+                            fluidType.put(fluidFilter.getTankAt(i).getFluid(), fluidFilter.getTankAt(i).getFluid());
+                        }
                     }
                 }).bindCloseListener(() -> itemStack.getOrCreateSubCompound("voidFilter").merge(compound))
                 .build(holder, player);

@@ -61,7 +61,10 @@ public class VoidAdvancedItemCover extends VoidItemCover {
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(63, 27, 54, 54);
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
             final int index = i;
-            widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilter)
+            widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilter, item -> {
+                if (item.isEmpty()) return;
+                this.itemType.put(item, item);
+            }, this.itemType::remove).setPutItemsPredicate(item -> !this.itemType.containsKey(item))
                     .setBackgroundTextures(GuiTextures.SLOT));
             selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(0, -20, 54, 18, true, () -> String.valueOf(this.itemFilter.getStackInSlot(index).getCount()), (text, id) -> {
                 ItemStack stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, true);
@@ -86,21 +89,29 @@ public class VoidAdvancedItemCover extends VoidItemCover {
 
     @Override
     public void update() {
-        ItemStack stack, stack1;
-        for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-            for (int j = 0; j < this.itemFilter.getSlots(); j++) {
-                if ((stack = this.itemHandler.getStackInSlot(i)).isItemEqual(stack1 = this.itemFilter.getStackInSlot(j))) {
-                    switch (this.voidMode) {
-                        case NORMAL: this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
-                            break;
-                        case SUPPLY: this.itemHandler.extractItem(i, stack1.getCount(), false);
-                            break;
-                        case EXACT:
-                            if (stack.getCount() > stack1.getCount())
-                                this.itemHandler.extractItem(i, stack.getCount() - stack1.getCount(), false);
-                    }
+        switch (this.voidMode) {
+            case SUPPLY:
+                for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+                    final ItemStack stack = this.itemHandler.getStackInSlot(i);
+                    if (stack.isEmpty() || !this.itemType.containsKey(stack)) continue;
+                    this.itemHandler.extractItem(i, stack.getCount(), false);
                 }
-            }
+                break;
+            case EXACT:
+                for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+                    final ItemStack stack = this.itemHandler.getStackInSlot(i);
+                    if (stack.isEmpty()) continue;
+                    final ItemStack filterStack = this.itemType.get(stack);
+                    if (filterStack != null && stack.getCount() > filterStack.getCount())
+                        this.itemHandler.extractItem(i, stack.getCount() - filterStack.getCount(), false);
+                }
+                break;
+            default:
+                for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+                    final ItemStack stack = this.itemHandler.getStackInSlot(i);
+                    if (stack.isEmpty() || !this.itemType.containsKey(stack)) continue;
+                    this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
+                }
         }
     }
 

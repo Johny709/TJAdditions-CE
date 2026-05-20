@@ -364,13 +364,19 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
         this.fluidFilter.deserializeNBT(tagCompound.getCompoundTag("fluidFilter"));
         this.itemFilterSlot.deserializeNBT(tagCompound.getCompoundTag("itemFilterSlot"));
         this.fluidFilterSlot.deserializeNBT(tagCompound.getCompoundTag("fluidFilterSlot"));
-        for (int i = 0; i < this.itemFilter.getSlots(); i++)
-            this.itemType.put(this.itemFilter.getStackInSlot(i), this.itemFilter.getStackInSlot(i));
-        for (int i = 0; i < this.fluidFilter.getTanks(); i++)
-            this.fluidType.put(this.fluidFilter.getTankAt(i).getFluid(), this.fluidFilter.getTankAt(i).getFluid());
         this.itemFilterType = FilterType.values()[tagCompound.getInteger("itemFilterType")];
         this.fluidFilterType = FilterType.values()[tagCompound.getInteger("fluidFilterType")];
         this.oreDictionaryItemFilter.readFromNBT(tagCompound.getCompoundTag("oreDictFilter"));
+        for (int i = 0; i < this.itemFilter.getSlots(); i++) {
+            final ItemStack stack = this.itemFilter.getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+            this.itemType.put(stack, stack);
+        }
+        for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
+            final FluidStack stack = this.fluidFilter.getTankAt(i).getFluid();
+            if (stack == null) continue;
+            this.fluidType.put(stack, stack);
+        }
     }
 
     protected void transferItems(IItemHandler itemHandler, IItemHandler destItemHandler) {

@@ -7,6 +7,8 @@ import gregtech.api.gui.widgets.CycleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.items.gui.PlayerInventoryHolder;
 import gregtech.api.util.Position;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -31,6 +33,7 @@ public class VoidAdvancedFluidCoverBehaviour extends VoidFluidCoverBehaviour {
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
         final ItemStack itemStack = player.getHeldItemMainhand();
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("voidFilter");
+        final Object2ObjectMap<FluidStack, FluidStack> fluidType = new Object2ObjectOpenHashMap<>();
         final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
                 .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
                 .collect(Collectors.toList()));
@@ -39,10 +42,12 @@ public class VoidAdvancedFluidCoverBehaviour extends VoidFluidCoverBehaviour {
         for (int i = 0; i < fluidFilter.getTanks(); i++) {
             final int index = i;
             widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, fluidFilter, fluid -> {
-                if (fluid != null)
+                if (fluid != null) {
                     compound.setTag("slot:" + index, fluid.writeToNBT(new NBTTagCompound()));
-                else compound.removeTag("slot:" + index);
-            }).setBackgroundTexture(GuiTextures.FLUID_SLOT));
+                    fluidType.put(fluid, fluid);
+                } else compound.removeTag("slot:" + index);
+            }, fluidType::remove).setPutFluidsPredicate(fluid -> !fluidType.containsKey(fluid))
+                    .setBackgroundTexture(GuiTextures.FLUID_SLOT));
             selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(0, -20, 54, 18, true, () -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount()), (text, id) -> {
                 FluidStack stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
                 if (stack == null) return;
@@ -71,8 +76,10 @@ public class VoidAdvancedFluidCoverBehaviour extends VoidFluidCoverBehaviour {
                     if (compound.hasKey("voidMode"))
                         voidMode.setValue(VoidMode.values()[compound.getInteger("voidMode")]);
                     for (int i = 0; i < fluidFilter.getTanks(); i++) {
-                        if (compound.hasKey("slot:" + i))
+                        if (compound.hasKey("slot:" + i)) {
                             fluidFilter.getTankAt(i).fill(FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("slot:" + i)), true);
+                            fluidType.put(fluidFilter.getTankAt(i).getFluid(), fluidFilter.getTankAt(i).getFluid());
+                        }
                     }
                 }).bindCloseListener(() -> itemStack.getOrCreateSubCompound("voidFilter").merge(compound))
                 .build(holder, player);

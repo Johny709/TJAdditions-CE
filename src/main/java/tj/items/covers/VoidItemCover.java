@@ -12,6 +12,8 @@ import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -24,15 +26,16 @@ import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
+import tj.util.map.Strategies;
 
 public class VoidItemCover extends CoverBehavior implements CoverWithUI, ITickable {
 
+    protected final Object2ObjectMap<ItemStack, ItemStack> itemType = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
     protected final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, Integer.MAX_VALUE);
-    protected final IItemHandler itemHandler;
+    protected final IItemHandler itemHandler = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.attachedSide);
 
     public VoidItemCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
-        this.itemHandler = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.attachedSide);
     }
 
     @Override
@@ -66,7 +69,10 @@ public class VoidItemCover extends CoverBehavior implements CoverWithUI, ITickab
     public ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(53, 27));
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
-            widgetGroup.addWidget(new TJPhantomItemSlotWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilter)
+            widgetGroup.addWidget(new TJPhantomItemSlotWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilter, item -> {
+                if (item.isEmpty()) return;
+                this.itemType.put(item, item);
+            }, this.itemType::remove).setPutItemsPredicate(item -> !this.itemType.containsKey(item))
                     .setBackgroundTextures(GuiTextures.SLOT));
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
@@ -80,10 +86,9 @@ public class VoidItemCover extends CoverBehavior implements CoverWithUI, ITickab
     @Override
     public void update() {
         for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-            for (int j = 0; j < this.itemFilter.getSlots(); j++) {
-                if (this.itemHandler.getStackInSlot(i).isItemEqual(this.itemFilter.getStackInSlot(j)))
-                    this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
-            }
+            final ItemStack stack = this.itemHandler.getStackInSlot(i);
+            if (stack.isEmpty() || !this.itemType.containsKey(stack)) continue;
+            this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
         }
     }
 
@@ -97,5 +102,10 @@ public class VoidItemCover extends CoverBehavior implements CoverWithUI, ITickab
     public void readFromNBT(NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
         this.itemFilter.deserializeNBT(tagCompound.getCompoundTag("itemFilter"));
+        for (int i = 0; i < this.itemFilter.getSlots(); i++) {
+            final ItemStack stack = this.itemFilter.getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+            this.itemType.put(stack, stack);
+        }
     }
 }
