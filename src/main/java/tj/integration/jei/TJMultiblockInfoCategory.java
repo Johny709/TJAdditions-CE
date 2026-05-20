@@ -150,7 +150,8 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("dragon_egg_replicator", new MultiblockInfoRecipeWrapper(new DragonReplicatorInfo()))
                             .put("chaos_replicator", new MultiblockInfoRecipeWrapper(new ChaosReplicatorInfo()))
                             .put("large_powered_spawner", new MultiblockInfoRecipeWrapper(new LargePoweredSpawnerInfo()))
-                            .put("large_vial_processor", new MultiblockInfoRecipeWrapper(new LargeVialProcessorInfo()));
+                            .put("large_vial_processor", new MultiblockInfoRecipeWrapper(new LargeVialProcessorInfo()))
+                            .put("multi_smelter", new MultiblockInfoRecipeWrapper(new TJMultiSmelterInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;
