@@ -11,6 +11,7 @@ import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.widgets.ClickButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -26,10 +27,12 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import tj.gui.TJGuiTextures;
+import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.textures.TJTextures;
 
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -40,6 +43,8 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
             .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
             .collect(Collectors.toList()));
     protected final IFluidHandler fluidHandler = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, this.attachedSide);
+    protected boolean isWorking;
+    protected int tickTime;
 
     public VoidFluidCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
@@ -53,9 +58,15 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
     @Override
     public void onAttached(ItemStack itemStack) {
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("voidFilter");
+        if (compound.hasKey("tickTime"))
+            this.tickTime = compound.getInteger("tickTime");
+        if (compound.hasKey("isWorking"))
+            this.isWorking = compound.getBoolean("isWorking");
         for (int i = 0; i < 9; i++) {
-            if (compound.hasKey("slot:" + i))
+            if (compound.hasKey("slot:" + i)) {
                 this.fluidFilter.getTankAt(i).fill(FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("slot:" + i)), true);
+                this.fluidType.put(this.fluidFilter.getTankAt(i).getFluid(), this.fluidFilter.getTankAt(i).getFluid());
+            }
         }
     }
 
@@ -89,6 +100,12 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("metaitem.void_fluid_cover.name"))
+                .widget(new NewTextFieldWidget<>(45, 7, 90, 18, true, () -> String.valueOf(this.tickTime), this::setTickTime)
+                        .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                        .setTooltipText("machine.universal.ticks.operation")
+                        .setUpdateOnTyping(true))
+                .widget(new ClickButtonWidget(27, 7, 18, 18, "/2", data -> this.setTickTime(String.valueOf((long) this.tickTime / 2), "")))
+                .widget(new ClickButtonWidget(135, 7, 18, 18, "*2", data -> this.setTickTime(String.valueOf((long) this.tickTime * 2), "")))
                 .widget(widgetGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
                 .build(this, player);
@@ -108,17 +125,26 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
     @Override
     public void writeToNBT(NBTTagCompound tagCompound) {
         super.writeToNBT(tagCompound);
+        tagCompound.setInteger("tickTime", this.tickTime);
+        tagCompound.setBoolean("isWorking", this.isWorking);
         tagCompound.setTag("fluidFilter", this.fluidFilter.serializeNBT());
     }
 
     @Override
     public void readFromNBT(NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
+        this.tickTime = Math.max(1, tagCompound.getInteger("tickTime"));
+        this.isWorking = tagCompound.getBoolean("isWorking");
         this.fluidFilter.deserializeNBT(tagCompound.getCompoundTag("fluidFilter"));
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             final FluidStack stack = this.fluidFilter.getTankAt(i).getFluid();
             if (stack == null) continue;
             this.fluidType.put(stack, stack);
         }
+    }
+
+    public void setTickTime(String text, String id) {
+        this.tickTime = (int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+        this.markAsDirty();
     }
 }

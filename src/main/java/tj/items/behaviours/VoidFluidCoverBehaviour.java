@@ -4,6 +4,7 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.widgets.ClickButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.items.gui.ItemUIFactory;
 import gregtech.api.items.gui.PlayerInventoryHolder;
@@ -23,10 +24,14 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
+import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
+import tj.util.references.IntegerReference;
 
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -59,12 +64,25 @@ public class VoidFluidCoverBehaviour implements IItemBehaviour, ItemUIFactory {
             }, fluidType::remove).setPutFluidsPredicate(fluid -> !fluidType.containsKey(fluid))
                     .setBackgroundTexture(GuiTextures.FLUID_SLOT));
         }
+        final IntegerReference tickTime = new IntegerReference(20);
+        final BiConsumer<String, String> setTickTime = (text, id) -> {
+            tickTime.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+            compound.setInteger("tickTime", tickTime.getValue());
+        };
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setLocale("metaitem.void_fluid_cover.name"))
+                .widget(new NewTextFieldWidget<>(45, 7, 90, 18, true, () -> String.valueOf(tickTime.getValue()), setTickTime)
+                        .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                        .setTooltipText("machine.universal.ticks.operation")
+                        .setUpdateOnTyping(true))
+                .widget(new ClickButtonWidget(27, 7, 18, 18, "/2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() / 2), "")))
+                .widget(new ClickButtonWidget(135, 7, 18, 18, "*2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() * 2), "")))
                 .widget(widgetGroup)
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 105, itemStack))
                 .bindOpenListener(() -> {
+                    if (compound.hasKey("tickTime"))
+                        tickTime.setValue(compound.getInteger("tickTime"));
                     for (int i = 0; i < fluidFilter.getTanks(); i++) {
                         if (compound.hasKey("slot:" + i)) {
                             fluidFilter.getTankAt(i).fill(FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("slot:" + i)), true);

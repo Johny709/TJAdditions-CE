@@ -2,6 +2,7 @@ package tj.items.behaviours;
 
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.widgets.ClickButtonWidget;
 import gregtech.api.gui.widgets.CycleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.items.gui.PlayerInventoryHolder;
@@ -20,8 +21,10 @@ import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.items.covers.VoidMode;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.util.map.Strategies;
+import tj.util.references.IntegerReference;
 import tj.util.references.ObjectReference;
 
+import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 public class VoidAdvancedItemCoverBehaviour extends VoidItemCoverBehaviour {
@@ -32,8 +35,8 @@ public class VoidAdvancedItemCoverBehaviour extends VoidItemCoverBehaviour {
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("voidFilter");
         final Object2ObjectMap<ItemStack, ItemStack> itemType = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
         final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, Integer.MAX_VALUE);
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(63, 27));
-        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(63, 27, 54, 54);
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(63, 48));
+        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(63, 48, 54, 54);
         for (int i = 0; i < itemFilter.getSlots(); i++) {
             final int index = i;
             widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, itemFilter, item -> {
@@ -60,13 +63,26 @@ public class VoidAdvancedItemCoverBehaviour extends VoidItemCoverBehaviour {
             compound.setInteger("voidMode", value.ordinal());
             voidMode.setValue(value);
         }));
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
+        final IntegerReference tickTime = new IntegerReference(20);
+        final BiConsumer<String, String> setTickTime = (text, id) -> {
+            tickTime.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+            compound.setInteger("tickTime", tickTime.getValue());
+        };
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 208)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setLocale("metaitem.void_advanced_item_cover.name"))
+                .widget(new NewTextFieldWidget<>(45, 7, 90, 18, true, () -> String.valueOf(tickTime.getValue()), setTickTime)
+                        .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                        .setTooltipText("machine.universal.ticks.operation")
+                        .setUpdateOnTyping(true))
+                .widget(new ClickButtonWidget(27, 7, 18, 18, "/2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() / 2), "")))
+                .widget(new ClickButtonWidget(135, 7, 18, 18, "*2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() * 2), "")))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
-                .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 105, itemStack))
+                .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 126, itemStack))
                 .bindOpenListener(() -> {
+                    if (compound.hasKey("tickTime"))
+                        tickTime.setValue(compound.getInteger("tickTime"));
                     if (compound.hasKey("voidMode"))
                         voidMode.setValue(VoidMode.values()[compound.getInteger("voidMode")]);
                     for (int i = 0; i < itemFilter.getSlots(); i++) {

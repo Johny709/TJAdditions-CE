@@ -7,6 +7,7 @@ import codechicken.lib.vec.Matrix4;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.widgets.ClickButtonWidget;
 import gregtech.api.gui.widgets.CycleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
@@ -59,8 +60,8 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(63, 27));
-        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(63, 27, 54, 54);
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(63, 48));
+        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(63, 48, 54, 54);
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             final int index = i;
             widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.fluidFilter, fluid -> {
@@ -81,44 +82,52 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
         widgetGroup.addWidget(new CycleButtonWidget(0, 54, 54, 54, VoidMode.class, () -> this.voidMode, this::setVoidMode));
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 208)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("metaitem.void_advanced_item_cover.name"))
+                .widget(new NewTextFieldWidget<>(45, 7, 90, 18, true, () -> String.valueOf(this.tickTime), this::setTickTime)
+                        .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                        .setTooltipText("machine.universal.ticks.operation")
+                        .setUpdateOnTyping(true))
+                .widget(new ClickButtonWidget(27, 7, 18, 18, "/2", data -> this.setTickTime(String.valueOf((long) this.tickTime / 2), "")))
+                .widget(new ClickButtonWidget(135, 7, 18, 18, "*2", data -> this.setTickTime(String.valueOf((long) this.tickTime * 2), "")))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
-                .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
+                .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 126)
                 .build(this, player);
     }
 
     @Override
     public void update() {
-        switch (this.voidMode) {
-            case SUPPLY:
-                for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
-                    final FluidStack fluidStack = fluidTankProperties.getContents();
-                    if (fluidStack == null) continue;
-                    final FluidStack filterStack = this.fluidType.get(fluidStack);
-                    if (filterStack == null) continue;
-                    this.fluidHandler.drain(filterStack, true);
-                }
-                break;
-            case EXACT:
-                for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
-                    final FluidStack fluidStack = fluidTankProperties.getContents();
-                    if (fluidStack == null) continue;
-                    final FluidStack filterStack = this.fluidType.get(fluidStack);
-                    if (filterStack != null && fluidStack.amount > filterStack.amount)
-                        fluidStack.amount = filterStack.amount;
-                }
-                break;
-            default:
-                for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
-                    final FluidStack fluidStack = fluidTankProperties.getContents();
-                    if (fluidStack == null) continue;
-                    final FluidStack filterStack = this.fluidType.get(fluidStack);
-                    if (filterStack != null)
+        if (this.isWorking && this.coverHolder.getOffsetTimer() % this.tickTime == 0) {
+            switch (this.voidMode) {
+                case SUPPLY:
+                    for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
+                        final FluidStack fluidStack = fluidTankProperties.getContents();
+                        if (fluidStack == null) continue;
+                        final FluidStack filterStack = this.fluidType.get(fluidStack);
+                        if (filterStack == null) continue;
                         this.fluidHandler.drain(filterStack, true);
-                }
+                    }
+                    break;
+                case EXACT:
+                    for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
+                        final FluidStack fluidStack = fluidTankProperties.getContents();
+                        if (fluidStack == null) continue;
+                        final FluidStack filterStack = this.fluidType.get(fluidStack);
+                        if (filterStack != null && fluidStack.amount > filterStack.amount)
+                            fluidStack.amount = filterStack.amount;
+                    }
+                    break;
+                default:
+                    for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
+                        final FluidStack fluidStack = fluidTankProperties.getContents();
+                        if (fluidStack == null) continue;
+                        final FluidStack filterStack = this.fluidType.get(fluidStack);
+                        if (filterStack != null)
+                            this.fluidHandler.drain(filterStack, true);
+                    }
+            }
         }
     }
 
