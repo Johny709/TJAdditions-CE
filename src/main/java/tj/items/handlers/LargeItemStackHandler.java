@@ -29,20 +29,24 @@ public class LargeItemStackHandler extends ItemStackHandler {
         return this.capacity;
     }
 
+    @Override
+    @Nonnull
+    public ItemStack getStackInSlot(int slot) {
+        return this.stacks.get(slot);
+    }
+
     @Nonnull
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
         if (amount == 0)
             return ItemStack.EMPTY;
 
-        this.validateSlotIndex(slot);
-
-        ItemStack existing = this.stacks.get(slot);
+        final ItemStack existing = this.stacks.get(slot);
 
         if (existing.isEmpty())
             return ItemStack.EMPTY;
 
-        int toExtract = Math.min(amount, this.capacity);
+        final int toExtract = Math.min(amount, this.capacity);
 
         if (existing.getCount() <= toExtract) {
             if (!simulate) {
