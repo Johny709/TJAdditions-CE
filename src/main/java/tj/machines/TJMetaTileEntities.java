@@ -10,6 +10,7 @@ import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import net.minecraft.util.ResourceLocation;
 import tj.TJ;
+import tj.machines.multi.steam.MetaTileEntitySteamGrinder;
 import tj.machines.multi.electric.*;
 import tj.machines.multi.parallel.*;
 import tj.machines.multi.steam.*;
@@ -154,6 +155,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityLargeNuclearReactor LARGE_NUCLEAR_REACTOR;
     public static MetaTileEntityTJMultiSmelter MULTI_SMELTER;
     public static MetaTileEntitySteamOven STEAM_OVEN;
+    public static MetaTileEntitySteamGrinder STEAM_GRINDER;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -320,6 +322,7 @@ public class TJMetaTileEntities {
         LARGE_NUCLEAR_REACTOR = GregTechAPI.registerMetaTileEntity(5531, new MetaTileEntityLargeNuclearReactor(TJId("large_nuclear_reactor")));
         MULTI_SMELTER = GregTechAPI.registerMetaTileEntity(5532, new MetaTileEntityTJMultiSmelter(TJId("multi_smelter")));
         STEAM_OVEN = GregTechAPI.registerMetaTileEntity(5533, new MetaTileEntitySteamOven(TJId("steam_oven")));
+        STEAM_GRINDER = GregTechAPI.registerMetaTileEntity(5534, new MetaTileEntitySteamGrinder(TJId("steam_grinder")));
 
         // append tiers to existing hatches
         MetaTileEntities.ITEM_IMPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_IMPORT_BUS, 15);

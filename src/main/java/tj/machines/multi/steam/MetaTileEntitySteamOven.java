@@ -202,7 +202,8 @@ public class MetaTileEntitySteamOven extends TJMultiblockControllerBase implemen
     @Override
     public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
         bars.add(bar -> bar.setProgress(this::getSteamAmount).setMaxProgress(this::getSteamCapacity)
-                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new Object[]{this.workableHandler.getSteam() != null ? this.workableHandler.getSteam() : ""}));
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new String[]{this.workableHandler.getSteam() != null ? this.workableHandler.getSteam().getLocalizedName() : ""})
+                .setFluidStackSupplier(this.workableHandler::getSteam));
     }
 
     private long getSteamAmount() {
