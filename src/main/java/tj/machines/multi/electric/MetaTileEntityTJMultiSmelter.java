@@ -4,6 +4,9 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
+import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.ToggleButtonWidget;
+import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -23,15 +26,18 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.capability.impl.handler.ICoilHandler;
 import tj.capability.impl.workable.MultiSmelterWorkableHandler;
+import tj.gui.TJGuiTextures;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 import tj.util.TJUtility;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
@@ -63,9 +69,44 @@ public class MetaTileEntityTJMultiSmelter extends TJMultiblockControllerBase imp
     }
 
     @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        return abilities.containsKey(INPUT_ENERGY) && abilities.containsKey(IMPORT_ITEMS) && abilities.containsKey(EXPORT_ITEMS) && super.checkStructureComponents(parts, abilities);
+    }
+
+    @Override
+    protected boolean shouldUpdate(MTETrait trait) {
+        return false;
+    }
+
+    @Override
     protected void updateFormedValid() {
         if (((this.getProblems() >> 5) & 1) != 0)
             this.workableHandler.update();
+    }
+
+    @Override
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        if (!this.hasDistinct()) return;
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this.workableHandler::isDistinct, this.workableHandler::setDistinct)
+                .setTooltipText("machine.universal.toggle.distinct.mode"));
+    }
+
+    @Override
+    protected void addDisplayText(GUIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        builder.addVoltageInLine(this.inputEnergyContainer)
+                .addVoltageTierLine(this.tier)
+                .addEnergyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
+                .addParallelLine(this.workableHandler.getParallelsPerformed(), this.getParallel())
+                .addTranslationLine("gregtech.multiblock.multi_furnace.heating_coil_level", this.coilLevel)
+                .addTranslationLine("gregtech.multiblock.multi_furnace.heating_coil_discount", this.coilEnergyDiscount)
+                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.hasProblem(), 998)
+                .addRecipeInputLine(this.workableHandler, 999)
+                .addRecipeOutputLine(this.workableHandler, 1000);
+        if (this.hasDistinct())
+            builder.addDistinctLine(this.workableHandler.isDistinct(), 997);
     }
 
     @Override
@@ -109,7 +150,7 @@ public class MetaTileEntityTJMultiSmelter extends TJMultiblockControllerBase imp
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive());
+        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
         TJTextures.TJ_LOGO.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
         TJTextures.TJ_LOGO.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
     }
