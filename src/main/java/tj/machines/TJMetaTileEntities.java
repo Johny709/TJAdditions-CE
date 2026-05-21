@@ -153,6 +153,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityLargeGasCentrifuge LARGE_GAS_CENTRIFUGE;
     public static MetaTileEntityLargeNuclearReactor LARGE_NUCLEAR_REACTOR;
     public static MetaTileEntityTJMultiSmelter MULTI_SMELTER;
+    public static MetaTileEntitySteamOven STEAM_OVEN;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -318,6 +319,7 @@ public class TJMetaTileEntities {
         LARGE_GAS_CENTRIFUGE = GregTechAPI.registerMetaTileEntity(5530, new MetaTileEntityLargeGasCentrifuge(TJId("large_gas_centrifuge")));
         LARGE_NUCLEAR_REACTOR = GregTechAPI.registerMetaTileEntity(5531, new MetaTileEntityLargeNuclearReactor(TJId("large_nuclear_reactor")));
         MULTI_SMELTER = GregTechAPI.registerMetaTileEntity(5532, new MetaTileEntityTJMultiSmelter(TJId("multi_smelter")));
+        STEAM_OVEN = GregTechAPI.registerMetaTileEntity(5533, new MetaTileEntitySteamOven(TJId("steam_oven")));
 
         // append tiers to existing hatches
         MetaTileEntities.ITEM_IMPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_IMPORT_BUS, 15);
