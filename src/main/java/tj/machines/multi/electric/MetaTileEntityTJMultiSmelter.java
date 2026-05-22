@@ -184,4 +184,14 @@ public class MetaTileEntityTJMultiSmelter extends TJMultiblockControllerBase imp
     public RecipeMap<?> getRecipeMap() {
         return RecipeMaps.FURNACE_RECIPES;
     }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return this.workableHandler.isWorkingEnabled();
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean isActivationAllowed) {
+        this.workableHandler.setWorkingEnabled(isActivationAllowed);
+    }
 }
