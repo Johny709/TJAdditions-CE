@@ -42,6 +42,7 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
     private long energyRate = Long.MAX_VALUE;
     private long voltage;
     private long amps;
+    private int ticks = 1;
 
     public CreativeEnergyCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
@@ -60,15 +61,15 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
 
     @Override
     public void update() {
-        if (!this.isActive)
-            return;
-        if (this.isDraining) {
-            this.energyContainer.removeEnergy(this.simulateVoltage ? this.voltage * this.amps : this.energyRate);
-            return;
+        if (this.isActive && this.coverHolder.getOffsetTimer() % this.ticks == 0) {
+            if (this.isDraining) {
+                this.energyContainer.removeEnergy(this.simulateVoltage ? this.voltage * this.amps : this.energyRate);
+                return;
+            }
+            if (this.simulateVoltage) {
+                this.energyContainer.acceptEnergyFromNetwork(this.attachedSide, this.voltage, this.amps);
+            } else this.energyContainer.addEnergy(this.energyRate);
         }
-        if (this.simulateVoltage)
-            this.energyContainer.acceptEnergyFromNetwork(this.attachedSide, this.voltage, this.amps);
-        else this.energyContainer.addEnergy(this.energyRate);
     }
 
     @Override
@@ -85,10 +86,10 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJMetaItems.CREATIVE_ENERGY_COVER.getStackForm()).setLocale("metaitem.creative.energy.cover.name"))
                 .widget(new ImageWidget(26, 40, 124, 18, DISPLAY))
-                .widget(new ToggleButtonWidget(7, 22, 18, 18, POWER_BUTTON, this::isActive, this::setActive)
+                .widget(new ToggleButtonWidget(7, 22, 18, 18, POWER_BUTTON, () -> this.isActive, this::setActive)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(26, 22, 124, 18, this::getSimulateVoltage, this::setSimulateVoltage))
-                .widget(new CycleButtonWidget(151, 22, 18, 18, this::isDraining, this::setDraining, "machine.universal.mode.transfer.in", "machine.universal.mode.transfer.out"))
+                .widget(new CycleButtonWidget(151, 22, 18, 18, () -> this.isDraining, this::setDraining, "machine.universal.mode.transfer.in", "machine.universal.mode.transfer.out"))
                 .widget(new PopUpWidgetGroup(7, 40, 162, 40)
                         .addWidgets(new TJTextFieldWidget(24, 5, 119, 12, false, this::getEnergyRate, this::setEnergyRate)
                                 .setTooltipText("metaitem.creative_energy_cover.set.energy_rate")
@@ -119,7 +120,7 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
 
     @Override
     public void onAttached(ItemStack itemStack) {
-        NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
+        final NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
         if (compound.hasKey("simulateVoltage"))
             this.simulateVoltage = compound.getBoolean("simulateVoltage");
         if (compound.hasKey("draining"))
@@ -139,17 +140,9 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
         this.markAsDirty();
     }
 
-    private boolean isActive() {
-        return this.isActive;
-    }
-
     private void setDraining(boolean isDraining) {
         this.isDraining = isDraining;
         this.markAsDirty();
-    }
-
-    private boolean isDraining() {
-        return this.isDraining;
     }
 
     private void setSimulateVoltage(boolean simulateVoltage) {
@@ -197,6 +190,7 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
         data.setLong("energyRate", this.energyRate);
         data.setLong("voltage", this.voltage);
         data.setLong("amps", this.amps);
+        data.setInteger("ticks", this.ticks);
     }
 
     @Override
@@ -206,6 +200,7 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
         this.isDraining = data.getBoolean("isDraining");
         this.voltage = data.getLong("voltage");
         this.amps = data.getLong("amps");
+        this.ticks = Math.max(1, data.getInteger("ticks"));
         if (data.hasKey("energyRate"))
             this.energyRate = data.getLong("energyRate");
         if (data.hasKey("isActive"))

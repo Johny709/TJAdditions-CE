@@ -47,7 +47,6 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
     private final IFluidHandler fluidHandler;
     private boolean isWorking;
     private int speed = 1;
-    private long timer = 1L;
 
     public CreativeFluidCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
@@ -123,7 +122,7 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
 
     @Override
     public void update() {
-        if (this.isWorking && this.timer++ % this.speed == 0) {
+        if (this.isWorking && this.coverHolder.getOffsetTimer() % this.speed == 0) {
             for (int index = 0; index < 9; index++) {
                 final FluidStack fluid = this.fluidFilter.getTankAt(index).getFluid();
                 if (fluid != null) {

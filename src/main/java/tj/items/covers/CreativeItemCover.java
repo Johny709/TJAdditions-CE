@@ -43,7 +43,6 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
     private final IItemHandler itemHandler;
     private boolean isWorking;
     private int speed = 1;
-    private long timer = 1L;
 
     public CreativeItemCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
@@ -119,7 +118,7 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
 
     @Override
     public void update() {
-        if (this.isWorking && ++this.timer % this.speed == 0) {
+        if (this.isWorking && this.coverHolder.getOffsetTimer() % this.speed == 0) {
             for (int i = 0; i < 9; i++) {
                 final ItemStack filterStack = this.itemFilter.getStackInSlot(i).copy();
                 TJItemUtils.insertIntoItemHandler(this.itemHandler, filterStack, false);

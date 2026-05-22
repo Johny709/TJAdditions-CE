@@ -169,12 +169,12 @@ public class MetaTileEntityCreativeEnergyHatch extends GAMetaTileEntityMultibloc
     }
 
     public void setInputVoltage(String text, String id) {
-        this.inputVoltage = Math.max(0, Math.min(4294967295L, Long.parseLong(text)));
+        this.inputVoltage = Math.max(0, Math.min(2147483648L, Long.parseLong(text)));
         this.markDirty();
     }
 
     public void setInputAmps(String text, String id) {
-        this.inputAmps = Math.max(0, Math.min(2147483648L, Long.parseLong(text)));
+        this.inputAmps = Math.max(0, Math.min(4294967295L, Long.parseLong(text)));
         this.markDirty();
     }
 }
