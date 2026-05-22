@@ -115,8 +115,13 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
                     return;
                 buttonId = !contains || actionResult == EnumActionResult.SUCCESS ? buttonId : String.valueOf(index);
             }
+            final int lastIndex = this.selectedIndex;
             this.selectedIndex = Integer.parseInt(buttonId);
-            this.writeUpdateInfo(2, buffer -> buffer.writeInt(this.selectedIndex));
+            this.updateWidgets(lastIndex, this.selectedIndex);
+            this.writeUpdateInfo(2, buffer -> {
+                buffer.writeInt(lastIndex);
+                buffer.writeInt(this.selectedIndex);
+            });
         } catch (NumberFormatException e) {
             GTLog.logger.info(e.getMessage());
         }
