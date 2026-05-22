@@ -12,7 +12,6 @@ import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.CycleButtonWidget;
-import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,16 +20,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.PopUpWidgetGroup;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJTextFieldWidget;
+import tj.gui.widgets.*;
 import tj.items.TJMetaItems;
 import tj.textures.TJTextures;
 
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
-import static gregtech.api.gui.GuiTextures.DISPLAY;
 import static tj.gui.TJGuiTextures.*;
 
 public class CreativeEnergyCover extends CoverBehavior implements ITickable, CoverWithUI {
@@ -40,8 +36,8 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
     private boolean isDraining;
     private boolean isActive = true;
     private long energyRate = Long.MAX_VALUE;
-    private long voltage;
-    private long amps;
+    private long voltage = 32;
+    private long amps = 1;
     private int ticks = 1;
 
     public CreativeEnergyCover(ICoverable coverHolder, EnumFacing attachedSide) {
@@ -85,36 +81,53 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
                 .bindPlayerInventory(player.inventory, 90)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJMetaItems.CREATIVE_ENERGY_COVER.getStackForm()).setLocale("metaitem.creative.energy.cover.name"))
-                .widget(new ImageWidget(26, 40, 124, 18, DISPLAY))
-                .widget(new ToggleButtonWidget(7, 22, 18, 18, POWER_BUTTON, () -> this.isActive, this::setActive)
+                .widget(new NewTextFieldWidget<>(26, 7, 124, 18, true, () -> String.valueOf(this.ticks), this::setTicks)
+                        .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                        .setTooltipText("machine.universal.ticks.operation")
+                        .setUpdateOnTyping(true))
+                .widget(new ToggleButtonWidget(7, 7, 18, 18, MINUS_BUTTON, () -> false, minus -> this.setTicks(String.valueOf((long) this.ticks - 1), "")))
+                .widget(new ToggleButtonWidget(151, 7, 18, 18, PLUS_BUTTON, () -> false, plus -> this.setTicks(String.valueOf((long) this.ticks + 1), "")))
+                .widget(new ToggleButtonWidget(7, 27, 18, 18, POWER_BUTTON, () -> this.isActive, this::setActive)
                         .setTooltipText("machine.universal.toggle.run.mode"))
-                .widget(new ToggleButtonWidget(26, 22, 124, 18, this::getSimulateVoltage, this::setSimulateVoltage))
-                .widget(new CycleButtonWidget(151, 22, 18, 18, () -> this.isDraining, this::setDraining, "machine.universal.mode.transfer.in", "machine.universal.mode.transfer.out"))
-                .widget(new PopUpWidgetGroup(7, 40, 162, 40)
-                        .addWidgets(new TJTextFieldWidget(24, 5, 119, 12, false, this::getEnergyRate, this::setEnergyRate)
-                                .setTooltipText("metaitem.creative_energy_cover.set.energy_rate")
-                                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()))
-                        .addWidgets(new ToggleButtonWidget(0, 0, 18, 18, PLUS_BUTTON, () -> false, (plus) -> this.energyRate = Math.max(1, this.energyRate * 2)))
-                        .addWidgets(new ToggleButtonWidget(144, 0, 18, 18, MINUS_BUTTON, () -> false, (minus) -> this.energyRate = Math.max(1, this.energyRate / 2)))
-                        .addWidgets(new ToggleButtonWidget(144, 18, 18, 18, RESET_BUTTON, () -> false, (reset) -> this.energyRate = Long.MAX_VALUE)
-                                .setTooltipText("machine.universal.toggle.reset"))
-                        .addWidgets(new LabelWidget(25, -13, "metaitem.creative_energy_cover.simulate_voltage", false))
-                        .setPredicate(this::getSimulateVoltage))
-                .widget(new PopUpWidgetGroup(7, 40, 162, 40)
-                        .addWidgets(new ImageWidget(19, 18, 124, 18, DISPLAY))
-                        .addWidgets(new TJTextFieldWidget(24, 5, 119, 12, false, this::getVoltage, this::setVoltage)
-                                .setTooltipText("metaitem.creative_energy_cover.set.voltage")
-                                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()))
-                        .addWidgets(new TJTextFieldWidget(24, 23, 119, 12, false, this::getAmps, this::setAmps)
-                                .setTooltipText("metaitem.creative_energy_cover.set.amps")
-                                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches()))
-                        .addWidgets(new ToggleButtonWidget(0, 0, 18, 18, PLUS_BUTTON, () -> false, (plus) -> this.voltage = Math.max(1, this.voltage * 2)))
-                        .addWidgets(new ToggleButtonWidget(144, 0, 18, 18, MINUS_BUTTON, () -> false, (minus) -> this.voltage = Math.max(1, this.voltage / 2)))
-                        .addWidgets(new ToggleButtonWidget(0, 18, 18, 18, PLUS_BUTTON, () -> false, (plus) -> this.amps = Math.max(1, this.amps * 2)))
-                        .addWidgets(new ToggleButtonWidget(144, 18, 18, 18, MINUS_BUTTON, () -> false, (minus) -> this.amps = Math.max(1, this.amps / 2)))
-                        .addWidgets(new LabelWidget(25, -13, "metaitem.creative_energy_cover.simulate_voltage", true))
-                        .setPredicate(this::getSimulateVoltage)
-                        .setInverted())
+                .widget(new ToggleButtonWidget(26, 27, 124, 18, () -> this.simulateVoltage, this::setSimulateVoltage))
+                .widget(new CycleButtonWidget(151, 27, 18, 18, () -> this.isDraining, this::setDraining, "machine.universal.mode.transfer.in", "machine.universal.mode.transfer.out"))
+                .widget(new PopUpWidget<>()
+                        .setClickToDefault(false)
+                        .setIndexSupplier(() -> this.simulateVoltage ? 1 : 0)
+                        .addPopup(widgetGroup -> {
+                            widgetGroup.addWidget(new NewTextFieldWidget<>(26, 45, 124, 18, true, () -> String.valueOf(this.energyRate), this::setEnergyRate)
+                                    .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                                    .setBackgroundText("metaitem.creative_energy_cover.set.energy_rate")
+                                    .setTooltipText("metaitem.creative_energy_cover.set.energy_rate")
+                                    .setUpdateOnTyping(true));
+                            widgetGroup.addWidget(new ToggleButtonWidget(7, 45, 18, 18, MINUS_BUTTON, () -> false, minus -> this.setEnergyRate(String.valueOf((double) this.energyRate / 2), "")));
+                            widgetGroup.addWidget(new ToggleButtonWidget(151, 45, 18, 18, PLUS_BUTTON, () -> false, plus -> this.setEnergyRate(String.valueOf((double) this.energyRate * 2), "")));
+                            widgetGroup.addWidget(new ToggleButtonWidget(151, 63, 18, 18, RESET_BUTTON, () -> false, reset -> this.setEnergyRate(String.valueOf(Long.MAX_VALUE), ""))
+                                    .setTooltipText("machine.universal.toggle.reset"));
+                            widgetGroup.addWidget(new LabelWidget(32, 32, "metaitem.creative_energy_cover.simulate_voltage", false));
+                            return false;
+                        }).addPopup(widgetGroup -> false))
+                .widget(new PopUpWidget<>()
+                        .setClickToDefault(false)
+                        .setIndexSupplier(() -> this.simulateVoltage ? 0 : 1)
+                        .addPopup(widgetGroup -> {
+                            widgetGroup.addWidget(new NewTextFieldWidget<>(26, 45, 124, 18, true, () -> String.valueOf(this.voltage), this::setVoltage)
+                                    .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                                    .setBackgroundText("metaitem.creative_energy_cover.set.voltage")
+                                    .setTooltipText("metaitem.creative_energy_cover.set.voltage")
+                                    .setUpdateOnTyping(true));
+                            widgetGroup.addWidget(new NewTextFieldWidget<>(26, 63, 124, 18, true, () -> String.valueOf(this.amps), this::setAmps)
+                                    .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                                    .setBackgroundText("metaitem.creative_energy_cover.set.amps")
+                                    .setTooltipText("metaitem.creative_energy_cover.set.amps")
+                                    .setUpdateOnTyping(true));
+                            widgetGroup.addWidget(new ToggleButtonWidget(7, 45, 18, 18, MINUS_BUTTON, () -> false, minus -> this.setVoltage(String.valueOf(this.voltage / 2), "")));
+                            widgetGroup.addWidget(new ToggleButtonWidget(151, 45, 18, 18, PLUS_BUTTON, () -> false, plus -> this.setVoltage(String.valueOf(this.voltage * 2), "")));
+                            widgetGroup.addWidget(new ToggleButtonWidget(7, 63, 18, 18, MINUS_BUTTON, () -> false, minus -> this.setAmps(String.valueOf(this.amps / 2), "")));
+                            widgetGroup.addWidget(new ToggleButtonWidget(151, 63, 18, 18, PLUS_BUTTON, () -> false, plus -> this.setAmps(String.valueOf(this.amps * 2), "")));
+                            widgetGroup.addWidget(new LabelWidget(32, 32, "metaitem.creative_energy_cover.simulate_voltage", true));
+                            return false;
+                        }).addPopup(widgetGroup -> false))
                 .build(this, player);
     }
 
@@ -133,6 +146,8 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
             this.voltage = compound.getLong("voltage");
         if (compound.hasKey("amps"))
             this.amps = compound.getLong("amps");
+        if (compound.hasKey("ticks"))
+            this.ticks = compound.getInteger("ticks");
     }
 
     private void setActive(boolean isActive) {
@@ -150,35 +165,24 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
         this.markAsDirty();
     }
 
-    private boolean getSimulateVoltage() {
-        return this.simulateVoltage;
-    }
-
-    private void setEnergyRate(String energyRate) {
-        this.energyRate = Long.parseLong(energyRate);
+    private void setEnergyRate(String text, String id) {
+        this.energyRate = (long) Math.max(0, Math.min(Long.MAX_VALUE, Double.parseDouble(text)));
         this.markAsDirty();
     }
 
-    private String getEnergyRate() {
-        return String.valueOf(this.energyRate);
-    }
-
-    private void setVoltage(String voltage) {
-        this.voltage = Long.parseLong(voltage);
+    private void setVoltage(String text, String id) {
+        this.voltage = Math.max(0, Math.min(2147483648L, Long.parseLong(text)));
         this.markAsDirty();
     }
 
-    private String getVoltage() {
-        return String.valueOf(this.voltage);
-    }
-
-    private void setAmps(String amps) {
-        this.amps = Long.parseLong(amps);
+    private void setAmps(String text, String id) {
+        this.amps = Math.max(0, Math.min(4294967295L, Long.parseLong(text)));
         this.markAsDirty();
     }
 
-    private String getAmps() {
-        return String.valueOf(this.amps);
+    private void setTicks(String text, String id) {
+        this.ticks = (int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+        this.markAsDirty();
     }
 
     @Override

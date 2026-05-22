@@ -32,6 +32,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     protected AdoptableTextureArea textureArea;
     protected IntSupplier indexSupplier;
     protected int selectedIndex;
+    protected boolean clickToDefault = true;
 
     public PopUpWidget() {
         this(0, 0, 0, 0);
@@ -66,6 +67,15 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
      */
     public R setIndexSupplier(IntSupplier indexSupplier) {
         this.indexSupplier = indexSupplier;
+        return (R) this;
+    }
+
+    /**
+     * Sets the popup index back to zero if clicked outside of popup boundaries.
+     * Default: True.
+     */
+    public R setClickToDefault(boolean clickToDefault) {
+        this.clickToDefault = clickToDefault;
         return (R) this;
     }
 
@@ -148,7 +158,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (this.selectedIndex != 0 && !this.isMouseOverElements(this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getValue(), mouseX, mouseY)) {
+        if (this.clickToDefault && this.selectedIndex != 0 && !this.isMouseOverElements(this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getValue(), mouseX, mouseY)) {
             final int lastIndex = this.selectedIndex;
             this.selectedIndex = 0;
             this.updateWidgets(lastIndex, this.selectedIndex);
