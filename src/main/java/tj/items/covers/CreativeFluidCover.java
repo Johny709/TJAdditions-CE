@@ -91,8 +91,6 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
                     .setMaxStringLength(11));
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
-        widgetGroup.addWidget(new ToggleButtonWidget(101, 55, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                .setTooltipText("machine.universal.toggle.run.mode"));
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("cover.creative_fluid.title"))
