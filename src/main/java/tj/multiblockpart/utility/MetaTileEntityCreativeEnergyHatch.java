@@ -18,6 +18,7 @@ import gregtech.api.render.Textures;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -143,6 +144,23 @@ public class MetaTileEntityCreativeEnergyHatch extends GAMetaTileEntityMultibloc
     @Override
     public void registerAbilities(List<IEnergyContainer> list) {
         list.add(this.energyContainer);
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setLong("energyStored", this.energyStored);
+        data.setLong("inputVoltage", this.inputVoltage);
+        data.setLong("inputAmps", this.inputAmps);
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.energyStored = data.getLong("energyStored");
+        this.inputVoltage = data.getLong("inputVoltage");
+        this.inputAmps = data.getLong("inputAmps");
     }
 
     public void setEnergyStored(String text, String id) {
