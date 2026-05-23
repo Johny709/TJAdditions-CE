@@ -39,8 +39,16 @@ public class NBTReaderBehaviour implements IItemBehaviour, ItemUIFactory {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-        if (!world.isRemote)
-            PlayerInventoryHolder.openHandItemUI(player, hand);
+        final NBTTagCompound compound = player.getHeldItemMainhand().getOrCreateSubCompound("NBTReader");
+        if (!player.isSneaking()) {
+            if (!world.isRemote)
+                PlayerInventoryHolder.openHandItemUI(player, hand);
+        } else {
+            compound.removeTag("TEName");
+            compound.removeTag("TEData");
+            if (world.isRemote)
+                player.sendStatusMessage(new TextComponentTranslation("metaitem.nbt_reader.clear"), true);
+        }
         return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItemMainhand());
     }
 
@@ -67,12 +75,12 @@ public class NBTReaderBehaviour implements IItemBehaviour, ItemUIFactory {
         final ItemStack itemStack = player.getHeldItem(EnumHand.MAIN_HAND);
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("NBTReader");
         final String name = compound.getString("TEName");
-        final String data = compound.getTag("TEData").toString().replace(":", ":§e ")
+        final String data = compound.hasKey("TEData") ? compound.getTag("TEData").toString().replace(":", ":§e ")
                 .replace(",", "\n§r ")
                 .replace("[", "§b[§r")
                 .replace("]", "§b]§r")
                 .replace("{", "§b{§r")
-                .replace("}", "§b}§r");
+                .replace("}", "§b}§r") : "";
         final ObjectReference<String> itemData = new ObjectReference<>("");
         final FilteredItemStackHandler largeItemStackHandler = new FilteredItemStackHandler(null, 1, 64)
                 .setOnContentsChangedPost((slot, stack) -> {

@@ -41,7 +41,7 @@ public class VoidItemCoverBehaviour implements IItemBehaviour, ItemUIFactory {
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         if (!world.isRemote)
             PlayerInventoryHolder.openHandItemUI(player, hand);
-        return ActionResult.newResult(EnumActionResult.PASS, player.getHeldItemMainhand());
+        return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItemMainhand());
     }
 
     @Override

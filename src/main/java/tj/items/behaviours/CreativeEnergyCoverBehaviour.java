@@ -34,12 +34,9 @@ public class CreativeEnergyCoverBehaviour implements IItemBehaviour, ItemUIFacto
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-        if (!world.isRemote && hand == EnumHand.MAIN_HAND) {
-            final PlayerInventoryHolder holder = new PlayerInventoryHolder(player, hand);
-            holder.openUI();
-            return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
-        }
-        return IItemBehaviour.super.onItemRightClick(world, player, hand);
+        if (!world.isRemote)
+            PlayerInventoryHolder.openHandItemUI(player, hand);
+        return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItemMainhand());
     }
 
     @Override

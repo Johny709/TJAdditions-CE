@@ -43,8 +43,7 @@ public class ToolboxBehaviour implements IItemBehaviour, ItemUIFactory {
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         if (world.isRemote || hand == EnumHand.OFF_HAND)
             return ActionResult.newResult(EnumActionResult.FAIL, player.getHeldItem(hand));
-        PlayerInventoryHolder holder = new PlayerInventoryHolder(player, hand);
-        holder.openUI();
+        PlayerInventoryHolder.openHandItemUI(player, hand);
         return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
     }
 
