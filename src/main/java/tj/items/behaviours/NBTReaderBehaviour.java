@@ -23,9 +23,12 @@ import net.minecraft.world.World;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
 import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.AnimatedImageWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.items.TJMetaItems;
+import tj.items.handlers.FilteredItemStackHandler;
+import tj.util.references.ObjectReference;
 
 import java.util.List;
 
@@ -70,16 +73,45 @@ public class NBTReaderBehaviour implements IItemBehaviour, ItemUIFactory {
                 .replace("]", "§b]§r")
                 .replace("{", "§b{§r")
                 .replace("}", "§b}§r");
+        final ObjectReference<String> itemData = new ObjectReference<>("");
+        final FilteredItemStackHandler largeItemStackHandler = new FilteredItemStackHandler(null, 1, 64)
+                .setOnContentsChangedPost((slot, stack) -> {
+                    if (!stack.isEmpty()) {
+                        itemData.setValue(stack.serializeNBT().toString().replace(":", ":§e ")
+                                .replace(",", "\n§r ")
+                                .replace("[", "§b[§r")
+                                .replace("]", "§b]§r")
+                                .replace("{", "§b{§r")
+                                .replace("}", "§b}§r"));
+                        compound.setTag("NBTReaderSlot", stack.serializeNBT());
+                    } else {
+                        itemData.setValue("");
+                        compound.removeTag("NBTReaderSlot");
+                    }
+                });
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 200, 216)
                 .widget(new TJLabelWidget(9, -38, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJMetaItems.NBT_READER.getStackForm()).setLocale(name))
                 .image(0, -20, 200, 237, GuiTextures.BORDERED_BACKGROUND)
                 .image(6, -14, 188, 145, MULTIBLOCK_DISPLAY_BASE)
                 .widget(new ScrollableDisplayWidget(10, -11, 187, 140)
-                        .addTextWidget(new AdvancedTextWidget(0, 0, textList -> textList.add(new TextComponentString(data)), 0xFFFFFF)
+                        .addTextWidget(new AdvancedTextWidget(0, 0, textList -> textList.add(new TextComponentString(largeItemStackHandler.getStackInSlot(0).isEmpty() ? data : itemData.getValue())), 0xFFFFFF)
                                 .setMaxWidthLimit(180))
                         .setScrollPanelWidth(3))
+                .widget(new TJSlotWidget<>(largeItemStackHandler, 0, 175, 192)
+                        .setBackgroundTexture(GuiTextures.SLOT))
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 134, itemStack))
+                .bindOpenListener(() -> {
+                    if (compound.hasKey("NBTReaderSlot")) {
+                        largeItemStackHandler.setStackInSlot(0, new ItemStack(compound.getCompoundTag("NBTReaderSlot")));
+                        itemData.setValue(largeItemStackHandler.getStackInSlot(0).serializeNBT().toString().replace(":", ":§e ")
+                                .replace(",", "\n§r ")
+                                .replace("[", "§b[§r")
+                                .replace("]", "§b]§r")
+                                .replace("{", "§b{§r")
+                                .replace("}", "§b}§r"));
+                    }
+                }).bindCloseListener(() -> itemStack.getOrCreateSubCompound("NBTReader").merge(compound))
                 .widget(new AnimatedImageWidget(164, 102, 26, 26, 41, TJ_LOGO_ANIMATED))
                 .build(holder, player);
     }
