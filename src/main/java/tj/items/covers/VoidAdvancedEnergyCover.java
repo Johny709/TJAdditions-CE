@@ -60,12 +60,12 @@ public class VoidAdvancedEnergyCover extends VoidEnergyCover {
     @Override
     public ModularUI createUI(EntityPlayer player) {
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
-                .widget(new ToggleButtonWidget(7, 30, 18, 18, PLUS_BUTTON, () -> false, b -> this.setThroughput(this.throughput * 2)))
-                .widget(new ToggleButtonWidget(151, 30, 18, 18, MINUS_BUTTON, () -> false, b -> this.setThroughput(this.throughput / 2D)))
-                .widget(new NewTextFieldWidget<>(27, 30, 119, 18, true, () -> String.valueOf(this.throughput), this::setThroughput)
+                .widget(new ToggleButtonWidget(7, 30, 18, 18, MINUS_BUTTON, () -> false, b -> this.setThroughput(String.valueOf((double) this.throughput / 2), "")))
+                .widget(new ToggleButtonWidget(151, 30, 18, 18, PLUS_BUTTON, () -> false, b -> this.setThroughput(String.valueOf((double) this.throughput * 2), "")))
+                .widget(new NewTextFieldWidget<>(26, 30, 124, 18, true, () -> String.valueOf(this.throughput), this::setThroughput)
                         .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                         .setUpdateOnTyping(true))
-                .widget(new CycleButtonWidget(27, 48, 119, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode))
+                .widget(new CycleButtonWidget(26, 50, 124, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode))
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("metaitem.void_energy_cover.name"))
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
@@ -99,13 +99,8 @@ public class VoidAdvancedEnergyCover extends VoidEnergyCover {
         this.throughput = tagCompound.getLong("throughput");
     }
 
-    public void setThroughput(double throughput) {
-        this.throughput = (long) Math.max(1, Math.min(Long.MAX_VALUE, throughput));
-        this.markAsDirty();
-    }
-
     public void setThroughput(String text, String id) {
-        this.throughput = (long) Math.max(1, Math.min(Long.MAX_VALUE, Double.parseDouble(text)));
+        this.throughput = (long) Math.max(0, Math.min(Long.MAX_VALUE, Double.parseDouble(text)));
         this.markAsDirty();
     }
 

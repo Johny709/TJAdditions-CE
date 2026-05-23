@@ -68,27 +68,25 @@ public class VoidAdvancedItemCover extends VoidItemCover {
                 this.itemType.put(item, item);
             }, this.itemType::remove).setPutItemsPredicate(item -> !this.itemType.containsKey(item))
                     .setBackgroundTextures(GuiTextures.SLOT));
-            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(0, -20, 54, 18, true, () -> String.valueOf(this.itemFilter.getStackInSlot(index).getCount()), (text, id) -> {
-                ItemStack stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, true);
-                if (stack.isEmpty()) return;
-                stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, false);
-                stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-                this.itemFilter.insertItem(index, stack, false);
-            }).setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(-37, -20, 124, 18, true, () -> String.valueOf(this.itemFilter.getStackInSlot(index).getCount()), this::setItemCount)
+                    .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                    .setTextId(String.valueOf(index))
                     .setUpdateOnTyping(true)
                     .setMaxStringLength(11));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(-56, -20, 18, 18, "/2", data -> this.setItemCount(String.valueOf((long) this.itemFilter.getStackInSlot(index).getCount() / 2), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(88, -20, 18, 18, "*2", data -> this.setItemCount(String.valueOf((long) this.itemFilter.getStackInSlot(index).getCount() * 2), String.valueOf(index))));
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
-        widgetGroup.addWidget(new CycleButtonWidget(0, 54, 54, 54, VoidMode.class, () -> this.voidMode, this::setVoidMode));
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 208)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("metaitem.void_advanced_item_cover.name"))
-                .widget(new NewTextFieldWidget<>(45, 7, 90, 18, true, () -> String.valueOf(this.tickTime), this::setTickTime)
+                .widget(new NewTextFieldWidget<>(26, 7, 124, 18, true, () -> String.valueOf(this.tickTime), this::setTickTime)
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setTooltipText("machine.universal.ticks.operation")
                         .setUpdateOnTyping(true))
-                .widget(new ClickButtonWidget(27, 7, 18, 18, "/2", data -> this.setTickTime(String.valueOf((long) this.tickTime / 2), "")))
-                .widget(new ClickButtonWidget(135, 7, 18, 18, "*2", data -> this.setTickTime(String.valueOf((long) this.tickTime * 2), "")))
+                .widget(new ClickButtonWidget(7, 7, 18, 18, "/2", data -> this.setTickTime(String.valueOf((long) this.tickTime / 2), "")))
+                .widget(new ClickButtonWidget(151, 7, 18, 18, "*2", data -> this.setTickTime(String.valueOf((long) this.tickTime * 2), "")))
+                .widget(new CycleButtonWidget(43, 106, 90, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode))
                 .widget(new ToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isWorking, this::setWorking)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(widgetGroup)
@@ -137,6 +135,16 @@ public class VoidAdvancedItemCover extends VoidItemCover {
     public void readFromNBT(NBTTagCompound tagCompound) {
         super.readFromNBT(tagCompound);
         this.voidMode = VoidMode.values()[tagCompound.getInteger("voidMode")];
+    }
+
+    public void setItemCount(String text, String id) {
+        final int index = Integer.parseInt(id);
+        ItemStack stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, true);
+        if (stack.isEmpty()) return;
+        stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, false);
+        stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+        this.itemFilter.insertItem(index, stack, false);
+        this.markAsDirty();
     }
 
     public void setVoidMode(VoidMode voidMode) {

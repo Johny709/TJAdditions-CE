@@ -43,6 +43,14 @@ public class VoidAdvancedItemCoverBehaviour extends VoidItemCoverBehaviour {
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(63, 48, 54, 54);
         for (int i = 0; i < itemFilter.getSlots(); i++) {
             final int index = i;
+            final BiConsumer<String, String> setItemCount = (text, id) -> {
+                ItemStack stack = itemFilter.extractItem(index, Integer.MAX_VALUE, true);
+                if (stack.isEmpty()) return;
+                stack = itemFilter.extractItem(index, Integer.MAX_VALUE, false);
+                stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+                compound.setTag("slot:" + index, stack.serializeNBT());
+                itemFilter.insertItem(index, stack, false);
+            };
             widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, itemFilter, item -> {
                 if (!item.isEmpty()) {
                     compound.setTag("slot:" + index, item.serializeNBT());
@@ -50,23 +58,15 @@ public class VoidAdvancedItemCoverBehaviour extends VoidItemCoverBehaviour {
                 } else compound.removeTag("slot:" + index);
             }, itemType::remove).setPutItemsPredicate(item -> !itemType.containsKey(item))
                     .setBackgroundTextures(GuiTextures.SLOT));
-            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(0, -20, 54, 18, true, () -> String.valueOf(itemFilter.getStackInSlot(index).getCount()), (text, id) -> {
-                ItemStack stack = itemFilter.extractItem(index, Integer.MAX_VALUE, true);
-                if (stack.isEmpty()) return;
-                stack = itemFilter.extractItem(index, Integer.MAX_VALUE, false);
-                stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-                compound.setTag("slot:" + index, stack.serializeNBT());
-                itemFilter.insertItem(index, stack, false);
-            }).setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(-37, -20, 124, 18, true, () -> String.valueOf(itemFilter.getStackInSlot(index).getCount()), setItemCount)
+                    .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                     .setUpdateOnTyping(true)
                     .setMaxStringLength(11));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(-56, -20, 18, 18, "/2", data -> setItemCount.accept(String.valueOf((long) itemFilter.getStackInSlot(index).getCount() / 2), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(88, -20, 18, 18, "*2", data -> setItemCount.accept(String.valueOf((long) itemFilter.getStackInSlot(index).getCount() * 2), String.valueOf(index))));
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
         final ObjectReference<VoidMode> voidMode = new ObjectReference<>(VoidMode.NORMAL);
-        widgetGroup.addWidget(new CycleButtonWidget(0, 54, 54, 54, VoidMode.class, voidMode::getValue, value -> {
-            compound.setInteger("voidMode", value.ordinal());
-            voidMode.setValue(value);
-        }));
         final BooleanReference isWorking = new BooleanReference();
         final IntegerReference tickTime = new IntegerReference(20);
         final BiConsumer<String, String> setTickTime = (text, id) -> {
@@ -80,12 +80,16 @@ public class VoidAdvancedItemCoverBehaviour extends VoidItemCoverBehaviour {
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 208)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJMetaItems.VOID_ADVANCED_ITEM_COVER.getStackForm()).setLocale("metaitem.void_advanced_item_cover.name"))
-                .widget(new NewTextFieldWidget<>(45, 7, 90, 18, true, () -> String.valueOf(tickTime.getValue()), setTickTime)
+                .widget(new NewTextFieldWidget<>(26, 7, 124, 18, true, () -> String.valueOf(tickTime.getValue()), setTickTime)
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setTooltipText("machine.universal.ticks.operation")
                         .setUpdateOnTyping(true))
-                .widget(new ClickButtonWidget(27, 7, 18, 18, "/2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() / 2), "")))
-                .widget(new ClickButtonWidget(135, 7, 18, 18, "*2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() * 2), "")))
+                .widget(new ClickButtonWidget(7, 7, 18, 18, "/2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() / 2), "")))
+                .widget(new ClickButtonWidget(151, 7, 18, 18, "*2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() * 2), "")))
+                .widget(new CycleButtonWidget(43, 106, 90, 18, VoidMode.class, voidMode::getValue, value -> {
+                    compound.setInteger("voidMode", value.ordinal());
+                    voidMode.setValue(value);
+                }))
                 .widget(new ToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.POWER_BUTTON, isWorking::isValue, setWorking)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(widgetGroup)
