@@ -42,7 +42,10 @@ public class TJMetaItems {
     public static MetaItem<?>.MetaValueItem VOID_PLUNGER;
     public static MetaItem<?>.MetaValueItem NBT_READER;
     public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_UHV;
+    public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_UEV;
+    public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_UIV;
     public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_UMV;
+    public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_UXV;
     public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_MAX;
     public static MetaItem<?>.MetaValueItem REMOTE_MULTIBLOCK_CONTROLLER;
 

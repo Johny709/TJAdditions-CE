@@ -38,7 +38,10 @@ public class TJMetaItem1 extends MaterialMetaItem {
         VOID_PLUNGER = addItem(1004, "void_plunger").addComponents(new VoidPlungerBehaviour()).setMaxStackSize(1);
         NBT_READER = addItem(1005, "nbt_reader").addComponents(new NBTReaderBehaviour()).setMaxStackSize(1);
         FLUID_REGULATOR_UHV = addItem(1059, "fluid.regulator.uhv");
+        FLUID_REGULATOR_UEV = addItem(1060, "fluid.regulator.uev");
+        FLUID_REGULATOR_UIV = addItem(1061, "fluid.regulator.uiv");
         FLUID_REGULATOR_UMV = addItem(1062, "fluid.regulator.umv");
+        FLUID_REGULATOR_UXV = addItem(1063, "fluid.regulator.uxv");
         FLUID_REGULATOR_MAX = addItem(1064, "fluid.regulator.max");
         REMOTE_MULTIBLOCK_CONTROLLER = addItem(1065, "remote_multiblock_controller").addComponents(new RemoteMultiblockControllerBehaviour()).setMaxStackSize(1);
 
