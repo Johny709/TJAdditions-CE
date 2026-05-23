@@ -14,6 +14,15 @@ public class TJMetaItem1 extends MaterialMetaItem {
 
     @Override
     public void registerSubItems() {
+        ELECTRIC_MOTOR_ULV = addItem(983, "electric.motor.ulv");
+        ELECTRIC_PUMP_ULV = addItem(984, "electric.pump.ulv");
+        CONVEYOR_MODULE_ULV = addItem(985, "conveyor.module.ulv");
+        ELECTRIC_PISTON_ULV = addItem(986, "electric.piston.ulv");
+        ROBOT_ARM_ULV = addItem(987, "robot.arm.ulv");
+        FIELD_GENERATOR_ULV = addItem(988, "field.generator.ulv");
+        EMITTER_ULV = addItem(989, "emitter.ulv");
+        SENSOR_ULV = addItem(990, "sensor.ulv");
+        FLUID_REGULATOR_ULV = addItem(991, "fluid.regulator.ulv");
         GAUGE_DROPPER = addItem(992, "gauge_dropper").addComponents(new GaugeDropperBehavior()).setMaxStackSize(1);
         VOID_ADVANCED_ITEM_COVER = addItem(993, "void_advanced_item_cover").addComponents(new VoidAdvancedItemCoverBehaviour());
         VOID_ADVANCED_FLUID_COVER = addItem(994, "void_advanced_fluid_cover").addComponents(new VoidAdvancedFluidCoverBehaviour());

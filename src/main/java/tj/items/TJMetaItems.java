@@ -17,6 +17,16 @@ public class TJMetaItems {
     public static ArmorMetaItem<?>.ArmorMetaValueItem MODULAR_ARMOR_LEGS;
     public static ArmorMetaItem<?>.ArmorMetaValueItem MODULAR_ARMOR_BOOTS;
 
+    public static MetaItem<?>.MetaValueItem CONVEYOR_MODULE_ULV;
+    public static MetaItem<?>.MetaValueItem ELECTRIC_MOTOR_ULV;
+    public static MetaItem<?>.MetaValueItem ELECTRIC_PISTON_ULV;
+    public static MetaItem<?>.MetaValueItem ELECTRIC_PUMP_ULV;
+    public static MetaItem<?>.MetaValueItem EMITTER_ULV;
+    public static MetaItem<?>.MetaValueItem FIELD_GENERATOR_ULV;
+    public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_ULV;
+    public static MetaItem<?>.MetaValueItem ROBOT_ARM_ULV;
+    public static MetaItem<?>.MetaValueItem SENSOR_ULV;
+
     public static MetaItem<?>.MetaValueItem GAUGE_DROPPER;
     public static MetaItem<?>.MetaValueItem TOOLBOX;
     public static MetaItem<?>.MetaValueItem CREATIVE_FLUID_COVER;

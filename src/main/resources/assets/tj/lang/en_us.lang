@@ -991,6 +991,15 @@ metaitem.controllable_dual_cover.umv.name=Controllable Dual Cover (UMV)
 metaitem.controllable_dual_cover.uxv.name=Controllable Dual Cover (UXV)
 metaitem.controllable_dual_cover.max.name=Controllable Dual Cover (MAX)
 metaitem.controllable_dual_cover.description=Functions both as §6robot arms§7 and §bregulators§7 for transporting §6items§7 and §bfluids.
+metaitem.electric.motor.ulv.name=Electric Motor (ULV)
+metaitem.electric.pump.ulv.name=Electric Pump (ULV)
+metaitem.conveyor.module.ulv.name=Conveyor Module (ULV)
+metaitem.electric.piston.ulv.name=Electric Piston (ULV)
+metaitem.robot.arm.ulv.name=Robot Arm (ULV)
+metaitem.field.generator.ulv.name=Field Generator (ULV)
+metaitem.emitter.ulv.name=Emitter (ULV)
+metaitem.sensor.ulv.name=Sensor (ULV)
+metaitem.fluid.regulator.ulv.name=Fluid Regulator (ULV)
 
 void_cover.mode.normal=Normal
 void_cover.mode.supply=Supply
