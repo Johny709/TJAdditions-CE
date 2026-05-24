@@ -1,7 +1,6 @@
 package tj.recipes;
 
-import appeng.api.definitions.IItems;
-import appeng.api.definitions.IMaterials;
+import appeng.api.AEApi;
 import appeng.core.Api;
 import appeng.core.api.definitions.ApiBlocks;
 import gregicadditions.GAEnums;
@@ -31,8 +30,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import tj.blocks.*;
-import tj.integration.appeng.IApiItems;
-import tj.integration.appeng.IApiMaterials;
 import tj.machines.TJMetaTileEntities;
 import tj.recipes.ct.*;
 
@@ -48,6 +45,7 @@ import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
 import static gregtech.common.metatileentities.MetaTileEntities.*;
 import static tj.TJValues.CIRCUIT_TIERS;
 import static tj.items.TJMetaItems.*;
+import static tj.items.item.TJItems.*;
 import static tj.machines.TJMetaTileEntities.*;
 import static tj.materials.TJMaterials.MATERIAL_TIER;
 
@@ -67,12 +65,10 @@ public class RecipeInit {
     }
     private static void craftingRecipes() {
         final ApiBlocks aeBlocks = Api.INSTANCE.definitions().blocks();
-        final IApiItems aeItems = ((IApiItems) (IItems) Api.INSTANCE.definitions().items());
-        final IApiMaterials aeMaterials = ((IApiMaterials) (IMaterials) Api.INSTANCE.definitions().materials());
-        final ItemStack[] aeCellParts = {aeMaterials.getCell65mPart().maybeStack(1).get(), aeMaterials.getCell262mPart().maybeStack(1).get(), aeMaterials.getCell1048mPart().maybeStack(1).get(), aeMaterials.getCellDigitalSingularityPart().maybeStack(1).get(),
-            aeMaterials.getFluidCell65mPart().maybeStack(1).get(), aeMaterials.getFluidCell262mPart().maybeStack(1).get(), aeMaterials.getFluidCell1048mPart().maybeStack(1).get(), aeMaterials.getFluidCellDigitalSingularityPart().maybeStack(1).get()};
-        final ItemStack[] aeCells = {aeItems.getCell65m().maybeStack(1).get(), aeItems.getCell262m().maybeStack(1).get(), aeItems.getCell1048m().maybeStack(1).get(), aeItems.getCellDigitalSingularity().maybeStack(1).get(),
-            aeItems.getFluidCell65m().maybeStack(1).get(), aeItems.getFluidCell262m().maybeStack(1).get(), aeItems.getFluidCell1048m().maybeStack(1).get(), aeItems.getFluidCellDigitalSingularity().maybeStack(1).get()};
+        final ItemStack[] aeCellParts = {MATERIAL_ITEM_CELL_65536K.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_262144K.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_1048M.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null),
+            MATERIAL_FLUID_CELL_65536K.maybeStack(1).orElse(null), MATERIAL_FLUID_CELL_262144K.maybeStack(1).orElse(null), MATERIAL_FLUID_CELL_1048M.maybeStack(1).orElse(null), MATERIAL_FLUID_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null)};
+        final ItemStack[] aeCells = {ITEM_CELL_65536K.maybeStack(1).orElse(null), ITEM_CELL_262144K.maybeStack(1).orElse(null), ITEM_CELL_1048M.maybeStack(1).orElse(null), ITEM_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null),
+            FLUID_CELL_65536K.maybeStack(1).orElse(null), FLUID_CELL_262144K.maybeStack(1).orElse(null), FLUID_CELL_1048M.maybeStack(1).orElse(null), FLUID_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null)};
         ALLOY_SMELTER_RECIPES.recipeBuilder()
                 .input(Items.CLAY_BALL)
                 .input(Blocks.SAND)
@@ -388,9 +384,9 @@ public class RecipeInit {
                     .buildAndRegister();
         }
         for (int i = 0; i < aeCells.length; i++) {
-            ModHandler.addShapelessRecipe("ae_cell_simple." + aeCells[i].getTranslationKey(), aeCells[i], aeMaterials.emptyStorageCell().maybeStack(1).get(), aeCellParts[i]);
+            ModHandler.addShapelessRecipe("ae_cell_simple." + aeCells[i].getTranslationKey(), aeCells[i], AEApi.instance().definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), aeCellParts[i]);
             ModHandler.addShapedRecipe("ae_cell." + aeCells[i].getTranslationKey(), aeCells[i], "QRQ", "RCR", "III",
-                    'Q', aeBlocks.quartzGlass().maybeStack(1).get(),
+                    'Q', aeBlocks.quartzGlass().maybeStack(1).orElse(null),
                     'I', new ItemStack(Items.IRON_INGOT),
                     'R', new ItemStack(Items.REDSTONE),
                     'C', aeCellParts[i]);

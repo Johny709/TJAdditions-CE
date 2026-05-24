@@ -1,7 +1,8 @@
-package appeng.items.cells;
+package tj.integration.appeng.items;
 
 import appeng.api.AEApi;
 import appeng.api.config.FuzzyMode;
+import appeng.api.definitions.IItemDefinition;
 import appeng.api.exceptions.MissingDefinitionException;
 import appeng.api.implementations.items.IItemGroup;
 import appeng.api.implementations.items.IStorageCell;
@@ -31,7 +32,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
-import appeng.items.materials.TJAE2MaterialType;
 
 import java.util.List;
 import java.util.Set;
@@ -39,16 +39,15 @@ import java.util.Set;
 /**
  * More advanced form of {@link appeng.items.storage.AbstractStorageCell}
  */
-@Deprecated
 public abstract class TJAbstractStorageCell<T extends IAEStack<T>> extends AEBaseItem implements IStorageCell<T>, IItemGroup {
-    protected final TJAE2MaterialType materialType;
+
+    protected final IItemDefinition material;
     protected final int totalBytes;
 
-    public TJAbstractStorageCell(final TJAE2MaterialType materialType, final int kiloBytes) {
+    public TJAbstractStorageCell(IItemDefinition material, final int kiloBytes) {
         this.setMaxStackSize(1);
-        long totalBytes = Math.min(Integer.MAX_VALUE, (long) kiloBytes * 1024);
-        this.totalBytes = (int) totalBytes;
-        this.materialType = materialType;
+        this.totalBytes = (int) Math.min(Integer.MAX_VALUE, (long) kiloBytes * 1024);
+        this.material = material;
     }
 
     @SideOnly(Side.CLIENT)
@@ -140,7 +139,7 @@ public abstract class TJAbstractStorageCell<T extends IAEStack<T>> extends AEBas
                     playerInventory.setInventorySlotContents(playerInventory.currentItem, ItemStack.EMPTY);
 
                     // drop core
-                    final ItemStack extraB = ia.addItems(this.materialType.stack(1));
+                    final ItemStack extraB = ia.addItems(this.material.maybeStack(1).orElse(null));
                     if (!extraB.isEmpty()) {
                         player.dropItem(extraB, false);
                     }

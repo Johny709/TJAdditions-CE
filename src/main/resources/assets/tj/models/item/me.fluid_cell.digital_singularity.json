@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "tj:items/me.fluid_cell.digital_singularity"
+  }
+}

@@ -1,23 +1,22 @@
-package appeng.items.cells;
+package tj.integration.appeng.items;
 
 import appeng.api.AEApi;
+import appeng.api.definitions.IItemDefinition;
 import appeng.api.storage.IStorageChannel;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.util.InventoryAdaptor;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import appeng.items.materials.TJAE2MaterialType;
 
-@Deprecated
 public class TJItemStorageCell extends TJAbstractStorageCell<IAEItemStack> {
 
     protected final int perType;
     protected final double idleDrain;
 
-    public TJItemStorageCell(TJAE2MaterialType materialType, int kiloBytes) {
-        super(materialType, kiloBytes);
-        this.idleDrain = 4.5 + (materialType.ordinal() * 0.5);
+    public TJItemStorageCell(IItemDefinition material, int kiloBytes) {
+        super(material, kiloBytes);
+        this.idleDrain = 2.0;
         this.perType = Math.min(16_777_215, kiloBytes / 128);
     }
 

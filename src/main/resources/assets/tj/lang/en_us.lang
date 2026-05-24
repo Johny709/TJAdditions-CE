@@ -1187,3 +1187,22 @@ item.appliedenergistics2.material.fluid_cell_65m_part.name=§165m §fME Fluid St
 item.appliedenergistics2.material.fluid_cell_262m_part.name=§b262m §fME Fluid Storage Component
 item.appliedenergistics2.material.fluid_cell_1048m_part.name=§51048m §fME Fluid Storage Component
 item.appliedenergistics2.material.fluid_cell_digital_singularity.name=§dFluid Digital Singularity Component
+
+
+item.me.material.item_cell.65536k.name=§165536k§f ME Storage Component
+item.me.material.item_cell.262144k.name=b262144k§f ME Storage Component
+item.me.material.item_cell.1048m.name=§51048m§f ME Storage Component
+item.me.material.item_cell.digital_singularity.name=§dDigital Singularity Component
+item.me.material.fluid_cell.65536k.name=§165536k§f ME Fluid Storage Component
+item.me.material.fluid_cell.262144k.name=§b262144k§f ME Fluid Storage Component
+item.me.material.fluid_cell.1048m.name=§51048m§f ME Fluid Storage Component
+item.me.material.fluid_cell.digital_singularity.name=§dFluid Digital Singularity Component
+
+item.me.item_cell.65536k.name=§165536k§f ME Storage Cell
+item.me.item_cell.262144k.name=§b262144k§f ME Storage Cell
+item.me.item_cell.1048m.name=§51048m§f ME Storage Cell
+item.me.item_cell.digital_singularity.name=§dDigital Singularity
+item.me.fluid_cell.65536k.name=§165536k§f ME Fluid Storage Cell
+item.me.fluid_cell.262144k.name=§b262144k§f ME Fluid Storage Cell
+item.me.fluid_cell.1048m.name=§51048m§f ME Fluid Storage Cell
+item.me.fluid_cell.digital_singularity.name=§dFluid Digital Singularity
