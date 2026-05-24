@@ -1206,3 +1206,4 @@ item.me.fluid_cell.65536k.name=§165536k§f ME Fluid Storage Cell
 item.me.fluid_cell.262144k.name=§b262144k§f ME Fluid Storage Cell
 item.me.fluid_cell.1048m.name=§51048m§f ME Fluid Storage Cell
 item.me.fluid_cell.digital_singularity.name=§dFluid Digital Singularity
+item.me.block_container.item_cell.65536k.name=§dME Block Container
