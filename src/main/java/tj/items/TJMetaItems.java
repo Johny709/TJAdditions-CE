@@ -56,6 +56,15 @@ public class TJMetaItems {
     public static final MetaItem<?>.MetaValueItem[] TURBINE_UPGRADES = new MetaItem.MetaValueItem[6];
     public static final MetaItem<?>.MetaValueItem[] DUAL_COVERS = new MetaItem.MetaValueItem[15];
     public static final MetaItem<?>.MetaValueItem[] CONTROLLABLE_DUAL_COVERS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] MOTORS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] PUMPS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] CONVEYORS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] PISTONS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] ROBOT_ARMS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] FIELD_GENERATORS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] EMITTERS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] SENSORS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] FLUID_REGULATORS = new MetaItem.MetaValueItem[15];
 
     public static void init() {
         TJMetaItem1 item = new TJMetaItem1();

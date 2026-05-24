@@ -2,7 +2,6 @@ package tj.recipes;
 
 import gregicadditions.item.*;
 import gregicadditions.item.metal.MetalCasing1;
-import gregtech.api.items.metaitem.MetaItem;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidRegistry;
 import tj.blocks.BlockFusionCasings;
@@ -23,7 +22,8 @@ import java.util.List;
 
 import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
 import static tj.items.TJMetaItems.*;
-import static tj.items.TJMetaItems.FLUID_REGULATOR_MAX;
+import static tj.items.TJMetaItems.FLUID_REGULATORS;
+import static tj.items.TJMetaItems.PUMPS;
 import static tj.machines.TJMetaTileEntities.*;
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.item.GAMetaItems.*;
@@ -33,20 +33,11 @@ import static gregtech.api.unification.material.MarkerMaterials.Tier.*;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.common.items.MetaItems.*;
 import static gregtech.common.metatileentities.MetaTileEntities.HULL;
-import static tj.recipes.AssemblerRecipes.MATERIAL_TIER;
+import static tj.materials.TJMaterials.MATERIAL_TIER;
 
 public class AssemblyLineRecipes {
 
     public static void init() {
-        final MetaItem<?>.MetaValueItem[] motors = {ELECTRIC_MOTOR_LV, ELECTRIC_MOTOR_MV, ELECTRIC_MOTOR_HV, ELECTRIC_MOTOR_EV, ELECTRIC_MOTOR_IV, ELECTRIC_MOTOR_LUV, ELECTRIC_MOTOR_ZPM, ELECTRIC_MOTOR_UV, ELECTRIC_MOTOR_UHV, ELECTRIC_MOTOR_UEV, ELECTRIC_MOTOR_UIV, ELECTRIC_MOTOR_UMV, ELECTRIC_MOTOR_UXV, ELECTRIC_MOTOR_MAX};
-        final MetaItem<?>.MetaValueItem[] emitters = {EMITTER_LV, EMITTER_MV, EMITTER_HV, EMITTER_EV, EMITTER_IV, EMITTER_LUV, EMITTER_ZPM, EMITTER_UV, EMITTER_UHV, EMITTER_UEV, EMITTER_UIV, EMITTER_UMV, EMITTER_UXV, EMITTER_MAX};
-        final MetaItem<?>.MetaValueItem[] sensors = {SENSOR_LV, SENSOR_MV, SENSOR_HV, SENSOR_EV, SENSOR_IV, SENSOR_LUV, SENSOR_ZPM, SENSOR_UV, SENSOR_UHV, SENSOR_UEV, SENSOR_UIV, SENSOR_UMV, SENSOR_UXV, SENSOR_MAX};
-        final MetaItem<?>.MetaValueItem[] pistons = {ELECTRIC_PISTON_LV, ELECTRIC_PISTON_MV, ELECTRIC_PISTON_HV, ELECTRIC_PISTON_EV, ELECTRIC_PISTON_IV, ELECTRIC_PISTON_LUV, ELECTRIC_PISTON_ZPM, ELECTRIC_PISTON_UV, ELECTRIC_PISTON_UHV, ELECTRIC_PISTON_UEV, ELECTRIC_PISTON_UIV, ELECTRIC_PISTON_UMV, ELECTRIC_PISTON_UXV, ELECTRIC_PISTON_MAX};
-        final MetaItem<?>.MetaValueItem[] pumps = {ELECTRIC_PUMP_LV, ELECTRIC_PUMP_MV, ELECTRIC_PUMP_HV, ELECTRIC_PUMP_EV, ELECTRIC_PUMP_IV, ELECTRIC_PUMP_LUV, ELECTRIC_PUMP_ZPM, ELECTRIC_PUMP_UV, ELECTRIC_PUMP_UHV, ELECTRIC_PUMP_UEV, ELECTRIC_PUMP_UIV, ELECTRIC_PUMP_UMV, ELECTRIC_PUMP_UXV, ELECTRIC_PUMP_MAX};
-        final MetaItem<?>.MetaValueItem[] conveyors = {CONVEYOR_MODULE_LV, CONVEYOR_MODULE_MV, CONVEYOR_MODULE_HV, CONVEYOR_MODULE_EV, CONVEYOR_MODULE_IV, CONVEYOR_MODULE_LUV, CONVEYOR_MODULE_ZPM, CONVEYOR_MODULE_UV, CONVEYOR_MODULE_UHV, CONVEYOR_MODULE_UEV, CONVEYOR_MODULE_UIV, CONVEYOR_MODULE_UMV, CONVEYOR_MODULE_UXV, CONVEYOR_MODULE_MAX};
-        final MetaItem<?>.MetaValueItem[] robotArms = {ROBOT_ARM_LV, ROBOT_ARM_MV, ROBOT_ARM_HV, ROBOT_ARM_EV, ROBOT_ARM_IV, ROBOT_ARM_LUV, ROBOT_ARM_ZPM, ROBOT_ARM_UV, ROBOT_ARM_UHV, ROBOT_ARM_UEV, ROBOT_ARM_UIV, ROBOT_ARM_UMV, ROBOT_ARM_UXV, ROBOT_ARM_MAX};
-        final MetaItem<?>.MetaValueItem[] fieldGens = {FIELD_GENERATOR_LV, FIELD_GENERATOR_MV, FIELD_GENERATOR_HV, FIELD_GENERATOR_EV, FIELD_GENERATOR_IV, FIELD_GENERATOR_LUV, FIELD_GENERATOR_ZPM, FIELD_GENERATOR_UV, FIELD_GENERATOR_UHV, FIELD_GENERATOR_UEV, FIELD_GENERATOR_UIV, FIELD_GENERATOR_UMV, FIELD_GENERATOR_UXV, FIELD_GENERATOR_MAX};
-        final MetaItem<?>.MetaValueItem[] regulators = {FLUID_REGULATOR_LV, FLUID_REGULATOR_MV, FLUID_REGULATOR_HV, FLUID_REGULATOR_EV, FLUID_REGULATOR_IV, FLUID_REGULATOR_LUV, FLUID_REGULATOR_ZPM, FLUID_REGULATOR_UV, FLUID_REGULATOR_UHV, null, null, FLUID_REGULATOR_UMV, null, FLUID_REGULATOR_MAX};
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(64000))
@@ -983,14 +974,14 @@ public class AssemblyLineRecipes {
             ASSEMBLY_LINE_RECIPES.recipeBuilder()
                     .fluidInputs(SolderingAlloy.getFluid(9216))
                     .fluidInputs(Lubricant.getFluid(64000))
-                    .input(OrePrefix.gear, MATERIAL_TIER[0][i + GAValues.UV], 4)
-                    .input(OrePrefix.plateDense, MATERIAL_TIER[0][i + GAValues.UV], 7)
-                    .input(OrePrefix.screw, MATERIAL_TIER[0][i + GAValues.UV], 64)
+                    .input(OrePrefix.gear, MATERIAL_TIER[i + GAValues.UHV], 4)
+                    .input(OrePrefix.plateDense, MATERIAL_TIER[i + GAValues.UHV], 7)
+                    .input(OrePrefix.screw, MATERIAL_TIER[i + GAValues.UHV], 64)
                     .inputs(turbineUpgrade)
                     .inputs(UHPIC.getStackForm(64))
-                    .inputs(motors[i + GAValues.UV].getStackForm(4))
-                    .inputs(pumps[i + GAValues.UV].getStackForm(4))
-                    .inputs(robotArms[i + GAValues.UV].getStackForm(4))
+                    .inputs(MOTORS[i + GAValues.UHV].getStackForm(4))
+                    .inputs(PUMPS[i + GAValues.UHV].getStackForm(4))
+                    .inputs(ROBOT_ARMS[i + GAValues.UHV].getStackForm(4))
                     .outputs(TURBINE_UPGRADES[i].getStackForm())
                     .EUt(GAValues.VA[i + GAValues.UHV]).duration(1500)
                     .buildAndRegister();
@@ -1047,7 +1038,7 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(14440), Lubricant.getFluid(16000))
-                .inputs(new ItemStack(Blocks.OBSIDIAN, 32), IMPLOSION_COMPRESSOR.getStackForm(16), pistons[5].getStackForm(16))
+                .inputs(new ItemStack(Blocks.OBSIDIAN, 32), IMPLOSION_COMPRESSOR.getStackForm(16), PISTONS[6].getStackForm(16))
                 .input(OrePrefix.plateDense, RhodiumPlatedPalladium, 7)
                 .input(OrePrefix.wireGtSingle, LuVSuperconductor, 16)
                 .input(OrePrefix.stickLong, TungstenSteel, 32)
@@ -1060,7 +1051,7 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(57600), Osmiridium.getFluid(57600), Fermium.getMaterial().getFluid(57600), Mendelevium.getMaterial().getFluid(57600))
-                .inputs(ELECTRIC_IMPLOSION.getStackForm(16), pistons[10].getStackForm(64), pistons[10].getStackForm(64), pistons[10].getStackForm(64), pistons[10].getStackForm(64))
+                .inputs(ELECTRIC_IMPLOSION.getStackForm(16), PISTONS[11].getStackForm(64), PISTONS[11].getStackForm(64), PISTONS[11].getStackForm(64), PISTONS[11].getStackForm(64))
                 .input(OrePrefix.wireGtSingle, UIVSuperconductor, 64)
                 .input(OrePrefix.stickLong, Osmiridium, 64)
                 .input(OrePrefix.block, Neutronium, 16)
@@ -1071,7 +1062,7 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), Polyetheretherketone.getFluid(9216), CarbonNanotubes.getFluid(1440))
-                .inputs(ASSEMBLY_LINE.getStackForm(16), motors[8].getStackForm(32), sensors[8].getStackForm(16), conveyors[8].getStackForm(16), robotArms[8].getStackForm(16), GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING, 64))
+                .inputs(ASSEMBLY_LINE.getStackForm(16), MOTORS[9].getStackForm(32), SENSORS[9].getStackForm(16), CONVEYORS[9].getStackForm(16), ROBOT_ARMS[9].getStackForm(16), GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING, 64))
                 .input(OrePrefix.cableGtQuadruple, EnrichedNaquadahAlloy, 64)
                 .input(OrePrefix.screw, TriniumTitanium, 64)
                 .input(OrePrefix.plate, Pikyonium, 48)
@@ -1087,7 +1078,7 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), Zylon.getFluid(9216), CarbonNanotubes.getFluid(2880))
-                .inputs(LARGE_CIRCUIT_ASSEMBLY_LINE.getStackForm(16), motors[9].getStackForm(32), sensors[9].getStackForm(16), conveyors[9].getStackForm(16), robotArms[9].getStackForm(16), GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING, 64))
+                .inputs(LARGE_CIRCUIT_ASSEMBLY_LINE.getStackForm(16), MOTORS[10].getStackForm(32), SENSORS[10].getStackForm(16), CONVEYORS[10].getStackForm(16), ROBOT_ARMS[10].getStackForm(16), GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING, 64))
                 .input(OrePrefix.cableGtQuadruple, Pikyonium, 64)
                 .input(OrePrefix.screw, HastelloyK243, 64)
                 .input(OrePrefix.gear, HastelloyX78, 16)
@@ -1103,7 +1094,7 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216))
-                .inputs(robotArms[8].getStackForm(2))
+                .inputs(ROBOT_ARMS[9].getStackForm(2))
                 .input(OrePrefix.circuit, Infinite, 8)
                 .input(OrePrefix.plate, Seaborgium, 6)
                 .input(OrePrefix.plate, Tritanium, 6)
@@ -1114,7 +1105,7 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216), Lubricant.getFluid(16000))
-                .inputs(robotArms[5].getStackForm(4), sensors[5].getStackForm(4), emitters[5].getStackForm(4), MetaItems.TOOL_DATA_ORB.getStackForm(), ENERGY_LAPOTRONIC_ORB2.getStackForm(), PROCESSING_ARRAY.getStackForm(), ADVANCED_PROCESSING_ARRAY.getStackForm())
+                .inputs(ROBOT_ARMS[6].getStackForm(4), SENSORS[6].getStackForm(4), EMITTERS[6].getStackForm(4), MetaItems.TOOL_DATA_ORB.getStackForm(), ENERGY_LAPOTRONIC_ORB2.getStackForm(), PROCESSING_ARRAY.getStackForm(), ADVANCED_PROCESSING_ARRAY.getStackForm())
                 .input(OrePrefix.wireGtSingle, LuVSuperconductor, 64)
                 .input(OrePrefix.gear, RhodiumPlatedPalladium, 8)
                 .input(OrePrefix.circuit, Ultimate, 8)
@@ -1124,7 +1115,7 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(62208), Lubricant.getFluid(64000), CosmicNeutronium.getFluid(57600), FluidRegistry.getFluidStack("rawchaos", 62208))
-                .inputs(STELLAR_FORGE.getStackForm(16), fieldGens[12].getStackForm(32), sensors[12].getStackForm(64), emitters[12].getStackForm(64), GAMetaBlocks.MUTLIBLOCK_CASING2.getItemVariant(GAMultiblockCasing2.CasingType.STELLAR_CONTAINMENT, 64), TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_COIL_UEV, 64), RECURSIVELY_FOLDED_NEGATIVE_SPACE.getStackForm(50))
+                .inputs(STELLAR_FORGE.getStackForm(16), FIELD_GENERATORS[13].getStackForm(32), SENSORS[13].getStackForm(64), EMITTERS[13].getStackForm(64), GAMetaBlocks.MUTLIBLOCK_CASING2.getItemVariant(GAMultiblockCasing2.CasingType.STELLAR_CONTAINMENT, 64), TJMetaBlocks.FUSION_CASING.getItemVariant(BlockFusionCasings.FusionType.FUSION_COIL_UEV, 64), RECURSIVELY_FOLDED_NEGATIVE_SPACE.getStackForm(50))
                 .input(OrePrefix.plateDense, MATERIAL_REGISTRY.getObject("chaosalloy"), 7)
                 .input(OrePrefix.plate, MATERIAL_REGISTRY.getObject("chaos"), 64)
                 .input(OrePrefix.screw, HastelloyK243, 64)
@@ -1138,7 +1129,7 @@ public class AssemblyLineRecipes {
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(62208), Lubricant.getFluid(64000), HeavyQuarkDegenerateMatter.getFluid(57600), QCDMatter.getFluid(62208))
                 .inputs(INDUSTRIAL_FUSION_REACTOR_UEV.getStackForm(), INDUSTRIAL_FUSION_REACTOR_UHV.getStackForm(2), INDUSTRIAL_FUSION_REACTOR_UV.getStackForm(3), INDUSTRIAL_FUSION_REACTOR_ZPM.getStackForm(4), INDUSTRIAL_FUSION_REACTOR_LUV.getStackForm(5), FUSION_REACTOR[2].getStackForm(16), FUSION_REACTOR[1].getStackForm(32), FUSION_REACTOR[0].getStackForm(64), UHPIC_WAFER.getStackForm(64))
-                .inputs(fieldGens[12].getStackForm(64), emitters[12].getStackForm(64), sensors[12].getStackForm(64))
+                .inputs(FIELD_GENERATORS[13].getStackForm(64), EMITTERS[13].getStackForm(64), SENSORS[13].getStackForm(64))
                 .input(OrePrefix.wireGtHex, UXVSuperconductor, 64)
                 .input(OrePrefix.plateDense, CosmicNeutronium, 7)
                 .input(OrePrefix.plateDense, Neutronium, 7)
@@ -1148,7 +1139,7 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(20736), Lubricant.getFluid(64000), Taranium.getFluid(57600), NaquadriaticTaranium.getFluid(57600))
-                .inputs(CREATIVE_LARGE_MINER.getStackForm(20), emitters[12].getStackForm(64), motors[12].getStackForm(16), pistons[12].getStackForm(16), COMPONENT_GRINDER_TUNGSTEN.getStackForm(64))
+                .inputs(CREATIVE_LARGE_MINER.getStackForm(20), EMITTERS[13].getStackForm(64), MOTORS[13].getStackForm(16), PISTONS[13].getStackForm(16), COMPONENT_GRINDER_TUNGSTEN.getStackForm(64))
                 .input(OrePrefix.gearSmall, QCDMatter, 64)
                 .input(OrePrefix.gearSmall, QCDMatter, 64)
                 .input(OrePrefix.gearSmall, QCDMatter, 64)
@@ -1162,7 +1153,7 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216), Lubricant.getFluid(16000), Mendelevium.getMaterial().getFluid(4608), Fermium.getMaterial().getFluid(4608))
-                .inputs(NUCLEAR_REACTOR.getStackForm(8), NUCLEAR_BREEDER.getStackForm(8), fieldGens[5].getStackForm(16), robotArms[5].getStackForm(32))
+                .inputs(NUCLEAR_REACTOR.getStackForm(8), NUCLEAR_BREEDER.getStackForm(8), FIELD_GENERATORS[6].getStackForm(16), ROBOT_ARMS[6].getStackForm(32))
                 .input(OrePrefix.screw, TungstenTitaniumCarbide, 32)
                 .input(OrePrefix.screw, RhodiumPlatedPalladium, 32)
                 .input(OrePrefix.plateDense, ReactorSteel, 7)
@@ -1176,7 +1167,7 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216), Lubricant.getFluid(16000), Mendelevium.getMaterial().getFluid(4608), Fermium.getMaterial().getFluid(4608))
-                .inputs(GAS_CENTRIFUGE.getStackForm(16), motors[5].getStackForm(32), pumps[5].getStackForm(32), regulators[5].getStackForm(32))
+                .inputs(GAS_CENTRIFUGE.getStackForm(16), MOTORS[6].getStackForm(32), PUMPS[6].getStackForm(32), FLUID_REGULATORS[6].getStackForm(32))
                 .input(OrePrefix.pipeLarge, NiobiumTitanium, 64)
                 .input(OrePrefix.plateDense, StainlessSteel, 7)
                 .input(OrePrefix.screw, TungstenSteel, 32)
@@ -1189,7 +1180,7 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), SterileGrowthMedium.getFluid(64000), BacterialGrowthMedium.getFluid(64000))
-                .inputs(BIO_REACTOR.getStackForm(16), sensors[9].getStackForm(32), pumps[9].getStackForm(32), robotArms[9].getStackForm(32), emitters[9].getStackForm(32), fieldGens[9].getStackForm(16))
+                .inputs(BIO_REACTOR.getStackForm(16), SENSORS[10].getStackForm(32), PUMPS[10].getStackForm(32), ROBOT_ARMS[10].getStackForm(32), EMITTERS[10].getStackForm(32), FIELD_GENERATORS[10].getStackForm(16))
                 .input(OrePrefix.plate, TantalumHafniumSeaborgiumCarbide, 24)
                 .input(OrePrefix.screw, EnrichedNaquadahAlloy, 64)
                 .input(OrePrefix.gear, HastelloyK243, 16)

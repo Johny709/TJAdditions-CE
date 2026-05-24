@@ -16,7 +16,6 @@ import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
-import gregtech.api.items.metaitem.MetaItem;
 import gregtech.api.render.Textures;
 import gregtech.api.util.Position;
 import gregtech.common.covers.CoverConveyor;
@@ -57,14 +56,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static gregicadditions.item.GAMetaItems.*;
-import static gregicadditions.item.GAMetaItems.CONVEYOR_MODULE_MAX;
-import static gregicadditions.item.GAMetaItems.CONVEYOR_MODULE_UMV;
-import static gregicadditions.item.GAMetaItems.CONVEYOR_MODULE_UXV;
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLocation.LEFT;
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
 import static gregtech.common.items.MetaItems.*;
-import static gregtech.common.items.MetaItems.CONVEYOR_MODULE_UV;
+import static tj.items.TJMetaItems.CONVEYORS;
+import static tj.items.TJMetaItems.PUMPS;
 
 public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
 
@@ -194,8 +190,6 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        final MetaItem<?>.MetaValueItem[] conveyors = {null, CONVEYOR_MODULE_LV, CONVEYOR_MODULE_MV, CONVEYOR_MODULE_HV, CONVEYOR_MODULE_EV, CONVEYOR_MODULE_IV, CONVEYOR_MODULE_LUV, CONVEYOR_MODULE_ZPM, CONVEYOR_MODULE_UV, CONVEYOR_MODULE_UHV, CONVEYOR_MODULE_UEV, CONVEYOR_MODULE_UIV, CONVEYOR_MODULE_UMV, CONVEYOR_MODULE_UXV, CONVEYOR_MODULE_MAX};
-        final MetaItem<?>.MetaValueItem[] pumps = {null, ELECTRIC_PUMP_LV, ELECTRIC_PUMP_MV, ELECTRIC_PUMP_HV, ELECTRIC_PUMP_EV, ELECTRIC_PUMP_IV, ELECTRIC_PUMP_LUV, ELECTRIC_PUMP_ZPM, ELECTRIC_PUMP_UV, ELECTRIC_PUMP_UHV, ELECTRIC_PUMP_UEV, ELECTRIC_PUMP_UIV, ELECTRIC_PUMP_UMV, ELECTRIC_PUMP_UXV, ELECTRIC_PUMP_MAX};
         final WidgetGroup itemWidgetGroup = new WidgetGroup(new Position(10, 95));
         final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(10, 115));
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
@@ -238,7 +232,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                 });
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
-                .addTab(String.format("metaitem.conveyor.module.%s.name", GAValues.VN[this.tier].toLowerCase()), this.tier > 0 ? conveyors[this.tier].getStackForm() : this.getPickItem(), tab -> {
+                .addTab(String.format("metaitem.conveyor.module.%s.name", GAValues.VN[this.tier].toLowerCase()), CONVEYORS[this.tier].getStackForm(), tab -> {
                     tab.add(new LabelWidget(7, 5, "cover.conveyor.title", GTValues.VN[this.tier]));
                     tab.add(new ClickButtonWidget(7, 20, 23, 20, "-10", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(146, 20, 23, 20, "+10", data -> this.setItemTransferRate(this.itemTransferRate + (data.isShiftClick ? 100 : 10))));
@@ -265,7 +259,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                     tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
                     tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
                             .setTooltipText("machine.universal.toggle.run.mode"));
-                }).addTab(String.format("metaitem.electric.pump.%s.name", GAValues.VN[this.tier].toLowerCase()), this.tier > 0 ? pumps[this.tier].getStackForm() : this.getPickItem(), tab -> {
+                }).addTab(String.format("metaitem.electric.pump.%s.name", GAValues.VN[this.tier].toLowerCase()), PUMPS[this.tier].getStackForm(), tab -> {
                     tab.add(new LabelWidget(7, 5, "cover.pump.title", GTValues.VN[this.tier]));
                     tab.add(new ClickButtonWidget(7, 20, 37, 20, "-100", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(132, 20, 37, 20, "+100", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 500 : 100))));

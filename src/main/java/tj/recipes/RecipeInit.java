@@ -49,7 +49,7 @@ import static gregtech.common.metatileentities.MetaTileEntities.*;
 import static tj.TJValues.CIRCUIT_TIERS;
 import static tj.items.TJMetaItems.*;
 import static tj.machines.TJMetaTileEntities.*;
-import static tj.recipes.AssemblerRecipes.MATERIAL_TIER;
+import static tj.materials.TJMaterials.MATERIAL_TIER;
 
 public class RecipeInit {
 
@@ -243,11 +243,11 @@ public class RecipeInit {
             final int tier = 3 + (3 * i);
             MetaTileEntityQuantumTank superTank = superTanks[i];
             ModHandler.addShapedRecipe("steam_input_hatch." + GAValues.VN[tier], STEAM_INPUT_FLUID_HATCH[i].getStackForm(), "DPD", "DSD", "DPD",
-                    'D', new UnificationEntry(OrePrefix.plate, MATERIAL_TIER[0][tier -1]),
+                    'D', new UnificationEntry(OrePrefix.plate, MATERIAL_TIER[tier]),
                     'P', new UnificationEntry(OrePrefix.pipeLarge, pipe[i]),
                     'S', superTank.getStackForm());
             ModHandler.addShapedRecipe("steam_output_hatch." + GAValues.VN[tier], STEAM_OUTPUT_FLUID_HATCH[i].getStackForm(), "DDD", "PSP", "DDD",
-                    'D', new UnificationEntry(OrePrefix.plate, MATERIAL_TIER[0][tier -1]),
+                    'D', new UnificationEntry(OrePrefix.plate, MATERIAL_TIER[tier]),
                     'P', new UnificationEntry(OrePrefix.pipeLarge, pipe[i]),
                     'S', superTank.getStackForm());
         }
@@ -400,7 +400,7 @@ public class RecipeInit {
                     .circuitMeta(1)
                     .input(OrePrefix.circuit, CIRCUIT_TIERS[i + 9])
                     .input(OrePrefix.gemExquisite, Amethyst, 4)
-                    .input(OrePrefix.plate, MATERIAL_TIER[0][i + 9], 4)
+                    .input(OrePrefix.plate, MATERIAL_TIER[i + 10], 4)
                     .inputs(GAMetaItems.UNSTABLE_STAR.getStackForm(), GAMetaItems.OPTICAL_PROCESSING_CORE.getStackForm(4), GAMetaItems.OPTICAL_SOC.getStackForm(16))
                     .outputs(i == 0 ? aeCellParts[0] : aeCellParts[4])
                     .duration(300).EUt(GAValues.VA[9])
@@ -416,7 +416,7 @@ public class RecipeInit {
         }
         for (int i = 0, tier = 1; i < NAMING_MACHINES.length; i++, tier++) {
             ModHandler.addShapedRecipe("naming_machine." + GAValues.VN[tier], NAMING_MACHINES[i].getStackForm(), "GPG", "CHC", "GAG",
-                    'G', new UnificationEntry(OrePrefix.gearSmall, MATERIAL_TIER[0][i]),
+                    'G', new UnificationEntry(OrePrefix.gearSmall, MATERIAL_TIER[tier]),
                     'C', GACraftingComponents.CIRCUIT.getIngredient(tier),
                     'P', GACraftingComponents.PISTON.getIngredient(tier),
                     'H', GACraftingComponents.HULL.getIngredient(tier),
@@ -429,7 +429,7 @@ public class RecipeInit {
                     .circuitMeta(1)
                     .input(OrePrefix.circuit, CIRCUIT_TIERS[i + 9])
                     .input(OrePrefix.gemExquisite, Amethyst, 4)
-                    .input(OrePrefix.plate, MATERIAL_TIER[0][i + 9], 4)
+                    .input(OrePrefix.plate, MATERIAL_TIER[i + 10], 4)
                     .inputs(aeCellParts2, GAMetaItems.OPTICAL_PROCESSING_CORE.getStackForm(4))
                     .outputs(aeCellParts[i])
                     .duration(300).EUt(GAValues.VA[Math.min(11, i + 9)])
@@ -440,7 +440,7 @@ public class RecipeInit {
                     .circuitMeta(1)
                     .input(OrePrefix.circuit, CIRCUIT_TIERS[i + 9])
                     .input(OrePrefix.gemExquisite, Amethyst, 4)
-                    .input(OrePrefix.plate, MATERIAL_TIER[0][i + 9], 4)
+                    .input(OrePrefix.plate, MATERIAL_TIER[i + 10], 4)
                     .inputs(aeCellParts2, GAMetaItems.OPTICAL_PROCESSING_CORE.getStackForm(4))
                     .outputs(aeCellParts[i + 4])
                     .duration(300).EUt(GAValues.VA[Math.min(11, i + 9)])
@@ -496,6 +496,12 @@ public class RecipeInit {
         final ItemStack largeVialProcessor = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 4202);
         ModHandler.addShapelessRecipe("tj_large_vial_processor", LARGE_VIAL_PROCESSOR.getStackForm(), largeVialProcessor);
         ModHandler.addShapelessRecipe("tj_large_vial_processor.back", largeVialProcessor, LARGE_VIAL_PROCESSOR.getStackForm());
+        ModHandler.addShapelessRecipe("tj_steam_grinder", STEAM_GRINDER.getStackForm(), GATileEntities.STEAM_GRINDER.getStackForm());
+        ModHandler.addShapelessRecipe("tj_steam_grinder.back", GATileEntities.STEAM_GRINDER.getStackForm(), STEAM_GRINDER.getStackForm());
+        ModHandler.addShapelessRecipe("tj_steam_oven", STEAM_OVEN.getStackForm(), GATileEntities.STEAM_OVEN.getStackForm());
+        ModHandler.addShapelessRecipe("tj_steam_oven.back", GATileEntities.STEAM_OVEN.getStackForm(), STEAM_OVEN.getStackForm());
+        ModHandler.addShapelessRecipe("tj_multi-smelter", MULTI_SMELTER.getStackForm(), GATileEntities.MULTI_FURNACE.getStackForm());
+        ModHandler.addShapelessRecipe("tj_multi-smelter.back", GATileEntities.MULTI_FURNACE.getStackForm(), MULTI_SMELTER.getStackForm());
     }
 
     public static ItemStack getEnergyHatch(int tier, boolean isOutput) {

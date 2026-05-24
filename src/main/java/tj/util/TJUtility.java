@@ -33,4 +33,11 @@ public final class TJUtility {
         }
         return 0;
     }
+
+    @SafeVarargs
+    public static <T> void addToArray(T[] array, T... elements) {
+        for (int i = 0; i < elements.length; i++) {
+            array[i] = elements[i];
+        }
+    }
 }
