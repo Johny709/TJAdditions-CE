@@ -1,7 +1,6 @@
 package tj.items.behaviours;
 
 import gregicadditions.GAValues;
-import gregtech.api.GTValues;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -33,6 +32,7 @@ import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.SelectionWidgetGroup;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.items.TJMetaItems;
 import tj.items.covers.ControllableDualCover;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.handlers.LargeItemStackHandler;
@@ -53,8 +53,7 @@ import java.util.stream.IntStream;
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLocation.LEFT;
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
 import static gregtech.common.items.MetaItems.*;
-import static tj.items.TJMetaItems.*;
-import static tj.items.TJMetaItems.FLUID_REGULATORS;
+import static tj.items.TJMetaItems.CONTROLLABLE_DUAL_COVERS;
 
 public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
 
@@ -253,8 +252,8 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
         };
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
-                .addTab(String.format("metaitem.fluid.regulator.%s.name", GAValues.VN[this.tier].toLowerCase()), ROBOT_ARMS[this.tier].getStackForm(), tab -> {
-                    tab.add(new LabelWidget(7, 5, "cover.robotic_arm.title", GTValues.VN[this.tier]));
+                .addTab(String.format("metaitem.fluid.regulator.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.ROBOT_ARMS[this.tier].getStackForm(), tab -> {
+                    tab.add(new LabelWidget(7, 5, "cover.robotic_arm.title", GAValues.VN[this.tier]));
                     tab.add(new ClickButtonWidget(7, 20, 23, 20, "-10", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() - (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(146, 20, 23, 20, "+10", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() + (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(30, 20, 20, 20, "-1", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() - (data.isShiftClick ? 5 : 1))));
@@ -295,8 +294,8 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                         itemWorking.setValue(w);
                         compound.setBoolean("itemWorking", itemWorking.isValue());
                     }).setTooltipText("machine.universal.toggle.run.mode"));
-                }).addTab(String.format("metaitem.electric.pump.%s.name", GAValues.VN[this.tier].toLowerCase()), FLUID_REGULATORS[this.tier].getStackForm(), tab -> {
-                    tab.add(new LabelWidget(7, 5, "cover.fluid_regulator.title", GTValues.VN[this.tier]));
+                }).addTab(String.format("metaitem.electric.pump.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.FLUID_REGULATORS[this.tier].getStackForm(), tab -> {
+                    tab.add(new LabelWidget(7, 5, "cover.fluid_regulator.title", GAValues.VN[this.tier]));
                     tab.add(new ClickButtonWidget(7, 20, 37, 20, "-100", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() - (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(132, 20, 37, 20, "+100", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() + (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(44, 20, 24, 20, "-10", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() - (data.isShiftClick ? 50 : 10))));

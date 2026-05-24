@@ -6,7 +6,6 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
-import gregtech.api.GTValues;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
@@ -46,6 +45,7 @@ import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.items.TJMetaItems;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.util.TJItemUtils;
@@ -59,8 +59,6 @@ import java.util.stream.IntStream;
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLocation.LEFT;
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
 import static gregtech.common.items.MetaItems.*;
-import static tj.items.TJMetaItems.CONVEYORS;
-import static tj.items.TJMetaItems.PUMPS;
 
 public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
 
@@ -232,8 +230,8 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                 });
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
-                .addTab(String.format("metaitem.conveyor.module.%s.name", GAValues.VN[this.tier].toLowerCase()), CONVEYORS[this.tier].getStackForm(), tab -> {
-                    tab.add(new LabelWidget(7, 5, "cover.conveyor.title", GTValues.VN[this.tier]));
+                .addTab(String.format("metaitem.conveyor.module.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.CONVEYORS[this.tier].getStackForm(), tab -> {
+                    tab.add(new LabelWidget(7, 5, "cover.conveyor.title", GAValues.VN[this.tier]));
                     tab.add(new ClickButtonWidget(7, 20, 23, 20, "-10", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(146, 20, 23, 20, "+10", data -> this.setItemTransferRate(this.itemTransferRate + (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(30, 20, 20, 20, "-1", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 5 : 1))));
@@ -259,8 +257,8 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                     tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
                     tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
                             .setTooltipText("machine.universal.toggle.run.mode"));
-                }).addTab(String.format("metaitem.electric.pump.%s.name", GAValues.VN[this.tier].toLowerCase()), PUMPS[this.tier].getStackForm(), tab -> {
-                    tab.add(new LabelWidget(7, 5, "cover.pump.title", GTValues.VN[this.tier]));
+                }).addTab(String.format("metaitem.electric.pump.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.PUMPS[this.tier].getStackForm(), tab -> {
+                    tab.add(new LabelWidget(7, 5, "cover.pump.title", GAValues.VN[this.tier]));
                     tab.add(new ClickButtonWidget(7, 20, 37, 20, "-100", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(132, 20, 37, 20, "+100", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(44, 20, 24, 20, "-10", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 50 : 10))));
@@ -299,7 +297,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
 
     @Override
     public void update() {
-        if (this.isConveyorWorking && this.coverHolder.getOffsetTimer() % this.itemTicks == 0 && this.itemHandler != null) {
+        if (this.isConveyorWorking && this.itemHandler != null && this.coverHolder.getOffsetTimer() % this.itemTicks == 0) {
             final TileEntity tileEntity = this.coverHolder.getWorld().getTileEntity(this.posSideOf);
             if (tileEntity != null) {
                 final IItemHandler destItemHandler = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
@@ -310,7 +308,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                 }
             }
         }
-        if (this.isPumpWorking && this.coverHolder.getOffsetTimer() % this.fluidTicks == 0 && this.fluidHandler != null) {
+        if (this.isPumpWorking && this.fluidHandler != null && this.coverHolder.getOffsetTimer() % this.fluidTicks == 0) {
             final TileEntity tileEntity = this.coverHolder.getWorld().getTileEntity(this.posSideOf);
             if (tileEntity != null) {
                 final IFluidHandler destFluidHandler = tileEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
@@ -376,14 +374,16 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
     }
 
     protected void transferItems(IItemHandler itemHandler, IItemHandler destItemHandler) {
-        switch (this.fluidFilterType) {
+        int itemTransferRate = this.itemTransferRate;
+        switch (this.itemFilterType) {
             case NORMAL:
                 for (int i = 0; i < itemHandler.getSlots(); i++) {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty() && this.isItemBlacklist == (this.itemType.get(stack) == null)) {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final int extract = Math.min(this.itemTransferRate, stack.getCount() - inserted);
+                        final int extract = Math.min(itemTransferRate, stack.getCount() - inserted);
                         if (extract < 1) continue;
+                        itemTransferRate -= extract;
                         final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
@@ -394,8 +394,9 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty() && this.oreDictionaryItemFilter.matchItemStack(stack) != null) {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final int extract = Math.min(this.itemTransferRate, stack.getCount() - inserted);
+                        final int extract = Math.min(itemTransferRate, stack.getCount() - inserted);
                         if (extract < 1) continue;
+                        itemTransferRate -= extract;
                         final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
@@ -406,7 +407,10 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty()) {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final ItemStack otherStack = itemHandler.extractItem(i, Math.min(this.itemTransferRate, stack.getCount() - inserted), false);
+                        final int extract = Math.min(this.itemTransferRate, stack.getCount() - inserted);
+                        if (extract < 1) continue;
+                        itemTransferRate -= extract;
+                        final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
                 }

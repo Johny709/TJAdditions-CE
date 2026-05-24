@@ -45,7 +45,7 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
             .collect(Collectors.toList()));
     protected final IFluidHandler fluidHandler = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, this.attachedSide);
     protected boolean isWorking;
-    protected int tickTime;
+    protected int tickTime = 20;
 
     public VoidFluidCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);

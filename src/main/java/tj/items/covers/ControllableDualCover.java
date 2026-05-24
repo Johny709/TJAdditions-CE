@@ -1,7 +1,6 @@
 package tj.items.covers;
 
 import gregicadditions.GAValues;
-import gregtech.api.GTValues;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.cover.ICoverable;
@@ -43,6 +42,7 @@ import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.SelectionWidgetGroup;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.items.TJMetaItems;
 import tj.util.Counter;
 import tj.util.TJItemUtils;
 import tj.util.map.Strategies;
@@ -56,8 +56,6 @@ import java.util.regex.Pattern;
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLocation.LEFT;
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
 import static gregtech.common.items.MetaItems.*;
-import static tj.items.TJMetaItems.*;
-import static tj.items.TJMetaItems.FLUID_REGULATORS;
 
 public class ControllableDualCover extends DualCover {
 
@@ -215,8 +213,8 @@ public class ControllableDualCover extends DualCover {
                 });
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
-                .addTab(String.format("metaitem.robot.arm.%s.name", GAValues.VN[this.tier].toLowerCase()), ROBOT_ARMS[this.tier].getStackForm(), tab -> {
-                    tab.add(new LabelWidget(7, 5, "cover.robotic_arm.title", GTValues.VN[this.tier]));
+                .addTab(String.format("metaitem.robot.arm.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.ROBOT_ARMS[this.tier].getStackForm(), tab -> {
+                    tab.add(new LabelWidget(7, 5, "cover.robotic_arm.title", GAValues.VN[this.tier]));
                     tab.add(new ClickButtonWidget(7, 20, 23, 20, "-10", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(146, 20, 23, 20, "+10", data -> this.setItemTransferRate(this.itemTransferRate + (data.isShiftClick ? 100 : 10))));
                     tab.add(new ClickButtonWidget(30, 20, 20, 20, "-1", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 5 : 1))));
@@ -244,8 +242,8 @@ public class ControllableDualCover extends DualCover {
                     tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
                     tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
                             .setTooltipText("machine.universal.toggle.run.mode"));
-                }).addTab(String.format("metaitem.fluid.regulator.%s.name", GAValues.VN[this.tier].toLowerCase()), FLUID_REGULATORS[this.tier].getStackForm(), tab -> {
-                    tab.add(new LabelWidget(7, 5, "cover.fluid_regulator.title", GTValues.VN[this.tier]));
+                }).addTab(String.format("metaitem.fluid.regulator.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.FLUID_REGULATORS[this.tier].getStackForm(), tab -> {
+                    tab.add(new LabelWidget(7, 5, "cover.fluid_regulator.title", GAValues.VN[this.tier]));
                     tab.add(new ClickButtonWidget(7, 20, 37, 20, "-100", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(132, 20, 37, 20, "+100", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 500 : 100))));
                     tab.add(new ClickButtonWidget(44, 20, 22, 20, "-10", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 50 : 10))));
@@ -420,9 +418,11 @@ public class ControllableDualCover extends DualCover {
                     final ItemStack filterStack;
                     if (!stack.isEmpty() && this.isItemBlacklist == ((filterStack = this.itemType.get(stack)) == null)) {
                         if (filterStack == null) continue;
+                        final Counter counter = this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER);
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final int extract = (int) Math.min(stack.getCount() - inserted, filterStack.getCount() - this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER).getValue());
+                        final int extract = (int) Math.min(stack.getCount() - inserted, filterStack.getCount() - counter.getValue());
                         if (extract < 1) continue;
+                        counter.increment(extract);
                         final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
@@ -453,8 +453,8 @@ public class ControllableDualCover extends DualCover {
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
                         final int extract = (int) Math.min(stack.getCount() - inserted, itemStackWrapper.getCount() - counter.getValue());
                         if (extract < 1) continue;
+                        counter.increment(extract);
                         final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
-                        counter.increment(otherStack.getCount());
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
                 }
@@ -463,9 +463,11 @@ public class ControllableDualCover extends DualCover {
                 for (int i = 0; i < itemHandler.getSlots(); i++) {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty() && this.oreDictionaryItemFilter.matchItemStack(stack) != null) {
+                        final Counter counter = this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER);
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final int extract = (int) Math.min(stack.getCount() - inserted, this.itemTransferRate - this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER).getValue());
+                        final int extract = (int) Math.min(stack.getCount() - inserted, this.itemTransferRate - counter.getValue());
                         if (extract < 1) continue;
+                        counter.increment(extract);
                         final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
@@ -475,9 +477,11 @@ public class ControllableDualCover extends DualCover {
                 for (int i = 0; i < itemHandler.getSlots(); i++) {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty()) {
+                        final Counter counter = this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER);
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
-                        final int extract = (int) Math.min(stack.getCount() - inserted, this.itemTransferRate - this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER).getValue());
+                        final int extract = (int) Math.min(stack.getCount() - inserted, this.itemTransferRate - counter.getValue());
                         if (extract < 1) continue;
+                        counter.increment(extract);
                         final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
                         TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
                     }
@@ -532,7 +536,6 @@ public class ControllableDualCover extends DualCover {
                         if (fluidStack.amount >= fluidStackWrapper.getCount()) {
                             fluidStack.amount = fluidStackWrapper.getCount();
                             fluidStack.amount = destFluidHandler.fill(fluidStack, true);
-                            fluidStackWrapper.decrement(fluidStack.amount);
                             fluidHandler.drain(fluidStack, true);
                         }
                     }
@@ -571,9 +574,11 @@ public class ControllableDualCover extends DualCover {
                     if (fluidStack != null && this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null)) {
                         fluidStack = fluidHandler.drain(fluidStack, false);
                         if (fluidStack == null || filterStack == null) continue;
-                        fluidStack.amount = (int) Math.min(fluidStack.amount, Math.min(this.fluidSupplyThroughput, filterStack.amount - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue()));
+                        final Counter counter = this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER);
+                        fluidStack.amount = (int) Math.min(fluidStack.amount, filterStack.amount - counter.getValue());
                         if (fluidStack.amount > 0) {
                             fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                            counter.increment(fluidStack.amount);
                             fluidHandler.drain(fluidStack, true);
                         }
                     }
@@ -619,9 +624,11 @@ public class ControllableDualCover extends DualCover {
                     if (fluidStack != null) {
                         fluidStack = fluidHandler.drain(fluidStack, false);
                         if (fluidStack == null) continue;
-                        fluidStack.amount = (int) Math.min(fluidStack.amount, Math.min(this.fluidSupplyThroughput, this.fluidSupplyThroughput - this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER).getValue()));
+                        final Counter counter = this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER);
+                        fluidStack.amount = (int) Math.min(fluidStack.amount, Math.min(this.fluidSupplyThroughput, this.fluidSupplyThroughput - counter.getValue()));
                         if (fluidStack.amount > 0) {
                             fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                            counter.increment(fluidStack.amount);
                             fluidHandler.drain(fluidStack, true);
                         }
                     }
