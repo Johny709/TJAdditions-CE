@@ -1,6 +1,0 @@
-{
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "tj:items/me.block_container.item_cell.65536"
-  }
-}

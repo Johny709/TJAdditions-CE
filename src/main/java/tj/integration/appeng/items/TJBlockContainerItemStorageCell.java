@@ -11,6 +11,11 @@ public class TJBlockContainerItemStorageCell extends TJItemStorageCell {
     }
 
     @Override
+    public int getBytesPerType(ItemStack cellItem) {
+        return 1;
+    }
+
+    @Override
     public int getTotalTypes(ItemStack cellItem) {
         return 1;
     }

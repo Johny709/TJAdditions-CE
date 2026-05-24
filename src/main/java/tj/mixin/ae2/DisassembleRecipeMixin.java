@@ -51,7 +51,9 @@ public abstract class DisassembleRecipeMixin {
         this.cellMappings.put(TJItems.FLUID_CELL_262144K, TJItems.MATERIAL_FLUID_CELL_262144K);
         this.cellMappings.put(TJItems.FLUID_CELL_1048M, TJItems.MATERIAL_FLUID_CELL_1048M);
         this.cellMappings.put(TJItems.FLUID_CELL_DIGITAL_SINGULARITY, TJItems.MATERIAL_FLUID_CELL_DIGITAL_SINGULARITY);
-        this.cellMappings.put(TJItems.ITEM_BLOCK_CONTAINER_65K, definitions.materials().cell1kPart());
+        this.cellMappings.put(TJItems.ITEM_BLOCK_CONTAINER_64K, definitions.materials().cell1kPart());
+        this.cellMappings.put(TJItems.ITEM_BLOCK_CONTAINER_65536K, TJItems.MATERIAL_ITEM_CELL_65536K);
+        this.cellMappings.put(TJItems.ITEM_BLOCK_CONTAINER_SINGULARITY, TJItems.MATERIAL_ITEM_CELL_DIGITAL_SINGULARITY);
 
         // AE2 UEL forgot to add disassemble recipes for their fluid cells
         this.cellMappings.put(items.fluidCell1k(), materials.fluidCell1kPart());

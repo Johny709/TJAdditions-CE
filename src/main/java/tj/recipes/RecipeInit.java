@@ -321,6 +321,9 @@ public class RecipeInit {
                 'G', GACraftingComponents.GEAR.getIngredient(5),
                 'H', NAMING_MACHINES[4].getStackForm(),
                 'A', new ItemStack(Blocks.ANVIL));
+        ModHandler.addShapelessRecipe("tj_item_block_container", ITEM_BLOCK_CONTAINER_64K.maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().cell1kPart().maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), new ItemStack(Blocks.CHEST));
+        ModHandler.addShapelessRecipe("tj_item_block_container.2", ITEM_BLOCK_CONTAINER_65536K.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_65536K.maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), COMPRESSED_CHEST.getStackForm());
+        ModHandler.addShapelessRecipe("tj_item_block_container.singularity", ITEM_BLOCK_CONTAINER_SINGULARITY.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), INFINITY_CHEST.getStackForm());
         for (int i = 0; i < 2; i++) {
             ModHandler.addShapedRecipe("charcoal_pit." + i, i == 0 ? CHARCOAL_PIT.getStackForm() : CHARCOAL_PIT_ADVANCED.getStackForm(), "PRP", "PHP", "FFF",
                     'H', i == 0 ? MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.BRONZE_BRICKS_HULL) : MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.STEEL_BRICKS_HULL),

@@ -39,7 +39,9 @@ public class TJItems {
     public static IItemDefinition FLUID_CELL_262144K;
     public static IItemDefinition FLUID_CELL_1048M;
     public static IItemDefinition FLUID_CELL_DIGITAL_SINGULARITY;
-    public static IItemDefinition ITEM_BLOCK_CONTAINER_65K;
+    public static IItemDefinition ITEM_BLOCK_CONTAINER_64K;
+    public static IItemDefinition ITEM_BLOCK_CONTAINER_65536K;
+    public static IItemDefinition ITEM_BLOCK_CONTAINER_SINGULARITY;
 
     public static void init(IForgeRegistry<Item> registry) {
         UNBREAKABLE_AXE = registerItem(registry, new UnbreakableAxe(Item.ToolMaterial.DIAMOND));
@@ -62,7 +64,9 @@ public class TJItems {
         FLUID_CELL_262144K = registerItem(registry, new ItemDefinition("me.fluid_cell.262144k", new TJFluidStorageCell(MATERIAL_FLUID_CELL_262144K, 262144)));
         FLUID_CELL_1048M = registerItem(registry, new ItemDefinition("me.fluid_cell.1048m", new TJFluidStorageCell(MATERIAL_FLUID_CELL_1048M, 1048576)));
         FLUID_CELL_DIGITAL_SINGULARITY = registerItem(registry, new ItemDefinition("me.fluid_cell.digital_singularity", new TJFluidStorageCell(MATERIAL_FLUID_CELL_DIGITAL_SINGULARITY, Integer.MAX_VALUE)));
-        ITEM_BLOCK_CONTAINER_65K = registerItem(registry, new ItemDefinition("me.block_container.item_cell.65536", new TJBlockContainerItemStorageCell(Api.INSTANCE.definitions().materials().cell1kPart(), 64)));
+        ITEM_BLOCK_CONTAINER_64K = registerItem(registry, new ItemDefinition("me.block_container.item_cell.64k", new TJBlockContainerItemStorageCell(Api.INSTANCE.definitions().materials().cell1kPart(), 64)));
+        ITEM_BLOCK_CONTAINER_65536K = registerItem(registry, new ItemDefinition("me.block_container.item_cell.65536k", new TJBlockContainerItemStorageCell(MATERIAL_ITEM_CELL_65536K, 65536)));
+        ITEM_BLOCK_CONTAINER_SINGULARITY = registerItem(registry, new ItemDefinition("me.block_container.item_cell.singularity", new TJBlockContainerItemStorageCell(MATERIAL_ITEM_CELL_DIGITAL_SINGULARITY, Integer.MAX_VALUE)));
     }
 
     private static Item registerItem(IForgeRegistry<Item> registry, Item item) {
