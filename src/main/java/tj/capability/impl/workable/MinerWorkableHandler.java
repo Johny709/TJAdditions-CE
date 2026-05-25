@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
 public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler> implements IItemFluidHandlerInfo {
 
     protected final Object2ObjectMap<Item, IntPair<ItemStack>> itemType = new Object2ObjectOpenHashMap<>();
-    protected final Object2ObjectMap<Item, ItemStack> itemFilterType = new Object2ObjectOpenHashMap<>();
+    protected final Object2ObjectMap<Block, ItemStack> blockFilterType = new Object2ObjectOpenHashMap<>();
     protected final OreDictionaryItemFilter oreDictFilter = new OreDictionaryItemFilter() {
         @Override
         public void initUI(Consumer<Widget> widgetGroup) {
@@ -115,7 +115,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                 this.miningPos.setPos(this.currentChunk.x + (progress % 16), this.levelY, this.currentChunk.z + (progress / 16));
                 final IBlockState state = this.metaTileEntity.getWorld().getBlockState(this.miningPos);
                 final Block block = state.getBlock();
-                if (this.levelY > 0 && this.blacklistBlock == (this.itemFilterType.get(Item.getItemFromBlock(block)) == null)) {
+                if (this.levelY > 0 && this.blacklistBlock == (this.blockFilterType.get(block) == null)) {
                     if (block != Blocks.AIR) {
                         if (this.silkTouch ? this.addItemDrop(block, 1, block.getMetaFromState(state)) : this.addItemDrop(block.getItemDropped(state, this.metaTileEntity.getWorld().rand, this.handler.getFortuneLvl()), 1, block.damageDropped(state))) {
                             this.metaTileEntity.getWorld().playEvent(2001, this.miningPos, Block.getStateId(state));
@@ -211,17 +211,17 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         return growAmount;
     }
 
-    public boolean removeItemFromFilter(ItemStack stack) {
-        return this.itemFilterType.remove(stack.getItem()) != null;
+    public boolean containsItemFromFilter(ItemStack stack) {
+        return !this.blockFilterType.containsKey(Block.getBlockFromItem(stack.getItem()));
     }
 
-    public boolean addItemToFilter(ItemStack stack) {
-        if (stack.isEmpty())
-            return false;
-        if (this.itemFilterType.get(stack.getItem()) != null)
-            return false;
-        this.itemFilterType.put(stack.getItem(), stack);
-        return true;
+    public void removeItemFromFilter(ItemStack stack) {
+        this.blockFilterType.remove(Block.getBlockFromItem(stack.getItem()));
+    }
+
+    public void addItemToFilter(ItemStack stack) {
+        if (stack.isEmpty() || this.blockFilterType.containsKey(Block.getBlockFromItem(stack.getItem()))) return;
+        this.blockFilterType.put(Block.getBlockFromItem(stack.getItem()), stack);
     }
 
     @Override
@@ -251,7 +251,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
             itemOutputList.appendTag(stack.serializeNBT());
         for (IntPair<ItemStack> value : this.itemType.values())
             itemTypeCountList.appendTag(new NBTTagInt(value.getKey()));
-        for (ItemStack stack : this.itemFilterType.values())
+        for (ItemStack stack : this.blockFilterType.values())
             filterItemList.appendTag(stack.serializeNBT());
         compound.setInteger("outputIndex", this.outputIndex);
         compound.setInteger("chunkIndex", this.chunkIndex);
@@ -280,10 +280,8 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
             this.itemOutputs.add(new ItemStack(itemOutputList.getCompoundTagAt(i)));
         for (int i = 0; i < itemTypeCountList.tagCount(); i++)
             this.itemType.put(this.itemOutputs.get(i).getItem(), IntPair.of(itemTypeCountList.getIntAt(i), this.itemOutputs.get(i)));
-        for (int i = 0; i < filterItemList.tagCount(); i++) {
-            ItemStack stack = new ItemStack(filterItemList.getCompoundTagAt(i));
-            this.itemFilterType.put(stack.getItem(), stack);
-        }
+        for (int i = 0; i < filterItemList.tagCount(); i++)
+            this.addItemToFilter(new ItemStack(filterItemList.getCompoundTagAt(i)));
         this.outputIndex = compound.getInteger("outputIndex");
         this.chunkIndex = compound.getInteger("chunkIndex");
         this.levelY = compound.getInteger("levelY");

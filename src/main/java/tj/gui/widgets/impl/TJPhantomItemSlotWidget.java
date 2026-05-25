@@ -23,8 +23,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientTarget, IIngredientSlot {
 
@@ -33,8 +33,9 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
     private final IItemHandlerModifiable itemHandler;
     private final int slotIndex;
     private TextureArea[] backgroundTextures;
-    private BooleanSupplier putItemsPredicate;
-    private BooleanSupplier takeItemsPredicate;
+    private Predicate<ItemStack> putItemsPredicate;
+    private Predicate<ItemStack> takeItemsPredicate;
+    private boolean specialExtractingMode;
 
     @Nonnull
     private ItemStack itemStack = ItemStack.EMPTY;
@@ -56,10 +57,18 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
     }
 
     /**
+     * Extracts {@link Integer#MIN_VALUE} of item from item tank handler. Use this for special item tank handler behaviours.
+     */
+    public TJPhantomItemSlotWidget setSpecialExtractingMode(boolean specialExtractingMode) {
+        this.specialExtractingMode = specialExtractingMode;
+        return this;
+    }
+
+    /**
      * Set condition for item to be placed into slot either by dragging from JEI or placing item held by mouse into slot.
      * Will always be true if supplier not set or null.
      */
-    public TJPhantomItemSlotWidget setPutItemsPredicate(BooleanSupplier putItemsPredicate) {
+    public TJPhantomItemSlotWidget setPutItemsPredicate(Predicate<ItemStack> putItemsPredicate) {
         this.putItemsPredicate = putItemsPredicate;
         return this;
     }
@@ -67,7 +76,7 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
     /**
      * Set condition for item to be removed from slot. Will always be true if supplier not set or null.
      */
-    public TJPhantomItemSlotWidget setTakeItemsPredicate(BooleanSupplier takeItemsPredicate) {
+    public TJPhantomItemSlotWidget setTakeItemsPredicate(Predicate<ItemStack> takeItemsPredicate) {
         this.takeItemsPredicate = takeItemsPredicate;
         return this;
     }
@@ -102,11 +111,11 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
         if (this.isMouseOverElement(mouseX, mouseY)) {
-            if (button == 1 && (this.takeItemsPredicate == null || this.takeItemsPredicate.getAsBoolean())) { // Right-Click
+            if (button == 1) { // Right-Click
                 this.writeClientAction(2, buffer -> {});
                 this.itemStack = ItemStack.EMPTY;
                 return true;
-            } else if (button == 0 && (this.putItemsPredicate == null || this.putItemsPredicate.getAsBoolean())) { // Left-Click
+            } else if (button == 0) { // Left-Click
                 final ItemStack stack = this.gui.entityPlayer.inventory.getItemStack();
                 if (!stack.isEmpty()) {
                     this.writeClientAction(1, buffer -> buffer.writeItemStack(stack));
@@ -142,21 +151,27 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
     public void handleClientAction(int id, PacketBuffer buffer) {
         if (id == 1) {
             try {
-                this.itemStack = buffer.readItemStack();
-                this.itemHandler.extractItem(this.slotIndex, Integer.MIN_VALUE, false);
-                this.itemHandler.insertItem(this.slotIndex, this.itemStack, false);
-                if (this.onItemUpdate != null)
-                    this.onItemUpdate.accept(this.itemStack);
+                final ItemStack itemStack = buffer.readItemStack();
+                if (this.putItemsPredicate == null || this.putItemsPredicate.test(itemStack)) {
+                    this.itemStack = itemStack;
+                    this.itemHandler.extractItem(this.slotIndex, this.specialExtractingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, false);
+                    this.itemHandler.insertItem(this.slotIndex, this.itemStack, false);
+                    if (this.onItemUpdate != null)
+                        this.onItemUpdate.accept(this.itemStack);
+                } else this.writeUpdateInfo(1, buffer1 -> buffer1.writeItemStack(this.itemStack));
             } catch (IOException e) {
                 GTLog.logger.info(e.getMessage());
             }
         } else if (id == 2) {
-            this.itemStack = ItemStack.EMPTY;
-            final ItemStack extracted = this.itemHandler.extractItem(this.slotIndex, Integer.MIN_VALUE, false);
-            if (this.onItemUpdate != null)
-                this.onItemUpdate.accept(this.itemStack);
-            if (this.onExtracted != null)
-                this.onExtracted.accept(extracted);
+            final ItemStack extracted = this.itemHandler.extractItem(this.slotIndex, this.specialExtractingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, true);
+            if (this.takeItemsPredicate == null || this.takeItemsPredicate.test(extracted)) {
+                this.itemStack = ItemStack.EMPTY;
+                final ItemStack itemStack = this.itemHandler.extractItem(this.slotIndex, this.specialExtractingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, false);
+                if (this.onItemUpdate != null)
+                    this.onItemUpdate.accept(this.itemStack);
+                if (this.onExtracted != null)
+                    this.onExtracted.accept(itemStack);
+            } else this.writeUpdateInfo(1, buffer1 -> buffer1.writeItemStack(extracted));
         }
     }
 
@@ -172,8 +187,7 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
             public void accept(Object o) {
                 if (o instanceof ItemStack) {
                     itemStack = ((ItemStack) o).copy();
-                    if (putItemsPredicate == null || putItemsPredicate.getAsBoolean())
-                        writeClientAction(1, buffer -> buffer.writeItemStack(itemStack));
+                    writeClientAction(1, buffer -> buffer.writeItemStack(itemStack));
                 }
             }
         });

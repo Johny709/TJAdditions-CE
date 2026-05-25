@@ -7,7 +7,6 @@ import gregicadditions.machines.overrides.GATieredMetaTileEntity;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.SlotWidget;
 import gregtech.api.gui.widgets.TankWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
@@ -56,9 +55,9 @@ public class MetaTileEntityBuffer extends GATieredMetaTileEntity {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.machine.gt_buffer.description"));
         tooltip.add(I18n.format("machine.universal.stack", TJValues.thousandFormat.format(64L << Math.max(0, this.getTier() - 8))));
-        tooltip.add(I18n.format("machine.universal.slots", TJValues.thousandFormat.format(this.getTierSlots(this.getTier()))));
+        tooltip.add(I18n.format("machine.universal.slots", TJValues.thousandFormat.format(this.importItems.getSlots())));
         tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.1", 64000 << Math.max(0, this.getTier() - 8)));
-        tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.2", Math.max(1, this.getTier() + 1)));
+        tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.2", this.importFluids.getTanks()));
     }
 
     @Override
@@ -68,30 +67,36 @@ public class MetaTileEntityBuffer extends GATieredMetaTileEntity {
 
     @Override
     protected FluidTankList createImportFluidHandler() {
-        return new FluidTankList(false, IntStream.range(0, Math.max(1, this.getTier() + 1))
+        // take advantage that item inventory is initialized before fluid inventories.
+        final int amount = (int) Math.ceil((double) this.importItems.getSlots() / Math.min(9, this.getTier() + 1));
+        return new FluidTankList(false, IntStream.range(0, amount)
                 .mapToObj(i -> new FluidTank(64000 << Math.max(0, this.getTier() - 8)))
                 .collect(Collectors.toList()));
     }
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        final int tier = Math.min(10, this.getTier() + 2);
-        final int startX = Math.max(7, 61 - (9 * (this.getTier() - 1)));
+        final int tier = Math.min(9, this.getTier() + 1);
+        final int startX = Math.max(25, 79 - (9 * (this.getTier() - 1)));
+        final int startX2 =  Math.max(7, 61 - (9 * (this.getTier() - 1)));
         final WidgetGroup slotGroup = new WidgetGroup(new Position(0, 7));
         final SlotScrollableWidgetGroup slotScrollGroup = new SlotScrollableWidgetGroup(0, 7, 193, 180, 10)
                 .setScrollWidth(5);
-        for (int i = 0, itemI = 0, fluidI = 0; i < this.importItems.getSlots() + this.importFluids.getTanks(); i++) {
-            final Widget slotWidget = i % tier == 0 || itemI >= this.importItems.getSlots()
-                    ? new TankWidget(this.importFluids.getTankAt(fluidI++), startX + (18 * (i % tier)), 18 * (i / tier), 18, 18).setBackgroundTexture(GuiTextures.FLUID_SLOT).setAlwaysShowFull(true).setContainerClicking(true, true)
-                    : new SlotWidget(this.importItems, itemI++, startX + (18 * (i % tier)), 18 * (i / tier)).setBackgroundTexture(GuiTextures.SLOT);
-            if (this.getTier() > 9)
-                slotScrollGroup.addWidget(slotWidget);
-            else slotGroup.addWidget(slotWidget);
+        final WidgetGroup widgetGroup = this.getTier() > 8 ? slotScrollGroup : slotGroup;
+        for (int i = 0; i < this.importItems.getSlots(); i++) {
+            widgetGroup.addWidget(new SlotWidget(this.importItems, i, startX + (18 * (i % tier)), 18 * (i / tier))
+                    .setBackgroundTexture(GuiTextures.SLOT));
         }
-        return ModularUI.builder(GuiTextures.BACKGROUND, 196, 137 + Math.min(144, 18 * (this.getTier() - 1)))
-                .widget(new TJLabelWidget(7, -18, 178, 18, TJGuiTextures.MACHINE_LABEL)
+        for (int i = 0; i < this.importFluids.getTanks(); i++) {
+            widgetGroup.addWidget(new TankWidget(this.importFluids.getTankAt(i), startX2, 18 * i, 18, 18)
+                    .setContainerClicking(true, true)
+                    .setBackgroundTexture(GuiTextures.FLUID_SLOT)
+                    .setAlwaysShowFull(true));
+        }
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 137 + Math.min(144, 18 * (this.getTier() - 1)))
+                .widget(new TJLabelWidget(7, -18, 178, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
-                .widget(this.getTier() > 9 ? slotScrollGroup : slotGroup)
+                .widget(this.getTier() > 8 ? slotScrollGroup : slotGroup)
                 .bindPlayerInventory(player.inventory, 55 + Math.min(144, 18 * (this.getTier() - 1)))
                 .build(this.getHolder(), player);
     }

@@ -162,7 +162,8 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
                     .addPopup(widgetGroup -> {
                         for (int i = 0; i < this.getImportItems().getSlots(); i++) {
                             widgetGroup.addWidget(new TJPhantomItemSlotWidget(10 + (18 * (i % 10)), 10 + (18 * (i / 10)), 18, 18, i, this.getImportItems(), this.workableHandler::addItemToFilter, this.workableHandler::removeItemFromFilter)
-                                    .setBackgroundTextures(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
+                                    .setBackgroundTextures(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY)
+                                    .setPutItemsPredicate(this.workableHandler::containsItemFromFilter));
                         }
                         return false;
                     }).addPopup(40, 40, 0, 0, new TJToggleButtonWidget(175, this.getOffsetY(134), 18, 18)

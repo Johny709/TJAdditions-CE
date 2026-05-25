@@ -1,6 +1,15 @@
 package tj.util;
 
-public final class Counter {
+public class Counter {
+
+    public static final Counter DUMMY_COUNTER = new Counter(0) {
+        @Override
+        public void increment(int amount) {}
+
+        @Override
+        public void decrement(int amount) {}
+    };
+
     private long value;
 
     public Counter(long initialValue) {

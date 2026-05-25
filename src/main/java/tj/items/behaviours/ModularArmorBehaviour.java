@@ -2,9 +2,10 @@ package tj.items.behaviours;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import gregtech.api.GTValues;
+import gregicadditions.GAValues;
 import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.IElectricItem;
+import gregtech.api.capability.impl.ElectricItem;
 import gregtech.api.items.armor.ArmorMetaItem;
 import gregtech.api.items.armor.ISpecialArmorLogic;
 import gregtech.api.items.metaitem.ElectricStats;
@@ -14,8 +15,14 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
+import net.minecraft.world.World;
 import net.minecraftforge.common.ISpecialArmor;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
 
@@ -34,10 +41,8 @@ public class ModularArmorBehaviour implements ISpecialArmorLogic {
 
     @Override
     public int getArmorDisplay(EntityPlayer entityPlayer, @Nonnull ItemStack itemStack, int i) {
-        IElectricItem item = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
-        if (item != null && item.getCharge() > 0)
-            return 6;
-        return 3;
+        final IElectricItem electricItem = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+        return electricItem != null && electricItem.getCharge() > 0 ? (6 + TJItemUtils.getCompoundFromStack(itemStack).getInteger("tier")) : 3;
     }
 
     @Override
@@ -47,12 +52,54 @@ public class ModularArmorBehaviour implements ISpecialArmorLogic {
 
     @Override
     public void addToolComponents(ArmorMetaItem.ArmorMetaValueItem metaValueItem) {
-        metaValueItem.addStats(ElectricStats.createElectricItem(1000000L, GTValues.LV));
+        metaValueItem.addStats(new ElectricStats(0, 0, true, false) {
+            @Override
+            public ICapabilityProvider createProvider(ItemStack itemStack) {
+                return new ElectricItem(itemStack, 0, 0, true, false) {
+                    @Override
+                    public long getTransferLimit() {
+                        return GAValues.V[this.getTier()];
+                    }
+
+                    @Override
+                    public int getTier() {
+                        final NBTTagCompound compound = this.itemStack.getTagCompound();
+                        return compound != null ? compound.getInteger("tier") : super.getTier();
+                    }
+                };
+            }
+        });
     }
 
     @Override
-    public void damageArmor(EntityLivingBase entityLivingBase, ItemStack itemStack, DamageSource damageSource, int i, EntityEquipmentSlot entityEquipmentSlot) {
+    public void onArmorTick(World world, EntityPlayer player, ItemStack itemStack) {
+        if (!world.isRemote && world.getTotalWorldTime() % 20 == 0) {
+            final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(itemStack);
+            final IElectricItem electricItem = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+            if (electricItem == null) return;
+            switch (this.equipmentSlot) {
+                case HEAD:
+                    if (compound.hasKey("nightVision") && compound.getBoolean("nightVision")) {
+                        if (compound.getLong("Charge") >= 1000) {
+                            electricItem.discharge(1000, 1, true, false, false);
+                            player.addPotionEffect(new PotionEffect(Potion.getPotionById(16), 40));
+                        }
+                    }
+                    if (compound.hasKey("waterBreathing") && compound.getBoolean("waterBreathing")) {
+                        if (compound.getLong("Charge") >= 1000) {
+                            electricItem.discharge(1000, 1, true, false, false);
+                            player.addPotionEffect(new PotionEffect(Potion.getPotionById(13), 40));
+                        }
+                    }
+            }
+        }
+    }
 
+    @Override
+    public void damageArmor(EntityLivingBase entityLivingBase, ItemStack itemStack, DamageSource damageSource, int damage, EntityEquipmentSlot entityEquipmentSlot) {
+        final IElectricItem electricItem = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+        if (electricItem == null) return;
+        electricItem.discharge(damage * 32L, TJItemUtils.getCompoundFromStack(itemStack).getInteger("tier"), true, false, false);
     }
 
     @Override
@@ -62,7 +109,7 @@ public class ModularArmorBehaviour implements ISpecialArmorLogic {
 
     @Override
     public String getArmorTexture(ItemStack itemStack, Entity entity, EntityEquipmentSlot slot, String s) {
-        IElectricItem item = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
+        final IElectricItem item = itemStack.getCapability(GregtechCapabilities.CAPABILITY_ELECTRIC_ITEM, null);
         if (item != null && item.getCharge() > 0)
             return slot == EntityEquipmentSlot.HEAD || slot == EntityEquipmentSlot.CHEST ? "gregtech:textures/armor/e2_helmet_chest.png" : "gregtech:textures/armor/e2_leggings_boots.png";
         return slot == EntityEquipmentSlot.HEAD || slot == EntityEquipmentSlot.CHEST ? "gregtech:textures/armor/e1_helmet_chest.png" : "gregtech:textures/armor/e1_leggings_boots.png";

@@ -5,6 +5,7 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.resources.AdoptableTextureArea;
 import gregtech.api.gui.widgets.AbstractWidgetGroup;
 import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -24,12 +25,18 @@ import java.util.function.Predicate;
 
 public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
 
+    protected static final Pair<Boolean, WidgetGroup> DUMMY_WIDGET_GROUP = Pair.of(false, new WidgetGroup());
     protected final Int2ObjectMap<Pair<Boolean, WidgetGroup>> widgetMap = new Int2ObjectOpenHashMap<>();
     protected final List<Widget> pendingWidgets = new ArrayList<>();
     protected Rectangle clickArea;
     protected AdoptableTextureArea textureArea;
     protected IntSupplier indexSupplier;
     protected int selectedIndex;
+    protected boolean clickToDefault = true;
+
+    public PopUpWidget() {
+        this(0, 0, 0, 0);
+    }
 
     public PopUpWidget(int x, int y, int width, int height) {
         super(new Position(x, y), new Size(width, height));
@@ -64,6 +71,15 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     }
 
     /**
+     * Sets the popup index back to zero if clicked outside of popup boundaries.
+     * Default: True.
+     */
+    public R setClickToDefault(boolean clickToDefault) {
+        this.clickToDefault = clickToDefault;
+        return (R) this;
+    }
+
+    /**
      * return true in the predicate for non-selected widgets to be visible but still can not be interacted. Adds a new popup every time this method is called.
      * @param widgets widgets to add.
      */
@@ -84,23 +100,29 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
 
     @Override
     public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
-        final AbstractWidgetGroup widgetGroup = this.widgetMap.get(this.selectedIndex).getRight();
-        return widgetGroup.getPhantomTargets(ingredient);
+        return this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().getPhantomTargets(ingredient);
     }
 
     @Override
     public Object getIngredientOverMouse(int mouseX, int mouseY) {
-        final AbstractWidgetGroup widgetGroup = this.widgetMap.get(this.selectedIndex).getRight();
-        return widgetGroup.getIngredientOverMouse(mouseX, mouseY);
+        return this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().getIngredientOverMouse(mouseX, mouseY);
     }
 
     @Override
     public void detectAndSendChanges() {
         if (this.indexSupplier != null) {
-            this.selectedIndex = this.indexSupplier.getAsInt();
-            this.writeUpdateInfo(2, buffer -> buffer.writeInt(this.selectedIndex));
+            final int selectedIndex = this.indexSupplier.getAsInt();
+            if (selectedIndex != this.selectedIndex) {
+                final int lastIndex = this.selectedIndex;
+                this.selectedIndex = selectedIndex;
+                this.updateWidgets(lastIndex, this.selectedIndex);
+                this.writeUpdateInfo(2, buffer -> {
+                    buffer.writeInt(lastIndex);
+                    buffer.writeInt(this.selectedIndex);
+                });
+            }
         }
-        this.widgetMap.get(this.selectedIndex).getRight().detectAndSendChanges();
+        this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().detectAndSendChanges();
     }
 
     @Override
@@ -114,7 +136,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        this.widgetMap.get(this.selectedIndex).getRight().drawInForeground(mouseX, mouseY);
+        this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().drawInForeground(mouseX, mouseY);
     }
 
     @Override
@@ -130,17 +152,22 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
-        return this.widgetMap.get(this.selectedIndex).getRight().mouseWheelMove(mouseX, mouseY, wheelDelta);
+        return this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().mouseWheelMove(mouseX, mouseY, wheelDelta);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (this.selectedIndex != 0 && !this.isMouseOverElements(this.widgetMap.get(this.selectedIndex).getValue(), mouseX, mouseY)) {
+        if (this.clickToDefault && this.selectedIndex != 0 && !this.isMouseOverElements(this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getValue(), mouseX, mouseY)) {
+            final int lastIndex = this.selectedIndex;
             this.selectedIndex = 0;
-            this.writeClientAction(2, buffer -> buffer.writeInt(this.selectedIndex));
+            this.updateWidgets(lastIndex, this.selectedIndex);
+            this.writeClientAction(2, buffer -> {
+                buffer.writeInt(lastIndex);
+                buffer.writeInt(this.selectedIndex);
+            });
         }
-        return this.widgetMap.get(this.selectedIndex).getRight().mouseClicked(mouseX, mouseY, button);
+        return this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().mouseClicked(mouseX, mouseY, button);
     }
 
     public boolean isMouseOverElements(AbstractWidgetGroup widgetGroup, int mouseX, int mouseY) {
@@ -154,26 +181,28 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
-        return this.widgetMap.get(this.selectedIndex).getRight().mouseDragged(mouseX, mouseY, button, timeDragged);
+        return this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().mouseDragged(mouseX, mouseY, button, timeDragged);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseReleased(int mouseX, int mouseY, int button) {
-        return this.widgetMap.get(this.selectedIndex).getRight().mouseReleased(mouseX, mouseY, button);
+        return this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().mouseReleased(mouseX, mouseY, button);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean keyTyped(char charTyped, int keyCode) {
-        return this.widgetMap.get(this.selectedIndex).getRight().keyTyped(charTyped, keyCode);
+        return this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().keyTyped(charTyped, keyCode);
     }
 
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
         if (id == 2) {
+            final int lastIndex = buffer.readInt();
             this.selectedIndex = buffer.readInt();
+            this.updateWidgets(lastIndex, selectedIndex);
         }
     }
 
@@ -182,7 +211,32 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     public void readUpdateInfo(int id, PacketBuffer buffer) {
         super.readUpdateInfo(id, buffer);
         if (id == 2) {
+            final int lastIndex = buffer.readInt();
             this.selectedIndex = buffer.readInt();
+            this.updateWidgets(lastIndex, this.selectedIndex);
         }
+    }
+
+    protected void setPopupIndex(String index) {
+        try {
+            final int lastIndex = this.selectedIndex;
+            this.selectedIndex = Integer.parseInt(index);
+            this.updateWidgets(lastIndex, this.selectedIndex);
+            this.writeUpdateInfo(2, buffer -> {
+                buffer.writeInt(lastIndex);
+                buffer.writeInt(this.selectedIndex);
+            });
+        } catch (NumberFormatException e) {
+            GTLog.logger.info(e.getMessage());
+        }
+    }
+
+    protected void updateWidgets(int lastIndex, int newIndex) {
+        this.widgetMap.getOrDefault(lastIndex, DUMMY_WIDGET_GROUP).getRight().getContainedWidgets(true).stream()
+                .filter(widget -> widget instanceof TJWidget)
+                .forEach(widget -> ((TJWidget) widget).setActive(false));
+        this.widgetMap.getOrDefault(newIndex, DUMMY_WIDGET_GROUP).getRight().getContainedWidgets(true).stream()
+                .filter(widget -> widget instanceof TJWidget)
+                .forEach(widget -> ((TJWidget) widget).setActive(true));
     }
 }

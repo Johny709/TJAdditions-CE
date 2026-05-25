@@ -190,7 +190,7 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
         if (this.isMouseOverElement(mouseX, mouseY, true)) {
             final int direction = -MathHelper.clamp(wheelDelta, -1, 1);
-            final int moveDelta = direction * SLOT_HEIGHT;
+            final int moveDelta = direction * 10;
             this.addScrollOffset(moveDelta);
             this.writeClientAction(2, buffer -> buffer.writeInt(moveDelta));
             return true;

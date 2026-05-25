@@ -32,6 +32,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import appeng.items.materials.TJAE2MaterialType;
+import tj.util.Color;
+import tj.util.TooltipHelper;
 
 import java.util.List;
 import java.util.Set;
@@ -39,6 +41,7 @@ import java.util.Set;
 /**
  * More advanced form of {@link appeng.items.storage.AbstractStorageCell}
  */
+@Deprecated
 public abstract class TJAbstractStorageCell<T extends IAEStack<T>> extends AEBaseItem implements IStorageCell<T>, IItemGroup {
     protected final TJAE2MaterialType materialType;
     protected final int totalBytes;
@@ -53,6 +56,7 @@ public abstract class TJAbstractStorageCell<T extends IAEStack<T>> extends AEBas
     @SideOnly(Side.CLIENT)
     @Override
     public void addCheckedInformation(final ItemStack stack, final World world, final List<String> lines, final ITooltipFlag advancedTooltips) {
+        lines.add(TooltipHelper.blinkingText(Color.YELLOW, 20, "machine.universal.deprecate_to_remove"));
         AEApi.instance()
                 .client()
                 .addCellInformation(AEApi.instance().registries().cell().getCellInventory(stack, null, this.getChannel()), lines);

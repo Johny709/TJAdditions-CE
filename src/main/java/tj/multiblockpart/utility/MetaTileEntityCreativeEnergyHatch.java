@@ -18,6 +18,7 @@ import gregtech.api.render.Textures;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -80,36 +81,38 @@ public class MetaTileEntityCreativeEnergyHatch extends GAMetaTileEntityMultibloc
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 170)
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 180)
                 .widget(new TJLabelWidget(7, -19, 180, 19, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
-                .widget(new NewTextFieldWidget<>(10, 14, 87, 18, () -> String.valueOf(this.energyStored), (text, id) -> this.energyStored = (long) Math.min(Long.MAX_VALUE, Math.max(0, Double.parseDouble(text))))
+                .widget(new TJProgressBarWidget(7, 7, 162, 18, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.HORIZONTAL)
+                        .setLocale("tj.multiblock.bars.energy", null)
+                        .setBarTexture(TJGuiTextures.BAR_YELLOW)
+                        .setTexture(TJGuiTextures.FLUID_BAR))
+                .widget(new NewTextFieldWidget<>(26, 27, 124, 18, true, () -> String.valueOf(this.energyStored), this::setEnergyStored)
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setBackgroundText("metaitem.creative_energy_cover.set.energy_rate")
                         .setTooltipText("metaitem.creative_energy_cover.set.energy_rate")
                         .setUpdateOnTyping(true)
-                        .setMaxStringLength(20)
-                        .enableBackground(true))
-                .widget(new NewTextFieldWidget<>(10, 34, 87, 18, () -> String.valueOf(this.inputVoltage), (text, id) -> this.inputVoltage = (long) Math.min(Long.MAX_VALUE, Math.max(0, Double.parseDouble(text))))
+                        .setMaxStringLength(20))
+                .widget(new ClickButtonWidget(7, 27, 18, 18, "/2", data -> this.setEnergyStored(String.valueOf((double) this.energyStored / 2), "")))
+                .widget(new ClickButtonWidget(151, 27, 18, 18, "*2", data -> this.setEnergyStored(String.valueOf((double) this.energyStored * 2), "")))
+                .widget(new NewTextFieldWidget<>(26, 47, 124, 18, true, () -> String.valueOf(this.inputVoltage), this::setInputVoltage)
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setBackgroundText("metaitem.creative_energy_cover.set.voltage")
                         .setTooltipText("metaitem.creative_energy_cover.set.voltage")
                         .setUpdateOnTyping(true)
-                        .setMaxStringLength(20)
-                        .enableBackground(true))
-                .widget(new NewTextFieldWidget<>(10, 54,87, 18, () -> String.valueOf(this.inputAmps), (text, id) -> this.inputAmps = Math.min(4294967295L, Math.max(0, Long.parseLong(text))))
+                        .setMaxStringLength(20))
+                .widget(new ClickButtonWidget(7, 47, 18, 18, "/2", data -> this.setInputVoltage(String.valueOf(this.inputVoltage / 2), "")))
+                .widget(new ClickButtonWidget(151, 47, 18, 18, "*2", data -> this.setInputVoltage(String.valueOf(this.inputVoltage * 2), "")))
+                .widget(new NewTextFieldWidget<>(26, 67,124, 18, true, () -> String.valueOf(this.inputAmps), this::setInputAmps)
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setBackgroundText("metaitem.creative_energy_cover.set.amps")
                         .setTooltipText("metaitem.creative_energy_cover.set.amps")
                         .setUpdateOnTyping(true)
-                        .setMaxStringLength(11)
-                        .enableBackground(true))
-                .widget(new TJProgressBarWidget(97, 7, 72, 72, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
-                        .setLocale("tj.multiblock.bars.energy", null)
-                        .setBarTexture(TJGuiTextures.BAR_YELLOW)
-                        .setTexture(TJGuiTextures.FLUID_BAR)
-                        .setInverted(true))
-                .bindPlayerInventory(player.inventory, 86)
+                        .setMaxStringLength(11))
+                .widget(new ClickButtonWidget(7, 67, 18, 18, "/2", data -> this.setInputAmps(String.valueOf(this.inputAmps / 2), "")))
+                .widget(new ClickButtonWidget(151, 67, 18, 18, "*2", data -> this.setInputAmps(String.valueOf(this.inputAmps * 2), "")))
+                .bindPlayerInventory(player.inventory, 96)
                 .build(this.getHolder(), player);
     }
 
@@ -141,5 +144,37 @@ public class MetaTileEntityCreativeEnergyHatch extends GAMetaTileEntityMultibloc
     @Override
     public void registerAbilities(List<IEnergyContainer> list) {
         list.add(this.energyContainer);
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setLong("energyStored", this.energyStored);
+        data.setLong("inputVoltage", this.inputVoltage);
+        data.setLong("inputAmps", this.inputAmps);
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.energyStored = data.getLong("energyStored");
+        this.inputVoltage = data.getLong("inputVoltage");
+        this.inputAmps = data.getLong("inputAmps");
+    }
+
+    public void setEnergyStored(String text, String id) {
+        this.energyStored = (long) Math.max(0, Math.min(Long.MAX_VALUE, Double.parseDouble(text)));
+        this.markDirty();
+    }
+
+    public void setInputVoltage(String text, String id) {
+        this.inputVoltage = Math.max(0, Math.min(2147483648L, Long.parseLong(text)));
+        this.markDirty();
+    }
+
+    public void setInputAmps(String text, String id) {
+        this.inputAmps = Math.max(0, Math.min(4294967295L, Long.parseLong(text)));
+        this.markDirty();
     }
 }

@@ -1,5 +1,6 @@
 package tj.recipes;
 
+import gregicadditions.GAEnums;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.init.Items;
@@ -10,7 +11,6 @@ import gregicadditions.GAValues;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMetaItems;
 import gregicadditions.item.fusion.GAFusionCasing;
-import gregtech.api.items.metaitem.MetaItem;
 import gregtech.api.recipes.ingredients.IntCircuitIngredient;
 import gregtech.api.unification.material.MarkerMaterials;
 import gregtech.api.unification.material.type.Material;
@@ -28,6 +28,8 @@ import static gregtech.api.unification.material.MarkerMaterials.Tier.*;
 import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
 import static tj.TJValues.CIRCUIT_TIERS;
 import static tj.items.TJMetaItems.*;
+import static tj.items.TJMetaItems.FLUID_REGULATORS;
+import static tj.items.TJMetaItems.PUMPS;
 import static tj.machines.TJMetaTileEntities.*;
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.item.GAMetaItems.*;
@@ -36,23 +38,14 @@ import static gregtech.api.recipes.RecipeMaps.ASSEMBLER_RECIPES;
 import static gregtech.api.unification.material.Materials.*;
 import static gregtech.common.items.MetaItems.*;
 import static gregtech.common.metatileentities.MetaTileEntities.*;
+import static tj.materials.TJMaterials.MATERIAL_TIER;
+import static tj.materials.TJMaterials.SUPERCONDUCTOR_TIER;
 
 public class AssemblerRecipes {
 
-    public final static Material[][] MATERIAL_TIER = {{Steel, Aluminium, StainlessSteel, Titanium, TungstenSteel, RhodiumPlatedPalladium, MATERIAL_REGISTRY.getObject("star_metal_alloy"), Tritanium, Seaborgium, Bohrium, Adamantium, Vibranium, HeavyQuarkDegenerateMatter, Neutronium},
-                                                {MATERIAL_REGISTRY.getObject("lv_superconductor"), MVSuperconductor, HVSuperconductor, EVSuperconductor, IVSuperconductor, LuVSuperconductor, ZPMSuperconductor, UVSuperconductor, UHVSuperconductor, UEVSuperconductor, UIVSuperconductor, UMVSuperconductor, UXVSuperconductor, MarkerMaterials.Tier.Superconductor}};
     public final static MetaTileEntityLargeBoiler[] BOILER_TYPE = {LARGE_BRONZE_BOILER, LARGE_STEEL_BOILER, LARGE_TITANIUM_BOILER, LARGE_TUNGSTENSTEEL_BOILER};
 
     public static void init() {
-        final MetaItem<?>.MetaValueItem[] motors = {ELECTRIC_MOTOR_LV, ELECTRIC_MOTOR_MV, ELECTRIC_MOTOR_HV, ELECTRIC_MOTOR_EV, ELECTRIC_MOTOR_IV, ELECTRIC_MOTOR_LUV, ELECTRIC_MOTOR_ZPM, ELECTRIC_MOTOR_UV, ELECTRIC_MOTOR_UHV, ELECTRIC_MOTOR_UEV, ELECTRIC_MOTOR_UIV, ELECTRIC_MOTOR_UMV, ELECTRIC_MOTOR_UXV, ELECTRIC_MOTOR_MAX};
-        final MetaItem<?>.MetaValueItem[] emitters = {EMITTER_LV, EMITTER_MV, EMITTER_HV, EMITTER_EV, EMITTER_IV, EMITTER_LUV, EMITTER_ZPM, EMITTER_UV, EMITTER_UHV, EMITTER_UEV, EMITTER_UIV, EMITTER_UMV, EMITTER_UXV, EMITTER_MAX};
-        final MetaItem<?>.MetaValueItem[] sensors = {SENSOR_LV, SENSOR_MV, SENSOR_HV, SENSOR_EV, SENSOR_IV, SENSOR_LUV, SENSOR_ZPM, SENSOR_UV, SENSOR_UHV, SENSOR_UEV, SENSOR_UIV, SENSOR_UMV, SENSOR_UXV, SENSOR_MAX};
-        final MetaItem<?>.MetaValueItem[] pistons = {ELECTRIC_PISTON_LV, ELECTRIC_PISTON_MV, ELECTRIC_PISTON_HV, ELECTRIC_PISTON_EV, ELECTRIC_PISTON_IV, ELECTRIC_PISTON_LUV, ELECTRIC_PISTON_ZPM, ELECTRIC_PISTON_UV, ELECTRIC_PISTON_UHV, ELECTRIC_PISTON_UEV, ELECTRIC_PISTON_UIV, ELECTRIC_PISTON_UMV, ELECTRIC_PISTON_UXV, ELECTRIC_PISTON_MAX};
-        final MetaItem<?>.MetaValueItem[] pumps = {ELECTRIC_PUMP_LV, ELECTRIC_PUMP_MV, ELECTRIC_PUMP_HV, ELECTRIC_PUMP_EV, ELECTRIC_PUMP_IV, ELECTRIC_PUMP_LUV, ELECTRIC_PUMP_ZPM, ELECTRIC_PUMP_UV, ELECTRIC_PUMP_UHV, ELECTRIC_PUMP_UEV, ELECTRIC_PUMP_UIV, ELECTRIC_PUMP_UMV, ELECTRIC_PUMP_UXV, ELECTRIC_PUMP_MAX};
-        final MetaItem<?>.MetaValueItem[] conveyors = {CONVEYOR_MODULE_LV, CONVEYOR_MODULE_MV, CONVEYOR_MODULE_HV, CONVEYOR_MODULE_EV, CONVEYOR_MODULE_IV, CONVEYOR_MODULE_LUV, CONVEYOR_MODULE_ZPM, CONVEYOR_MODULE_UV, CONVEYOR_MODULE_UHV, CONVEYOR_MODULE_UEV, CONVEYOR_MODULE_UIV, CONVEYOR_MODULE_UMV, CONVEYOR_MODULE_UXV, CONVEYOR_MODULE_MAX};
-        final MetaItem<?>.MetaValueItem[] robotArms = {ROBOT_ARM_LV, ROBOT_ARM_MV, ROBOT_ARM_HV, ROBOT_ARM_EV, ROBOT_ARM_IV, ROBOT_ARM_LUV, ROBOT_ARM_ZPM, ROBOT_ARM_UV, ROBOT_ARM_UHV, ROBOT_ARM_UEV, ROBOT_ARM_UIV, ROBOT_ARM_UMV, ROBOT_ARM_UXV, ROBOT_ARM_MAX};
-        final MetaItem<?>.MetaValueItem[] fieldGens = {FIELD_GENERATOR_LV, FIELD_GENERATOR_MV, FIELD_GENERATOR_HV, FIELD_GENERATOR_EV, FIELD_GENERATOR_IV, FIELD_GENERATOR_LUV, FIELD_GENERATOR_ZPM, FIELD_GENERATOR_UV, FIELD_GENERATOR_UHV, FIELD_GENERATOR_UEV, FIELD_GENERATOR_UIV, FIELD_GENERATOR_UMV, FIELD_GENERATOR_UXV, FIELD_GENERATOR_MAX};
-        final MetaItem<?>.MetaValueItem[] regulators = {FLUID_REGULATOR_LV, FLUID_REGULATOR_MV, FLUID_REGULATOR_HV, FLUID_REGULATOR_EV, FLUID_REGULATOR_IV, FLUID_REGULATOR_LUV, FLUID_REGULATOR_ZPM, FLUID_REGULATOR_UV, FLUID_REGULATOR_UHV, null, null, FLUID_REGULATOR_UMV, null, FLUID_REGULATOR_MAX};
         for (int i = 0; i < BOILER_TYPE.length; i++) {
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(BOILER_TYPE[i].getStackForm(64))
@@ -197,62 +190,62 @@ public class AssemblerRecipes {
                 .EUt(16).duration(50)
                 .buildAndRegister();
         for (int i = 0; i < 15; i++) {
-            if (i == GAValues.UHV || i == GAValues.UMV || i == GAValues.MAX)
-                ASSEMBLER_RECIPES.recipeBuilder()
-                        .input(OrePrefix.circuit, CIRCUIT_TIERS[Math.min(12, i)], 2)
-                        .inputs(pumps[i - 1].getStackForm())
-                        .notConsumable(new IntCircuitIngredient(1))
-                        .outputs(regulators[i - 1].getStackForm())
-                        .EUt(GAValues.VA[i]).duration(100)
-                        .buildAndRegister();
+            if (i < 9) continue;
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .input(OrePrefix.circuit, CIRCUIT_TIERS[Math.min(12, i)], 2)
+                    .inputs(PUMPS[i].getStackForm())
+                    .notConsumable(new IntCircuitIngredient(1))
+                    .outputs(FLUID_REGULATORS[i].getStackForm())
+                    .EUt(GAValues.VA[i]).duration(100)
+                    .buildAndRegister();
         }
         for (int i = 0; i < SUPER_ITEM_INPUT_BUS.length; i++) {
             final int tier = Math.min(GAValues.MAX, 3 + (3 * i));
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(i < 3 ? ITEM_IMPORT_BUS[tier].getStackForm(64) : SUPER_ITEM_INPUT_BUS[i - 1].getStackForm())
-                    .input(OrePrefix.gear, MATERIAL_TIER[0][tier - 1], 16)
-                    .inputs(robotArms[tier - 1].getStackForm(4))
+                    .input(OrePrefix.gear, MATERIAL_TIER[tier], 16)
+                    .inputs(ROBOT_ARMS[tier].getStackForm(4))
                     .outputs(SUPER_ITEM_INPUT_BUS[i].getStackForm())
                     .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : i < 3 ? Polyetheretherketone.getFluid(9216) : i < 4 ? Zylon.getFluid(9216) : FullerenePolymerMatrix.getFluid(9216))
                     .EUt(GAValues.VA[tier]).duration(1200)
                     .buildAndRegister();
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(i < 3 ? ITEM_EXPORT_BUS[tier].getStackForm(64) : SUPER_ITEM_OUTPUT_BUS[i - 1].getStackForm())
-                    .input(OrePrefix.gear, MATERIAL_TIER[0][tier - 1], 16)
-                    .inputs(conveyors[tier - 1].getStackForm(4))
+                    .input(OrePrefix.gear, MATERIAL_TIER[tier], 16)
+                    .inputs(CONVEYORS[tier].getStackForm(4))
                     .outputs(SUPER_ITEM_OUTPUT_BUS[i].getStackForm())
                     .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : i < 3 ? Polyetheretherketone.getFluid(9216) : i < 4 ? Zylon.getFluid(9216) : FullerenePolymerMatrix.getFluid(9216))
                     .EUt(GAValues.VA[tier]).duration(1200)
                     .buildAndRegister();
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(i < 2 ? INPUT_HATCH_MULTI.get(i).getStackForm(64) : i < 3 ? QUADRUPLE_QUADRUPLE_INPUT_HATCH.getStackForm(64) : SUPER_FLUID_INPUT_HATCH[i - 1].getStackForm())
-                    .input(OrePrefix.gear, MATERIAL_TIER[0][tier - 1], 16)
-                    .inputs(regulators[tier - 1].getStackForm(4))
+                    .input(OrePrefix.gear, MATERIAL_TIER[tier], 16)
+                    .inputs(FLUID_REGULATORS[tier].getStackForm(4))
                     .outputs(SUPER_FLUID_INPUT_HATCH[i].getStackForm())
                     .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : i < 3 ? Polyetheretherketone.getFluid(9216) : i < 4 ? Zylon.getFluid(9216) : FullerenePolymerMatrix.getFluid(9216))
                     .EUt(GAValues.VA[tier]).duration(1200)
                     .buildAndRegister();
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(i < 2 ? OUTPUT_HATCH_MULTI.get(i).getStackForm(64) : i < 3 ? QUADRUPLE_QUADRUPLE_OUTPUT_HATCH.getStackForm(64) : SUPER_FLUID_OUTPUT_HATCH[i - 1].getStackForm())
-                    .input(OrePrefix.gear, MATERIAL_TIER[0][tier - 1], 16)
-                    .inputs(pumps[tier - 1].getStackForm(4))
+                    .input(OrePrefix.gear, MATERIAL_TIER[tier], 16)
+                    .inputs(PUMPS[tier].getStackForm(4))
                     .outputs(SUPER_FLUID_OUTPUT_HATCH[i].getStackForm())
                     .fluidInputs(i < 2 ? Polybenzimidazole.getFluid(9216) : i < 3 ? Polyetheretherketone.getFluid(9216) : i < 4 ? Zylon.getFluid(9216) : FullerenePolymerMatrix.getFluid(9216))
                     .EUt(GAValues.VA[tier]).duration(1200)
                     .buildAndRegister();
         }
-        for (int i = 0; i < MATERIAL_TIER[0].length; i++) {
+        for (int i = 0; i < MATERIAL_TIER.length - 1; i++) {
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(ENERGY_INPUT_HATCH_128_AMPS.get(i + 1).getStackForm())
-                    .input(OrePrefix.wireGtHex, MATERIAL_TIER[1][i], 2)
-                    .input(OrePrefix.plate, MATERIAL_TIER[0][i], 6)
+                    .input(OrePrefix.wireGtHex, SUPERCONDUCTOR_TIER[i + 1], 2)
+                    .input(OrePrefix.plate, MATERIAL_TIER[i + 1], 6)
                     .outputs(ENERGY_INPUT_HATCH_256A[i].getStackForm())
                     .EUt(GAValues.VA[i + 1]).duration(600)
                     .buildAndRegister();
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(ENERGY_OUTPUT_HATCH_128_AMPS.get(i + 1).getStackForm())
-                    .input(OrePrefix.wireGtHex, MATERIAL_TIER[1][i], 2)
-                    .input(OrePrefix.plate, MATERIAL_TIER[0][i], 6)
+                    .input(OrePrefix.wireGtHex, SUPERCONDUCTOR_TIER[i + 1], 2)
+                    .input(OrePrefix.plate, MATERIAL_TIER[i + 1], 6)
                     .outputs(ENERGY_OUTPUT_HATCH_256A[i].getStackForm())
                     .EUt(GAValues.VA[i + 1]).duration(600)
                     .buildAndRegister();
@@ -262,9 +255,9 @@ public class AssemblerRecipes {
                     .fluidInputs(SolderingAlloy.getFluid(576))
                     .input(OrePrefix.plate, EnderPearl, 9)
                     .input(OrePrefix.plateDense, StainlessSteel)
-                    .inputs(emitters[i + 2].getStackForm(2))
-                    .inputs(sensors[i + 2].getStackForm(2))
-                    .inputs(pumps[i + 2].getStackForm(2))
+                    .inputs(EMITTERS[i + 3].getStackForm(2))
+                    .inputs(SENSORS[i + 3].getStackForm(2))
+                    .inputs(PUMPS[i + 3].getStackForm(2))
                     .outputs(ENDER_FLUID_COVERS[i].getStackForm())
                     .EUt(GAValues.VA[i + 3]).duration(600)
                     .buildAndRegister();
@@ -272,9 +265,9 @@ public class AssemblerRecipes {
                     .fluidInputs(SolderingAlloy.getFluid(576))
                     .input(OrePrefix.plate, EnderPearl, 9)
                     .input(OrePrefix.plateDense, StainlessSteel)
-                    .inputs(emitters[i + 2].getStackForm(2))
-                    .inputs(sensors[i + 2].getStackForm(2))
-                    .inputs(conveyors[i + 2].getStackForm(2))
+                    .inputs(EMITTERS[i + 3].getStackForm(2))
+                    .inputs(SENSORS[i + 3].getStackForm(2))
+                    .inputs(CONVEYORS[i + 3].getStackForm(2))
                     .outputs(ENDER_ITEM_COVERS[i].getStackForm())
                     .EUt(GAValues.VA[i + 3]).duration(600)
                     .buildAndRegister();
@@ -282,9 +275,9 @@ public class AssemblerRecipes {
                     .fluidInputs(SolderingAlloy.getFluid(576))
                     .input(OrePrefix.plate, EnderPearl, 9)
                     .input(OrePrefix.plateDense, StainlessSteel)
-                    .inputs(emitters[i + 2].getStackForm(2))
-                    .inputs(sensors[i + 2].getStackForm(2))
-                    .input(OrePrefix.cableGtHex, MATERIAL_TIER[1][i + 2], 2)
+                    .inputs(EMITTERS[i + 3].getStackForm(2))
+                    .inputs(SENSORS[i + 3].getStackForm(2))
+                    .input(OrePrefix.cableGtHex, SUPERCONDUCTOR_TIER[i + 3], 2)
                     .outputs(ENDER_ENERGY_COVERS[i].getStackForm())
                     .EUt(GAValues.VA[i + 3]).duration(600)
                     .buildAndRegister();
@@ -308,12 +301,12 @@ public class AssemblerRecipes {
         for (int i = 0, tier = 1; i < FARMING_STATION.length; i++, tier++) {
             ASSEMBLER_RECIPES.recipeBuilder()
                     .notConsumable(new IntCircuitIngredient(0))
-                    .input(OrePrefix.gear, i != 6 ? MATERIAL_TIER[0][i] : Rutherfordium, 4)
+                    .input(OrePrefix.gear, i != 6 ? MATERIAL_TIER[tier] : Rutherfordium, 4)
                     .input(OrePrefix.circuit, CIRCUIT_TIERS[tier], 2)
                     .input(Items.DIAMOND_AXE)
                     .input(Items.DIAMOND_HOE)
                     .input(Items.SHEARS)
-                    .inputs(robotArms[i].getStackForm(tier >= GTValues.ZPM ? 4 : tier >= GTValues.EV ? 2 : 1))
+                    .inputs(ROBOT_ARMS[tier].getStackForm(tier >= GTValues.ZPM ? 4 : tier >= GTValues.EV ? 2 : 1))
                     .inputs(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 42))
                     .inputs(tier == 14 ? HULL[9].getStackForm() : tier < 9 ? HULL[tier].getStackForm() : GA_HULLS[tier - 9].getStackForm())
                     .outputs(FARMING_STATION[i].getStackForm())
@@ -326,7 +319,7 @@ public class AssemblerRecipes {
                     .input(OrePrefix.frameGt, minerGears[i])
                     .input(OrePrefix.gear, minerGears[i], 2)
                     .input(OrePrefix.circuit, CIRCUIT_TIERS[tier], 2)
-                    .inputs(sensors[tier - 1].getStackForm(4), pistons[tier - 1].getStackForm(4), motors[tier - 1].getStackForm(4), tier > 4 ? COMPONENT_GRINDER_TUNGSTEN.getStackForm(2) : COMPONENT_GRINDER_DIAMOND.getStackForm(2))
+                    .inputs(SENSORS[tier].getStackForm(4), PISTONS[tier].getStackForm(4), MOTORS[tier].getStackForm(4), tier > 4 ? COMPONENT_GRINDER_TUNGSTEN.getStackForm(2) : COMPONENT_GRINDER_DIAMOND.getStackForm(2))
                     .inputs(tier == 14 ? HULL[9].getStackForm() : tier < 9 ? HULL[tier].getStackForm() : GA_HULLS[tier - 9].getStackForm())
                     .fluidInputs(SolderingAlloy.getFluid(1440))
                     .outputs(ADVANCED_LARGE_CHUNK_MINERS[i].getStackForm())
@@ -369,6 +362,48 @@ public class AssemblerRecipes {
                     .input(OrePrefix.plate, Iron)
                     .outputs(VOID_ENERGY_COVER.getStackForm())
                     .EUt(16).duration(400)
+                    .buildAndRegister();
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .fluidInputs(i == 0 ? Tin.getFluid(144) : SolderingAlloy.getFluid(72))
+                    .inputs(VOID_ITEM_COVER.getStackForm())
+                    .input(OrePrefix.circuit, Basic)
+                    .input(GAEnums.GAOrePrefix.plateDouble, Steel)
+                    .outputs(VOID_ADVANCED_ITEM_COVER.getStackForm())
+                    .EUt(16).duration(400)
+                    .buildAndRegister();
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .fluidInputs(i == 0 ? Tin.getFluid(144) : SolderingAlloy.getFluid(72))
+                    .inputs(VOID_FLUID_COVER.getStackForm())
+                    .input(OrePrefix.circuit, Basic)
+                    .input(GAEnums.GAOrePrefix.plateDouble, Steel)
+                    .outputs(VOID_ADVANCED_FLUID_COVER.getStackForm())
+                    .EUt(16).duration(400)
+                    .buildAndRegister();
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .fluidInputs(i == 0 ? Tin.getFluid(144) : SolderingAlloy.getFluid(72))
+                    .inputs(VOID_ENERGY_COVER.getStackForm())
+                    .input(OrePrefix.circuit, Basic)
+                    .input(GAEnums.GAOrePrefix.plateDouble, Steel)
+                    .outputs(VOID_ADVANCED_ENERGY_COVER.getStackForm())
+                    .EUt(16).duration(400)
+                    .buildAndRegister();
+        }
+        for (int i = 0; i < DUAL_COVERS.length; i++) {
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .fluidInputs(SolderingAlloy.getFluid(720))
+                    .inputs(CONVEYORS[i].getStackForm(), PUMPS[i].getStackForm())
+                    .input(OrePrefix.circuit, CIRCUIT_TIERS[i], 2)
+                    .outputs(DUAL_COVERS[i].getStackForm())
+                    .EUt(GAValues.VA[i]).duration(600)
+                    .buildAndRegister();
+        }
+        for (int i = 0; i < CONTROLLABLE_DUAL_COVERS.length; i++) {
+            ASSEMBLER_RECIPES.recipeBuilder()
+                    .fluidInputs(SolderingAlloy.getFluid(720))
+                    .inputs(ROBOT_ARMS[i].getStackForm(), FLUID_REGULATORS[i].getStackForm())
+                    .input(OrePrefix.circuit, CIRCUIT_TIERS[i], 2)
+                    .outputs(CONTROLLABLE_DUAL_COVERS[i].getStackForm())
+                    .EUt(GAValues.VA[i]).duration(600)
                     .buildAndRegister();
         }
     }

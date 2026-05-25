@@ -17,6 +17,16 @@ public class TJMetaItems {
     public static ArmorMetaItem<?>.ArmorMetaValueItem MODULAR_ARMOR_LEGS;
     public static ArmorMetaItem<?>.ArmorMetaValueItem MODULAR_ARMOR_BOOTS;
 
+    public static MetaItem<?>.MetaValueItem CONVEYOR_MODULE_ULV;
+    public static MetaItem<?>.MetaValueItem ELECTRIC_MOTOR_ULV;
+    public static MetaItem<?>.MetaValueItem ELECTRIC_PISTON_ULV;
+    public static MetaItem<?>.MetaValueItem ELECTRIC_PUMP_ULV;
+    public static MetaItem<?>.MetaValueItem EMITTER_ULV;
+    public static MetaItem<?>.MetaValueItem FIELD_GENERATOR_ULV;
+    public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_ULV;
+    public static MetaItem<?>.MetaValueItem ROBOT_ARM_ULV;
+    public static MetaItem<?>.MetaValueItem SENSOR_ULV;
+
     public static MetaItem<?>.MetaValueItem GAUGE_DROPPER;
     public static MetaItem<?>.MetaValueItem TOOLBOX;
     public static MetaItem<?>.MetaValueItem CREATIVE_FLUID_COVER;
@@ -25,11 +35,17 @@ public class TJMetaItems {
     public static MetaItem<?>.MetaValueItem VOID_ITEM_COVER;
     public static MetaItem<?>.MetaValueItem VOID_FLUID_COVER;
     public static MetaItem<?>.MetaValueItem VOID_ENERGY_COVER;
+    public static MetaItem<?>.MetaValueItem VOID_ADVANCED_ITEM_COVER;
+    public static MetaItem<?>.MetaValueItem VOID_ADVANCED_FLUID_COVER;
+    public static MetaItem<?>.MetaValueItem VOID_ADVANCED_ENERGY_COVER;
     public static MetaItem<?>.MetaValueItem LINKING_DEVICE;
     public static MetaItem<?>.MetaValueItem VOID_PLUNGER;
     public static MetaItem<?>.MetaValueItem NBT_READER;
     public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_UHV;
+    public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_UEV;
+    public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_UIV;
     public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_UMV;
+    public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_UXV;
     public static MetaItem<?>.MetaValueItem FLUID_REGULATOR_MAX;
     public static MetaItem<?>.MetaValueItem REMOTE_MULTIBLOCK_CONTROLLER;
 
@@ -38,6 +54,17 @@ public class TJMetaItems {
     public static final MetaItem<?>.MetaValueItem[] ENDER_ITEM_COVERS = new MetaItem.MetaValueItem[12];
     public static final MetaItem<?>.MetaValueItem[] ENDER_ENERGY_COVERS = new MetaItem.MetaValueItem[12];
     public static final MetaItem<?>.MetaValueItem[] TURBINE_UPGRADES = new MetaItem.MetaValueItem[6];
+    public static final MetaItem<?>.MetaValueItem[] DUAL_COVERS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] CONTROLLABLE_DUAL_COVERS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] MOTORS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] PUMPS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] CONVEYORS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] PISTONS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] ROBOT_ARMS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] FIELD_GENERATORS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] EMITTERS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] SENSORS = new MetaItem.MetaValueItem[15];
+    public static final MetaItem<?>.MetaValueItem[] FLUID_REGULATORS = new MetaItem.MetaValueItem[15];
 
     public static void init() {
         TJMetaItem1 item = new TJMetaItem1();

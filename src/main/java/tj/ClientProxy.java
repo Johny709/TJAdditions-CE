@@ -33,6 +33,7 @@ public class ClientProxy extends CommonProxy {
     public static void registerModels(ModelRegistryEvent event) {
         TJMetaBlocks.registerItemModels();
         TJMetaItems.registerModels();
-        TJItems.TJ_ITEM_REGISTRY.forEach((item, location) -> ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory")));
+        TJItems.TJ_ITEM_REGISTRY.forEach((location, item) -> ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(location, "inventory")));
+        TJItems.TJ_ITEM_DEFINITION_REGISTRY.forEach((location, itemDefinition) -> ModelLoader.setCustomModelResourceLocation(itemDefinition.maybeItem().get(), 0, new ModelResourceLocation(location, "inventory")));
     }
 }

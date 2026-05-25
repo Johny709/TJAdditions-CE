@@ -43,6 +43,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.oredict.OreDictionary;
 import appeng.items.TJAE2MaterialStackSrc;
+import tj.util.Color;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -66,7 +68,7 @@ public final class TJItemMaterial extends AEBaseItem implements IStorageComponen
     @Override
     public void addCheckedInformation(final ItemStack stack, final World world, final List<String> lines, final ITooltipFlag advancedTooltips) {
         super.addCheckedInformation(stack, world, lines, advancedTooltips);
-
+        lines.add(TooltipHelper.blinkingText(Color.YELLOW, 20, "machine.universal.deprecate_to_remove"));
         final TJAE2MaterialType mt = this.getTypeByStack(stack);
         if (mt == null) {
             return;

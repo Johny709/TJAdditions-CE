@@ -62,35 +62,6 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
             return false;
         }
 
-        boolean canMineOres = false;
-        final long consumeAmount = (long) this.currentDrillingFluid;
-        final boolean hasEnoughPyrotheum = TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), PYROTHEUM, consumeAmount, false) == consumeAmount;
-        final boolean hasEnoughCryotheum = TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), CRYOTHEUM, consumeAmount, false) == consumeAmount;
-        if (hasEnoughPyrotheum && hasEnoughCryotheum) {
-            TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), PYROTHEUM, consumeAmount, true);
-            TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), CRYOTHEUM, consumeAmount, true);
-            for (long amount = consumeAmount; amount > 0; amount -= Integer.MAX_VALUE)
-                this.fluidInputsList.add(Pyrotheum.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
-            for (long amount = consumeAmount; amount > 0; amount =- Integer.MAX_VALUE)
-                this.fluidInputsList.add(Cryotheum.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
-            canMineOres = true;
-        } else if (hasEnoughPyrotheum) {
-            TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), PYROTHEUM, consumeAmount, true);
-            for (long amount = consumeAmount; amount > 0; amount -= Integer.MAX_VALUE)
-                this.fluidInputsList.add(Pyrotheum.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
-            this.temperature += (long) (this.currentDrillingFluid / 100.0);
-            this.currentDrillingFluid *= 1.02;
-            canMineOres = true;
-        } else if (hasEnoughCryotheum) {
-            TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), CRYOTHEUM, consumeAmount, true);
-            for (long amount = consumeAmount; amount > 0; amount -= Integer.MAX_VALUE)
-                this.fluidInputsList.add(Cryotheum.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
-            this.currentDrillingFluid /= 1.02;
-            this.temperature -= (long) (this.currentDrillingFluid / 100.0);
-        } else {
-            return false; // prevent energy consumption if either fluids are not consumed
-        }
-
         if (this.currentDrillingFluid < CONSUME_START) {
             this.currentDrillingFluid = CONSUME_START;
         }
@@ -103,7 +74,34 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
         if (this.metaTileEntity instanceof IMaintenance)
             this.currentDrillingFluid += ((IMaintenance) this.metaTileEntity).getNumProblems();
 
+        final long consumeAmount = (long) this.currentDrillingFluid;
         if ((this.voidingFluids || TJFluidUtils.fillIntoTanksLong(this.handler.getExportFluidTank(), USED_DRILLING_MUD, consumeAmount, false) == consumeAmount) && TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), DRILLING_MUD, consumeAmount, false) == consumeAmount) {
+            boolean canMineOres = false;
+            final boolean hasEnoughPyrotheum = TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), PYROTHEUM, consumeAmount, false) == consumeAmount;
+            final boolean hasEnoughCryotheum = TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), CRYOTHEUM, consumeAmount, false) == consumeAmount;
+            if (hasEnoughPyrotheum && hasEnoughCryotheum) {
+                TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), PYROTHEUM, consumeAmount, true);
+                TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), CRYOTHEUM, consumeAmount, true);
+                for (long amount = consumeAmount; amount > 0; amount -= Integer.MAX_VALUE)
+                    this.fluidInputsList.add(Pyrotheum.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
+                for (long amount = consumeAmount; amount > 0; amount =- Integer.MAX_VALUE)
+                    this.fluidInputsList.add(Cryotheum.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
+                canMineOres = true;
+            } else if (hasEnoughPyrotheum) {
+                TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), PYROTHEUM, consumeAmount, true);
+                for (long amount = consumeAmount; amount > 0; amount -= Integer.MAX_VALUE)
+                    this.fluidInputsList.add(Pyrotheum.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
+                this.temperature += (long) (this.currentDrillingFluid / 100.0);
+                this.currentDrillingFluid *= 1.02;
+                canMineOres = true;
+            } else if (hasEnoughCryotheum) {
+                TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), CRYOTHEUM, consumeAmount, true);
+                for (long amount = consumeAmount; amount > 0; amount -= Integer.MAX_VALUE)
+                    this.fluidInputsList.add(Cryotheum.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
+                this.currentDrillingFluid /= 1.02;
+                this.temperature -= (long) (this.currentDrillingFluid / 100.0);
+            } else return false; // prevent energy consumption if either fluids are not consumed
+
             TJFluidUtils.drainFromTanksLong(this.handler.getImportFluidTank(), DRILLING_MUD, consumeAmount, true);
             for (long amount = consumeAmount; amount > 0; amount -= Integer.MAX_VALUE)
                 this.fluidInputsList.add(DrillingMud.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));

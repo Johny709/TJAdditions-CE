@@ -3,7 +3,6 @@ package tj.gui.widgets;
 import com.google.common.base.Preconditions;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.IRenderContext;
-import gregtech.api.gui.Widget;
 import gregtech.api.util.MCGuiUtil;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
@@ -24,7 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget {
+public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidget {
 
     @SideOnly(Side.CLIENT)
     protected GuiTextField textField;
@@ -315,38 +314,61 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends Widget 
             }
         }
         if (this.formatSupplier != null) {
-            final String[] formatArgs = this.formatSupplier.get();
-            this.writeUpdateInfo(3, buffer -> {
-                buffer.writeInt(formatArgs.length);
-                for (String format : formatArgs) {
-                    buffer.writeString(format);
-                }
-            });
+            final String[] format = this.formatSupplier.get();
+            if (!Arrays.equals(format, this.format)) {
+                this.format = format;
+                this.writeUpdateInfo(3, buffer -> {
+                    buffer.writeInt(this.format.length);
+                    for (String f : this.format) {
+                        buffer.writeString(f);
+                    }
+                });
+            }
         }
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
-        if (id == 1) {
-            this.currentString = buffer.readString(Short.MAX_VALUE);
-            this.textField.setText(this.currentString);
-        } else if (id == 2) {
-            this.textId = buffer.readString(Short.MAX_VALUE);
-        } else if (id == 3) {
-            final int size = buffer.readInt();
-            for (int i = 0; i < size; i++) {
-                this.format[i] =  buffer.readString(Short.MAX_VALUE);
-            }
+        super.readUpdateInfo(id, buffer);
+        switch (id) {
+            case 1:
+                this.currentString = buffer.readString(Short.MAX_VALUE);
+                this.textField.setText(this.currentString);
+                break;
+            case 2:
+                this.textId = buffer.readString(Short.MAX_VALUE);
+                break;
+            case 3:
+                final int size = buffer.readInt();
+                for (int i = 0; i < size; i++) {
+                    this.format[i] =  buffer.readString(Short.MAX_VALUE);
+                }
+                break;
+            case 10:
+                this.textField.setEnabled(this.isActive);
+                if (!this.isActive)
+                    this.textField.setFocused(false);
         }
     }
 
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
+        super.handleClientAction(id, buffer);
         if (id == 1) {
             this.currentString = buffer.readString(Short.MAX_VALUE);
             if (this.updateOnType && this.textResponder != null)
                 this.textResponder.accept(this.currentString, this.textId);
+        }
+    }
+
+    @Override
+    public void setActive(boolean isActive) {
+        super.setActive(isActive);
+        if (isClientSide()) {
+            this.textField.setEnabled(isActive);
+            if (!isActive)
+                this.textField.setFocused(false);
         }
     }
 }

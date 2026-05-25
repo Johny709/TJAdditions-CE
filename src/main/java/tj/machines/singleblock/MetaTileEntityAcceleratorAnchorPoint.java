@@ -15,7 +15,6 @@ import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.gui.widgets.CycleButtonWidget;
-import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -113,13 +112,11 @@ public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity impleme
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         WidgetGroup widgetGroup = new WidgetGroup();
-        widgetGroup.addWidget(new TJLabelWidget(7, -19, 162, 19, TJGuiTextures.MACHINE_LABEL)
-                .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()));
         widgetGroup.addWidget(new AdvancedTextWidget(15, 25, this::addDisplayText, 0xFFFFFF));
         widgetGroup.addWidget(new CycleButtonWidget(10, 60, 150, 20, this::isInverted, this::setInverted,
                 "cover.machine_controller.normal", "cover.machine_controller.inverted"));
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
-                .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL)
+                .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(widgetGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)

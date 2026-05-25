@@ -130,7 +130,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
                 this.temp = MathHelper.clamp(this.temp - 10, 0, 12000);
             }
         }
-        if (!this.canGenerateSteam() || this.getOffsetTimer() < 20 || this.calcification > 239999) {
+        if (!this.canGenerateSteam() || this.getOffsetTimer() < 20) {
             this.hadWater = false;
             this.steamProduction = 0;
             this.waterConsumption = 0;
@@ -145,10 +145,10 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
                     this.getPos().getX() + 0.5, this.getPos().getY() + 0.5, this.getPos().getZ() + 0.5,
                     2.0f, true);
         } else if (hasEnoughWater) {
-            this.steamProduction = this.steamTank.fill(Steam.getFluid(waterToConsume * 160), true);
+            this.steamProduction = this.steamTank.fill(Steam.getFluid((waterToConsume * (this.calcification > 499999 ? 16 : 160))), true);
             this.waterConsumption = this.waterTank.drain(waterToConsume, true).amount;
             if (!waterStack.isFluidEqual(DISTILLED_WATER))
-                this.calcification = MathHelper.clamp(this.calcification + this.waterConsumption, 0, 240000);
+                this.calcification = MathHelper.clamp(this.calcification + this.waterConsumption, 0, 500000);
         } else this.hadWater = true;
     }
 

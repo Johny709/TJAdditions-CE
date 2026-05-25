@@ -10,6 +10,7 @@ import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import net.minecraft.util.ResourceLocation;
 import tj.TJ;
+import tj.machines.multi.steam.MetaTileEntitySteamGrinder;
 import tj.machines.multi.electric.*;
 import tj.machines.multi.parallel.*;
 import tj.machines.multi.steam.*;
@@ -152,6 +153,9 @@ public class TJMetaTileEntities {
     public static MetaTileEntityLargeBioReactor LARGE_BIO_REACTOR;
     public static MetaTileEntityLargeGasCentrifuge LARGE_GAS_CENTRIFUGE;
     public static MetaTileEntityLargeNuclearReactor LARGE_NUCLEAR_REACTOR;
+    public static MetaTileEntityTJMultiSmelter MULTI_SMELTER;
+    public static MetaTileEntitySteamOven STEAM_OVEN;
+    public static MetaTileEntitySteamGrinder STEAM_GRINDER;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -160,6 +164,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntityCreativeItemBus CREATIVE_ITEM_BUS;
     public static MetaTileEntityCreativeEnergyHatch CREATIVE_ENERGY_HATCH;
     public static MetaTileEntityFilingCabinet FILING_CABINET;
+    public static MetaTileEntityArmorWorkbench ARMOR_WORKBENCH;
 
     public static void init() {
 
@@ -289,6 +294,7 @@ public class TJMetaTileEntities {
         INFINITY_CHEST = GregTechAPI.registerMetaTileEntity(5424, new MetaTileEntityCompressedChest(TJId("infinity_chest"), true));
         INFINITY_CRATE = GregTechAPI.registerMetaTileEntity(5425, new MetaTileEntityCompressedCrate(TJId("infinity_crate"), true));
         FILING_CABINET = GregTechAPI.registerMetaTileEntity(5426, new MetaTileEntityFilingCabinet(TJId("filing_cabinet")));
+        ARMOR_WORKBENCH = GregTechAPI.registerMetaTileEntity(5427, new MetaTileEntityArmorWorkbench(TJId("armor_workbench")));
 
         // range 5500+ -> misc
         ACCELERATOR_ANCHOR_POINT = GregTechAPI.registerMetaTileEntity(5500, new MetaTileEntityAcceleratorAnchorPoint(TJId("accelerator_anchor_point")));
@@ -314,6 +320,9 @@ public class TJMetaTileEntities {
         LARGE_BIO_REACTOR = GregTechAPI.registerMetaTileEntity(5529, new MetaTileEntityLargeBioReactor(TJId("large_bio_reactor")));
         LARGE_GAS_CENTRIFUGE = GregTechAPI.registerMetaTileEntity(5530, new MetaTileEntityLargeGasCentrifuge(TJId("large_gas_centrifuge")));
         LARGE_NUCLEAR_REACTOR = GregTechAPI.registerMetaTileEntity(5531, new MetaTileEntityLargeNuclearReactor(TJId("large_nuclear_reactor")));
+        MULTI_SMELTER = GregTechAPI.registerMetaTileEntity(5532, new MetaTileEntityTJMultiSmelter(TJId("multi_smelter")));
+        STEAM_OVEN = GregTechAPI.registerMetaTileEntity(5533, new MetaTileEntitySteamOven(TJId("steam_oven")));
+        STEAM_GRINDER = GregTechAPI.registerMetaTileEntity(5534, new MetaTileEntitySteamGrinder(TJId("steam_grinder")));
 
         // append tiers to existing hatches
         MetaTileEntities.ITEM_IMPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_IMPORT_BUS, 15);

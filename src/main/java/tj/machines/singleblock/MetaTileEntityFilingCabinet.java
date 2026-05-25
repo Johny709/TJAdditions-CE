@@ -158,8 +158,8 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
                     .setWidgetGroup(slotScrollableWidgetGroup)
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
-        return ModularUI.builder(GuiTextures.BACKGROUND, 176, 197)
-                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 197)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .bindOpenListener(() -> this.guiUsers.put(player, slotScrollableWidgetGroup))
                 .bindCloseListener(() -> this.guiUsers.remove(player))

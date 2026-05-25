@@ -25,6 +25,7 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
+import tj.TJValues;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
@@ -490,7 +491,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                         return new TextComponentWrapper<>(new TextComponentWrapper<>(new TextComponentString("")
                                 .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
                                         .appendSibling(hoverComponent)
-                                        .appendText("\n" + I18n.format("tj.machine.universal.item_amount", itemStack.getCount()))))))
+                                        .appendText("\n" + I18n.format("tj.machine.universal.item_amount", TJValues.thousandFormat.format(itemStack.getCount())))))))
                                 .setAdvancedHoverComponent(Collections.singletonList(new TextComponentWrapper<>(itemStack))))
                                 .setAdvancedHoverComponent(component.getAdvancedHoverComponent());
                     } else {
@@ -501,7 +502,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                         return new TextComponentWrapper<>(new TextComponentWrapper<>(new TextComponentString("")
                                 .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(fluidStack.getLocalizedName())
                                         .appendText(ChatFormatting.GRAY + formula)
-                                        .appendText("\n" + I18n.format("tj.machine.universal.fluid_amount", fluidStack.amount))))))
+                                        .appendText("\n" + I18n.format("tj.machine.universal.fluid_amount", TJValues.thousandFormat.format(fluidStack.amount)))))))
                                 .setAdvancedHoverComponent(Collections.singletonList(new TextComponentWrapper<>(fluidStack))))
                                 .setAdvancedHoverComponent(component.getAdvancedHoverComponent());
                     }

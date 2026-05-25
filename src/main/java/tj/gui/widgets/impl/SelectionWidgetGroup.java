@@ -16,6 +16,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.gui.TJGuiTextures;
+import tj.gui.widgets.TJWidget;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -121,8 +122,13 @@ public class SelectionWidgetGroup extends WidgetGroup {
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
         for (Object2IntMap.Entry<Widget> entry : this.selectionBoxes.object2IntEntrySet()) {
             if (entry.getKey().toRectangleBox().contains(mouseX, mouseY)) {
+                final int lastIndex = this.activeIndex;
                 this.activeIndex = entry.getIntValue();
-                this.writeClientAction(2, buffer -> buffer.writeInt(this.activeIndex));
+                this.updateWidgets(lastIndex, this.activeIndex);
+                this.writeClientAction(2, buffer -> {
+                    buffer.writeInt(lastIndex);
+                    buffer.writeInt(this.activeIndex);
+                });
                 return true;
             }
         }
@@ -153,8 +159,19 @@ public class SelectionWidgetGroup extends WidgetGroup {
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
         if (id == 2) {
+            final int lastIndex = buffer.readInt();
             this.activeIndex = buffer.readInt();
+            this.updateWidgets(lastIndex, this.activeIndex);
         }
+    }
+
+    private void updateWidgets(int lastIndex, int newIndex) {
+        this.widgetMap.getOrDefault(lastIndex, Collections.emptyList()).stream()
+                .filter(widget -> widget instanceof TJWidget)
+                .forEach(widget -> ((TJWidget) widget).setActive(false));
+        this.widgetMap.getOrDefault(newIndex, Collections.emptyList()).stream()
+                .filter(widget -> widget instanceof TJWidget)
+                .forEach(widget -> ((TJWidget) widget).setActive(true));
     }
 
     private static class SelectionSlotWidget extends Widget {

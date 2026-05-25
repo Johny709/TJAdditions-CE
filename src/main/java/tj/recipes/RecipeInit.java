@@ -1,7 +1,6 @@
 package tj.recipes;
 
-import appeng.api.definitions.IItems;
-import appeng.api.definitions.IMaterials;
+import appeng.api.AEApi;
 import appeng.core.Api;
 import appeng.core.api.definitions.ApiBlocks;
 import gregicadditions.GAEnums;
@@ -31,8 +30,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import tj.blocks.*;
-import tj.integration.appeng.IApiItems;
-import tj.integration.appeng.IApiMaterials;
 import tj.machines.TJMetaTileEntities;
 import tj.recipes.ct.*;
 
@@ -48,8 +45,9 @@ import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
 import static gregtech.common.metatileentities.MetaTileEntities.*;
 import static tj.TJValues.CIRCUIT_TIERS;
 import static tj.items.TJMetaItems.*;
+import static tj.items.item.TJItems.*;
 import static tj.machines.TJMetaTileEntities.*;
-import static tj.recipes.AssemblerRecipes.MATERIAL_TIER;
+import static tj.materials.TJMaterials.MATERIAL_TIER;
 
 public class RecipeInit {
 
@@ -67,12 +65,10 @@ public class RecipeInit {
     }
     private static void craftingRecipes() {
         final ApiBlocks aeBlocks = Api.INSTANCE.definitions().blocks();
-        final IApiItems aeItems = ((IApiItems) (IItems) Api.INSTANCE.definitions().items());
-        final IApiMaterials aeMaterials = ((IApiMaterials) (IMaterials) Api.INSTANCE.definitions().materials());
-        final ItemStack[] aeCellParts = {aeMaterials.getCell65mPart().maybeStack(1).get(), aeMaterials.getCell262mPart().maybeStack(1).get(), aeMaterials.getCell1048mPart().maybeStack(1).get(), aeMaterials.getCellDigitalSingularityPart().maybeStack(1).get(),
-            aeMaterials.getFluidCell65mPart().maybeStack(1).get(), aeMaterials.getFluidCell262mPart().maybeStack(1).get(), aeMaterials.getFluidCell1048mPart().maybeStack(1).get(), aeMaterials.getFluidCellDigitalSingularityPart().maybeStack(1).get()};
-        final ItemStack[] aeCells = {aeItems.getCell65m().maybeStack(1).get(), aeItems.getCell262m().maybeStack(1).get(), aeItems.getCell1048m().maybeStack(1).get(), aeItems.getCellDigitalSingularity().maybeStack(1).get(),
-            aeItems.getFluidCell65m().maybeStack(1).get(), aeItems.getFluidCell262m().maybeStack(1).get(), aeItems.getFluidCell1048m().maybeStack(1).get(), aeItems.getFluidCellDigitalSingularity().maybeStack(1).get()};
+        final ItemStack[] aeCellParts = {MATERIAL_ITEM_CELL_65536K.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_262144K.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_1048M.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null),
+            MATERIAL_FLUID_CELL_65536K.maybeStack(1).orElse(null), MATERIAL_FLUID_CELL_262144K.maybeStack(1).orElse(null), MATERIAL_FLUID_CELL_1048M.maybeStack(1).orElse(null), MATERIAL_FLUID_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null)};
+        final ItemStack[] aeCells = {ITEM_CELL_65536K.maybeStack(1).orElse(null), ITEM_CELL_262144K.maybeStack(1).orElse(null), ITEM_CELL_1048M.maybeStack(1).orElse(null), ITEM_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null),
+            FLUID_CELL_65536K.maybeStack(1).orElse(null), FLUID_CELL_262144K.maybeStack(1).orElse(null), FLUID_CELL_1048M.maybeStack(1).orElse(null), FLUID_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null)};
         ALLOY_SMELTER_RECIPES.recipeBuilder()
                 .input(Items.CLAY_BALL)
                 .input(Blocks.SAND)
@@ -243,11 +239,11 @@ public class RecipeInit {
             final int tier = 3 + (3 * i);
             MetaTileEntityQuantumTank superTank = superTanks[i];
             ModHandler.addShapedRecipe("steam_input_hatch." + GAValues.VN[tier], STEAM_INPUT_FLUID_HATCH[i].getStackForm(), "DPD", "DSD", "DPD",
-                    'D', new UnificationEntry(OrePrefix.plate, MATERIAL_TIER[0][tier -1]),
+                    'D', new UnificationEntry(OrePrefix.plate, MATERIAL_TIER[tier]),
                     'P', new UnificationEntry(OrePrefix.pipeLarge, pipe[i]),
                     'S', superTank.getStackForm());
             ModHandler.addShapedRecipe("steam_output_hatch." + GAValues.VN[tier], STEAM_OUTPUT_FLUID_HATCH[i].getStackForm(), "DDD", "PSP", "DDD",
-                    'D', new UnificationEntry(OrePrefix.plate, MATERIAL_TIER[0][tier -1]),
+                    'D', new UnificationEntry(OrePrefix.plate, MATERIAL_TIER[tier]),
                     'P', new UnificationEntry(OrePrefix.pipeLarge, pipe[i]),
                     'S', superTank.getStackForm());
         }
@@ -325,6 +321,9 @@ public class RecipeInit {
                 'G', GACraftingComponents.GEAR.getIngredient(5),
                 'H', NAMING_MACHINES[4].getStackForm(),
                 'A', new ItemStack(Blocks.ANVIL));
+        ModHandler.addShapelessRecipe("tj_item_block_container", ITEM_BLOCK_CONTAINER_64K.maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().cell1kPart().maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), new ItemStack(Blocks.CHEST));
+        ModHandler.addShapelessRecipe("tj_item_block_container.2", ITEM_BLOCK_CONTAINER_65536K.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_65536K.maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), COMPRESSED_CHEST.getStackForm());
+        ModHandler.addShapelessRecipe("tj_item_block_container.singularity", ITEM_BLOCK_CONTAINER_SINGULARITY.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), INFINITY_CHEST.getStackForm());
         for (int i = 0; i < 2; i++) {
             ModHandler.addShapedRecipe("charcoal_pit." + i, i == 0 ? CHARCOAL_PIT.getStackForm() : CHARCOAL_PIT_ADVANCED.getStackForm(), "PRP", "PHP", "FFF",
                     'H', i == 0 ? MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.BRONZE_BRICKS_HULL) : MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.STEEL_BRICKS_HULL),
@@ -388,9 +387,9 @@ public class RecipeInit {
                     .buildAndRegister();
         }
         for (int i = 0; i < aeCells.length; i++) {
-            ModHandler.addShapelessRecipe("ae_cell_simple." + aeCells[i].getTranslationKey(), aeCells[i], aeMaterials.emptyStorageCell().maybeStack(1).get(), aeCellParts[i]);
+            ModHandler.addShapelessRecipe("ae_cell_simple." + aeCells[i].getTranslationKey(), aeCells[i], AEApi.instance().definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), aeCellParts[i]);
             ModHandler.addShapedRecipe("ae_cell." + aeCells[i].getTranslationKey(), aeCells[i], "QRQ", "RCR", "III",
-                    'Q', aeBlocks.quartzGlass().maybeStack(1).get(),
+                    'Q', aeBlocks.quartzGlass().maybeStack(1).orElse(null),
                     'I', new ItemStack(Items.IRON_INGOT),
                     'R', new ItemStack(Items.REDSTONE),
                     'C', aeCellParts[i]);
@@ -400,7 +399,7 @@ public class RecipeInit {
                     .circuitMeta(1)
                     .input(OrePrefix.circuit, CIRCUIT_TIERS[i + 9])
                     .input(OrePrefix.gemExquisite, Amethyst, 4)
-                    .input(OrePrefix.plate, MATERIAL_TIER[0][i + 9], 4)
+                    .input(OrePrefix.plate, MATERIAL_TIER[i + 10], 4)
                     .inputs(GAMetaItems.UNSTABLE_STAR.getStackForm(), GAMetaItems.OPTICAL_PROCESSING_CORE.getStackForm(4), GAMetaItems.OPTICAL_SOC.getStackForm(16))
                     .outputs(i == 0 ? aeCellParts[0] : aeCellParts[4])
                     .duration(300).EUt(GAValues.VA[9])
@@ -416,7 +415,7 @@ public class RecipeInit {
         }
         for (int i = 0, tier = 1; i < NAMING_MACHINES.length; i++, tier++) {
             ModHandler.addShapedRecipe("naming_machine." + GAValues.VN[tier], NAMING_MACHINES[i].getStackForm(), "GPG", "CHC", "GAG",
-                    'G', new UnificationEntry(OrePrefix.gearSmall, MATERIAL_TIER[0][i]),
+                    'G', new UnificationEntry(OrePrefix.gearSmall, MATERIAL_TIER[tier]),
                     'C', GACraftingComponents.CIRCUIT.getIngredient(tier),
                     'P', GACraftingComponents.PISTON.getIngredient(tier),
                     'H', GACraftingComponents.HULL.getIngredient(tier),
@@ -429,7 +428,7 @@ public class RecipeInit {
                     .circuitMeta(1)
                     .input(OrePrefix.circuit, CIRCUIT_TIERS[i + 9])
                     .input(OrePrefix.gemExquisite, Amethyst, 4)
-                    .input(OrePrefix.plate, MATERIAL_TIER[0][i + 9], 4)
+                    .input(OrePrefix.plate, MATERIAL_TIER[i + 10], 4)
                     .inputs(aeCellParts2, GAMetaItems.OPTICAL_PROCESSING_CORE.getStackForm(4))
                     .outputs(aeCellParts[i])
                     .duration(300).EUt(GAValues.VA[Math.min(11, i + 9)])
@@ -440,7 +439,7 @@ public class RecipeInit {
                     .circuitMeta(1)
                     .input(OrePrefix.circuit, CIRCUIT_TIERS[i + 9])
                     .input(OrePrefix.gemExquisite, Amethyst, 4)
-                    .input(OrePrefix.plate, MATERIAL_TIER[0][i + 9], 4)
+                    .input(OrePrefix.plate, MATERIAL_TIER[i + 10], 4)
                     .inputs(aeCellParts2, GAMetaItems.OPTICAL_PROCESSING_CORE.getStackForm(4))
                     .outputs(aeCellParts[i + 4])
                     .duration(300).EUt(GAValues.VA[Math.min(11, i + 9)])
@@ -496,6 +495,12 @@ public class RecipeInit {
         final ItemStack largeVialProcessor = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 4202);
         ModHandler.addShapelessRecipe("tj_large_vial_processor", LARGE_VIAL_PROCESSOR.getStackForm(), largeVialProcessor);
         ModHandler.addShapelessRecipe("tj_large_vial_processor.back", largeVialProcessor, LARGE_VIAL_PROCESSOR.getStackForm());
+        ModHandler.addShapelessRecipe("tj_steam_grinder", STEAM_GRINDER.getStackForm(), GATileEntities.STEAM_GRINDER.getStackForm());
+        ModHandler.addShapelessRecipe("tj_steam_grinder.back", GATileEntities.STEAM_GRINDER.getStackForm(), STEAM_GRINDER.getStackForm());
+        ModHandler.addShapelessRecipe("tj_steam_oven", STEAM_OVEN.getStackForm(), GATileEntities.STEAM_OVEN.getStackForm());
+        ModHandler.addShapelessRecipe("tj_steam_oven.back", GATileEntities.STEAM_OVEN.getStackForm(), STEAM_OVEN.getStackForm());
+        ModHandler.addShapelessRecipe("tj_multi-smelter", MULTI_SMELTER.getStackForm(), GATileEntities.MULTI_FURNACE.getStackForm());
+        ModHandler.addShapelessRecipe("tj_multi-smelter.back", GATileEntities.MULTI_FURNACE.getStackForm(), MULTI_SMELTER.getStackForm());
     }
 
     public static ItemStack getEnergyHatch(int tier, boolean isOutput) {

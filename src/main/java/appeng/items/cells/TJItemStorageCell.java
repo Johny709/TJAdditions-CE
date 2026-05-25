@@ -9,7 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import appeng.items.materials.TJAE2MaterialType;
 
-
+@Deprecated
 public class TJItemStorageCell extends TJAbstractStorageCell<IAEItemStack> {
 
     protected final int perType;

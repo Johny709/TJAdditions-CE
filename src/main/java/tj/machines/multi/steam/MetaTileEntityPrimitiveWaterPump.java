@@ -92,7 +92,7 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
     protected void addDisplayText(GUIDisplayBuilder builder) {
         super.addDisplayText(builder);
         if (!this.isStructureFormed()) return;
-        builder.addFluidOutputLine(VOID_TANK, Water.getFluid(1), this.workableHandler.getLastAmount())
+        builder.addFluidOutputLine(VOID_TANK, Water.getFluid(1), this.workableHandler.getLastAmount(), 20)
                 .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress())
                 .addRecipeOutputLine(this.workableHandler);
     }

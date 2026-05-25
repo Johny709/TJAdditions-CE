@@ -125,7 +125,7 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
         builder.addVoltageInLine(this.inputEnergyContainer)
                 .addVoltageTierLine(this.tier)
                 .addEnergyInputLine(this.inputEnergyContainer, this.maxVoltage)
-                .addFluidInputLine(this.importFluidTank, DRILLING_MUD, this.workableHandler.getDrillingMudAmount())
+                .addFluidInputLine(this.importFluidTank, DRILLING_MUD, this.workableHandler.getDrillingMudAmount(), 20)
                 .addTranslationLine("gtadditions.multiblock.drilling_rig.fluid", this.workableHandler.getVeinFluid().getName())
                 .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.hasProblem())
                 .addRecipeInputLine(this.workableHandler)

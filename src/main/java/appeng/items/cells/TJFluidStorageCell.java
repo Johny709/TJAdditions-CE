@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import appeng.items.materials.TJAE2MaterialType;
 
+@Deprecated
 public class TJFluidStorageCell extends TJAbstractStorageCell<IAEFluidStack> {
 
     private final int perType;

@@ -50,15 +50,15 @@ public abstract class SimpleMachineMetaTileEntityMixin extends WorkableTieredMet
     private void injectCreateUITemplate(EntityPlayer player, CallbackInfoReturnable<ModularUI.Builder> cir,
                                         ModularUI.Builder builder, int leftButtonStartX, int rightButtonStartX) {
         if (!TJConfig.machines.multiblockUIOverrides) return;
-        RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 22, 21, 20)
+        final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 22, 21, 20)
                 .setFluidOutputSupplier(((IAbstractRecipeLogicMixin) this.workable)::getFluidOutputs)
                 .setItemOutputSupplier(((IAbstractRecipeLogicMixin) this.workable)::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
-        ModularUI.Builder newBuilder = ((IRecipeMap) this.workable.recipeMap).createUITemplateAdvanced(this.workable::getProgressPercent, this.importItems, this.exportItems, this.importFluids, this.exportFluids, displayWidget)
+        final ModularUI.Builder newBuilder = ((IRecipeMap) this.workable.recipeMap).createUITemplateAdvanced(this.workable::getProgressPercent, this.importItems, this.exportItems, this.importFluids, this.exportFluids, displayWidget)
                 .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
                 .image(-28, 138, 26, 26, GuiTextures.BORDERED_BACKGROUND)
-                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL, () -> Gregicality.MODID + ":" + this.workable.recipeMap.getUnlocalizedName())
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2, () -> Gregicality.MODID + ":" + this.workable.recipeMap.getUnlocalizedName())
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
                         .setLocale("tj.multiblock.bars.energy", null)

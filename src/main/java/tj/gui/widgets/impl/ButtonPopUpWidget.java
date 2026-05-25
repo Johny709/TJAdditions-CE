@@ -2,6 +2,7 @@ package tj.gui.widgets.impl;
 
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -33,7 +34,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
      */
     public T addClosingButton(ButtonWidget<?> button) {
         button.setButtonId(String.valueOf(0));
-        button.setButtonResponder(this::handleButtonPress);
+        button.setButtonResponder(this::setPopupIndex);
         this.pendingWidgets.add(button);
         return (T) this;
     }
@@ -50,7 +51,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
      */
     public T addPopup(int x, int y, int width, int height, ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
         button.appendButtonId(buttonId -> buttonId + ":" + this.selectedIndex)
-                .setButtonResponder(this::handleButtonPress)
+                .setButtonResponder(this::setPopupIndex)
                 .setButtonIdAsLong(this.selectedIndex);
         if (button instanceof TJToggleButtonWidget)
             ((TJToggleButtonWidget) button).setButtonSupplier(() -> this.selectedIndex == button.getButtonIdAsLong());
@@ -101,7 +102,8 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
         return (T) this;
     }
 
-    protected void handleButtonPress(String buttonId) {
+    @Override
+    protected void setPopupIndex(String buttonId) {
         try {
             final int i = buttonId.lastIndexOf(":");
             if (i != -1) {
@@ -113,8 +115,15 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
                     return;
                 buttonId = !contains || actionResult == EnumActionResult.SUCCESS ? buttonId : String.valueOf(index);
             }
+            final int lastIndex = this.selectedIndex;
             this.selectedIndex = Integer.parseInt(buttonId);
-            this.writeUpdateInfo(2, buffer -> buffer.writeInt(this.selectedIndex));
-        } catch (NumberFormatException ignored) {}
+            this.updateWidgets(lastIndex, this.selectedIndex);
+            this.writeUpdateInfo(2, buffer -> {
+                buffer.writeInt(lastIndex);
+                buffer.writeInt(this.selectedIndex);
+            });
+        } catch (NumberFormatException e) {
+            GTLog.logger.info(e.getMessage());
+        }
     }
 }
