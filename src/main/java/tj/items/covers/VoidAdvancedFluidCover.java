@@ -116,8 +116,11 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
                         final FluidStack fluidStack = fluidTankProperties.getContents();
                         if (fluidStack == null) continue;
                         final FluidStack filterStack = this.fluidType.get(fluidStack);
-                        if (filterStack != null && fluidStack.amount > filterStack.amount)
-                            fluidStack.amount = filterStack.amount;
+                        if (filterStack != null && fluidStack.amount > filterStack.amount) {
+                            final FluidStack stack = filterStack.copy();
+                            stack.amount = fluidStack.amount - filterStack.amount;
+                            this.fluidHandler.drain(stack, true);
+                        }
                     }
                     break;
                 default:
@@ -152,6 +155,7 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
         if (stack == null) return;
         stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
         this.fluidFilter.getTankAt(index).fill(stack, true);
+        this.fluidType.put(stack, stack);
         this.markAsDirty();
     }
 

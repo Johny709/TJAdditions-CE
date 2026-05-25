@@ -144,6 +144,7 @@ public class VoidAdvancedItemCover extends VoidItemCover {
         stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, false);
         stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
         this.itemFilter.insertItem(index, stack, false);
+        this.itemType.put(stack, stack);
         this.markAsDirty();
     }
 
