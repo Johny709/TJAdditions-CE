@@ -194,6 +194,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                     tab.add(new ClickButtonWidget(50, 20, 38, 20,"/2", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() / 2D)));
                     tab.add(new ClickButtonWidget(88, 20, 38, 20, "*2", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() * 2)));
                     tab.add(new NewTextFieldWidget<>(7, 40, 162, 18, true, () -> String.valueOf(itemTransferRate.getValue()), setItemTransferRate2)
+                            .setTooltipText("tj.machine.universal.item_throughput").setTooltipFormat(() -> new String[]{String.valueOf(itemTransferRate.getValue())})
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setUpdateOnTyping(true));
                     tab.add(new CycleButtonWidget(7, 65, 78, 20, CoverConveyor.ConveyorMode.class, conveyorMode::getValue, conveyorMode1 -> {
@@ -234,6 +235,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                     tab.add(new ClickButtonWidget(7, 40, 81, 20, "/2", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() / 2D)));
                     tab.add(new ClickButtonWidget(88, 40, 81, 20, "*2", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() * 2)));
                     tab.add(new NewTextFieldWidget<>(7, 60, 162, 18, true, () -> String.valueOf(fluidTransferRate.getValue()), setFluidTransferRate2)
+                            .setTooltipText("tj.machine.universal.fluid_throughput").setTooltipFormat(() -> new String[]{String.valueOf(fluidTransferRate.getValue())})
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setUpdateOnTyping(true));
                     tab.add(new CycleButtonWidget(7, 85, 78, 18, CoverPump.PumpMode.class, pumpMode::getValue, pumpMode1 -> {
@@ -326,5 +328,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
     public void addInformation(ItemStack itemStack, List<String> lines) {
         lines.add(I18n.format("metaitem.dual_cover.description"));
         lines.add(I18n.format("cover.creative.description"));
+        lines.add(I18n.format("tj.machine.universal.item_throughput", this.maxItemTransferRate));
+        lines.add(I18n.format("tj.machine.universal.fluid_throughput", this.maxFluidTransferRate));
     }
 }

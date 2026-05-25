@@ -239,6 +239,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                     tab.add(new ClickButtonWidget(50, 20, 38, 20,"/2", data -> this.setItemTransferRate(this.itemTransferRate / 2D)));
                     tab.add(new ClickButtonWidget(88, 20, 38, 20, "*2", data -> this.setItemTransferRate(this.itemTransferRate * 2)));
                     tab.add(new NewTextFieldWidget<>(7, 40, 162, 18, true, () -> String.valueOf(this.itemTransferRate), this::setItemTransferRate)
+                            .setTooltipText("tj.machine.universal.item_throughput").setTooltipFormat(() -> new String[]{String.valueOf(this.itemTransferRate)})
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setUpdateOnTyping(true));
                     tab.add(new CycleButtonWidget(7, 65, 78, 20, CoverConveyor.ConveyorMode.class, () -> this.conveyorMode, this::setConveyorMode));
@@ -268,6 +269,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                     tab.add(new ClickButtonWidget(7, 40, 81, 20, "/2", data -> this.setFluidTransferRate(this.fluidTransferRate / 2D)));
                     tab.add(new ClickButtonWidget(88, 40, 81, 20, "*2", data -> this.setFluidTransferRate(this.fluidTransferRate * 2)));
                     tab.add(new NewTextFieldWidget<>(7, 60, 162, 18, true, () -> String.valueOf(this.fluidTransferRate), this::setFluidTransferRate)
+                            .setTooltipText("tj.machine.universal.fluid_throughput").setTooltipFormat(() -> new String[]{String.valueOf(this.fluidTransferRate)})
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setUpdateOnTyping(true));
                     tab.add(new CycleButtonWidget(7, 85, 78, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));

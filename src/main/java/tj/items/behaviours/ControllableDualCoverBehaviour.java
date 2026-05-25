@@ -142,9 +142,8 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
             }, itemType::remove).setBackgroundTextures(GuiTextures.SLOT)
                     .setPutItemsPredicate(item -> !itemType.containsKey(item)));
             itemSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(84, 0, 76, 18, true, () -> String.valueOf(itemFilter.getStackInSlot(index).getCount()), setItemCount)
-                    .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(itemFilter.getStackInSlot(index).getCount())))
+                    .setTooltipText("tj.machine.universal.item_amount").setTooltipFormat(() -> new String[]{String.valueOf(itemFilter.getStackInSlot(index).getCount())})
                     .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                    .setTooltipText("tj.machine.universal.item_amount")
                     .setUpdateOnTyping(true));
             itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(84, 18, 38, 18, "/2", data -> setItemCount.accept(String.valueOf((long) itemFilter.getStackInSlot(index).getCount() / 2), "")));
             itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(122, 18, 38, 18, "*2", data -> setItemCount.accept(String.valueOf((long) itemFilter.getStackInSlot(index).getCount() * 2), "")));
@@ -169,9 +168,8 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
             }, fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
                     .setPutFluidsPredicate(fluid -> !fluidType.contains(fluid)));
             fluidSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(85, 0, 76, 18, true, () -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount()), setFluidCount)
-                    .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(fluidFilter.getTankAt(index).getFluidAmount())))
+                    .setTooltipText("tj.machine.universal.fluid_amount").setTooltipFormat(() -> new String[]{String.valueOf(fluidFilter.getTankAt(index).getFluidAmount())})
                     .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                    .setTooltipText("tj.machine.universal.fluid_amount")
                     .setUpdateOnTyping(true));
             fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(85, 18, 38, 18, "/2", data -> setFluidCount.accept(String.valueOf((long) fluidFilter.getTankAt(index).getFluidAmount() / 2), "")));
             fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(123, 18, 38, 18, "*2", data -> setFluidCount.accept(String.valueOf((long) fluidFilter.getTankAt(index).getFluidAmount() * 2), "")));
@@ -261,6 +259,7 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     tab.add(new ClickButtonWidget(50, 20, 38, 20,"/2", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() / 2D)));
                     tab.add(new ClickButtonWidget(88, 20, 38, 20, "*2", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() * 2)));
                     tab.add(new NewTextFieldWidget<>(7, 40, 162, 18, true, () -> String.valueOf(itemTransferRate.getValue()), setItemTransferRate2)
+                            .setTooltipText("tj.machine.universal.item_throughput").setTooltipFormat(() -> new String[]{String.valueOf(itemTransferRate.getValue())})
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setUpdateOnTyping(true));
                     tab.add(new CycleButtonWidget(7, 65, 76, 20, CoverConveyor.ConveyorMode.class, conveyorMode::getValue, conveyorMode1 -> {
@@ -305,6 +304,7 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     tab.add(new ClickButtonWidget(7, 40, 81, 20, "/2", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() / 2D)));
                     tab.add(new ClickButtonWidget(88, 40, 81, 20, "*2", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() * 2)));
                     tab.add(new NewTextFieldWidget<>(7, 60, 162, 18, true, () -> String.valueOf(fluidTransferRate.getValue()), setFluidTransferRate2)
+                            .setTooltipText("tj.machine.universal.fluid_throughput").setTooltipFormat(() -> new String[]{String.valueOf(fluidTransferRate.getValue())})
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setUpdateOnTyping(true));
                     tab.add(new CycleButtonWidget(7, 85, 76, 18, CoverPump.PumpMode.class, pumpMode::getValue, pumpMode1 -> {
@@ -403,5 +403,7 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
     public void addInformation(ItemStack itemStack, List<String> lines) {
         lines.add(I18n.format("metaitem.controllable_dual_cover.description"));
         lines.add(I18n.format("cover.creative.description"));
+        lines.add(I18n.format("tj.machine.universal.item_throughput", this.maxItemTransferRate));
+        lines.add(I18n.format("tj.machine.universal.fluid_throughput", this.maxFluidTransferRate));
     }
 }

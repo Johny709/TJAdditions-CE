@@ -816,9 +816,9 @@ cover.filter.ore_dictionary.open.disabled=Ore Dictionary Filter Closed
 cover.creative.only=§dCreative Only
 cover.creative.description=§fRight-Click§7 while holding cover item to open GUI to set initial values before placing this cover.
 metaitem.creative.fluid.cover.name=Creative Fluid Cover
-metaitem.creative.fluid.cover.description=Provides unlimited §bfluids.§7 Put or drag §bfluids§7 into slots to generate them.
+metaitem.creative.fluid.cover.description=Provides unlimited §bfluids.§7 Put or drag §bfluids§7 into slots to generate them. Click on fluid slot to change fluid amount.
 metaitem.creative.item.cover.name=Creative Item Cover
-metaitem.creative.item.cover.description=Provides unlimited §6items.§7 Put or drag §6items§7 into slots to generate them. throughput is determined by §6item's§7 current stack size. §fLeft-Click§7 to decrease stack size. §fRight-Click§7 to Increase. Additionally pressing §fshift§7 will multiply or divide by 2.
+metaitem.creative.item.cover.description=Provides unlimited §6items.§7 Put or drag §6items§7 into slots to generate them. throughput is determined by §6item's§7 current stack size. Click on slot to adjust throughput.
 metaitem.creative.cover.display.ticks=Ticks: §e%.1f§r
 metaitem.creative.energy.cover.name=Creative Energy Cover
 metaitem.creative.energy.cover.description=Provides unlimited §eenergy.§7 This doesn't care about §cvoltage§7 so it can be placed §asafely§7 on any machine.
@@ -1011,8 +1011,10 @@ item.unbreakable_hoe.name=Unbreakable Hoe
 item.unbreakable_axe.name=Unbreakable Axe
 item.unbreakable_shears.name=Unbreakable Shears
 
-tj.machine.universal.item_amount=§7Amount: §6%,d
-tj.machine.universal.fluid_amount=§7Amount: §3%,d L
+tj.machine.universal.item_amount=§7Amount: §6%s
+tj.machine.universal.fluid_amount=§7Amount: §3%s L
+tj.machine.universal.item_throughput=§7Item Throughput: §6%s
+tj.machine.universal.fluid_throughput=§7Fluid Throughput: §3%s L
 
 machine.universal.tooltip.voltage_tier=Voltage Tier:
 machine.universal.toggle.run.mode.disabled=§c[OFF]
@@ -1190,7 +1192,7 @@ item.appliedenergistics2.material.fluid_cell_digital_singularity.name=§dFluid D
 
 
 item.me.material.item_cell.65536k.name=§165536k§f ME Storage Component
-item.me.material.item_cell.262144k.name=b262144k§f ME Storage Component
+item.me.material.item_cell.262144k.name=§b262144k§f ME Storage Component
 item.me.material.item_cell.1048m.name=§51048m§f ME Storage Component
 item.me.material.item_cell.digital_singularity.name=§dDigital Singularity Component
 item.me.material.fluid_cell.65536k.name=§165536k§f ME Fluid Storage Component
