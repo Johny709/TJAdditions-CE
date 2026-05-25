@@ -98,29 +98,18 @@ public class VoidAdvancedItemCover extends VoidItemCover {
     @Override
     public void update() {
         if (this.isWorking && this.coverHolder.getOffsetTimer() % this.tickTime == 0) {
-            switch (this.voidMode) {
-                case SUPPLY:
-                    for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-                        final ItemStack stack = this.itemHandler.getStackInSlot(i);
-                        if (stack.isEmpty() || !this.itemType.containsKey(stack)) continue;
-                        this.itemHandler.extractItem(i, stack.getCount(), false);
-                    }
-                    break;
-                case EXACT:
-                    for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-                        final ItemStack stack = this.itemHandler.getStackInSlot(i);
-                        if (stack.isEmpty()) continue;
-                        final ItemStack filterStack = this.itemType.get(stack);
-                        if (filterStack != null && stack.getCount() > filterStack.getCount())
-                            this.itemHandler.extractItem(i, stack.getCount() - filterStack.getCount(), false);
-                    }
-                    break;
-                default:
-                    for (int i = 0; i < this.itemHandler.getSlots(); i++) {
-                        final ItemStack stack = this.itemHandler.getStackInSlot(i);
-                        if (stack.isEmpty() || !this.itemType.containsKey(stack)) continue;
-                        this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
-                    }
+            if (this.voidMode == VoidMode.EXACT) {
+                for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+                    final ItemStack stack = this.itemHandler.getStackInSlot(i);
+                    if (stack.isEmpty()) continue;
+                    final ItemStack filterStack = this.itemType.get(stack);
+                    if (filterStack != null && stack.getCount() > filterStack.getCount())
+                        this.itemHandler.extractItem(i, stack.getCount() - filterStack.getCount(), false);
+                }
+            } else for (int i = 0; i < this.itemHandler.getSlots(); i++) {
+                final ItemStack stack = this.itemHandler.getStackInSlot(i);
+                if (stack.isEmpty() || !this.itemType.containsKey(stack)) continue;
+                this.itemHandler.extractItem(i, Integer.MAX_VALUE, false);
             }
         }
     }

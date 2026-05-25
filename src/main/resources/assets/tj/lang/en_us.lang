@@ -1005,7 +1005,6 @@ metaitem.sensor.ulv.name=Sensor (ULV)
 metaitem.fluid.regulator.ulv.name=Fluid Regulator (ULV)
 
 void_cover.mode.normal=Normal
-void_cover.mode.supply=Supply
 void_cover.mode.exact=Exact
 
 item.unbreakable_hoe.name=Unbreakable Hoe

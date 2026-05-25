@@ -101,36 +101,23 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
     @Override
     public void update() {
         if (this.isWorking && this.coverHolder.getOffsetTimer() % this.tickTime == 0) {
-            switch (this.voidMode) {
-                case SUPPLY:
-                    for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
-                        final FluidStack fluidStack = fluidTankProperties.getContents();
-                        if (fluidStack == null) continue;
-                        final FluidStack filterStack = this.fluidType.get(fluidStack);
-                        if (filterStack == null) continue;
-                        this.fluidHandler.drain(filterStack, true);
+            if (this.voidMode == VoidMode.EXACT) {
+                for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
+                    final FluidStack fluidStack = fluidTankProperties.getContents();
+                    if (fluidStack == null) continue;
+                    final FluidStack filterStack = this.fluidType.get(fluidStack);
+                    if (filterStack != null && fluidStack.amount > filterStack.amount) {
+                        final FluidStack stack = filterStack.copy();
+                        stack.amount = fluidStack.amount - filterStack.amount;
+                        this.fluidHandler.drain(stack, true);
                     }
-                    break;
-                case EXACT:
-                    for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
-                        final FluidStack fluidStack = fluidTankProperties.getContents();
-                        if (fluidStack == null) continue;
-                        final FluidStack filterStack = this.fluidType.get(fluidStack);
-                        if (filterStack != null && fluidStack.amount > filterStack.amount) {
-                            final FluidStack stack = filterStack.copy();
-                            stack.amount = fluidStack.amount - filterStack.amount;
-                            this.fluidHandler.drain(stack, true);
-                        }
-                    }
-                    break;
-                default:
-                    for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
-                        final FluidStack fluidStack = fluidTankProperties.getContents();
-                        if (fluidStack == null) continue;
-                        final FluidStack filterStack = this.fluidType.get(fluidStack);
-                        if (filterStack != null)
-                            this.fluidHandler.drain(filterStack, true);
-                    }
+                }
+            } else for (IFluidTankProperties fluidTankProperties : this.fluidHandler.getTankProperties()) {
+                final FluidStack fluidStack = fluidTankProperties.getContents();
+                if (fluidStack == null) continue;
+                final FluidStack filterStack = this.fluidType.get(fluidStack);
+                if (filterStack != null)
+                    this.fluidHandler.drain(filterStack, true);
             }
         }
     }
