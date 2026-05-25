@@ -1,11 +1,14 @@
 package tj.machines.multi.steam;
 
+import gregtech.api.capability.impl.FluidTankList;
+import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
+import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
@@ -21,8 +24,13 @@ import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
+import tj.textures.TJOrientedOverlayRenderer;
+import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.function.UnaryOperator;
 
@@ -33,7 +41,7 @@ public class MetaTileEntitySteamGrinder extends TJRecipeMapMultiblockController 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {STEAM, STEAM_IMPORT_ITEMS, STEAM_EXPORT_ITEMS};
 
     public MetaTileEntitySteamGrinder(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, RecipeMaps.MACERATOR_RECIPES);
+        super(metaTileEntityId, RecipeMaps.MACERATOR_RECIPES, false, true);
     }
 
     @Override
@@ -44,6 +52,11 @@ public class MetaTileEntitySteamGrinder extends TJRecipeMapMultiblockController 
     @Override
     protected BasicRecipeLogic<? extends IRecipeHandler> createRecipeLogic() {
         return new SteamGrinderWorkableHandler(this);
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        return abilities.containsKey(STEAM) && abilities.containsKey(STEAM_IMPORT_ITEMS) && abilities.containsKey(STEAM_EXPORT_ITEMS);
     }
 
     @Override
@@ -63,6 +76,32 @@ public class MetaTileEntitySteamGrinder extends TJRecipeMapMultiblockController 
                 .where('C', statePredicate(MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.BRONZE_BRICKS)).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('#', isAirPredicate())
                 .build();
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        this.importItemInventory = new ItemHandlerList(this.getAbilities(STEAM_IMPORT_ITEMS));
+        this.exportItemInventory = new ItemHandlerList(this.getAbilities(STEAM_EXPORT_ITEMS));
+        this.importFluidTank = new FluidTankList(true, this.getAbilities(STEAM));
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.importItemInventory = new ItemHandlerList(Collections.emptyList());
+        this.exportItemInventory = new ItemHandlerList(Collections.emptyList());
+        this.importFluidTank = new FluidTankList(true);
+    }
+
+    @Override
+    public boolean renderTJLogoOverlay() {
+        return true;
+    }
+
+    @Override
+    public TJOrientedOverlayRenderer getFrontalOverlay() {
+        return TJTextures.GRINDER_OVERLAY;
     }
 
     @Override

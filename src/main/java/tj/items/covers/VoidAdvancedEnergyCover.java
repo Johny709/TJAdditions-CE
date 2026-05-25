@@ -89,17 +89,10 @@ public class VoidAdvancedEnergyCover extends VoidEnergyCover {
     @Override
     public void update() {
         if (this.isWorking && this.coverHolder.getOffsetTimer() % this.ticks == 0) {
-            switch (this.voidMode) {
-                case NORMAL:
-                    this.energyContainer.removeEnergy(Long.MAX_VALUE);
-                    break;
-                case SUPPLY:
-                    this.energyContainer.removeEnergy(this.throughput);
-                    break;
-                case EXACT:
-                    if (this.energyContainer.getEnergyStored() > this.throughput)
-                        this.energyContainer.removeEnergy(this.energyContainer.getEnergyStored() - this.throughput);
-            }
+            if (this.voidMode == VoidMode.EXACT) {
+                if (this.energyContainer.getEnergyStored() > this.throughput)
+                    this.energyContainer.removeEnergy(this.energyContainer.getEnergyStored() - this.throughput);
+            } else this.energyContainer.removeEnergy(Long.MAX_VALUE);
         }
     }
 
