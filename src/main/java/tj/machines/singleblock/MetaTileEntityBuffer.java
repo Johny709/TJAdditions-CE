@@ -55,9 +55,9 @@ public class MetaTileEntityBuffer extends GATieredMetaTileEntity {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.machine.gt_buffer.description"));
         tooltip.add(I18n.format("machine.universal.stack", TJValues.thousandFormat.format(64L << Math.max(0, this.getTier() - 8))));
-        tooltip.add(I18n.format("machine.universal.slots", TJValues.thousandFormat.format(this.getTierSlots(this.getTier()))));
+        tooltip.add(I18n.format("machine.universal.slots", TJValues.thousandFormat.format(this.importItems.getSlots())));
         tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.1", 64000 << Math.max(0, this.getTier() - 8)));
-        tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.2", Math.max(1, this.getTier() + 1)));
+        tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.2", this.importFluids.getTanks()));
     }
 
     @Override
@@ -67,7 +67,9 @@ public class MetaTileEntityBuffer extends GATieredMetaTileEntity {
 
     @Override
     protected FluidTankList createImportFluidHandler() {
-        return new FluidTankList(false, IntStream.range(0, Math.max(1, this.getTier() + 1))
+        // take advantage that item inventory is initialized before fluid inventories.
+        final int amount = (int) Math.ceil((double) this.importItems.getSlots() / Math.min(9, this.getTier() + 1));
+        return new FluidTankList(false, IntStream.range(0, amount)
                 .mapToObj(i -> new FluidTank(64000 << Math.max(0, this.getTier() - 8)))
                 .collect(Collectors.toList()));
     }
