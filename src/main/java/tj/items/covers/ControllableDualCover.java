@@ -408,6 +408,7 @@ public class ControllableDualCover extends DualCover {
     private void transferItemsExact(IItemHandler itemHandler, IItemHandler destItemHandler) {
         for (int i = 0; i < destItemHandler.getSlots(); i++) {
             final ItemStack stack = destItemHandler.getStackInSlot(i);
+            if (stack.isEmpty()) continue;
             this.itemExact.computeIfAbsent(stack, k -> new Counter(0))
                     .increment(stack.getCount());
         }
@@ -418,7 +419,7 @@ public class ControllableDualCover extends DualCover {
                     final ItemStack filterStack;
                     if (!stack.isEmpty() && this.isItemBlacklist == ((filterStack = this.itemType.get(stack)) == null)) {
                         if (filterStack == null) continue;
-                        final Counter counter = this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER);
+                        final Counter counter = this.itemExact.computeIfAbsent(stack, k -> new Counter(0));
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
                         final int extract = (int) Math.min(stack.getCount() - inserted, filterStack.getCount() - counter.getValue());
                         if (extract < 1) continue;
@@ -449,7 +450,7 @@ public class ControllableDualCover extends DualCover {
                                 this.itemRecipeMap.put(stack, itemStackWrapper);
                             } else continue;
                         }
-                        final Counter counter = this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER);
+                        final Counter counter = this.itemExact.computeIfAbsent(stack, k -> new Counter(0));
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
                         final int extract = (int) Math.min(stack.getCount() - inserted, itemStackWrapper.getCount() - counter.getValue());
                         if (extract < 1) continue;
@@ -463,7 +464,7 @@ public class ControllableDualCover extends DualCover {
                 for (int i = 0; i < itemHandler.getSlots(); i++) {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty() && this.oreDictionaryItemFilter.matchItemStack(stack) != null) {
-                        final Counter counter = this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER);
+                        final Counter counter = this.itemExact.computeIfAbsent(stack, k -> new Counter(0));
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
                         final int extract = (int) Math.min(stack.getCount() - inserted, this.itemTransferRate - counter.getValue());
                         if (extract < 1) continue;
@@ -477,7 +478,7 @@ public class ControllableDualCover extends DualCover {
                 for (int i = 0; i < itemHandler.getSlots(); i++) {
                     final ItemStack stack = itemHandler.getStackInSlot(i);
                     if (!stack.isEmpty()) {
-                        final Counter counter = this.itemExact.getOrDefault(stack, Counter.DUMMY_COUNTER);
+                        final Counter counter = this.itemExact.computeIfAbsent(stack, k -> new Counter(0));
                         final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
                         final int extract = (int) Math.min(stack.getCount() - inserted, this.itemTransferRate - counter.getValue());
                         if (extract < 1) continue;
@@ -561,10 +562,9 @@ public class ControllableDualCover extends DualCover {
         final IFluidTankProperties[] tanks = fluidHandler.getTankProperties();
         for (IFluidTankProperties tank : destFluidHandler.getTankProperties()) {
             final FluidStack stack = tank.getContents();
-            if (stack != null) {
-                this.fluidExact.computeIfAbsent(stack, k -> new Counter(0))
-                        .increment(stack.amount);
-            }
+            if (stack == null) continue;
+            this.fluidExact.computeIfAbsent(stack, k -> new Counter(0))
+                    .increment(stack.amount);
         }
         switch (this.fluidFilterType) {
             case NORMAL:
@@ -572,9 +572,10 @@ public class ControllableDualCover extends DualCover {
                     FluidStack fluidStack = tank.getContents();
                     final FluidStack filterStack;
                     if (fluidStack != null && this.isFluidBlacklist == ((filterStack = this.fluidType.get(fluidStack)) == null)) {
+                        if (filterStack == null) continue;
                         fluidStack = fluidHandler.drain(fluidStack, false);
-                        if (fluidStack == null || filterStack == null) continue;
-                        final Counter counter = this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER);
+                        if (fluidStack == null) continue;
+                        final Counter counter = this.fluidExact.computeIfAbsent(fluidStack, k -> new Counter(0));
                         fluidStack.amount = (int) Math.min(fluidStack.amount, filterStack.amount - counter.getValue());
                         if (fluidStack.amount > 0) {
                             fluidStack.amount = destFluidHandler.fill(fluidStack, true);
@@ -606,9 +607,9 @@ public class ControllableDualCover extends DualCover {
                                 this.fluidRecipeMap.put(fluidStack, fluidStackWrapper);
                             } else continue;
                         }
+                        final Counter counter = this.fluidExact.computeIfAbsent(fluidStack, k -> new Counter(0));
                         fluidStack = fluidHandler.drain(fluidStack, false);
                         if (fluidStack == null) continue;
-                        final Counter counter = this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER);
                         fluidStack.amount = (int) Math.min(fluidStack.amount, fluidStackWrapper.getCount() - counter.getValue());
                         if (fluidStack.amount > 0) {
                             fluidStack.amount = destFluidHandler.fill(fluidStack, true);
@@ -622,10 +623,10 @@ public class ControllableDualCover extends DualCover {
                 for (IFluidTankProperties tank : tanks) {
                     FluidStack fluidStack = tank.getContents();
                     if (fluidStack != null) {
+                        final Counter counter = this.fluidExact.computeIfAbsent(fluidStack, k -> new Counter(0));
                         fluidStack = fluidHandler.drain(fluidStack, false);
                         if (fluidStack == null) continue;
-                        final Counter counter = this.fluidExact.getOrDefault(fluidStack, Counter.DUMMY_COUNTER);
-                        fluidStack.amount = (int) Math.min(fluidStack.amount, Math.min(this.fluidSupplyThroughput, this.fluidSupplyThroughput - counter.getValue()));
+                        fluidStack.amount = (int) Math.min(fluidStack.amount, this.fluidSupplyThroughput - counter.getValue());
                         if (fluidStack.amount > 0) {
                             fluidStack.amount = destFluidHandler.fill(fluidStack, true);
                             counter.increment(fluidStack.amount);
