@@ -1,0 +1,20 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "tj:me.crafting_storage.65536k"
+  },
+  "variants": {
+    "formed=false,powered=true": {
+      "model": "tj:me.crafting_storage.65536k"
+    },
+    "formed=true,powered=false": {
+      "model": "tj:me.crafting_storage.65536k"
+    },
+    "formed=true,powered=true": {
+      "model": "tj:me.crafting_storage.65536k"
+    },
+    "formed=false,powered=false": {
+      "model": "tj:me.crafting_storage.65536k"
+    }
+  }
+}
