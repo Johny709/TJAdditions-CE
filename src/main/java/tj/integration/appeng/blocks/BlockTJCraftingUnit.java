@@ -1,15 +1,12 @@
 package tj.integration.appeng.blocks;
 
 import appeng.api.util.AEPartLocation;
-import appeng.block.AEBaseTileBlock;
-import appeng.client.UnlistedProperty;
+import appeng.block.crafting.BlockCraftingUnit;
 import appeng.client.render.crafting.CraftingCubeState;
 import appeng.core.sync.GuiBridge;
 import appeng.util.Platform;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,18 +21,15 @@ import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import tj.integration.appeng.tile.TileTJCraftingStorageTile;
 
+
 import java.util.EnumSet;
 
-public class BlockTJCraftingUnit extends AEBaseTileBlock {
-
-    public static final PropertyBool FORMED = PropertyBool.create("formed");
-    public static final PropertyBool POWERED = PropertyBool.create("powered");
-    public static final UnlistedProperty<CraftingCubeState> STATE = new UnlistedProperty<>("state", CraftingCubeState.class);
+public class BlockTJCraftingUnit extends BlockCraftingUnit {
 
     public final TJCraftingUnitType type;
 
     public BlockTJCraftingUnit(final TJCraftingUnitType type) {
-        super(Material.IRON);
+        super(CraftingUnitType.UNIT);
         this.type = type;
         this.setTileEntity(TileTJCraftingStorageTile.class);
     }
@@ -63,7 +57,7 @@ public class BlockTJCraftingUnit extends AEBaseTileBlock {
 
     private boolean isConnected(IBlockAccess world, BlockPos pos, EnumFacing side) {
         BlockPos adjacentPos = pos.offset(side);
-        return world.getBlockState(adjacentPos).getBlock() instanceof BlockTJCraftingUnit;
+        return world.getBlockState(adjacentPos).getBlock() instanceof BlockCraftingUnit;
     }
 
     @Override

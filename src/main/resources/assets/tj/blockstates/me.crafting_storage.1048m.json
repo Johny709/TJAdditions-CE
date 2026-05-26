@@ -1,19 +1,6 @@
 {
-  "forge_marker": 1,
-  "defaults": {
-    "model": "tj:me.crafting_storage.1048m"
-  },
   "variants": {
-    "formed=false,powered=true": {
-      "model": "tj:me.crafting_storage.1048m"
-    },
-    "formed=true,powered=false": {
-      "model": "tj:me.crafting_storage.1048m"
-    },
-    "formed=true,powered=true": {
-      "model": "tj:me.crafting_storage.1048m"
-    },
-    "formed=false,powered=false": {
+    "normal": {
       "model": "tj:me.crafting_storage.1048m"
     }
   }
