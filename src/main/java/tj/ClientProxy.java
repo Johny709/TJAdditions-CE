@@ -2,6 +2,7 @@ package tj;
 
 
 import codechicken.lib.texture.TextureUtils;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
@@ -11,7 +12,7 @@ import tj.blocks.block.TJBlocks;
 import tj.items.TJMetaItems;
 import tj.items.item.TJItems;
 import tj.rendering.BakedModelLoader;
-import tj.rendering.BasicStateMapper;
+import tj.rendering.IBlockModel;
 import tj.textures.TJTextures;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -39,13 +40,22 @@ public class ClientProxy extends CommonProxy {
         ModelLoaderRegistry.registerLoader(new BakedModelLoader());
         TJMetaBlocks.registerItemModels();
         TJMetaItems.registerModels();
-        TJBlocks.TJ_BLOCK_DEFINITION_REGISTRY.forEach((location, blockDefinition) -> ModelLoader.setCustomStateMapper(blockDefinition.maybeBlock().get(), new BasicStateMapper(new ModelResourceLocation(location.toString()))));
+        TJBlocks.TJ_BLOCK_DEFINITION_REGISTRY.forEach((location, blockDefinition) -> {
+            final Block block = blockDefinition.maybeBlock().orElse(null);
+            if (block instanceof IBlockModel) {
+                ModelLoader.setCustomStateMapper(block, ((IBlockModel) block).getStateMapper(location));
+            } else ModelLoader.setCustomModelResourceLocation(blockDefinition.maybeItem().get(), 0, new ModelResourceLocation(location, "inventory"));
+        });
         TJItems.TJ_ITEM_REGISTRY.forEach((location, item) -> ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(location, "inventory")));
         TJItems.TJ_ITEM_DEFINITION_REGISTRY.forEach((location, itemDefinition) -> ModelLoader.setCustomModelResourceLocation(itemDefinition.maybeItem().get(), 0, new ModelResourceLocation(location, "inventory")));
     }
 
     @Override
     public void onPostLoad() {
-        TJBlocks.TJ_BLOCK_DEFINITION_REGISTRY.forEach((location, blockDefinition) -> Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(blockDefinition.maybeItem().get(), 0, new ModelResourceLocation(location, "inventory")));
+        TJBlocks.TJ_BLOCK_DEFINITION_REGISTRY.forEach((location, blockDefinition) -> {
+            final Block block = blockDefinition.maybeBlock().orElse(null);
+            if (block instanceof IBlockModel)
+                Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(blockDefinition.maybeItem().get(), 0, new ModelResourceLocation(location, "inventory"));
+        });
     }
 }

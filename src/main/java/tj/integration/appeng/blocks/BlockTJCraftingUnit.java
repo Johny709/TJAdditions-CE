@@ -9,10 +9,13 @@ import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.statemap.StateMapperBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -20,11 +23,12 @@ import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import tj.integration.appeng.tile.TileTJCraftingStorageTile;
+import tj.rendering.IBlockModel;
 
 
 import java.util.EnumSet;
 
-public class BlockTJCraftingUnit extends BlockCraftingUnit {
+public class BlockTJCraftingUnit extends BlockCraftingUnit implements IBlockModel {
 
     public final TJCraftingUnitType type;
 
@@ -114,6 +118,16 @@ public class BlockTJCraftingUnit extends BlockCraftingUnit {
         }
 
         return super.onBlockActivated(w, pos, state, p, hand, side, hitX, hitY, hitZ);
+    }
+
+    @Override
+    public StateMapperBase getStateMapper(ResourceLocation resourceLocation) {
+        return new StateMapperBase() {
+            @Override
+            protected ModelResourceLocation getModelResourceLocation(IBlockState state) {
+                return state.getValue(FORMED) ? new ModelResourceLocation(resourceLocation.toString()) : new ModelResourceLocation(resourceLocation, "inventory");
+            }
+        };
     }
 
     public enum TJCraftingUnitType {
