@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "particle": "tj:blocks/ae2/me.super_interface",
+    "down": "tj:blocks/ae2/me.super_interface_alternate",
+    "up": "tj:blocks/ae2/me.super_interface",
+    "north": "tj:blocks/ae2/me.super_interface_alternate_arrow",
+    "south": "tj:blocks/ae2/me.super_interface_alternate_arrow",
+    "east": "tj:blocks/ae2/me.super_interface_alternate_arrow",
+    "west": "tj:blocks/ae2/me.super_interface_alternate_arrow"
+  }
+}

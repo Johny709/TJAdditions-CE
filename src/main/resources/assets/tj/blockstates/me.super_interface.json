@@ -1,0 +1,15 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "tj:me.super_interface"
+  },
+  "variants": {
+    "omnidirectional=true": {
+      "model": "tj:me.super_interface"
+    },
+    "omnidirectional=false": {
+      "model": "tj:me.super_interface_oriented",
+      "x": 90
+    }
+  }
+}

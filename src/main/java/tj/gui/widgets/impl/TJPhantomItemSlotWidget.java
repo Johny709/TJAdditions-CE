@@ -16,7 +16,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -30,7 +30,7 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
 
     private final Consumer<ItemStack> onExtracted;
     private final Consumer<ItemStack> onItemUpdate;
-    private final IItemHandlerModifiable itemHandler;
+    private final IItemHandler itemHandler;
     private final int slotIndex;
     private TextureArea[] backgroundTextures;
     private Predicate<ItemStack> putItemsPredicate;
@@ -40,15 +40,15 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
     @Nonnull
     private ItemStack itemStack = ItemStack.EMPTY;
 
-    public TJPhantomItemSlotWidget(int x, int y, int width, int height, int slotIndex, IItemHandlerModifiable itemHandler) {
+    public TJPhantomItemSlotWidget(int x, int y, int width, int height, int slotIndex, IItemHandler itemHandler) {
         this(x, y, width, height, slotIndex, itemHandler, null, null);
     }
 
-    public TJPhantomItemSlotWidget(int x, int y, int width, int height, int slotIndex, IItemHandlerModifiable itemHandler, Consumer<ItemStack> onItemUpdate) {
+    public TJPhantomItemSlotWidget(int x, int y, int width, int height, int slotIndex, IItemHandler itemHandler, Consumer<ItemStack> onItemUpdate) {
         this(x, y, width, height, slotIndex, itemHandler, onItemUpdate, null);
     }
 
-    public TJPhantomItemSlotWidget(int x, int y, int width, int height, int slotIndex, IItemHandlerModifiable itemHandler, Consumer<ItemStack> onItemUpdate, Consumer<ItemStack> onExtracted) {
+    public TJPhantomItemSlotWidget(int x, int y, int width, int height, int slotIndex, IItemHandler itemHandler, Consumer<ItemStack> onItemUpdate, Consumer<ItemStack> onExtracted) {
         super(new Position(x, y), new Size(width, height));
         this.slotIndex = slotIndex;
         this.itemHandler = itemHandler;

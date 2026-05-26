@@ -1,16 +1,21 @@
-package appeng.block.misc;
+package tj.integration.appeng.blocks;
 
+import appeng.block.misc.BlockInterface;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import appeng.tile.misc.TileSuperInterface;
+import tj.integration.appeng.tile.TileSuperInterface;
 
 import javax.annotation.Nullable;
 
 public class BlockSuperInterface extends BlockInterface {
+
+    public BlockSuperInterface() {
+        this.setTileEntity(TileSuperInterface.class);
+    }
 
     @Override
     public boolean onActivated(final World world, final BlockPos pos, final EntityPlayer player, final EnumHand hand, final @Nullable ItemStack heldItem, final EnumFacing side, final float hitX, final float hitY, final float hitZ) {

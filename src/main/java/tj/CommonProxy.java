@@ -3,6 +3,7 @@ package tj;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
+import tj.blocks.block.TJBlocks;
 import tj.capability.LinkEvent;
 import tj.event.MTELinkEvent;
 import appeng.items.materials.TJItemMaterial;
@@ -37,7 +38,8 @@ public class CommonProxy {
 
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
-        IForgeRegistry<Block> registry = event.getRegistry();
+        final IForgeRegistry<Block> registry = event.getRegistry();
+        TJBlocks.init(registry);
 
         registry.register(SOLID_CASING);
         registry.register(PIPE_CASING);
@@ -51,8 +53,9 @@ public class CommonProxy {
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
-        IForgeRegistry<Item> registry = event.getRegistry();
+        final IForgeRegistry<Item> registry = event.getRegistry();
         TJItems.init(registry);
+        TJBlocks.TJ_BLOCK_DEFINITION_REGISTRY.forEach(((location, blockDefinition) -> registry.register(blockDefinition.maybeItem().get())));
 
         registry.register(createItemBlock(SOLID_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(ENERGY_PORT_CASING, VariantItemBlock::new));

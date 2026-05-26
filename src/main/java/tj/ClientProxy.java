@@ -3,8 +3,10 @@ package tj;
 
 import codechicken.lib.texture.TextureUtils;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.item.Item;
 import net.minecraftforge.client.model.ModelLoader;
 import tj.blocks.TJMetaBlocks;
+import tj.blocks.block.TJBlocks;
 import tj.items.TJMetaItems;
 import tj.items.item.TJItems;
 import tj.textures.TJTextures;
@@ -33,6 +35,7 @@ public class ClientProxy extends CommonProxy {
     public static void registerModels(ModelRegistryEvent event) {
         TJMetaBlocks.registerItemModels();
         TJMetaItems.registerModels();
+        TJBlocks.TJ_BLOCK_DEFINITION_REGISTRY.forEach(((location, blockDefinition) -> ModelLoader.setCustomModelResourceLocation(blockDefinition.maybeItem().get(), 0, new ModelResourceLocation(location, "inventory"))));
         TJItems.TJ_ITEM_REGISTRY.forEach((location, item) -> ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(location, "inventory")));
         TJItems.TJ_ITEM_DEFINITION_REGISTRY.forEach((location, itemDefinition) -> ModelLoader.setCustomModelResourceLocation(itemDefinition.maybeItem().get(), 0, new ModelResourceLocation(location, "inventory")));
     }
