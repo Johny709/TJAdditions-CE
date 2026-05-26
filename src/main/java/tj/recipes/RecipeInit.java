@@ -44,6 +44,7 @@ import static gregtech.api.unification.material.Materials.*;
 import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
 import static gregtech.common.metatileentities.MetaTileEntities.*;
 import static tj.TJValues.CIRCUIT_TIERS;
+import static tj.blocks.block.TJBlocks.*;
 import static tj.items.TJMetaItems.*;
 import static tj.items.item.TJItems.*;
 import static tj.machines.TJMetaTileEntities.*;
@@ -321,6 +322,10 @@ public class RecipeInit {
                 'G', GACraftingComponents.GEAR.getIngredient(5),
                 'H', NAMING_MACHINES[4].getStackForm(),
                 'A', new ItemStack(Blocks.ANVIL));
+        ModHandler.addShapelessRecipe("tj_crafting_storage_65536k", CRAFTING_STORAGE_65536K.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_65536K.maybeStack(1).orElse(null));
+        ModHandler.addShapelessRecipe("tj_crafting_storage_262144k", CRAFTING_STORAGE_262144K.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_262144K.maybeStack(1).orElse(null));
+        ModHandler.addShapelessRecipe("tj_crafting_storage_1048m", CRAFTING_STORAGE_1048M.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_1048M.maybeStack(1).orElse(null));
+        ModHandler.addShapelessRecipe("tj_crafting_storage_singularity", CRAFTING_STORAGE_SINGULARITY.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null));
         ModHandler.addShapelessRecipe("tj_item_block_container", ITEM_BLOCK_CONTAINER_64K.maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().cell1kPart().maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), new ItemStack(Blocks.CHEST));
         ModHandler.addShapelessRecipe("tj_item_block_container.2", ITEM_BLOCK_CONTAINER_65536K.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_65536K.maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), COMPRESSED_CHEST.getStackForm());
         ModHandler.addShapelessRecipe("tj_item_block_container.singularity", ITEM_BLOCK_CONTAINER_SINGULARITY.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), INFINITY_CHEST.getStackForm());

@@ -3,6 +3,7 @@ package tj.mixin.ae2;
 import appeng.api.definitions.IDefinitions;
 import appeng.api.definitions.IItemDefinition;
 import appeng.core.Api;
+import appeng.core.features.BlockDefinition;
 import appeng.recipes.game.DisassembleRecipe;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,6 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import tj.blocks.block.TJBlocks;
 import tj.integration.appeng.IApiItems;
 import tj.integration.appeng.IApiMaterials;
 import tj.items.item.TJItems;
@@ -60,5 +62,10 @@ public abstract class DisassembleRecipeMixin {
         this.cellMappings.put(items.fluidCell4k(), materials.fluidCell4kPart());
         this.cellMappings.put(items.fluidCell16k(), materials.fluidCell16kPart());
         this.cellMappings.put(items.fluidCell64k(), materials.fluidCell64kPart());
+
+        this.nonCellMappings.put(TJBlocks.CRAFTING_STORAGE_65536K, TJItems.MATERIAL_ITEM_CELL_65536K);
+        this.nonCellMappings.put(TJBlocks.CRAFTING_STORAGE_262144K, TJItems.MATERIAL_ITEM_CELL_262144K);
+        this.nonCellMappings.put(TJBlocks.CRAFTING_STORAGE_1048M, TJItems.MATERIAL_ITEM_CELL_1048M);
+        this.nonCellMappings.put(TJBlocks.CRAFTING_STORAGE_SINGULARITY, TJItems.MATERIAL_ITEM_CELL_DIGITAL_SINGULARITY);
     }
 }
