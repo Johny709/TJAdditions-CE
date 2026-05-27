@@ -1184,6 +1184,7 @@ item.me.block_container.item_cell.65536k.name=§dME Block Container II
 item.me.block_container.item_cell.singularity.name=§dME Block Container Singularity
 
 tile.me.super_interface.name=Super Interface
+tile.me.super_fluid_interface.name=Super Fluid Interface
 tile.me.crafting_storage.65536k.name=§165536k§f Crafting Storage
 tile.me.crafting_storage.262144k.name=§b262144k§f Crafting Storage
 tile.me.crafting_storage.1048m.name=§51048m§f Crafting Storage

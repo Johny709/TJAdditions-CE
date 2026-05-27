@@ -1,6 +1,5 @@
 package tj;
 
-
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import tj.blocks.block.TJBlocks;
@@ -140,9 +139,8 @@ public class CommonProxy {
         TJMetaItems.init();
     }
 
-    public void onLoad() {
+    public void onLoad() {}
 
-    }
     public void onPostLoad() {
         LateRecipes.init();
     }
