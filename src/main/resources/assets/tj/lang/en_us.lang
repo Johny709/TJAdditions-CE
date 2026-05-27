@@ -1162,35 +1162,6 @@ tj.top.parallel_controller.multiblock_recipe=Multiblock Recipe:
 tj.top.inputs=Inputs:
 tj.top.outputs=Outputs:
 
-tile.appliedenergistics2.crafting_storage_65m.name=§165m §fCrafting Storage
-tile.appliedenergistics2.crafting_storage_262m.name=§b262m §fCrafting Storage
-tile.appliedenergistics2.crafting_storage_1048m.name=§51048m §fCrafting Storage
-tile.appliedenergistics2.crafting_storage_digital_singularity.name=§dDigital Singularity Crafting Storage
-tile.appliedenergistics2.super_interface.name=ME Super Interface
-tile.appliedenergistics2.super_fluid_interface.name=ME Super Fluid Interface
-
-item.appliedenergistics2.multi_part.super_interface.name=ME Super Interface
-item.appliedenergistics2.multi_part.super_fluid_interface.name=ME Super Fluid Interface
-
-item.appliedenergistics2.storage_cell_65m.name=§165m §fME Storage Cell
-item.appliedenergistics2.storage_cell_262m.name=§b262m §fME Storage Cell
-item.appliedenergistics2.storage_cell_1048m.name=§51048m §fME Storage Cell
-item.appliedenergistics2.storage_item_digital_singularity.name=§dDigital Singularity
-item.appliedenergistics2.storage_fluid_cell_65m.name=§165m §fME Fluid Storage Cell
-item.appliedenergistics2.storage_fluid_cell_262m.name=§b262m §fME Fluid Storage Cell
-item.appliedenergistics2.storage_fluid_cell_1048m.name=§51048m §fME Fluid Storage Cell
-item.appliedenergistics2.storage_fluid_digital_singularity.name=§dFluid Digital Singularity
-
-item.appliedenergistics2.material.cell_65m_part.name=§165m §fME Storage Component
-item.appliedenergistics2.material.cell_262m_part.name=§b262m §fME Storage Component
-item.appliedenergistics2.material.cell_1048m_part.name=§51048m §fME Storage Component
-item.appliedenergistics2.material.item_cell_digital_singularity.name=§dDigital Singularity Component
-item.appliedenergistics2.material.fluid_cell_65m_part.name=§165m §fME Fluid Storage Component
-item.appliedenergistics2.material.fluid_cell_262m_part.name=§b262m §fME Fluid Storage Component
-item.appliedenergistics2.material.fluid_cell_1048m_part.name=§51048m §fME Fluid Storage Component
-item.appliedenergistics2.material.fluid_cell_digital_singularity.name=§dFluid Digital Singularity Component
-
-
 item.me.material.item_cell.65536k.name=§165536k§f ME Storage Component
 item.me.material.item_cell.262144k.name=§b262144k§f ME Storage Component
 item.me.material.item_cell.1048m.name=§51048m§f ME Storage Component

@@ -10,10 +10,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 import tj.TJ;
-import tj.integration.appeng.blocks.BlockSuperInterface;
-import tj.integration.appeng.blocks.BlockTJCraftingUnit;
-import tj.integration.appeng.tile.TileSuperInterface;
-import tj.integration.appeng.tile.TileTJCraftingStorageTile;
+import tj.integration.ae2.blocks.BlockSuperInterface;
+import tj.integration.ae2.blocks.BlockTJCraftingUnit;
+import tj.integration.ae2.tile.TileSuperInterface;
+import tj.integration.ae2.tile.TileTJCraftingStorageTile;
 
 import java.util.function.Function;
 

@@ -9,9 +9,9 @@ import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
 import tj.TJ;
-import tj.integration.appeng.items.TJFluidStorageCell;
-import tj.integration.appeng.items.TJBlockContainerItemStorageCell;
-import tj.integration.appeng.items.TJItemStorageCell;
+import tj.integration.ae2.items.TJFluidStorageCell;
+import tj.integration.ae2.items.TJBlockContainerItemStorageCell;
+import tj.integration.ae2.items.TJItemStorageCell;
 
 public class TJItems {
 

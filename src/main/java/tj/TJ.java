@@ -1,8 +1,6 @@
 package tj;
 
 import appeng.api.config.Upgrades;
-import appeng.api.definitions.IItems;
-import appeng.core.Api;
 import gregtech.api.GTValues;
 import gregtech.api.util.GTLog;
 import net.minecraftforge.fml.common.Mod;
@@ -16,7 +14,6 @@ import tj.blocks.TJMetaBlocks;
 import tj.capability.TJSimpleCapabilityManager;
 import tj.gui.uifactory.PlayerUIFactory;
 import tj.gui.uifactory.TileEntityUIFactory;
-import tj.integration.appeng.IApiItems;
 import tj.integration.theoneprobe.TheOneProbeCompatibility;
 import tj.items.TJCoverBehaviours;
 import tj.items.item.TJItems;
@@ -61,7 +58,7 @@ public class TJ {
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         proxy.onPostLoad();
-        final IApiItems items = ((IApiItems) (IItems) Api.INSTANCE.definitions().items());
+
         // Item Storage Cells
         Upgrades.FUZZY.registerItem(TJItems.ITEM_CELL_65536K, 1);
         Upgrades.INVERTER.registerItem(TJItems.ITEM_CELL_65536K, 1);
@@ -91,23 +88,6 @@ public class TJ {
         Upgrades.INVERTER.registerItem(TJItems.ITEM_BLOCK_CONTAINER_SINGULARITY, 1);
         Upgrades.STICKY.registerItem(TJItems.ITEM_BLOCK_CONTAINER_SINGULARITY, 1);
 
-        //TODO remove in v2.5.8
-        Upgrades.FUZZY.registerItem(items.getCell65m(), 1);
-        Upgrades.INVERTER.registerItem(items.getCell65m(), 1);
-        Upgrades.STICKY.registerItem(items.getCell65m(), 1);
-
-        Upgrades.FUZZY.registerItem(items.getCell262m(), 1);
-        Upgrades.INVERTER.registerItem(items.getCell262m(), 1);
-        Upgrades.STICKY.registerItem(items.getCell262m(), 1);
-
-        Upgrades.FUZZY.registerItem(items.getCell1048m(), 1);
-        Upgrades.INVERTER.registerItem(items.getCell1048m(), 1);
-        Upgrades.STICKY.registerItem(items.getCell1048m(), 1);
-
-        Upgrades.FUZZY.registerItem(items.getCellDigitalSingularity(), 1);
-        Upgrades.INVERTER.registerItem(items.getCellDigitalSingularity(), 1);
-        Upgrades.STICKY.registerItem(items.getCellDigitalSingularity(), 1);
-
         // Fluid Storage Cells
         Upgrades.INVERTER.registerItem(TJItems.FLUID_CELL_65536K, 1);
         Upgrades.STICKY.registerItem(TJItems.FLUID_CELL_65536K, 1);
@@ -120,18 +100,5 @@ public class TJ {
 
         Upgrades.INVERTER.registerItem(TJItems.FLUID_CELL_DIGITAL_SINGULARITY, 1);
         Upgrades.STICKY.registerItem(TJItems.FLUID_CELL_DIGITAL_SINGULARITY, 1);
-
-        //TODO remove in v2.5.0
-        Upgrades.INVERTER.registerItem(items.getFluidCell65m(), 1);
-        Upgrades.STICKY.registerItem(items.getFluidCell65m(), 1);
-
-        Upgrades.INVERTER.registerItem(items.getFluidCell262m(), 1);
-        Upgrades.STICKY.registerItem(items.getFluidCell262m(), 1);
-
-        Upgrades.INVERTER.registerItem(items.getFluidCell1048m(), 1);
-        Upgrades.STICKY.registerItem(items.getFluidCell1048m(), 1);
-
-        Upgrades.INVERTER.registerItem(items.getFluidCellDigitalSingularity(), 1);
-        Upgrades.STICKY.registerItem(items.getFluidCellDigitalSingularity(), 1);
     }
 }
