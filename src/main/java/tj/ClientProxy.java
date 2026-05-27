@@ -1,10 +1,15 @@
 package tj;
 
 
+import appeng.client.render.model.AutoRotatingModel;
 import codechicken.lib.texture.TextureUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.util.registry.IRegistry;
+import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import tj.blocks.TJMetaBlocks;
@@ -19,6 +24,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.HashSet;
+import java.util.Set;
 
 
 @SideOnly(Side.CLIENT)
@@ -48,6 +56,20 @@ public class ClientProxy extends CommonProxy {
         });
         TJItems.TJ_ITEM_REGISTRY.forEach((location, item) -> ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(location, "inventory")));
         TJItems.TJ_ITEM_DEFINITION_REGISTRY.forEach((location, itemDefinition) -> ModelLoader.setCustomModelResourceLocation(itemDefinition.maybeItem().get(), 0, new ModelResourceLocation(location, "inventory")));
+    }
+
+    @SubscribeEvent
+    public static void onModelsBake(ModelBakeEvent event) {
+        final IRegistry<ModelResourceLocation, IBakedModel> modelRegistry = event.getModelRegistry();
+        final Set<ModelResourceLocation> locationSet = new HashSet<>(modelRegistry.getKeys());
+        final IModel missingModel = ModelLoaderRegistry.getMissingModel();
+        for (ModelResourceLocation modelResourceLocation : locationSet) {
+            if (!modelResourceLocation.getNamespace().equals(TJ.MODID)) continue;
+            final IBakedModel model = modelRegistry.getObject(modelResourceLocation);
+            if (model == missingModel) continue; // Don't customize the missing model. This causes Forge to swallow exceptions
+            if (modelResourceLocation.getPath().equals("me.super_interface"))
+                modelRegistry.putObject(modelResourceLocation, new AutoRotatingModel(model));
+        }
     }
 
     @Override
