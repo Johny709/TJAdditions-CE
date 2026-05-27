@@ -15,6 +15,7 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMap;
+import gregtech.api.recipes.RecipeMaps;
 import gregtech.common.items.MetaItems;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -61,7 +62,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
 
     public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, boolean hasMaintenance, boolean hasDistinct) {
         super(metaTileEntityId, hasMaintenance, hasDistinct);
-        this.recipeMap = recipeMap;
+        this.recipeMap = recipeMap != null ? recipeMap : RecipeMaps.FURNACE_RECIPES;
         this.recipeLogic.setActiveConsumer(active -> this.activeDate = active ? Instant.now() : null);
         this.recipeLogic.setProblemConsumer(problem -> this.activeDate = null);
         this.recipeLogic.setWorkingConsumer(working -> {
