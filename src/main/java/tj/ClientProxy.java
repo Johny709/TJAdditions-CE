@@ -18,6 +18,7 @@ import tj.items.TJMetaItems;
 import tj.items.item.TJItems;
 import tj.rendering.BakedModelLoader;
 import tj.rendering.IBlockModel;
+import tj.rendering.IItemMeshing;
 import tj.textures.TJTextures;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -76,7 +77,7 @@ public class ClientProxy extends CommonProxy {
     public void onPostLoad() {
         TJBlocks.TJ_BLOCK_DEFINITION_REGISTRY.forEach((location, blockDefinition) -> {
             final Block block = blockDefinition.maybeBlock().orElse(null);
-            if (block instanceof IBlockModel)
+            if (block instanceof IItemMeshing)
                 Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(blockDefinition.maybeItem().get(), 0, new ModelResourceLocation(location, "inventory"));
         });
     }

@@ -1,5 +1,6 @@
 package tj.blocks.block;
 
+import appeng.block.AEBaseItemBlock;
 import appeng.core.features.BlockDefinition;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -14,7 +15,7 @@ import tj.integration.appeng.blocks.BlockTJCraftingUnit;
 import tj.integration.appeng.tile.TileSuperInterface;
 import tj.integration.appeng.tile.TileTJCraftingStorageTile;
 
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public class TJBlocks {
 
@@ -27,7 +28,7 @@ public class TJBlocks {
     public static BlockDefinition CRAFTING_STORAGE_SINGULARITY;
 
     public static void init(IForgeRegistry<Block> registry) {
-        SUPER_INTERFACE = registerBlock(registry, "me.super_interface", new BlockSuperInterface());
+        SUPER_INTERFACE = registerBlock(registry, "me.super_interface", new BlockSuperInterface(), AEBaseItemBlock::new);
         CRAFTING_STORAGE_65536K = registerBlock(registry, "me.crafting_storage.65536k", new BlockTJCraftingUnit(BlockTJCraftingUnit.TJCraftingUnitType.STORAGE_65536k));
         CRAFTING_STORAGE_262144K = registerBlock(registry, "me.crafting_storage.262144k", new BlockTJCraftingUnit(BlockTJCraftingUnit.TJCraftingUnitType.STORAGE_262144k));
         CRAFTING_STORAGE_1048M = registerBlock(registry, "me.crafting_storage.1048m", new BlockTJCraftingUnit(BlockTJCraftingUnit.TJCraftingUnitType.STORAGE_1048M));
@@ -41,11 +42,11 @@ public class TJBlocks {
         return registerBlock(registry, resource, block, null);
     }
 
-    private static BlockDefinition registerBlock(IForgeRegistry<Block> registry, String resource, Block block, Supplier<ItemBlock> itemBlockSupplier) {
+    private static BlockDefinition registerBlock(IForgeRegistry<Block> registry, String resource, Block block, Function<Block, ItemBlock> itemBlockFunction) {
         final ResourceLocation resourceLocation = new ResourceLocation(TJ.MODID, resource);
         final ItemBlock itemBlock;
-        if (itemBlockSupplier != null) {
-            itemBlock = itemBlockSupplier.get();
+        if (itemBlockFunction != null) {
+            itemBlock = itemBlockFunction.apply(block);
         } else itemBlock = new ItemBlock(block);
         itemBlock.setRegistryName(resourceLocation);
         itemBlock.setTranslationKey(resource);

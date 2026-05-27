@@ -5,7 +5,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public interface IBlockModel {
+public interface IBlockModel extends IItemMeshing {
 
     @SideOnly(Side.CLIENT)
     StateMapperBase getStateMapper(ResourceLocation resourceLocation);
