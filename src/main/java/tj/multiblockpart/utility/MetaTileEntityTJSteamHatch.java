@@ -48,8 +48,8 @@ public class MetaTileEntityTJSteamHatch extends GAMetaTileEntityMultiblockPart i
     public MetaTileEntityTJSteamHatch(ResourceLocation metaTileEntityId, int tier, boolean isExport) {
         super(metaTileEntityId, tier);
         this.isExport = isExport;
-        int capacity = (int) (Math.pow(4, tier) * 16000);
-        this.steamTank = new FilteredFluidHandler(Math.min(capacity, Integer.MAX_VALUE)).setFillPredicate(ModHandler::isSteam);
+        final long capacity = (long) (Math.pow(4, tier) * 16000);
+        this.steamTank = new FilteredFluidHandler((int) Math.min(capacity, Integer.MAX_VALUE)).setFillPredicate(ModHandler::isSteam);
         initializeInventory();
     }
 

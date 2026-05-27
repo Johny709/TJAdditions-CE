@@ -189,8 +189,8 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
             final NBTTagCompound recipeNBT = new NBTTagCompound();
             final NBTTagList patternNBT = new NBTTagList();
             final NonNullList<ItemStack> itemStacks = recipeEntry.getValue().getRight();
-            for (int i = 0; i < itemStacks.size(); i++) {
-                patternNBT.appendTag(itemStacks.get(i).serializeNBT());
+            for (ItemStack itemStack : itemStacks) {
+                patternNBT.appendTag(itemStack.serializeNBT());
             }
             recipeNBT.setInteger("index", recipeEntry.getKey());
             recipeNBT.setString("id", recipeEntry.getValue().getLeft().getRegistryName().toString());

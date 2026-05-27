@@ -39,6 +39,7 @@ public class BakedModelLoader implements ICustomModelLoader {
         return this.models.containsKey(modelLocation);
     }
 
+    @Nonnull
     @Override
     public IModel loadModel(@Nonnull ResourceLocation modelLocation) {
         return this.models.get(modelLocation);

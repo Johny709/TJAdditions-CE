@@ -8,7 +8,6 @@ import appeng.api.implementations.items.IItemGroup;
 import appeng.api.implementations.items.IStorageCell;
 import appeng.api.implementations.items.IUpgradeModule;
 import appeng.api.storage.IMEInventoryHandler;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
 import appeng.core.AEConfig;
@@ -33,6 +32,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
 
@@ -59,17 +59,17 @@ public abstract class TJAbstractStorageCell<T extends IAEStack<T>> extends AEBas
     }
 
     @Override
-    public int getBytes(final ItemStack cellItem) {
+    public int getBytes(@Nonnull final ItemStack cellItem) {
         return this.totalBytes;
     }
 
     @Override
-    public int getTotalTypes(final ItemStack cellItem) {
+    public int getTotalTypes(@Nonnull final ItemStack cellItem) {
         return 63;
     }
 
     @Override
-    public boolean isBlackListed(final ItemStack cellItem, final T requestedAddition) {
+    public boolean isBlackListed(@Nonnull final ItemStack cellItem, @Nonnull final T requestedAddition) {
         return false;
     }
 
@@ -79,7 +79,7 @@ public abstract class TJAbstractStorageCell<T extends IAEStack<T>> extends AEBas
     }
 
     @Override
-    public boolean isStorageCell(final ItemStack i) {
+    public boolean isStorageCell(@Nonnull final ItemStack i) {
         return true;
     }
 
@@ -118,8 +118,9 @@ public abstract class TJAbstractStorageCell<T extends IAEStack<T>> extends AEBas
         Platform.openNbtData(is).setString("FuzzyMode", fzMode.name());
     }
 
+    @Nonnull
     @Override
-    public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
+    public ActionResult<ItemStack> onItemRightClick(@Nonnull final World world, @Nonnull final EntityPlayer player, @Nonnull final EnumHand hand) {
         this.disassembleDrive(player.getHeldItem(hand), world, player);
         return new ActionResult<>(EnumActionResult.SUCCESS, player.getHeldItem(hand));
     }
@@ -131,10 +132,10 @@ public abstract class TJAbstractStorageCell<T extends IAEStack<T>> extends AEBas
             }
 
             final InventoryPlayer playerInventory = player.inventory;
-            final IMEInventoryHandler inv = AEApi.instance().registries().cell().getCellInventory(stack, null, this.getChannel());
+            final IMEInventoryHandler<T> inv = AEApi.instance().registries().cell().getCellInventory(stack, null, this.getChannel());
             if (inv != null && playerInventory.getCurrentItem() == stack) {
                 final InventoryAdaptor ia = InventoryAdaptor.getAdaptor(player);
-                final IItemList<IAEItemStack> list = inv.getAvailableItems(this.getChannel().createList());
+                final IItemList<T> list = inv.getAvailableItems(this.getChannel().createList());
                 if (list.isEmpty() && ia != null) {
                     playerInventory.setInventorySlotContents(playerInventory.currentItem, ItemStack.EMPTY);
 
@@ -170,13 +171,15 @@ public abstract class TJAbstractStorageCell<T extends IAEStack<T>> extends AEBas
 
     protected abstract void dropEmptyStorageCellCase(final InventoryAdaptor ia, final EntityPlayer player);
 
+    @Nonnull
     @Override
-    public EnumActionResult onItemUseFirst(final EntityPlayer player, final World world, final BlockPos pos, final EnumFacing side, final float hitX, final float hitY, final float hitZ, final EnumHand hand) {
+    public EnumActionResult onItemUseFirst(@Nonnull final EntityPlayer player, @Nonnull final World world, @Nonnull final BlockPos pos, @Nonnull final EnumFacing side, final float hitX, final float hitY, final float hitZ, @Nonnull final EnumHand hand) {
         return this.disassembleDrive(player.getHeldItem(hand), world, player) ? EnumActionResult.SUCCESS : EnumActionResult.PASS;
     }
 
+    @Nonnull
     @Override
-    public ItemStack getContainerItem(final ItemStack itemStack) {
+    public ItemStack getContainerItem(@Nonnull final ItemStack itemStack) {
         return AEApi.instance()
                 .definitions()
                 .materials()
@@ -186,7 +189,7 @@ public abstract class TJAbstractStorageCell<T extends IAEStack<T>> extends AEBas
     }
 
     @Override
-    public boolean hasContainerItem(final ItemStack stack) {
+    public boolean hasContainerItem(@Nonnull final ItemStack stack) {
         return AEConfig.instance().isFeatureEnabled(AEFeature.ENABLE_DISASSEMBLY_CRAFTING);
     }
 }

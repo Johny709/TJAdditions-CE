@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 public class JEIRecipeTransferWidget extends Widget implements IGTRecipeTransferHandler {
@@ -77,7 +78,7 @@ public class JEIRecipeTransferWidget extends Widget implements IGTRecipeTransfer
             buffer.writeVarInt(itemIngredients.size());
             buffer.writeVarInt(fluidIngredients.size());
             for (Map.Entry<Integer, IGuiIngredient<ItemStack>> entry : itemIngredients.entrySet()) {
-                final ItemStack itemStack = entry.getValue().getDisplayedIngredient();
+                final ItemStack itemStack = Optional.ofNullable(entry.getValue().getDisplayedIngredient()).orElse(ItemStack.EMPTY);
                 buffer.writeItemStack(itemStack);
                 if (entry.getValue().isInput())
                     buffer.writeString("Input");
@@ -85,6 +86,7 @@ public class JEIRecipeTransferWidget extends Widget implements IGTRecipeTransfer
             }
             for (Map.Entry<Integer, IGuiIngredient<FluidStack>> entry : fluidIngredients.entrySet()) {
                 final FluidStack fluidStack = entry.getValue().getDisplayedIngredient();
+                if (fluidStack == null) continue;
                 buffer.writeCompoundTag(fluidStack.writeToNBT(new NBTTagCompound()));
                 if (entry.getValue().isInput())
                     buffer.writeString("Input");

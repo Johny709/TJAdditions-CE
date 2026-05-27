@@ -518,79 +518,55 @@ public final class GUIDisplayBuilder {
             final ITextComponent wrenchComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.wrench")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
-                this.addTextComponentWithHover(wrenchComponent, priority, builder -> {
-                    builder.addTranslationLine("gtadditions.multiblock.universal.problem.wrench.tooltip")
-                            .addItemStack(MetaItems.WRENCH.getStackForm());
-                });
-            } else this.addTextComponentWithHover(wrenchComponent, builder -> {
-                builder.addTranslationLine("gtadditions.multiblock.universal.problem.wrench.tooltip")
-                        .addItemStack(MetaItems.WRENCH.getStackForm());
-            });
+                this.addTextComponentWithHover(wrenchComponent, priority, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.wrench.tooltip")
+                        .addItemStack(MetaItems.WRENCH.getStackForm()));
+            } else this.addTextComponentWithHover(wrenchComponent, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.wrench.tooltip")
+                    .addItemStack(MetaItems.WRENCH.getStackForm()));
         }
         if (((maintenanceProblems >> 1) & 1) == 0) {
             final ITextComponent screwdriverComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.screwdriver")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
-                this.addTextComponentWithHover(screwdriverComponent, priority, builder -> {
-                    builder.addTranslationLine("gtadditions.multiblock.universal.problem.screwdriver.tooltip")
-                            .addItemStack(MetaItems.SCREWDRIVER.getStackForm());
-                });
-            } else this.addTextComponentWithHover(screwdriverComponent, builder -> {
-                builder.addTranslationLine("gtadditions.multiblock.universal.problem.screwdriver.tooltip")
-                        .addItemStack(MetaItems.SCREWDRIVER.getStackForm());
-            });
+                this.addTextComponentWithHover(screwdriverComponent, priority, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.screwdriver.tooltip")
+                        .addItemStack(MetaItems.SCREWDRIVER.getStackForm()));
+            } else this.addTextComponentWithHover(screwdriverComponent, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.screwdriver.tooltip")
+                    .addItemStack(MetaItems.SCREWDRIVER.getStackForm()));
         }
         if (((maintenanceProblems >> 2) & 1) == 0) {
             final ITextComponent softHammerComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.softhammer")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
-                this.addTextComponentWithHover(softHammerComponent, priority, builder -> {
-                    builder.addTranslationLine("gtadditions.multiblock.universal.problem.softhammer.tooltip")
-                            .addItemStack(MetaItems.SOFT_HAMMER.getStackForm());
-                });
-            } else this.addTextComponentWithHover(softHammerComponent, builder -> {
-                builder.addTranslationLine("gtadditions.multiblock.universal.problem.softhammer.tooltip")
-                        .addItemStack(MetaItems.SOFT_HAMMER.getStackForm());
-            });
+                this.addTextComponentWithHover(softHammerComponent, priority, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.softhammer.tooltip")
+                        .addItemStack(MetaItems.SOFT_HAMMER.getStackForm()));
+            } else this.addTextComponentWithHover(softHammerComponent, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.softhammer.tooltip")
+                    .addItemStack(MetaItems.SOFT_HAMMER.getStackForm()));
         }
         if (((maintenanceProblems >> 3) & 1) == 0) {
             final ITextComponent hardHammerComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.hardhammer")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
-                this.addTextComponentWithHover(hardHammerComponent, priority, builder -> {
-                    builder.addTranslationLine("gtadditions.multiblock.universal.problem.hardhammer.tooltip")
-                            .addItemStack(MetaItems.HARD_HAMMER.getStackForm());
-                });
-            } else this.addTextComponentWithHover(hardHammerComponent, builder -> {
-                builder.addTranslationLine("gtadditions.multiblock.universal.problem.hardhammer.tooltip")
-                        .addItemStack(MetaItems.HARD_HAMMER.getStackForm());
-            });
+                this.addTextComponentWithHover(hardHammerComponent, priority, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.hardhammer.tooltip")
+                        .addItemStack(MetaItems.HARD_HAMMER.getStackForm()));
+            } else this.addTextComponentWithHover(hardHammerComponent, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.hardhammer.tooltip")
+                    .addItemStack(MetaItems.HARD_HAMMER.getStackForm()));
         }
         if (((maintenanceProblems >> 4) & 1) == 0) {
             final ITextComponent wireCutterComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.wirecutter")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
-                this.addTextComponentWithHover(wireCutterComponent, priority, builder -> {
-                    builder.addTranslationLine("gtadditions.multiblock.universal.problem.wirecutter.tooltip")
-                            .addItemStack(MetaItems.WIRE_CUTTER.getStackForm());
-                });
-            } else this.addTextComponentWithHover(wireCutterComponent, builder -> {
-                builder.addTranslationLine("gtadditions.multiblock.universal.problem.wirecutter.tooltip")
-                        .addItemStack(MetaItems.WIRE_CUTTER.getStackForm());
-            });
+                this.addTextComponentWithHover(wireCutterComponent, priority, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.wirecutter.tooltip")
+                        .addItemStack(MetaItems.WIRE_CUTTER.getStackForm()));
+            } else this.addTextComponentWithHover(wireCutterComponent, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.wirecutter.tooltip")
+                    .addItemStack(MetaItems.WIRE_CUTTER.getStackForm()));
         }
         if (((maintenanceProblems >> 5) & 1) == 0) {
             final ITextComponent crowbarComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.crowbar")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
-                this.addTextComponentWithHover(crowbarComponent, priority, builder -> {
-                    builder.addTranslationLine("gtadditions.multiblock.universal.problem.crowbar.tooltip")
-                            .addItemStack(MetaItems.CROWBAR.getStackForm());
-                });
-            } else this.addTextComponentWithHover(crowbarComponent, builder -> {
-                builder.addTranslationLine("gtadditions.multiblock.universal.problem.crowbar.tooltip")
-                        .addItemStack(MetaItems.CROWBAR.getStackForm());
-            });
+                this.addTextComponentWithHover(crowbarComponent, priority, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.crowbar.tooltip")
+                        .addItemStack(MetaItems.CROWBAR.getStackForm()));
+            } else this.addTextComponentWithHover(crowbarComponent, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.crowbar.tooltip")
+                    .addItemStack(MetaItems.CROWBAR.getStackForm()));
         }
         return this;
     }

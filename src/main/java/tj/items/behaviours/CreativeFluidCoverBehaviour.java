@@ -78,6 +78,7 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
                 FluidStack stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
                 if (stack == null) return;
                 stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
+                if (stack == null) return;
                 stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
                 compound.setTag("slot:" + index, stack.writeToNBT(new NBTTagCompound()));
                 fluidFilter.getTankAt(index).fill(stack, true);

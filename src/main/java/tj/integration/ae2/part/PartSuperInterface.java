@@ -1,8 +1,6 @@
 package tj.integration.ae2.part;
 
-import appeng.api.definitions.IParts;
 import appeng.api.parts.IPartModel;
-import appeng.core.Api;
 import appeng.core.AppEng;
 import appeng.helpers.DualityInterface;
 import appeng.items.parts.PartModels;
@@ -19,12 +17,12 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import tj.blocks.block.TJBlocks;
 import tj.gui.TJGuiTextures;
 import tj.gui.uifactory.ITileEntityUI;
 import tj.gui.uifactory.TileEntityHolder;
 import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.TJGhostSlotWidget;
-import tj.integration.ae2.IApiParts;
 import tj.integration.ae2.helpers.SuperDualityInterface;
 
 
@@ -62,7 +60,7 @@ public class PartSuperInterface extends PartInterface implements ITileEntityUI {
 
     @Override
     public ItemStack getItemStackRepresentation() {
-        return ((IApiParts) (IParts) Api.INSTANCE.definitions().parts()).getSuperInterface().maybeStack(1).orElse(ItemStack.EMPTY);
+        return TJBlocks.SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY);
     }
 
     @Override

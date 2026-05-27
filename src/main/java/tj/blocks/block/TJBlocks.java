@@ -34,7 +34,7 @@ public class TJBlocks {
         CRAFTING_STORAGE_1048M = registerBlock(registry, "me.crafting_storage.1048m", new BlockTJCraftingUnit(BlockTJCraftingUnit.TJCraftingUnitType.STORAGE_1048M));
         CRAFTING_STORAGE_SINGULARITY = registerBlock(registry, "me.crafting_storage.singularity", new BlockTJCraftingUnit(BlockTJCraftingUnit.TJCraftingUnitType.STORAGE_SINGULARITY));
 
-        GameRegistry.registerTileEntity(TileSuperInterface.class, SUPER_INTERFACE.maybeBlock().get().getRegistryName());
+        GameRegistry.registerTileEntity(TileSuperInterface.class, new ResourceLocation(TJ.MODID, "me.super_interface"));
         GameRegistry.registerTileEntity(TileTJCraftingStorageTile.class, new ResourceLocation(TJ.MODID, "me.crafting_storage"));
     }
 

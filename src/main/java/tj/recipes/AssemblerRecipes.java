@@ -4,7 +4,6 @@ import gregicadditions.GAEnums;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraftforge.fluids.FluidRegistry;
 import tj.blocks.*;
 import gregicadditions.GAValues;
@@ -21,6 +20,7 @@ import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import tj.util.TJItemUtils;
 
 import java.util.Objects;
 
@@ -307,7 +307,7 @@ public class AssemblerRecipes {
                     .input(Items.DIAMOND_HOE)
                     .input(Items.SHEARS)
                     .inputs(ROBOT_ARMS[tier].getStackForm(tier >= GTValues.ZPM ? 4 : tier >= GTValues.EV ? 2 : 1))
-                    .inputs(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 42))
+                    .inputs(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 42))
                     .inputs(tier == 14 ? HULL[9].getStackForm() : tier < 9 ? HULL[tier].getStackForm() : GA_HULLS[tier - 9].getStackForm())
                     .outputs(FARMING_STATION[i].getStackForm())
                     .EUt(GAValues.VA[tier]).duration(400)
@@ -330,7 +330,7 @@ public class AssemblerRecipes {
         for (int i = 0; i < 2; i++) {
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(super_chest[3].getStackForm(64))
-                    .inputs(new ItemStack(Item.getByNameOrId("nae2:material"), 64, 4))
+                    .inputs(TJItemUtils.getItemStackFromName("nae2:material", 64, 4))
                     .inputs(chest[i].getStackForm(27))
                     .input(OrePrefix.circuit, UIV, 4)
                     .inputs(CONVEYOR_MODULE_UEV.getStackForm(4))
@@ -344,21 +344,21 @@ public class AssemblerRecipes {
         for (int i = 0; i < 2; i++) {
             ASSEMBLER_RECIPES.recipeBuilder()
                     .fluidInputs(i == 0 ? Tin.getFluid(144) : SolderingAlloy.getFluid(72))
-                    .inputs(new ItemStack(Item.getByNameOrId("trashcans:item_trash_can")))
+                    .inputs(TJItemUtils.getItemStackFromName("trashcans:item_trash_can"))
                     .input(OrePrefix.plate, Iron)
                     .outputs(VOID_ITEM_COVER.getStackForm())
                     .EUt(16).duration(400)
                     .buildAndRegister();
             ASSEMBLER_RECIPES.recipeBuilder()
                     .fluidInputs(i == 0 ? Tin.getFluid(144) : SolderingAlloy.getFluid(72))
-                    .inputs(new ItemStack(Item.getByNameOrId("trashcans:liquid_trash_can")))
+                    .inputs(TJItemUtils.getItemStackFromName("trashcans:liquid_trash_can"))
                     .input(OrePrefix.plate, Iron)
                     .outputs(VOID_FLUID_COVER.getStackForm())
                     .EUt(16).duration(400)
                     .buildAndRegister();
             ASSEMBLER_RECIPES.recipeBuilder()
                     .fluidInputs(i == 0 ? Tin.getFluid(144) : SolderingAlloy.getFluid(72))
-                    .inputs(new ItemStack(Item.getByNameOrId("trashcans:energy_trash_can")))
+                    .inputs(TJItemUtils.getItemStackFromName("trashcans:energy_trash_can"))
                     .input(OrePrefix.plate, Iron)
                     .outputs(VOID_ENERGY_COVER.getStackForm())
                     .EUt(16).duration(400)

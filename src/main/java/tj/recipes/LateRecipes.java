@@ -24,7 +24,7 @@ public class LateRecipes {
                 .duration(1200)
                 .buildAndRegister();
         TJRecipeMaps.COKE_OVEN_RECIPES = ((RecipeMapMultiblockController) cokeOven).recipeMap;
-        TJRecipeMaps.PRIMITIVE_ALLOY_RECIPES = ((RecipeMapMultiblockController) GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(new ResourceLocation("multiblocktweaker", "primitive_alloy"))).recipeMap;
+        TJRecipeMaps.PRIMITIVE_ALLOY_RECIPES = (((RecipeMapMultiblockController) GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(new ResourceLocation("multiblocktweaker", "primitive_alloy")))).recipeMap;
         TJRecipeMaps.HEAT_EXCHANGER_RECIPES = ((RecipeMapMultiblockController) GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(new ResourceLocation("multiblocktweaker", "heat_exchanger"))).recipeMap;
         TJRecipeMaps.ARMOR_INFUSER_RECIPES = ((RecipeMapMultiblockController) GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(new ResourceLocation("multiblocktweaker", "armor_infuser"))).recipeMap;
         TJRecipeMaps.CHAOS_REPLICATOR_RECIPES = ((RecipeMapMultiblockController) GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(new ResourceLocation("multiblocktweaker", "chaos_replicator"))).recipeMap;

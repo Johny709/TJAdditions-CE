@@ -26,6 +26,7 @@ import tj.integration.ae2.tile.TileTJCraftingStorageTile;
 import tj.rendering.IBlockModel;
 
 
+import javax.annotation.Nonnull;
 import java.util.EnumSet;
 
 public class BlockTJCraftingUnit extends BlockCraftingUnit implements IBlockModel {
@@ -43,6 +44,7 @@ public class BlockTJCraftingUnit extends BlockCraftingUnit implements IBlockMode
         return new IProperty[]{POWERED, FORMED};
     }
 
+    @Nonnull
     @Override
     public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 
@@ -64,11 +66,13 @@ public class BlockTJCraftingUnit extends BlockCraftingUnit implements IBlockMode
         return world.getBlockState(adjacentPos).getBlock() instanceof BlockCraftingUnit;
     }
 
+    @Nonnull
     @Override
     protected BlockStateContainer createBlockState() {
         return new ExtendedBlockState(this, this.getAEStates(), new IUnlistedProperty[]{STATE});
     }
 
+    @Nonnull
     @Override
     public IBlockState getStateFromMeta(final int meta) {
         return this.getDefaultState().withProperty(POWERED, (meta & 1) == 1).withProperty(FORMED, (meta & 2) == 2);
@@ -89,6 +93,7 @@ public class BlockTJCraftingUnit extends BlockCraftingUnit implements IBlockMode
         }
     }
 
+    @Nonnull
     @Override
     public BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.CUTOUT;
@@ -123,8 +128,10 @@ public class BlockTJCraftingUnit extends BlockCraftingUnit implements IBlockMode
     @Override
     public StateMapperBase getStateMapper(ResourceLocation resourceLocation) {
         return new StateMapperBase() {
+
+            @Nonnull
             @Override
-            protected ModelResourceLocation getModelResourceLocation(IBlockState state) {
+            protected ModelResourceLocation getModelResourceLocation(@Nonnull IBlockState state) {
                 return state.getValue(FORMED) ? new ModelResourceLocation(resourceLocation.toString()) : new ModelResourceLocation(resourceLocation, "inventory");
             }
         };

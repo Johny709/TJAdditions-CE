@@ -11,6 +11,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
+import javax.annotation.Nonnull;
+
 public class TJFluidStorageCell extends TJAbstractStorageCell<IAEFluidStack> {
 
     private final int perType;
@@ -38,7 +40,7 @@ public class TJFluidStorageCell extends TJAbstractStorageCell<IAEFluidStack> {
     }
 
     @Override
-    public int getTotalTypes(final ItemStack cellItem) {
+    public int getTotalTypes(@Nonnull final ItemStack cellItem) {
         return 5;
     }
 

@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,6 +37,7 @@ public abstract class TJCraftingCubeBakedModel implements IBakedModel {
         this.ringVer = ringVer;
     }
 
+    @Nonnull
     @Override
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
 
@@ -240,16 +242,19 @@ public abstract class TJCraftingCubeBakedModel implements IBakedModel {
         return false;
     }
 
+    @Nonnull
     @Override
     public TextureAtlasSprite getParticleTexture() {
         return this.ringCorner;
     }
 
+    @Nonnull
     @Override
     public ItemCameraTransforms getItemCameraTransforms() {
         return ItemCameraTransforms.DEFAULT;
     }
 
+    @Nonnull
     @Override
     public ItemOverrideList getOverrides() {
         return ItemOverrideList.NONE;

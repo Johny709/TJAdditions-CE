@@ -32,6 +32,7 @@ import tj.gui.TJGuiUtils;
 import tj.util.TextUtils;
 import tj.util.consumers.QuadConsumer;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -539,17 +540,17 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     @SideOnly(Side.CLIENT)
     private static class WrapScreen extends GuiScreen {
         @Override
-        public void handleComponentHover(ITextComponent component, int x, int y) {
+        public void handleComponentHover(@Nonnull ITextComponent component, int x, int y) {
             super.handleComponentHover(component, x, y);
         }
 
         @Override
-        public boolean handleComponentClick(ITextComponent component) {
+        public boolean handleComponentClick(@Nonnull ITextComponent component) {
             return super.handleComponentClick(component);
         }
 
         @Override
-        protected void drawHoveringText(List<String> textLines, int x, int y, FontRenderer font) {
+        protected void drawHoveringText(@Nonnull List<String> textLines, int x, int y, @Nonnull FontRenderer font) {
             GuiUtils.drawHoveringText(textLines, x, y, width, height, 256, font);
         }
     }

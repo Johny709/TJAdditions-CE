@@ -4,6 +4,8 @@ import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemStack;
 import tj.TJ;
 
+import javax.annotation.Nonnull;
+
 public class UnbreakableAxe extends ItemAxe {
     public UnbreakableAxe(ToolMaterial material) {
         super(material);
@@ -13,5 +15,5 @@ public class UnbreakableAxe extends ItemAxe {
     }
 
     @Override
-    public void setDamage(ItemStack stack, int damage) {}
+    public void setDamage(@Nonnull ItemStack stack, int damage) {}
 }

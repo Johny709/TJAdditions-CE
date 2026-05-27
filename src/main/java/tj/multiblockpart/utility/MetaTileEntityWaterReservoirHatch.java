@@ -32,13 +32,14 @@ import tj.gui.widgets.TJProgressBarWidget;
 import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
 public class MetaTileEntityWaterReservoirHatch extends MetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IFluidTank> {
 
     private final FluidTank fluidTank = new FluidTank(Materials.Water.getFluid(Integer.MAX_VALUE), Integer.MAX_VALUE) {
-        @Nullable
+        @Nonnull
         @Override
         public FluidStack drainInternal(int maxDrain, boolean doDrain) {
             return new FluidStack(this.fluid, maxDrain);

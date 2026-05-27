@@ -4,6 +4,8 @@ import net.minecraft.item.ItemHoe;
 import net.minecraft.item.ItemStack;
 import tj.TJ;
 
+import javax.annotation.Nonnull;
+
 public class UnbreakableHoe extends ItemHoe {
     public UnbreakableHoe(ToolMaterial material) {
         super(material);
@@ -13,5 +15,5 @@ public class UnbreakableHoe extends ItemHoe {
     }
 
     @Override
-    public void setDamage(ItemStack stack, int damage) {}
+    public void setDamage(@Nonnull ItemStack stack, int damage) {}
 }

@@ -11,6 +11,7 @@ import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.common.model.IModelState;
 import tj.TJ;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.function.Function;
 
@@ -31,13 +32,15 @@ public class TJCraftingCubeModel implements IModel {
         this.type = type;
     }
 
+    @Nonnull
     @Override
     public Collection<ResourceLocation> getTextures() {
         return ImmutableList.of(RING_CORNER, RING_SIDE_HOR, RING_SIDE_VER, LIGHT_BASE, CRAFTING_STORAGE_65536K_LIGHT, CRAFTING_STORAGE_262144K_LIGHT, CRAFTING_STORAGE_1048M_LIGHT, CRAFTING_STORAGE_SINGULARITY_LIGHT);
     }
 
+    @Nonnull
     @Override
-    public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
+    public IBakedModel bake(@Nonnull IModelState state, @Nonnull VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
         // Retrieve our textures and pass them on to the baked model
         final TextureAtlasSprite ringCorner = bakedTextureGetter.apply(RING_CORNER);
         final TextureAtlasSprite ringSideHor = bakedTextureGetter.apply(RING_SIDE_HOR);

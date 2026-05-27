@@ -68,7 +68,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
 
     /**
      * Activates this popup if the conditions have failed. this won't do anything if {@link #addPopupCondition(ActionResultPredicate)} is not defined.
-     * bind this popup by calling this after calling any of {@link #addPopup(int, int, int, int, ButtonWidget, boolean, Predicate)} methods.
+     * bind this popup by calling this after calling any of {@link #addPopup(int, int, int, int, ButtonWidget, Predicate)} methods.
      * call {@link #addClosingButton(ButtonWidget)} before this to add closing buttons to close this popup.
      * @param x X offset of widget group.
      * @param y Y offset of widget group.

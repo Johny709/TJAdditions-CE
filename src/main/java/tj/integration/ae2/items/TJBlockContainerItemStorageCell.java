@@ -3,6 +3,8 @@ package tj.integration.ae2.items;
 import appeng.api.definitions.IItemDefinition;
 import net.minecraft.item.ItemStack;
 
+import javax.annotation.Nonnull;
+
 
 public class TJBlockContainerItemStorageCell extends TJItemStorageCell {
 
@@ -11,12 +13,12 @@ public class TJBlockContainerItemStorageCell extends TJItemStorageCell {
     }
 
     @Override
-    public int getBytesPerType(ItemStack cellItem) {
+    public int getBytesPerType(@Nonnull ItemStack cellItem) {
         return 1;
     }
 
     @Override
-    public int getTotalTypes(ItemStack cellItem) {
+    public int getTotalTypes(@Nonnull ItemStack cellItem) {
         return 1;
     }
 }

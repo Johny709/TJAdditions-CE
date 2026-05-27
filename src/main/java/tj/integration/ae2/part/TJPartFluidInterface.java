@@ -1,8 +1,6 @@
 package tj.integration.ae2.part;
 
-import appeng.api.definitions.IParts;
 import appeng.api.parts.IPartModel;
-import appeng.core.Api;
 import appeng.core.AppEng;
 import appeng.fluids.parts.PartFluidInterface;
 import appeng.items.parts.PartModels;
@@ -10,7 +8,6 @@ import appeng.parts.PartModel;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import tj.integration.ae2.IApiParts;
 import tj.integration.ae2.helpers.TJDualityFluidInterface;
 
 
@@ -34,7 +31,7 @@ public class TJPartFluidInterface extends PartFluidInterface {
 
     @Override
     public ItemStack getItemStackRepresentation() {
-        return ((IApiParts) (IParts) Api.INSTANCE.definitions().parts()).getSuperFluidInterface().maybeStack(1).orElse(ItemStack.EMPTY);
+        return null;
     }
 
     @Override

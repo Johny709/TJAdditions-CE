@@ -9,6 +9,8 @@ import appeng.util.InventoryAdaptor;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
+import javax.annotation.Nonnull;
+
 public class TJItemStorageCell extends TJAbstractStorageCell<IAEItemStack> {
 
     protected final int perType;
@@ -21,7 +23,7 @@ public class TJItemStorageCell extends TJAbstractStorageCell<IAEItemStack> {
     }
 
     @Override
-    public int getBytesPerType(ItemStack cellItem) {
+    public int getBytesPerType(@Nonnull ItemStack cellItem) {
         return this.perType;
     }
 
@@ -30,6 +32,7 @@ public class TJItemStorageCell extends TJAbstractStorageCell<IAEItemStack> {
         return this.idleDrain;
     }
 
+    @Nonnull
     @Override
     public IStorageChannel<IAEItemStack> getChannel() {
         return AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);

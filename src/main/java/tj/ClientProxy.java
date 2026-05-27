@@ -39,11 +39,6 @@ public class ClientProxy extends CommonProxy {
         TextureUtils.addIconRegister(TJTextures::register);
     }
 
-    @Override
-    public void onLoad() {
-
-    }
-
     @SubscribeEvent
     public static void registerModels(ModelRegistryEvent event) {
         ModelLoaderRegistry.registerLoader(new BakedModelLoader());
@@ -53,10 +48,10 @@ public class ClientProxy extends CommonProxy {
             final Block block = blockDefinition.maybeBlock().orElse(null);
             if (block instanceof IBlockModel) {
                 ModelLoader.setCustomStateMapper(block, ((IBlockModel) block).getStateMapper(location));
-            } else ModelLoader.setCustomModelResourceLocation(blockDefinition.maybeItem().get(), 0, new ModelResourceLocation(location, "inventory"));
+            } else ModelLoader.setCustomModelResourceLocation(blockDefinition.maybeItem().orElseThrow(() -> new NullPointerException("Item not found")), 0, new ModelResourceLocation(location, "inventory"));
         });
         TJItems.TJ_ITEM_REGISTRY.forEach((location, item) -> ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(location, "inventory")));
-        TJItems.TJ_ITEM_DEFINITION_REGISTRY.forEach((location, itemDefinition) -> ModelLoader.setCustomModelResourceLocation(itemDefinition.maybeItem().get(), 0, new ModelResourceLocation(location, "inventory")));
+        TJItems.TJ_ITEM_DEFINITION_REGISTRY.forEach((location, itemDefinition) -> ModelLoader.setCustomModelResourceLocation(itemDefinition.maybeItem().orElseThrow(() -> new NullPointerException("Item not found")), 0, new ModelResourceLocation(location, "inventory")));
     }
 
     @SubscribeEvent
@@ -78,7 +73,7 @@ public class ClientProxy extends CommonProxy {
         TJBlocks.TJ_BLOCK_DEFINITION_REGISTRY.forEach((location, blockDefinition) -> {
             final Block block = blockDefinition.maybeBlock().orElse(null);
             if (block instanceof IItemMeshing)
-                Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(blockDefinition.maybeItem().get(), 0, new ModelResourceLocation(location, "inventory"));
+                Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(blockDefinition.maybeItem().orElseThrow(() -> new NullPointerException("Item not found")), 0, new ModelResourceLocation(location, "inventory"));
         });
     }
 }

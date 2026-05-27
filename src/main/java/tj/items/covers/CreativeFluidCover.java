@@ -83,6 +83,7 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
                 FluidStack stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
                 if (stack == null) return;
                 stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
+                if (stack == null) return;
                 stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
                 this.fluidFilter.getTankAt(index).fill(stack, true);
             }).setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())

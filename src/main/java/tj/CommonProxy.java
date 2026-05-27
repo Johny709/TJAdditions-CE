@@ -53,7 +53,7 @@ public class CommonProxy {
     public static void registerItems(RegistryEvent.Register<Item> event) {
         final IForgeRegistry<Item> registry = event.getRegistry();
         TJItems.init(registry);
-        TJBlocks.TJ_BLOCK_DEFINITION_REGISTRY.forEach(((location, blockDefinition) -> registry.register(blockDefinition.maybeItem().get())));
+        TJBlocks.TJ_BLOCK_DEFINITION_REGISTRY.forEach(((location, blockDefinition) -> registry.register(blockDefinition.maybeItem().orElseThrow(() -> new NullPointerException("Item not found")))));
 
         registry.register(createItemBlock(SOLID_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(ENERGY_PORT_CASING, VariantItemBlock::new));
@@ -76,9 +76,9 @@ public class CommonProxy {
 
     @SubscribeEvent
     public static void onWorldLoad(WorldEvent.Load event) {
-        MapStorage storage = event.getWorld().getMapStorage();
-        EnderWorldData enderWorldData = (EnderWorldData) storage.getOrLoadData(EnderWorldData.class, "EnderWorldData");
-        PlayerWorldIDData playerWorldData = (PlayerWorldIDData) storage.getOrLoadData(PlayerWorldIDData.class, "PlayerWorldListData");
+        final MapStorage storage = event.getWorld().getMapStorage();
+        final EnderWorldData enderWorldData = (EnderWorldData) storage.getOrLoadData(EnderWorldData.class, "EnderWorldData");
+        final PlayerWorldIDData playerWorldData = (PlayerWorldIDData) storage.getOrLoadData(PlayerWorldIDData.class, "PlayerWorldListData");
 
         if (enderWorldData == null) {
             storage.setData("EnderWorldData", new EnderWorldData("EnderWorldData"));
@@ -132,7 +132,7 @@ public class CommonProxy {
 
     private static <T extends Block> ItemBlock createItemBlock(T block, Function<T, ItemBlock> producer) {
         ItemBlock itemBlock = producer.apply(block);
-        itemBlock.setRegistryName(block.getRegistryName());
+        itemBlock.setRegistryName((block.getRegistryName()));
         return itemBlock;
     }
 
