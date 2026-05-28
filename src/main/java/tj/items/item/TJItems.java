@@ -10,9 +10,7 @@ import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
 import tj.TJ;
-import tj.integration.ae2.items.TJFluidStorageCell;
-import tj.integration.ae2.items.TJBlockContainerItemStorageCell;
-import tj.integration.ae2.items.TJItemStorageCell;
+import tj.integration.ae2.items.*;
 
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,6 +26,7 @@ public class TJItems {
     public static Item UNBREAKABLE_SHEARS;
 
     public static IItemDefinition PART_SUPER_INTERFACE;
+    public static IItemDefinition PART_SUPER_FLUID_INTERFACE;
 
     public static IItemDefinition MATERIAL_ITEM_CELL_65536K;
     public static IItemDefinition MATERIAL_ITEM_CELL_262144K;
@@ -56,6 +55,7 @@ public class TJItems {
         UNBREAKABLE_SHEARS = registerItem(registry, "unbreakable_shears", new UnbreakableShears());
 
         PART_SUPER_INTERFACE = registerItem(registry, item -> new ItemDefinition("me.part.super_interface", new ItemPartSuperInterface()));
+        PART_SUPER_FLUID_INTERFACE = registerItem(registry, item -> new ItemDefinition("me.part.super_fluid_interface", new ItemPartSuperFluidInterface()));
 
         MATERIAL_ITEM_CELL_65536K = registerItem(registry, item -> new ItemDefinition("me.material.item_cell.65536k", item));
         MATERIAL_ITEM_CELL_262144K = registerItem(registry, item -> new ItemDefinition("me.material.item_cell.262144k", item));
