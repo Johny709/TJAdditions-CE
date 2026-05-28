@@ -29,7 +29,7 @@ import net.minecraftforge.items.IItemHandler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import tj.integration.ae2.helpers.ISuperDualityInterface;
+import tj.integration.ae2.helpers.IDualitySuperInterface;
 import tj.integration.ae2.inventory.TJAppEngNetworkInventory;
 
 import java.util.EnumMap;
@@ -37,7 +37,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 @Mixin(value = DualityInterface.class, remap = false)
-public abstract class DualityInterfaceMixin implements ISuperDualityInterface {
+public abstract class DualityInterfaceMixin implements IDualitySuperInterface {
 
     @Shadow
     @Final
@@ -278,7 +278,7 @@ public abstract class DualityInterfaceMixin implements ISuperDualityInterface {
             this.updateCraftingList();
         } else if (inv == this.storage && slot >= 0) {
             if (added != ItemStack.EMPTY){
-                this.iHost.onStackReturnNetwork(AEItemStack.fromItemStack(added));
+                //this.iHost.onStackReturnNetwork(AEItemStack.fromItemStack(added));
             }
             final boolean had = this.hasWorkToDo();
 

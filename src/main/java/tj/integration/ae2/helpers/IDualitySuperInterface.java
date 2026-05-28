@@ -10,7 +10,7 @@ import appeng.util.inv.InvOperation;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
-public interface ISuperDualityInterface {
+public interface IDualitySuperInterface {
 
     boolean useThePlan(final int x, final IAEItemStack itemStack);
 

@@ -23,7 +23,7 @@ import tj.gui.uifactory.TileEntityHolder;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
-import tj.integration.ae2.helpers.SuperDualityInterface;
+import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.items.item.TJItems;
 
 import javax.annotation.Nonnull;
@@ -44,7 +44,7 @@ public class PartSuperInterface extends PartInterface implements ITileEntityUI {
 
     public PartSuperInterface(ItemStack is) {
         super(is);
-        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new SuperDualityInterface(this.getProxy(), this), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new DualitySuperInterface(this.getProxy(), this), "duality");
     }
 
     @Override

@@ -16,14 +16,14 @@ import tj.gui.uifactory.ITileEntityUI;
 import tj.gui.uifactory.TileEntityHolder;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
-import tj.integration.ae2.helpers.SuperDualityInterface;
+import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
 
 
 public class TileSuperInterface extends TileInterface implements ITileEntityUI {
 
     public TileSuperInterface() {
-        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new SuperDualityInterface(this.getProxy(), this), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this), "duality");
     }
 
     public void openUI(EntityPlayer player, TileEntity tileEntity) {

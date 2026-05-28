@@ -18,11 +18,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 
-public class SuperDualityInterface extends DualityInterface {
+public class DualitySuperInterface extends DualityInterface {
 
-    public SuperDualityInterface(AENetworkProxy networkProxy, IInterfaceHost ih) {
+    public DualitySuperInterface(AENetworkProxy networkProxy, IInterfaceHost ih) {
         super(networkProxy, ih);
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new IAEItemStack[18], "requireWork");
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new AppEngInternalAEInventory(this, 18, 1024), "config");
@@ -42,16 +43,17 @@ public class SuperDualityInterface extends DualityInterface {
 
     @Override
     public IAEItemStack injectCraftedItems(final ICraftingLink link, final IAEItemStack acquired, final Actionable mode) {
-        return ((ISuperDualityInterface) this).injectTheCraftedItems(link, acquired, mode);
+        return ((IDualitySuperInterface) this).injectTheCraftedItems(link, acquired, mode);
     }
 
+    @Nonnull
     @Override
     public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        return ((ISuperDualityInterface) this).tickingTheRequest(node, ticksSinceLastCall);
+        return ((IDualitySuperInterface) this).tickingTheRequest(node, ticksSinceLastCall);
     }
 
     @Override
     public void onChangeInventory(IItemHandler inv, int slot, InvOperation mc, ItemStack removed, ItemStack added) {
-        ((ISuperDualityInterface) this).onChangeTheInventory(inv, slot, mc, removed, added);
+        ((IDualitySuperInterface) this).onChangeTheInventory(inv, slot, mc, removed, added);
     }
 }
