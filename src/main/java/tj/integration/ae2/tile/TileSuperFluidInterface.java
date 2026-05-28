@@ -19,6 +19,7 @@ import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.impl.AEFluidTankWidget;
 import tj.gui.widgets.impl.TJPhantomAEFluidSlotWidget;
 import tj.integration.ae2.helpers.DualitySuperFluidInterface;
+import tj.integration.ae2.helpers.IDualitySuperFluidInterface;
 
 public class TileSuperFluidInterface extends TileFluidInterface implements ITileEntityUI {
 
@@ -45,12 +46,16 @@ public class TileSuperFluidInterface extends TileFluidInterface implements ITile
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup();
         final DualityFluidInterface duality = this.getDualityFluidInterface();
-        for (int i = 0; i < duality.getConfig().getSlots(); i++)
-            widgetGroup.addWidget(new TJPhantomAEFluidSlotWidget(7 + (18 * (i % 9)), 34 + (72 * (i / 9)), 18, 18, i, duality.getConfig(), null)
+        for (int i = 0; i < duality.getConfig().getSlots(); i++) {
+            final int index = i;
+            widgetGroup.addWidget(new TJPhantomAEFluidSlotWidget(7 + (18 * (i % 9)), 34 + (72 * (i / 9)), 18, 18, i, duality.getConfig(), fluidStack -> ((IDualitySuperFluidInterface) duality).onFluidInventoryHasChanged(duality.getConfig(), index, null, null, null))
                     .setBackgroundTexture(TJGuiTextures.SLOT_DOWN));
-        for (int i = 0; i < duality.getTanks().getSlots(); i++)
-            widgetGroup.addWidget(new AEFluidTankWidget(duality.getTanks(), i,7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
+        }
+        for (int i = 0; i < duality.getTanks().getSlots(); i++) {
+            widgetGroup.addWidget(new AEFluidTankWidget(duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
+                    .setContainerClicking(true, true)
                     .setBackgroundTexture(GuiTextures.SLOT));
+        }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 292)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))

@@ -171,10 +171,10 @@ public class TJPhantomAEFluidSlotWidget extends Widget implements IGhostIngredie
                 GTLog.logger.info(e.getMessage());
             }
         } else if (id == 2) {
-            final FluidStack extracted = this.tanks.getFluidInSlot(this.slotIndex).getFluidStack();
+            final FluidStack extracted = this.getFluidStack(this.slotIndex);
             if (extracted == null) return;
             if (this.takeFluidsPredicate == null || this.takeFluidsPredicate.test(extracted)) {
-                final FluidStack fluidStack = this.tanks.getFluidInSlot(this.slotIndex).getFluidStack();
+                final FluidStack fluidStack = this.getFluidStack(this.slotIndex);
                 this.tanks.setFluidInSlot(this.slotIndex, null);
                 if (this.onUpdate != null)
                     this.onUpdate.accept(null);
@@ -207,5 +207,12 @@ public class TJPhantomAEFluidSlotWidget extends Widget implements IGhostIngredie
     @Override
     public Object getIngredientOverMouse(int mouseX, int mouseY) {
         return this.isMouseOverElement(mouseX, mouseY) ? this.fluidStack : null;
+    }
+
+    private FluidStack getFluidStack(int slotIndex) {
+        final IAEFluidStack iaeFluidStack = this.tanks.getFluidInSlot(slotIndex);
+        if (iaeFluidStack == null)
+            return null;
+        return iaeFluidStack.getFluidStack();
     }
 }

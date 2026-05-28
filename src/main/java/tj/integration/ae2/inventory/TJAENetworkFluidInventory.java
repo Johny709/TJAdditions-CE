@@ -11,6 +11,7 @@ import appeng.fluids.util.AEFluidInventory;
 import appeng.fluids.util.AEFluidStack;
 import appeng.fluids.util.IAEFluidInventory;
 import net.minecraftforge.fluids.FluidStack;
+import tj.integration.ae2.helpers.IDualitySuperFluidInterface;
 
 import java.util.function.Supplier;
 
@@ -18,11 +19,13 @@ public class TJAENetworkFluidInventory extends AEFluidInventory {
 
     private final Supplier<IStorageGrid> supplier;
     private final IActionSource source;
+    private final IDualitySuperFluidInterface duality;
 
     public TJAENetworkFluidInventory(Supplier<IStorageGrid> networkSupplier, IActionSource source, IAEFluidInventory handler, int slots, int capcity) {
         super(handler, slots, capcity);
         this.supplier = networkSupplier;
         this.source = source;
+        this.duality = (IDualitySuperFluidInterface) handler;
     }
 
     @Override
@@ -41,12 +44,12 @@ public class TJAENetworkFluidInventory extends AEFluidInventory {
                 if (doFill) {
                     FluidStack added = fluid.copy();
                     added.amount = (int) (fluid.amount - overflow.getStackSize());
-                    this.handler.onFluidInventoryChanged(this, added, null);
+                    this.duality.onFluidInventoryHasChanged(this, added, null);
                 }
                 return (int) (originAmt - overflow.getStackSize());
             } else {
                 if (doFill) {
-                    this.handler.onFluidInventoryChanged(this, fluid, null);
+                    this.duality.onFluidInventoryHasChanged(this, fluid, null);
                 }
                 return originAmt;
             }
