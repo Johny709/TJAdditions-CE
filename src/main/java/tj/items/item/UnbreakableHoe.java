@@ -9,8 +9,6 @@ import javax.annotation.Nonnull;
 public class UnbreakableHoe extends ItemHoe {
     public UnbreakableHoe(ToolMaterial material) {
         super(material);
-        this.setRegistryName(TJ.MODID, "unbreakable_hoe");
-        this.setTranslationKey("unbreakable_hoe");
         this.setMaxDamage(Integer.MAX_VALUE);
     }
 
