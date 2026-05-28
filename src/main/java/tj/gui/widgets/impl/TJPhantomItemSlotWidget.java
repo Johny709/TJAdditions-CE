@@ -178,13 +178,15 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
     @Override
     public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object o) {
         return !(o instanceof ItemStack) ? Collections.emptyList() : Collections.singletonList(new IGhostIngredientHandler.Target<Object>() {
+
+            @Nonnull
             @Override
             public Rectangle getArea() {
                 return toRectangleBox();
             }
 
             @Override
-            public void accept(Object o) {
+            public void accept(@Nonnull Object o) {
                 if (o instanceof ItemStack) {
                     itemStack = ((ItemStack) o).copy();
                     writeClientAction(1, buffer -> buffer.writeItemStack(itemStack));

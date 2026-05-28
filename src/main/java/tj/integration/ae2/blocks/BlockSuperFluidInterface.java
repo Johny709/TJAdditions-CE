@@ -31,7 +31,7 @@ public class BlockSuperFluidInterface extends BlockFluidInterface implements IIt
         final TileSuperFluidInterface superInterface = this.getTileEntity(world, pos);
         if (superInterface != null) {
             if (!world.isRemote) {
-                Platform.openGUI(player, superInterface, AEPartLocation.fromFacing(side), GuiWrapper.INSTANCE.wrap(() -> new ResourceLocation(TJ.MODID, "me.super_fluid_interface")));
+                superInterface.openUI(player, superInterface);
             }
             return true;
         }

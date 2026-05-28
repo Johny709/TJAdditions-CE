@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import tj.blocks.block.TJBlocks;
 import tj.gui.TJGuiTextures;
 import tj.gui.uifactory.ITileEntityUI;
 import tj.gui.uifactory.TileEntityHolder;
@@ -37,6 +38,11 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
     }
 
     @Override
+    public ItemStack getItemStackRepresentation() {
+        return TJBlocks.SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY);
+    }
+
+    @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup();
         final DualityInterface duality = this.getInterfaceDuality();
@@ -48,7 +54,7 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
                     .setBackgroundTexture(GuiTextures.SLOT));
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 292)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setItemLabel(new ItemStack(this.getBlockType())).setLocale(String.format("tile.%s.name", this.getBlockType().getRegistryName().getPath())))
+                        .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
                 .widget(widgetGroup)
                 .bindPlayerInventory(player.inventory, 209)
                 .build(holder, player);
