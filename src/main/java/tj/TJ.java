@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.Logger;
 import tj.blocks.TJMetaBlocks;
+import tj.blocks.block.TJBlocks;
 import tj.capability.TJSimpleCapabilityManager;
 import tj.gui.uifactory.PlayerUIFactory;
 import tj.gui.uifactory.TileEntityUIFactory;
@@ -100,5 +101,9 @@ public class TJ {
 
         Upgrades.INVERTER.registerItem(TJItems.FLUID_CELL_DIGITAL_SINGULARITY, 1);
         Upgrades.STICKY.registerItem(TJItems.FLUID_CELL_DIGITAL_SINGULARITY, 1);
+
+        // Super Fluid Interface
+        Upgrades.CAPACITY.registerItem(TJBlocks.SUPER_FLUID_INTERFACE, 4);
+        Upgrades.CAPACITY.registerItem(TJItems.PART_SUPER_FLUID_INTERFACE, 4);
     }
 }

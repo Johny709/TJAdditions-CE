@@ -10,6 +10,7 @@ import appeng.fluids.util.AEFluidInventory;
 import appeng.fluids.util.IAEFluidTank;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
+import appeng.parts.automation.StackUpgradeInventory;
 import appeng.util.inv.InvOperation;
 import gregtech.api.util.GTLog;
 import net.minecraft.item.ItemStack;
@@ -28,6 +29,7 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
         super(networkProxy, ih);
         ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new IAEFluidStack[18], "requireWork");
         ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new AEFluidInventory(this, 18), "config");
+        ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new StackUpgradeInventory(networkProxy.getMachineRepresentation(), this, 4), "upgrades");
         try {
             Field mySource = ObfuscationReflectionHelper.findField(DualityFluidInterface.class, "mySource");
             ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new TJAENetworkFluidInventory(() -> {

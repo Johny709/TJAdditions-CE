@@ -16,11 +16,13 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.items.IItemHandler;
 import tj.TJ;
 import tj.gui.TJGuiTextures;
 import tj.gui.uifactory.ITileEntityUI;
 import tj.gui.uifactory.TileEntityHolder;
 import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.AEFluidTankWidget;
 import tj.gui.widgets.impl.TJPhantomAEFluidSlotWidget;
 import tj.integration.ae2.helpers.IDualitySuperFluidInterface;
@@ -83,6 +85,7 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup();
         final DualityFluidInterface duality = this.getDualityFluidInterface();
+        final IItemHandler upgradeHandler = duality.getInventoryByName("upgrades");
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
             final int index = i;
             widgetGroup.addWidget(new TJPhantomAEFluidSlotWidget(7 + (18 * (i % 9)), 34 + (72 * (i / 9)), 18, 18, i, duality.getConfig(), fluidStack -> ((IDualitySuperFluidInterface) duality).onFluidInventoryHasChanged(duality.getConfig(), index, null, null, null))
@@ -93,7 +96,11 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
                     .setContainerClicking(true, true)
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 292)
+        for (int i = 0; i < upgradeHandler.getSlots(); i++) {
+            widgetGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
+                    .setBackgroundTexture(GuiTextures.SLOT));
+        }
+        return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
                 .widget(widgetGroup)

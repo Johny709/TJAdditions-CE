@@ -84,4 +84,6 @@ public class TJGuiTextures {
     public static final TextureArea SEEDS_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/seeds_overlay.png");
     public static final TextureArea BONE_MEAL_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/bone_meal_overlay.png");
     public static final TextureArea LIST_OVERLAY = TextureArea.fullImage("textures/gui/widget/list_overlay.png");
+
+    public static final TextureArea SUPER_INTERFACE = TextureArea.fullImage("textures/gui/super_interface.png");
 }
