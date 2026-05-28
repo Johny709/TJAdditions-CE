@@ -9,8 +9,6 @@ import javax.annotation.Nonnull;
 public class UnbreakableShears extends ItemShears {
     public UnbreakableShears() {
         super();
-        this.setRegistryName(TJ.MODID, "unbreakable_shears");
-        this.setTranslationKey("unbreakable_shears");
         this.setMaxDamage(Integer.MAX_VALUE);
     }
 
