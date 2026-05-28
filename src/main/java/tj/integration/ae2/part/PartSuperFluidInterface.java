@@ -8,6 +8,9 @@ import appeng.parts.PartModel;
 import appeng.tile.networking.TileCableBus;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.widgets.ClickButtonWidget;
+import gregtech.api.gui.widgets.ImageWidget;
+import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -21,15 +24,19 @@ import tj.TJ;
 import tj.gui.TJGuiTextures;
 import tj.gui.uifactory.ITileEntityUI;
 import tj.gui.uifactory.TileEntityHolder;
+import tj.gui.widgets.ButtonWidget;
+import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.AEFluidTankWidget;
+import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.TJPhantomAEFluidSlotWidget;
 import tj.integration.ae2.helpers.IDualitySuperFluidInterface;
 import tj.integration.ae2.helpers.TJDualityFluidInterface;
 import tj.items.item.TJItems;
 
 import javax.annotation.Nonnull;
+import java.util.regex.Pattern;
 
 
 public class PartSuperFluidInterface extends PartFluidInterface implements ITileEntityUI {
@@ -83,28 +90,53 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
 
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        final WidgetGroup widgetGroup = new WidgetGroup();
+        final WidgetGroup slotGroup = new WidgetGroup();
         final DualityFluidInterface duality = this.getDualityFluidInterface();
         final IItemHandler upgradeHandler = duality.getInventoryByName("upgrades");
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
             final int index = i;
-            widgetGroup.addWidget(new TJPhantomAEFluidSlotWidget(7 + (18 * (i % 9)), 34 + (72 * (i / 9)), 18, 18, i, duality.getConfig(), fluidStack -> ((IDualitySuperFluidInterface) duality).onFluidInventoryHasChanged(duality.getConfig(), index, null, null, null))
+            slotGroup.addWidget(new TJPhantomAEFluidSlotWidget(7 + (18 * (i % 9)), 34 + (72 * (i / 9)), 18, 18, i, duality.getConfig(), fluidStack -> ((IDualitySuperFluidInterface) duality).onFluidInventoryHasChanged(duality.getConfig(), index, null, null, null))
                     .setBackgroundTexture(TJGuiTextures.SLOT_DOWN));
         }
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
-            widgetGroup.addWidget(new AEFluidTankWidget(duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
+            slotGroup.addWidget(new AEFluidTankWidget(duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
                     .setContainerClicking(true, true)
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
-            widgetGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
+            slotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
         return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
-                .widget(widgetGroup)
+                .widget(slotGroup)
+                .widget(new ButtonPopUpWidget<>()
+                        .addPopup(widgetGroup -> false)
+                        .addPopup(new ButtonWidget<>(154, 0, 22, 22)
+                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS)
+                                .setTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
+                            widgetGroup.addWidget(new ImageWidget(7, 90, 162, 100, GuiTextures.BORDERED_BACKGROUND));
+                            widgetGroup.addWidget(new LabelWidget(14, 95, "gui.appliedenergistics2.Priority"));
+                            widgetGroup.addWidget(new NewTextFieldWidget<>(14, 136, 148, 18, true, () -> String.valueOf(duality.getPriority()), this::setPriority)
+                                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                                    .setUpdateOnTyping(true));
+                            widgetGroup.addWidget(new ClickButtonWidget(15, 110, 25, 20, "+1", data -> this.setPriority(String.valueOf((long) duality.getPriority() + 1), "")));
+                            widgetGroup.addWidget(new ClickButtonWidget(45, 110, 30, 20, "+10", data -> this.setPriority(String.valueOf((long) duality.getPriority() + 10), "")));
+                            widgetGroup.addWidget(new ClickButtonWidget(80, 110, 35, 20, "+100", data -> this.setPriority(String.valueOf((long) duality.getPriority() + 100), "")));
+                            widgetGroup.addWidget(new ClickButtonWidget(120, 110, 40, 20, "+1000", data -> this.setPriority(String.valueOf((long) duality.getPriority() + 1000), "")));
+                            widgetGroup.addWidget(new ClickButtonWidget(15, 160, 25, 20, "-1", data -> this.setPriority(String.valueOf((long) duality.getPriority() - 1), "")));
+                            widgetGroup.addWidget(new ClickButtonWidget(45, 160, 30, 20, "-10", data -> this.setPriority(String.valueOf((long) duality.getPriority() - 10), "")));
+                            widgetGroup.addWidget(new ClickButtonWidget(80, 160, 35, 20, "-100", data -> this.setPriority(String.valueOf((long) duality.getPriority() - 100), "")));
+                            widgetGroup.addWidget(new ClickButtonWidget(120, 160, 40, 20, "-1000", data -> this.setPriority(String.valueOf((long) duality.getPriority() - 1000), "")));
+                            return false;
+                        }))
                 .bindPlayerInventory(player.inventory, 209)
                 .build(holder, player);
+    }
+
+    private void setPriority(String text, String id) {
+        this.getDualityFluidInterface().setPriority((int) Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+        this.getTile().markDirty();
     }
 }
