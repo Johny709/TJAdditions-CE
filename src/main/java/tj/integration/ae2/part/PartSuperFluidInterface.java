@@ -11,7 +11,6 @@ import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.ClickButtonWidget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
-import gregtech.api.gui.widgets.WidgetGroup;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -90,27 +89,25 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
 
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        final WidgetGroup slotGroup = new WidgetGroup();
         final DualityFluidInterface duality = this.getDualityFluidInterface();
         final IItemHandler upgradeHandler = duality.getInventoryByName("upgrades");
+        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292);
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
             final int index = i;
-            slotGroup.addWidget(new TJPhantomAEFluidSlotWidget(7 + (18 * (i % 9)), 34 + (72 * (i / 9)), 18, 18, i, duality.getConfig(), fluidStack -> ((IDualitySuperFluidInterface) duality).onFluidInventoryHasChanged(duality.getConfig(), index, null, null, null))
+            builder.widget(new TJPhantomAEFluidSlotWidget(7 + (18 * (i % 9)), 34 + (72 * (i / 9)), 18, 18, i, duality.getConfig(), fluidStack -> ((IDualitySuperFluidInterface) duality).onFluidInventoryHasChanged(duality.getConfig(), index, null, null, null))
                     .setBackgroundTexture(TJGuiTextures.SLOT_DOWN));
         }
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
-            slotGroup.addWidget(new AEFluidTankWidget(duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
+            builder.widget(new AEFluidTankWidget(duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
                     .setContainerClicking(true, true)
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
-            slotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
+            builder.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
-        return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292)
-                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+        return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
-                .widget(slotGroup)
                 .widget(new ButtonPopUpWidget<>()
                         .addPopup(widgetGroup -> false)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)

@@ -1,17 +1,21 @@
 package tj.integration.ae2.helpers;
 
+import appeng.api.config.Upgrades;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.storage.data.IAEFluidStack;
+import appeng.core.Api;
 import appeng.fluids.helper.DualityFluidInterface;
 import appeng.fluids.helper.IFluidInterfaceHost;
 import appeng.fluids.util.AEFluidInventory;
 import appeng.fluids.util.IAEFluidTank;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
-import appeng.parts.automation.StackUpgradeInventory;
+import appeng.parts.automation.UpgradeInventory;
+import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.inv.InvOperation;
+import appeng.util.inv.filter.IAEItemFilter;
 import gregtech.api.util.GTLog;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -29,7 +33,7 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
         super(networkProxy, ih);
         ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new IAEFluidStack[18], "requireWork");
         ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new AEFluidInventory(this, 18), "config");
-        ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new StackUpgradeInventory(networkProxy.getMachineRepresentation(), this, 4), "upgrades");
+        ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new DualityUpgradeInventory(this, 4), "upgrades");
         try {
             Field mySource = ObfuscationReflectionHelper.findField(DualityFluidInterface.class, "mySource");
             ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new TJAENetworkFluidInventory(() -> {
@@ -76,5 +80,54 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
         super.readFromNBT(data);
         ((IDualitySuperFluidInterface) this).deserializeFromNBT(data);
         ((IDualitySuperFluidInterface) this).readTheConfig();
+    }
+
+    private static class DualityUpgradeInventory extends UpgradeInventory {
+
+        private int installed;
+
+        public DualityUpgradeInventory(IAEAppEngInventory parent, int s) {
+            super(parent, s);
+            this.setFilter(new DualityFilter());
+        }
+
+        @Override
+        public int getMaxInstalled(Upgrades upgrades) {
+            return this.installed;
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            super.onContentsChanged(slot);
+            if (!this.getStackInSlot(slot).isEmpty())
+                this.installed++;
+            else this.installed--;
+        }
+
+        @Override
+        public NBTTagCompound serializeNBT() {
+            final NBTTagCompound compound = super.serializeNBT();
+            compound.setInteger("installed", this.installed);
+            return compound;
+        }
+
+        @Override
+        public void deserializeNBT(NBTTagCompound nbt) {
+            super.deserializeNBT(nbt);
+            this.installed = nbt.getInteger("installed");
+        }
+    }
+
+    private static class DualityFilter implements IAEItemFilter {
+
+        @Override
+        public boolean allowExtract(IItemHandler iItemHandler, int i, int i1) {
+            return true;
+        }
+
+        @Override
+        public boolean allowInsert(IItemHandler iItemHandler, int i, ItemStack itemStack) {
+            return ItemStack.areItemsEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY), itemStack);
+        }
     }
 }

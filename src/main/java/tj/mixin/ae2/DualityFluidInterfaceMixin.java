@@ -274,7 +274,7 @@ public abstract class DualityFluidInterfaceMixin implements IDualitySuperFluidIn
     @Override
     public void onChangeTheInventory(IItemHandler inv, int slot, InvOperation mc, ItemStack removedStack, ItemStack newStack) {
         if (inv == this.upgrades) {
-            this.tanks.setCapacity(64000 << this.getInstalledUpgrades(Upgrades.CAPACITY));
+            this.tanks.setCapacity(64000 << this.getInstalledUpgrades(Upgrades.CAPACITY) * 2);
             try {
                 this.gridProxy.getTick().alertDevice(this.gridProxy.getNode());
             } catch (GridAccessException ignored) {
