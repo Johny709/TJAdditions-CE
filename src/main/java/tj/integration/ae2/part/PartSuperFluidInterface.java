@@ -91,7 +91,7 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final DualityFluidInterface duality = this.getDualityFluidInterface();
         final IItemHandler upgradeHandler = duality.getInventoryByName("upgrades");
-        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292);
+        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_FLUID_INTERFACE, 211, 292);
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
             final int index = i;
             builder.widget(new TJPhantomAEFluidSlotWidget(7 + (18 * (i % 9)), 34 + (72 * (i / 9)), 18, 18, i, duality.getConfig(), fluidStack -> ((IDualitySuperFluidInterface) duality).onFluidInventoryHasChanged(duality.getConfig(), index, null, null, null))

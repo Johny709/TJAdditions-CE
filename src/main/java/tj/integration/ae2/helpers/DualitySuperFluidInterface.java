@@ -24,6 +24,7 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
 import tj.integration.ae2.inventory.TJAENetworkFluidInventory;
 import tj.items.item.TJItems;
+import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
@@ -110,8 +111,7 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
                 final ItemStack stack = this.getStackInSlot(i);
                 if (stack.isItemEqual(capacityUpgrade)) {
                     this.installed++;
-                }
-                if (stack.isItemEqual(new ItemStack(TJItems.MAX_CAPACITY_UPGRADE))) {
+                } else if (stack.isItemEqual(new ItemStack(TJItems.MAX_CAPACITY_UPGRADE))) {
                     this.installed = 16;
                 }
             }
@@ -135,14 +135,15 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
     private static class DualityFluidFilter implements IAEItemFilter {
 
         @Override
-        public boolean allowExtract(IItemHandler iItemHandler, int i, int i1) {
+        public boolean allowExtract(IItemHandler iItemHandler, int slot, int i1) {
             return true;
         }
 
         @Override
-        public boolean allowInsert(IItemHandler iItemHandler, int i, ItemStack itemStack) {
+        public boolean allowInsert(IItemHandler iItemHandler, int slot, ItemStack itemStack) {
+            final ItemStack maxCapacity = new ItemStack(TJItems.MAX_CAPACITY_UPGRADE);
             return itemStack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)) ||
-                    itemStack.isItemEqual(new ItemStack(TJItems.MAX_CAPACITY_UPGRADE));
+                    (itemStack.isItemEqual(maxCapacity) && TJItemUtils.extractFromItemHandler(iItemHandler, maxCapacity, Integer.MAX_VALUE, true).getCount() <= 1);
         }
     }
 }
