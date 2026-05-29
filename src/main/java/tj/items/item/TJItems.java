@@ -4,6 +4,8 @@ import appeng.api.definitions.IItemDefinition;
 import appeng.api.parts.IPartItem;
 import appeng.core.Api;
 import appeng.core.features.ItemDefinition;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.item.Item;
@@ -20,10 +22,12 @@ public class TJItems {
 
     public static final Object2ObjectMap<ResourceLocation, Item> TJ_ITEM_REGISTRY = new Object2ObjectOpenHashMap<>();
     public static final Object2ObjectMap<ResourceLocation, IItemDefinition> TJ_ITEM_DEFINITION_REGISTRY = new Object2ObjectOpenHashMap<>();
+    public static final Object2IntMap<Item> UPGRADES = new Object2IntOpenHashMap<>();
 
     public static Item UNBREAKABLE_AXE;
     public static Item UNBREAKABLE_HOE;
     public static Item UNBREAKABLE_SHEARS;
+    public static Item MAX_CAPACITY_UPGRADE;
 
     public static IItemDefinition PART_SUPER_INTERFACE;
     public static IItemDefinition PART_SUPER_FLUID_INTERFACE;
@@ -50,9 +54,10 @@ public class TJItems {
     public static IItemDefinition ITEM_BLOCK_CONTAINER_SINGULARITY;
 
     public static void init(IForgeRegistry<Item> registry) {
-        UNBREAKABLE_AXE = registerItem(registry, "unbreakable_axe", new UnbreakableAxe(Item.ToolMaterial.DIAMOND));
-        UNBREAKABLE_HOE = registerItem(registry, "unbreakable_hoe", new UnbreakableHoe(Item.ToolMaterial.DIAMOND));
-        UNBREAKABLE_SHEARS = registerItem(registry, "unbreakable_shears", new UnbreakableShears());
+        UNBREAKABLE_AXE = registerItem(registry, "unbreakable_axe", new ItemUnbreakableAxe(Item.ToolMaterial.DIAMOND));
+        UNBREAKABLE_HOE = registerItem(registry, "unbreakable_hoe", new ItemUnbreakableHoe(Item.ToolMaterial.DIAMOND));
+        UNBREAKABLE_SHEARS = registerItem(registry, "unbreakable_shears", new ItemUnbreakableShears());
+        MAX_CAPACITY_UPGRADE = registerItem(registry, "me.max_capacity_upgrade", new ItemMaxCapacityUpgrade());
 
         PART_SUPER_INTERFACE = registerItem(registry, item -> new ItemDefinition("me.part.super_interface", new ItemPartSuperInterface()));
         PART_SUPER_FLUID_INTERFACE = registerItem(registry, item -> new ItemDefinition("me.part.super_fluid_interface", new ItemPartSuperFluidInterface()));

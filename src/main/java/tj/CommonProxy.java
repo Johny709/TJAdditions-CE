@@ -29,6 +29,9 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import static tj.blocks.TJMetaBlocks.*;
+import static tj.blocks.block.TJBlocks.SUPER_FLUID_INTERFACE;
+import static tj.blocks.block.TJBlocks.SUPER_INTERFACE;
+import static tj.items.item.TJItems.*;
 
 
 @Mod.EventBusSubscriber(modid = TJ.MODID)
@@ -139,7 +142,12 @@ public class CommonProxy {
         TJMetaItems.init();
     }
 
-    public void onLoad() {}
+    public void onLoad() {
+        UPGRADES.put(SUPER_INTERFACE.maybeItem().orElse(null), 1);
+        UPGRADES.put(PART_SUPER_INTERFACE.maybeItem().orElse(null), 1);
+        UPGRADES.put(SUPER_FLUID_INTERFACE.maybeItem().orElse(null), 1);
+        UPGRADES.put(PART_SUPER_FLUID_INTERFACE.maybeItem().orElse(null), 1);
+    }
 
     public void onPostLoad() {
         LateRecipes.init();

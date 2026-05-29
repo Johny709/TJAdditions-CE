@@ -142,7 +142,7 @@ public abstract class DualityFluidInterfaceMixin implements IDualitySuperFluidIn
             this.requireWork[slot] = work.setStackSize(-work.getStackSize());
             return;
         } else if (req != null) {
-            final int tankSize = 64000 << this.getInstalledUpgrades(Upgrades.CAPACITY) * 2;
+            final int tankSize = (int) Math.min(Integer.MAX_VALUE, 64000L << this.getInstalledUpgrades(Upgrades.CAPACITY) * 2);
             if (stored == null || stored.getStackSize() == 0) { // need to add stuff!
                 this.requireWork[slot] = req.copy();
                 this.requireWork[slot].setStackSize(tankSize);
@@ -274,7 +274,7 @@ public abstract class DualityFluidInterfaceMixin implements IDualitySuperFluidIn
     @Override
     public void onChangeTheInventory(IItemHandler inv, int slot, InvOperation mc, ItemStack removedStack, ItemStack newStack) {
         if (inv == this.upgrades) {
-            this.tanks.setCapacity(64000 << this.getInstalledUpgrades(Upgrades.CAPACITY) * 2);
+            this.tanks.setCapacity((int) Math.min(Integer.MAX_VALUE, 64000L << this.getInstalledUpgrades(Upgrades.CAPACITY) * 2));
             try {
                 this.gridProxy.getTick().alertDevice(this.gridProxy.getNode());
             } catch (GridAccessException ignored) {

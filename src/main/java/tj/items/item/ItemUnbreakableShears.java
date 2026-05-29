@@ -1,14 +1,13 @@
 package tj.items.item;
 
-import net.minecraft.item.ItemAxe;
+import net.minecraft.item.ItemShears;
 import net.minecraft.item.ItemStack;
-import tj.TJ;
 
 import javax.annotation.Nonnull;
 
-public class UnbreakableAxe extends ItemAxe {
-    public UnbreakableAxe(ToolMaterial material) {
-        super(material);
+public class ItemUnbreakableShears extends ItemShears {
+    public ItemUnbreakableShears() {
+        super();
         this.setMaxDamage(Integer.MAX_VALUE);
     }
 

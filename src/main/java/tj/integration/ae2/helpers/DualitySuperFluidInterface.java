@@ -23,6 +23,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
 import tj.integration.ae2.inventory.TJAENetworkFluidInventory;
+import tj.items.item.TJItems;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
@@ -33,7 +34,7 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
         super(networkProxy, ih);
         ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new IAEFluidStack[18], "requireWork");
         ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new AEFluidInventory(this, 18), "config");
-        ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new DualityUpgradeInventory(this, 4), "upgrades");
+        ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new DualityFluidUpgradeInventory(this, 4), "upgrades");
         try {
             Field mySource = ObfuscationReflectionHelper.findField(DualityFluidInterface.class, "mySource");
             ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new TJAENetworkFluidInventory(() -> {
@@ -82,13 +83,13 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
         ((IDualitySuperFluidInterface) this).readTheConfig();
     }
 
-    private static class DualityUpgradeInventory extends UpgradeInventory {
+    private static class DualityFluidUpgradeInventory extends UpgradeInventory {
 
         private int installed;
 
-        public DualityUpgradeInventory(IAEAppEngInventory parent, int s) {
+        public DualityFluidUpgradeInventory(IAEAppEngInventory parent, int s) {
             super(parent, s);
-            this.setFilter(new DualityFilter());
+            this.setFilter(new DualityFluidFilter());
         }
 
         @Override
@@ -97,11 +98,24 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
         }
 
         @Override
+        public int getInstalledUpgrades(Upgrades u) {
+            return this.installed;
+        }
+
+        @Override
         protected void onContentsChanged(int slot) {
+            this.installed = 0;
+            final ItemStack capacityUpgrade = Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY);
+            for (int i = 0; i < this.getSlots(); i++) {
+                final ItemStack stack = this.getStackInSlot(i);
+                if (stack.isItemEqual(capacityUpgrade)) {
+                    this.installed++;
+                }
+                if (stack.isItemEqual(new ItemStack(TJItems.MAX_CAPACITY_UPGRADE))) {
+                    this.installed = 16;
+                }
+            }
             super.onContentsChanged(slot);
-            if (!this.getStackInSlot(slot).isEmpty())
-                this.installed++;
-            else this.installed--;
         }
 
         @Override
@@ -118,7 +132,7 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
         }
     }
 
-    private static class DualityFilter implements IAEItemFilter {
+    private static class DualityFluidFilter implements IAEItemFilter {
 
         @Override
         public boolean allowExtract(IItemHandler iItemHandler, int i, int i1) {
@@ -127,7 +141,8 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
 
         @Override
         public boolean allowInsert(IItemHandler iItemHandler, int i, ItemStack itemStack) {
-            return ItemStack.areItemsEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY), itemStack);
+            return itemStack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)) ||
+                    itemStack.isItemEqual(new ItemStack(TJItems.MAX_CAPACITY_UPGRADE));
         }
     }
 }
