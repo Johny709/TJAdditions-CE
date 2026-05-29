@@ -146,7 +146,7 @@ public class ToolboxBehaviour implements IItemBehaviour, ItemUIFactory {
         WidgetGroup widgetGroup = new WidgetGroup(new Position(7, 20));
         for (int i = 0; i < toolboxInventory.getSlots(); i++) {
             widgetGroup.addWidget(new TJSlotWidget<>(toolboxInventory, i, 18 * (i % 9), 18 * (i / 9))
-                    .setBackgroundTexture(GuiTextures.SLOT));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT));
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 166)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)

@@ -107,7 +107,7 @@ public class NBTReaderBehaviour implements IItemBehaviour, ItemUIFactory {
                                 .setMaxWidthLimit(180))
                         .setScrollPanelWidth(3))
                 .widget(new TJSlotWidget<>(largeItemStackHandler, 0, 175, 192)
-                        .setBackgroundTexture(GuiTextures.SLOT))
+                        .setActiveBackgroundTexture(GuiTextures.SLOT))
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 134, itemStack))
                 .bindOpenListener(() -> {
                     if (compound.hasKey("NBTReaderSlot")) {

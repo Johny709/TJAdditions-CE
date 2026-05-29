@@ -110,7 +110,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                 .setScrollWidth(6);
         for (int i = 0; i < this.getExportItemInventory().getSlots(); i++) {
             scrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.getExportItemInventory(), i, 18 * (i % 3), 18 * (i / 3))
-                    .setBackgroundTexture(GuiTextures.SLOT));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT));
         }
         final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(90, 30, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)

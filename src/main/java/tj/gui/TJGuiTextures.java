@@ -9,6 +9,7 @@ public class TJGuiTextures {
     public static final TextureArea DARKENED_SLOT = TextureArea.fullImage("textures/gui/base/darkened_slot.png");
     public static final TextureArea MULTIBLOCK_DISPLAY_BASE = AdoptableTextureArea.fullImage("textures/gui/base/multiblock_display_base.png", 18, 18, 2, 2);
     public static final TextureArea TJ_LOGO_ANIMATED = TextureArea.fullImage("textures/tj_logo_animated.png");
+    public static final TextureArea BLANK_SLOT = AdoptableTextureArea.fullImage("textures/gui/widget/blank_slot.png", 18, 18, 1, 1);
 
     public static final TextureArea MACHINE_LABEL = AdoptableTextureArea.fullImage("textures/gui/base/machine_label.png", 18, 18, 2, 2);
     public static final TextureArea MACHINE_LABEL_2 = AdoptableTextureArea.fullImage("textures/gui/base/machine_label_2.png", 18, 18, 3, 3);

@@ -101,7 +101,7 @@ public class MetaTileEntityEnderItemBus extends AbstractEnderHatch<IItemHandlerM
     protected void addWidgets(Consumer<Widget> widget) {
         widget.accept(new TJSlotWidget<>(null, 0, 7, 38)
                 .setItemHandlerSupplier(() -> this.handler)
-                .setBackgroundTexture(SLOT));
+                .setActiveBackgroundTexture(SLOT));
     }
 
     private void setFilterBlacklist(boolean isFilterBlacklist) {

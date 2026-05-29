@@ -128,7 +128,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
         widgetGroup.add(new TJSlotWidget<>(this.importItems, 0, 174, 190)
                 .setPutItemsPredicate(stack -> !this.recipeLogic.isActive() && this.getMetaTileEntityFromStack(stack) instanceof IProcessorProvider)
                 .setTakeItemsPredicate(stack -> !this.recipeLogic.isActive())
-                .setBackgroundTexture(GuiTextures.SLOT));
+                .setActiveBackgroundTexture(GuiTextures.SLOT));
     }
 
     @Override

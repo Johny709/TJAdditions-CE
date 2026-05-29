@@ -245,7 +245,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                     tab.add(new CycleButtonWidget(7, 65, 78, 20, CoverConveyor.ConveyorMode.class, () -> this.conveyorMode, this::setConveyorMode));
                     tab.add(new ImageWidget(-28, 127, 26, 44, GuiTextures.BORDERED_BACKGROUND));
                     tab.add(new TJSlotWidget<>(this.itemFilterSlot, 0, -24, 131)
-                            .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
+                            .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
                     tab.add(itemFilterPopup);
                     tab.add(new ToggleButtonWidget(-24, 149, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isItemBlacklist, this::setItemBlacklist)
                             .setTooltipText("cover.filter.blacklist"));
@@ -275,7 +275,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                     tab.add(new CycleButtonWidget(7, 85, 78, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
                     tab.add(new ImageWidget(-28, 147, 26, 44, GuiTextures.BORDERED_BACKGROUND));
                     tab.add(new TJSlotWidget<>(this.fluidFilterSlot, 0, -24, 151)
-                            .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
+                            .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
                     tab.add(fluidFilterPopup);
                     tab.add(new ToggleButtonWidget(-24, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isFluidBlacklist, this::setFluidBlacklist)
                             .setTooltipText("cover.filter.blacklist"));

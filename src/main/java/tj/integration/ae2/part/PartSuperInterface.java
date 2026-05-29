@@ -1,5 +1,6 @@
 package tj.integration.ae2.part;
 
+import appeng.api.config.Upgrades;
 import appeng.api.parts.IPartModel;
 import appeng.core.Api;
 import appeng.helpers.DualityInterface;
@@ -27,9 +28,9 @@ import tj.gui.uifactory.TileEntityHolder;
 import tj.gui.widgets.ButtonWidget;
 import tj.gui.widgets.NewTextFieldWidget;
 import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
-import tj.gui.widgets.impl.TJSlotWidget;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.items.item.TJItems;
@@ -93,7 +94,7 @@ public class PartSuperInterface extends PartInterface implements ITileEntityUI {
         final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(7, 120, 166, 72, 9)
                 .setScrollWidth(4);
         final IItemHandler patternHandler = duality.getInventoryByName("patterns");
-        final IItemHandler upgradeHandler = duality.getInventoryByName("upgrades");
+        final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
         final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292);
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
             builder.widget(new TJPhantomItemSlotWidget(7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18, i, duality.getConfig())
@@ -101,16 +102,20 @@ public class PartSuperInterface extends PartInterface implements ITileEntityUI {
         }
         for (int i = 0; i < duality.getStorage().getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))
-                    .setBackgroundTexture(GuiTextures.SLOT));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT));
         }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
-                    .setBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
         }
         for (int i = 0; i < patternHandler.getSlots(); i++) {
+            final int index = i;
             scrollableWidgetGroup.addWidget(new TJSlotWidget<>(patternHandler, i, 18 * (i % 9), 18 * (i / 9))
                     .setPutItemsPredicate(Api.INSTANCE.definitions().items().encodedPattern().maybeStack(1).orElse(ItemStack.EMPTY)::isItemEqual)
-                    .setBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY));
+                    .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION))
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
+                    .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
+                    .setActiveInit(false));
         }
         return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))

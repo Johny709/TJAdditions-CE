@@ -68,7 +68,7 @@ public class DualitySuperInterface extends DualityInterface {
         ((IDualitySuperInterface) this).onChangeTheInventory(inv, slot, mc, removed, added);
     }
 
-    private static class DualityUpgradeInventory extends UpgradeInventory {
+    public static class DualityUpgradeInventory extends UpgradeInventory {
 
         private int installedCapacity;
         private int installedPatterns;

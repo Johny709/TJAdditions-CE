@@ -133,7 +133,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                 .setFluidOutputTankSupplier(this::getExportFluids);
         for (int i = 0; i < this.seedInventory.getSlots(); i++) {
             widgetGroup.addWidget(new TJSlotWidget<>(this.seedInventory, i, 18 * (i % 2), 18 * (i / 2))
-                    .setBackgroundTexture(SLOT, SEEDS_OVERLAY));
+                    .setActiveBackgroundTexture(SLOT, SEEDS_OVERLAY));
             widgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 2), 18 * (i / 2), 18, 18, displayWidget::getItemInputAt, null));
         }
         for (int i = 0; i < this.exportItems.getSlots(); i++) {
@@ -153,15 +153,15 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setInverted(true))
                 .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 39, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new TJSlotWidget<>(this.toolInventory, 0, 52, 22)
-                        .setBackgroundTexture(SLOT, HOE_OVERLAY))
+                        .setActiveBackgroundTexture(SLOT, HOE_OVERLAY))
                 .widget(new TJSlotWidget<>(this.toolInventory, 1, 52, 40)
-                        .setBackgroundTexture(SLOT, AXE_OVERLAY))
+                        .setActiveBackgroundTexture(SLOT, AXE_OVERLAY))
                 .widget(new TJSlotWidget<>(this.toolInventory, 2, 52, 58)
-                        .setBackgroundTexture(SLOT, SHEARS_OVERLAY))
+                        .setActiveBackgroundTexture(SLOT, SHEARS_OVERLAY))
                 .widget(new TJSlotWidget<>(this.fertilizerInventory, 0, 52, 78)
-                        .setBackgroundTexture(SLOT, BONE_MEAL_OVERLAY))
+                        .setActiveBackgroundTexture(SLOT, BONE_MEAL_OVERLAY))
                 .widget(new TJSlotWidget<>(this.fertilizerInventory, 1, 34, 78)
-                        .setBackgroundTexture(SLOT, BONE_MEAL_OVERLAY))
+                        .setActiveBackgroundTexture(SLOT, BONE_MEAL_OVERLAY))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new TankWidget(this.waterTank, 105, 78, 18, 18)

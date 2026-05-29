@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidget {
+public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidget<R> {
 
     @SideOnly(Side.CLIENT)
     protected GuiTextField textField;

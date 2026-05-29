@@ -1,7 +1,6 @@
 package tj.gui.widgets;
 
 import gregtech.api.gui.IRenderContext;
-import gregtech.api.gui.Widget;
 import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.GTLog;
@@ -24,14 +23,15 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements ISlotHandler, IIngredientSlot {
+public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> implements ISlotHandler, IIngredientSlot {
 
     private final IItemHandler itemHandler;
     protected int slotIndex;
     private Supplier<IItemHandler> itemHandlerSupplier;
     protected Predicate<ItemStack> takeItemsPredicate;
     protected Predicate<ItemStack> putItemsPredicate;
-    private TextureArea[] backgroundTexture;
+    private TextureArea[] activeBackgroundTexture;
+    private TextureArea[] inactiveBackgroundTexture;
     private ISlotGroup widgetGroup;
     private boolean simulating;
 
@@ -70,8 +70,13 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
         return (R) this;
     }
 
-    public R setBackgroundTexture(TextureArea... backgroundTexture) {
-        this.backgroundTexture = backgroundTexture;
+    public R setActiveBackgroundTexture(TextureArea... activeBackgroundTexture) {
+        this.activeBackgroundTexture = activeBackgroundTexture;
+        return (R) this;
+    }
+
+    public R setInactiveBackgroundTexture(TextureArea... inactiveBackgroundTexture) {
+        this.inactiveBackgroundTexture = inactiveBackgroundTexture;
         return (R) this;
     }
 
@@ -82,12 +87,13 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        final ItemStack stack;
-        if (this.isMouseOverElement(mouseX, mouseY) && this.getItemHandler() != null && !(stack = this.getItemHandler().getStackInSlot(this.slotIndex)).isEmpty()) {
+        if (!this.isActive) return;
+        final ItemStack stack = this.getItemHandler().getStackInSlot(this.slotIndex);
+        if (!stack.isEmpty() && this.isMouseOverElement(mouseX, mouseY) && this.getItemHandler() != null) {
             final List<String> tooltip = getItemToolTip(stack);
             final String itemStoredText = I18n.format("gregtech.item_list.item_stored", stack.getCount());
             tooltip.add(TextFormatting.GRAY + itemStoredText);
-            drawHoveringText(stack, tooltip, -1, mouseX, mouseY);
+            this.drawHoveringText(stack, tooltip, -1, mouseX, mouseY);
         }
     }
 
@@ -97,11 +103,14 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
         final Position pos = this.getPosition();
         final int stackX = pos.getX() + 1;
         final int stackY = pos.getY() + 1;
-        if (this.backgroundTexture != null)
-            for (TextureArea textureArea : this.backgroundTexture) {
+        if (this.isActive && this.activeBackgroundTexture != null) {
+            for (TextureArea textureArea : this.activeBackgroundTexture) {
                 textureArea.draw(pos.getX(), pos.getY(), 18, 18);
             }
-        if (this.getItemHandler() != null) {
+        } else if (this.inactiveBackgroundTexture != null) for (TextureArea textureArea : this.inactiveBackgroundTexture) {
+            textureArea.draw(pos.getX(), pos.getY(), 18, 18);
+        }
+        if (this.isActive && this.getItemHandler() != null) {
             ItemStack stack = this.getItemHandler().getStackInSlot(this.slotIndex);
             if (!stack.isEmpty()) {
                 drawItemStack(stack, stackX, stackY, null);
@@ -114,6 +123,8 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
+        if (!this.isActive)
+            return false;
         this.isDragging = true;
         if (this.isMouseOverElement(mouseX, mouseY)) {
             this.slotModified = true;
@@ -141,7 +152,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
-        if (this.isDragging && this.isMouseOverElement(mouseX, mouseY)) {
+        if (this.isActive && this.isDragging && this.isMouseOverElement(mouseX, mouseY)) {
             if (!this.slotModified) {
                 this.slotModified = true;
                 if (button == 0 && this.widgetGroup != null)
@@ -159,11 +170,12 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
     @SideOnly(Side.CLIENT)
     public boolean mouseReleased(int mouseX, int mouseY, int button) {
         this.isDragging = false;
-        return false;
+        return !this.isActive;
     }
 
     @Override
     public void detectAndSendChanges() {
+        super.detectAndSendChanges();
         if (!this.simulating && this.getItemHandler() != null)
             this.writeUpdateInfo(1, buffer -> buffer.writeItemStack(this.getItemHandler().getStackInSlot(this.slotIndex)));
     }
@@ -196,6 +208,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
 
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
+        super.handleClientAction(id, buffer);
         final EntityPlayer player = this.gui.entityPlayer;
         final ItemStack handStack = player.inventory.getItemStack();
         ItemStack newStack = handStack;
@@ -204,6 +217,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
                 final boolean isCtrlKeyPressed = buffer.readBoolean();
                 final boolean isShiftKeyPressed = buffer.readBoolean();
                 final int button = buffer.readInt();
+                if (!this.isActive) break;
                 if (button == 0) {
                     if (handStack.isEmpty()) {
                         if (this.getItemHandler() != null) {
@@ -240,16 +254,17 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
                 break;
             case 2:
                 final int button1 = buffer.readInt();
-                if (button1 == 1)
+                if (this.isActive && button1 == 1)
                     this.insertAmount(newStack, 1);
                 break;
             case 3:
                 final int amount = buffer.readInt();
-                if (this.getItemHandler() != null)
+                if (this.isActive && this.getItemHandler() != null)
                     newStack = TJItemUtils.extractFromItemHandler(this.getItemHandler(), newStack, amount, false);
                 break;
             case 4:
-                this.simulating = buffer.readBoolean();
+                if (this.isActive)
+                    this.simulating = buffer.readBoolean();
                 return;
         }
         final ItemStack finalStack = newStack;
@@ -260,6 +275,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends Widget implements I
     @Override
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
+        super.readUpdateInfo(id, buffer);
         switch (id) {
             case 1:
                 try {
