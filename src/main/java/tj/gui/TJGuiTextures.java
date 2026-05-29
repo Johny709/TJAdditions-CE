@@ -87,4 +87,5 @@ public class TJGuiTextures {
 
     public static final TextureArea SUPER_INTERFACE = TextureArea.fullImage("textures/gui/super_interface.png");
     public static final TextureArea INTERFACE_SETTINGS = TextureArea.fullImage("textures/gui/interface_settings.png");
+    public static final TextureArea UPGRADE_OVERLAY = TextureArea.fullImage("textures/gui/widget/me.upgrade_overlay.png");
 }

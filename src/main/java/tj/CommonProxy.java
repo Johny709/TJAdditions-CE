@@ -144,9 +144,7 @@ public class CommonProxy {
 
     public void onLoad() {
         UPGRADES.put(SUPER_INTERFACE.maybeItem().orElse(null), 1);
-        UPGRADES.put(PART_SUPER_INTERFACE.maybeItem().orElse(null), 1);
         UPGRADES.put(SUPER_FLUID_INTERFACE.maybeItem().orElse(null), 1);
-        UPGRADES.put(PART_SUPER_FLUID_INTERFACE.maybeItem().orElse(null), 1);
     }
 
     public void onPostLoad() {

@@ -68,12 +68,15 @@ public class TileSuperFluidInterface extends TileFluidInterface implements ITile
         }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
-                    .setBackgroundTexture(GuiTextures.SLOT));
+                    .setBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
         }
         return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
+                .widget(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredFluids"))
+                .widget(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"))
+                .widget(new LabelWidget(7, 198, "container.inventory"))
                 .widget(new ButtonPopUpWidget<>()
-                        .addPopup(widgetGroup -> false)
+                        .addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
                                 .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS)
                                 .setTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
