@@ -1,95 +1,110 @@
 package tj.gui.widgets;
 
 import gregtech.api.gui.IRenderContext;
-import gregtech.api.gui.resources.SizedTextureArea;
 import gregtech.api.gui.resources.TextureArea;
-import gregtech.api.gui.widgets.CycleButtonWidget;
-import gregtech.api.util.Position;
-import gregtech.api.util.Size;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.IStringSerializable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
-public class TJCycleButtonWidget extends CycleButtonWidget {
+public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycleButtonWidget<T>> {
 
-    private final TextureArea[] buttonBackground;
-    private Supplier<String[]> formatSupplier;
-    private String[] format;
-    private boolean toggle;
+    private final Supplier<Enum<T>> cycleSupplier;
+    private final Consumer<T> onCycle;
+    private final EnumSet<T> cycles;
+    private TextureArea cycleTexture;
+    private String[] cycleHoverTooltipText;
+    private int index;
 
-    public <T extends Enum<T> & IStringSerializable> TJCycleButtonWidget(int xPosition, int yPosition, int width, int height, Class<T> enumClass, Supplier<T> supplier, Consumer<T> updater, TextureArea... buttonBackground) {
-        super(xPosition, yPosition, width, height, enumClass, supplier, updater);
-        this.buttonBackground = buttonBackground;
+    public TJCycleButtonWidget(int x, int y, int width, int height, EnumSet<T> cycles, Supplier<Enum<T>> cycleSupplier, Consumer<T> onCycle) {
+        super(x, y, width, height);
+        this.cycleSupplier = cycleSupplier;
+        this.onCycle = onCycle;
+        this.cycles = cycles;
     }
 
-    /**
-     * The format args used for translating series of text for TooltipText. Text is constantly updated by the supplier.
-     *
-     * @apiNote
-     * <p>Very similar to I18n.format() where Object... param is the series of text being translated. See setTooltipText for String translateKey param.
-     * <pre>{@code
-     *     I18n.format(String translateKey, Object... parameters)
-     * }</pre>
-     *
-     * @param formatSupplier translate series of text
-     */
-    public TJCycleButtonWidget setTooltipFormat(Supplier<String[]> formatSupplier) {
-        this.formatSupplier = formatSupplier;
-        this.format = new String[formatSupplier.get().length];
+    public TJCycleButtonWidget<T> setCycleTexture(TextureArea cycleTexture) {
+        this.cycleTexture = cycleTexture;
         return this;
     }
 
     /**
-     * Set for this button widget to have an On or Off state.
-     * @param toggle toggle on/off
+     * Text that will be displayed upon hovering over this button.
+     * This will attempt to translate the texts if they're a lang string.
+     * @param cycleHoverTooltipText array of texts to display.
      */
-    public TJCycleButtonWidget setToggle(boolean toggle) {
-        this.toggle = toggle;
+    public TJCycleButtonWidget<T> setCycleHoverTooltipText(String... cycleHoverTooltipText) {
+        this.cycleHoverTooltipText = cycleHoverTooltipText;
         return this;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        final Position pos = getPosition();
-        final Size size = getSize();
-        if (buttonTexture instanceof SizedTextureArea) {
-            ((SizedTextureArea) buttonTexture).drawHorizontalCutSubArea(pos.x, pos.y, size.width, size.height, 0.0, 1.0);
-        } else {
-            final double drawV = toggle && currentOption == 0 ? 0.0 : 0.5;
-            final double drawHeight = toggle ? 0.5 : 1.0;
-            buttonTexture.drawSubArea(pos.x, pos.y, size.width, size.height, 0.0, drawV, 1.0, drawHeight);
-        }
-        if (currentOption < buttonBackground.length)
-            buttonBackground[currentOption].draw(pos.getX() + 1, pos.getY() + 1, size.getWidth() - 2, size.getHeight() - 2);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        final boolean isHovered = isMouseOverElement(mouseX, mouseY);
-        final boolean wasHovered = this.isMouseHovered;
-        if (isHovered && !wasHovered) {
-            this.isMouseHovered = true;
-            this.hoverStartTime = System.currentTimeMillis();
-        } else if (!isHovered && wasHovered) {
-            this.isMouseHovered = false;
-            this.hoverStartTime = 0L;
-        } else if (isHovered) {
-            if (this.tooltipHoverString != null) {
-                final Object[] format = this.format != null ? this.format : ArrayUtils.toArray("");
-                final List<String> hoverList = Arrays.asList(I18n.format(this.tooltipHoverString, format).split("/n"));
-                drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
+        super.drawInForeground(mouseX, mouseY);
+        if (this.cycleHoverTooltipText != null && this.isMouseOverElement(mouseX, mouseY)) {
+            final List<String> hoverList = Collections.singletonList(I18n.format(this.cycleHoverTooltipText[this.index]));
+            this.drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+        super.drawInBackground(mouseX, mouseY, context);
+        if (this.cycleTexture != null) {
+            final double offsetY = 1.0 / this.cycles.size();
+            this.cycleTexture.drawSubArea(this.getPosition().getX(), this.getPosition().getY(), this.getSize().getWidth(), this.getSize().getHeight(), 0.0, offsetY * this.index, 1.0, offsetY);
+        }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean mouseClicked(int mouseX, int mouseY, int button) {
+        if (this.isMouseOverElement(mouseX, mouseY)) {
+            final int lastIndex = this.index;
+            if (button == 0) {  // Left-Click
+                this.index++;
+            } else if (button == 1) { // Right-Click
+                this.index--;
+            }
+            if (this.index >= this.cycles.size())
+                this.index = 0;
+            if (this.index < 0)
+                this.index = this.cycles.size() - 1;
+            if (lastIndex != this.index) {
+                this.writeClientAction(1, buffer -> buffer.writeInt(this.index));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void readUpdateInfo(int id, PacketBuffer buffer) {
+        super.readUpdateInfo(id, buffer);
+        if (id == 4) {
+            this.index = buffer.readInt();
+        }
+    }
+
+    @Override
+    public void handleClientAction(int id, PacketBuffer buffer) {
+        if (id == 1) {
+            this.index = buffer.readInt();
+            if (this.onCycle != null) {
+                this.onCycle.accept(this.cycles.stream()
+                        .filter(c -> c.ordinal() == this.index)
+                        .findFirst()
+                        .orElse(null));
             }
         }
     }
@@ -97,19 +112,12 @@ public class TJCycleButtonWidget extends CycleButtonWidget {
     @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
-        if (this.formatSupplier != null)
-            IntStream.range(0, this.formatSupplier.get().length)
-                    .forEach(i -> writeUpdateInfo(i + 2, buffer -> buffer.writeString(this.formatSupplier.get()[i])));
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void readUpdateInfo(int id, PacketBuffer buffer) {
-        super.readUpdateInfo(id, buffer);
-        if (this.formatSupplier != null)
-            IntStream.range(0, this.formatSupplier.get().length).forEach(i -> {
-                if (i + 2 == id)
-                    this.format[i] = buffer.readString(Short.MAX_VALUE);
-            });
+        if (this.cycleSupplier != null) {
+            final int index = this.cycleSupplier.get().ordinal();
+            if (index != this.index) {
+                this.index = index;
+                this.writeUpdateInfo(4, buffer -> buffer.writeInt(this.index));
+            }
+        }
     }
 }

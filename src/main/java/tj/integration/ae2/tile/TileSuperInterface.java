@@ -1,8 +1,6 @@
 package tj.integration.ae2.tile;
 
-import appeng.api.config.Settings;
-import appeng.api.config.Upgrades;
-import appeng.api.config.YesNo;
+import appeng.api.config.*;
 import appeng.core.Api;
 import appeng.helpers.DualityInterface;
 import appeng.tile.misc.TileInterface;
@@ -22,16 +20,15 @@ import tj.blocks.block.TJBlocks;
 import tj.gui.TJGuiTextures;
 import tj.gui.uifactory.ITileEntityUI;
 import tj.gui.uifactory.TileEntityHolder;
-import tj.gui.widgets.ButtonWidget;
-import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJSlotWidget;
+import tj.gui.widgets.*;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.util.TJItemUtils;
 
+import java.util.EnumSet;
 import java.util.regex.Pattern;
 
 
@@ -79,7 +76,7 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
         for (int i = 0; i < patternHandler.getSlots(); i++) {
             final int index = i;
             scrollableWidgetGroup.addWidget(new TJSlotWidget<>(patternHandler, i, 18 * (i % 9), 18 * (i / 9))
-                    .setPutItemsPredicate(Api.INSTANCE.definitions().items().encodedPattern().maybeStack(1).orElse(ItemStack.EMPTY)::isItemEqual)
+                    .setPutItemsPredicate(item -> item.isItemEqual(Api.INSTANCE.definitions().items().encodedPattern().maybeStack(1).orElse(ItemStack.EMPTY)) || item.isItemEqual(TJItemUtils.getItemStackFromName("ae2fc:dense_encoded_pattern")))
                     .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
                     .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
@@ -98,6 +95,17 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
                         .setTooltipText("gui.appliedenergistics2.InterfaceTerminalHint")
                         .setToggleTexture(TJGuiTextures.TOGGLE_INTERFACE_TERMINAL)
                         .useToggleTexture(true))
+                .widget(new TJToggleButtonWidget(-18, 71, 16, 16, () -> duality.getConfigManager().getSetting(Settings.OPERATION_MODE).ordinal() == 0, this::setFluidPacket)
+                        .setToggleTooltipHoverText("ae2fc.tooltip.real_fluid.hint", "ae2fc.tooltip.fake_packet.hint")
+                        .setToggleTexture(TJGuiTextures.TOGGLE_SEND_FLUID)
+                        .useToggleTexture(true))
+                .widget(new TJToggleButtonWidget(-18, 89, 16, 16, () -> duality.getConfigManager().getSetting(Settings.LEVEL_TYPE).ordinal() == 0, this::setSplittingItemsFluids)
+                        .setToggleTooltipHoverText("ae2fc.tooltip.allow_splitting.hint", "ae2fc.tooltip.prevent_splitting.hint")
+                        .setToggleTexture(TJGuiTextures.TOGGLE_SPLITTING_ITEMS_FLUIDS)
+                        .useToggleTexture(true))
+                .widget(new TJCycleButtonWidget<>(-18, 107, 16, 16, (EnumSet<CondenserOutput>) Settings.CONDENSER_OUTPUT.getPossibleValues(), () -> (Enum<CondenserOutput>) duality.getConfigManager().getSetting(Settings.CONDENSER_OUTPUT), this::setBlockModeEx)
+                        .setCycleHoverTooltipText("ae2fc.tooltip.block_all.hint", "ae2fc.tooltip.block_item.hint", "ae2fc.tooltip.block_fluid.hint")
+                        .setCycleTexture(TJGuiTextures.CYCLE_BLOCKING_MODE_EX))
                 .widget(scrollableWidgetGroup)
                 .widget(new ButtonPopUpWidget<>()
                         .addPopup(widgetGroup -> true)
@@ -125,12 +133,30 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
 
     private void setBlockingMode(boolean blockingMode) {
         this.getInterfaceDuality().getConfigManager().putSetting(Settings.BLOCK, blockingMode ? YesNo.YES : YesNo.NO);
-        this.getTile().markDirty();
+        this.markDirty();
     }
 
     private void setInterfaceTerminal(boolean interfaceTerminal) {
         this.getInterfaceDuality().getConfigManager().putSetting(Settings.INTERFACE_TERMINAL, interfaceTerminal ? YesNo.YES : YesNo.NO);
-        this.getTile().markDirty();
+        this.markDirty();
+    }
+
+    private void setFluidPacket(boolean fluidPacket) {
+        this.getInterfaceDuality().getConfigManager().putSetting(Settings.OPERATION_MODE, fluidPacket ? OperationMode.FILL : OperationMode.EMPTY);
+        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this.getInterfaceDuality(), fluidPacket, "fluidPacket");
+        this.markDirty();
+    }
+
+    private void setSplittingItemsFluids(boolean splittingItemsFluids) {
+        this.getInterfaceDuality().getConfigManager().putSetting(Settings.LEVEL_TYPE, splittingItemsFluids ? LevelType.ITEM_LEVEL : LevelType.ENERGY_LEVEL);
+        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this.getInterfaceDuality(), splittingItemsFluids, "allowSplitting");
+        this.markDirty();
+    }
+
+    private void setBlockModeEx(CondenserOutput blockModeEx) {
+        this.getInterfaceDuality().getConfigManager().putSetting(Settings.CONDENSER_OUTPUT, blockModeEx);
+        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this.getInterfaceDuality(), blockModeEx.ordinal(), "blockModeEx");
+        this.markDirty();
     }
 
     private void setPriority(String text, String id) {

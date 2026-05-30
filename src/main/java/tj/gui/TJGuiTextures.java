@@ -50,8 +50,9 @@ public class TJGuiTextures {
     public static final TextureArea TOGGLE_DISPLAY = TextureArea.fullImage("textures/gui/widget/toggle_button_display.png");
     public static final TextureArea TOGGLE_BLOCKING_MODE = TextureArea.fullImage("textures/gui/widget/block_mode_toggle.png");
     public static final TextureArea TOGGLE_INTERFACE_TERMINAL = TextureArea.fullImage("textures/gui/widget/interface_terminal_toggle.png");
-    public static final TextureArea SEND_FLUID_TOGGLE = TextureArea.fullImage("textures/gui/widget/send_fluid_toggle.png");
-    public static final TextureArea SPLITTING_ITEMS_FLUIDS_TOGGLE = TextureArea.fullImage("textures/gui/wiget/splitting_items_fluids.png");
+    public static final TextureArea TOGGLE_SEND_FLUID = TextureArea.fullImage("textures/gui/widget/send_fluid_toggle.png");
+    public static final TextureArea TOGGLE_SPLITTING_ITEMS_FLUIDS = TextureArea.fullImage("textures/gui/widget/splitting_items_fluids_toggle.png");
+    public static final TextureArea CYCLE_BLOCKING_MODE_EX = TextureArea.fullImage("textures/gui/widget/blocking_mode_ex_cycle.png");
 
     public static final TextureArea ENERGY_VOID = TextureArea.fullImage("textures/gui/widget/button_energy_void.png");
 

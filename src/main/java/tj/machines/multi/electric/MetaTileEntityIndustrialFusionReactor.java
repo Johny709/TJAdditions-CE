@@ -54,7 +54,7 @@ import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
-import tj.gui.widgets.TJCycleButtonWidget;
+import tj.gui.widgets.OldCycleButtonWidget;
 import tj.machines.multi.BatchMode;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
@@ -293,7 +293,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new TJCycleButtonWidget(175, 151, 18, 18, BatchMode.class, () -> this.batchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
+        widgetGroup.add(new OldCycleButtonWidget(175, 151, 18, 18, BatchMode.class, () -> this.batchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
                 .setTooltipFormat(this::getTooltipFormat)
                 .setToggle(true)
                 .setButtonTexture(TOGGLE_BUTTON_BACK)

@@ -1,7 +1,6 @@
 package tj.integration.ae2.helpers;
 
-import appeng.api.config.Actionable;
-import appeng.api.config.Upgrades;
+import appeng.api.config.*;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingLink;
 import appeng.api.networking.security.IActionSource;
@@ -34,6 +33,12 @@ public class DualitySuperInterface extends DualityInterface {
 
     public DualitySuperInterface(AENetworkProxy networkProxy, IInterfaceHost ih) {
         super(networkProxy, ih);
+        // dummy config for Send Real Fluid, Field: (boolean) fluid packet
+        this.getConfigManager().registerSetting(Settings.OPERATION_MODE, OperationMode.FILL);
+        // dummy config for Allow Splitting Items and Fluids, Field: (boolean) allowSplitting
+        this.getConfigManager().registerSetting(Settings.LEVEL_TYPE, LevelType.ENERGY_LEVEL);
+        // dummy config for Block All, Field: (int) blockModeEx
+        this.getConfigManager().registerSetting(Settings.CONDENSER_OUTPUT, CondenserOutput.TRASH);
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new IAEItemStack[18], "requireWork");
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new AppEngInternalInventory(this, 72, 1), "patterns");
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new AppEngInternalAEInventory(this, 18, 1024), "config");
@@ -66,6 +71,22 @@ public class DualitySuperInterface extends DualityInterface {
     @Override
     public void onChangeInventory(IItemHandler inv, int slot, InvOperation mc, ItemStack removed, ItemStack added) {
         ((IDualitySuperInterface) this).onChangeTheInventory(inv, slot, mc, removed, added);
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setInteger("fluidPacketToggle", this.getConfigManager().getSetting(Settings.OPERATION_MODE).ordinal());
+        data.setInteger("allowSplittingToggle", this.getConfigManager().getSetting(Settings.LEVEL_TYPE).ordinal());
+        data.setInteger("blockModeExCycle", this.getConfigManager().getSetting(Settings.CONDENSER_OUTPUT).ordinal());
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.getConfigManager().putSetting(Settings.OPERATION_MODE, OperationMode.values()[data.getInteger("fluidPacketToggle")]);
+        this.getConfigManager().putSetting(Settings.LEVEL_TYPE, LevelType.values()[data.getInteger("allowSplittingToggle")]);
+        this.getConfigManager().putSetting(Settings.CONDENSER_OUTPUT, CondenserOutput.values()[data.getInteger("blockModeExCycle")]);
     }
 
     public static class DualityUpgradeInventory extends UpgradeInventory {

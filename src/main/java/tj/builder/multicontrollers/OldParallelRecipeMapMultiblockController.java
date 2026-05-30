@@ -49,7 +49,7 @@ import tj.gui.TJGuiTextures;
 import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.impl.GhostCircuitWidget;
 import tj.gui.widgets.impl.JEIRecipeTransferWidget;
-import tj.gui.widgets.TJCycleButtonWidget;
+import tj.gui.widgets.OldCycleButtonWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.machines.multi.BatchMode;
 import tj.multiblockpart.TJMultiblockAbility;
@@ -254,7 +254,7 @@ public abstract class OldParallelRecipeMapMultiblockController extends TJMultibl
         tabBuilder.addWidget(new JEIRecipeTransferWidget(0, 0, 100, 100)
                 .setRecipeConsumer(this::setRecipe));
         tabBuilder.addTab("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(STEEL_GEARBOX), workableTab -> {
-            workableTab.add(new TJCycleButtonWidget(175, 133, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
+            workableTab.add(new OldCycleButtonWidget(175, 133, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
                     .setTooltipFormat(this::getTooltipFormat)
                     .setToggle(true)
                     .setButtonTexture(TOGGLE_BUTTON_BACK)
