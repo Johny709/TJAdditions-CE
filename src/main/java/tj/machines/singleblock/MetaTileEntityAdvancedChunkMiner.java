@@ -13,6 +13,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.render.Textures;
 import gregtech.api.unification.material.Materials;
+import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -23,6 +24,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -259,4 +261,18 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     public FluidStack getDrillingFluid() {
         return this.drillingFluid;
     }
+
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public boolean shouldPlaySound() {
+        return this.workableHandler.isActive() && this.isValid() && workableHandler.isWorkingEnabled();
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public SoundEvent getSound() {
+        return GTSoundEvents.MINER;
+    }
+
 }

@@ -17,6 +17,7 @@ import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.blocks.wood.BlockGregLog;
+import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.block.*;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,6 +30,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -405,5 +407,17 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
                 this.itemOutputs.add(new ItemStack(itemOutputsList.getCompoundTagAt(i)));
             }
         }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return this.isValid() && workableHandler.isActive() && this.isStructureFormed();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return GTSoundEvents.FIRE;
     }
 }

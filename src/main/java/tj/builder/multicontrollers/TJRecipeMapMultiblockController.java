@@ -20,6 +20,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
@@ -283,4 +284,17 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     public int getChanceMultiplier() {
         return 100;
     }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return recipeMap.getSound();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return this.isValid() && this.recipeLogic.isActive() && this.isStructureFormed();
+    }
+
 }

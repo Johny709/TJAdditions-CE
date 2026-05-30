@@ -11,6 +11,7 @@ import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.render.Textures;
 import gregtech.api.util.DummyContainer;
 import gregtech.api.util.Position;
+import gregtech.common.sound.GTSoundEvents;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -24,6 +25,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -288,5 +290,17 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
     @Override
     public int getParallel() {
         return this.parallel;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return this.isValid() && recipeLogic.isActive() && recipeLogic.isWorkingEnabled();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return GTSoundEvents.ASSEMBLER;
     }
 }

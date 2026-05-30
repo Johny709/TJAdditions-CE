@@ -3,6 +3,9 @@ package tj.machines.singleblock;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.common.sound.GTSoundEvents;
+import gregtech.common.sound.MachineSoundManager;
+import net.minecraft.util.SoundEvent;
 import tj.capability.IHeatInfo;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJLabelWidget;
@@ -434,5 +437,23 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkabl
     @Override
     public long maxHeat() {
         return 500;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return this.isValid() && isActive && this.isWorking && isWorkingEnabled();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return GTSoundEvents.BOILER;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void updateSound() {
+        MachineSoundManager.update(this);
     }
 }

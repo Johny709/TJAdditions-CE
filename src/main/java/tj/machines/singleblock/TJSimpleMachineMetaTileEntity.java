@@ -15,6 +15,7 @@ import gregtech.api.recipes.RecipeMap;
 import gregtech.api.render.OrientedOverlayRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -160,5 +161,18 @@ public class TJSimpleMachineMetaTileEntity extends TJTieredWorkableMetaTileEntit
 
     public boolean renderTJLogoOverlay() {
         return false;
+    }
+
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return recipeMap.getSound();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return this.recipeLogic.isActive() && this.isValid() && recipeLogic.isWorkingEnabled();
     }
 }

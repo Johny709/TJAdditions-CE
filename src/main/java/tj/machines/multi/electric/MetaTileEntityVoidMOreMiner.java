@@ -8,7 +8,9 @@ import gregtech.api.GTValues;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
+import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fluids.FluidStack;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
@@ -254,5 +256,17 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
     @Override
     public int getTier() {
         return this.tier;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return GTSoundEvents.MINER;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return isValid() && workableHandler.isActive() && isStructureFormed();
     }
 }

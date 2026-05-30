@@ -14,7 +14,9 @@ import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.recipes.machines.FuelRecipeMap;
 import gregtech.api.render.Textures;
+import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -469,4 +471,17 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
                     " ", "§7(§6", color, voltage, "§7)");
         }
     }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return this.isValid() && workableHandler.isActive() && this.isStructureFormed();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return GTSoundEvents.BOILER;
+    }
+
 }

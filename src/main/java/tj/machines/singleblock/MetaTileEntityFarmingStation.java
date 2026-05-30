@@ -17,6 +17,7 @@ import gregtech.api.render.Textures;
 import gregtech.api.unification.OreDictUnifier;
 import gregtech.api.unification.ore.OrePrefix;
 import gregtech.api.util.Position;
+import gregtech.common.sound.GTSoundEvents;
 import gregtech.common.tools.ToolAxe;
 import gregtech.common.tools.ToolHoe;
 import gregtech.common.tools.ToolSaw;
@@ -25,6 +26,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.*;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.fluids.IFluidTank;
@@ -203,5 +205,17 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     @Override
     public IItemHandlerModifiable getFertilizerInventory() {
         return this.fertilizerInventory;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return this.isValid() && workableHandler.isActive() && workableHandler.isWorkingEnabled();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return GTSoundEvents.BATH;
     }
 }
