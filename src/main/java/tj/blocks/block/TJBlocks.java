@@ -10,9 +10,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 import tj.TJ;
+import tj.integration.ae2.blocks.BlockSuperDualInterface;
 import tj.integration.ae2.blocks.BlockSuperFluidInterface;
 import tj.integration.ae2.blocks.BlockSuperInterface;
 import tj.integration.ae2.blocks.BlockTJCraftingUnit;
+import tj.integration.ae2.tile.TileSuperDualInterface;
 import tj.integration.ae2.tile.TileSuperFluidInterface;
 import tj.integration.ae2.tile.TileSuperInterface;
 import tj.integration.ae2.tile.TileTJCraftingStorageTile;
@@ -25,6 +27,8 @@ public class TJBlocks {
 
     public static BlockDefinition SUPER_INTERFACE;
     public static BlockDefinition SUPER_FLUID_INTERFACE;
+    public static BlockDefinition SUPER_DUAL_INTERFACE;
+
     public static BlockDefinition CRAFTING_STORAGE_65536K;
     public static BlockDefinition CRAFTING_STORAGE_262144K;
     public static BlockDefinition CRAFTING_STORAGE_1048M;
@@ -33,6 +37,8 @@ public class TJBlocks {
     public static void init(IForgeRegistry<Block> registry) {
         SUPER_INTERFACE = registerBlock(registry, "me.super_interface", new BlockSuperInterface(), AEBaseItemBlock::new);
         SUPER_FLUID_INTERFACE = registerBlock(registry, "me.super_fluid_interface", new BlockSuperFluidInterface(), AEBaseItemBlock::new);
+        SUPER_DUAL_INTERFACE = registerBlock(registry, "me.super_dual_interface", new BlockSuperDualInterface(), AEBaseItemBlock::new);
+
         CRAFTING_STORAGE_65536K = registerBlock(registry, "me.crafting_storage.65536k", new BlockTJCraftingUnit(BlockTJCraftingUnit.TJCraftingUnitType.STORAGE_65536k));
         CRAFTING_STORAGE_262144K = registerBlock(registry, "me.crafting_storage.262144k", new BlockTJCraftingUnit(BlockTJCraftingUnit.TJCraftingUnitType.STORAGE_262144k));
         CRAFTING_STORAGE_1048M = registerBlock(registry, "me.crafting_storage.1048m", new BlockTJCraftingUnit(BlockTJCraftingUnit.TJCraftingUnitType.STORAGE_1048M));
@@ -40,6 +46,7 @@ public class TJBlocks {
 
         GameRegistry.registerTileEntity(TileSuperInterface.class, new ResourceLocation(TJ.MODID, "me.super_interface"));
         GameRegistry.registerTileEntity(TileSuperFluidInterface.class, new ResourceLocation(TJ.MODID, "me.super_fluid_interface"));
+        GameRegistry.registerTileEntity(TileSuperDualInterface.class, new ResourceLocation(TJ.MODID, "me.super_dual_interface"));
         GameRegistry.registerTileEntity(TileTJCraftingStorageTile.class, new ResourceLocation(TJ.MODID, "me.crafting_storage"));
     }
 

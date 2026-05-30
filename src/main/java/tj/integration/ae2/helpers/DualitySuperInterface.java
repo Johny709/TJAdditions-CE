@@ -179,7 +179,7 @@ public class DualitySuperInterface extends DualityInterface {
         public boolean allowExtract(IItemHandler iItemHandler, int slot, int i1) {
             final ItemStack stack = iItemHandler.getStackInSlot(slot);
             if (stack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)) || stack.isItemEqual(new ItemStack(TJItems.MAX_CAPACITY_UPGRADE))) {
-                final boolean hasMaxUpgrade = TJItemUtils.extractFromItemHandler(iItemHandler, new ItemStack(TJItems.MAX_CAPACITY_UPGRADE), Integer.MAX_VALUE, true).getCount() > 0;
+                final boolean hasMaxUpgrade = TJItemUtils.extractFromItemHandler(iItemHandler, new ItemStack(TJItems.MAX_CAPACITY_UPGRADE), Integer.MAX_VALUE, true).getCount() > 1;
                 final int threshold = 1024 << (TJItemUtils.extractFromItemHandler(iItemHandler, Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY), Integer.MAX_VALUE, true).getCount() - (hasMaxUpgrade ? 1 : 2)) * 2;
                 for (int i = 0; i < this.duality.getStorage().getSlots(); i++) {
                     final ItemStack itemStack = this.duality.getStorage().getStackInSlot(i);
