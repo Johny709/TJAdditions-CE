@@ -7,6 +7,7 @@ import appeng.helpers.DualityInterface;
 import appeng.items.parts.PartModels;
 import appeng.parts.PartModel;
 import appeng.parts.misc.PartInterface;
+import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.networking.TileCableBus;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -26,10 +27,7 @@ import tj.gui.TJGuiTextures;
 import tj.gui.uifactory.ITileEntityUI;
 import tj.gui.uifactory.TileEntityHolder;
 import tj.gui.widgets.*;
-import tj.gui.widgets.impl.ButtonPopUpWidget;
-import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
-import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.gui.widgets.impl.*;
 import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.items.item.TJItems;
 import tj.util.TJItemUtils;
@@ -93,12 +91,29 @@ public class PartSuperInterface extends PartInterface implements ITileEntityUI {
         final DualityInterface duality = this.getInterfaceDuality();
         final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(7, 133, 166, 72, 9)
                 .setScrollWidth(4);
+        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(0, 0, 0, 0);
         final IItemHandler patternHandler = duality.getInventoryByName("patterns");
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
         final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292);
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
+            final int index = i;
             builder.widget(new TJPhantomItemSlotWidget(7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18, i, duality.getConfig())
                     .setBackgroundTextures(TJGuiTextures.SLOT_DOWN));
+            selectionWidgetGroup.addSubWidget(i, new ImageWidget(7, 90, 162, 100, GuiTextures.BORDERED_BACKGROUND));
+            selectionWidgetGroup.addSubWidget(i, new LabelWidget(14, 95, "machine.universal.stack_size"));
+            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(14, 136, 148, 18, true, () -> String.valueOf(duality.getConfig().getStackInSlot(index).getCount()), this::setStackSize)
+                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                    .setTextId(String.valueOf(index))
+                    .setUpdateOnTyping(true));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(15, 110, 25, 20, "+1", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() + 1), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(45, 110, 30, 20, "+10", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() + 10), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(80, 110, 35, 20, "+100", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() + 100), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(120, 110, 40, 20, "+1000", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() + 1000), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(15, 160, 25, 20, "-1", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() - 1), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(45, 160, 30, 20, "-10", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() - 10), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(80, 160, 35, 20, "-100", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() - 100), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(120, 160, 40, 20, "-1000", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() - 1000), String.valueOf(index))));
+            selectionWidgetGroup.addSelectionBox(i, 7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18);
         }
         for (int i = 0; i < duality.getStorage().getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))
@@ -142,6 +157,7 @@ public class PartSuperInterface extends PartInterface implements ITileEntityUI {
                         .setCycleHoverTooltipText("ae2fc.tooltip.block_all.hint", "ae2fc.tooltip.block_item.hint", "ae2fc.tooltip.block_fluid.hint")
                         .setCycleTexture(TJGuiTextures.CYCLE_BLOCKING_MODE_EX))
                 .widget(scrollableWidgetGroup)
+                .widget(selectionWidgetGroup)
                 .widget(new ButtonPopUpWidget<>()
                         .addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
@@ -191,6 +207,17 @@ public class PartSuperInterface extends PartInterface implements ITileEntityUI {
     private void setBlockModeEx(CondenserOutput blockModeEx) {
         this.getInterfaceDuality().getConfigManager().putSetting(Settings.CONDENSER_OUTPUT, blockModeEx);
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this.getInterfaceDuality(), blockModeEx.ordinal(), "blockModeEx");
+        this.getTile().markDirty();
+    }
+
+    private void setStackSize(String text, String id) {
+        final int slot = Integer.parseInt(id);
+        final int maxSize = this.getInterfaceDuality().getConfig().getSlotLimit(0);
+        final int stackSize = (int) Math.max(1, Math.min(Long.parseLong(text), maxSize));
+        final ItemStack itemStack = this.getInterfaceDuality().getConfig().extractItem(slot, Integer.MAX_VALUE, false);
+        if (itemStack.isEmpty()) return;
+        itemStack.setCount(stackSize);
+        ((AppEngInternalAEInventory) this.getInterfaceDuality().getConfig()).setStackInSlot(slot, itemStack);
         this.getTile().markDirty();
     }
 

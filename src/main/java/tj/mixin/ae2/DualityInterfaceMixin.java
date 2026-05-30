@@ -2,6 +2,7 @@ package tj.mixin.ae2;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
+import appeng.api.config.Upgrades;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingLink;
 import appeng.api.networking.energy.IEnergySource;
@@ -15,6 +16,7 @@ import appeng.helpers.IInterfaceHost;
 import appeng.helpers.MultiCraftingTracker;
 import appeng.me.GridAccessException;
 import appeng.me.helpers.AENetworkProxy;
+import appeng.parts.automation.UpgradeInventory;
 import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.InventoryAdaptor;
@@ -24,6 +26,7 @@ import appeng.util.inv.InvOperation;
 import appeng.util.item.AEItemStack;
 import com.google.common.primitives.Ints;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.items.IItemHandler;
 import org.spongepowered.asm.mixin.Final;
@@ -114,6 +117,13 @@ public abstract class DualityInterfaceMixin implements IDualitySuperInterface {
     @Shadow
     @Final
     private MultiCraftingTracker craftingTracker;
+
+    @Shadow
+    @Final
+    private UpgradeInventory upgrades;
+
+    @Shadow
+    public abstract int getInstalledUpgrades(Upgrades u);
 
     @Override
     public TickRateModulation tickingTheRequest(IGridNode node, int tickSinceLastCall) {
@@ -267,8 +277,12 @@ public abstract class DualityInterfaceMixin implements IDualitySuperInterface {
             return;
         }
 
-        if (inv == this.config && (!removed.isEmpty() || !added.isEmpty())) {
-            boolean cfg = this.hasConfig();
+        if (inv == this.upgrades || inv == this.config && (!removed.isEmpty() || !added.isEmpty())) {
+            this.config.setMaxStackSize((int) Math.min(Integer.MAX_VALUE, 1024L << this.getInstalledUpgrades(Upgrades.CAPACITY) * 2));
+            for (int i = 0; i < this.storage.getSlots(); i++) {
+                this.storage.setMaxStackSize(i, (int) Math.min(Integer.MAX_VALUE, 1024L << this.getInstalledUpgrades(Upgrades.CAPACITY) * 2));
+            }
+            final boolean cfg = this.hasConfig();
             this.readTheConfig();
             if (cfg != hasConfig) {
                 this.resetConfigCache = true;
@@ -331,5 +345,20 @@ public abstract class DualityInterfaceMixin implements IDualitySuperInterface {
             }
         }
         this.notifyNeighbors();
+    }
+
+    @Override
+    public void serializeToNBT(NBTTagCompound data) {
+        data.setInteger("configSize", this.config.getSlotLimit(0));
+        data.setInteger("storageSize", this.storage.getSlotLimit(0));
+    }
+
+    @Override
+    public void deserializeFromNBT(NBTTagCompound data) {
+        this.config.setMaxStackSize(data.getInteger("configSize"));
+        final int storageSize = data.getInteger("storageSize");
+        for (int i = 0; i < this.storage.getSlots(); i++) {
+            this.storage.setMaxStackSize(i, storageSize);
+        }
     }
 }

@@ -8,6 +8,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.util.InventoryAdaptor;
 import appeng.util.inv.InvOperation;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.items.IItemHandler;
 
 public interface IDualitySuperInterface {
@@ -25,4 +26,8 @@ public interface IDualitySuperInterface {
     void readTheConfig();
 
     void onChangeTheInventory(final IItemHandler inv, final int slot, final InvOperation mc, final ItemStack removed, final ItemStack added);
+
+    void serializeToNBT(NBTTagCompound data);
+
+    void deserializeFromNBT(NBTTagCompound data);
 }

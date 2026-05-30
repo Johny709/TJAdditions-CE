@@ -1116,6 +1116,7 @@ machine.universal.tooltip.voltage_in=Voltage IN: §a%,d §7(%s%s§7)
 machine.universal.false=§cFalse
 machine.universal.true=§9True
 machine.universal.deprecate_to_remove=Waring: Deprecated. This will be removed soon.
+machine.universal.stack_size=Stack Size
 
 string.regex.flag=Flag: %s
 string.regex.pattern.unix_lines=UNIX_LINES

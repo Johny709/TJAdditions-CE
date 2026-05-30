@@ -79,6 +79,7 @@ public class DualitySuperInterface extends DualityInterface {
     @Override
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
+        this.superDuality.serializeToNBT(data);
         data.setInteger("fluidPacketToggle", this.getConfigManager().getSetting(Settings.OPERATION_MODE).ordinal());
         data.setInteger("allowSplittingToggle", this.getConfigManager().getSetting(Settings.LEVEL_TYPE).ordinal());
         data.setInteger("blockModeExCycle", this.getConfigManager().getSetting(Settings.CONDENSER_OUTPUT).ordinal());
@@ -87,6 +88,7 @@ public class DualitySuperInterface extends DualityInterface {
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
+        this.superDuality.deserializeFromNBT(data);
         this.getConfigManager().putSetting(Settings.OPERATION_MODE, OperationMode.values()[data.getInteger("fluidPacketToggle")]);
         this.getConfigManager().putSetting(Settings.LEVEL_TYPE, LevelType.values()[data.getInteger("allowSplittingToggle")]);
         this.getConfigManager().putSetting(Settings.CONDENSER_OUTPUT, CondenserOutput.values()[data.getInteger("blockModeExCycle")]);
