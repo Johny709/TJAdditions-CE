@@ -1,6 +1,8 @@
 package tj.integration.ae2.tile;
 
+import appeng.api.config.Settings;
 import appeng.api.config.Upgrades;
+import appeng.api.config.YesNo;
 import appeng.core.Api;
 import appeng.helpers.DualityInterface;
 import appeng.tile.misc.TileInterface;
@@ -26,6 +28,7 @@ import tj.gui.widgets.TJLabelWidget;
 import tj.gui.widgets.TJSlotWidget;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
+import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
 
@@ -56,7 +59,7 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final DualityInterface duality = this.getInterfaceDuality();
-        final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(7, 120, 166, 72, 9)
+        final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(7, 133, 166, 72, 9)
                 .setScrollWidth(4);
         final IItemHandler patternHandler = duality.getInventoryByName("patterns");
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
@@ -84,6 +87,17 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
         }
         return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
+                .widget(new LabelWidget(7, 109, "gui.appliedenergistics2.StoredItems"))
+                .widget(new LabelWidget(7, 123, "gui.appliedenergistics2.Patterns"))
+                .widget(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"))
+                .widget(new TJToggleButtonWidget(-18, 35, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setBlockingMode)
+                        .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.NonBlocking", "gui.tooltips.appliedenergistics2.Blocking")
+                        .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
+                        .useToggleTexture(true))
+                .widget(new TJToggleButtonWidget(-18, 53, 16, 16, () -> duality.getConfigManager().getSetting(Settings.INTERFACE_TERMINAL).ordinal() == 0, this::setInterfaceTerminal)
+                        .setTooltipText("gui.appliedenergistics2.InterfaceTerminalHint")
+                        .setToggleTexture(TJGuiTextures.TOGGLE_INTERFACE_TERMINAL)
+                        .useToggleTexture(true))
                 .widget(scrollableWidgetGroup)
                 .widget(new ButtonPopUpWidget<>()
                         .addPopup(widgetGroup -> true)
@@ -107,6 +121,16 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
                         }))
                 .bindPlayerInventory(player.inventory, 209)
                 .build(holder, player);
+    }
+
+    private void setBlockingMode(boolean blockingMode) {
+        this.getInterfaceDuality().getConfigManager().putSetting(Settings.BLOCK, blockingMode ? YesNo.YES : YesNo.NO);
+        this.getTile().markDirty();
+    }
+
+    private void setInterfaceTerminal(boolean interfaceTerminal) {
+        this.getInterfaceDuality().getConfigManager().putSetting(Settings.INTERFACE_TERMINAL, interfaceTerminal ? YesNo.YES : YesNo.NO);
+        this.getTile().markDirty();
     }
 
     private void setPriority(String text, String id) {
