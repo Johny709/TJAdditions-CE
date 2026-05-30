@@ -31,6 +31,8 @@ import java.lang.reflect.Field;
 
 public class DualitySuperInterface extends DualityInterface {
 
+    private final IDualitySuperInterface superDuality = (IDualitySuperInterface) this;
+
     public DualitySuperInterface(AENetworkProxy networkProxy, IInterfaceHost ih) {
         super(networkProxy, ih);
         // dummy config for Send Real Fluid, Field: (boolean) fluid packet
@@ -39,6 +41,7 @@ public class DualitySuperInterface extends DualityInterface {
         this.getConfigManager().registerSetting(Settings.LEVEL_TYPE, LevelType.ENERGY_LEVEL);
         // dummy config for Block All, Field: (int) blockModeEx
         this.getConfigManager().registerSetting(Settings.CONDENSER_OUTPUT, CondenserOutput.TRASH);
+
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new IAEItemStack[18], "requireWork");
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new AppEngInternalInventory(this, 72, 1), "patterns");
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new AppEngInternalAEInventory(this, 18, 1024), "config");
@@ -59,18 +62,18 @@ public class DualitySuperInterface extends DualityInterface {
 
     @Override
     public IAEItemStack injectCraftedItems(final ICraftingLink link, final IAEItemStack acquired, final Actionable mode) {
-        return ((IDualitySuperInterface) this).injectTheCraftedItems(link, acquired, mode);
+        return this.superDuality.injectTheCraftedItems(link, acquired, mode);
     }
 
     @Nonnull
     @Override
     public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        return ((IDualitySuperInterface) this).tickingTheRequest(node, ticksSinceLastCall);
+        return this.superDuality.tickingTheRequest(node, ticksSinceLastCall);
     }
 
     @Override
     public void onChangeInventory(IItemHandler inv, int slot, InvOperation mc, ItemStack removed, ItemStack added) {
-        ((IDualitySuperInterface) this).onChangeTheInventory(inv, slot, mc, removed, added);
+        this.superDuality.onChangeTheInventory(inv, slot, mc, removed, added);
     }
 
     @Override
@@ -97,7 +100,7 @@ public class DualitySuperInterface extends DualityInterface {
 
         public DualityUpgradeInventory(IAEAppEngInventory parent, int s) {
             super(parent, s);
-            this.setFilter(new DualityFilter());
+            this.setFilter(new DualityFilter((DualityInterface) parent));
         }
 
         @Override
@@ -164,8 +167,33 @@ public class DualitySuperInterface extends DualityInterface {
 
     private static class DualityFilter implements IAEItemFilter {
 
+        private final DualityInterface duality;
+
+        public DualityFilter(DualityInterface duality) {
+            this.duality = duality;
+        }
+
         @Override
         public boolean allowExtract(IItemHandler iItemHandler, int slot, int i1) {
+            final ItemStack stack = iItemHandler.getStackInSlot(slot);
+            if (stack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)) || stack.isItemEqual(new ItemStack(TJItems.MAX_CAPACITY_UPGRADE))) {
+                final boolean hasMaxUpgrade = TJItemUtils.extractFromItemHandler(iItemHandler, new ItemStack(TJItems.MAX_CAPACITY_UPGRADE), Integer.MAX_VALUE, true).getCount() > 0;
+                final int threshold = 1024 << (TJItemUtils.extractFromItemHandler(iItemHandler, Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY), Integer.MAX_VALUE, true).getCount() - (hasMaxUpgrade ? 1 : 2)) * 2;
+                for (int i = 0; i < this.duality.getStorage().getSlots(); i++) {
+                    final ItemStack itemStack = this.duality.getStorage().getStackInSlot(i);
+                    if (itemStack.isEmpty()) continue;
+                    if (itemStack.getCount() > threshold)
+                        return false;
+                }
+            } else if (stack.isItemEqual(Api.INSTANCE.definitions().materials().cardPatternExpansion().maybeStack(1).orElse(ItemStack.EMPTY))) {
+                final ItemStack patterns = TJItemUtils.extractFromItemHandler(iItemHandler, Api.INSTANCE.definitions().materials().cardPatternExpansion().maybeStack(1).orElse(ItemStack.EMPTY), Integer.MAX_VALUE, true);
+                final IItemHandler patternHandler = this.duality.getInventoryByName("patterns");
+                final int index = 9 * (patterns.getCount() - 1);
+                for (int i = index; i < Math.min(patternHandler.getSlots(), index + 9); i++) {
+                    if (!patternHandler.getStackInSlot(i).isEmpty())
+                        return false;
+                }
+            }
             return true;
         }
 

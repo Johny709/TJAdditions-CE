@@ -31,6 +31,8 @@ import java.lang.reflect.Field;
 
 public class DualitySuperFluidInterface extends DualityFluidInterface {
 
+    private final IDualitySuperFluidInterface superFluidDuality = (IDualitySuperFluidInterface) this;
+
     public DualitySuperFluidInterface(AENetworkProxy networkProxy, IFluidInterfaceHost ih) {
         super(networkProxy, ih);
         ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new IAEFluidStack[18], "requireWork");
@@ -53,35 +55,35 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
     @Nonnull
     @Override
     public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        return ((IDualitySuperFluidInterface) this).tickingTheRequest(node, ticksSinceLastCall);
+        return this.superFluidDuality.tickingTheRequest(node, ticksSinceLastCall);
     }
 
     @Override
     public void onFluidInventoryChanged(IAEFluidTank inv, int slot) {
-        ((IDualitySuperFluidInterface) this).onFluidInventoryHasChanged(inv, slot, null, null, null);
+        this.superFluidDuality.onFluidInventoryHasChanged(inv, slot, null, null, null);
     }
 
     @Override
     public void onFluidInventoryChanged(IAEFluidTank inventory, int slot, InvOperation operation, FluidStack added, FluidStack removed) {
-        ((IDualitySuperFluidInterface) this).onFluidInventoryHasChanged(inventory, slot, operation, added, removed);
+        this.superFluidDuality.onFluidInventoryHasChanged(inventory, slot, operation, added, removed);
     }
 
     @Override
     public void onChangeInventory(IItemHandler inv, int slot, InvOperation mc, ItemStack removedStack, ItemStack newStack) {
-        ((IDualitySuperFluidInterface) this).onChangeTheInventory(inv, slot, mc, removedStack, newStack);
+        this.superFluidDuality.onChangeTheInventory(inv, slot, mc, removedStack, newStack);
     }
 
     @Override
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        ((IDualitySuperFluidInterface) this).serializeToNBT(data);
+        this.superFluidDuality.serializeToNBT(data);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        ((IDualitySuperFluidInterface) this).deserializeFromNBT(data);
-        ((IDualitySuperFluidInterface) this).readTheConfig();
+        this.superFluidDuality.deserializeFromNBT(data);
+        this.superFluidDuality.readTheConfig();
     }
 
     private static class DualityFluidUpgradeInventory extends UpgradeInventory {
@@ -90,7 +92,7 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
 
         public DualityFluidUpgradeInventory(IAEAppEngInventory parent, int s) {
             super(parent, s);
-            this.setFilter(new DualityFluidFilter());
+            this.setFilter(new DualityFluidFilter((DualityFluidInterface) parent));
         }
 
         @Override
@@ -134,8 +136,24 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
 
     private static class DualityFluidFilter implements IAEItemFilter {
 
+        private final DualityFluidInterface duality;
+
+        public DualityFluidFilter(DualityFluidInterface duality) {
+            this.duality = duality;
+        }
+
         @Override
         public boolean allowExtract(IItemHandler iItemHandler, int slot, int i1) {
+            final boolean hasMaxUpgrade = TJItemUtils.extractFromItemHandler(iItemHandler, new ItemStack(TJItems.MAX_CAPACITY_UPGRADE), Integer.MAX_VALUE, true).getCount() > 1;
+            final int threshold = 64000 << (TJItemUtils.extractFromItemHandler(iItemHandler, Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY), Integer.MAX_VALUE, true).getCount() - (hasMaxUpgrade ? 1 : 2)) * 2;
+            for (int i = 0; i < this.duality.getTanks().getSlots(); i++) {
+                final IAEFluidStack iaeFluidStack = this.duality.getTanks().getFluidInSlot(i);
+                if (iaeFluidStack == null) continue;
+                final FluidStack fluidStack = iaeFluidStack.getFluidStack();
+                if (fluidStack == null) continue;
+                if (fluidStack.amount > threshold)
+                    return false;
+            }
             return true;
         }
 
