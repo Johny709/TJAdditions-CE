@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.GuiTextures.*;
-import static tj.gui.TJGuiTextures.POWER_BUTTON;
+import static tj.gui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 
 public class MetaTileEntityNamingMachine extends TJTieredWorkableMetaTileEntity implements INameHandler {
 
@@ -108,7 +108,7 @@ public class MetaTileEntityNamingMachine extends TJTieredWorkableMetaTileEntity 
                 .widget(new RecipeOutputSlotWidget(1, 123, 26, 18, 18, displayWidget::getItemInputAt, null))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
-                .widget(new ToggleButtonWidget(-24, 142, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))

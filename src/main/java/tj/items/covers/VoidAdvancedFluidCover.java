@@ -90,7 +90,7 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
                 .widget(new ClickButtonWidget(7, 7, 18, 18, "/2", data -> this.setTickTime(String.valueOf((long) this.tickTime / 2), "")))
                 .widget(new ClickButtonWidget(151, 7, 18, 18, "*2", data -> this.setTickTime(String.valueOf((long) this.tickTime * 2), "")))
                 .widget(new CycleButtonWidget(43, 106, 90, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode))
-                .widget(new ToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isWorking, this::setWorking)
+                .widget(new ToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorking)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)

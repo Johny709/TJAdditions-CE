@@ -85,7 +85,7 @@ public abstract class GARecipeMapMultiblockControllerMixin extends RecipeMapMult
     protected void addNewTabs(WidgetTabBuilder tabBuilder) {
         super.addNewTabs(tabBuilder);
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
-            debugTab.add(new ToggleButtonWidget(175, 133, 18, 18, RESET_BUTTON, () -> false, b -> this.recipeMapWorkable.previousRecipe.clear())
+            debugTab.add(new ToggleButtonWidget(175, 133, 18, 18, TOGGLE_RESET_BUTTON, () -> false, b -> this.recipeMapWorkable.previousRecipe.clear())
                     .setTooltipText("tj.multiblock.parallel.recipe.clear"));
             debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                     .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::configureDebugDisplayText, 0xFFFFFF)
@@ -98,7 +98,7 @@ public abstract class GARecipeMapMultiblockControllerMixin extends RecipeMapMult
     protected void addMainDisplayTab(List<Widget> widgetGroup) {
         super.addMainDisplayTab(widgetGroup);
         if (this.canDistinct)
-            widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, () -> this.isDistinct, this::setDistinctMode)
+            widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, () -> this.isDistinct, this::setDistinctMode)
                     .setTooltipText("machine.universal.toggle.distinct.mode"));
     }
 

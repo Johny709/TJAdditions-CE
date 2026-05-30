@@ -71,7 +71,7 @@ public abstract class GASimpleMachineMetaTileEntityMixin extends GAWorkableTiere
                         .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.CHARGER_OVERLAY))
                 .widget(new ImageWidget(79, 42, 18, 18, GuiTextures.INDICATOR_NO_ENERGY)
                         .setPredicate(this.workable::isHasNotEnoughEnergy))
-                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TJGuiTextures.POWER_BUTTON, this.workable::isWorkingEnabled, this.workable::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this.workable::isWorkingEnabled, this.workable::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(rightButtonStartX, 60, 20, 20,
                         GuiTextures.BUTTON_OVERCLOCK, this.workable::isAllowOverclocking, this.workable::setAllowOverclocking)

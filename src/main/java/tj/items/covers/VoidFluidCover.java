@@ -107,7 +107,7 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
                         .setUpdateOnTyping(true))
                 .widget(new ClickButtonWidget(7, 7, 18, 18, "/2", data -> this.setTickTime(String.valueOf((long) this.tickTime / 2), "")))
                 .widget(new ClickButtonWidget(151, 7, 18, 18, "*2", data -> this.setTickTime(String.valueOf((long) this.tickTime * 2), "")))
-                .widget(new ToggleButtonWidget(151, 85, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isWorking, this::setWorking)
+                .widget(new ToggleButtonWidget(151, 85, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorking)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(widgetGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)

@@ -119,7 +119,7 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
                         .setClickHandler(this::handleDisplayClick)
                         .setMaxWidthLimit(180))
                 .setScrollPanelWidth(3));
-        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
+        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, TOGGLE_CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 

@@ -108,7 +108,7 @@ public class TJSimpleMachineMetaTileEntity extends TJTieredWorkableMetaTileEntit
                         .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.CHARGER_OVERLAY))
                 .widget(new ImageWidget(79, 42, 18, 18, GuiTextures.INDICATOR_NO_ENERGY)
                         .setPredicate(() -> this.energyContainer.getEnergyStored() < this.recipeLogic.getEnergyPerTick()))
-                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TJGuiTextures.POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .bindPlayerInventory(player.inventory)
                 .widget(displayWidget);

@@ -34,7 +34,7 @@ import java.util.List;
 
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
-import static tj.gui.TJGuiTextures.POWER_BUTTON;
+import static tj.gui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 
 
 public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
@@ -123,7 +123,7 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                         .setAlwaysShowFull(true))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
-                .widget(new ToggleButtonWidget(-24, 142, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))

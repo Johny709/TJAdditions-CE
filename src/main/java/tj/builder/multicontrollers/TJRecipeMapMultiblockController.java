@@ -119,11 +119,11 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         super.addTabs(tabBuilder, player);
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
-            debugTab.add(new ToggleButtonWidget(175, 133, 18, 18, RESET_BUTTON, () -> false, b -> this.recipeLogic.getRecipeLRUCache().clear())
+            debugTab.add(new ToggleButtonWidget(175, 133, 18, 18, TOGGLE_RESET_BUTTON, () -> false, b -> this.recipeLogic.getRecipeLRUCache().clear())
                     .setTooltipText("tj.multiblock.parallel.recipe.clear"));
-            debugTab.add(new ToggleButtonWidget(175, 151, 18, 18, ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
+            debugTab.add(new ToggleButtonWidget(175, 151, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
                     .setTooltipText("machine.universal.toggle.item_voiding"));
-            debugTab.add(new ToggleButtonWidget(175, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
+            debugTab.add(new ToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
                     .setTooltipText("machine.universal.toggle.fluid_voiding"));
             debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                     .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addDebugDisplayText, 0xFFFFFF)
@@ -136,7 +136,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
         if (!this.hasDistinct()) return;
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this.recipeLogic::isDistinct, this.recipeLogic::setDistinct)
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.recipeLogic::isDistinct, this.recipeLogic::setDistinct)
                 .setTooltipText("machine.universal.toggle.distinct.mode"));
     }
 

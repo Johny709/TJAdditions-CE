@@ -110,7 +110,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.FLUID_VOID_BUTTON, this.workableHandler::isVoidingFluids, this.workableHandler::setVoidingFluids)
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_FLUID_VOID_BUTTON, this.workableHandler::isVoidingFluids, this.workableHandler::setVoidingFluids)
                 .setTooltipText("machine.universal.toggle.fluid_voiding"));
     }
 

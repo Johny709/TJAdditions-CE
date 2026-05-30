@@ -115,7 +115,7 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setDone)
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setDone)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 
@@ -177,7 +177,7 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
                         widgetGroup.addWidget(windowsWidgetGroup);
                         return false;
                     }));
-            tab.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.ITEM_VOID_BUTTON, this.workableHandler::isVoidItems, this.workableHandler::setVoidItems)
+            tab.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON, this.workableHandler::isVoidItems, this.workableHandler::setVoidItems)
                     .setTooltipText("machine.universal.toggle.item_voiding"));
             tab.add(new ToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
                     .setTooltipText("tj.multiblock.advanced_large_miner.blacklist_block"));

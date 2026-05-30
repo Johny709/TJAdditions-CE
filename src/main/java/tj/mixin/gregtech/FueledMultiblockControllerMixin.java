@@ -20,7 +20,7 @@ import tj.gui.widgets.impl.TJToggleButtonWidget;
 
 import java.util.List;
 
-import static tj.gui.TJGuiTextures.POWER_BUTTON;
+import static tj.gui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 
 @Mixin(value = FueledMultiblockController.class, remap = false)
 public abstract class FueledMultiblockControllerMixin extends MultiblockWithDisplayBaseMixin implements IFueledMultiblockControllerMixin {
@@ -49,7 +49,7 @@ public abstract class FueledMultiblockControllerMixin extends MultiblockWithDisp
     protected void addMainDisplayTab(List<Widget> widgetGroup) {
         super.addMainDisplayTab(widgetGroup);
         FuelRecipeLogic recipeLogic = this.getFuelRecipeLogic();
-        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
+        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, TOGGLE_POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
         if (recipeLogic instanceof TJFuelRecipeLogic) {
             widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, ((TJFuelRecipeLogic) recipeLogic)::isVoidEnergy, ((TJFuelRecipeLogic) recipeLogic)::setVoidEnergy)

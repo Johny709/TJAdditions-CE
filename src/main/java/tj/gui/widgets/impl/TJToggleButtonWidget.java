@@ -5,10 +5,12 @@ import gregtech.api.gui.resources.SizedTextureArea;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
+import gregtech.api.util.function.BooleanConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -16,6 +18,8 @@ import tj.gui.widgets.ButtonWidget;
 import tj.util.consumers.QuadConsumer;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -26,14 +30,23 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     private boolean isPressed;
     private String baseDisplayText;
     private String activeDisplayText;
+    private String baseTooltipHoverText;
+    private String activeTooltipHoverText;
     private TextureArea toggleTexture;
     private TextureArea activeTexture;
     private TextureArea baseTexture;
     private BooleanSupplier isPressedCondition;
+    private BooleanConsumer buttonBoolResponder;
     private BiConsumer<Boolean, String> toggleButtonResponder;
 
     public TJToggleButtonWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
+    }
+
+    public TJToggleButtonWidget(int x, int y, int width, int height, BooleanSupplier isPressedCondition, BooleanConsumer buttonBoolResponder) {
+        this(x, y, width, height);
+        this.isPressedCondition = isPressedCondition;
+        this.buttonBoolResponder = buttonBoolResponder;
     }
 
     public TJToggleButtonWidget(int x, int y, int width, int height, BooleanSupplier isPressedCondition, Consumer<String> buttonResponder) {
@@ -113,6 +126,28 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
         return this;
     }
 
+    /**
+     * Text that will be displayed upon hovering over this button.
+     * This will attempt to translate the text if they're a lang string.
+     * @param baseTooltipHoverText The text shown on the button when it's not pressed.
+     * @param activeTooltipHoverText The text shown on the button when it's pressed.
+     */
+    public TJToggleButtonWidget setToggleTooltipHoverText(String baseTooltipHoverText, String activeTooltipHoverText) {
+        this.baseTooltipHoverText = baseTooltipHoverText;
+        this.activeTooltipHoverText = activeTooltipHoverText;
+        return this;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void drawInForeground(int mouseX, int mouseY) {
+        super.drawInForeground(mouseX, mouseY);
+        if (this.baseTooltipHoverText != null && this.activeTooltipHoverText != null && this.isMouseOverElement(mouseX, mouseY)) {
+            final List<String> hover = Collections.singletonList(this.isPressed ? I18n.format(this.activeTooltipHoverText) : I18n.format(this.baseTooltipHoverText));
+            this.drawHoveringText(ItemStack.EMPTY, hover, 300, mouseX, mouseY);
+        }
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
@@ -164,6 +199,8 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
             final int mouseX = buffer.readInt();
             final int mouseY = buffer.readInt();
             final int button = buffer.readInt();
+            if (this.buttonBoolResponder != null)
+                this.buttonBoolResponder.apply(this.isPressed);
             if (this.buttonResponder != null)
                 this.buttonResponder.accept(buttonId);
             if (this.toggleButtonResponder != null)

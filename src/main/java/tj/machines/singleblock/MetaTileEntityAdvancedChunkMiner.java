@@ -47,7 +47,7 @@ import java.util.Objects;
 
 import static gregtech.api.gui.GuiTextures.BUTTON_ITEM_OUTPUT;
 import static gregtech.api.gui.GuiTextures.PROGRESS_BAR_ARROW;
-import static tj.gui.TJGuiTextures.POWER_BUTTON;
+import static tj.gui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 
 public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEntity implements IMinerHandler {
 
@@ -134,14 +134,14 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                         .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.CHARGER_OVERLAY))
                 .widget(new ToggleButtonWidget(-24, 124, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
-                .widget(new ToggleButtonWidget(-24, 142, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new TJToggleButtonWidget(151, 172, 18, 18, this.workableHandler::isSilkTouch, (bool, str) -> this.workableHandler.setSilkTouch(bool))
                         .setDynamicTooltipText(() -> this.workableHandler.isSilkTouch() ? "tj.multiblock.advanced_large_miner.silktouch_true" : "tj.multiblock.advanced_large_miner.silktouch_false")
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                         .setItemDisplay(new ItemStack(Blocks.WEB))
                         .useToggleTexture(true))
-                .widget(new ToggleButtonWidget(97, 172, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setDone)
+                .widget(new ToggleButtonWidget(97, 172, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setDone)
                         .setTooltipText("machine.universal.toggle.reset"))
                 .widget(new ButtonPopUpWidget<>()
                         .addPopup(widgetGroup -> {

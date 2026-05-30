@@ -126,7 +126,7 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
+        widgetGroup.add(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
                 .setTooltipText("machine.universal.toggle.item_voiding"));
     }
 

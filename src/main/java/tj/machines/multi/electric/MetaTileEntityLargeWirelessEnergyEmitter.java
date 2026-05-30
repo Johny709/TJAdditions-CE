@@ -204,7 +204,7 @@ public class MetaTileEntityLargeWirelessEnergyEmitter extends TJMultiblockContro
                 .setTooltipText("machine.universal.tick.speed"));
         widgetGroup.add(new ClickButtonWidget(7, 114, 18, 18, "+", click -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))));
         widgetGroup.add(new ClickButtonWidget(175, 114, 18, 18, "-", click -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))));
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setReset)
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setReset)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 

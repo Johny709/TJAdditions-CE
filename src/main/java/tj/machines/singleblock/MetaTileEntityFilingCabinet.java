@@ -165,7 +165,7 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
                 .bindCloseListener(() -> this.guiUsers.remove(player))
                 .widget(new ImageWidget(7, 15, 126, 18, GuiTextures.DISPLAY))
                 .widget(new AdvancedTextWidget(10, 20, this::addDisplayText, 0xFFFFFF))
-                .widget(new ToggleButtonWidget(133, 15, 18, 18, TJGuiTextures.CLEAR_GRID_BUTTON, () -> false, this::onClear)
+                .widget(new ToggleButtonWidget(133, 15, 18, 18, TJGuiTextures.TOGGLE_CLEAR_GRID_BUTTON, () -> false, this::onClear)
                         .setTooltipText("machine.universal.toggle.clear"))
                 .widget(new ToggleButtonWidget(151, 15, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> ((CabinetItemStackHandler) this.importItems).isItemUnlocked(), this::setLocked)
                         .setTooltipText("tj.machine.filing_cabinet.toggle"))

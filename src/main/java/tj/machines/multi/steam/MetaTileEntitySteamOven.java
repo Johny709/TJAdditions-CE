@@ -93,7 +93,7 @@ public class MetaTileEntitySteamOven extends TJMultiblockControllerBase implemen
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
         if (!this.hasDistinct()) return;
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this.workableHandler::isDistinct, this.workableHandler::setDistinct)
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.workableHandler::isDistinct, this.workableHandler::setDistinct)
                 .setTooltipText("machine.universal.toggle.distinct.mode"));
     }
 

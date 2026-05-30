@@ -220,7 +220,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                     tab.add(new ClickButtonWidget(92, 151, 38, 18, "/2", data -> setItemTicks.accept(String.valueOf((long) itemTicks.getValue() / 2), "")));
                     tab.add(new ClickButtonWidget(130, 151, 38, 18, "*2", data -> setItemTicks.accept(String.valueOf((long) itemTicks.getValue() * 2), "")));
                     tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
-                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, itemWorking::isValue, w -> {
+                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, itemWorking::isValue, w -> {
                         itemWorking.setValue(w);
                         compound.setBoolean("itemWorking", itemWorking.isValue());
                     }).setTooltipText("machine.universal.toggle.run.mode"));
@@ -261,7 +261,7 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                     tab.add(new ClickButtonWidget(92, 169, 38, 18, "/2", data -> setFluidTicks.accept(String.valueOf((long) fluidTicks.getValue() / 2), "")));
                     tab.add(new ClickButtonWidget(130, 169, 38, 18, "*2", data -> setFluidTicks.accept(String.valueOf((long) fluidTicks.getValue() * 2), "")));
                     tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
-                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, fluidWorking::isValue, w -> {
+                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, fluidWorking::isValue, w -> {
                         fluidWorking.setValue(w);
                         compound.setBoolean("fluidWorking", fluidWorking.isValue());
                     }).setTooltipText("machine.universal.toggle.run.mode"));

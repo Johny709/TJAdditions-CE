@@ -90,7 +90,7 @@ public class VoidAdvancedItemCoverBehaviour extends VoidItemCoverBehaviour {
                     compound.setInteger("voidMode", value.ordinal());
                     voidMode.setValue(value);
                 }))
-                .widget(new ToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.POWER_BUTTON, isWorking::isValue, setWorking)
+                .widget(new ToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, isWorking::isValue, setWorking)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)

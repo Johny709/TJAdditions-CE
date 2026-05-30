@@ -87,7 +87,7 @@ public class VoidFluidCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                         .setUpdateOnTyping(true))
                 .widget(new ClickButtonWidget(7, 7, 18, 18, "/2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() / 2), "")))
                 .widget(new ClickButtonWidget(151, 7, 18, 18, "*2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() * 2), "")))
-                .widget(new ToggleButtonWidget(151, 85, 18, 18, TJGuiTextures.POWER_BUTTON, isWorking::isValue, setWorking)
+                .widget(new ToggleButtonWidget(151, 85, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, isWorking::isValue, setWorking)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(widgetGroup)
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 105, itemStack))

@@ -32,24 +32,26 @@ public class TJGuiTextures {
     public static final TextureArea BAR_YELLOW = AdoptableTextureArea.fullImage("textures/gui/bar/bar_yellow.png");
 
     public static final TextureArea OUTPUT_BUTTON = TextureArea.fullImage("textures/gui/widget/button_output.png");
-    public static final TextureArea POWER_BUTTON = TextureArea.fullImage("textures/gui/widget/power_button_toggle.png");
-    public static final TextureArea CAUTION_BUTTON = TextureArea.fullImage("textures/gui/widget/caution_button_toggle.png");
-    public static final TextureArea DISTINCT_BUTTON = TextureArea.fullImage("textures/gui/widget/distinct_button_toggle.png");
+    public static final TextureArea TOGGLE_POWER_BUTTON = TextureArea.fullImage("textures/gui/widget/power_button_toggle.png");
+    public static final TextureArea TOGGLE_CAUTION_BUTTON = TextureArea.fullImage("textures/gui/widget/caution_button_toggle.png");
+    public static final TextureArea TOGGLE_DISTINCT_BUTTON = TextureArea.fullImage("textures/gui/widget/distinct_button_toggle.png");
     public static final TextureArea ITEM_FILTER = TextureArea.fullImage("textures/items/metaitems/item_filter.png");
     public static final TextureArea FLUID_FILTER = TextureArea.fullImage("textures/items/metaitems/fluid_filter.png");
     public static final TextureArea ORE_DICTIONARY_FILTER = TextureArea.fullImage("textures/items/metaitems/ore_dictionary_filter.png");
-    public static final TextureArea RESET_BUTTON = TextureArea.fullImage("textures/gui/widget/reset_button_toggle.png");
-    public static final TextureArea UP_BUTTON = TextureArea.fullImage("textures/gui/widget/up_button_toggle.png");
-    public static final TextureArea DOWN_BUTTON = TextureArea.fullImage("textures/gui/widget/down_button_toggle.png");
-    public static final TextureArea PLUS_BUTTON = TextureArea.fullImage("textures/gui/widget/plus_button_toggle.png");
-    public static final TextureArea MINUS_BUTTON = TextureArea.fullImage("textures/gui/widget/minus_button_toggle.png");
-    public static final TextureArea CASE_SENSITIVE_BUTTON = TextureArea.fullImage("textures/gui/widget/case_sensitivity_toggle.png");
-    public static final TextureArea SPACES_BUTTON = TextureArea.fullImage("textures/gui/widget/spaces_toggle.png");
-    public static final TextureArea ITEM_VOID_BUTTON = TextureArea.fullImage("textures/gui/widget/item_void_button_toggle.png");
-    public static final TextureArea FLUID_VOID_BUTTON = TextureArea.fullImage("textures/gui/widget/fluid_void_button_toggle.png");
-    public static final TextureArea CLEAR_GRID_BUTTON = TextureArea.fullImage("textures/gui/widget/button_clear_grid_toggle.png");
+    public static final TextureArea TOGGLE_RESET_BUTTON = TextureArea.fullImage("textures/gui/widget/reset_button_toggle.png");
+    public static final TextureArea TOGGLE_UP_BUTTON = TextureArea.fullImage("textures/gui/widget/up_button_toggle.png");
+    public static final TextureArea TOGGLE_DOWN_BUTTON = TextureArea.fullImage("textures/gui/widget/down_button_toggle.png");
+    public static final TextureArea TOGGLE_PLUS_BUTTON = TextureArea.fullImage("textures/gui/widget/plus_button_toggle.png");
+    public static final TextureArea TOGGLE_MINUS_BUTTON = TextureArea.fullImage("textures/gui/widget/minus_button_toggle.png");
+    public static final TextureArea TOGGLE_ITEM_VOID_BUTTON = TextureArea.fullImage("textures/gui/widget/item_void_button_toggle.png");
+    public static final TextureArea TOGGLE_FLUID_VOID_BUTTON = TextureArea.fullImage("textures/gui/widget/fluid_void_button_toggle.png");
+    public static final TextureArea TOGGLE_CLEAR_GRID_BUTTON = TextureArea.fullImage("textures/gui/widget/button_clear_grid_toggle.png");
     public static final TextureArea UNLOCK_LOCK = TextureArea.fullImage("textures/gui/widget/unlock_lock.png");
     public static final TextureArea TOGGLE_DISPLAY = TextureArea.fullImage("textures/gui/widget/toggle_button_display.png");
+    public static final TextureArea BLOCKING_MODE_TOGGLE = TextureArea.fullImage("textures/gui/widget/block_mode_toggle.png");
+    public static final TextureArea INTERFACE_TERMINAL_TOGGLE = TextureArea.fullImage("textures/gui/widget/interface_terminal_toggle.png");
+    public static final TextureArea SEND_FLUID_TOGGLE = TextureArea.fullImage("textures/gui/widget/send_fluid_toggle.png");
+    public static final TextureArea SPLITTING_ITEMS_FLUIDS_TOGGLE = TextureArea.fullImage("textures/gui/wiget/splitting_items_fluids.png");
 
     public static final TextureArea ENERGY_VOID = TextureArea.fullImage("textures/gui/widget/button_energy_void.png");
 

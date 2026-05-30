@@ -239,7 +239,7 @@ public class ControllableDualCover extends DualCover {
                     tab.add(new ClickButtonWidget(92, 151, 38, 18, "/2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks / 2), "")));
                     tab.add(new ClickButtonWidget(130, 151, 38, 18, "*2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks * 2), "")));
                     tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
-                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
+                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
                             .setTooltipText("machine.universal.toggle.run.mode"));
                 }).addTab(String.format("metaitem.fluid.regulator.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.FLUID_REGULATORS[this.tier].getStackForm(), tab -> {
                     tab.add(new LabelWidget(7, 5, "cover.fluid_regulator.title", GAValues.VN[this.tier]));
@@ -271,7 +271,7 @@ public class ControllableDualCover extends DualCover {
                     tab.add(new ClickButtonWidget(92, 169, 38, 18, "/2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks / 2), "")));
                     tab.add(new ClickButtonWidget(130, 169, 38, 18, "*2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks * 2), "")));
                     tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
-                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isPumpWorking, this::setPumpWorking)
+                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isPumpWorking, this::setPumpWorking)
                             .setTooltipText("machine.universal.toggle.run.mode"));
                 });
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 272)

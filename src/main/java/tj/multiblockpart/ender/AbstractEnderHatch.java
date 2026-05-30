@@ -200,7 +200,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                         .useToggleTexture(true));
                                 widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
-                                widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                                widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                                         .setTooltipText("machine.universal.toggle.run.mode"));
                                 this.addWidgets(widgetGroup::addWidget);
                                 return true;

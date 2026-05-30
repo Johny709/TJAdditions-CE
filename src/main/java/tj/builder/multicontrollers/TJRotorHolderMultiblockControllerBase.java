@@ -153,9 +153,9 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
                         .setClickHandler(this::handleDisplayClick)
                         .setMaxWidthLimit(180))
                 .setScrollPanelWidth(3));
-        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
-        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, TJGuiTextures.CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, TJGuiTextures.TOGGLE_CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 
