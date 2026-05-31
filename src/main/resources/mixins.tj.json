@@ -30,6 +30,7 @@
     "gregicality.MegaMultiblockRecipeMapControllerMixin",
     "gregicality.MetaTileEntityAdvFusionReactorMixin",
     "gregicality.MetaTileEntityBatteryTowerMixin",
+    "gregicality.MetaTIleEntityCentralMonitorMixin",
     "gregicality.MetaTileEntityCosmicRayDetectorMixin",
     "gregicality.MetaTileEntityCrackingUnitMixin",
     "gregicality.MetaTileEntityCryogenicFreezerMixin",
