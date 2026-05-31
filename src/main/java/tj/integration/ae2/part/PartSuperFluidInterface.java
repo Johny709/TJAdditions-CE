@@ -3,6 +3,7 @@ package tj.integration.ae2.part;
 import appeng.api.parts.IPartModel;
 import appeng.fluids.helper.DualityFluidInterface;
 import appeng.fluids.parts.PartFluidInterface;
+import appeng.fluids.util.AEFluidInventory;
 import appeng.items.parts.PartModels;
 import appeng.parts.PartModel;
 import appeng.tile.networking.TileCableBus;
@@ -98,9 +99,8 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
                     .setBackgroundTexture(TJGuiTextures.SLOT_DOWN));
         }
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
-            builder.widget(new AEFluidTankWidget(duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
-                    .setContainerClicking(true, true)
-                    .setBackgroundTexture(GuiTextures.SLOT));
+            builder.widget(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
+                    .setBackgroundTextures(GuiTextures.SLOT));
         }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))

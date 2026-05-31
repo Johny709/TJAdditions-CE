@@ -7,6 +7,7 @@ import appeng.core.Api;
 import appeng.fluids.helper.DualityFluidInterface;
 import appeng.fluids.helper.IConfigurableFluidInventory;
 import appeng.fluids.helper.IFluidInterfaceHost;
+import appeng.fluids.util.AEFluidInventory;
 import appeng.helpers.DualityInterface;
 import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.misc.TileInterface;
@@ -110,9 +111,9 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
                                 .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS)
                                 .setTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
-                            widgetGroup.addWidget(new ImageWidget(7, 90, 162, 100, GuiTextures.BORDERED_BACKGROUND));
-                            widgetGroup.addWidget(new LabelWidget(14, 95, "gui.appliedenergistics2.Priority"));
-                            widgetGroup.addWidget(new NewTextFieldWidget<>(14, 136, 148, 18, true, () -> String.valueOf(duality.getPriority()), this::setPriority)
+                            widgetGroup.addWidget(new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
+                            widgetGroup.addWidget(new LabelWidget(14, 112, "gui.appliedenergistics2.Priority"));
+                            widgetGroup.addWidget(new NewTextFieldWidget<>(14, 153, 148, 18, true, () -> String.valueOf(duality.getPriority()), this::setPriority)
                                     .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                                     .setUpdateOnTyping(true));
                             widgetGroup.addWidget(new ClickButtonWidget(15, 127, 25, 20, "+1", data -> this.setPriority(String.valueOf((long) duality.getPriority() + 1), "")));
@@ -208,14 +209,13 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
             tab.add(new TJPhantomAEFluidSlotWidget(7 + (18 * (i % 9)), 34 + (72 * (i / 9)), 18, 18, i, duality.getConfig(), fluidStack -> ((IDualitySuperFluidInterface) duality).onFluidInventoryHasChanged(duality.getConfig(), index, null, null, null))
                     .setBackgroundTexture(TJGuiTextures.SLOT_DOWN));
         }
-        for (int i = 0; i < duality.getTanks().getSlots(); i++) {
-            tab.add(new AEFluidTankWidget(duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
-                    .setContainerClicking(true, true)
-                    .setBackgroundTexture(GuiTextures.SLOT));
-        }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             tab.add(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
+        }
+        for (int i = 0; i < duality.getTanks().getSlots(); i++) {
+            tab.add(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
+                    .setBackgroundTextures(GuiTextures.SLOT));
         }
         tab.add(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredFluids"));
         tab.add(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"));

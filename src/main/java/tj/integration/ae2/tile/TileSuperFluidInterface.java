@@ -2,6 +2,7 @@ package tj.integration.ae2.tile;
 
 import appeng.fluids.helper.DualityFluidInterface;
 import appeng.fluids.tile.TileFluidInterface;
+import appeng.fluids.util.AEFluidInventory;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.ClickButtonWidget;
@@ -62,9 +63,8 @@ public class TileSuperFluidInterface extends TileFluidInterface implements ITile
                     .setBackgroundTexture(TJGuiTextures.SLOT_DOWN));
         }
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
-            builder.widget(new AEFluidTankWidget(duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
-                    .setContainerClicking(true, true)
-                    .setBackgroundTexture(GuiTextures.SLOT));
+            builder.widget(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
+                    .setBackgroundTextures(GuiTextures.SLOT));
         }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
