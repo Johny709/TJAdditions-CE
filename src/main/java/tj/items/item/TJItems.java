@@ -31,6 +31,7 @@ public class TJItems {
 
     public static IItemDefinition PART_SUPER_INTERFACE;
     public static IItemDefinition PART_SUPER_FLUID_INTERFACE;
+    public static IItemDefinition PART_SUPER_DUAL_INTERFACE;
 
     public static IItemDefinition MATERIAL_ITEM_CELL_65536K;
     public static IItemDefinition MATERIAL_ITEM_CELL_262144K;
@@ -61,6 +62,7 @@ public class TJItems {
 
         PART_SUPER_INTERFACE = registerItem(registry, item -> new ItemDefinition("me.part.super_interface", new ItemPartSuperInterface()));
         PART_SUPER_FLUID_INTERFACE = registerItem(registry, item -> new ItemDefinition("me.part.super_fluid_interface", new ItemPartSuperFluidInterface()));
+        PART_SUPER_DUAL_INTERFACE = registerItem(registry, item -> new ItemDefinition("me.part.super_dual_interface", new ItemPartSuperDualInterface()));
 
         MATERIAL_ITEM_CELL_65536K = registerItem(registry, item -> new ItemDefinition("me.material.item_cell.65536k", item));
         MATERIAL_ITEM_CELL_262144K = registerItem(registry, item -> new ItemDefinition("me.material.item_cell.262144k", item));

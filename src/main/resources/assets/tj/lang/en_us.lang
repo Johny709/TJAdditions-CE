@@ -1189,6 +1189,7 @@ item.me.block_container.item_cell.singularity.name=§dME Block Container Singula
 
 item.me.part.super_interface.name=ME Super Interface
 item.me.part.super_fluid_interface.name=ME Super Fluid Interface
+item.me.part.super_dual_interface.name=ME Super Dual Interface
 
 tile.me.super_interface.name=ME Super Interface
 tile.me.super_fluid_interface.name=ME Super Fluid Interface
