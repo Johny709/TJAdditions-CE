@@ -234,9 +234,13 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
     protected void updateWidgets(int lastIndex, int newIndex) {
         this.widgetMap.getOrDefault(lastIndex, DUMMY_WIDGET_GROUP).getRight().getContainedWidgets(true).stream()
                 .filter(widget -> widget instanceof TJWidget)
-                .forEach(widget -> ((TJWidget) widget).setActive(false));
+                .forEach(widget -> ((TJWidget<?>) widget).setActive(false));
         this.widgetMap.getOrDefault(newIndex, DUMMY_WIDGET_GROUP).getRight().getContainedWidgets(true).stream()
                 .filter(widget -> widget instanceof TJWidget)
-                .forEach(widget -> ((TJWidget) widget).setActive(true));
+                .forEach(widget -> ((TJWidget<?>) widget).setActive(true));
+    }
+
+    public int getIndex() {
+        return this.selectedIndex;
     }
 }

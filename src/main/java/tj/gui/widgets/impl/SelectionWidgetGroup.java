@@ -18,7 +18,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.TJWidget;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -120,11 +119,10 @@ public class SelectionWidgetGroup extends WidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
+        final int lastIndex = this.activeIndex;
         for (Object2IntMap.Entry<Widget> entry : this.selectionBoxes.object2IntEntrySet()) {
             if (entry.getKey().toRectangleBox().contains(mouseX, mouseY)) {
-                final int lastIndex = this.activeIndex;
                 this.activeIndex = entry.getIntValue();
-                this.updateWidgets(lastIndex, this.activeIndex);
                 this.writeClientAction(2, buffer -> {
                     buffer.writeInt(lastIndex);
                     buffer.writeInt(this.activeIndex);
@@ -135,7 +133,11 @@ public class SelectionWidgetGroup extends WidgetGroup {
         if (!this.isMouseOverElement(mouseX, mouseY) && this.widgetMap.getOrDefault(this.activeIndex, Collections.emptyList()).stream()
                 .noneMatch(widget -> widget.toRectangleBox().contains(mouseX, mouseY))) {
             this.activeIndex = -1;
-            this.writeClientAction(2, buffer -> buffer.writeInt(-1));
+            this.updateWidgets(lastIndex, this.activeIndex);
+            this.writeClientAction(2, buffer -> {
+                buffer.writeInt(lastIndex);
+                buffer.writeInt(this.activeIndex);
+            });
         }
         return this.widgetMap.getOrDefault(this.activeIndex, Collections.emptyList()).stream()
                 .anyMatch(widget -> widget.mouseClicked(mouseX, mouseY, button));
@@ -168,10 +170,14 @@ public class SelectionWidgetGroup extends WidgetGroup {
     private void updateWidgets(int lastIndex, int newIndex) {
         this.widgetMap.getOrDefault(lastIndex, Collections.emptyList()).stream()
                 .filter(widget -> widget instanceof TJWidget)
-                .forEach(widget -> ((TJWidget) widget).setActive(false));
+                .forEach(widget -> ((TJWidget<?>) widget).setActive(false));
         this.widgetMap.getOrDefault(newIndex, Collections.emptyList()).stream()
                 .filter(widget -> widget instanceof TJWidget)
-                .forEach(widget -> ((TJWidget) widget).setActive(true));
+                .forEach(widget -> ((TJWidget<?>) widget).setActive(true));
+    }
+
+    public int getIndex() {
+        return this.activeIndex;
     }
 
     private static class SelectionSlotWidget extends Widget {
