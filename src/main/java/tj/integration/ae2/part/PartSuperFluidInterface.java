@@ -92,6 +92,7 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final DualityFluidInterface duality = this.getDualityFluidInterface();
         final IItemHandler upgradeHandler = duality.getInventoryByName("upgrades");
+        final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_FLUID_INTERFACE, 211, 292);
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
             final int index = i;
@@ -100,6 +101,7 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
         }
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
             builder.widget(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
+                    .setActiveSupplier(() -> buttonPopUpWidget.getIndex() == 0)
                     .setBackgroundTextures(GuiTextures.SLOT));
         }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
@@ -111,8 +113,7 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
                 .widget(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredFluids"))
                 .widget(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"))
                 .widget(new LabelWidget(7, 198, "container.inventory"))
-                .widget(new ButtonPopUpWidget<>()
-                        .addPopup(widgetGroup -> true)
+                .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
                                 .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS)
                                 .setTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
