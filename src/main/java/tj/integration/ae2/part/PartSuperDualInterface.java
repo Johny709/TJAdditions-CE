@@ -98,13 +98,15 @@ public class PartSuperDualInterface extends PartInterface implements IFluidInter
     @Override
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        this.dualityFluid.writeToNBT(data);
+        final NBTTagCompound compound = new NBTTagCompound();
+        this.dualityFluid.writeToNBT(compound);
+        data.setTag("dualityFluid", compound);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        this.dualityFluid.readFromNBT(data);
+        this.dualityFluid.readFromNBT(data.getCompoundTag("dualityFluid"));
     }
 
     @Nonnull

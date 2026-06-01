@@ -78,14 +78,17 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
     @Nonnull
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
-        this.dualityFluid.writeToNBT(data);
-        return super.writeToNBT(data);
+        super.writeToNBT(data);
+        final NBTTagCompound compound = new NBTTagCompound();
+        this.dualityFluid.writeToNBT(compound);
+        data.setTag("dualityFluid", compound);
+        return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        this.dualityFluid.readFromNBT(data);
+        this.dualityFluid.readFromNBT(data.getCompoundTag("dualityFluid"));
     }
 
     @Nonnull
