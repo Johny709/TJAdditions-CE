@@ -19,8 +19,10 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Keyboard;
 import tj.gui.TJGuiUtils;
 import tj.gui.widgets.TJWidget;
+import tj.util.TJItemUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,7 +54,7 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
     public void drawInForeground(int mouseX, int mouseY) {
         if (!this.isActive || !this.isMouseOverElement(mouseX, mouseY)) return;
         final List<String> tooltips = new ArrayList<>();
-        if (this.iaeFluidStack != null) {
+        if (this.amount > 0 && this.iaeFluidStack != null) {
             tooltips.add(this.iaeFluidStack.getFluidStack().getLocalizedName());
             // Add chemical formula tooltip
             final String formula = FluidTooltipUtil.getFluidTooltip(this.iaeFluidStack.getFluidStack());
@@ -70,7 +72,7 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
         if (this.backgroundTextures != null) for (TextureArea textureArea : this.backgroundTextures) {
             textureArea.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         }
-        if (this.iaeFluidStack == null) return;
+        if (this.amount < 1 || this.iaeFluidStack == null) return;
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         GlStateManager.disableBlend();
         TJGuiUtils.drawFluidForGui(this.iaeFluidStack.getFluidStack(), this.amount, this.capacity, pos.getX() + 1, pos.getY() + 1, size.getWidth() - 1, size.getHeight() - 2);
@@ -93,10 +95,17 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
         if (fluidHandlerItem == null)
             return false;
         this.playButtonClickSound();
+        final boolean shiftClick = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
         if (button == 0) { // Left-Click
-            this.writeClientAction(1, buffer -> buffer.writeItemStack(itemStack));
+            this.writeClientAction(1, buffer -> {
+                buffer.writeItemStack(itemStack);
+                buffer.writeBoolean(shiftClick);
+            });
         } else if (button == 1) { // Right-Click
-            this.writeClientAction(2, buffer -> buffer.writeItemStack(itemStack));
+            this.writeClientAction(2, buffer -> {
+                buffer.writeItemStack(itemStack);
+                buffer.writeBoolean(shiftClick);
+            });
         }
         return true;
     }
@@ -126,47 +135,57 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
         try {
-            final ItemStack itemStack = buffer.readItemStack();
+            if (id > 2) return;
+            ItemStack itemStack = buffer.readItemStack();
+            final int size = buffer.readBoolean() ? itemStack.getCount() : 1;
+            final int tankCapacity = this.fluidTank.getTankProperties()[0].getCapacity();
             if (!this.isActive) return;
             final IFluidHandlerItem fluidHandlerItem = itemStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
             if (fluidHandlerItem == null) return;
             if (id == 1) {
-                final FluidStack fluidContained = FluidUtil.getFluidContained(itemStack);
-                if (fluidContained == null) return;
-                final int capacity = this.fluidTank.getTankProperties()[0].getCapacity();
-                final int toDrain = (int) Math.min(fluidContained.amount, capacity - this.getFluidAmount(this.slotIndex));
-                final FluidStack bucketFluid = this.getFluidStack(this.slotIndex);
-                if (bucketFluid != null)
-                    bucketFluid.amount = (int) this.fluidTank.getFluidInSlot(this.slotIndex).getStackSize();
-                final FluidActionResult fluidActionResult = FluidUtil.tryEmptyContainer(itemStack, new FluidTank(bucketFluid, capacity), toDrain, this.gui.entityPlayer, true);
-                if (fluidActionResult == FluidActionResult.FAILURE) return;
-                FluidStack fluidStack = this.getFluidStack(this.slotIndex);
-                if (fluidStack == null) {
-                    fluidStack = new FluidStack(fluidContained.getFluid(), toDrain);
-                } else fluidStack.amount += toDrain;
-                this.iaeFluidStack = AEFluidStack.fromFluidStack(fluidStack);
-                this.fluidTank.setFluidInSlot(this.slotIndex, this.iaeFluidStack.copy());
-                this.gui.entityPlayer.inventory.setItemStack(fluidActionResult.getResult());
-                this.writeUpdateInfo(1, buffer1 -> buffer1.writeItemStack(this.gui.entityPlayer.inventory.getItemStack()));
+                for (int i = 0; i < size; i++) {
+                    final FluidStack fluidContained = FluidUtil.getFluidContained(itemStack);
+                    if (fluidContained == null) return;
+                    final int toDrain = (int) Math.min(fluidContained.amount, tankCapacity - this.getFluidAmount(this.slotIndex));
+                    final FluidStack bucketFluid = this.getFluidStack(this.slotIndex);
+                    final FluidActionResult fluidActionResult = FluidUtil.tryEmptyContainer(itemStack, new FluidTank(bucketFluid, tankCapacity), toDrain, this.gui.entityPlayer, false);
+                    if (fluidActionResult == FluidActionResult.FAILURE) break;
+                    if (itemStack.getCount() > 1) {
+                        if (!TJItemUtils.insertInMainInventory(this.gui.entityPlayer.inventory, fluidActionResult.getResult()).isEmpty()) break;
+                        itemStack.shrink(1);
+                    } else itemStack = fluidActionResult.getResult();
+                    FluidUtil.tryEmptyContainer(itemStack, new FluidTank(bucketFluid, tankCapacity), toDrain, this.gui.entityPlayer, true);
+                    FluidStack fluidStack = this.getFluidStack(this.slotIndex);
+                    if (fluidStack == null) {
+                        fluidStack = new FluidStack(fluidContained.getFluid(), toDrain);
+                    } else fluidStack.amount += toDrain;
+                    this.iaeFluidStack = AEFluidStack.fromFluidStack(fluidStack);
+                    this.fluidTank.setFluidInSlot(this.slotIndex, this.iaeFluidStack.copy());
+                }
             } else if (id == 2) {
                 this.iaeFluidStack = this.fluidTank.getFluidInSlot(this.slotIndex);
                 if (this.iaeFluidStack == null) return;
-                final FluidStack fluidContained = FluidUtil.getFluidContained(itemStack);
-                final int capacity = fluidHandlerItem.getTankProperties()[0].getCapacity();
-                final int toFill = (int) Math.min(this.getFluidAmount(this.slotIndex), capacity - (fluidContained != null ? fluidContained.amount : 0));
-                final FluidStack bucketFluid = this.getFluidStack(this.slotIndex);
-                if (bucketFluid != null)
-                    bucketFluid.amount = (int) this.fluidTank.getFluidInSlot(this.slotIndex).getStackSize();
-                final IFluidHandler tank = new FluidTank(bucketFluid, capacity);
-                final FluidActionResult fluidActionResult = FluidUtil.tryFillContainer(itemStack, tank, toFill, this.gui.entityPlayer, true);
-                if (fluidActionResult == FluidActionResult.FAILURE) return;
-                if (tank.getTankProperties()[0].getContents() == null || (this.iaeFluidStack.getStackSize() - toFill) < 1) {
-                    this.iaeFluidStack = null;
-                } else this.iaeFluidStack.setStackSize(this.iaeFluidStack.getStackSize() - toFill);
-                this.fluidTank.setFluidInSlot(this.slotIndex, this.iaeFluidStack != null ? this.iaeFluidStack.copy() : null);
-                this.gui.entityPlayer.inventory.setItemStack(fluidActionResult.getResult());
-                this.writeUpdateInfo(1, buffer1 -> buffer1.writeItemStack(this.gui.entityPlayer.inventory.getItemStack()));
+                for (int i = 0; i < size; i++) {
+                    final FluidStack fluidContained = FluidUtil.getFluidContained(itemStack);
+                    final int bucketCapacity = fluidHandlerItem.getTankProperties()[0].getCapacity();
+                    final int toFill = (int) Math.min(this.getFluidAmount(this.slotIndex), bucketCapacity - (fluidContained != null ? fluidContained.amount : 0));
+                    final FluidStack tankFluid = this.getFluidStack(this.slotIndex);
+                    final IFluidHandler tank = new FluidTank(tankFluid, tankCapacity);
+                    final FluidActionResult fluidActionResult = FluidUtil.tryFillContainer(itemStack, tank, toFill, this.gui.entityPlayer, false);
+                    if (fluidActionResult == FluidActionResult.FAILURE) break;
+                    if (itemStack.getCount() > 1) {
+                        if (!TJItemUtils.insertInMainInventory(this.gui.entityPlayer.inventory, fluidActionResult.getResult()).isEmpty()) break;
+                        itemStack.shrink(1);
+                    } else itemStack = fluidActionResult.getResult();
+                    FluidUtil.tryFillContainer(itemStack, tank, toFill, this.gui.entityPlayer, true);
+                    if (tank.getTankProperties()[0].getContents() == null || (this.iaeFluidStack.getStackSize() - toFill) < 1) {
+                        this.iaeFluidStack = null;
+                    } else this.iaeFluidStack.setStackSize(this.iaeFluidStack.getStackSize() - toFill);
+                    this.fluidTank.setFluidInSlot(this.slotIndex, this.iaeFluidStack != null ? this.iaeFluidStack.copy() : null);
+                }
             }
+            this.gui.entityPlayer.inventory.setItemStack(itemStack);
+            this.writeUpdateInfo(1, buffer1 -> buffer1.writeItemStack(this.gui.entityPlayer.inventory.getItemStack()));
         } catch (IOException e) {
             GTLog.logger.info(e.getMessage());
         }
