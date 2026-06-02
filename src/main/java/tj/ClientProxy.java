@@ -63,8 +63,13 @@ public class ClientProxy extends CommonProxy {
             if (!modelResourceLocation.getNamespace().equals(TJ.MODID)) continue;
             final IBakedModel model = modelRegistry.getObject(modelResourceLocation);
             if (model == missingModel) continue; // Don't customize the missing model. This causes Forge to swallow exceptions
-            if (modelResourceLocation.getPath().equals("me.super_interface") || modelResourceLocation.getPath().equals("me.super_dual_interface"))
-                modelRegistry.putObject(modelResourceLocation, new AutoRotatingModel(model));
+            switch (modelResourceLocation.getPath()) {
+                case "me.super_interface":
+                case "me.super_dual_interface":
+                case "me.pattern_interface":
+                    modelRegistry.putObject(modelResourceLocation, new AutoRotatingModel(model));
+
+            }
         }
     }
 

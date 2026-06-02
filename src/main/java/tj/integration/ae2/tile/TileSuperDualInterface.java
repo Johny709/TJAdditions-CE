@@ -56,7 +56,7 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
     private final DualitySuperFluidInterface dualityFluid = new DualitySuperFluidInterface(this.getProxy(), this);
 
     public TileSuperDualInterface() {
-        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 18, 18, 72), "duality");
     }
 
     public void openUI(EntityPlayer player, TileEntity tileEntity) {
