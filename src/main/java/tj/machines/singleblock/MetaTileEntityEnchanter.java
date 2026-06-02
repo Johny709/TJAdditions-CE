@@ -92,8 +92,13 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
-        return ModularUI.builder(BORDERED_BACKGROUND, 176, 166)
-                .image(-28, 0, 26, 104, BORDERED_BACKGROUND)
+        final ModularUI.Builder builder = ModularUI.builder(BORDERED_BACKGROUND, 176, 166);
+        for (int i = 0; i < this.exportItems.getSlots(); i++) {
+            builder.widget(new SlotWidget(this.exportItems, i, 105 + (18 * (i % 2)), 22 + (18 * (i /2)), true, false)
+                            .setBackgroundTexture(SLOT))
+                    .widget(new RecipeOutputSlotWidget(i, 105 + (18 * (i % 2)), 22 + (18 * (i /2)), 18, 18, displayWidget::getItemOutputAt, null));
+        }
+        return builder.image(-28, 0, 26, 104, BORDERED_BACKGROUND)
                 .image(-28, 138, 26, 26, BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
@@ -107,16 +112,6 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                         .setBackgroundTexture(SLOT, BOXED_OVERLAY))
                 .widget(new SlotWidget(this.importItems, 1, 52, 22, true, true)
                         .setBackgroundTexture(SLOT, MOLD_OVERLAY))
-                .widget(new SlotWidget(this.exportItems, 0, 105, 22, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new SlotWidget(this.exportItems, 1, 123, 22, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new SlotWidget(this.exportItems, 2, 105, 40, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new SlotWidget(this.exportItems, 3, 123, 40, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new RecipeOutputSlotWidget(0, 105, 22, 18, 18, displayWidget::getItemOutputAt, null))
-                .widget(new RecipeOutputSlotWidget(1, 123, 22, 18, 18, displayWidget::getItemOutputAt, null))
                 .widget(new TankWidget(this.tank, 16, 22, 18, 18)
                         .setContainerClicking(true, true)
                         .setBackgroundTexture(FLUID_SLOT)
