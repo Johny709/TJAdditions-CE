@@ -104,15 +104,16 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     protected ModularUI createUI(EntityPlayer player) {
         final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(113, 8, 60, 72, 3)
                 .setScrollWidth(6);
-        for (int i = 0; i < this.getExportItemInventory().getSlots(); i++) {
-            scrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.getExportItemInventory(), i, 18 * (i % 3), 18 * (i / 3))
-                    .setActiveBackgroundTexture(GuiTextures.SLOT));
-        }
         final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(90, 30, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
+        for (int i = 0; i < this.getExportItemInventory().getSlots(); i++) {
+            scrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.getExportItemInventory(), i, 18 * (i % 3), 18 * (i / 3))
+                    .setActiveBackgroundTexture(GuiTextures.SLOT));
+            scrollableWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 3), 18 * (i / 3), 18, 18, displayWidget::getItemOutputAt, null));
+        }
         final TankWidget tankWidget = new TankWidget(this.importFluids.getTankAt(0), 69, 58, 18, 18)
                 .setHideTooltip(true).setAlwaysShowFull(true);
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 166)
