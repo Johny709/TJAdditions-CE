@@ -18,10 +18,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
@@ -38,7 +36,6 @@ import tj.gui.widgets.impl.TJLabelWidget;
 import tj.gui.widgets.impl.TJProgressBarWidget;
 import tj.gui.widgets.impl.TJSlotWidget;
 import tj.gui.widgets.impl.*;
-import tj.items.handlers.GhostSlotHandler;
 import tj.items.handlers.LargeItemStackHandler;
 
 import javax.annotation.Nullable;
@@ -53,7 +50,6 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
 
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
     private final LargeItemStackHandler filterInventory = new LargeItemStackHandler(27, 1);
-    private final GhostSlotHandler ghostSlotHandler = new GhostSlotHandler(this.filterInventory.getSlots());
     private final FluidStack drillingFluid;
 
     public MetaTileEntityAdvancedChunkMiner(ResourceLocation metaTileEntityId, int tier) {
@@ -197,28 +193,9 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     }
 
     @Override
-    public void clearMachineInventory(NonNullList<ItemStack> itemBuffer) {
-        super.clearMachineInventory(itemBuffer);
-        this.ghostSlotHandler.clearInventory(this.filterInventory, itemBuffer);
-    }
-
-    @Override
-    public void writeInitialSyncData(PacketBuffer buf) {
-        super.writeInitialSyncData(buf);
-        this.ghostSlotHandler.writeInitialSyncData(buf);
-    }
-
-    @Override
-    public void receiveInitialSyncData(PacketBuffer buf) {
-        super.receiveInitialSyncData(buf);
-        this.ghostSlotHandler.readInitialSyncData(buf);
-    }
-
-    @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         data.setTag("filterInventory", this.filterInventory.serializeNBT());
-        this.ghostSlotHandler.writeToNBT(data);
         return data;
     }
 
@@ -226,7 +203,6 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.filterInventory.deserializeNBT(data.getCompoundTag("filterInventory"));
-        this.ghostSlotHandler.readFromNBT(data);
     }
 
     @Override
