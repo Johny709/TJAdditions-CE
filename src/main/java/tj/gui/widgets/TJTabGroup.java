@@ -1,4 +1,4 @@
-package tj.gui;
+package tj.gui.widgets;
 
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
@@ -13,7 +13,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import tj.gui.widgets.PopUpWidgetGroup;
+import tj.gui.widgets.impl.PopUpWidgetGroup;
 
 import java.util.ArrayList;
 import java.util.List;

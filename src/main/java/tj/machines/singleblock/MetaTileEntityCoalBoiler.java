@@ -5,7 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import tj.capability.IHeatInfo;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.impl.TJLabelWidget;
 import tj.textures.TJTextures;
 import gregtech.api.capability.IFuelInfo;
 import gregtech.api.capability.IFuelable;

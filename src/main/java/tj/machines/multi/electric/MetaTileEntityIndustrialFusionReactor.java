@@ -54,7 +54,7 @@ import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
-import tj.gui.widgets.OldCycleButtonWidget;
+import tj.gui.widgets.impl.OldCycleButtonWidget;
 import tj.machines.multi.BatchMode;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;

@@ -47,7 +47,7 @@ import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.AdvancedDisplayWidget;
+import tj.gui.widgets.impl.AdvancedDisplayWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.textures.TJTextures;
 import tj.util.Color;

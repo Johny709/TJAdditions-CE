@@ -1,4 +1,4 @@
-package tj.gui.widgets;
+package tj.gui.widgets.impl;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import gregtech.api.gui.IRenderContext;

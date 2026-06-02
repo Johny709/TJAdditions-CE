@@ -1,4 +1,4 @@
-package tj.gui.widgets;
+package tj.gui.widgets.impl;
 
 import com.google.common.base.Preconditions;
 import gregtech.api.gui.IRenderContext;

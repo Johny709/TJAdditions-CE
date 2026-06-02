@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.gui.widgets.PopUpWidget;
-import tj.gui.widgets.TJSlotWidget;
+import tj.gui.widgets.impl.TJSlotWidget;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.items.covers.EnderCoverProfile;

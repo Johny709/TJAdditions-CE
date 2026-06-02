@@ -28,8 +28,8 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.impl.NewTextFieldWidget;
+import tj.gui.widgets.impl.TJLabelWidget;
 import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.textures.TJTextures;
 

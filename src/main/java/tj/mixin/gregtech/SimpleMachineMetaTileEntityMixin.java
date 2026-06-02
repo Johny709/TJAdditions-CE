@@ -18,8 +18,8 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import tj.TJConfig;
 import tj.capability.IRecipeMap;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJProgressBarWidget;
+import tj.gui.widgets.impl.TJLabelWidget;
+import tj.gui.widgets.impl.TJProgressBarWidget;
 import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
 
 @Mixin(value = SimpleMachineMetaTileEntity.class, remap = false)

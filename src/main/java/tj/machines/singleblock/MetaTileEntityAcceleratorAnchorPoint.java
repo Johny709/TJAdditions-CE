@@ -6,7 +6,7 @@ import codechicken.lib.vec.Matrix4;
 import tj.TJValues;
 import tj.capability.LinkEvent;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.impl.TJLabelWidget;
 import tj.machines.multi.electric.MetaTileEntityLargeWorldAccelerator;
 import tj.textures.TJTextures;
 import gregicadditions.GAUtility;

@@ -36,7 +36,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.impl.TJLabelWidget;
 import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.gui.widgets.impl.CraftingRecipeTransferWidget;
 import tj.gui.widgets.impl.SlotDisplayWidget;

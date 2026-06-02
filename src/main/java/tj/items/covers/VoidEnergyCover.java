@@ -16,7 +16,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.*;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.impl.TJLabelWidget;
 import tj.textures.TJTextures;
 
 public class VoidEnergyCover extends CoverBehavior implements CoverWithUI, ITickable {

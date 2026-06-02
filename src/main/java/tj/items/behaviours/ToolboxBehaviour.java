@@ -30,8 +30,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJGuiUtils;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJSlotWidget;
+import tj.gui.widgets.impl.TJLabelWidget;
+import tj.gui.widgets.impl.TJSlotWidget;
 import tj.items.TJMetaItems;
 import tj.items.handlers.FilteredItemStackHandler;
 

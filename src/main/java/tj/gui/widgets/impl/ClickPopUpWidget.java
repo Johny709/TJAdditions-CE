@@ -9,9 +9,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumActionResult;
 import org.apache.commons.lang3.tuple.Pair;
-import tj.gui.widgets.AdvancedDisplayWidget;
 import tj.gui.widgets.ButtonWidget;
-import tj.gui.widgets.TJAdvancedTextWidget;
 import tj.util.predicates.QuadActionResultPredicate;
 
 import java.util.function.Consumer;

@@ -1,4 +1,4 @@
-package tj.gui.widgets;
+package tj.gui.widgets.impl;
 
 import com.google.common.base.Preconditions;
 import gregtech.api.gui.GuiTextures;
@@ -15,6 +15,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.gui.widgets.TJWidget;
 
 import java.util.Arrays;
 import java.util.List;

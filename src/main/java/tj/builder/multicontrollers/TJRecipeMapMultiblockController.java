@@ -34,7 +34,7 @@ import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.AdvancedDisplayWidget;
+import tj.gui.widgets.impl.AdvancedDisplayWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;

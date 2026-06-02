@@ -10,7 +10,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJSlotWidget;
 
 import java.awt.*;
 import java.io.IOException;

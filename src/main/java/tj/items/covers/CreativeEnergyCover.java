@@ -21,6 +21,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.*;
+import tj.gui.widgets.impl.NewTextFieldWidget;
+import tj.gui.widgets.impl.TJLabelWidget;
 import tj.items.TJMetaItems;
 import tj.textures.TJTextures;
 

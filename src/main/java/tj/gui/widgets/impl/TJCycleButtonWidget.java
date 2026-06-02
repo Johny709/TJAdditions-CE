@@ -1,4 +1,4 @@
-package tj.gui.widgets;
+package tj.gui.widgets.impl;
 
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.resources.TextureArea;
@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.gui.widgets.ButtonWidget;
 
 import java.util.Collections;
 import java.util.EnumSet;

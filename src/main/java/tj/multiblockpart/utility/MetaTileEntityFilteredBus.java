@@ -29,7 +29,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
 import tj.gui.TJGuiTextures;
 import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
-import tj.gui.widgets.TJLabelWidget;
+import tj.gui.widgets.impl.TJLabelWidget;
 import tj.gui.widgets.impl.*;
 import tj.util.Color;
 import tj.util.TooltipHelper;

@@ -28,7 +28,7 @@ import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.AdvancedDisplayWidget;
+import tj.gui.widgets.impl.AdvancedDisplayWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 import tj.mixin.gregtech.RecipeMapMultiblockControllerMixin;
 

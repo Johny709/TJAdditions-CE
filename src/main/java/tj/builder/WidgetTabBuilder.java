@@ -7,7 +7,7 @@ import gregtech.api.gui.widgets.tab.ItemTabInfo;
 import gregtech.api.gui.widgets.tab.TabListRenderer;
 import gregtech.api.util.Position;
 import net.minecraft.item.ItemStack;
-import tj.gui.TJTabGroup;
+import tj.gui.widgets.TJTabGroup;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

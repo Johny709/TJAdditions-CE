@@ -26,9 +26,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJProgressBarWidget;
+import tj.gui.widgets.impl.NewTextFieldWidget;
+import tj.gui.widgets.impl.TJLabelWidget;
+import tj.gui.widgets.impl.TJProgressBarWidget;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;

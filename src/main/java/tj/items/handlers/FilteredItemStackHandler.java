@@ -3,13 +3,14 @@ package tj.items.handlers;
 import gregtech.api.cover.ICoverable;
 import net.minecraft.item.ItemStack;
 import org.apache.logging.log4j.util.TriConsumer;
+import tj.gui.widgets.impl.TJSlotWidget;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
 /**
- * Recommended to use {@link tj.gui.widgets.TJSlotWidget} for player interacting with this.
+ * Recommended to use {@link TJSlotWidget} for player interacting with this.
  */
 public class FilteredItemStackHandler extends LargeItemStackHandler {
 

@@ -7,7 +7,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import org.apache.logging.log4j.util.TriConsumer;
-import tj.gui.widgets.TJSlotWidget;
 
 import java.io.IOException;
 

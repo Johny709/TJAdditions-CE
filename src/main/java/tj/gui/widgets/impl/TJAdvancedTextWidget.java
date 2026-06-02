@@ -1,4 +1,4 @@
-package tj.gui.widgets;
+package tj.gui.widgets.impl;
 
 import gregtech.api.gui.widgets.AdvancedTextWidget;
 import net.minecraft.client.gui.FontRenderer;

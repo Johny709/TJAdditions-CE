@@ -17,7 +17,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import tj.TJValues;
 import tj.gui.widgets.PopUpWidget;
-import tj.gui.widgets.TJSlotWidget;
+import tj.gui.widgets.impl.TJSlotWidget;
 import tj.gui.widgets.impl.ButtonPopUpWidget;
 import tj.gui.widgets.impl.TJToggleButtonWidget;
 import tj.items.handlers.LargeItemStackHandler;

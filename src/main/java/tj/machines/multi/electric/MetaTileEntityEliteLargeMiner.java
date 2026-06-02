@@ -60,7 +60,7 @@ import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.gui.TJGuiTextures;
-import tj.gui.widgets.PopUpWidgetGroup;
+import tj.gui.widgets.impl.PopUpWidgetGroup;
 import tj.machines.ExtendedItemFilter;
 import tj.machines.TJMiner;
 import tj.textures.TJTextures;

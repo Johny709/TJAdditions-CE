@@ -32,9 +32,9 @@ import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.gui.TJGuiTextures;
 import tj.gui.TJHorizontoalTabListRenderer;
-import tj.gui.widgets.AdvancedDisplayWidget;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJProgressBarWidget;
+import tj.gui.widgets.impl.AdvancedDisplayWidget;
+import tj.gui.widgets.impl.TJLabelWidget;
+import tj.gui.widgets.impl.TJProgressBarWidget;
 import tj.gui.widgets.impl.AnimatedImageWidget;
 import tj.gui.widgets.impl.ScrollableDisplayWidget;
 
