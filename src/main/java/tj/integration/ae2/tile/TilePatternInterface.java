@@ -9,7 +9,7 @@ import tj.integration.ae2.helpers.DualitySuperInterface;
 public class TilePatternInterface extends TileInterface {
 
     public TilePatternInterface() {
-        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 0, 18, 144), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 18, 18, 36), "duality");
     }
 
     @Override

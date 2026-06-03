@@ -1,6 +1,7 @@
 package tj.gui.gui;
 
 import appeng.helpers.IInterfaceHost;
+import gregtech.api.gui.GuiTextures;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -42,9 +43,18 @@ public class GuiPatternInterface extends GuiContainer {
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         TJGuiTextures.SUPER_INTERFACE.draw(this.guiLeft, this.guiTop, this.xSize, this.ySize);
-        final IItemHandler upgradeInventory = this.interfaceHost.getInventoryByName("upgrades");
-        for (int i = 0; i < upgradeInventory.getSlots(); i++) {
-            TJGuiTextures.PATTERN_OVERLAY.draw(this.guiLeft + 186, this.guiTop + 7 + (18 * i), 18, 18);
+        final IItemHandler upgrades = this.interfaceHost.getInventoryByName("upgrades");
+        final IItemHandler storage = this.interfaceHost.getInterfaceDuality().getStorage();
+        final IItemHandler patterns = this.interfaceHost.getInterfaceDuality().getPatterns();
+        for (int i = 0; i < upgrades.getSlots(); i++) {
+            TJGuiTextures.UPGRADE_OVERLAY.draw(this.guiLeft + 186, this.guiTop + 7 + (18 * i), 18, 18);
+        }
+        for (int i = 0; i < storage.getSlots(); i++) {
+            GuiTextures.SLOT.draw(this.guiLeft + 7 + (18 * (i % 9)), this.guiTop + 52 + (18 * (i / 9)), 18, 18);
+        }
+        for (int i = 0; i < patterns.getSlots(); i++) {
+            GuiTextures.SLOT.draw(this.guiLeft + 7 + (18 * (i % 9)), this.guiTop + 109 + (18 * (i / 9)), 18, 18);
+            TJGuiTextures.PATTERN_OVERLAY.draw(this.guiLeft + 7 + (18 * (i % 9)), this.guiTop + 109 + (18 * (i / 9)), 18, 18);
         }
     }
 
