@@ -2,28 +2,50 @@ package tj.gui.gui;
 
 import appeng.helpers.IInterfaceHost;
 import gregtech.api.gui.GuiTextures;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiButtonToggle;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.items.IItemHandler;
+import tj.TJ;
+import tj.gui.button.GuiToggleButton;
 import tj.gui.container.ContainerPatternInterface;
 import tj.mui.TJGuiTextures;
+import tj.network.CPacketToggleButtonPress;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GuiPatternInterface extends GuiContainer {
 
     private final IInterfaceHost interfaceHost;
+    private GuiToggleButton blockingMode;
 
     public GuiPatternInterface(InventoryPlayer inventoryPlayer, IInterfaceHost interfaceHost) {
         super(new ContainerPatternInterface(inventoryPlayer, interfaceHost));
         this.interfaceHost = interfaceHost;
         this.xSize = 211;
         this.ySize = 292;
+    }
+
+    @Override
+    public void initGui() {
+        super.initGui();
+        this.blockingMode = this.addButton(new GuiToggleButton(0, this.guiLeft - 18, this.guiTop + 35, 16, 16, new ResourceLocation(TJ.MODID, "textures/gui/widgets/blocking_mode_toggle.png")));
+    }
+
+    @Override
+    protected void actionPerformed(@Nonnull GuiButton button) {
+        if (button == this.blockingMode) {
+            this.mc.getConnection().sendPacket(new CPacketToggleButtonPress(this.blockingMode.id, (int) this.mc.player.posX, (int) this.mc.player.posY, (int) this.mc.player.posZ, this.mc.player.world.provider.getDimension(), this.blockingMode.enabled));
+        }
     }
 
     @Override
@@ -35,7 +57,7 @@ public class GuiPatternInterface extends GuiContainer {
                 final ItemStack itemStack = slot.getStack();
                 if (itemStack.isEmpty()) continue;
                 final List<String> tooltips = new ArrayList<>(itemStack.getTooltip(this.mc.player, tooltipFlag));
-                GuiUtils.drawHoveringText(itemStack, tooltips, mouseX, mouseY, this.xSize, this.ySize, 300, this.fontRenderer);
+                GuiUtils.drawHoveringText(itemStack, tooltips, mouseX, mouseY, this.xSize, this.ySize, 300, Minecraft.getMinecraft().fontRenderer);
             }
         }
     }

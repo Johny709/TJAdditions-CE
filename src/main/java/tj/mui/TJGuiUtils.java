@@ -15,6 +15,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import static gregtech.api.gui.resources.RenderUtil.setGlColorFromInt;
 
@@ -109,6 +111,27 @@ public final class TJGuiUtils {
         buffer.pos(xCoord + 16 - maskRight, yCoord + 16, zLevel).tex(uMax, vMax).endVertex();
         buffer.pos(xCoord + 16 - maskRight, yCoord + maskTop, zLevel).tex(uMax, vMin).endVertex();
         buffer.pos(xCoord, yCoord + maskTop, zLevel).tex(uMin, vMin).endVertex();
+        tessellator.draw();
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void draw(double x, double y, int width, int height, ResourceLocation imageLocation) {
+        drawSubArea(x, y, width, height, 0.0, 0.0, 1.0, 1.0, imageLocation);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void drawSubArea(double x, double y, int width, int height, double drawnU, double drawnV, double drawnWidth, double drawnHeight, ResourceLocation imageLocation) {
+        //sub area is just different width and height
+        double imageU = 0.0 + (drawnU);
+        double imageV = 0.0 + (drawnV);
+        Minecraft.getMinecraft().renderEngine.bindTexture(imageLocation);
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder.pos(x, y + height, 0.0D).tex(imageU, imageV + drawnHeight).endVertex();
+        bufferbuilder.pos(x + width, y + height, 0.0D).tex(imageU + drawnWidth, imageV + drawnHeight).endVertex();
+        bufferbuilder.pos(x + width, y, 0.0D).tex(imageU + drawnWidth, imageV).endVertex();
+        bufferbuilder.pos(x, y, 0.0D).tex(imageU, imageV).endVertex();
         tessellator.draw();
     }
 }

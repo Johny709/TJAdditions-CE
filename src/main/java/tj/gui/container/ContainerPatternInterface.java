@@ -1,6 +1,9 @@
 package tj.gui.container;
 
+import appeng.api.config.Settings;
+import appeng.api.config.YesNo;
 import appeng.helpers.IInterfaceHost;
+import gregtech.api.util.GTLog;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -8,6 +11,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
+import tj.network.CPacketToggleButtonPress;
 import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
@@ -51,6 +55,14 @@ public class ContainerPatternInterface extends Container {
         final IItemHandler patterns = this.interfaceHost.getInterfaceDuality().getPatterns();
         for (int i = 0; i < patterns.getSlots(); i++) {
             this.addSlotToContainer(new SlotItemHandler(patterns, i, startX + (18 * (i % 9)), 110 + (18 * (i / 9))));
+        }
+    }
+
+    public void readServerPacket(CPacketToggleButtonPress packetToggleButtonPress) {
+        if (packetToggleButtonPress.id == 0) {
+            this.interfaceHost.getInterfaceDuality().getConfigManager().putSetting(Settings.BLOCK, packetToggleButtonPress.value ? YesNo.YES : YesNo.NO);
+            final String s = "Blocking mode: " + packetToggleButtonPress.value;
+            GTLog.logger.info(s);
         }
     }
 
