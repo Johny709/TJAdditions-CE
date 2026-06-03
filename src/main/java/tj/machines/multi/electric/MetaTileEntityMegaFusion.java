@@ -53,7 +53,7 @@ import java.util.function.UnaryOperator;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static tj.gui.TJGuiTextures.BAR_RED;
+import static tj.mui.TJGuiTextures.BAR_RED;
 
 public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController implements IHeatInfo, IProgressBar {
 

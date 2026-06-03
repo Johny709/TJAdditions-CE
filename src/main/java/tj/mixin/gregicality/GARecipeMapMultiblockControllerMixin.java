@@ -27,9 +27,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.AdvancedDisplayWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.AdvancedDisplayWidget;
+import tj.mui.widgets.impl.ScrollableDisplayWidget;
 import tj.mixin.gregtech.RecipeMapMultiblockControllerMixin;
 
 import java.text.SimpleDateFormat;
@@ -39,7 +39,7 @@ import java.util.List;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate;
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 
 @Mixin(value = GARecipeMapMultiblockController.class, remap = false)
 public abstract class GARecipeMapMultiblockControllerMixin extends RecipeMapMultiblockControllerMixin {

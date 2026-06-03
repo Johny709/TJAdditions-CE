@@ -18,9 +18,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.TJProgressBarWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJProgressBarWidget;
 import tj.machines.singleblock.MetaTileEntityCoalBoiler;
 import tj.util.TJFluidUtils;
 

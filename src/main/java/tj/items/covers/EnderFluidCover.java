@@ -19,10 +19,10 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import tj.gui.widgets.PopUpWidget;
-import tj.gui.widgets.impl.TJTankWidget;
-import tj.gui.widgets.impl.ButtonPopUpWidget;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.widgets.PopUpWidget;
+import tj.mui.widgets.impl.TJTankWidget;
+import tj.mui.widgets.impl.ButtonPopUpWidget;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
 
@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 
 import static gregtech.api.gui.GuiTextures.*;
 import static tj.TJValues.DUMMY_TANK;
-import static tj.gui.TJGuiTextures.FLUID_FILTER;
+import static tj.mui.TJGuiTextures.FLUID_FILTER;
 import static tj.textures.TJTextures.PORTAL_OVERLAY;
 
 public class EnderFluidCover extends AbstractEnderCover<FluidTank> {

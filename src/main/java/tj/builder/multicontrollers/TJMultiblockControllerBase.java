@@ -56,13 +56,13 @@ import tj.capability.IMachineHandler;
 import tj.capability.IMuffler;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.gui.TJGuiTextures;
-import tj.gui.TJHorizontoalTabListRenderer;
-import tj.gui.widgets.impl.AdvancedDisplayWidget;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.TJProgressBarWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
-import tj.gui.widgets.impl.AnimatedImageWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.TJHorizontoalTabListRenderer;
+import tj.mui.widgets.impl.AdvancedDisplayWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJProgressBarWidget;
+import tj.mui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.widgets.impl.AnimatedImageWidget;
 import tj.multiblockpart.TJMultiblockAbility;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -76,9 +76,9 @@ import java.util.stream.Collectors;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.capabilities.MultiblockDataCodes.STORE_TAPED;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_ITEMS;
-import static tj.gui.TJGuiTextures.*;
-import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
-import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
+import static tj.mui.TJGuiTextures.*;
+import static tj.mui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
+import static tj.mui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
 public abstract class TJMultiblockControllerBase extends MultiblockControllerBase implements IControllable, IMaintenance, IMuffler, IMachineHandler {
 

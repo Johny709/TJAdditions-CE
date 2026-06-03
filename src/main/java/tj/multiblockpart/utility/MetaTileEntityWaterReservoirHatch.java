@@ -26,9 +26,9 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.TJProgressBarWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJProgressBarWidget;
 import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
 

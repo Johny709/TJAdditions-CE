@@ -14,11 +14,11 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
-import tj.gui.TJGuiTextures;
-import tj.gui.TJGuiUtils;
-import tj.gui.widgets.*;
-import tj.gui.widgets.impl.NewTextFieldWidget;
-import tj.gui.widgets.impl.TJLabelWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.TJGuiUtils;
+import tj.mui.widgets.PopUpWidget;
+import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
 import tj.items.TJMetaItems;
 import tj.util.references.BooleanReference;
 import tj.util.references.IntegerReference;
@@ -29,8 +29,8 @@ import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
-import static tj.gui.TJGuiTextures.*;
-import static tj.gui.TJGuiTextures.TOGGLE_MINUS_BUTTON;
+import static tj.mui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.TOGGLE_MINUS_BUTTON;
 
 public class CreativeEnergyCoverBehaviour implements IItemBehaviour, ItemUIFactory {
 

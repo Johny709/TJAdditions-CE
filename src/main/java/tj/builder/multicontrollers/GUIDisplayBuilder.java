@@ -14,7 +14,7 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fluids.FluidStack;
 import tj.TJValues;
 import tj.capability.IItemFluidHandlerInfo;
-import tj.gui.widgets.impl.AdvancedDisplayWidget;
+import tj.mui.widgets.impl.AdvancedDisplayWidget;
 import tj.mixin.gregtech.IAbstractRecipeLogicMixin;
 import tj.util.TJFluidUtils;
 import tj.util.TJUtility;

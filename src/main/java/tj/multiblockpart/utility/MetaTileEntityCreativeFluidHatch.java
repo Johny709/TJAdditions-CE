@@ -27,11 +27,11 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.NewTextFieldWidget;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.SelectionWidgetGroup;
-import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.SelectionWidgetGroup;
+import tj.mui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;

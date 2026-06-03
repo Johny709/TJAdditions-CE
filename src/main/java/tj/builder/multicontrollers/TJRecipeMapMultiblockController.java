@@ -33,9 +33,9 @@ import tj.builder.WidgetTabBuilder;
 import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.AdvancedDisplayWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.AdvancedDisplayWidget;
+import tj.mui.widgets.impl.ScrollableDisplayWidget;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
@@ -47,7 +47,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 
 public abstract class TJRecipeMapMultiblockController extends TJMultiblockControllerBase implements IRecipeHandler {
 

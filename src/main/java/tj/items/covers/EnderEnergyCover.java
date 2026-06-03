@@ -25,8 +25,8 @@ import java.util.function.Consumer;
 
 import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER;
 import static gregtech.api.gui.widgets.ProgressWidget.MoveType.VERTICAL;
-import static tj.gui.TJGuiTextures.BAR_HEAT;
-import static tj.gui.TJGuiTextures.BAR_STEEL;
+import static tj.mui.TJGuiTextures.BAR_HEAT;
+import static tj.mui.TJGuiTextures.BAR_STEEL;
 import static tj.textures.TJTextures.PORTAL_OVERLAY;
 
 public class EnderEnergyCover extends AbstractEnderCover<BasicEnergyHandler> {

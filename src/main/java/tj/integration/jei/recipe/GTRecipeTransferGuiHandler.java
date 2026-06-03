@@ -9,7 +9,7 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
-import tj.gui.widgets.IGTRecipeTransferHandler;
+import tj.mui.widgets.IGTRecipeTransferHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

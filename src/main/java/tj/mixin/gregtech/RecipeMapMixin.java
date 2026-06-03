@@ -23,8 +23,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import tj.builder.RecipeUtility;
 import tj.capability.IRecipeMap;
-import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
-import tj.gui.widgets.impl.RecipeOutputSlotWidget;
+import tj.mui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.mui.widgets.impl.RecipeOutputSlotWidget;
 
 import java.util.Collection;
 import java.util.HashSet;

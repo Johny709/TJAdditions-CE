@@ -29,7 +29,7 @@ import tj.blocks.EnergyPortCasings;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.gui.TJGuiTextures;
+import tj.mui.TJGuiTextures;
 import tj.mixin.gregtech.RecipeMapMultiblockControllerMixin;
 
 import java.util.ArrayList;

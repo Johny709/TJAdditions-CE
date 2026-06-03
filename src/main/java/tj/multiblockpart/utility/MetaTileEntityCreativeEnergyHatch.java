@@ -25,10 +25,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.NewTextFieldWidget;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.TJProgressBarWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJProgressBarWidget;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;

@@ -34,10 +34,8 @@ import org.apache.commons.lang3.tuple.Triple;
 import tj.capability.impl.workable.CrafterRecipeLogic;
 import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.TJProgressBarWidget;
-import tj.gui.widgets.impl.*;
-import tj.gui.widgets.impl.TJLabelWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
 import tj.util.Color;
 import tj.util.EnumFacingHelper;
@@ -49,7 +47,7 @@ import java.util.Map;
 
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 
 
 public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implements IRecipeMapProvider {

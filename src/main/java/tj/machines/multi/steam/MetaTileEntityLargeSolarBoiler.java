@@ -51,7 +51,7 @@ import tj.capability.IHeatInfo;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.TJCapabilities;
-import tj.gui.TJGuiTextures;
+import tj.mui.TJGuiTextures;
 import tj.multiblockpart.TJMultiblockAbility;
 import tj.util.Color;
 import tj.util.TooltipHelper;

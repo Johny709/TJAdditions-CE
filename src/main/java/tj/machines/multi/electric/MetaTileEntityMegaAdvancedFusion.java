@@ -49,7 +49,7 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
 import tj.capability.impl.handler.IFusionHandler;
 import tj.capability.impl.workable.MegaRecipeLogic;
-import tj.gui.TJGuiTextures;
+import tj.mui.TJGuiTextures;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;

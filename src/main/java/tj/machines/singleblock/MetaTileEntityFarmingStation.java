@@ -34,13 +34,13 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.capability.impl.handler.IFarmerHandler;
 import tj.capability.impl.workable.FarmingStationWorkableHandler;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.TJProgressBarWidget;
-import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
-import tj.gui.widgets.impl.RecipeOutputSlotWidget;
-import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.TJSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJProgressBarWidget;
+import tj.mui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.mui.widgets.impl.RecipeOutputSlotWidget;
+import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJSlotWidget;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
@@ -53,7 +53,7 @@ import java.util.List;
 import static gregicadditions.GAMaterials.OrganicFertilizer;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 
 
 public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity implements IFarmerHandler {

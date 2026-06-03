@@ -31,11 +31,8 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.capability.impl.handler.IMinerHandler;
 import tj.capability.impl.workable.MinerWorkableHandler;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.TJProgressBarWidget;
-import tj.gui.widgets.impl.TJSlotWidget;
-import tj.gui.widgets.impl.*;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.*;
 import tj.items.handlers.LargeItemStackHandler;
 
 import javax.annotation.Nullable;
@@ -44,7 +41,7 @@ import java.util.Objects;
 
 import static gregtech.api.gui.GuiTextures.BUTTON_ITEM_OUTPUT;
 import static gregtech.api.gui.GuiTextures.PROGRESS_BAR_ARROW;
-import static tj.gui.TJGuiTextures.TOGGLE_POWER_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 
 public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEntity implements IMinerHandler {
 

@@ -9,7 +9,7 @@ import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.api.gui.widgets.SlotWidget;
 import gregtech.api.gui.widgets.TankWidget;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
+import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
 
 public class RecipeMapLargeAssemblyLine extends RecipeMapAssemblyLine<QubitConsumerRecipeBuilder> {
 

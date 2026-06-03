@@ -3,7 +3,7 @@ package tj.items.handlers;
 import gregtech.api.cover.ICoverable;
 import net.minecraft.item.ItemStack;
 import org.apache.logging.log4j.util.TriConsumer;
-import tj.gui.widgets.impl.TJSlotWidget;
+import tj.mui.widgets.impl.TJSlotWidget;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;

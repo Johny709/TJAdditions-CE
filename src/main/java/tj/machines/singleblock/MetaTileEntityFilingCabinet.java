@@ -37,10 +37,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.TJSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJSlotWidget;
 import tj.items.handlers.CabinetItemStackHandler;
 import tj.util.TooltipHelper;
 

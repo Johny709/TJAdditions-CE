@@ -30,8 +30,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.TJLabelWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJLabelWidget;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;

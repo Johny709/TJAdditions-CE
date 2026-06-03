@@ -24,10 +24,10 @@ import tj.capability.IProcessorProvider;
 import tj.capability.IRecipeMap;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.TJProgressBarWidget;
-import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJProgressBarWidget;
+import tj.mui.widgets.impl.RecipeOutputDisplayWidget;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 

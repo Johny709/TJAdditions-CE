@@ -16,10 +16,10 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
-import tj.gui.widgets.PopUpWidget;
-import tj.gui.widgets.impl.TJSlotWidget;
-import tj.gui.widgets.impl.ButtonPopUpWidget;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.widgets.PopUpWidget;
+import tj.mui.widgets.impl.TJSlotWidget;
+import tj.mui.widgets.impl.ButtonPopUpWidget;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.items.covers.EnderCoverProfile;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJSimpleOverlayRenderer;
@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static gregtech.api.gui.GuiTextures.*;
-import static tj.gui.TJGuiTextures.ITEM_FILTER;
+import static tj.mui.TJGuiTextures.ITEM_FILTER;
 
 public class MetaTileEntityEnderItemBus extends AbstractEnderHatch<IItemHandlerModifiable, LargeItemStackHandler> {
 

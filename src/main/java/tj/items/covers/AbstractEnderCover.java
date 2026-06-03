@@ -34,9 +34,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IEnderNotifiable;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.*;
-import tj.gui.widgets.impl.*;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.PopUpWidget;
+import tj.mui.widgets.impl.*;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.predicates.QuadActionResultPredicate;
@@ -52,7 +52,7 @@ import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLoc
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
 import static net.minecraft.util.text.TextFormatting.GRAY;
 import static net.minecraft.util.text.TextFormatting.YELLOW;
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 
 public abstract class AbstractEnderCover<V> extends CoverBehavior implements CoverWithUI, ITickable, IControllable, IEnderNotifiable<V> {
 

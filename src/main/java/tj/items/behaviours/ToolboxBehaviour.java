@@ -28,10 +28,10 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.items.ItemStackHandler;
-import tj.gui.TJGuiTextures;
-import tj.gui.TJGuiUtils;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.TJSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.TJGuiUtils;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJSlotWidget;
 import tj.items.TJMetaItems;
 import tj.items.handlers.FilteredItemStackHandler;
 

@@ -18,7 +18,7 @@ import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.gui.TJGuiTextures;
+import tj.mui.TJGuiTextures;
 import tj.multiblockpart.TJMultiblockAbility;
 import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.impl.*;

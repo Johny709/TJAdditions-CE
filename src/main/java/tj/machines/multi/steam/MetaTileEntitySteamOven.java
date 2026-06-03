@@ -39,7 +39,7 @@ import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.handler.ICoilHandler;
 import tj.capability.impl.workable.MultiSmelterWorkableHandler;
-import tj.gui.TJGuiTextures;
+import tj.mui.TJGuiTextures;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 import tj.util.TJFluidUtils;

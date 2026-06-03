@@ -41,10 +41,10 @@ import tj.capability.AbstractWorkableHandler;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.handler.ICharcoalHandler;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.ButtonPopUpWidget;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
-import tj.gui.widgets.impl.WindowsWidgetGroup;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.ButtonPopUpWidget;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.widgets.impl.WindowsWidgetGroup;
 import tj.util.references.IntegerReference;
 import tj.util.references.ObjectReference;
 

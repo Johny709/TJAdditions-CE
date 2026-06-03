@@ -23,13 +23,13 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
 import tj.TJ;
-import tj.gui.TJGuiTextures;
-import tj.gui.uifactory.ITileEntityUI;
-import tj.gui.uifactory.TileEntityHolder;
-import tj.gui.widgets.*;
-import tj.gui.widgets.impl.*;
+import tj.mui.TJGuiTextures;
+import tj.mui.uifactory.ITileEntityUI;
+import tj.mui.uifactory.TileEntityHolder;
 import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.items.item.TJItems;
+import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.impl.*;
 import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;

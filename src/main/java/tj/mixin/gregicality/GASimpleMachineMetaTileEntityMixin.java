@@ -20,10 +20,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import tj.TJConfig;
 import tj.capability.IRecipeMap;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.TJProgressBarWidget;
-import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJProgressBarWidget;
+import tj.mui.widgets.impl.RecipeOutputDisplayWidget;
 import tj.mixin.gregtech.IAbstractRecipeLogicMixin;
 
 @Mixin(value = GASimpleMachineMetaTileEntity.class, remap = false)

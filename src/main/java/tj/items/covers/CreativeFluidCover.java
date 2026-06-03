@@ -27,11 +27,11 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.NewTextFieldWidget;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.SelectionWidgetGroup;
-import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.SelectionWidgetGroup;
+import tj.mui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.textures.TJTextures;
 
 import java.util.List;

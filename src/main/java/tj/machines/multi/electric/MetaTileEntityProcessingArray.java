@@ -45,7 +45,7 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.IProcessorProvider;
 import tj.capability.OverclockManager;
-import tj.gui.widgets.impl.TJSlotWidget;
+import tj.mui.widgets.impl.TJSlotWidget;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.textures.TJOrientedOverlayRenderer;
 

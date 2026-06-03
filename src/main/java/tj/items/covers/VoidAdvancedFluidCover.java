@@ -19,11 +19,11 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.NewTextFieldWidget;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.SelectionWidgetGroup;
-import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.SelectionWidgetGroup;
+import tj.mui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.textures.TJTextures;
 
 import java.util.regex.Pattern;

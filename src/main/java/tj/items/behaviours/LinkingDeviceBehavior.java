@@ -28,7 +28,7 @@ import tj.TJValues;
 import tj.capability.LinkEntity;
 import tj.capability.LinkPos;
 import tj.event.MTELinkEvent;
-import tj.gui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.NewTextFieldWidget;
 import tj.items.LinkingMode;
 
 import java.util.List;

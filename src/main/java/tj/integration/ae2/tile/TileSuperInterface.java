@@ -18,12 +18,12 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
 import tj.blocks.block.TJBlocks;
-import tj.gui.TJGuiTextures;
-import tj.gui.uifactory.ITileEntityUI;
-import tj.gui.uifactory.TileEntityHolder;
-import tj.gui.widgets.*;
-import tj.gui.widgets.impl.*;
+import tj.mui.TJGuiTextures;
+import tj.mui.uifactory.ITileEntityUI;
+import tj.mui.uifactory.TileEntityHolder;
 import tj.integration.ae2.helpers.DualitySuperInterface;
+import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.impl.*;
 import tj.util.TJItemUtils;
 
 import java.util.EnumSet;

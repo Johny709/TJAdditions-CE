@@ -19,17 +19,17 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.*;
-import tj.gui.widgets.impl.NewTextFieldWidget;
-import tj.gui.widgets.impl.TJLabelWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.PopUpWidget;
+import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
 import tj.items.TJMetaItems;
 import tj.textures.TJTextures;
 
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 
 public class CreativeEnergyCover extends CoverBehavior implements ITickable, CoverWithUI {
 

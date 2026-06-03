@@ -5,7 +5,7 @@ import gregtech.api.gui.impl.ModularUIGui;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import tj.gui.widgets.IRecipeClickArea;
+import tj.mui.widgets.IRecipeClickArea;
 
 @Mixin(value = ModularUIGui.class, remap = false)
 public abstract class ModularUIGuiMixin implements IRecipeClickArea {

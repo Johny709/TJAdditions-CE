@@ -30,13 +30,13 @@ import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.gui.TJGuiTextures;
-import tj.gui.TJHorizontoalTabListRenderer;
-import tj.gui.widgets.impl.AdvancedDisplayWidget;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.TJProgressBarWidget;
-import tj.gui.widgets.impl.AnimatedImageWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.TJHorizontoalTabListRenderer;
+import tj.mui.widgets.impl.AdvancedDisplayWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJProgressBarWidget;
+import tj.mui.widgets.impl.AnimatedImageWidget;
+import tj.mui.widgets.impl.ScrollableDisplayWidget;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.text.SimpleDateFormat;
@@ -45,9 +45,9 @@ import java.util.*;
 import java.util.function.UnaryOperator;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.STORE_TAPED;
-import static tj.gui.TJGuiTextures.*;
-import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
-import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
+import static tj.mui.TJGuiTextures.*;
+import static tj.mui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
+import static tj.mui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
 public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderMultiblockController implements IMaintenance {
 

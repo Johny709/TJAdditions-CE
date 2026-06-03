@@ -59,8 +59,8 @@ import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.PopUpWidgetGroup;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.PopUpWidgetGroup;
 import tj.machines.ExtendedItemFilter;
 import tj.machines.TJMiner;
 import tj.textures.TJTextures;
@@ -77,7 +77,7 @@ import static gregicadditions.GAMaterials.Taranium;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.unification.material.Materials.DrillingFluid;
 import static gregtech.api.unification.material.Materials.Duranium;
-import static tj.gui.TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON;
 
 
 public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase implements TJMiner {

@@ -17,11 +17,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.capability.impl.workable.ChiselWorkbenchWorkableHandler;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.TJLabelWidget;
-import tj.gui.widgets.impl.TJProgressBarWidget;
-import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
-import tj.gui.widgets.impl.RecipeOutputSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJProgressBarWidget;
+import tj.mui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.mui.widgets.impl.RecipeOutputSlotWidget;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -30,7 +30,7 @@ import java.util.List;
 
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.SLOT;
-import static tj.gui.TJGuiTextures.TOGGLE_POWER_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 
 public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntity {
 

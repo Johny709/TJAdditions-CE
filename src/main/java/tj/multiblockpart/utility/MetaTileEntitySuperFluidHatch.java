@@ -7,7 +7,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
-import tj.gui.TJGuiTextures;
+import tj.mui.TJGuiTextures;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
 import gregtech.api.capability.impl.FluidTankList;
@@ -33,7 +33,7 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
-import tj.gui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;

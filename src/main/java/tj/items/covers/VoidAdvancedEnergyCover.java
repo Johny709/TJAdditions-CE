@@ -14,15 +14,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.NewTextFieldWidget;
-import tj.gui.widgets.impl.TJLabelWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
 import tj.textures.TJTextures;
 
 import java.util.regex.Pattern;
 
-import static tj.gui.TJGuiTextures.TOGGLE_MINUS_BUTTON;
-import static tj.gui.TJGuiTextures.TOGGLE_PLUS_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_MINUS_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_PLUS_BUTTON;
 
 public class VoidAdvancedEnergyCover extends VoidEnergyCover {
 

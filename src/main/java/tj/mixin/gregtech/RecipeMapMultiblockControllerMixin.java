@@ -21,7 +21,7 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 
 import java.util.List;
 
-import static tj.gui.TJGuiTextures.TOGGLE_POWER_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 
 @Mixin(value = RecipeMapMultiblockController.class, remap = false)
 public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithDisplayBaseMixin {

@@ -15,12 +15,12 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import tj.capability.impl.workable.TJFuelRecipeLogic;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 
 import java.util.List;
 
-import static tj.gui.TJGuiTextures.TOGGLE_POWER_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 
 @Mixin(value = FueledMultiblockController.class, remap = false)
 public abstract class FueledMultiblockControllerMixin extends MultiblockWithDisplayBaseMixin implements IFueledMultiblockControllerMixin {
