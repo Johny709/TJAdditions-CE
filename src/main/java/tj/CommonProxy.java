@@ -1,6 +1,7 @@
 package tj;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import tj.blocks.block.TJBlocks;
 import tj.capability.LinkEvent;

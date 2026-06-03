@@ -9,10 +9,12 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.apache.logging.log4j.Logger;
 import tj.blocks.TJMetaBlocks;
 import tj.blocks.block.TJBlocks;
 import tj.capability.TJSimpleCapabilityManager;
+import tj.gui.GuiHandler;
 import tj.gui.uifactory.PlayerUIFactory;
 import tj.gui.uifactory.TileEntityUIFactory;
 import tj.integration.theoneprobe.TheOneProbeCompatibility;
@@ -23,6 +25,9 @@ import tj.machines.TJMetaTileEntities;
 
 @Mod(modid = TJ.MODID, name = TJ.NAME, version = TJ.VERSION)
 public class TJ {
+
+    @Mod.Instance(value = TJ.MODID)
+    public static TJ INSTANCE;
 
     public static final String MODID = "tj";
     public static final String NAME = "TJ";
@@ -49,6 +54,7 @@ public class TJ {
     @EventHandler
     public void init(FMLInitializationEvent event) {
         proxy.onLoad();
+        NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
         if (GTValues.isModLoaded(GTValues.MODID_TOP)) {
             GTLog.logger.info("TheOneProbe found. Enabling integration...");
             TheOneProbeCompatibility.registerCompatibility();
