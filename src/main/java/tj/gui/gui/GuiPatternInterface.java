@@ -4,7 +4,6 @@ import appeng.helpers.IInterfaceHost;
 import gregtech.api.gui.GuiTextures;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiButtonToggle;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -17,7 +16,7 @@ import tj.TJ;
 import tj.gui.button.GuiToggleButton;
 import tj.gui.container.ContainerPatternInterface;
 import tj.mui.TJGuiTextures;
-import tj.network.CPacketToggleButtonPress;
+import tj.network.PacketToggleButtonPress;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -27,6 +26,9 @@ public class GuiPatternInterface extends GuiContainer {
 
     private final IInterfaceHost interfaceHost;
     private GuiToggleButton blockingMode;
+    private GuiToggleButton interfaceTerminal;
+    private GuiToggleButton sendFluid;
+    private GuiToggleButton splittingItemsFluids;
 
     public GuiPatternInterface(InventoryPlayer inventoryPlayer, IInterfaceHost interfaceHost) {
         super(new ContainerPatternInterface(inventoryPlayer, interfaceHost));
@@ -39,13 +41,9 @@ public class GuiPatternInterface extends GuiContainer {
     public void initGui() {
         super.initGui();
         this.blockingMode = this.addButton(new GuiToggleButton(0, this.guiLeft - 18, this.guiTop + 35, 16, 16, new ResourceLocation(TJ.MODID, "textures/gui/widgets/blocking_mode_toggle.png")));
-    }
-
-    @Override
-    protected void actionPerformed(@Nonnull GuiButton button) {
-        if (button == this.blockingMode) {
-            this.mc.getConnection().sendPacket(new CPacketToggleButtonPress(this.blockingMode.id, (int) this.mc.player.posX, (int) this.mc.player.posY, (int) this.mc.player.posZ, this.mc.player.world.provider.getDimension(), this.blockingMode.enabled));
-        }
+        this.interfaceTerminal = this.addButton(new GuiToggleButton(1, this.guiLeft - 18, this.guiTop + 55, 16, 16, new ResourceLocation(TJ.MODID, "textures/gui/widgets/interface_terminal_toggle.png")));
+        this.sendFluid = this.addButton(new GuiToggleButton(2, this.guiLeft - 18, this.guiTop + 75, 16, 16, new ResourceLocation(TJ.MODID, "textures/gui/widgets/send_fluid_toggle.png")));
+        this.splittingItemsFluids = this.addButton(new GuiToggleButton(3, this.guiLeft - 18, this.guiTop + 95, 16, 16, new ResourceLocation(TJ.MODID, "textures/gui/widgets/splitting_items_fluids_toggle.png")));
     }
 
     @Override
@@ -78,6 +76,22 @@ public class GuiPatternInterface extends GuiContainer {
             GuiTextures.SLOT.draw(this.guiLeft + 7 + (18 * (i % 9)), this.guiTop + 109 + (18 * (i / 9)), 18, 18);
             TJGuiTextures.PATTERN_OVERLAY.draw(this.guiLeft + 7 + (18 * (i % 9)), this.guiTop + 109 + (18 * (i / 9)), 18, 18);
         }
+    }
+
+    @Override
+    protected void actionPerformed(@Nonnull GuiButton button) {
+        if (button instanceof GuiToggleButton)
+            this.mc.getConnection().sendPacket(new PacketToggleButtonPress(button.id, (int) this.mc.player.posX, (int) this.mc.player.posY, (int) this.mc.player.posZ, this.mc.player.world.provider.getDimension(), ((GuiToggleButton) button).on));
+    }
+
+    @Override
+    public void updateScreen() {
+        super.updateScreen();
+        final ContainerPatternInterface containerPatternInterface = (ContainerPatternInterface) this.inventorySlots;
+        this.blockingMode.on = containerPatternInterface.isBlockingMode();
+        this.interfaceTerminal.on = containerPatternInterface.isInterfaceTerminal();
+        this.sendFluid.on = containerPatternInterface.isSendFluid();
+        this.splittingItemsFluids.on = containerPatternInterface.isSplittingItemsFluids();
     }
 
     private boolean isMouseOverSlot(int x, int y, int mouseX, int mouseY) {

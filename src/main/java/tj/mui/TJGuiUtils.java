@@ -15,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -24,6 +25,10 @@ import static gregtech.api.gui.resources.RenderUtil.setGlColorFromInt;
 public final class TJGuiUtils {
 
     private TJGuiUtils() {}
+
+    public static boolean isServer() {
+        return FMLCommonHandler.instance().getEffectiveSide().isServer();
+    }
 
     /**
      *

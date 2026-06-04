@@ -1,17 +1,19 @@
 package tj.network;
 
-import gregtech.api.util.GTLog;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import tj.gui.container.ContainerPatternInterface;
+import tj.mui.TJGuiUtils;
 
 import javax.annotation.Nonnull;
 
-public class CPacketToggleButtonPress implements Packet<INetHandler> {
+public class PacketToggleButtonPress implements Packet<INetHandler> {
 
     public int id;
     public int x;
@@ -20,7 +22,7 @@ public class CPacketToggleButtonPress implements Packet<INetHandler> {
     public int world;
     public boolean value;
 
-    public CPacketToggleButtonPress(int id, int x, int y, int z, int world, boolean value) {
+    public PacketToggleButtonPress(int id, int x, int y, int z, int world, boolean value) {
         this.id = id;
         this.x = x;
         this.y = y;
@@ -55,7 +57,9 @@ public class CPacketToggleButtonPress implements Packet<INetHandler> {
         final EntityPlayer player = world.getClosestPlayer(this.x, this.y, this.z, 3, false);
         if (player == null) return;
         if (player.openContainer instanceof ContainerPatternInterface) {
-            ((ContainerPatternInterface) player.openContainer).readServerPacket(this);
+            if (TJGuiUtils.isServer()) {
+                FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> ((ContainerPatternInterface) player.openContainer).readClientPacket(this));
+            } else Minecraft.getMinecraft().addScheduledTask(() -> ((ContainerPatternInterface) player.openContainer).readServerPacket(this));
         }
     }
 }
