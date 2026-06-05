@@ -42,8 +42,10 @@ public class DualitySuperInterface extends DualityInterface {
         // dummy config for Block All, Field: (int) blockModeEx
         this.getConfigManager().registerSetting(Settings.CONDENSER_OUTPUT, CondenserOutput.TRASH);
 
+        final AppEngInternalInventory patternInventory = new AppEngInternalInventory(this, patterns, 1);
+        patternInventory.setFilter(new DualityPatternFilter());
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new IAEItemStack[storageSlots], "requireWork");
-        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new AppEngInternalInventory(this, patterns, 1), "patterns");
+        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, patternInventory, "patterns");
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new AppEngInternalAEInventory(this, storageSlots, 1024), "config");
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new DualityUpgradeInventory(this, upgradeSlots), "upgrades");
         try {
@@ -209,6 +211,26 @@ public class DualitySuperInterface extends DualityInterface {
                     (itemStack.isItemEqual(pattern) && TJItemUtils.extractFromItemHandler(iItemHandler, pattern, Integer.MAX_VALUE, true).getCount() <= 7) ||
                     (itemStack.isItemEqual(crafting) && TJItemUtils.extractFromItemHandler(iItemHandler, crafting, Integer.MAX_VALUE, true).getCount() <= 1) ||
                     (itemStack.isItemEqual(maxCapacity) && TJItemUtils.extractFromItemHandler(iItemHandler, maxCapacity, Integer.MAX_VALUE, true).getCount() <= 1);
+        }
+    }
+
+    private static class DualityPatternFilter implements IAEItemFilter {
+
+        @Override
+        public boolean allowExtract(IItemHandler iItemHandler, int slot, int i1) {
+            return true;
+        }
+
+        @Override
+        public boolean allowInsert(IItemHandler iItemHandler, int slot, ItemStack itemStack) {
+            if (itemStack.getTagCompound() == null)
+                return false;
+            for (int i = 0; i < iItemHandler.getSlots(); i++) {
+                final ItemStack stack = iItemHandler.getStackInSlot(i);
+                if (stack.getTagCompound() != null && stack.getTagCompound().equals(itemStack.getTagCompound()))
+                    return false;
+            }
+            return true;
         }
     }
 }
