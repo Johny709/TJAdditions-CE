@@ -20,6 +20,7 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
+import tj.TJ;
 import tj.mui.TJGuiUtils;
 import tj.mui.widgets.TJWidget;
 import tj.util.TJItemUtils;
@@ -127,7 +128,7 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
                 case 5: this.amount = buffer.readInt();
             }
         } catch (IOException e) {
-            GTLog.logger.info(e.getMessage());
+            TJ.logger.info(e.getMessage());
         }
     }
 
@@ -187,7 +188,7 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
             this.gui.entityPlayer.inventory.setItemStack(itemStack);
             this.writeUpdateInfo(1, buffer1 -> buffer1.writeItemStack(this.gui.entityPlayer.inventory.getItemStack()));
         } catch (IOException e) {
-            GTLog.logger.info(e.getMessage());
+            TJ.logger.info(e.getMessage());
         }
     }
 
@@ -202,7 +203,7 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
                     try {
                         this.iaeFluidStack.writeToPacket(buffer);
                     } catch (IOException e) {
-                        GTLog.logger.info(e.getMessage());
+                        TJ.logger.info(e.getMessage());
                     }
                 });
             }

@@ -17,9 +17,9 @@ import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.inv.filter.IAEItemFilter;
 import net.minecraft.nbt.NBTTagCompound;
+import tj.TJ;
 import tj.integration.ae2.inventory.TJAppEngNetworkInventory;
 import appeng.util.inv.InvOperation;
-import gregtech.api.util.GTLog;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
@@ -56,7 +56,7 @@ public class DualitySuperInterface extends DualityInterface {
                 }
             }, (IActionSource) mySource.get(this), this, storageSlots, 1024), "storage");
         } catch (IllegalAccessException e) {
-            GTLog.logger.error("Error when trying to reflect on class {} for field storage", DualityInterface.class.getName());
+            TJ.logger.error("Error when trying to reflect on class {} for field storage", DualityInterface.class.getName());
         }
     }
 

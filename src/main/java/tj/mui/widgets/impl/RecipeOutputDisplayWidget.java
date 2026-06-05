@@ -23,6 +23,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.TJ;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
 import tj.items.handlers.LargeItemStackHandler;
@@ -274,7 +275,7 @@ public class RecipeOutputDisplayWidget extends Widget {
                 try {
                     itemIndex.put(i, buffer.readItemStack());
                 } catch (IOException e) {
-                    GTLog.logger.info(e.getMessage());
+                    TJ.logger.info(e.getMessage());
                 }
             }
         }
@@ -288,7 +289,7 @@ public class RecipeOutputDisplayWidget extends Widget {
                     try {
                         fluidIndex.put(i, FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag()));
                     } catch (IOException e) {
-                        GTLog.logger.info(e.getMessage());
+                        TJ.logger.info(e.getMessage());
                     }
                 }
             }
@@ -336,7 +337,7 @@ public class RecipeOutputDisplayWidget extends Widget {
                     try {
                         this.itemOutputs.add(buffer.readItemStack());
                     } catch (IOException e) {
-                        GTLog.logger.info(e.getMessage());
+                        TJ.logger.info(e.getMessage());
                     }
                 }
                 this.readItemContentsPacket(buffer, this.itemInputIndex);
@@ -388,7 +389,7 @@ public class RecipeOutputDisplayWidget extends Widget {
                     try {
                         this.fluidOutputs.add(FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag()));
                     } catch (IOException e) {
-                        GTLog.logger.info(e.getMessage());
+                        TJ.logger.info(e.getMessage());
                     }
                 }
                 this.readFluidContentsPacket(buffer, this.fluidInputIndex);

@@ -2,7 +2,6 @@ package tj;
 
 import appeng.api.config.Upgrades;
 import gregtech.api.GTValues;
-import gregtech.api.util.GTLog;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -38,7 +37,7 @@ public class TJ {
     @SidedProxy(modId = MODID, clientSide = "tj.ClientProxy", serverSide = "tj.CommonProxy")
     public static CommonProxy proxy;
 
-    private static Logger logger;
+    public static Logger logger;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -56,7 +55,7 @@ public class TJ {
         proxy.onLoad();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
         if (GTValues.isModLoaded(GTValues.MODID_TOP)) {
-            GTLog.logger.info("TheOneProbe found. Enabling integration...");
+            logger.info("TheOneProbe found. Enabling integration...");
             TheOneProbeCompatibility.registerCompatibility();
         }
         TJCoverBehaviours.init();

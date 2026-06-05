@@ -18,6 +18,7 @@ import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.TJ;
 import tj.mui.TJGuiUtils;
 
 import javax.annotation.Nonnull;
@@ -142,7 +143,7 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
             try {
                 this.fluidStack = FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag());
             } catch (IOException e) {
-                GTLog.logger.info(e.getMessage());
+                TJ.logger.info(e.getMessage());
             }
         } else if (id == 2) {
             this.fluidStack = null;
@@ -173,7 +174,7 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
                     this.writeUpdateInfo(1, buffer1 -> buffer1.writeCompoundTag(this.fluidStack.writeToNBT(new NBTTagCompound())));
                 } else this.writeUpdateInfo(2, buffer1 -> {});
             } catch (IOException e) {
-                GTLog.logger.info(e.getMessage());
+                TJ.logger.info(e.getMessage());
             }
         } else if (id == 2) {
             final FluidStack extracted = this.tanks.getTankAt(this.slotIndex).drain(this.specialDrainingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, false);

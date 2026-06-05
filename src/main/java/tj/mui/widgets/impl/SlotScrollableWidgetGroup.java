@@ -3,7 +3,6 @@ package tj.mui.widgets.impl;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.WidgetGroup;
-import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.RenderUtil;
 import gregtech.api.util.Size;
@@ -15,6 +14,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import org.lwjgl.input.Keyboard;
+import tj.TJ;
 import tj.mui.widgets.ISlotGroup;
 import tj.mui.widgets.ISlotHandler;
 import tj.mixin.gregtech.IAbstractWidgetGroupMixin;
@@ -272,7 +272,7 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
             try {
                 this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
             } catch (IOException e) {
-                GTLog.logger.info(e.getMessage());
+                TJ.logger.info(e.getMessage());
             }
         }
     }
@@ -286,7 +286,7 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
             try {
                 this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
             } catch (IOException e) {
-                GTLog.logger.info(e.getMessage());
+                TJ.logger.info(e.getMessage());
             }
         } else if (id == 4) {
             final ItemStack stack = this.gui.entityPlayer.inventory.getItemStack();
@@ -310,7 +310,7 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
                 this.gui.entityPlayer.inventory.setItemStack(heldStack);
                 this.writeUpdateInfo(3, buffer1 -> buffer1.writeItemStack(heldStack));
             } catch (IOException e) {
-                GTLog.logger.info(e.getMessage());
+                TJ.logger.info(e.getMessage());
             }
         }
     }

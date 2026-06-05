@@ -5,7 +5,6 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.igredient.IGhostIngredientTarget;
 import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.gui.resources.TextureArea;
-import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import mezz.jei.api.gui.IGhostIngredientHandler;
@@ -17,6 +16,7 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
+import tj.TJ;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -133,7 +133,7 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
             try {
                 this.itemStack = buffer.readItemStack();
             } catch (IOException e) {
-                GTLog.logger.info(e.getMessage());
+                TJ.logger.info(e.getMessage());
             }
         }
     }
@@ -160,7 +160,7 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
                         this.onItemUpdate.accept(this.itemStack);
                 } else this.writeUpdateInfo(1, buffer1 -> buffer1.writeItemStack(this.itemStack));
             } catch (IOException e) {
-                GTLog.logger.info(e.getMessage());
+                TJ.logger.info(e.getMessage());
             }
         } else if (id == 2) {
             final ItemStack extracted = this.itemHandler.extractItem(this.slotIndex, this.specialExtractingMode ? Integer.MIN_VALUE : Integer.MAX_VALUE, true);

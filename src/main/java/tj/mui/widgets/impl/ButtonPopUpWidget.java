@@ -2,13 +2,13 @@ package tj.mui.widgets.impl;
 
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.WidgetGroup;
-import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.util.EnumActionResult;
 import org.apache.commons.lang3.tuple.Pair;
+import tj.TJ;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.PopUpWidget;
 import tj.util.predicates.ActionResultPredicate;
@@ -123,7 +123,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
                 buffer.writeInt(this.selectedIndex);
             });
         } catch (NumberFormatException e) {
-            GTLog.logger.info(e.getMessage());
+            TJ.logger.info(e.getMessage());
         }
     }
 }

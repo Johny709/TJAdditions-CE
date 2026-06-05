@@ -16,12 +16,12 @@ import appeng.parts.automation.UpgradeInventory;
 import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.inv.InvOperation;
 import appeng.util.inv.filter.IAEItemFilter;
-import gregtech.api.util.GTLog;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
+import tj.TJ;
 import tj.integration.ae2.inventory.TJAENetworkFluidInventory;
 import tj.items.item.TJItems;
 import tj.util.TJItemUtils;
@@ -48,7 +48,7 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
                 }
             }, (IActionSource) mySource.get(this), this, 18, 64000), "tanks");
         } catch (IllegalAccessException e) {
-            GTLog.logger.error("Error when trying to reflect on class {} for field storage", DualityFluidInterface.class.getName());
+            TJ.logger.error("Error when trying to reflect on class {} for field storage", DualityFluidInterface.class.getName());
         }
     }
 

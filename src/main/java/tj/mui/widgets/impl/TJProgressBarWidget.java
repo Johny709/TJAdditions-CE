@@ -5,7 +5,6 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.gui.widgets.ProgressWidget;
-import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import net.minecraft.client.renderer.GlStateManager;
@@ -17,6 +16,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
+import tj.TJ;
 import tj.TJValues;
 import tj.mui.TJGuiUtils;
 
@@ -186,7 +186,7 @@ public class TJProgressBarWidget extends Widget implements IIngredientSlot {
                 try {
                     this.fluid = FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag());
                 } catch (IOException e) {
-                    GTLog.logger.info(e.getMessage());
+                    TJ.logger.info(e.getMessage());
                 }
         }
     }

@@ -15,6 +15,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.Pair;
+import tj.TJ;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -227,7 +228,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
                 buffer.writeInt(this.selectedIndex);
             });
         } catch (NumberFormatException e) {
-            GTLog.logger.info(e.getMessage());
+            TJ.logger.info(e.getMessage());
         }
     }
 

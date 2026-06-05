@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.igredient.IRecipeTransferHandlerWidget;
 import gregtech.api.gui.impl.ModularUIContainer;
-import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import mezz.jei.api.gui.IGuiIngredient;
@@ -13,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.TJ;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public class CraftingRecipeTransferWidget extends Widget implements IRecipeTrans
                 for (Map.Entry<Integer, ItemStack> itemStackEntry : itemStackMap.entrySet())
                     this.itemStackBiConsumer.accept(itemStackEntry.getKey(), itemStackEntry.getValue());
             } catch (IOException e) {
-                GTLog.logger.error(e);
+                TJ.logger.info(e);
             }
         }
     }

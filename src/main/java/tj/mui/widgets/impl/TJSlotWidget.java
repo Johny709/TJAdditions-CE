@@ -3,7 +3,6 @@ package tj.mui.widgets.impl;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.gui.resources.TextureArea;
-import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import net.minecraft.client.resources.I18n;
@@ -16,6 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.lwjgl.input.Keyboard;
+import tj.TJ;
 import tj.mui.widgets.ISlotGroup;
 import tj.mui.widgets.ISlotHandler;
 import tj.mui.widgets.TJWidget;
@@ -286,14 +286,14 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
                     if (this.getItemHandler() instanceof IItemHandlerModifiable)
                         ((IItemHandlerModifiable) this.getItemHandler()).setStackInSlot(this.slotIndex, stack);
                 } catch (IOException e) {
-                    GTLog.logger.error(e);
+                    TJ.logger.info(e);
                 }
                 break;
             case 2:
                 try {
                     this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
                 } catch (IOException e) {
-                    GTLog.logger.error(e);
+                    TJ.logger.info(e);
                 }
                 break;
             case 3:

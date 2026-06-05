@@ -2,7 +2,6 @@ package tj.mui.widgets.impl;
 
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.impl.ModularUIContainer;
-import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import mezz.jei.api.gui.IGuiIngredient;
@@ -14,6 +13,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.TJ;
 import tj.mui.widgets.IGTRecipeTransferHandler;
 import tj.util.consumers.QuintConsumer;
 
@@ -61,7 +61,7 @@ public class JEIRecipeTransferWidget extends Widget implements IGTRecipeTransfer
                     } else fluidOutputs.add(fluidStack);
                 }
             } catch (IOException e) {
-                GTLog.logger.info(e.getMessage());
+                TJ.logger.info(e.getMessage());
             }
             this.recipeConsumer.accept(itemInputs, itemOutputs, fluidInputs, fluidOutputs, gui.entityPlayer);
         }

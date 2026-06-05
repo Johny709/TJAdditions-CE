@@ -1,12 +1,12 @@
 package tj.mui.widgets.impl;
 
-import gregtech.api.util.GTLog;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import org.apache.logging.log4j.util.TriConsumer;
+import tj.TJ;
 
 import java.io.IOException;
 
@@ -56,7 +56,7 @@ public class SlotDisplayWidget extends TJSlotWidget<SlotDisplayWidget> {
                 if (this.onPressed != null)
                     this.onPressed.accept(button, index, stack);
             } catch (IOException e) {
-                GTLog.logger.info(e.getMessage());
+                TJ.logger.info(e.getMessage());
             }
         }
     }

@@ -25,6 +25,7 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
+import tj.TJ;
 import tj.TJValues;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.mui.TJGuiTextures;
@@ -198,14 +199,14 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                     try {
                         displayText.add(componentWrapper = new TextComponentWrapper<>(buffer.readItemStack()).setPriority(buffer.readInt()));
                     } catch (IOException e) {
-                        GTLog.logger.info(e.getMessage());
+                        TJ.logger.info(e.getMessage());
                     }
                     break;
                 case 2:
                     try {
                         displayText.add(componentWrapper = new TextComponentWrapper<>(FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag())).setPriority(buffer.readInt()));
                     } catch (IOException e) {
-                        GTLog.logger.info(e.getMessage());
+                        TJ.logger.info(e.getMessage());
                     }
                     break;
                 case 3:
@@ -219,7 +220,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                             stacks.add(stack);
                         }
                     } catch (IOException e) {
-                        GTLog.logger.info(e.getMessage());
+                        TJ.logger.info(e.getMessage());
                     }
                     displayText.add(componentWrapper = new TextComponentWrapper<>(stacks).setPriority(buffer.readInt()));
                     break;
