@@ -211,4 +211,14 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
     public long getMaxVoltage() {
         return this.maxVoltage;
     }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return this.workableHandler.isWorkingEnabled();
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean isActivationAllowed) {
+        this.workableHandler.setWorkingEnabled(isActivationAllowed);
+    }
 }
