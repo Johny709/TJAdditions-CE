@@ -33,7 +33,7 @@ public class DualitySuperInterface extends DualityInterface {
 
     private final IDualitySuperInterface superDuality = (IDualitySuperInterface) this;
 
-    public DualitySuperInterface(AENetworkProxy networkProxy, IInterfaceHost ih, int configSlots, int storageSlots, int patterns) {
+    public DualitySuperInterface(AENetworkProxy networkProxy, IInterfaceHost ih, int upgradeSlots, int storageSlots, int patterns) {
         super(networkProxy, ih);
         // dummy config for Send Real Fluid, Field: (boolean) fluid packet
         this.getConfigManager().registerSetting(Settings.OPERATION_MODE, OperationMode.FILL);
@@ -44,8 +44,8 @@ public class DualitySuperInterface extends DualityInterface {
 
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new IAEItemStack[storageSlots], "requireWork");
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new AppEngInternalInventory(this, patterns, 1), "patterns");
-        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new AppEngInternalAEInventory(this, configSlots, 1024), "config");
-        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new DualityUpgradeInventory(this, 10), "upgrades");
+        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new AppEngInternalAEInventory(this, storageSlots, 1024), "config");
+        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new DualityUpgradeInventory(this, upgradeSlots), "upgrades");
         try {
             Field mySource = ObfuscationReflectionHelper.findField(DualityInterface.class, "mySource");
             ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new TJAppEngNetworkInventory(() -> {

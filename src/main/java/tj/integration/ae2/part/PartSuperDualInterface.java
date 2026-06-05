@@ -72,7 +72,7 @@ public class PartSuperDualInterface extends PartInterface implements IFluidInter
 
     public PartSuperDualInterface(ItemStack is) {
         super(is);
-        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 18, 18, 72), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 18, 72), "duality");
     }
 
     @Override
