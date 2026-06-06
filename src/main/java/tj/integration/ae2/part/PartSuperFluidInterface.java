@@ -110,6 +110,10 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
         }
         return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
+                .widget(new TJLabelWidget(4, 0, 162, 18, null)
+                        .setDynamicLocale(this::getCustomInventoryName)
+                        .setCentered(false)
+                        .setCanSlide(false))
                 .widget(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredFluids"))
                 .widget(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"))
                 .widget(new LabelWidget(7, 198, "container.inventory"))

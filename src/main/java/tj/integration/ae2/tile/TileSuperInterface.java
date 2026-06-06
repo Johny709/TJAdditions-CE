@@ -105,6 +105,10 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
         }
         return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
+                .widget(new TJLabelWidget(4, 0, 162, 18, null)
+                        .setDynamicLocale(this::getCustomInventoryName)
+                        .setCentered(false)
+                        .setCanSlide(false))
                 .widget(new TJToggleButtonWidget(-18, 35, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setBlockingMode)
                         .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.NonBlocking", "gui.tooltips.appliedenergistics2.Blocking")
                         .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)

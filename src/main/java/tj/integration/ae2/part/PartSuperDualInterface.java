@@ -34,7 +34,6 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
 import tj.TJ;
-import tj.blocks.block.TJBlocks;
 import tj.builder.WidgetTabBuilder;
 import tj.mui.TJGuiTextures;
 import tj.mui.uifactory.ITileEntityUI;
@@ -122,11 +121,15 @@ public class PartSuperDualInterface extends PartInterface implements IFluidInter
         final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
-                .addTab("tile.me.super_interface.name", TJBlocks.SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), this::createInterfaceTab)
-                .addTab("tile.me.super_fluid_interface.name", TJBlocks.SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> this.createFluidInterfaceTab(widgets, buttonPopUpWidget));
+                .addTab("tile.me.super_interface.name", TJItems.PART_SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), this::createInterfaceTab)
+                .addTab("tile.me.super_fluid_interface.name", TJItems.PART_SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> this.createFluidInterfaceTab(widgets, buttonPopUpWidget));
         return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
+                .widget(new TJLabelWidget(4, 0, 162, 18, null)
+                        .setDynamicLocale(this::getCustomInventoryName)
+                        .setCentered(false)
+                        .setCanSlide(false))
                 .widget(tabBuilder.build())
                 .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
