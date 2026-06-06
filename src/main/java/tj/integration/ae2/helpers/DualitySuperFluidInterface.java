@@ -145,7 +145,7 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
         @Override
         public boolean allowExtract(IItemHandler iItemHandler, int slot, int i1) {
             final boolean hasMaxUpgrade = TJItemUtils.extractFromItemHandler(iItemHandler, new ItemStack(TJItems.MAX_CAPACITY_UPGRADE), Integer.MAX_VALUE, true).getCount() > 1;
-            final int threshold = 64000 << (TJItemUtils.extractFromItemHandler(iItemHandler, Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY), Integer.MAX_VALUE, true).getCount() - (hasMaxUpgrade ? 1 : 2)) * 2;
+            final long threshold = 64000L << (TJItemUtils.extractFromItemHandler(iItemHandler, Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY), Integer.MAX_VALUE, true).getCount() - (hasMaxUpgrade ? 1 : 2)) * 2;
             for (int i = 0; i < this.duality.getTanks().getSlots(); i++) {
                 final IAEFluidStack iaeFluidStack = this.duality.getTanks().getFluidInSlot(i);
                 if (iaeFluidStack == null) continue;

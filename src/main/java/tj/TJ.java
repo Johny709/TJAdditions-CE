@@ -107,8 +107,32 @@ public class TJ {
         Upgrades.INVERTER.registerItem(TJItems.FLUID_CELL_DIGITAL_SINGULARITY, 1);
         Upgrades.STICKY.registerItem(TJItems.FLUID_CELL_DIGITAL_SINGULARITY, 1);
 
-        // Super Fluid Interface
+        // Super Interfaces
+        Upgrades.CAPACITY.registerItem(TJBlocks.SUPER_INTERFACE, 4);
+        Upgrades.CAPACITY.registerItem(TJItems.PART_SUPER_INTERFACE, 4);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJBlocks.SUPER_INTERFACE, 7);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJItems.PART_SUPER_INTERFACE, 7);
+        Upgrades.CRAFTING.registerItem(TJBlocks.SUPER_INTERFACE, 1);
+        Upgrades.CRAFTING.registerItem(TJItems.PART_SUPER_INTERFACE, 1);
+
         Upgrades.CAPACITY.registerItem(TJBlocks.SUPER_FLUID_INTERFACE, 4);
         Upgrades.CAPACITY.registerItem(TJItems.PART_SUPER_FLUID_INTERFACE, 4);
+
+        Upgrades.CAPACITY.registerItem(TJBlocks.SUPER_DUAL_INTERFACE, 4);
+        Upgrades.CAPACITY.registerItem(TJItems.PART_SUPER_DUAL_INTERFACE, 4);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJBlocks.SUPER_DUAL_INTERFACE, 7);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJItems.PART_SUPER_DUAL_INTERFACE, 7);
+        Upgrades.CRAFTING.registerItem(TJBlocks.SUPER_DUAL_INTERFACE, 1);
+        Upgrades.CRAFTING.registerItem(TJItems.PART_SUPER_DUAL_INTERFACE, 1);
+
+        Upgrades.CAPACITY.registerItem(TJBlocks.PATTERN_INTERFACE, 4);
+        Upgrades.CAPACITY.registerItem(TJItems.PART_PATTERN_INTERFACE, 4);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJBlocks.PATTERN_INTERFACE, 31);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJItems.PART_PATTERN_INTERFACE, 27);
+
+        Upgrades.CAPACITY.registerItem(TJBlocks.STOCKING_INTERFACE, 4);
+        Upgrades.CAPACITY.registerItem(TJItems.PART_STOCKING_INTERFACE, 4);
+        Upgrades.CRAFTING.registerItem(TJBlocks.STOCKING_INTERFACE, 1);
+        Upgrades.CRAFTING.registerItem(TJItems.PART_STOCKING_INTERFACE, 1);
     }
 }

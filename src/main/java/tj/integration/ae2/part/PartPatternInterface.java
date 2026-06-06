@@ -2,7 +2,6 @@ package tj.integration.ae2.part;
 
 import appeng.api.config.*;
 import appeng.api.parts.IPartModel;
-import appeng.core.Api;
 import appeng.helpers.DualityInterface;
 import appeng.items.parts.PartModels;
 import appeng.parts.PartModel;
@@ -20,7 +19,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.items.IItemHandler;
 import tj.TJ;
 import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.items.item.TJItems;
@@ -29,7 +27,6 @@ import tj.mui.uifactory.ITileEntityUI;
 import tj.mui.uifactory.TileEntityHolder;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.*;
-import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
 import java.util.EnumSet;
@@ -93,16 +90,14 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
         final SlotScrollableWidgetGroup scrollableWidgetGroup1 = new SlotScrollableWidgetGroup(186, 7, 40, 180, 2)
                 .setScrollWidth(4);
         final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
-        final IItemHandler patternHandler = duality.getInventoryByName("patterns");
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             scrollableWidgetGroup1.addWidget(new TJSlotWidget<>(upgradeHandler, i, 18 * (i % 2), 18 * (i / 2))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
         }
-        for (int i = 0; i < patternHandler.getSlots(); i++) {
+        for (int i = 0; i < duality.getPatterns().getSlots(); i++) {
             final int index = i;
-            scrollableWidgetGroup.addWidget(new TJSlotWidget<>(patternHandler, i, 18 * (i % 9), 18 * (i / 9))
-                    .setPutItemsPredicate(item -> item.isItemEqual(Api.INSTANCE.definitions().items().encodedPattern().maybeStack(1).orElse(ItemStack.EMPTY)) || item.isItemEqual(TJItemUtils.getItemStackFromName("ae2fc:dense_encoded_pattern")))
+            scrollableWidgetGroup.addWidget(new TJSlotWidget<>(duality.getPatterns(), i, 18 * (i % 9), 18 * (i / 9))
                     .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) && buttonPopUpWidget.getIndex() == 0)
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
                     .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)

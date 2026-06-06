@@ -182,7 +182,7 @@ public class DualitySuperInterface extends DualityInterface {
             final ItemStack stack = iItemHandler.getStackInSlot(slot);
             if (stack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)) || stack.isItemEqual(new ItemStack(TJItems.MAX_CAPACITY_UPGRADE))) {
                 final boolean hasMaxUpgrade = TJItemUtils.extractFromItemHandler(iItemHandler, new ItemStack(TJItems.MAX_CAPACITY_UPGRADE), Integer.MAX_VALUE, true).getCount() > 1;
-                final int threshold = 1024 << (TJItemUtils.extractFromItemHandler(iItemHandler, Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY), Integer.MAX_VALUE, true).getCount() - (hasMaxUpgrade ? 1 : 2)) * 2;
+                final long threshold = 1024L << (TJItemUtils.extractFromItemHandler(iItemHandler, Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY), Integer.MAX_VALUE, true).getCount() - (hasMaxUpgrade ? 1 : 2)) * 2;
                 for (int i = 0; i < this.duality.getStorage().getSlots(); i++) {
                     final ItemStack itemStack = this.duality.getStorage().getStackInSlot(i);
                     if (itemStack.isEmpty()) continue;
@@ -207,8 +207,8 @@ public class DualitySuperInterface extends DualityInterface {
             final ItemStack pattern = Api.INSTANCE.definitions().materials().cardPatternExpansion().maybeStack(1).orElse(ItemStack.EMPTY);
             final ItemStack crafting = Api.INSTANCE.definitions().materials().cardCrafting().maybeStack(1).orElse(ItemStack.EMPTY);
             final ItemStack maxCapacity = new ItemStack(TJItems.MAX_CAPACITY_UPGRADE);
-            return itemStack.isItemEqual(capacity) ||
-                    (itemStack.isItemEqual(pattern) && TJItemUtils.extractFromItemHandler(iItemHandler, pattern, Integer.MAX_VALUE, true).getCount() <= 7) ||
+            return itemStack.isItemEqual(capacity) && TJItemUtils.extractFromItemHandler(iItemHandler, capacity, Integer.MAX_VALUE, true).getCount() <= 4 ||
+                    (itemStack.isItemEqual(pattern) && TJItemUtils.extractFromItemHandler(iItemHandler, pattern, Integer.MAX_VALUE, true).getCount() <= (duality.getPatterns().getSlots() / 9) - 1) ||
                     (itemStack.isItemEqual(crafting) && TJItemUtils.extractFromItemHandler(iItemHandler, crafting, Integer.MAX_VALUE, true).getCount() <= 1) ||
                     (itemStack.isItemEqual(maxCapacity) && TJItemUtils.extractFromItemHandler(iItemHandler, maxCapacity, Integer.MAX_VALUE, true).getCount() <= 1);
         }
@@ -223,14 +223,17 @@ public class DualitySuperInterface extends DualityInterface {
 
         @Override
         public boolean allowInsert(IItemHandler iItemHandler, int slot, ItemStack itemStack) {
-            if (itemStack.getTagCompound() == null)
-                return false;
-            for (int i = 0; i < iItemHandler.getSlots(); i++) {
-                final ItemStack stack = iItemHandler.getStackInSlot(i);
-                if (stack.getTagCompound() != null && stack.getTagCompound().equals(itemStack.getTagCompound()))
+            if (itemStack.isItemEqual(Api.INSTANCE.definitions().items().encodedPattern().maybeStack(1).orElse(ItemStack.EMPTY)) || itemStack.isItemEqual(TJItemUtils.getItemStackFromName("ae2fc:dense_encoded_pattern"))) {
+                if (itemStack.getTagCompound() == null)
                     return false;
+                for (int i = 0; i < iItemHandler.getSlots(); i++) {
+                    final ItemStack stack = iItemHandler.getStackInSlot(i);
+                    if (stack.getTagCompound() != null && stack.getTagCompound().equals(itemStack.getTagCompound()))
+                        return false;
+                }
+                return true;
             }
-            return true;
+            return false;
         }
     }
 }

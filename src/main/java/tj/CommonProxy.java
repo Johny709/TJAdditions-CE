@@ -29,8 +29,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import static tj.blocks.TJMetaBlocks.*;
-import static tj.blocks.block.TJBlocks.SUPER_FLUID_INTERFACE;
-import static tj.blocks.block.TJBlocks.SUPER_INTERFACE;
+import static tj.blocks.block.TJBlocks.*;
 import static tj.items.item.TJItems.*;
 
 
@@ -145,6 +144,9 @@ public class CommonProxy {
     public void onLoad() {
         UPGRADES.put(SUPER_INTERFACE.maybeItem().orElse(null), 1);
         UPGRADES.put(SUPER_FLUID_INTERFACE.maybeItem().orElse(null), 1);
+        UPGRADES.put(SUPER_DUAL_INTERFACE.maybeItem().orElse(null), 1);
+        UPGRADES.put(PATTERN_INTERFACE.maybeItem().orElse(null), 1);
+        UPGRADES.put(STOCKING_INTERFACE.maybeItem().orElse(null), 1);
     }
 
     public void onPostLoad() {
