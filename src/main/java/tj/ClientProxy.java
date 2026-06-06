@@ -67,8 +67,8 @@ public class ClientProxy extends CommonProxy {
                 case "me.super_interface":
                 case "me.super_dual_interface":
                 case "me.pattern_interface":
+                case "me.stocking_interface":
                     modelRegistry.putObject(modelResourceLocation, new AutoRotatingModel(model));
-
             }
         }
     }

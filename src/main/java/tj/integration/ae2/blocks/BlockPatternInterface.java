@@ -7,10 +7,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import tj.TJ;
-import tj.gui.GuiHandler;
 import tj.integration.ae2.tile.TilePatternInterface;
-import tj.integration.ae2.tile.TileSuperDualInterface;
 
 import javax.annotation.Nullable;
 

@@ -8,11 +8,10 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import tj.integration.ae2.tile.TileSuperInterface;
-import tj.rendering.IItemMeshing;
 
 import javax.annotation.Nullable;
 
-public class BlockSuperInterface extends BlockInterface implements IItemMeshing {
+public class BlockSuperInterface extends BlockInterface {
 
     public BlockSuperInterface() {
         this.setTileEntity(TileSuperInterface.class);

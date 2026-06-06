@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "omnidirectional=true": {
+      "model": "tj:me.stocking_interface"
+    },
+    "omnidirectional=false": {
+      "model": "tj:me.stocking_interface_oriented",
+      "x": 90
+    }
+  }
+}

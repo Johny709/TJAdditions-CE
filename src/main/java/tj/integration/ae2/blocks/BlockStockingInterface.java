@@ -1,20 +1,20 @@
 package tj.integration.ae2.blocks;
 
-import appeng.fluids.block.BlockFluidInterface;
+import appeng.block.misc.BlockInterface;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import tj.integration.ae2.tile.TileSuperFluidInterface;
+import tj.integration.ae2.tile.TileStockingInterface;
 
 import javax.annotation.Nullable;
 
-public class BlockSuperFluidInterface extends BlockFluidInterface {
+public class BlockStockingInterface extends BlockInterface {
 
-    public BlockSuperFluidInterface() {
-        this.setTileEntity(TileSuperFluidInterface.class);
+    public BlockStockingInterface() {
+        this.setTileEntity(TileStockingInterface.class);
     }
 
     @Override
@@ -22,13 +22,13 @@ public class BlockSuperFluidInterface extends BlockFluidInterface {
         if (player.isSneaking()) {
             return false;
         }
-        final TileSuperFluidInterface superInterface = this.getTileEntity(world, pos);
+        final TileStockingInterface superInterface = this.getTileEntity(world, pos);
         if (superInterface != null) {
             if (!world.isRemote) {
                 superInterface.openUI(player, superInterface);
             }
             return true;
         }
-        return false;
+        return true;
     }
 }
