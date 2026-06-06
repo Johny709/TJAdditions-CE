@@ -1,12 +1,16 @@
 package tj.mui.widgets.impl;
 
+import gregtech.api.gui.INativeWidget;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.TextFormatting;
@@ -14,6 +18,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.SlotItemHandler;
 import org.lwjgl.input.Keyboard;
 import tj.TJ;
 import tj.mui.widgets.ISlotGroup;
@@ -21,14 +26,17 @@ import tj.mui.widgets.ISlotHandler;
 import tj.mui.widgets.TJWidget;
 import tj.util.TJItemUtils;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> implements ISlotHandler, IIngredientSlot {
+public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> implements ISlotHandler, IIngredientSlot, INativeWidget {
 
     private final IItemHandler itemHandler;
+    private final TJSlotItemHandler slotItemHandler;
     protected int slotIndex;
     private Supplier<IItemHandler> itemHandlerSupplier;
     protected Predicate<ItemStack> takeItemsPredicate;
@@ -51,6 +59,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
         super(new Position(x, y), new Size(18, 18));
         this.itemHandler = itemHandler;
         this.slotIndex = slotIndex;
+        this.slotItemHandler = new TJSlotItemHandler(this.itemHandler, slotIndex, x, y);
     }
 
     public R setItemHandlerSupplier(Supplier<IItemHandler> itemHandlerSupplier) {
@@ -332,5 +341,58 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
         if (!this.isMouseOverElement(mouseX, mouseY))
             return null;
         return this.getItemHandler() != null ? this.getItemHandler().getStackInSlot(this.slotIndex) : null;
+    }
+
+    @Override
+    public void setEnabled(boolean b) {
+
+    }
+
+    @Override
+    public Slot getHandle() {
+        return this.slotItemHandler;
+    }
+
+    @Override
+    public SlotLocationInfo getSlotLocationInfo() {
+        return new SlotLocationInfo(false, false);
+    }
+
+    @Override
+    public boolean canMergeSlot(ItemStack itemStack) {
+        return this.isActive;
+    }
+
+    @Override
+    public ItemStack slotClick(int i, ClickType clickType, EntityPlayer entityPlayer) {
+        return ItemStack.EMPTY;
+    }
+
+    private static class TJSlotItemHandler extends SlotItemHandler {
+
+        public TJSlotItemHandler(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
+            super(itemHandler, index, xPosition, yPosition);
+        }
+
+        @Override
+        public boolean isItemValid(@Nonnull ItemStack stack) {
+            return this.getItemHandler().insertItem(this.getSlotIndex(), stack, true).isEmpty();
+        }
+
+        @Override
+        public boolean canTakeStack(EntityPlayer playerIn) {
+            return false;
+        }
+
+        @Nullable
+        @Override
+        public TextureAtlasSprite getBackgroundSprite() {
+            return null;
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return false;
+        }
     }
 }
