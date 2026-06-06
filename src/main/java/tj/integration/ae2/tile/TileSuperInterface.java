@@ -81,14 +81,6 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
             selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(120, 177, 40, 20, "-1000", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() - 1000), String.valueOf(index))));
             selectionWidgetGroup.addSelectionBox(i, 7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18);
         }
-        for (int i = 0; i < duality.getStorage().getSlots(); i++) {
-            builder.widget(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))
-                    .setActiveBackgroundTexture(GuiTextures.SLOT));
-        }
-        for (int i = 0; i < upgradeHandler.getSlots(); i++) {
-            builder.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
-                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
-        }
         for (int i = 0; i < patternHandler.getSlots(); i++) {
             final int index = i;
             scrollableWidgetGroup.addWidget(new TJSlotWidget<>(patternHandler, i, 18 * (i % 9), 18 * (i / 9))
@@ -98,11 +90,21 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
                     .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
                     .setActiveInit(false));
         }
-        return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
-                .widget(new LabelWidget(7, 109, "gui.appliedenergistics2.StoredItems"))
+        builder.widget(new LabelWidget(7, 109, "gui.appliedenergistics2.StoredItems"))
                 .widget(new LabelWidget(7, 123, "gui.appliedenergistics2.Patterns"))
                 .widget(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"))
+                .widget(scrollableWidgetGroup)
+                .widget(selectionWidgetGroup);
+        for (int i = 0; i < upgradeHandler.getSlots(); i++) {
+            builder.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
+        }
+        for (int i = 0; i < duality.getStorage().getSlots(); i++) {
+            builder.widget(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))
+                    .setActiveBackgroundTexture(GuiTextures.SLOT));
+        }
+        return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+                        .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
                 .widget(new TJToggleButtonWidget(-18, 35, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setBlockingMode)
                         .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.NonBlocking", "gui.tooltips.appliedenergistics2.Blocking")
                         .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
@@ -122,8 +124,6 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
                 .widget(new TJCycleButtonWidget<>(-18, 107, 16, 16, (EnumSet<CondenserOutput>) Settings.CONDENSER_OUTPUT.getPossibleValues(), () -> (Enum<CondenserOutput>) duality.getConfigManager().getSetting(Settings.CONDENSER_OUTPUT), this::setBlockModeEx)
                         .setCycleHoverTooltipText("ae2fc.tooltip.block_all.hint", "ae2fc.tooltip.block_item.hint", "ae2fc.tooltip.block_fluid.hint")
                         .setCycleTexture(TJGuiTextures.CYCLE_BLOCKING_MODE_EX))
-                .widget(scrollableWidgetGroup)
-                .widget(selectionWidgetGroup)
                 .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
                                 .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS)

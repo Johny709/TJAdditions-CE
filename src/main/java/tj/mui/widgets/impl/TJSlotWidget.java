@@ -376,7 +376,8 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
 
         @Override
         public boolean isItemValid(@Nonnull ItemStack stack) {
-            return this.getItemHandler().insertItem(this.getSlotIndex(), stack, true).isEmpty();
+            final int count = stack.getCount();
+            return this.getItemHandler().insertItem(this.getSlotIndex(), stack, true).getCount() != count;
         }
 
         @Override

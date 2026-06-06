@@ -95,11 +95,6 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
         final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         final IItemHandler patternHandler = duality.getInventoryByName("patterns");
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
-        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.PATTERN_INTERFACE, 229, 292);
-        for (int i = 0; i < duality.getStorage().getSlots(); i++) {
-            builder.widget(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 34 + (18 * (i / 9)))
-                    .setActiveBackgroundTexture(GuiTextures.SLOT));
-        }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             scrollableWidgetGroup1.addWidget(new TJSlotWidget<>(upgradeHandler, i, 18 * (i % 2), 18 * (i / 2))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
@@ -113,10 +108,17 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
                     .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
                     .setActiveInit(false));
         }
-        return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
+        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.PATTERN_INTERFACE, 229, 292)
                 .widget(new LabelWidget(7, 23, "gui.appliedenergistics2.StoredItems"))
                 .widget(new LabelWidget(7, 113, "gui.appliedenergistics2.Patterns"))
+                .widget(scrollableWidgetGroup)
+                .widget(scrollableWidgetGroup1);
+        for (int i = 0; i < duality.getStorage().getSlots(); i++) {
+            builder.widget(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 34 + (18 * (i / 9)))
+                    .setActiveBackgroundTexture(GuiTextures.SLOT));
+        }
+        return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+                        .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
                 .widget(new TJToggleButtonWidget(-18, 35, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setBlockingMode)
                         .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.NonBlocking", "gui.tooltips.appliedenergistics2.Blocking")
                         .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
@@ -136,8 +138,6 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
                 .widget(new TJCycleButtonWidget<>(-18, 107, 16, 16, (EnumSet<CondenserOutput>) Settings.CONDENSER_OUTPUT.getPossibleValues(), () -> (Enum<CondenserOutput>) duality.getConfigManager().getSetting(Settings.CONDENSER_OUTPUT), this::setBlockModeEx)
                         .setCycleHoverTooltipText("ae2fc.tooltip.block_all.hint", "ae2fc.tooltip.block_item.hint", "ae2fc.tooltip.block_fluid.hint")
                         .setCycleTexture(TJGuiTextures.CYCLE_BLOCKING_MODE_EX))
-                .widget(scrollableWidgetGroup)
-                .widget(scrollableWidgetGroup1)
                 .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
                                 .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS)
