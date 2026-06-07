@@ -140,12 +140,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         }
         overclockManager.setEUt((long) (overclockManager.getEUt() * ocMultiplier));
         overclockManager.setDuration((int) (overclockManager.getDuration() / ocMultiplier));
-        overclockManager.setParallel(this.getParallel() * this.batchMode.getAmount());
-    }
-
-    @Override
-    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         overclockManager.setDuration(overclockManager.getDuration() * this.batchMode.getAmount());
+        overclockManager.setParallel(this.getParallel() * this.batchMode.getAmount());
     }
 
     @Override
