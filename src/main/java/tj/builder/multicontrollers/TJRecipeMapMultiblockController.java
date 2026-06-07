@@ -246,7 +246,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     }
 
     public int getTierDifference(long recipeEUt) {
-        return this.getTier() - GAUtility.getTierByVoltage(recipeEUt);
+        return this.getTier() - TJUtility.getTierFromVoltage(recipeEUt) + 1;
     }
 
     @Override
