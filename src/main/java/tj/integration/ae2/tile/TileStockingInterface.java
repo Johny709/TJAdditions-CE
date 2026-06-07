@@ -1,10 +1,19 @@
 package tj.integration.ae2.tile;
 
+import appeng.api.AEApi;
 import appeng.api.config.*;
-import appeng.core.Api;
+import appeng.api.networking.IGridNode;
+import appeng.api.networking.ticking.TickRateModulation;
+import appeng.api.networking.ticking.TickingRequest;
+import appeng.api.storage.channels.IItemStorageChannel;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IItemList;
+import appeng.core.settings.TickRates;
 import appeng.helpers.DualityInterface;
+import appeng.me.GridAccessException;
 import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.misc.TileInterface;
+import appeng.util.item.AEItemStack;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.ClickButtonWidget;
@@ -16,7 +25,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.items.IItemHandler;
 import tj.blocks.block.TJBlocks;
 import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.mui.TJGuiTextures;
@@ -24,16 +32,15 @@ import tj.mui.uifactory.ITileEntityUI;
 import tj.mui.uifactory.TileEntityHolder;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.*;
-import tj.util.TJItemUtils;
 
-import java.util.EnumSet;
+import javax.annotation.Nonnull;
 import java.util.regex.Pattern;
 
 
 public class TileStockingInterface extends TileInterface implements ITileEntityUI {
 
     public TileStockingInterface() {
-        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 32, 1), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 36, 1), "duality");
     }
 
     public void openUI(EntityPlayer player, TileEntity tileEntity) {
@@ -46,6 +53,38 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
         holder.openUI((EntityPlayerMP) player);
     }
 
+    @Nonnull
+    @Override
+    public TickingRequest getTickingRequest(IGridNode node) {
+        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), this.getInterfaceDuality().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO, false);
+    }
+
+    @Nonnull
+    @Override
+    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
+        if (!this.getProxy().isActive())
+            return TickRateModulation.SLEEP;
+        final TickRateModulation tickRateModulation = super.tickingRequest(node, ticksSinceLastCall);
+        if (this.getInterfaceDuality().getConfigManager().getSetting(Settings.BLOCK) == YesNo.YES) {
+            try {
+                int index = 0;
+                final int stackSize = (int) Math.min(Integer.MAX_VALUE, 1024L << this.getInstalledUpgrades(Upgrades.CAPACITY) * 2);
+                final IItemList<?> iItemList = this.getProxy().getStorage().getInventory(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class)).getStorageList();
+                for (IAEStack<?> items : iItemList) {
+                    if (index < this.getInterfaceDuality().getConfig().getSlots()) {
+                        if (!items.isItem()) continue;
+                        final AEItemStack aeItemStack = (AEItemStack) items;
+                        final ItemStack itemStack = aeItemStack.createItemStack();
+                        if (itemStack.isEmpty()) continue;
+                        itemStack.setCount(Math.min(itemStack.getCount(), stackSize));
+                        ((AppEngInternalAEInventory) this.getInterfaceDuality().getConfig()).setStackInSlot(index++, itemStack);
+                    } else break;
+                }
+            } catch (GridAccessException ignored) {}
+        }
+        return tickRateModulation == TickRateModulation.SLEEP ? TickRateModulation.SLOWER : tickRateModulation;
+    }
+
     @Override
     public ItemStack getItemStackRepresentation() {
         return TJBlocks.STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY);
@@ -54,11 +93,8 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final DualityInterface duality = this.getInterfaceDuality();
-        final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(7, 133, 166, 72, 9)
-                .setScrollWidth(4);
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(0, 0, 0, 0);
         final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
-        final IItemHandler patternHandler = duality.getInventoryByName("patterns");
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
         final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292);
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
@@ -81,20 +117,8 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
             selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(120, 177, 40, 20, "-1000", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() - 1000), String.valueOf(index))));
             selectionWidgetGroup.addSelectionBox(i, 7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18);
         }
-        for (int i = 0; i < patternHandler.getSlots(); i++) {
-            final int index = i;
-            scrollableWidgetGroup.addWidget(new TJSlotWidget<>(patternHandler, i, 18 * (i % 9), 18 * (i / 9))
-                    .setPutItemsPredicate(item -> item.isItemEqual(Api.INSTANCE.definitions().items().encodedPattern().maybeStack(1).orElse(ItemStack.EMPTY)) || item.isItemEqual(TJItemUtils.getItemStackFromName("ae2fc:dense_encoded_pattern")))
-                    .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) && selectionWidgetGroup.getIndex() < 0 && buttonPopUpWidget.getIndex() == 0)
-                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
-                    .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
-                    .setActiveInit(false));
-        }
-        builder.widget(new LabelWidget(7, 109, "gui.appliedenergistics2.StoredItems"))
-                .widget(new LabelWidget(7, 123, "gui.appliedenergistics2.Patterns"))
-                .widget(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"))
-                .widget(scrollableWidgetGroup)
-                .widget(selectionWidgetGroup);
+        builder.widget(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredItems"))
+                .widget(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"));
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
@@ -109,25 +133,13 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
                         .setDynamicLocale(this::getCustomInventoryName)
                         .setCentered(false)
                         .setCanSlide(false))
-                .widget(new TJToggleButtonWidget(-18, 35, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setBlockingMode)
-                        .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.NonBlocking", "gui.tooltips.appliedenergistics2.Blocking")
-                        .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
+                .widget(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredItems"))
+                .widget(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"))
+                .widget(new TJToggleButtonWidget(-18, 35, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setAutoPull)
+                        .setToggleTooltipHoverText("tile.me.stocking_interface.auto_pull", "tile.me.stocking_interface.auto_pull")
+                        .setToggleTexture(TJGuiTextures.TOGGLE_AUTO_PULL)
                         .useToggleTexture(true))
-                .widget(new TJToggleButtonWidget(-18, 53, 16, 16, () -> duality.getConfigManager().getSetting(Settings.INTERFACE_TERMINAL).ordinal() == 0, this::setInterfaceTerminal)
-                        .setTooltipText("gui.appliedenergistics2.InterfaceTerminalHint")
-                        .setToggleTexture(TJGuiTextures.TOGGLE_INTERFACE_TERMINAL)
-                        .useToggleTexture(true))
-                .widget(new TJToggleButtonWidget(-18, 71, 16, 16, () -> duality.getConfigManager().getSetting(Settings.OPERATION_MODE).ordinal() == 0, this::setFluidPacket)
-                        .setToggleTooltipHoverText("ae2fc.tooltip.real_fluid.hint", "ae2fc.tooltip.fake_packet.hint")
-                        .setToggleTexture(TJGuiTextures.TOGGLE_SEND_FLUID)
-                        .useToggleTexture(true))
-                .widget(new TJToggleButtonWidget(-18, 89, 16, 16, () -> duality.getConfigManager().getSetting(Settings.LEVEL_TYPE).ordinal() == 0, this::setSplittingItemsFluids)
-                        .setToggleTooltipHoverText("ae2fc.tooltip.allow_splitting.hint", "ae2fc.tooltip.prevent_splitting.hint")
-                        .setToggleTexture(TJGuiTextures.TOGGLE_SPLITTING_ITEMS_FLUIDS)
-                        .useToggleTexture(true))
-                .widget(new TJCycleButtonWidget<>(-18, 107, 16, 16, (EnumSet<CondenserOutput>) Settings.CONDENSER_OUTPUT.getPossibleValues(), () -> (Enum<CondenserOutput>) duality.getConfigManager().getSetting(Settings.CONDENSER_OUTPUT), this::setBlockModeEx)
-                        .setCycleHoverTooltipText("ae2fc.tooltip.block_all.hint", "ae2fc.tooltip.block_item.hint", "ae2fc.tooltip.block_fluid.hint")
-                        .setCycleTexture(TJGuiTextures.CYCLE_BLOCKING_MODE_EX))
+                .widget(selectionWidgetGroup)
                 .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
                                 .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS)
@@ -151,31 +163,8 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
                 .build(holder, player);
     }
 
-    private void setBlockingMode(boolean blockingMode) {
+    private void setAutoPull(boolean blockingMode) {
         this.getInterfaceDuality().getConfigManager().putSetting(Settings.BLOCK, blockingMode ? YesNo.YES : YesNo.NO);
-        this.markDirty();
-    }
-
-    private void setInterfaceTerminal(boolean interfaceTerminal) {
-        this.getInterfaceDuality().getConfigManager().putSetting(Settings.INTERFACE_TERMINAL, interfaceTerminal ? YesNo.YES : YesNo.NO);
-        this.markDirty();
-    }
-
-    private void setFluidPacket(boolean fluidPacket) {
-        this.getInterfaceDuality().getConfigManager().putSetting(Settings.OPERATION_MODE, fluidPacket ? OperationMode.FILL : OperationMode.EMPTY);
-        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this.getInterfaceDuality(), fluidPacket, "fluidPacket");
-        this.markDirty();
-    }
-
-    private void setSplittingItemsFluids(boolean splittingItemsFluids) {
-        this.getInterfaceDuality().getConfigManager().putSetting(Settings.LEVEL_TYPE, splittingItemsFluids ? LevelType.ITEM_LEVEL : LevelType.ENERGY_LEVEL);
-        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this.getInterfaceDuality(), splittingItemsFluids, "allowSplitting");
-        this.markDirty();
-    }
-
-    private void setBlockModeEx(CondenserOutput blockModeEx) {
-        this.getInterfaceDuality().getConfigManager().putSetting(Settings.CONDENSER_OUTPUT, blockModeEx);
-        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this.getInterfaceDuality(), blockModeEx.ordinal(), "blockModeEx");
         this.markDirty();
     }
 

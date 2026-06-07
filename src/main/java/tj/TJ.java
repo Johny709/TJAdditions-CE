@@ -128,7 +128,7 @@ public class TJ {
         Upgrades.CAPACITY.registerItem(TJBlocks.PATTERN_INTERFACE, 4);
         Upgrades.CAPACITY.registerItem(TJItems.PART_PATTERN_INTERFACE, 4);
         Upgrades.PATTERN_EXPANSION.registerItem(TJBlocks.PATTERN_INTERFACE, 31);
-        Upgrades.PATTERN_EXPANSION.registerItem(TJItems.PART_PATTERN_INTERFACE, 27);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJItems.PART_PATTERN_INTERFACE, 31);
 
         Upgrades.CAPACITY.registerItem(TJBlocks.STOCKING_INTERFACE, 4);
         Upgrades.CAPACITY.registerItem(TJItems.PART_STOCKING_INTERFACE, 4);
