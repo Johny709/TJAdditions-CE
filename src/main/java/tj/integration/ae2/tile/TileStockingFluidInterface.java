@@ -1,12 +1,8 @@
-package tj.integration.ae2.part;
+package tj.integration.ae2.tile;
 
-import appeng.api.parts.IPartModel;
 import appeng.fluids.helper.DualityFluidInterface;
-import appeng.fluids.parts.PartFluidInterface;
+import appeng.fluids.tile.TileFluidInterface;
 import appeng.fluids.util.AEFluidInventory;
-import appeng.items.parts.PartModels;
-import appeng.parts.PartModel;
-import appeng.tile.networking.TileCableBus;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.ClickButtonWidget;
@@ -15,77 +11,40 @@ import gregtech.api.gui.widgets.LabelWidget;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
-import tj.TJ;
+import tj.blocks.block.TJBlocks;
+import tj.integration.ae2.helpers.DualitySuperFluidInterface;
+import tj.integration.ae2.helpers.IDualitySuperFluidInterface;
 import tj.mui.TJGuiTextures;
 import tj.mui.uifactory.ITileEntityUI;
 import tj.mui.uifactory.TileEntityHolder;
 import tj.mui.widgets.ButtonWidget;
-import tj.mui.widgets.impl.NewTextFieldWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.TJSlotWidget;
-import tj.mui.widgets.impl.AEFluidTankWidget;
-import tj.mui.widgets.impl.ButtonPopUpWidget;
-import tj.mui.widgets.impl.TJPhantomAEFluidSlotWidget;
-import tj.integration.ae2.helpers.DualitySuperFluidInterface;
-import tj.integration.ae2.helpers.IDualitySuperFluidInterface;
-import tj.items.item.TJItems;
+import tj.mui.widgets.impl.*;
 
-import javax.annotation.Nonnull;
 import java.util.regex.Pattern;
 
+public class TileStockingFluidInterface extends TileFluidInterface implements ITileEntityUI {
 
-public class PartSuperFluidInterface extends PartFluidInterface implements ITileEntityUI {
-
-    public static final ResourceLocation MODEL_BASE = new ResourceLocation(TJ.MODID, "part/me.part.super_fluid_interface_base");
-
-    @PartModels
-    public static final PartModel MODELS_OFF = new PartModel(MODEL_BASE, new ResourceLocation(TJ.MODID, "part/me.part.super_fluid_interface_off"));
-
-    @PartModels
-    public static final PartModel MODELS_ON = new PartModel(MODEL_BASE, new ResourceLocation(TJ.MODID, "part/me.part.super_fluid_interface_on"));
-
-    @PartModels
-    public static final PartModel MODELS_HAS_CHANNEL = new PartModel(MODEL_BASE, new ResourceLocation(TJ.MODID, "part/me.part.super_fluid_interface_has_channel"));
-
-    public PartSuperFluidInterface(ItemStack is) {
-        super(is);
-        ObfuscationReflectionHelper.setPrivateValue(PartFluidInterface.class, this, new DualitySuperFluidInterface(this.getProxy(), this, 18), "duality");
+    public TileStockingFluidInterface() {
+        ObfuscationReflectionHelper.setPrivateValue(TileFluidInterface.class, this, new DualitySuperFluidInterface(this.getProxy(), this, 36), "duality");
     }
 
-    @Override
-    public boolean onPartActivate(EntityPlayer player, EnumHand hand, Vec3d pos) {
-        final TileCableBus tileCableBus = (TileCableBus) this.getTile();
-        if (tileCableBus != null) {
-            if (!player.getEntityWorld().isRemote) {
-                TileEntityHolder holder = new TileEntityHolder(tileCableBus);
-                holder.setFacing(this.getSide().getFacing());
-                holder.openUI((EntityPlayerMP) player);
-            }
-            return true;
-        }
-        return true;
+    public void openUI(EntityPlayer player, TileEntity tileEntity) {
+        this.openUI(player, tileEntity, null);
+    }
+
+    public void openUI(EntityPlayer player, TileEntity tileEntity, EnumFacing facing) {
+        TileEntityHolder holder = new TileEntityHolder(tileEntity);
+        holder.setFacing(facing);
+        holder.openUI((EntityPlayerMP) player);
     }
 
     @Override
     public ItemStack getItemStackRepresentation() {
-        return TJItems.PART_SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY);
-    }
-
-    @Nonnull
-    @Override
-    public IPartModel getStaticModels() {
-        if (this.isActive() && this.isPowered()) {
-            return MODELS_HAS_CHANNEL;
-        } else if (this.isPowered()) {
-            return MODELS_ON;
-        } else {
-            return MODELS_OFF;
-        }
+        return TJBlocks.STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY);
     }
 
     @Override
@@ -142,6 +101,6 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
 
     private void setPriority(String text, String id) {
         this.getDualityFluidInterface().setPriority((int) Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-        this.getTile().markDirty();
+        this.markDirty();
     }
 }

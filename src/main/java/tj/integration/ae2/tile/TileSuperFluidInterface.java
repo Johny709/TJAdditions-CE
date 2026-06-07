@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 public class TileSuperFluidInterface extends TileFluidInterface implements ITileEntityUI {
 
     public TileSuperFluidInterface() {
-        ObfuscationReflectionHelper.setPrivateValue(TileFluidInterface.class, this, new DualitySuperFluidInterface(this.getProxy(), this), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(TileFluidInterface.class, this, new DualitySuperFluidInterface(this.getProxy(), this, 18), "duality");
     }
 
     public void openUI(EntityPlayer player, TileEntity tileEntity) {

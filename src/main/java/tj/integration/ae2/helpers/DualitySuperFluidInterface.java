@@ -33,10 +33,10 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
 
     private final IDualitySuperFluidInterface superFluidDuality = (IDualitySuperFluidInterface) this;
 
-    public DualitySuperFluidInterface(AENetworkProxy networkProxy, IFluidInterfaceHost ih) {
+    public DualitySuperFluidInterface(AENetworkProxy networkProxy, IFluidInterfaceHost ih, int slots) {
         super(networkProxy, ih);
         ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new IAEFluidStack[18], "requireWork");
-        ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new AEFluidInventory(this, 18), "config");
+        ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new AEFluidInventory(this, slots), "config");
         ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new DualityFluidUpgradeInventory(this, 4), "upgrades");
         try {
             Field mySource = ObfuscationReflectionHelper.findField(DualityFluidInterface.class, "mySource");

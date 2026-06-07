@@ -51,7 +51,7 @@ import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStart
 
 public class TileSuperDualInterface extends TileInterface implements IFluidInterfaceHost, IConfigurableFluidInventory, ITileEntityUI {
 
-    private final DualitySuperFluidInterface dualityFluid = new DualitySuperFluidInterface(this.getProxy(), this);
+    private final DualitySuperFluidInterface dualityFluid = new DualitySuperFluidInterface(this.getProxy(), this, 18);
 
     public TileSuperDualInterface() {
         ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 18, 72), "duality");

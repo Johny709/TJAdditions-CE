@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "normal": {
+      "model": "tj:me.stocking_fluid_interface"
+    }
+  }
+}
