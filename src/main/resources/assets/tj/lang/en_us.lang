@@ -1207,3 +1207,4 @@ tile.me.crafting_storage.1048m.name=§51048m§f Crafting Storage
 tile.me.crafting_storage.singularity.name=§dDigital Singularity Crafting Storage
 
 tile.me.stocking_interface.auto_pull=Auto-Pull from ME mode will automatically stock the first 36 items in the ME system
+tile.me.stocking_fluid_interface.auto_pull=Auto-Pull from ME mode will automatically stock the first 36 fluids in the ME system

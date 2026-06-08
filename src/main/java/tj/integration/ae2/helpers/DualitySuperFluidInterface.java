@@ -1,6 +1,8 @@
 package tj.integration.ae2.helpers;
 
+import appeng.api.config.Settings;
 import appeng.api.config.Upgrades;
+import appeng.api.config.YesNo;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.networking.ticking.TickRateModulation;
@@ -35,7 +37,9 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
 
     public DualitySuperFluidInterface(AENetworkProxy networkProxy, IFluidInterfaceHost ih, int slots) {
         super(networkProxy, ih);
-        ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new IAEFluidStack[18], "requireWork");
+        this.getConfigManager().registerSetting(Settings.BLOCK, YesNo.NO);
+
+        ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new IAEFluidStack[slots], "requireWork");
         ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new AEFluidInventory(this, slots), "config");
         ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new DualityFluidUpgradeInventory(this, 4), "upgrades");
         try {
@@ -46,7 +50,7 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
                 } catch (GridAccessException e) {
                     return null;
                 }
-            }, (IActionSource) mySource.get(this), this, 18, 64000), "tanks");
+            }, (IActionSource) mySource.get(this), this, slots, 64000), "tanks");
         } catch (IllegalAccessException e) {
             TJ.logger.error("Error when trying to reflect on class {} for field storage", DualityFluidInterface.class.getName());
         }
@@ -77,12 +81,14 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         this.superFluidDuality.serializeToNBT(data);
+        data.setInteger("blockingMode", this.getConfigManager().getSetting(Settings.BLOCK).ordinal());
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.superFluidDuality.deserializeFromNBT(data);
+        this.getConfigManager().putSetting(Settings.BLOCK, YesNo.values()[data.getInteger("blockingMode")]);
         this.superFluidDuality.readTheConfig();
     }
 
