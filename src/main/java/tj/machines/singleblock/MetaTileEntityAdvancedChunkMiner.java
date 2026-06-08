@@ -18,10 +18,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
@@ -33,12 +31,8 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.capability.impl.handler.IMinerHandler;
 import tj.capability.impl.workable.MinerWorkableHandler;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJProgressBarWidget;
-import tj.gui.widgets.TJSlotWidget;
-import tj.gui.widgets.impl.*;
-import tj.items.handlers.GhostSlotHandler;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.*;
 import tj.items.handlers.LargeItemStackHandler;
 
 import javax.annotation.Nullable;
@@ -47,13 +41,12 @@ import java.util.Objects;
 
 import static gregtech.api.gui.GuiTextures.BUTTON_ITEM_OUTPUT;
 import static gregtech.api.gui.GuiTextures.PROGRESS_BAR_ARROW;
-import static tj.gui.TJGuiTextures.POWER_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 
 public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEntity implements IMinerHandler {
 
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
     private final LargeItemStackHandler filterInventory = new LargeItemStackHandler(27, 1);
-    private final GhostSlotHandler ghostSlotHandler = new GhostSlotHandler(this.filterInventory.getSlots());
     private final FluidStack drillingFluid;
 
     public MetaTileEntityAdvancedChunkMiner(ResourceLocation metaTileEntityId, int tier) {
@@ -108,15 +101,16 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     protected ModularUI createUI(EntityPlayer player) {
         final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(113, 8, 60, 72, 3)
                 .setScrollWidth(6);
-        for (int i = 0; i < this.getExportItemInventory().getSlots(); i++) {
-            scrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.getExportItemInventory(), i, 18 * (i % 3), 18 * (i / 3))
-                    .setBackgroundTexture(GuiTextures.SLOT));
-        }
         final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(90, 30, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
+        for (int i = 0; i < this.getExportItemInventory().getSlots(); i++) {
+            scrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.getExportItemInventory(), i, 18 * (i % 3), 18 * (i / 3))
+                    .setActiveBackgroundTexture(GuiTextures.SLOT));
+            scrollableWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 3), 18 * (i / 3), 18, 18, displayWidget::getItemOutputAt, null));
+        }
         final TankWidget tankWidget = new TankWidget(this.importFluids.getTankAt(0), 69, 58, 18, 18)
                 .setHideTooltip(true).setAlwaysShowFull(true);
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 166)
@@ -134,14 +128,14 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                         .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.CHARGER_OVERLAY))
                 .widget(new ToggleButtonWidget(-24, 124, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
-                .widget(new ToggleButtonWidget(-24, 142, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new TJToggleButtonWidget(151, 172, 18, 18, this.workableHandler::isSilkTouch, (bool, str) -> this.workableHandler.setSilkTouch(bool))
                         .setDynamicTooltipText(() -> this.workableHandler.isSilkTouch() ? "tj.multiblock.advanced_large_miner.silktouch_true" : "tj.multiblock.advanced_large_miner.silktouch_false")
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                         .setItemDisplay(new ItemStack(Blocks.WEB))
                         .useToggleTexture(true))
-                .widget(new ToggleButtonWidget(97, 172, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setDone)
+                .widget(new ToggleButtonWidget(97, 172, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setDone)
                         .setTooltipText("machine.universal.toggle.reset"))
                 .widget(new ButtonPopUpWidget<>()
                         .addPopup(widgetGroup -> {
@@ -197,28 +191,9 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     }
 
     @Override
-    public void clearMachineInventory(NonNullList<ItemStack> itemBuffer) {
-        super.clearMachineInventory(itemBuffer);
-        this.ghostSlotHandler.clearInventory(this.filterInventory, itemBuffer);
-    }
-
-    @Override
-    public void writeInitialSyncData(PacketBuffer buf) {
-        super.writeInitialSyncData(buf);
-        this.ghostSlotHandler.writeInitialSyncData(buf);
-    }
-
-    @Override
-    public void receiveInitialSyncData(PacketBuffer buf) {
-        super.receiveInitialSyncData(buf);
-        this.ghostSlotHandler.readInitialSyncData(buf);
-    }
-
-    @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         data.setTag("filterInventory", this.filterInventory.serializeNBT());
-        this.ghostSlotHandler.writeToNBT(data);
         return data;
     }
 
@@ -226,7 +201,6 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.filterInventory.deserializeNBT(data.getCompoundTag("filterInventory"));
-        this.ghostSlotHandler.readFromNBT(data);
     }
 
     @Override

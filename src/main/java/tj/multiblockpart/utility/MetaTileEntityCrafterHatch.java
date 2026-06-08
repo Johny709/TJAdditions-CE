@@ -35,11 +35,11 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
-import tj.gui.widgets.impl.CraftingRecipeTransferWidget;
-import tj.gui.widgets.impl.SlotDisplayWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
+import tj.mui.widgets.impl.CraftingRecipeTransferWidget;
+import tj.mui.widgets.impl.SlotDisplayWidget;
 import tj.multiblockpart.TJMultiblockAbility;
 import tj.textures.TJTextures;
 
@@ -48,7 +48,7 @@ import java.util.List;
 import java.util.Map;
 
 import static gregtech.api.gui.GuiTextures.*;
-import static tj.gui.TJGuiTextures.DARKENED_SLOT;
+import static tj.mui.TJGuiTextures.DARKENED_SLOT;
 
 
 public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IRecipeMapProvider>, IRecipeMapProvider {
@@ -189,8 +189,8 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
             final NBTTagCompound recipeNBT = new NBTTagCompound();
             final NBTTagList patternNBT = new NBTTagList();
             final NonNullList<ItemStack> itemStacks = recipeEntry.getValue().getRight();
-            for (int i = 0; i < itemStacks.size(); i++) {
-                patternNBT.appendTag(itemStacks.get(i).serializeNBT());
+            for (ItemStack itemStack : itemStacks) {
+                patternNBT.appendTag(itemStack.serializeNBT());
             }
             recipeNBT.setInteger("index", recipeEntry.getKey());
             recipeNBT.setString("id", recipeEntry.getValue().getLeft().getRegistryName().toString());

@@ -46,9 +46,9 @@ import tj.capability.impl.workable.CrafterRecipeLogic;
 import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.AdvancedDisplayWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.AdvancedDisplayWidget;
+import tj.mui.widgets.impl.ScrollableDisplayWidget;
 import tj.textures.TJTextures;
 import tj.util.Color;
 import tj.util.EnumFacingHelper;
@@ -126,7 +126,7 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
+        widgetGroup.add(new ToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
                 .setTooltipText("machine.universal.toggle.item_voiding"));
     }
 

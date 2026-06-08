@@ -16,10 +16,10 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import tj.TJValues;
-import tj.gui.widgets.PopUpWidget;
-import tj.gui.widgets.TJSlotWidget;
-import tj.gui.widgets.impl.ButtonPopUpWidget;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.widgets.PopUpWidget;
+import tj.mui.widgets.impl.TJSlotWidget;
+import tj.mui.widgets.impl.ButtonPopUpWidget;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.common.covers.CoverPump.PumpMode.IMPORT;
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 import static tj.textures.TJTextures.PORTAL_OVERLAY;
 
 public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
@@ -114,7 +114,7 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
     protected void addWidgets(Consumer<Widget> widget) {
         widget.accept(new TJSlotWidget<>(null, 0, 7, 38)
                 .setItemHandlerSupplier(() -> this.handler)
-                .setBackgroundTexture(SLOT));
+                .setActiveBackgroundTexture(SLOT));
     }
 
     private void setFilterBlacklist(boolean isFilterBlacklist) {

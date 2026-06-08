@@ -39,7 +39,7 @@ import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.handler.ICoilHandler;
 import tj.capability.impl.workable.MultiSmelterWorkableHandler;
-import tj.gui.TJGuiTextures;
+import tj.mui.TJGuiTextures;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 import tj.util.TJFluidUtils;
@@ -93,7 +93,7 @@ public class MetaTileEntitySteamOven extends TJMultiblockControllerBase implemen
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
         if (!this.hasDistinct()) return;
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this.workableHandler::isDistinct, this.workableHandler::setDistinct)
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.workableHandler::isDistinct, this.workableHandler::setDistinct)
                 .setTooltipText("machine.universal.toggle.distinct.mode"));
     }
 

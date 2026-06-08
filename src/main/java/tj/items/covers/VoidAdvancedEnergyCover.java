@@ -14,15 +14,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.TJLabelWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
 import tj.textures.TJTextures;
 
 import java.util.regex.Pattern;
 
-import static tj.gui.TJGuiTextures.MINUS_BUTTON;
-import static tj.gui.TJGuiTextures.PLUS_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_MINUS_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_PLUS_BUTTON;
 
 public class VoidAdvancedEnergyCover extends VoidEnergyCover {
 
@@ -72,15 +72,15 @@ public class VoidAdvancedEnergyCover extends VoidEnergyCover {
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setTooltipText("machine.universal.ticks.operation")
                         .setUpdateOnTyping(true))
-                .widget(new ToggleButtonWidget(7, 7, 18, 18, MINUS_BUTTON, () -> false, data -> this.setTicks(String.valueOf((long) this.ticks / 2), "")))
-                .widget(new ToggleButtonWidget(151, 7, 18, 18, PLUS_BUTTON, () -> false, data -> this.setTicks(String.valueOf((long) this.ticks * 2), "")))
-                .widget(new ToggleButtonWidget(7, 30, 18, 18, MINUS_BUTTON, () -> false, b -> this.setThroughput(String.valueOf((double) this.throughput / 2), "")))
-                .widget(new ToggleButtonWidget(151, 30, 18, 18, PLUS_BUTTON, () -> false, b -> this.setThroughput(String.valueOf((double) this.throughput * 2), "")))
+                .widget(new ToggleButtonWidget(7, 7, 18, 18, TOGGLE_MINUS_BUTTON, () -> false, data -> this.setTicks(String.valueOf((long) this.ticks / 2), "")))
+                .widget(new ToggleButtonWidget(151, 7, 18, 18, TOGGLE_PLUS_BUTTON, () -> false, data -> this.setTicks(String.valueOf((long) this.ticks * 2), "")))
+                .widget(new ToggleButtonWidget(7, 30, 18, 18, TOGGLE_MINUS_BUTTON, () -> false, b -> this.setThroughput(String.valueOf((double) this.throughput / 2), "")))
+                .widget(new ToggleButtonWidget(151, 30, 18, 18, TOGGLE_PLUS_BUTTON, () -> false, b -> this.setThroughput(String.valueOf((double) this.throughput * 2), "")))
                 .widget(new NewTextFieldWidget<>(26, 30, 124, 18, true, () -> String.valueOf(this.throughput), this::setThroughput)
                         .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                         .setUpdateOnTyping(true))
                 .widget(new CycleButtonWidget(26, 50, 124, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode))
-                .widget(new ToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isWorking, this::setWorking)
+                .widget(new ToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorking)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
                 .build(this, player);

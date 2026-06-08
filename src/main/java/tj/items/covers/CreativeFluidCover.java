@@ -27,11 +27,11 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.impl.SelectionWidgetGroup;
-import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.SelectionWidgetGroup;
+import tj.mui.widgets.impl.TJPhantomFluidSlotWidget;
 import tj.textures.TJTextures;
 
 import java.util.List;
@@ -83,6 +83,7 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
                 FluidStack stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
                 if (stack == null) return;
                 stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
+                if (stack == null) return;
                 stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
                 this.fluidFilter.getTankAt(index).fill(stack, true);
             }).setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
@@ -97,9 +98,9 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
                 .widget(new AdvancedTextWidget(63, 85, this::displayText, 0xFFFFFF))
                 .widget(new ClickButtonWidget(43, 80, 18, 18, "+", this::onIncrement))
                 .widget(new ClickButtonWidget(116, 80, 18, 18, "-", this::onDecrement))
-                .widget(new ToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::onReset)
+                .widget(new ToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
                         .setTooltipText("machine.universal.toggle.reset"))
-                .widget(new ToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)

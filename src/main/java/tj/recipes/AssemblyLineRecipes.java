@@ -1,5 +1,7 @@
 package tj.recipes;
 
+import appeng.core.Api;
+import gregicadditions.GAEnums;
 import gregicadditions.item.*;
 import gregicadditions.item.metal.MetalCasing1;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,13 +16,14 @@ import gregtech.api.unification.ore.OrePrefix;
 import gregtech.common.items.MetaItems;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import tj.util.TJItemUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
+import static tj.blocks.block.TJBlocks.PATTERN_INTERFACE;
 import static tj.items.TJMetaItems.*;
 import static tj.items.TJMetaItems.FLUID_REGULATORS;
 import static tj.items.TJMetaItems.PUMPS;
@@ -840,9 +843,9 @@ public class AssemblyLineRecipes {
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(16000))
                 .fluidInputs(Polybenzimidazole.getFluid(4608))
-                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxcontroller")))
-                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxcore"), 64))
-                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxblock"), 16))
+                .inputs(TJItemUtils.getItemStackFromName("fluxnetworks:fluxcontroller"))
+                .inputs(TJItemUtils.getItemStackFromName("fluxnetworks:fluxcore", 64))
+                .inputs(TJItemUtils.getItemStackFromName("fluxnetworks:fluxblock", 16))
                 .input(OrePrefix.plateDense, Talonite, 4)
                 .inputs(MetaItems.EMITTER_IV.getStackForm(16))
                 .inputs(MetaItems.EMITTER_LUV.getStackForm(16))
@@ -859,9 +862,9 @@ public class AssemblyLineRecipes {
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(16000))
                 .fluidInputs(Polybenzimidazole.getFluid(4608))
-                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxcontroller")))
-                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxcore"), 64))
-                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxblock"), 16))
+                .inputs(TJItemUtils.getItemStackFromName("fluxnetworks:fluxcontroller"))
+                .inputs(TJItemUtils.getItemStackFromName("fluxnetworks:fluxcore", 64))
+                .inputs(TJItemUtils.getItemStackFromName("fluxnetworks:fluxblock", 16))
                 .input(OrePrefix.plateDense, Talonite, 4)
                 .inputs(MetaItems.SENSOR_IV.getStackForm(16))
                 .inputs(MetaItems.SENSOR_LUV.getStackForm(16))
@@ -878,9 +881,9 @@ public class AssemblyLineRecipes {
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(16000))
                 .fluidInputs(Polybenzimidazole.getFluid(4608))
-                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxcontroller")))
-                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxcore"), 64))
-                .inputs(new ItemStack(Item.getByNameOrId("fluxnetworks:fluxblock"), 16))
+                .inputs(TJItemUtils.getItemStackFromName("fluxnetworks:fluxcontroller"))
+                .inputs(TJItemUtils.getItemStackFromName("fluxnetworks:fluxcore", 64))
+                .inputs(TJItemUtils.getItemStackFromName("fluxnetworks:fluxblock", 16))
                 .input(OrePrefix.plateDense, Talonite, 4)
                 .inputs(GAMetaBlocks.CELL_CASING.getItemVariant(CellCasing.CellType.CELL_HV, 16))
                 .inputs(GAMetaBlocks.CELL_CASING.getItemVariant(CellCasing.CellType.CELL_EV, 16))
@@ -917,9 +920,9 @@ public class AssemblyLineRecipes {
                 .fluidInputs(EnderPearl.getFluid(10000))
                 .fluidInputs(EnderEye.getFluid(10000))
                 .inputs(HULL[7].getStackForm())
-                .inputs(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 44))
-                .inputs(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 42))
-                .inputs(new ItemStack(Item.getByNameOrId("draconicevolution:dislocator_advanced")))
+                .inputs(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 44))
+                .inputs(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 42))
+                .inputs(TJItemUtils.getItemStackFromName("draconicevolution:dislocator_advanced"))
                 .inputs(FIELD_GENERATOR_ZPM.getStackForm(2))
                 .inputs(EMITTER_ZPM.getStackForm(2))
                 .inputs(SENSOR_ZPM.getStackForm(2))
@@ -956,8 +959,8 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, Ultimate, 24)
                 .input(OrePrefix.gear, Inconel625, 16)
                 .input(OrePrefix.gear, HastelloyN, 16)
-                .inputs(new ItemStack(Item.getByNameOrId("appliedenergistics2:molecular_assembler"), 16))
-                .inputs(new ItemStack(Item.getByNameOrId("enderio:block_crafter"), 16))
+                .inputs(TJItemUtils.getItemStackFromName("appliedenergistics2:molecular_assembler", 16))
+                .inputs(TJItemUtils.getItemStackFromName("enderio:block_crafter", 16))
                 .inputs(ELECTRIC_PISTON_LUV.getStackForm(8))
                 .inputs(CONVEYOR_MODULE_LUV.getStackForm(8))
                 .inputs(ROBOT_ARM_LUV.getStackForm(8))
@@ -970,7 +973,7 @@ public class AssemblyLineRecipes {
         for (int i = 0; i < TURBINE_UPGRADES.length; i++) {
             if (i > 0)
                 turbineUpgrade.set(0, TURBINE_UPGRADES[i - 1].getStackForm());
-            else turbineUpgrade.add(new ItemStack(Item.getByNameOrId("ironbackpacks:upgrade")));
+            else turbineUpgrade.add(TJItemUtils.getItemStackFromName("ironbackpacks:upgrade"));
             ASSEMBLY_LINE_RECIPES.recipeBuilder()
                     .fluidInputs(SolderingAlloy.getFluid(9216))
                     .fluidInputs(Lubricant.getFluid(64000))
@@ -1191,6 +1194,20 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UIV, 24)
                 .outputs(LARGE_BIO_REACTOR.getStackForm())
                 .EUt(GAValues.VA[11]).duration(2000)
+                .buildAndRegister();
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000))
+                .inputs(Api.INSTANCE.definitions().blocks().iface().maybeStack(16).orElse(ItemStack.EMPTY), ELECTRIC_PISTON_UHV.getStackForm(4),
+                        Api.INSTANCE.definitions().materials().annihilationCore().maybeStack(50).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().formationCore().maybeStack(50).orElse(ItemStack.EMPTY),
+                        Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY),
+                        Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY),
+                        Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY),
+                        Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().blocks().quartzVibrantGlass().maybeStack(64).orElse(ItemStack.EMPTY))
+                .input(GAEnums.GAOrePrefix.plateDouble, HastelloyX78, 8)
+                .input(OrePrefix.screw, Seaborgium, 64)
+                .input(OrePrefix.circuit, UEV, 2)
+                .outputs(PATTERN_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))
+                .EUt(GAValues.VA[10]).duration(1000)
                 .buildAndRegister();
     }
 }

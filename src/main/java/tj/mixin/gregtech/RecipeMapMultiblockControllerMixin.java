@@ -21,7 +21,7 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 
 import java.util.List;
 
-import static tj.gui.TJGuiTextures.POWER_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 
 @Mixin(value = RecipeMapMultiblockController.class, remap = false)
 public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithDisplayBaseMixin {
@@ -61,7 +61,7 @@ public abstract class RecipeMapMultiblockControllerMixin extends MultiblockWithD
     @Override
     protected void addMainDisplayTab(List<Widget> widgetGroup) {
         super.addMainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, POWER_BUTTON, this.recipeMapWorkable::isWorkingEnabled, this.recipeMapWorkable::setWorkingEnabled)
+        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, TOGGLE_POWER_BUTTON, this.recipeMapWorkable::isWorkingEnabled, this.recipeMapWorkable::setWorkingEnabled)
                 .setTooltipText("machine.universal.toggle.run.mode"));
     }
 

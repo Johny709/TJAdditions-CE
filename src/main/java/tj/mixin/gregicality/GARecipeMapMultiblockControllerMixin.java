@@ -27,9 +27,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.AdvancedDisplayWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.AdvancedDisplayWidget;
+import tj.mui.widgets.impl.ScrollableDisplayWidget;
 import tj.mixin.gregtech.RecipeMapMultiblockControllerMixin;
 
 import java.text.SimpleDateFormat;
@@ -39,7 +39,7 @@ import java.util.List;
 
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate;
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 
 @Mixin(value = GARecipeMapMultiblockController.class, remap = false)
 public abstract class GARecipeMapMultiblockControllerMixin extends RecipeMapMultiblockControllerMixin {
@@ -85,7 +85,7 @@ public abstract class GARecipeMapMultiblockControllerMixin extends RecipeMapMult
     protected void addNewTabs(WidgetTabBuilder tabBuilder) {
         super.addNewTabs(tabBuilder);
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
-            debugTab.add(new ToggleButtonWidget(175, 133, 18, 18, RESET_BUTTON, () -> false, b -> this.recipeMapWorkable.previousRecipe.clear())
+            debugTab.add(new ToggleButtonWidget(175, 133, 18, 18, TOGGLE_RESET_BUTTON, () -> false, b -> this.recipeMapWorkable.previousRecipe.clear())
                     .setTooltipText("tj.multiblock.parallel.recipe.clear"));
             debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                     .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::configureDebugDisplayText, 0xFFFFFF)
@@ -98,7 +98,7 @@ public abstract class GARecipeMapMultiblockControllerMixin extends RecipeMapMult
     protected void addMainDisplayTab(List<Widget> widgetGroup) {
         super.addMainDisplayTab(widgetGroup);
         if (this.canDistinct)
-            widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, () -> this.isDistinct, this::setDistinctMode)
+            widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, () -> this.isDistinct, this::setDistinctMode)
                     .setTooltipText("machine.universal.toggle.distinct.mode"));
     }
 

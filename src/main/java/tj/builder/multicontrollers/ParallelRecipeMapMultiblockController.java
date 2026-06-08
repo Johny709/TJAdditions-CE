@@ -44,11 +44,11 @@ import tj.capability.OverclockManager;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.capability.impl.workable.ParallelRecipeLogic;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.AdvancedDisplayWidget;
-import tj.gui.widgets.TJCycleButtonWidget;
-import tj.gui.widgets.impl.JEIRecipeTransferWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.AdvancedDisplayWidget;
+import tj.mui.widgets.impl.OldCycleButtonWidget;
+import tj.mui.widgets.impl.JEIRecipeTransferWidget;
+import tj.mui.widgets.impl.ScrollableDisplayWidget;
 import tj.machines.multi.BatchMode;
 import tj.multiblockpart.TJMultiblockAbility;
 import tj.multiblockpart.utility.MetaTileEntityMachineController;
@@ -67,8 +67,8 @@ import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.common.blocks.BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
-import static tj.gui.TJGuiTextures.*;
-import static tj.gui.TJGuiTextures.FLUID_VOID_BUTTON;
+import static tj.mui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.TOGGLE_FLUID_VOID_BUTTON;
 
 public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockControllerBase implements IParallelController, IMultiRecipe, IRecipeHandler {
 
@@ -129,12 +129,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         overclockManager.setChanceMultiplier(this.getChanceMultiplier());
         overclockManager.setEUt(overclockManager.getEUt() * this.getEUtMultiplier() / 100);
         overclockManager.setDuration(overclockManager.getDuration() * this.getDurationMultiplier() / 100);
-        overclockManager.setParallel(this.getParallel() * this.getTierDifference(overclockManager.getEUt()) * this.batchMode.getAmount());
-    }
-
-    @Override
-    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         overclockManager.setDuration(overclockManager.getDuration() * this.batchMode.getAmount());
+        overclockManager.setParallel(this.getParallel() * this.getTierDifference(overclockManager.getEUt()) * this.batchMode.getAmount());
     }
 
     @Override
@@ -155,14 +151,14 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         tabBuilder.addWidget(new JEIRecipeTransferWidget(0, 0, 100, 100)
                 .setRecipeConsumer(this::setRecipe));
         tabBuilder.addTab("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(STEEL_GEARBOX), workableTab -> {
-            workableTab.add(new TJCycleButtonWidget(175, 133, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
+            workableTab.add(new OldCycleButtonWidget(175, 133, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
                     .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.batchMode.getAmount())))
                     .setToggle(true)
                     .setButtonTexture(TOGGLE_BUTTON_BACK)
                     .setTooltipHoverString("machine.universal.batch.amount"));
-            workableTab.add(new ToggleButtonWidget(175, 151, 18, 18, ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
+            workableTab.add(new ToggleButtonWidget(175, 151, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
                     .setTooltipText("machine.universal.toggle.item_voiding"));
-            workableTab.add(new ToggleButtonWidget(175, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
+            workableTab.add(new ToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
                     .setTooltipText("machine.universal.toggle.fluid_voiding"));
             workableTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                     .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addWorkableDisplayText, 0xFFFFFF)
@@ -171,11 +167,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     .setScrollPanelWidth(3));
         });
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
-            debugTab.add(new ToggleButtonWidget(175, 133, 18, 18, RESET_BUTTON, () -> false, b -> this.recipeLogic.getRecipeLRUCache().clear())
+            debugTab.add(new ToggleButtonWidget(175, 133, 18, 18, TOGGLE_RESET_BUTTON, () -> false, b -> this.recipeLogic.getRecipeLRUCache().clear())
                     .setTooltipText("tj.multiblock.parallel.recipe.clear"));
-            debugTab.add(new ToggleButtonWidget(175, 151, 18, 18, ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
+            debugTab.add(new ToggleButtonWidget(175, 151, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
                     .setTooltipText("machine.universal.toggle.item_voiding"));
-            debugTab.add(new ToggleButtonWidget(175, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
+            debugTab.add(new ToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
                     .setTooltipText("machine.universal.toggle.fluid_voiding"));
             debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                     .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addDebugDisplayText, 0xFFFFFF)
@@ -187,7 +183,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this.recipeLogic::isDistinct, this.recipeLogic::setDistinct)
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.recipeLogic::isDistinct, this.recipeLogic::setDistinct)
                 .setTooltipText("machine.universal.toggle.distinct.mode"));
     }
 
@@ -546,7 +542,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     public int getTierDifference(long recipeEUt) {
-        return this.getTier() - TJUtility.getTierFromVoltage(recipeEUt);
+        return this.getTier() - TJUtility.getTierFromVoltage(recipeEUt) + 1;
     }
 
     @Override

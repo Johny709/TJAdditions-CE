@@ -34,10 +34,8 @@ import org.apache.commons.lang3.tuple.Triple;
 import tj.capability.impl.workable.CrafterRecipeLogic;
 import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJProgressBarWidget;
-import tj.gui.widgets.impl.*;
-import tj.gui.widgets.TJLabelWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
 import tj.util.Color;
 import tj.util.EnumFacingHelper;
@@ -49,7 +47,7 @@ import java.util.Map;
 
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 
 
 public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implements IRecipeMapProvider {
@@ -102,7 +100,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new ItemStackHandler(3);
+        return new ItemStackHandler(4);
     }
 
     @Override
@@ -138,6 +136,12 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                 .setItemOutputSupplier(this.recipeLogic::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
+        final ModularUI.Builder builder = ModularUI.builder(BORDERED_BACKGROUND, 176, 216);
+        for (int i = 0; i < this.exportItems.getSlots(); i++) {
+            builder.widget(new SlotWidget(this.exportItems, i, 61 + (18 * i), 112, true, false)
+                            .setBackgroundTexture(SLOT))
+                    .widget(new RecipeOutputSlotWidget(i, 61 + (18 * i), 112, 18, 18, displayWidget::getItemOutputAt, null));
+        }
         return ModularUI.builder(BORDERED_BACKGROUND, 176, 216)
                 .image(-28, 0, 26, 104, BORDERED_BACKGROUND)
                 .image(-28, 188, 26, 26, BORDERED_BACKGROUND)
@@ -155,16 +159,9 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                         .onPressedConsumer((button, slot, stack) -> this.addRecipe(this.currentRecipe)))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
-                .widget(new SlotWidget(this.exportItems, 0, 79, 112, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new SlotWidget(this.exportItems, 1, 61, 112, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new SlotWidget(this.exportItems, 2, 97, 112, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new RecipeOutputSlotWidget(0, 79, 112, 18, 18, displayWidget::getItemOutputAt, null))
-                .widget(new ToggleButtonWidget(151, 112, 18, 18, ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
+                .widget(new ToggleButtonWidget(151, 112, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
                         .setTooltipText("machine.universal.toggle.item_voiding"))
-                .widget(new ToggleButtonWidget(-24, 192, 18, 18, POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(-24, 192, 18, 18, TOGGLE_POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 112, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))

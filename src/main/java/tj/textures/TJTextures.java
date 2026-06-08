@@ -13,7 +13,6 @@ import team.chisel.Chisel;
 import tj.TJ;
 import gregtech.api.GTValues;
 import gregtech.api.render.UVMirror;
-import gregtech.api.util.GTLog;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.EnumFacing;
@@ -110,7 +109,7 @@ public class TJTextures {
 
     @SideOnly(Side.CLIENT)
     public static void register(TextureMap textureMap) {
-        GTLog.logger.info("Loading meta tile entity texture sprites...");
+        TJ.logger.info("Loading meta tile entity texture sprites...");
         for (TextureUtils.IIconRegister iconRegister : iconRegisters) {
             iconRegister.registerIcons(textureMap);
         }

@@ -34,11 +34,9 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IEnderNotifiable;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.*;
-import tj.gui.widgets.impl.ClickPopUpWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.PopUpWidget;
+import tj.mui.widgets.impl.*;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.predicates.QuadActionResultPredicate;
@@ -54,7 +52,7 @@ import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLoc
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
 import static net.minecraft.util.text.TextFormatting.GRAY;
 import static net.minecraft.util.text.TextFormatting.YELLOW;
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 
 public abstract class AbstractEnderCover<V> extends CoverBehavior implements CoverWithUI, ITickable, IControllable, IEnderNotifiable<V> {
 
@@ -207,7 +205,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                         .useToggleTexture(true));
                                 widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
-                                widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                                widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                                         .setTooltipText("machine.universal.toggle.run.mode"));
                                 this.addWidgets(widgetGroup::addWidget);
                                 return true;

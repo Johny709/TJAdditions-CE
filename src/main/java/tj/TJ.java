@@ -1,22 +1,21 @@
 package tj;
 
 import appeng.api.config.Upgrades;
-import appeng.api.definitions.IItems;
-import appeng.core.Api;
 import gregtech.api.GTValues;
-import gregtech.api.util.GTLog;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.apache.logging.log4j.Logger;
 import tj.blocks.TJMetaBlocks;
+import tj.blocks.block.TJBlocks;
 import tj.capability.TJSimpleCapabilityManager;
-import tj.gui.uifactory.PlayerUIFactory;
-import tj.gui.uifactory.TileEntityUIFactory;
-import tj.integration.appeng.IApiItems;
+import tj.gui.GuiHandler;
+import tj.mui.uifactory.PlayerUIFactory;
+import tj.mui.uifactory.TileEntityUIFactory;
 import tj.integration.theoneprobe.TheOneProbeCompatibility;
 import tj.items.TJCoverBehaviours;
 import tj.items.item.TJItems;
@@ -25,6 +24,9 @@ import tj.machines.TJMetaTileEntities;
 
 @Mod(modid = TJ.MODID, name = TJ.NAME, version = TJ.VERSION)
 public class TJ {
+
+    @Mod.Instance(value = TJ.MODID)
+    public static TJ INSTANCE;
 
     public static final String MODID = "tj";
     public static final String NAME = "TJ";
@@ -35,7 +37,7 @@ public class TJ {
     @SidedProxy(modId = MODID, clientSide = "tj.ClientProxy", serverSide = "tj.CommonProxy")
     public static CommonProxy proxy;
 
-    private static Logger logger;
+    public static Logger logger;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -51,8 +53,9 @@ public class TJ {
     @EventHandler
     public void init(FMLInitializationEvent event) {
         proxy.onLoad();
+        NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
         if (GTValues.isModLoaded(GTValues.MODID_TOP)) {
-            GTLog.logger.info("TheOneProbe found. Enabling integration...");
+            logger.info("TheOneProbe found. Enabling integration...");
             TheOneProbeCompatibility.registerCompatibility();
         }
         TJCoverBehaviours.init();
@@ -61,7 +64,7 @@ public class TJ {
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         proxy.onPostLoad();
-        final IApiItems items = ((IApiItems) (IItems) Api.INSTANCE.definitions().items());
+
         // Item Storage Cells
         Upgrades.FUZZY.registerItem(TJItems.ITEM_CELL_65536K, 1);
         Upgrades.INVERTER.registerItem(TJItems.ITEM_CELL_65536K, 1);
@@ -91,23 +94,6 @@ public class TJ {
         Upgrades.INVERTER.registerItem(TJItems.ITEM_BLOCK_CONTAINER_SINGULARITY, 1);
         Upgrades.STICKY.registerItem(TJItems.ITEM_BLOCK_CONTAINER_SINGULARITY, 1);
 
-        //TODO remove in v2.5.8
-        Upgrades.FUZZY.registerItem(items.getCell65m(), 1);
-        Upgrades.INVERTER.registerItem(items.getCell65m(), 1);
-        Upgrades.STICKY.registerItem(items.getCell65m(), 1);
-
-        Upgrades.FUZZY.registerItem(items.getCell262m(), 1);
-        Upgrades.INVERTER.registerItem(items.getCell262m(), 1);
-        Upgrades.STICKY.registerItem(items.getCell262m(), 1);
-
-        Upgrades.FUZZY.registerItem(items.getCell1048m(), 1);
-        Upgrades.INVERTER.registerItem(items.getCell1048m(), 1);
-        Upgrades.STICKY.registerItem(items.getCell1048m(), 1);
-
-        Upgrades.FUZZY.registerItem(items.getCellDigitalSingularity(), 1);
-        Upgrades.INVERTER.registerItem(items.getCellDigitalSingularity(), 1);
-        Upgrades.STICKY.registerItem(items.getCellDigitalSingularity(), 1);
-
         // Fluid Storage Cells
         Upgrades.INVERTER.registerItem(TJItems.FLUID_CELL_65536K, 1);
         Upgrades.STICKY.registerItem(TJItems.FLUID_CELL_65536K, 1);
@@ -121,17 +107,32 @@ public class TJ {
         Upgrades.INVERTER.registerItem(TJItems.FLUID_CELL_DIGITAL_SINGULARITY, 1);
         Upgrades.STICKY.registerItem(TJItems.FLUID_CELL_DIGITAL_SINGULARITY, 1);
 
-        //TODO remove in v2.5.0
-        Upgrades.INVERTER.registerItem(items.getFluidCell65m(), 1);
-        Upgrades.STICKY.registerItem(items.getFluidCell65m(), 1);
+        // Super Interfaces
+        Upgrades.CAPACITY.registerItem(TJBlocks.SUPER_INTERFACE, 4);
+        Upgrades.CAPACITY.registerItem(TJItems.PART_SUPER_INTERFACE, 4);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJBlocks.SUPER_INTERFACE, 7);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJItems.PART_SUPER_INTERFACE, 7);
+        Upgrades.CRAFTING.registerItem(TJBlocks.SUPER_INTERFACE, 1);
+        Upgrades.CRAFTING.registerItem(TJItems.PART_SUPER_INTERFACE, 1);
 
-        Upgrades.INVERTER.registerItem(items.getFluidCell262m(), 1);
-        Upgrades.STICKY.registerItem(items.getFluidCell262m(), 1);
+        Upgrades.CAPACITY.registerItem(TJBlocks.SUPER_FLUID_INTERFACE, 4);
+        Upgrades.CAPACITY.registerItem(TJItems.PART_SUPER_FLUID_INTERFACE, 4);
 
-        Upgrades.INVERTER.registerItem(items.getFluidCell1048m(), 1);
-        Upgrades.STICKY.registerItem(items.getFluidCell1048m(), 1);
+        Upgrades.CAPACITY.registerItem(TJBlocks.SUPER_DUAL_INTERFACE, 4);
+        Upgrades.CAPACITY.registerItem(TJItems.PART_SUPER_DUAL_INTERFACE, 4);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJBlocks.SUPER_DUAL_INTERFACE, 7);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJItems.PART_SUPER_DUAL_INTERFACE, 7);
+        Upgrades.CRAFTING.registerItem(TJBlocks.SUPER_DUAL_INTERFACE, 1);
+        Upgrades.CRAFTING.registerItem(TJItems.PART_SUPER_DUAL_INTERFACE, 1);
 
-        Upgrades.INVERTER.registerItem(items.getFluidCellDigitalSingularity(), 1);
-        Upgrades.STICKY.registerItem(items.getFluidCellDigitalSingularity(), 1);
+        Upgrades.CAPACITY.registerItem(TJBlocks.PATTERN_INTERFACE, 4);
+        Upgrades.CAPACITY.registerItem(TJItems.PART_PATTERN_INTERFACE, 4);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJBlocks.PATTERN_INTERFACE, 31);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJItems.PART_PATTERN_INTERFACE, 31);
+
+        Upgrades.CAPACITY.registerItem(TJBlocks.STOCKING_INTERFACE, 4);
+        Upgrades.CAPACITY.registerItem(TJItems.PART_STOCKING_INTERFACE, 4);
+        Upgrades.CRAFTING.registerItem(TJBlocks.STOCKING_INTERFACE, 1);
+        Upgrades.CRAFTING.registerItem(TJItems.PART_STOCKING_INTERFACE, 1);
     }
 }

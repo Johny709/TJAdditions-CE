@@ -8,8 +8,8 @@ import gregtech.common.items.MetaItems;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import tj.util.TJItemUtils;
 
 import static tj.TJRecipeMaps.GREENHOUSE_TREE_RECIPES;
 import static gregicadditions.GAMaterials.OrganicFertilizer;
@@ -30,11 +30,11 @@ public class GreenhouseRecipes {
                     .buildAndRegister();
 
             GREENHOUSE_TREE_RECIPES.recipeBuilder() // Spectre Tree
-                    .notConsumable(new ItemStack(Item.getByNameOrId("randomthings:spectresapling")))
+                    .notConsumable(TJItemUtils.getItemStackFromName("randomthings:spectresapling"))
                     .inputs(fertilizer)
-                    .outputs(new ItemStack(Item.getByNameOrId("randomthings:spectrelog"), 5 * multiplier))
-                    .outputs(new ItemStack(Item.getByNameOrId("randomthings:spectresapling")))
-                    .outputs(new ItemStack(Item.getByNameOrId("randomthings:ingredient"), 10 * multiplier, 2))
+                    .outputs(TJItemUtils.getItemStackFromName("randomthings:spectrelog", 5 * multiplier))
+                    .outputs(TJItemUtils.getItemStackFromName("randomthings:spectresapling"))
+                    .outputs(TJItemUtils.getItemStackFromName("randomthings:ingredient", 10 * multiplier, 2))
                     .duration(900)
                     .buildAndRegister();
 
@@ -85,7 +85,7 @@ public class GreenhouseRecipes {
                     .notConsumable(new ItemStack(Block.getBlockFromName("advancedrocketry:aliensapling")))
                     .inputs(fertilizer)
                     .outputs(new ItemStack(Block.getBlockFromName("advancedrocketry:alienwood"), 5 * multiplier))
-                    .outputs(new ItemStack(Items.APPLE, (int) (6 * multiplier)))
+                    .outputs(new ItemStack(Items.APPLE, 6 * multiplier))
                     .outputs(new ItemStack(Block.getBlockFromName("advancedrocketry:charcoallog"), 32 * multiplier))
                     .outputs(new ItemStack(Block.getBlockFromName("advancedrocketry:aliensapling")))
                     .duration(600)
@@ -118,10 +118,10 @@ public class GreenhouseRecipes {
                     .buildAndRegister();
 
             GREENHOUSE_TREE_RECIPES.recipeBuilder() // Canola
-                    .notConsumable(new ItemStack(Item.getByNameOrId("actuallyadditions:item_canola_seed")))
+                    .notConsumable(TJItemUtils.getItemStackFromName("actuallyadditions:item_canola_seed"))
                     .inputs(fertilizer)
-                    .outputs(new ItemStack(Item.getByNameOrId("actuallyadditions:item_misc"), 5 * multiplier, 13))
-                    .outputs(new ItemStack(Item.getByNameOrId("actuallyadditions:item_canola_seed"), 5 * multiplier))
+                    .outputs(TJItemUtils.getItemStackFromName("actuallyadditions:item_misc", 5 * multiplier, 13))
+                    .outputs(TJItemUtils.getItemStackFromName("actuallyadditions:item_canola_seed", 5 * multiplier))
                     .duration(600)
                     .buildAndRegister();
         }

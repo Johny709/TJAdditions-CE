@@ -26,19 +26,20 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJProgressBarWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJProgressBarWidget;
 import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
 public class MetaTileEntityWaterReservoirHatch extends MetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IFluidTank> {
 
     private final FluidTank fluidTank = new FluidTank(Materials.Water.getFluid(Integer.MAX_VALUE), Integer.MAX_VALUE) {
-        @Nullable
+        @Nonnull
         @Override
         public FluidStack drainInternal(int maxDrain, boolean doDrain) {
             return new FluidStack(this.fluid, maxDrain);

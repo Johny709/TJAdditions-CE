@@ -1010,6 +1010,9 @@ void_cover.mode.exact=Exact
 item.unbreakable_hoe.name=Unbreakable Hoe
 item.unbreakable_axe.name=Unbreakable Axe
 item.unbreakable_shears.name=Unbreakable Shears
+item.me.max_capacity_upgrade.name=Max Capacity Upgrade Card
+item.me.max_capacity_upgrade.description=Add to ME parts for maximum capacity as possible.
+item.me.max_capacity_upgrade.count=%s (%,d)
 
 tj.machine.universal.item_amount=§7Amount: §6%s
 tj.machine.universal.fluid_amount=§7Amount: §3%s L
@@ -1113,6 +1116,7 @@ machine.universal.tooltip.voltage_in=Voltage IN: §a%,d §7(%s%s§7)
 machine.universal.false=§cFalse
 machine.universal.true=§9True
 machine.universal.deprecate_to_remove=Waring: Deprecated. This will be removed soon.
+machine.universal.stack_size=Stack Size
 
 string.regex.flag=Flag: %s
 string.regex.pattern.unix_lines=UNIX_LINES
@@ -1162,35 +1166,6 @@ tj.top.parallel_controller.multiblock_recipe=Multiblock Recipe:
 tj.top.inputs=Inputs:
 tj.top.outputs=Outputs:
 
-tile.appliedenergistics2.crafting_storage_65m.name=§165m §fCrafting Storage
-tile.appliedenergistics2.crafting_storage_262m.name=§b262m §fCrafting Storage
-tile.appliedenergistics2.crafting_storage_1048m.name=§51048m §fCrafting Storage
-tile.appliedenergistics2.crafting_storage_digital_singularity.name=§dDigital Singularity Crafting Storage
-tile.appliedenergistics2.super_interface.name=ME Super Interface
-tile.appliedenergistics2.super_fluid_interface.name=ME Super Fluid Interface
-
-item.appliedenergistics2.multi_part.super_interface.name=ME Super Interface
-item.appliedenergistics2.multi_part.super_fluid_interface.name=ME Super Fluid Interface
-
-item.appliedenergistics2.storage_cell_65m.name=§165m §fME Storage Cell
-item.appliedenergistics2.storage_cell_262m.name=§b262m §fME Storage Cell
-item.appliedenergistics2.storage_cell_1048m.name=§51048m §fME Storage Cell
-item.appliedenergistics2.storage_item_digital_singularity.name=§dDigital Singularity
-item.appliedenergistics2.storage_fluid_cell_65m.name=§165m §fME Fluid Storage Cell
-item.appliedenergistics2.storage_fluid_cell_262m.name=§b262m §fME Fluid Storage Cell
-item.appliedenergistics2.storage_fluid_cell_1048m.name=§51048m §fME Fluid Storage Cell
-item.appliedenergistics2.storage_fluid_digital_singularity.name=§dFluid Digital Singularity
-
-item.appliedenergistics2.material.cell_65m_part.name=§165m §fME Storage Component
-item.appliedenergistics2.material.cell_262m_part.name=§b262m §fME Storage Component
-item.appliedenergistics2.material.cell_1048m_part.name=§51048m §fME Storage Component
-item.appliedenergistics2.material.item_cell_digital_singularity.name=§dDigital Singularity Component
-item.appliedenergistics2.material.fluid_cell_65m_part.name=§165m §fME Fluid Storage Component
-item.appliedenergistics2.material.fluid_cell_262m_part.name=§b262m §fME Fluid Storage Component
-item.appliedenergistics2.material.fluid_cell_1048m_part.name=§51048m §fME Fluid Storage Component
-item.appliedenergistics2.material.fluid_cell_digital_singularity.name=§dFluid Digital Singularity Component
-
-
 item.me.material.item_cell.65536k.name=§165536k§f ME Storage Component
 item.me.material.item_cell.262144k.name=§b262144k§f ME Storage Component
 item.me.material.item_cell.1048m.name=§51048m§f ME Storage Component
@@ -1211,3 +1186,25 @@ item.me.fluid_cell.digital_singularity.name=§dFluid Digital Singularity
 item.me.block_container.item_cell.64k.name=§dME Block Container
 item.me.block_container.item_cell.65536k.name=§dME Block Container II
 item.me.block_container.item_cell.singularity.name=§dME Block Container Singularity
+
+item.me.part.super_interface.name=ME Super Interface
+item.me.part.super_fluid_interface.name=ME Super Fluid Interface
+item.me.part.super_dual_interface.name=ME Super Dual Interface
+item.me.part.pattern_interface.name=ME Pattern Interface
+item.me.part.stocking_interface.name=ME Stocking Interface
+item.me.part.stocking_fluid_interface.name=ME Stocking Fluid Interface
+
+tile.me.super_interface.name=ME Super Interface
+tile.me.super_fluid_interface.name=ME Super Fluid Interface
+tile.me.super_dual_interface.name=ME Super Dual Interface
+tile.me.pattern_interface.name=ME Pattern Interface
+tile.me.stocking_interface.name=ME Stocking Interface
+tile.me.stocking_fluid_interface.name=ME Stocking Fluid Interface
+
+tile.me.crafting_storage.65536k.name=§165536k§f Crafting Storage
+tile.me.crafting_storage.262144k.name=§b262144k§f Crafting Storage
+tile.me.crafting_storage.1048m.name=§51048m§f Crafting Storage
+tile.me.crafting_storage.singularity.name=§dDigital Singularity Crafting Storage
+
+tile.me.stocking_interface.auto_pull=Auto-Pull from ME mode will automatically stock the first 36 items in the ME system
+tile.me.stocking_fluid_interface.auto_pull=Auto-Pull from ME mode will automatically stock the first 36 fluids in the ME system

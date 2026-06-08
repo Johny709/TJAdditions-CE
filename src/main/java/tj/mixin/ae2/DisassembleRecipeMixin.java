@@ -2,6 +2,8 @@ package tj.mixin.ae2;
 
 import appeng.api.definitions.IDefinitions;
 import appeng.api.definitions.IItemDefinition;
+import appeng.api.definitions.IItems;
+import appeng.api.definitions.IMaterials;
 import appeng.core.Api;
 import appeng.recipes.game.DisassembleRecipe;
 import org.spongepowered.asm.mixin.Final;
@@ -10,8 +12,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import tj.integration.appeng.IApiItems;
-import tj.integration.appeng.IApiMaterials;
+import tj.blocks.block.TJBlocks;
 import tj.items.item.TJItems;
 
 import java.util.Map;
@@ -30,18 +31,8 @@ public abstract class DisassembleRecipeMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void injectDisassembleRecipe_Init(CallbackInfo ci) {
         final IDefinitions definitions = Api.INSTANCE.definitions();
-        final IApiItems items = (IApiItems) definitions.items();
-        final IApiMaterials materials = (IApiMaterials) definitions.materials();
-
-        //TODO remove in v2.5.0
-        this.cellMappings.put(items.getCell65m(), materials.getCell65mPart());
-        this.cellMappings.put(items.getCell262m(), materials.getCell262mPart());
-        this.cellMappings.put(items.getCell1048m(), materials.getCell1048mPart());
-        this.cellMappings.put(items.getCellDigitalSingularity(), materials.getCellDigitalSingularityPart());
-        this.cellMappings.put(items.getFluidCell65m(), materials.getFluidCell65mPart());
-        this.cellMappings.put(items.getFluidCell262m(), materials.getFluidCell262mPart());
-        this.cellMappings.put(items.getFluidCell1048m(), materials.getFluidCell1048mPart());
-        this.cellMappings.put(items.getFluidCellDigitalSingularity(), materials.getFluidCellDigitalSingularityPart());
+        final IItems items = definitions.items();
+        final IMaterials materials = definitions.materials();
 
         this.cellMappings.put(TJItems.ITEM_CELL_65536K, TJItems.MATERIAL_ITEM_CELL_65536K);
         this.cellMappings.put(TJItems.ITEM_CELL_262144K, TJItems.MATERIAL_ITEM_CELL_262144K);
@@ -60,5 +51,10 @@ public abstract class DisassembleRecipeMixin {
         this.cellMappings.put(items.fluidCell4k(), materials.fluidCell4kPart());
         this.cellMappings.put(items.fluidCell16k(), materials.fluidCell16kPart());
         this.cellMappings.put(items.fluidCell64k(), materials.fluidCell64kPart());
+
+        this.nonCellMappings.put(TJBlocks.CRAFTING_STORAGE_65536K, TJItems.MATERIAL_ITEM_CELL_65536K);
+        this.nonCellMappings.put(TJBlocks.CRAFTING_STORAGE_262144K, TJItems.MATERIAL_ITEM_CELL_262144K);
+        this.nonCellMappings.put(TJBlocks.CRAFTING_STORAGE_1048M, TJItems.MATERIAL_ITEM_CELL_1048M);
+        this.nonCellMappings.put(TJBlocks.CRAFTING_STORAGE_SINGULARITY, TJItems.MATERIAL_ITEM_CELL_DIGITAL_SINGULARITY);
     }
 }

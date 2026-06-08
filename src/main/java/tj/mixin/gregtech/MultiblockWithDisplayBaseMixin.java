@@ -22,22 +22,22 @@ import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.gui.TJGuiTextures;
-import tj.gui.TJHorizontoalTabListRenderer;
-import tj.gui.widgets.AdvancedDisplayWidget;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJProgressBarWidget;
-import tj.gui.widgets.impl.AnimatedImageWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.TJHorizontoalTabListRenderer;
+import tj.mui.widgets.impl.AdvancedDisplayWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJProgressBarWidget;
+import tj.mui.widgets.impl.AnimatedImageWidget;
+import tj.mui.widgets.impl.ScrollableDisplayWidget;
 
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.UnaryOperator;
 
-import static tj.gui.TJGuiTextures.*;
-import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
-import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
+import static tj.mui.TJGuiTextures.*;
+import static tj.mui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
+import static tj.mui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
 @Mixin(value = MultiblockWithDisplayBase.class, remap = false)
 public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControllerBase {
@@ -119,7 +119,7 @@ public abstract class MultiblockWithDisplayBaseMixin extends MultiblockControlle
                         .setClickHandler(this::handleDisplayClick)
                         .setMaxWidthLimit(180))
                 .setScrollPanelWidth(3));
-        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
+        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, TOGGLE_CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
                 .setTooltipText("machine.universal.toggle.check.mode"));
     }
 

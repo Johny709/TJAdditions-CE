@@ -32,6 +32,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.mixin.gregicality.IGAMetaTileEntityEnergyHatchMixin;
 import tj.mixin.gregtech.IMetaTileEntityEnergyHatchMixin;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -53,6 +54,7 @@ public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityTyp
         this.amps = amps;
     }
 
+    @Nonnull
     @Override
     protected BlockStateContainer createBlockState() {
         super.createBlockState();
@@ -60,7 +62,7 @@ public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityTyp
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state, EntityPlayer playerIn, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ) {
         ItemStack stack = playerIn.getHeldItem(EnumHand.MAIN_HAND);
         if (worldIn.isRemote)
             return true;
@@ -111,7 +113,7 @@ public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityTyp
     }
 
     @Override
-    public void getDrops(NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+    public void getDrops(@Nonnull NonNullList<ItemStack> drops, @Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nonnull IBlockState state, int fortune) {
         if (this.amps > 2) {
             drops.add(this.getEnergyHatch(state.getValue(VARIANT).getTier(), this.getAmps()));
             drops.add(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(state.getValue(VARIANT)));
@@ -127,6 +129,7 @@ public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityTyp
         return ItemStack.EMPTY;
     }
 
+    @Nonnull
     @Override
     public IBlockState getStateFromMeta(int meta) {
         return super.getStateFromMeta(meta % 5).withProperty(ACTIVE, meta / 5 >= 1);
@@ -143,7 +146,7 @@ public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityTyp
     }
 
     @Override
-    public boolean canCreatureSpawn(IBlockState state, IBlockAccess world, BlockPos pos, EntityLiving.SpawnPlacementType type) {
+    public boolean canCreatureSpawn(@Nonnull IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nonnull EntityLiving.SpawnPlacementType type) {
         return false;
     }
 
@@ -178,6 +181,7 @@ public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityTyp
             this.tier = tier;
         }
 
+        @Nonnull
         @Override
         public String getName() {
             return this.name;

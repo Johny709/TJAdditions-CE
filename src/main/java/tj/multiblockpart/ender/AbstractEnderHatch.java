@@ -41,14 +41,14 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IEnderNotifiable;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.PopUpWidget;
-import tj.gui.widgets.TJAdvancedTextWidget;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.impl.ClickPopUpWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.PopUpWidget;
+import tj.mui.widgets.impl.TJAdvancedTextWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.ClickPopUpWidget;
+import tj.mui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.items.covers.EnderCoverProfile;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
@@ -69,8 +69,8 @@ import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLoc
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
 import static net.minecraft.util.text.TextFormatting.GRAY;
 import static net.minecraft.util.text.TextFormatting.YELLOW;
-import static tj.gui.TJGuiTextures.*;
-import static tj.gui.TJGuiTextures.LIST_OVERLAY;
+import static tj.mui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.LIST_OVERLAY;
 
 public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultiblockPart implements IControllable, IMultiblockAbilityPart<T>, IEnderNotifiable<V> {
 
@@ -200,7 +200,7 @@ public abstract class AbstractEnderHatch<T, V> extends GAMetaTileEntityMultibloc
                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                         .useToggleTexture(true));
                                 widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
-                                widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                                widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                                         .setTooltipText("machine.universal.toggle.run.mode"));
                                 this.addWidgets(widgetGroup::addWidget);
                                 return true;

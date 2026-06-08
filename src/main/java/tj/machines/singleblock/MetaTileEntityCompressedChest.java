@@ -40,7 +40,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.tuple.Pair;
 import tj.TJValues;
-import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
+import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.util.TooltipHelper;
 

@@ -19,11 +19,11 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.capability.impl.handler.INameHandler;
 import tj.capability.impl.workable.NamingMachineWorkableHandler;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJProgressBarWidget;
-import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
-import tj.gui.widgets.impl.RecipeOutputSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJProgressBarWidget;
+import tj.mui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.mui.widgets.impl.RecipeOutputSlotWidget;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.GuiTextures.*;
-import static tj.gui.TJGuiTextures.POWER_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 
 public class MetaTileEntityNamingMachine extends TJTieredWorkableMetaTileEntity implements INameHandler {
 
@@ -65,7 +65,7 @@ public class MetaTileEntityNamingMachine extends TJTieredWorkableMetaTileEntity 
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new ItemStackHandler(2);
+        return new ItemStackHandler(4);
     }
 
     @Override
@@ -82,8 +82,13 @@ public class MetaTileEntityNamingMachine extends TJTieredWorkableMetaTileEntity 
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
-        return ModularUI.builder(BORDERED_BACKGROUND, 176, 166)
-                .image(-28, 0, 26, 104, BORDERED_BACKGROUND)
+        final ModularUI.Builder builder = ModularUI.builder(BORDERED_BACKGROUND, 176, 166);
+        for (int i = 0; i < this.exportItems.getSlots(); i++) {
+            builder.widget(new SlotWidget(this.exportItems, i, 105 + (18 * (i / 2)), 26 + (18 * (i / 2)), true, false)
+                            .setBackgroundTexture(SLOT))
+                    .widget(new RecipeOutputSlotWidget(i, 105 + (18 * (i / 2)), 26 + (18 * (i / 2)), 18, 18, displayWidget::getItemOutputAt, null));
+        }
+        return builder.image(-28, 0, 26, 104, BORDERED_BACKGROUND)
                 .image(-28, 138, 26, 26, BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
@@ -100,15 +105,9 @@ public class MetaTileEntityNamingMachine extends TJTieredWorkableMetaTileEntity 
                         .setBackgroundTexture(SLOT))
                 .widget(new SlotWidget(this.importItems, 1, 52, 26, true, true)
                         .setBackgroundTexture(SLOT))
-                .widget(new SlotWidget(this.exportItems, 0, 105, 26, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new SlotWidget(this.exportItems, 1, 123, 26, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new RecipeOutputSlotWidget(0, 105, 26, 18, 18, displayWidget::getItemOutputAt, null))
-                .widget(new RecipeOutputSlotWidget(1, 123, 26, 18, 18, displayWidget::getItemInputAt, null))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
-                .widget(new ToggleButtonWidget(-24, 142, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))

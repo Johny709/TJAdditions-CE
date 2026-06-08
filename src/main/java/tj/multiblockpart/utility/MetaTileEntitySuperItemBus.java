@@ -9,9 +9,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.impl.GhostCircuitWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.GhostCircuitWidget;
 import tj.items.handlers.LargeItemStackHandler;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
@@ -120,9 +120,9 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
                 .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()));
         widgetGroup.addWidget(new ImageWidget(169, 72 * tier, 18, 18, GuiTextures.DISPLAY));
         widgetGroup.addWidget(new AdvancedTextWidget(170, 5 + 72 * tier, this::addDisplayText, 0xFFFFFF));
-        widgetGroup.addWidget(new ToggleButtonWidget(169, -18 + 72 * tier, 18, 18, TJGuiTextures.UP_BUTTON, () -> false, this::onIncrement)
+        widgetGroup.addWidget(new ToggleButtonWidget(169, -18 + 72 * tier, 18, 18, TJGuiTextures.TOGGLE_UP_BUTTON, () -> false, this::onIncrement)
                 .setTooltipText("machine.universal.toggle.increment"));
-        widgetGroup.addWidget(new ToggleButtonWidget(169, 18 + 72 * tier, 18, 18, TJGuiTextures.DOWN_BUTTON, () -> false, this::onDecrement)
+        widgetGroup.addWidget(new ToggleButtonWidget(169, 18 + 72 * tier, 18, 18, TJGuiTextures.TOGGLE_DOWN_BUTTON, () -> false, this::onDecrement)
                 .setTooltipText("machine.universal.toggle.decrement"));
         widgetGroup.addWidget(new GhostCircuitWidget(this.ghostCircuitSlot, 169, 40 + 72 * tier));
         for (int i = 0; i < bus.getSlots(); i++) {

@@ -13,10 +13,10 @@ import tj.capability.impl.workable.TeleporterWorkableHandler;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.AdvancedDisplayWidget;
-import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.TJAdvancedTextWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.AdvancedDisplayWidget;
+import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.TJAdvancedTextWidget;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregicadditions.item.components.FieldGenCasing;
@@ -59,9 +59,9 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import tj.gui.widgets.impl.ClickPopUpWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.widgets.impl.ClickPopUpWidget;
+import tj.mui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.util.TJFluidUtils;
 import tj.util.consumers.QuadConsumer;
 
@@ -233,7 +233,7 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
                 .setTooltipText("machine.universal.tick.speed"));
         widgetGroup.add(new ClickButtonWidget(7, 114, 18, 18, "+", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))));
         widgetGroup.add(new ClickButtonWidget(175, 114, 18, 18, "-", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))));
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this.workableHandler::setReset)
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setReset)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 

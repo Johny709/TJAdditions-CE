@@ -19,11 +19,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.capability.impl.workable.ArchitectWorkbenchWorkableHandler;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJProgressBarWidget;
-import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
-import tj.gui.widgets.impl.RecipeOutputSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJProgressBarWidget;
+import tj.mui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.mui.widgets.impl.RecipeOutputSlotWidget;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -31,7 +31,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 import static gregtech.api.gui.GuiTextures.*;
-import static tj.gui.TJGuiTextures.POWER_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 
 
 public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEntity {
@@ -82,8 +82,13 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
-        return ModularUI.builder(BORDERED_BACKGROUND, 176, 166)
-                .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
+        final ModularUI.Builder builder = ModularUI.builder(BORDERED_BACKGROUND, 176, 166);
+        for (int i = 0; i < this.exportItems.getSlots(); i++) {
+            builder.widget(new SlotWidget(this.exportItems, i, 105 + (18 * (i % 2)), 22 + (18 * (i / 2)), true, false)
+                            .setBackgroundTexture(SLOT))
+                    .widget(new RecipeOutputSlotWidget(i, 105 + (18 * (i % 2)), 22 + (18 * (i / 2)), 18, 18, displayWidget::getItemOutputAt, null));
+        }
+        return builder.image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
                 .image(-28, 138, 26, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
@@ -97,18 +102,9 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
                         .setBackgroundTexture(SLOT, BOXED_OVERLAY))
                 .widget(new SlotWidget(this.importItems, 1, 52, 22, true, true)
                         .setBackgroundTexture(SLOT, MOLD_OVERLAY))
-                .widget(new SlotWidget(this.exportItems, 0, 105, 22, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new SlotWidget(this.exportItems, 1, 123, 22, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new SlotWidget(this.exportItems, 2, 105, 40, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new SlotWidget(this.exportItems, 3, 123, 40, true, false)
-                        .setBackgroundTexture(SLOT))
-                .widget(new RecipeOutputSlotWidget(0, 105, 22, 18, 18, displayWidget::getItemOutputAt, null))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
-                .widget(new ToggleButtonWidget(-24, 142, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))

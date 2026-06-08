@@ -23,10 +23,10 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.PopUpWidget;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.PopUpWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJSlotWidget;
 import tj.items.TJMetaItems;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.util.TJItemUtils;
@@ -93,7 +93,7 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
         final WidgetGroup armorSlotWidgetGroup = new WidgetGroup(new Position(7, 10));
         for (int i = 0; i < this.armorSlots.getSlots(); i++) {
             armorSlotWidgetGroup.addWidget(new TJSlotWidget<>(this.armorSlots, i, 0, 18 * i)
-                    .setBackgroundTexture(GuiTextures.SLOT));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT));
         }
         final PopUpWidget<?> headPopup = new PopUpWidget<>(43, 10, 0, 0)
                 .setIndexSupplier(() -> TJMetaItems.MODULAR_ARMOR_HEAD.isItemEqual(this.armorSlots.getStackInSlot(0)) ? 1 : 0)
@@ -102,7 +102,7 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
                     final FilteredItemStackHandler armorSlot = this.armorSlotMap.get(0);
                     for (int i = 0; i < armorSlot.getSlots(); i++) {
                         widgetGroup.addWidget(new TJSlotWidget<>(armorSlot, i, 18 * i, 0)
-                                .setBackgroundTexture(GuiTextures.SLOT));
+                                .setActiveBackgroundTexture(GuiTextures.SLOT));
                     }
                     return false;
                 });
@@ -113,7 +113,7 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
                     final FilteredItemStackHandler armorSlot = this.armorSlotMap.get(1);
                     for (int i = 0; i < armorSlot.getSlots(); i++) {
                         widgetGroup.addWidget(new TJSlotWidget<>(armorSlot, i, 18 * i, 0)
-                                .setBackgroundTexture(GuiTextures.SLOT));
+                                .setActiveBackgroundTexture(GuiTextures.SLOT));
                     }
                     return false;
                 });
@@ -124,7 +124,7 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
                     final FilteredItemStackHandler armorSlot = this.armorSlotMap.get(2);
                     for (int i = 0; i < armorSlot.getSlots(); i++) {
                         widgetGroup.addWidget(new TJSlotWidget<>(armorSlot, i, 18 * i, 0)
-                                .setBackgroundTexture(GuiTextures.SLOT));
+                                .setActiveBackgroundTexture(GuiTextures.SLOT));
                     }
                     return false;
                 });
@@ -135,7 +135,7 @@ public class MetaTileEntityArmorWorkbench extends TieredMetaTileEntity {
                     final FilteredItemStackHandler armorSlot = this.armorSlotMap.get(3);
                     for (int i = 0; i < armorSlot.getSlots(); i++) {
                         widgetGroup.addWidget(new TJSlotWidget<>(armorSlot, i, 18 * i, 0)
-                                .setBackgroundTexture(GuiTextures.SLOT));
+                                .setActiveBackgroundTexture(GuiTextures.SLOT));
                     }
                     return false;
                 });

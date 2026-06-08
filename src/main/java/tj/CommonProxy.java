@@ -1,11 +1,10 @@
 package tj;
 
-
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
+import tj.blocks.block.TJBlocks;
 import tj.capability.LinkEvent;
 import tj.event.MTELinkEvent;
-import appeng.items.materials.TJItemMaterial;
 import tj.items.TJMetaItems;
 import tj.items.item.TJItems;
 import tj.recipes.LateRecipes;
@@ -30,6 +29,8 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import static tj.blocks.TJMetaBlocks.*;
+import static tj.blocks.block.TJBlocks.*;
+import static tj.items.item.TJItems.*;
 
 
 @Mod.EventBusSubscriber(modid = TJ.MODID)
@@ -37,7 +38,8 @@ public class CommonProxy {
 
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event) {
-        IForgeRegistry<Block> registry = event.getRegistry();
+        final IForgeRegistry<Block> registry = event.getRegistry();
+        TJBlocks.init(registry);
 
         registry.register(SOLID_CASING);
         registry.register(PIPE_CASING);
@@ -46,13 +48,13 @@ public class CommonProxy {
         registry.register(ABILITY_BLOCKS);
         ENERGY_PORT_CASINGS.forEach(registry::register);
         ADV_ENERGY_PORT_CASINGS.forEach(registry::register);
-        TJItemMaterial.INSTANCE.registerOredicts();
     }
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
-        IForgeRegistry<Item> registry = event.getRegistry();
+        final IForgeRegistry<Item> registry = event.getRegistry();
         TJItems.init(registry);
+        TJBlocks.TJ_BLOCK_DEFINITION_REGISTRY.forEach(((location, blockDefinition) -> registry.register(blockDefinition.maybeItem().orElseThrow(() -> new NullPointerException("Item not found")))));
 
         registry.register(createItemBlock(SOLID_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(ENERGY_PORT_CASING, VariantItemBlock::new));
@@ -75,9 +77,9 @@ public class CommonProxy {
 
     @SubscribeEvent
     public static void onWorldLoad(WorldEvent.Load event) {
-        MapStorage storage = event.getWorld().getMapStorage();
-        EnderWorldData enderWorldData = (EnderWorldData) storage.getOrLoadData(EnderWorldData.class, "EnderWorldData");
-        PlayerWorldIDData playerWorldData = (PlayerWorldIDData) storage.getOrLoadData(PlayerWorldIDData.class, "PlayerWorldListData");
+        final MapStorage storage = event.getWorld().getMapStorage();
+        final EnderWorldData enderWorldData = (EnderWorldData) storage.getOrLoadData(EnderWorldData.class, "EnderWorldData");
+        final PlayerWorldIDData playerWorldData = (PlayerWorldIDData) storage.getOrLoadData(PlayerWorldIDData.class, "PlayerWorldListData");
 
         if (enderWorldData == null) {
             storage.setData("EnderWorldData", new EnderWorldData("EnderWorldData"));
@@ -131,7 +133,7 @@ public class CommonProxy {
 
     private static <T extends Block> ItemBlock createItemBlock(T block, Function<T, ItemBlock> producer) {
         ItemBlock itemBlock = producer.apply(block);
-        itemBlock.setRegistryName(block.getRegistryName());
+        itemBlock.setRegistryName((block.getRegistryName()));
         return itemBlock;
     }
 
@@ -140,8 +142,14 @@ public class CommonProxy {
     }
 
     public void onLoad() {
-
+        UPGRADES.put(SUPER_INTERFACE.maybeItem().orElse(null), 1);
+        UPGRADES.put(SUPER_FLUID_INTERFACE.maybeItem().orElse(null), 1);
+        UPGRADES.put(SUPER_DUAL_INTERFACE.maybeItem().orElse(null), 1);
+        UPGRADES.put(PATTERN_INTERFACE.maybeItem().orElse(null), 1);
+        UPGRADES.put(STOCKING_INTERFACE.maybeItem().orElse(null), 1);
+        UPGRADES.put(STOCKING_FLUID_INTERFACE.maybeItem().orElse(null), 1);
     }
+
     public void onPostLoad() {
         LateRecipes.init();
     }

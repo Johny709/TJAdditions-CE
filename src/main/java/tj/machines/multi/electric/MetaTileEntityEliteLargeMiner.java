@@ -59,8 +59,8 @@ import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.PopUpWidgetGroup;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.PopUpWidgetGroup;
 import tj.machines.ExtendedItemFilter;
 import tj.machines.TJMiner;
 import tj.textures.TJTextures;
@@ -77,7 +77,7 @@ import static gregicadditions.GAMaterials.Taranium;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.unification.material.Materials.DrillingFluid;
 import static gregtech.api.unification.material.Materials.Duranium;
-import static tj.gui.TJGuiTextures.ITEM_VOID_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON;
 
 
 public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase implements TJMiner {
@@ -356,7 +356,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
             filterTab.add(oreDictPopUp);
         });
         tabBuilder.addTab("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab -> {
-            settingsTab.add(new ToggleButtonWidget(175, 133, 18, 18, ITEM_VOID_BUTTON, () -> this.voidItems, this::setVoidItems)
+            settingsTab.add(new ToggleButtonWidget(175, 133, 18, 18, TOGGLE_ITEM_VOID_BUTTON, () -> this.voidItems, this::setVoidItems)
                     .setTooltipText("machine.universal.toggle.item_voiding"));
             settingsTab.add(new AdvancedTextWidget(10, -2, this::addSettingsDisplayText, 0xFFFFFF)
                     .setClickHandler(this::handleSettingDisplayText)
@@ -367,7 +367,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::setDone)
+        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::setDone)
                 .setTooltipText("machine.universal.toggle.reset"));
     }
 

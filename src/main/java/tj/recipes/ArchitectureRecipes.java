@@ -3,9 +3,9 @@ package tj.recipes;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import tj.util.TJItemUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,9 +28,9 @@ public class ArchitectureRecipes {
             getQuantity(i);
             NBTTagCompound nbtTagCompound = new NBTTagCompound();
             nbtTagCompound.setInteger("Shape", i);
-            nbtTagCompound.setString("BaseName", Blocks.PLANKS.getRegistryName().toString());
+            nbtTagCompound.setString("BaseName", (Blocks.PLANKS.getRegistryName().toString()));
             nbtTagCompound.setInteger("BaseData", new ItemStack(Blocks.PLANKS).getMetadata());
-            ItemStack oakCatalyst = new ItemStack(Item.getByNameOrId("architecturecraft:shape"));
+            ItemStack oakCatalyst = TJItemUtils.getItemStackFromName("architecturecraft:shape");
             oakCatalyst.setTagCompound(nbtTagCompound);
 
             for (Block block : Block.REGISTRY) {
@@ -43,7 +43,7 @@ public class ArchitectureRecipes {
                     tagCompound.setString("BaseName", blockName);
                     tagCompound.setInteger("BaseData", state.getBlock().getMetaFromState(state));
 
-                    ItemStack architectStack = new ItemStack(Item.getByNameOrId("architecturecraft:shape"), outputQuantity);
+                    ItemStack architectStack = TJItemUtils.getItemStackFromName("architecturecraft:shape", outputQuantity);
                     architectStack.setTagCompound(tagCompound);
                     ItemStack item = new ItemStack(block, inputQuantity, state.getBlock().getMetaFromState(state));
                     if (item.isEmpty())

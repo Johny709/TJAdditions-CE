@@ -8,6 +8,8 @@ import tj.TJValues;
 import tj.items.behaviours.*;
 import tj.util.TJUtility;
 
+import javax.annotation.Nonnull;
+
 import static gregicadditions.item.GAMetaItems.*;
 import static gregicadditions.item.GAMetaItems.ELECTRIC_MOTOR_MAX;
 import static gregicadditions.item.GAMetaItems.ELECTRIC_MOTOR_UMV;
@@ -87,6 +89,7 @@ public class TJMetaItem1 extends MaterialMetaItem {
         }
     }
 
+    @Nonnull
     @Override
     public ItemStack getContainerItem(ItemStack stack) {
         return stack.copy();

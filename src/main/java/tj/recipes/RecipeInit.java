@@ -27,11 +27,11 @@ import gregtech.common.metatileentities.storage.MetaTileEntityQuantumTank;
 import gregtech.loaders.recipe.CraftingComponent;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import tj.blocks.*;
 import tj.machines.TJMetaTileEntities;
 import tj.recipes.ct.*;
+import tj.util.TJItemUtils;
 
 import java.util.Arrays;
 
@@ -44,6 +44,7 @@ import static gregtech.api.unification.material.Materials.*;
 import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
 import static gregtech.common.metatileentities.MetaTileEntities.*;
 import static tj.TJValues.CIRCUIT_TIERS;
+import static tj.blocks.block.TJBlocks.*;
 import static tj.items.TJMetaItems.*;
 import static tj.items.item.TJItems.*;
 import static tj.machines.TJMetaTileEntities.*;
@@ -126,7 +127,7 @@ public class RecipeInit {
         for (int i = 0, tier = 1; i < ARCHITECT_WORKBENCH.length; i++, tier++) {
             ModHandler.addShapedRecipe("architect_workbench_" + GAValues.VN[tier].toLowerCase(), ARCHITECT_WORKBENCH[i].getStackForm(), "PAP", "CSC", "MWM",
                     'P', GACraftingComponents.PISTON.getIngredient(tier),
-                    'A', new ItemStack(Item.getByNameOrId("architecturecraft:sawbench")),
+                    'A', TJItemUtils.getItemStackFromName("architecturecraft:sawbench"),
                     'S', tier == 14 ? HULL[9].getStackForm() : tier < 9 ? HULL[tier].getStackForm() : GA_HULLS[tier - 9].getStackForm(),
                     'C', GACraftingComponents.CIRCUIT.getIngredient(tier),
                     'W', GACraftingComponents.CABLE_SINGLE.getIngredient(tier),
@@ -135,7 +136,7 @@ public class RecipeInit {
         for (int i = 0, tier = 1; i < ARCHITECT_WORKBENCH.length; i++, tier++) {
             ModHandler.addShapedRecipe("chisel_workbench_" + GAValues.VN[tier].toLowerCase(), CHISEL_WORKBENCH[i].getStackForm(), "CAC", "RSR", "GWG",
                     'R', GACraftingComponents.CONVEYOR.getIngredient(tier),
-                    'A', new ItemStack(Item.getByNameOrId("chisel:auto_chisel")),
+                    'A', TJItemUtils.getItemStackFromName("chisel:auto_chisel"),
                     'S', tier == 14 ? HULL[9].getStackForm() : tier < 9 ? HULL[tier].getStackForm() : GA_HULLS[tier - 9].getStackForm(),
                     'C', GACraftingComponents.CIRCUIT.getIngredient(tier),
                     'W', GACraftingComponents.CABLE_SINGLE.getIngredient(tier),
@@ -261,7 +262,7 @@ public class RecipeInit {
                 'G', new UnificationEntry(OrePrefix.gear, Bronze),
                 'O', new UnificationEntry(OrePrefix.gear, Steel));
         ModHandler.addShapedRecipe("void_plunger", VOID_PLUNGER.getStackForm(), " OO", " SO", "S  ",
-                'O', new ItemStack(Item.getByNameOrId("enderio:block_reinforced_obsidian")),
+                'O', TJItemUtils.getItemStackFromName("enderio:block_reinforced_obsidian"),
                 'S', new UnificationEntry(OrePrefix.stick, Steel));
         ModHandler.addShapedRecipe("nbt_reader", NBT_READER.getStackForm(), "PPP", "PCP", "PPP",
                 'P', new ItemStack(Items.PAPER),
@@ -281,13 +282,13 @@ public class RecipeInit {
                 'D', GATileEntities.CENTRAL_MONITOR.getStackForm());
         ModHandler.addShapedRecipe("compressed_chest", COMPRESSED_CHEST.getStackForm(), "OCO", "PKP", "OCO",
                 'O', new UnificationEntry(OrePrefix.block, Obsidian),
-                'C', new ItemStack(Item.getByNameOrId("actuallyadditions:block_giant_chest_large")),
-                'K', new ItemStack(Item.getByNameOrId("actuallyadditions:item_crate_keeper")),
+                'C', TJItemUtils.getItemStackFromName("actuallyadditions:block_giant_chest_large"),
+                'K', TJItemUtils.getItemStackFromName("actuallyadditions:item_crate_keeper"),
                 'P', CraftingComponent.PISTON.getIngredient(2));
         ModHandler.addShapedRecipe("compressed_crate", COMPRESSED_CRATE.getStackForm(), "OPO", "CKC", "OPO",
                 'O', new UnificationEntry(OrePrefix.block, Obsidian),
-                'C', new ItemStack(Item.getByNameOrId("actuallyadditions:block_giant_chest_large")),
-                'K', new ItemStack(Item.getByNameOrId("actuallyadditions:item_crate_keeper")),
+                'C', TJItemUtils.getItemStackFromName("actuallyadditions:block_giant_chest_large"),
+                'K', TJItemUtils.getItemStackFromName("actuallyadditions:item_crate_keeper"),
                 'P', CraftingComponent.PISTON.getIngredient(2));
         ModHandler.addShapedRecipe("tj_toolbox", TOOLBOX.getStackForm(), "RCR", "PSP", "PPP",
                 'R', new UnificationEntry(OrePrefix.stickLong, RedSteel),
@@ -321,9 +322,28 @@ public class RecipeInit {
                 'G', GACraftingComponents.GEAR.getIngredient(5),
                 'H', NAMING_MACHINES[4].getStackForm(),
                 'A', new ItemStack(Blocks.ANVIL));
-        ModHandler.addShapelessRecipe("tj_item_block_container", ITEM_BLOCK_CONTAINER_64K.maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().cell1kPart().maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), new ItemStack(Blocks.CHEST));
-        ModHandler.addShapelessRecipe("tj_item_block_container.2", ITEM_BLOCK_CONTAINER_65536K.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_65536K.maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), COMPRESSED_CHEST.getStackForm());
-        ModHandler.addShapelessRecipe("tj_item_block_container.singularity", ITEM_BLOCK_CONTAINER_SINGULARITY.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), INFINITY_CHEST.getStackForm());
+        ModHandler.addShapelessRecipe("tj_crafting_storage_65536k", CRAFTING_STORAGE_65536K.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_65536K.maybeStack(1).orElse(null), aeBlocks.craftingUnit().maybeStack(1).orElse(null));
+        ModHandler.addShapelessRecipe("tj_crafting_storage_262144k", CRAFTING_STORAGE_262144K.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_262144K.maybeStack(1).orElse(null), aeBlocks.craftingUnit().maybeStack(1).orElse(null));
+        ModHandler.addShapelessRecipe("tj_crafting_storage_1048m", CRAFTING_STORAGE_1048M.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_1048M.maybeStack(1).orElse(null), aeBlocks.craftingUnit().maybeStack(1).orElse(null));
+        ModHandler.addShapelessRecipe("tj_crafting_storage_singularity", CRAFTING_STORAGE_SINGULARITY.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null), aeBlocks.craftingUnit().maybeStack(1).orElse(null));
+        ModHandler.addShapelessRecipe("tj_item_block_container", ITEM_BLOCK_CONTAINER_64K.maybeStack(1).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().cell1kPart().maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), new ItemStack(Blocks.CHEST));
+        ModHandler.addShapelessRecipe("tj_item_block_container.2", ITEM_BLOCK_CONTAINER_65536K.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_65536K.maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), COMPRESSED_CHEST.getStackForm());
+        ModHandler.addShapelessRecipe("tj_item_block_container.singularity", ITEM_BLOCK_CONTAINER_SINGULARITY.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null), Api.INSTANCE.definitions().materials().emptyStorageCell().maybeStack(1).orElse(null), INFINITY_CHEST.getStackForm());
+        ModHandler.addShapelessRecipe("tj_super_interface", SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), PART_SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_super_interface_part", PART_SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_super_fluid_interface", SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), PART_SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_super_fluid_interface_part", PART_SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_super_dual_interface", SUPER_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), PART_SUPER_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_super_dual_interface_part", PART_SUPER_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), SUPER_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_super_dual_interface_2", SUPER_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_pattern_interface", PATTERN_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), PART_PATTERN_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_pattern_interface_part", PART_PATTERN_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), PATTERN_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_stocking_interface", STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), PART_STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_stocking_interface_part", PART_STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_stocking_fluid_interface", STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), PART_STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_stocking_fluid_interface_part", PART_STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_max_capacity_upgrade", new ItemStack(MAX_CAPACITY_UPGRADE), Api.INSTANCE.definitions().materials().advCard().maybeStack(1).orElse(ItemStack.EMPTY), INFINITY_CHEST.getStackForm());
+        ModHandler.addShapelessRecipe("tj_max_capacity_upgrade_2", new ItemStack(MAX_CAPACITY_UPGRADE), Api.INSTANCE.definitions().materials().advCard().maybeStack(1).orElse(ItemStack.EMPTY), INFINITY_CRATE.getStackForm());
         for (int i = 0; i < 2; i++) {
             ModHandler.addShapedRecipe("charcoal_pit." + i, i == 0 ? CHARCOAL_PIT.getStackForm() : CHARCOAL_PIT_ADVANCED.getStackForm(), "PRP", "PHP", "FFF",
                     'H', i == 0 ? MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.BRONZE_BRICKS_HULL) : MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.STEEL_BRICKS_HULL),
@@ -352,7 +372,7 @@ public class RecipeInit {
                     'S', CRAFTER[i].getStackForm());
         }
         for (int i = 0; i < FILTERED_INPUT_BUSES.length; i++) {
-            final Object motor = i == 0 ? new ItemStack(Item.getByNameOrId("contenttweaker:steammotor")) : GACraftingComponents.MOTOR.getIngredient(i);
+            final Object motor = i == 0 ? TJItemUtils.getItemStackFromName("contenttweaker:steammotor") : GACraftingComponents.MOTOR.getIngredient(i);
             ModHandler.addShapedRecipe("filtered_input_bus." + GAValues.VN[i], FILTERED_INPUT_BUSES[i].getStackForm(), " F ", "MHM", " F ",
                     'F', MetaItems.ITEM_FILTER.getStackForm(),
                     'H', ITEM_IMPORT_BUS[i].getStackForm(),
@@ -422,7 +442,7 @@ public class RecipeInit {
                     'A', new ItemStack(Blocks.ANVIL));
         }
         for (int i = 0; i < 4; i++) {
-            ItemStack aeCellParts2 = i == 0 ? new ItemStack(Item.getByNameOrId("nae2:material"), 3, 4) : aeCellParts[i - 1].copy();
+            ItemStack aeCellParts2 = i == 0 ? TJItemUtils.getItemStackFromName("nae2:material", 3, 4) : aeCellParts[i - 1].copy();
             aeCellParts2.setCount(3);
             ASSEMBLER_RECIPES.recipeBuilder()
                     .circuitMeta(1)
@@ -433,7 +453,7 @@ public class RecipeInit {
                     .outputs(aeCellParts[i])
                     .duration(300).EUt(GAValues.VA[Math.min(11, i + 9)])
                     .buildAndRegister();
-            aeCellParts2 = i == 0 ? new ItemStack(Item.getByNameOrId("nae2:material"), 3, 8) : aeCellParts[i + 3].copy();
+            aeCellParts2 = i == 0 ? TJItemUtils.getItemStackFromName("nae2:material", 3, 8) : aeCellParts[i + 3].copy();
             aeCellParts2.setCount(3);
             ASSEMBLER_RECIPES.recipeBuilder()
                     .circuitMeta(1)
@@ -471,28 +491,28 @@ public class RecipeInit {
         ModHandler.addShapelessRecipe("tj_mega_blast_furnace.back", GATileEntities.MEGA_BLAST_FURNACE.getStackForm(), MEGA_BLAST_FURNACE.getStackForm());
         ModHandler.addShapelessRecipe("tj_mega_vacuum_freezer", MEGA_VACUUM_FREEZER.getStackForm(), GATileEntities.MEGA_VACUUM_FREEZER.getStackForm());
         ModHandler.addShapelessRecipe("tj_mega_vacuum_freezer.back", GATileEntities.MEGA_VACUUM_FREEZER.getStackForm(), MEGA_VACUUM_FREEZER.getStackForm());
-        final ItemStack cokeOven = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1000);
+        final ItemStack cokeOven = TJItemUtils.getItemStackFromName("gregtech:machine", 1, 1000);
         ModHandler.addShapelessRecipe("tj_coke_oven", TJMetaTileEntities.COKE_OVEN.getStackForm(), cokeOven);
         ModHandler.addShapelessRecipe("tj_coke_oven.back", cokeOven, TJMetaTileEntities.COKE_OVEN.getStackForm());
-        final ItemStack primitiveAlloy = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1002);
+        final ItemStack primitiveAlloy = TJItemUtils.getItemStackFromName("gregtech:machine", 1, 1002);
         ModHandler.addShapelessRecipe("tj_primitive_alloy", PRIMITIVE_ALLOY.getStackForm(), primitiveAlloy);
         ModHandler.addShapelessRecipe("tj_primitive_alloy.back", primitiveAlloy, PRIMITIVE_ALLOY.getStackForm());
-        final ItemStack heatExchanger = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1003);
+        final ItemStack heatExchanger = TJItemUtils.getItemStackFromName("gregtech:machine", 1, 1003);
         ModHandler.addShapelessRecipe("tj_heat_exchanger", HEAT_EXCHANGER.getStackForm(), heatExchanger);
         ModHandler.addShapelessRecipe("tj_heat_exchanger.back", heatExchanger, HEAT_EXCHANGER.getStackForm());
-        final ItemStack armorInfuser = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1004);
+        final ItemStack armorInfuser = TJItemUtils.getItemStackFromName("gregtech:machine", 1, 1004);
         ModHandler.addShapelessRecipe("tj_armor_infuser", ARMOR_INFUSER.getStackForm(), armorInfuser);
         ModHandler.addShapelessRecipe("tj_armor_infuser.back", armorInfuser, ARMOR_INFUSER.getStackForm());
-        final ItemStack chaosReplicator = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1005);
+        final ItemStack chaosReplicator = TJItemUtils.getItemStackFromName("gregtech:machine", 1, 1005);
         ModHandler.addShapelessRecipe("tj_chaos_replicator", CHAOS_REPLICATOR.getStackForm(), chaosReplicator);
         ModHandler.addShapelessRecipe("tj_chaos_replicator.back", chaosReplicator, CHAOS_REPLICATOR.getStackForm());
-        final ItemStack dragonReplicator = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 1006);
+        final ItemStack dragonReplicator = TJItemUtils.getItemStackFromName("gregtech:machine", 1, 1006);
         ModHandler.addShapelessRecipe("tj_dragon_egg_replicator", DRAGON_REPLICATOR.getStackForm(), dragonReplicator);
         ModHandler.addShapelessRecipe("tj_dragon_egg_replicator.back", dragonReplicator, DRAGON_REPLICATOR.getStackForm());
-        final ItemStack largePoweredSpawner = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 4201);
+        final ItemStack largePoweredSpawner = TJItemUtils.getItemStackFromName("gregtech:machine", 1, 4201);
         ModHandler.addShapelessRecipe("tj_large_powered_spawner", LARGE_POWERED_SPAWNER.getStackForm(), largePoweredSpawner);
         ModHandler.addShapelessRecipe("tj_large_powered_spawner.back", largePoweredSpawner, LARGE_POWERED_SPAWNER.getStackForm());
-        final ItemStack largeVialProcessor = new ItemStack(Item.getByNameOrId("gregtech:machine"), 1, 4202);
+        final ItemStack largeVialProcessor = TJItemUtils.getItemStackFromName("gregtech:machine", 1, 4202);
         ModHandler.addShapelessRecipe("tj_large_vial_processor", LARGE_VIAL_PROCESSOR.getStackForm(), largeVialProcessor);
         ModHandler.addShapelessRecipe("tj_large_vial_processor.back", largeVialProcessor, LARGE_VIAL_PROCESSOR.getStackForm());
         ModHandler.addShapelessRecipe("tj_steam_grinder", STEAM_GRINDER.getStackForm(), GATileEntities.STEAM_GRINDER.getStackForm());

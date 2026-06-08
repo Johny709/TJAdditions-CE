@@ -54,7 +54,7 @@ import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
-import tj.gui.widgets.TJCycleButtonWidget;
+import tj.mui.widgets.impl.OldCycleButtonWidget;
 import tj.machines.multi.BatchMode;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
@@ -71,7 +71,7 @@ import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 
 public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockController implements IHeatInfo, IProgressBar {
 
@@ -140,12 +140,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         }
         overclockManager.setEUt((long) (overclockManager.getEUt() * ocMultiplier));
         overclockManager.setDuration((int) (overclockManager.getDuration() / ocMultiplier));
-        overclockManager.setParallel(this.getParallel() * this.batchMode.getAmount());
-    }
-
-    @Override
-    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         overclockManager.setDuration(overclockManager.getDuration() * this.batchMode.getAmount());
+        overclockManager.setParallel(this.getParallel() * this.batchMode.getAmount());
     }
 
     @Override
@@ -293,7 +289,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new TJCycleButtonWidget(175, 151, 18, 18, BatchMode.class, () -> this.batchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
+        widgetGroup.add(new OldCycleButtonWidget(175, 151, 18, 18, BatchMode.class, () -> this.batchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
                 .setTooltipFormat(this::getTooltipFormat)
                 .setToggle(true)
                 .setButtonTexture(TOGGLE_BUTTON_BACK)

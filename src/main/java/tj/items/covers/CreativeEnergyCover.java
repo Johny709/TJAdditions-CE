@@ -19,15 +19,17 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.*;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.PopUpWidget;
+import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
 import tj.items.TJMetaItems;
 import tj.textures.TJTextures;
 
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 
 public class CreativeEnergyCover extends CoverBehavior implements ITickable, CoverWithUI {
 
@@ -85,9 +87,9 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setTooltipText("machine.universal.ticks.operation")
                         .setUpdateOnTyping(true))
-                .widget(new ToggleButtonWidget(7, 7, 18, 18, MINUS_BUTTON, () -> false, minus -> this.setTicks(String.valueOf((long) this.ticks - 1), "")))
-                .widget(new ToggleButtonWidget(151, 7, 18, 18, PLUS_BUTTON, () -> false, plus -> this.setTicks(String.valueOf((long) this.ticks + 1), "")))
-                .widget(new ToggleButtonWidget(7, 27, 18, 18, POWER_BUTTON, () -> this.isActive, this::setActive)
+                .widget(new ToggleButtonWidget(7, 7, 18, 18, TOGGLE_MINUS_BUTTON, () -> false, minus -> this.setTicks(String.valueOf((long) this.ticks - 1), "")))
+                .widget(new ToggleButtonWidget(151, 7, 18, 18, TOGGLE_PLUS_BUTTON, () -> false, plus -> this.setTicks(String.valueOf((long) this.ticks + 1), "")))
+                .widget(new ToggleButtonWidget(7, 27, 18, 18, TOGGLE_POWER_BUTTON, () -> this.isActive, this::setActive)
                         .setTooltipText("machine.universal.toggle.run.mode"))
                 .widget(new ToggleButtonWidget(26, 27, 124, 18, () -> this.simulateVoltage, this::setSimulateVoltage))
                 .widget(new CycleButtonWidget(151, 27, 18, 18, () -> this.isDraining, this::setDraining, "machine.universal.mode.transfer.in", "machine.universal.mode.transfer.out"))
@@ -100,9 +102,9 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
                                     .setBackgroundText("metaitem.creative_energy_cover.set.energy_rate")
                                     .setTooltipText("metaitem.creative_energy_cover.set.energy_rate")
                                     .setUpdateOnTyping(true));
-                            widgetGroup.addWidget(new ToggleButtonWidget(7, 45, 18, 18, MINUS_BUTTON, () -> false, minus -> this.setEnergyRate(String.valueOf((double) this.energyRate / 2), "")));
-                            widgetGroup.addWidget(new ToggleButtonWidget(151, 45, 18, 18, PLUS_BUTTON, () -> false, plus -> this.setEnergyRate(String.valueOf((double) this.energyRate * 2), "")));
-                            widgetGroup.addWidget(new ToggleButtonWidget(151, 63, 18, 18, RESET_BUTTON, () -> false, reset -> this.setEnergyRate(String.valueOf(Long.MAX_VALUE), ""))
+                            widgetGroup.addWidget(new ToggleButtonWidget(7, 45, 18, 18, TOGGLE_MINUS_BUTTON, () -> false, minus -> this.setEnergyRate(String.valueOf((double) this.energyRate / 2), "")));
+                            widgetGroup.addWidget(new ToggleButtonWidget(151, 45, 18, 18, TOGGLE_PLUS_BUTTON, () -> false, plus -> this.setEnergyRate(String.valueOf((double) this.energyRate * 2), "")));
+                            widgetGroup.addWidget(new ToggleButtonWidget(151, 63, 18, 18, TOGGLE_RESET_BUTTON, () -> false, reset -> this.setEnergyRate(String.valueOf(Long.MAX_VALUE), ""))
                                     .setTooltipText("machine.universal.toggle.reset"));
                             widgetGroup.addWidget(new LabelWidget(32, 32, "metaitem.creative_energy_cover.simulate_voltage", false));
                             return false;
@@ -121,10 +123,10 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
                                     .setBackgroundText("metaitem.creative_energy_cover.set.amps")
                                     .setTooltipText("metaitem.creative_energy_cover.set.amps")
                                     .setUpdateOnTyping(true));
-                            widgetGroup.addWidget(new ToggleButtonWidget(7, 45, 18, 18, MINUS_BUTTON, () -> false, minus -> this.setVoltage(String.valueOf(this.voltage / 2), "")));
-                            widgetGroup.addWidget(new ToggleButtonWidget(151, 45, 18, 18, PLUS_BUTTON, () -> false, plus -> this.setVoltage(String.valueOf(this.voltage * 2), "")));
-                            widgetGroup.addWidget(new ToggleButtonWidget(7, 63, 18, 18, MINUS_BUTTON, () -> false, minus -> this.setAmps(String.valueOf(this.amps / 2), "")));
-                            widgetGroup.addWidget(new ToggleButtonWidget(151, 63, 18, 18, PLUS_BUTTON, () -> false, plus -> this.setAmps(String.valueOf(this.amps * 2), "")));
+                            widgetGroup.addWidget(new ToggleButtonWidget(7, 45, 18, 18, TOGGLE_MINUS_BUTTON, () -> false, minus -> this.setVoltage(String.valueOf(this.voltage / 2), "")));
+                            widgetGroup.addWidget(new ToggleButtonWidget(151, 45, 18, 18, TOGGLE_PLUS_BUTTON, () -> false, plus -> this.setVoltage(String.valueOf(this.voltage * 2), "")));
+                            widgetGroup.addWidget(new ToggleButtonWidget(7, 63, 18, 18, TOGGLE_MINUS_BUTTON, () -> false, minus -> this.setAmps(String.valueOf(this.amps / 2), "")));
+                            widgetGroup.addWidget(new ToggleButtonWidget(151, 63, 18, 18, TOGGLE_PLUS_BUTTON, () -> false, plus -> this.setAmps(String.valueOf(this.amps * 2), "")));
                             widgetGroup.addWidget(new LabelWidget(32, 32, "metaitem.creative_energy_cover.simulate_voltage", true));
                             return false;
                         }).addPopup(widgetGroup -> false))

@@ -36,8 +36,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static gregtech.api.gui.widgets.ProgressWidget.MoveType.VERTICAL;
-import static tj.gui.TJGuiTextures.BAR_HEAT;
-import static tj.gui.TJGuiTextures.BAR_STEEL;
+import static tj.mui.TJGuiTextures.BAR_HEAT;
+import static tj.mui.TJGuiTextures.BAR_STEEL;
 
 public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyContainer, BasicEnergyHandler> implements IEnergyContainer {
 

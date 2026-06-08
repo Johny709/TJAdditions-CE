@@ -1,6 +1,8 @@
 package tj.util;
 
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.NBTTagCompound;
@@ -9,6 +11,7 @@ import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 
@@ -349,5 +352,32 @@ public final class TJItemUtils {
         if (stack.getTagCompound() == null)
             stack.setTagCompound(new NBTTagCompound());
         return stack.getTagCompound();
+    }
+
+    /**
+     * @param name name of item
+     * @return {@link ItemStack itemStack} if found otherwise returns air.
+     */
+    public static ItemStack getItemStackFromName(String name) {
+        return getItemStackFromName(name, 1, 0);
+    }
+
+    /**
+     * @param name name of item
+     * @param count count
+     * @return {@link ItemStack itemStack} if found otherwise returns air.
+     */
+    public static ItemStack getItemStackFromName(String name, int count) {
+        return getItemStackFromName(name, count, 0);
+    }
+
+    /**
+     * @param name name of item
+     * @param count count
+     * @param meta meta
+     * @return {@link ItemStack itemStack} if found otherwise returns air.
+     */
+    public static ItemStack getItemStackFromName(String name, int count, int meta) {
+        return new ItemStack(Optional.ofNullable(Item.getByNameOrId(name)).orElse(Items.AIR), count, meta);
     }
 }

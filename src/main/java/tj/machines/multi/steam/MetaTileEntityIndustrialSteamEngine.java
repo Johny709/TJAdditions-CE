@@ -54,8 +54,8 @@ import tj.capability.ProgressBar;
 import tj.capability.TJCapabilities;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.impl.handler.ISteamHandler;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.util.TJFluidUtils;
 import tj.util.TextUtils;
 

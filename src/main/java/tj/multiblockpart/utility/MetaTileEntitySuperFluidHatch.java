@@ -7,7 +7,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
-import tj.gui.TJGuiTextures;
+import tj.mui.TJGuiTextures;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
 import gregtech.api.capability.impl.FluidTankList;
@@ -33,7 +33,7 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
-import tj.gui.widgets.TJLabelWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
@@ -123,11 +123,11 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
                 .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()));
         widgetGroup.addWidget(new ImageWidget(169, 81 + 18 * (tier - 1), 18, 18, GuiTextures.DISPLAY));
         widgetGroup.addWidget(new AdvancedTextWidget(170, 86 + 18 * (tier - 1), this::addDisplayText, 0xFFFFFF));
-        widgetGroup.addWidget(new ToggleButtonWidget(169, 63 + 18 * (tier - 1), 18, 18, TJGuiTextures.UP_BUTTON, this::isIncrement, this::onIncrement)
+        widgetGroup.addWidget(new ToggleButtonWidget(169, 63 + 18 * (tier - 1), 18, 18, TJGuiTextures.TOGGLE_UP_BUTTON, this::isIncrement, this::onIncrement)
                 .setTooltipText("machine.universal.toggle.increment"));
-        widgetGroup.addWidget(new ToggleButtonWidget(169, 99 + 18 * (tier - 1), 18, 18, TJGuiTextures.DOWN_BUTTON, this::isDecrement, this::onDecrement)
+        widgetGroup.addWidget(new ToggleButtonWidget(169, 99 + 18 * (tier - 1), 18, 18, TJGuiTextures.TOGGLE_DOWN_BUTTON, this::isDecrement, this::onDecrement)
                 .setTooltipText("machine.universal.toggle.decrement"));
-        widgetGroup.addWidget(new ToggleButtonWidget(169, 121 + 18 * (tier - 1), 18, 18, TJGuiTextures.RESET_BUTTON, this::isReset, this::onReset)
+        widgetGroup.addWidget(new ToggleButtonWidget(169, 121 + 18 * (tier - 1), 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, this::isReset, this::onReset)
                 .setTooltipText("machine.universal.toggle.reset"));
         for (int i = 0; i < tank.getTanks(); i++) {
             widgetGroup.addWidget(new TankWidget(tank.getTankAt(i), 61 + (getTier() == 3 ? 18 : 0) + 18 * (i % (tier + 1)), 15 + 18 * (i / (tier + 1)), 18, 18)

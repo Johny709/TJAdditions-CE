@@ -20,20 +20,20 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
-import tj.gui.TJGuiTextures;
-import tj.gui.TJGuiUtils;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJSlotWidget;
-import tj.gui.widgets.impl.AnimatedImageWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.TJGuiUtils;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJSlotWidget;
+import tj.mui.widgets.impl.AnimatedImageWidget;
+import tj.mui.widgets.impl.ScrollableDisplayWidget;
 import tj.items.TJMetaItems;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.util.references.ObjectReference;
 
 import java.util.List;
 
-import static tj.gui.TJGuiTextures.MULTIBLOCK_DISPLAY_BASE;
-import static tj.gui.TJGuiTextures.TJ_LOGO_ANIMATED;
+import static tj.mui.TJGuiTextures.MULTIBLOCK_DISPLAY_BASE;
+import static tj.mui.TJGuiTextures.TJ_LOGO_ANIMATED;
 
 public class NBTReaderBehaviour implements IItemBehaviour, ItemUIFactory {
 
@@ -107,7 +107,7 @@ public class NBTReaderBehaviour implements IItemBehaviour, ItemUIFactory {
                                 .setMaxWidthLimit(180))
                         .setScrollPanelWidth(3))
                 .widget(new TJSlotWidget<>(largeItemStackHandler, 0, 175, 192)
-                        .setBackgroundTexture(GuiTextures.SLOT))
+                        .setActiveBackgroundTexture(GuiTextures.SLOT))
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 134, itemStack))
                 .bindOpenListener(() -> {
                     if (compound.hasKey("NBTReaderSlot")) {

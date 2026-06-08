@@ -45,7 +45,7 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.IProcessorProvider;
 import tj.capability.OverclockManager;
-import tj.gui.widgets.TJSlotWidget;
+import tj.mui.widgets.impl.TJSlotWidget;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.textures.TJOrientedOverlayRenderer;
 
@@ -128,7 +128,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
         widgetGroup.add(new TJSlotWidget<>(this.importItems, 0, 174, 190)
                 .setPutItemsPredicate(stack -> !this.recipeLogic.isActive() && this.getMetaTileEntityFromStack(stack) instanceof IProcessorProvider)
                 .setTakeItemsPredicate(stack -> !this.recipeLogic.isActive())
-                .setBackgroundTexture(GuiTextures.SLOT));
+                .setActiveBackgroundTexture(GuiTextures.SLOT));
     }
 
     @Override
