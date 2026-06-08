@@ -1,5 +1,7 @@
 package tj.recipes;
 
+import appeng.core.Api;
+import gregicadditions.GAEnums;
 import gregicadditions.item.*;
 import gregicadditions.item.metal.MetalCasing1;
 import net.minecraft.nbt.NBTTagCompound;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
+import static tj.blocks.block.TJBlocks.PATTERN_INTERFACE;
 import static tj.items.TJMetaItems.*;
 import static tj.items.TJMetaItems.FLUID_REGULATORS;
 import static tj.items.TJMetaItems.PUMPS;
@@ -1191,6 +1194,20 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UIV, 24)
                 .outputs(LARGE_BIO_REACTOR.getStackForm())
                 .EUt(GAValues.VA[11]).duration(2000)
+                .buildAndRegister();
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000))
+                .inputs(Api.INSTANCE.definitions().blocks().iface().maybeStack(16).orElse(ItemStack.EMPTY), ELECTRIC_PISTON_UHV.getStackForm(4),
+                        Api.INSTANCE.definitions().materials().annihilationCore().maybeStack(50).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().formationCore().maybeStack(50).orElse(ItemStack.EMPTY),
+                        Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY),
+                        Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY),
+                        Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY),
+                        Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().blankPattern().maybeStack(64).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().blocks().quartzVibrantGlass().maybeStack(64).orElse(ItemStack.EMPTY))
+                .input(GAEnums.GAOrePrefix.plateDouble, HastelloyX78, 8)
+                .input(OrePrefix.screw, Seaborgium, 64)
+                .input(OrePrefix.circuit, UEV, 2)
+                .outputs(PATTERN_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))
+                .EUt(GAValues.VA[10]).duration(1000)
                 .buildAndRegister();
     }
 }

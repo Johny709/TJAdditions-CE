@@ -1010,7 +1010,7 @@ void_cover.mode.exact=Exact
 item.unbreakable_hoe.name=Unbreakable Hoe
 item.unbreakable_axe.name=Unbreakable Axe
 item.unbreakable_shears.name=Unbreakable Shears
-item.me.max_capacity_upgrade.name=Max Capacity Upgrade
+item.me.max_capacity_upgrade.name=Max Capacity Upgrade Card
 item.me.max_capacity_upgrade.description=Add to ME parts for maximum capacity as possible.
 item.me.max_capacity_upgrade.count=%s (%,d)
 

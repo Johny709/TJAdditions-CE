@@ -1,5 +1,6 @@
 package tj.recipes;
 
+import appeng.core.Api;
 import gregicadditions.GAEnums;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -27,6 +28,7 @@ import java.util.Objects;
 import static gregtech.api.unification.material.MarkerMaterials.Tier.*;
 import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
 import static tj.TJValues.CIRCUIT_TIERS;
+import static tj.blocks.block.TJBlocks.*;
 import static tj.items.TJMetaItems.*;
 import static tj.items.TJMetaItems.FLUID_REGULATORS;
 import static tj.items.TJMetaItems.PUMPS;
@@ -188,6 +190,48 @@ public class AssemblerRecipes {
                 .input(OrePrefix.frameGt, MATERIAL_REGISTRY.getObject("chaos"))
                 .outputs(TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.CHAOS_ALLOY, 3))
                 .EUt(16).duration(50)
+                .buildAndRegister();
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(1440))
+                .inputs(Api.INSTANCE.definitions().blocks().iface().maybeStack(2).orElse(ItemStack.EMPTY), ELECTRIC_PISTON_EV.getStackForm(4), Api.INSTANCE.definitions().blocks().quartzVibrantGlass().maybeStack(8).orElse(ItemStack.EMPTY),
+                        Api.INSTANCE.definitions().materials().annihilationCore().maybeStack(10).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().formationCore().maybeStack(10).orElse(ItemStack.EMPTY))
+                .input(GAEnums.GAOrePrefix.plateDouble, RedSteel, 8)
+                .input(OrePrefix.screw, TungstenSteel, 16)
+                .input(OrePrefix.circuit, Elite, 2)
+                .outputs(SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))
+                .EUt(GAValues.VA[4]).duration(1000)
+                .buildAndRegister();
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .circuitMeta(3)
+                .fluidInputs(SolderingAlloy.getFluid(1440))
+                .inputs(Api.INSTANCE.definitions().blocks().fluidIface().maybeStack(2).orElse(ItemStack.EMPTY), ELECTRIC_PUMP_EV.getStackForm(4), Api.INSTANCE.definitions().blocks().quartzVibrantGlass().maybeStack(8).orElse(ItemStack.EMPTY),
+                        Api.INSTANCE.definitions().materials().annihilationCore().maybeStack(10).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().formationCore().maybeStack(10).orElse(ItemStack.EMPTY))
+                .input(GAEnums.GAOrePrefix.plateDouble, RedSteel, 8)
+                .input(OrePrefix.screw, TungstenCarbide, 16)
+                .input(OrePrefix.circuit, Elite, 2)
+                .outputs(SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))
+                .EUt(GAValues.VA[4]).duration(1000)
+                .buildAndRegister();
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(1440))
+                .inputs(Api.INSTANCE.definitions().blocks().iface().maybeStack(4).orElse(ItemStack.EMPTY), ELECTRIC_PISTON_LUV.getStackForm(4), Api.INSTANCE.definitions().blocks().quartzVibrantGlass().maybeStack(16).orElse(ItemStack.EMPTY),
+                        SENSOR_LUV.getStackForm(1), EMITTER_LUV.getStackForm(1))
+                .input(GAEnums.GAOrePrefix.plateDouble, RhodiumPlatedPalladium, 8)
+                .input(OrePrefix.screw, NaquadahEnriched, 16)
+                .input(OrePrefix.circuit, Ultimate, 2)
+                .outputs(STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))
+                .EUt(GAValues.VA[6]).duration(1000)
+                .buildAndRegister();
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .circuitMeta(3)
+                .fluidInputs(SolderingAlloy.getFluid(1440))
+                .inputs(Api.INSTANCE.definitions().blocks().fluidIface().maybeStack(4).orElse(ItemStack.EMPTY), ELECTRIC_PUMP_LUV.getStackForm(4), Api.INSTANCE.definitions().blocks().quartzVibrantGlass().maybeStack(16).orElse(ItemStack.EMPTY),
+                        SENSOR_LUV.getStackForm(1), EMITTER_LUV.getStackForm(1))
+                .input(GAEnums.GAOrePrefix.plateDouble, RhodiumPlatedPalladium, 8)
+                .input(OrePrefix.screw, NaquadahAlloy, 16)
+                .input(OrePrefix.circuit, Ultimate, 2)
+                .outputs(STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))
+                .EUt(GAValues.VA[6]).duration(1000)
                 .buildAndRegister();
         for (int i = 0; i < 15; i++) {
             if (i < 9) continue;
