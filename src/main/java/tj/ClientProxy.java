@@ -75,6 +75,7 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public void onPostLoad() {
+        super.onPostLoad();
         TJBlocks.TJ_BLOCK_DEFINITION_REGISTRY.forEach((location, blockDefinition) -> {
             final Block block = blockDefinition.maybeBlock().orElse(null);
             if (block instanceof IItemMeshing)
