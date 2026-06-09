@@ -97,9 +97,10 @@ public class TJProgressBarWidget extends Widget implements IIngredientSlot {
     public void drawInForeground(int mouseX, int mouseY) {
         if (this.isMouseOverElement(mouseX, mouseY) && this.locale != null) {
             final Object[] format;
-            if (this.isFluid && this.params != null && this.params.length > 0)
-                format = ArrayUtils.addAll(this.params, TJValues.thousandFormat.format(this.progress), TJValues.thousandFormat.format(this.maxProgress), (int) (100 * (this.progress / this.maxProgress)));
-            else format = ArrayUtils.toArray(TJValues.thousandFormat.format(this.progress), TJValues.thousandFormat.format(this.maxProgress), (int) (100 * (this.progress / this.maxProgress)));
+            final int percentage = this.maxProgress > 0 ? (int) (100 * (this.progress / this.maxProgress)) : 0;
+            if (this.isFluid && this.params != null && this.params.length > 0) {
+                format = ArrayUtils.addAll(this.params, TJValues.thousandFormat.format(this.progress), TJValues.thousandFormat.format(this.maxProgress), percentage);
+            } else format = ArrayUtils.toArray(TJValues.thousandFormat.format(this.progress), TJValues.thousandFormat.format(this.maxProgress), percentage);
             final List<String> hoverList = Arrays.asList(I18n.format(this.locale, format).split("/n"));
             this.drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
         }
