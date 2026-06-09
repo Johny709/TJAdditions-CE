@@ -6,6 +6,10 @@ import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
+import gregtech.api.util.TextFormattingUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,7 +21,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;
 import org.lwjgl.input.Keyboard;
 import tj.TJ;
@@ -125,9 +128,17 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
         } else if (this.inactiveBackgroundTexture != null) for (TextureArea textureArea : this.inactiveBackgroundTexture) {
             textureArea.draw(pos.getX(), pos.getY(), 18, 18);
         }
-        if (this.isActive && this.getItemHandler() != null) {
+        if (this.isActive) {
             if (!this.itemStack.isEmpty()) {
+                final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+                GlStateManager.disableBlend();
                 drawItemStack(this.itemStack, stackX, stackY, null);
+                GlStateManager.pushMatrix();
+                GlStateManager.scale(0.5, 0.5, 1);
+                final String s = TextFormattingUtil.formatLongToCompactString(this.itemCount, 4);
+                fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + 12) * 2, 0xFFFFFF);
+                GlStateManager.popMatrix();
+                GlStateManager.enableBlend();
             }
             if (this.simulating || this.isMouseOverElement(mouseX, mouseY))
                 drawSelectionOverlay(stackX, stackY, 16, 16);
@@ -192,7 +203,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
         super.detectAndSendChanges();
         if (this.getItemHandler() == null || this.simulating) return;
         final ItemStack itemStack = this.getItemHandler().getStackInSlot(this.slotIndex);
-        if (!itemStack.isItemEqual(this.itemStack)) {
+        if (!itemStack.isItemEqual(this.itemStack) && (itemStack.getTagCompound() == null || this.itemStack.getTagCompound() == null || !itemStack.getTagCompound().equals(this.itemStack.getTagCompound()))) {
             this.itemStack = itemStack;
             this.writeUpdateInfo(1, buffer -> buffer.writeItemStack(this.itemStack));
         }
@@ -302,9 +313,8 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
         switch (id) {
             case 1:
                 try {
-                    final ItemStack stack = buffer.readItemStack();
-                    if (this.getItemHandler() instanceof IItemHandlerModifiable)
-                        ((IItemHandlerModifiable) this.getItemHandler()).setStackInSlot(this.slotIndex, stack);
+                    this.itemStack = buffer.readItemStack();
+                    this.itemStack.setCount(1);
                 } catch (IOException e) {
                     TJ.logger.info(e);
                 }
