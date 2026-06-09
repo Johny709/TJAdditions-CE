@@ -131,7 +131,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                         }
                     }));
         }
-        final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(55, 111, 21, 20)
+        final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(37, 111, 21, 20)
                 .setFluidOutputSupplier(this.recipeLogic::getFluidOutputs)
                 .setItemOutputSupplier(this.recipeLogic::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
@@ -142,8 +142,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                             .setBackgroundTexture(SLOT))
                     .widget(new RecipeOutputSlotWidget(i, 61 + (18 * i), 112, 18, 18, displayWidget::getItemOutputAt, null));
         }
-        return ModularUI.builder(BORDERED_BACKGROUND, 176, 216)
-                .image(-28, 0, 26, 104, BORDERED_BACKGROUND)
+        return builder.image(-28, 0, 26, 104, BORDERED_BACKGROUND)
                 .image(-28, 188, 26, 26, BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))

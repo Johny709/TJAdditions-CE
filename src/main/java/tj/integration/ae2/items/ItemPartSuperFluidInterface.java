@@ -29,6 +29,6 @@ public class ItemPartSuperFluidInterface extends Item implements IPartItem<IPart
     @Nonnull
     @Override
     public EnumActionResult onItemUse(@Nonnull EntityPlayer player, @Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ) {
-        return AEApi.instance().partHelper().placeBus(new ItemStack(this), pos, facing, player, hand, worldIn);
+        return AEApi.instance().partHelper().placeBus(player.getHeldItem(hand), pos, facing, player, hand, worldIn);
     }
 }
