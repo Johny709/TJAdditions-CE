@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 public class TileStockingInterface extends TileInterface implements ITileEntityUI {
 
     public TileStockingInterface() {
-        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 36, 1), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 36, 9), "duality");
     }
 
     public void openUI(EntityPlayer player, TileEntity tileEntity) {
