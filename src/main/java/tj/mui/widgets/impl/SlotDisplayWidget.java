@@ -33,7 +33,7 @@ public class SlotDisplayWidget extends TJSlotWidget<SlotDisplayWidget> {
             this.writeClientAction(1, buffer -> {
                 buffer.writeInt(button);
                 buffer.writeInt(this.index());
-                buffer.writeItemStack(this.getItemHandler().getStackInSlot(this.index()));
+                buffer.writeItemStack(this.itemStack);
             });
             return true;
         }

@@ -41,10 +41,14 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     private Supplier<IItemHandler> itemHandlerSupplier;
     protected Predicate<ItemStack> takeItemsPredicate;
     protected Predicate<ItemStack> putItemsPredicate;
-    private TextureArea[] activeBackgroundTexture;
-    private TextureArea[] inactiveBackgroundTexture;
-    private ISlotGroup widgetGroup;
-    private boolean simulating;
+    protected TextureArea[] activeBackgroundTexture;
+    protected TextureArea[] inactiveBackgroundTexture;
+    protected ISlotGroup widgetGroup;
+    protected boolean simulating;
+    protected int itemCount;
+
+    @Nonnull
+    protected ItemStack itemStack = ItemStack.EMPTY;
 
     @SideOnly(Side.CLIENT)
     private int simulatedAmount;
@@ -100,12 +104,11 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         if (!this.isActive) return;
-        final ItemStack stack = this.getItemHandler().getStackInSlot(this.slotIndex);
-        if (!stack.isEmpty() && this.isMouseOverElement(mouseX, mouseY) && this.getItemHandler() != null) {
-            final List<String> tooltip = getItemToolTip(stack);
-            final String itemStoredText = I18n.format("gregtech.item_list.item_stored", stack.getCount());
+        if (!this.itemStack.isEmpty() && this.isMouseOverElement(mouseX, mouseY) && this.getItemHandler() != null) {
+            final List<String> tooltip = getItemToolTip(this.itemStack);
+            final String itemStoredText = I18n.format("gregtech.item_list.item_stored", this.itemCount);
             tooltip.add(TextFormatting.GRAY + itemStoredText);
-            this.drawHoveringText(stack, tooltip, -1, mouseX, mouseY);
+            this.drawHoveringText(this.itemStack, tooltip, -1, mouseX, mouseY);
         }
     }
 
@@ -123,9 +126,8 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
             textureArea.draw(pos.getX(), pos.getY(), 18, 18);
         }
         if (this.isActive && this.getItemHandler() != null) {
-            ItemStack stack = this.getItemHandler().getStackInSlot(this.slotIndex);
-            if (!stack.isEmpty()) {
-                drawItemStack(stack, stackX, stackY, null);
+            if (!this.itemStack.isEmpty()) {
+                drawItemStack(this.itemStack, stackX, stackY, null);
             }
             if (this.simulating || this.isMouseOverElement(mouseX, mouseY))
                 drawSelectionOverlay(stackX, stackY, 16, 16);
@@ -188,8 +190,17 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
-        if (!this.simulating && this.getItemHandler() != null)
-            this.writeUpdateInfo(1, buffer -> buffer.writeItemStack(this.getItemHandler().getStackInSlot(this.slotIndex)));
+        if (this.getItemHandler() == null || this.simulating) return;
+        final ItemStack itemStack = this.getItemHandler().getStackInSlot(this.slotIndex);
+        if (!itemStack.isItemEqual(this.itemStack)) {
+            this.itemStack = itemStack;
+            this.writeUpdateInfo(1, buffer -> buffer.writeItemStack(this.itemStack));
+        }
+        final int itemCount = itemStack.getCount();
+        if (this.itemCount != itemCount) {
+            this.itemCount = itemCount;
+            this.writeUpdateInfo(4, buffer -> buffer.writeInt(this.itemCount));
+        }
     }
 
     @Override
@@ -308,6 +319,9 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
             case 3:
                 if (this.widgetGroup != null)
                     this.widgetGroup.setTimer(buffer.readInt());
+                break;
+            case 4:
+                this.itemCount = buffer.readInt();
         }
     }
 
@@ -340,7 +354,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     public Object getIngredientOverMouse(int mouseX, int mouseY) {
         if (!this.isMouseOverElement(mouseX, mouseY))
             return null;
-        return this.getItemHandler() != null ? this.getItemHandler().getStackInSlot(this.slotIndex) : null;
+        return this.itemStack.isEmpty() ? null : this.itemStack;
     }
 
     @Override
