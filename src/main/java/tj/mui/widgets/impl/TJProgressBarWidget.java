@@ -111,8 +111,8 @@ public class TJProgressBarWidget extends Widget implements IIngredientSlot {
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         final Size size = this.getSize();
         final Position pos = this.getPosition();
-        final long width = this.moveType == ProgressWidget.MoveType.HORIZONTAL ? (long) ((size.getWidth() - 2) * (this.progress / this.maxProgress)) : size.getWidth() - 2;
-        final long height = this.moveType == ProgressWidget.MoveType.VERTICAL ? (long) ((size.getHeight() - 2) * (this.progress / this.maxProgress)) : size.getHeight() - 2;
+        final long width = this.moveType == ProgressWidget.MoveType.HORIZONTAL ? (long) ((size.getWidth() - 2) * (this.maxProgress > 0 ? this.progress / this.maxProgress : 1)) : size.getWidth() - 2;
+        final long height = this.moveType == ProgressWidget.MoveType.VERTICAL ? (long) ((size.getHeight() - 2) * (this.maxProgress > 0 ? this.progress / this.maxProgress : 1)) : size.getHeight() - 2;
         int x = this.inverted ? pos.getX() + size.getWidth() - 1: pos.getX() + 1;
         int y = this.inverted ? pos.getY() + size.getHeight() - 1: pos.getY() + 1;
         if (this.backgroundTexture != null)
