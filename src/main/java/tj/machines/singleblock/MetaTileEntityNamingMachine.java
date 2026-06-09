@@ -84,7 +84,7 @@ public class MetaTileEntityNamingMachine extends TJTieredWorkableMetaTileEntity 
                 .setFluidOutputTankSupplier(this::getExportFluids);
         final ModularUI.Builder builder = ModularUI.builder(BORDERED_BACKGROUND, 176, 166);
         for (int i = 0; i < this.exportItems.getSlots(); i++) {
-            builder.widget(new SlotWidget(this.exportItems, i, 105 + (18 * (i / 2)), 26 + (18 * (i / 2)), true, false)
+            builder.widget(new SlotWidget(this.exportItems, i, 105 + (18 * (i % 2)), 26 + (18 * (i / 2)), true, false)
                             .setBackgroundTexture(SLOT))
                     .widget(new RecipeOutputSlotWidget(i, 105 + (18 * (i / 2)), 26 + (18 * (i / 2)), 18, 18, displayWidget::getItemOutputAt, null));
         }
