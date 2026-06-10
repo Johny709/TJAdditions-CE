@@ -65,6 +65,8 @@ public class AEPatternSlotWidget extends TJSlotWidget<AEPatternSlotWidget> {
                         this.fluidOutput = null;
                     }
                     this.count = this.outputCompound.getLong("Cnt");
+                    if (this.count < 1)
+                        this.count = this.outputCompound.getInteger("Count");
                 }
                 GlStateManager.disableBlend();
                 if (!this.output.isEmpty())
