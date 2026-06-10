@@ -112,8 +112,9 @@ public class PartSuperInterface extends PartInterface implements ITileEntityUI {
                 }).get();
         final NBTTagCompound tag = TJItemUtils.getCompoundFromStack(patternMultiTool)
                 .getCompoundTag("inv");
-        final FilteredItemStackHandler patternSlots = new FilteredItemStackHandler(null, 36, 1)
-                .setItemStackPredicate((slot, itemStack) -> duality.getPatterns().insertItem(slot, itemStack, true).getCount() != itemStack.getCount());
+        final FilteredItemStackHandler patternSlots = new FilteredItemStackHandler(null, 36, 64)
+                .setItemStackPredicate((slot, itemStack) -> itemStack.isItemEqual(Api.INSTANCE.definitions().materials().blankPattern().maybeStack(1).orElse(ItemStack.EMPTY)) ||
+                        itemStack.isItemEqual(Api.INSTANCE.definitions().items().encodedPattern().maybeStack(1).orElse(ItemStack.EMPTY)) || itemStack.isItemEqual(TJItemUtils.getItemStackFromName("ae2fc:dense_encoded_pattern")));
         patternSlots.setOnContentsChangedPost((slot, itemStack) -> this.writePatternMultiToolToNBT(patternSlots, tag));
         final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292);
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
@@ -144,19 +145,20 @@ public class PartSuperInterface extends PartInterface implements ITileEntityUI {
                     .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
                     .setActiveInit(false));
         }
-        if (!patternMultiTool.isEmpty()) {
-            builder.widget(new ImageWidget(-115, 0, 100, 185, GuiTextures.BORDERED_BACKGROUND))
-                    .widget(new LabelWidget(-108, 4, "item.nae2.pattern_multiplier.name"));
-            for (int i = 0; i < 36; i++) {
-                builder.widget(new AEPatternSlotWidget(patternSlots, i, -108 + (18 * (i % 4)), 14 + (18 * (i / 4)))
-                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY));
-            }
-        }
         builder.widget(new LabelWidget(7, 109, "gui.appliedenergistics2.StoredItems"))
                 .widget(new LabelWidget(7, 123, "gui.appliedenergistics2.Patterns"))
                 .widget(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"))
                 .widget(scrollableWidgetGroup)
                 .widget(selectionWidgetGroup);
+        if (!patternMultiTool.isEmpty()) {
+            builder.widget(new ImageWidget(-120, 0, 100, 200, GuiTextures.BORDERED_BACKGROUND))
+                    .widget(new LabelWidget(-113, 4, "item.nae2.pattern_multiplier.name"));
+            for (int i = 0; i < patternSlots.getSlots(); i++) {
+                builder.widget(new AEPatternSlotWidget(patternSlots, i, -113 + (18 * (i / 9)), 14 + (18 * (i % 9)))
+                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
+                        .setSlotLocationInfo(true, false));
+            }
+        }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));

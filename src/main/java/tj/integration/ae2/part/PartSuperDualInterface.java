@@ -21,11 +21,13 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ClickButtonWidget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
+import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
@@ -33,9 +35,13 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJ;
+import tj.blocks.block.TJBlocks;
 import tj.builder.WidgetTabBuilder;
+import tj.items.handlers.FilteredItemStackHandler;
 import tj.mui.TJGuiTextures;
+import tj.mui.TJGuiUtils;
 import tj.mui.uifactory.ITileEntityUI;
 import tj.mui.uifactory.TileEntityHolder;
 import tj.integration.ae2.helpers.DualitySuperFluidInterface;
@@ -44,10 +50,12 @@ import tj.integration.ae2.helpers.IDualitySuperFluidInterface;
 import tj.items.item.TJItems;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.*;
+import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLocation.LEFT;
@@ -117,11 +125,26 @@ public class PartSuperDualInterface extends PartInterface implements IFluidInter
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final DualityInterface duality = this.getInterfaceDuality();
+        final ItemStack patternMultiTool = Optional.of(player.inventory.mainInventory)
+                .map(inventory -> {
+                    final ItemStack patternTool = TJItemUtils.getItemStackFromName("nae2:pattern_multiplier");
+                    for (final ItemStack stack : inventory) {
+                        if (stack.isItemEqual(patternTool))
+                            return stack;
+                    }
+                    return ItemStack.EMPTY;
+                }).get();
+        final NBTTagCompound tag = TJItemUtils.getCompoundFromStack(patternMultiTool)
+                .getCompoundTag("inv");
+        final FilteredItemStackHandler patternSlots = new FilteredItemStackHandler(null, 36, 64)
+                .setItemStackPredicate((slot, itemStack) -> itemStack.isItemEqual(Api.INSTANCE.definitions().materials().blankPattern().maybeStack(1).orElse(ItemStack.EMPTY)) ||
+                        itemStack.isItemEqual(Api.INSTANCE.definitions().items().encodedPattern().maybeStack(1).orElse(ItemStack.EMPTY)) || itemStack.isItemEqual(TJItemUtils.getItemStackFromName("ae2fc:dense_encoded_pattern")));
+        patternSlots.setOnContentsChangedPost((slot, itemStack) -> this.writePatternMultiToolToNBT(patternSlots, tag));
         final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
-                .addTab("tile.me.super_interface.name", TJItems.PART_SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), this::createInterfaceTab)
-                .addTab("tile.me.super_fluid_interface.name", TJItems.PART_SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> this.createFluidInterfaceTab(widgets, buttonPopUpWidget));
+                .addTab("tile.me.super_interface.name", TJBlocks.SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> this.createInterfaceTab(widgets, patternMultiTool, patternSlots))
+                .addTab("tile.me.super_fluid_interface.name", TJBlocks.SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> this.createFluidInterfaceTab(widgets, buttonPopUpWidget));
         return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
@@ -150,11 +173,14 @@ public class PartSuperDualInterface extends PartInterface implements IFluidInter
                             widgetGroup.addWidget(new ClickButtonWidget(120, 177, 40, 20, "-1000", data -> this.setPriority(String.valueOf((long) duality.getPriority() - 1000), "")));
                             return false;
                         }))
-                .bindPlayerInventory(player.inventory, 209)
-                .build(holder, player);
+                .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 209, patternMultiTool))
+                .bindOpenListener(() -> {
+                    if (!patternMultiTool.isEmpty())
+                        this.readPatternMultiToolNBT(patternSlots, tag.getTagList("Items", 10));
+                }).build(holder, player);
     }
 
-    private void createInterfaceTab(List<Widget> tab) {
+    private void createInterfaceTab(List<Widget> tab, ItemStack patternMultiTool, IItemHandler patternSlots) {
         final DualityInterface duality = this.getInterfaceDuality();
         final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(7, 133, 166, 72, 9)
                 .setScrollWidth(4);
@@ -194,6 +220,15 @@ public class PartSuperDualInterface extends PartInterface implements IFluidInter
         tab.add(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"));
         tab.add(scrollableWidgetGroup);
         tab.add(selectionWidgetGroup);
+        if (!patternMultiTool.isEmpty()) {
+            tab.add(new ImageWidget(-120, 0, 100, 200, GuiTextures.BORDERED_BACKGROUND));
+            tab.add(new LabelWidget(-113, 4, "item.nae2.pattern_multiplier.name"));
+            for (int i = 0; i < patternSlots.getSlots(); i++) {
+                tab.add((new AEPatternSlotWidget(patternSlots, i, -113 + (18 * (i / 9)), 14 + (18 * (i % 9)))
+                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
+                        .setSlotLocationInfo(true, false)));
+            }
+        }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             tab.add(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
@@ -203,24 +238,24 @@ public class PartSuperDualInterface extends PartInterface implements IFluidInter
                     .setActiveBackgroundTexture(GuiTextures.SLOT));
         }
         tab.add(new TJToggleButtonWidget(-18, 58, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setBlockingMode)
-                        .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.NonBlocking", "gui.tooltips.appliedenergistics2.Blocking")
-                        .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
-                        .useToggleTexture(true));
+                .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.NonBlocking", "gui.tooltips.appliedenergistics2.Blocking")
+                .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
+                .useToggleTexture(true));
         tab.add(new TJToggleButtonWidget(-18, 76, 16, 16, () -> duality.getConfigManager().getSetting(Settings.INTERFACE_TERMINAL).ordinal() == 0, this::setInterfaceTerminal)
-                        .setTooltipText("gui.appliedenergistics2.InterfaceTerminalHint")
-                        .setToggleTexture(TJGuiTextures.TOGGLE_INTERFACE_TERMINAL)
-                        .useToggleTexture(true));
+                .setTooltipText("gui.appliedenergistics2.InterfaceTerminalHint")
+                .setToggleTexture(TJGuiTextures.TOGGLE_INTERFACE_TERMINAL)
+                .useToggleTexture(true));
         tab.add(new TJToggleButtonWidget(-18, 94, 16, 16, () -> duality.getConfigManager().getSetting(Settings.OPERATION_MODE).ordinal() == 0, this::setFluidPacket)
-                        .setToggleTooltipHoverText("ae2fc.tooltip.real_fluid.hint", "ae2fc.tooltip.fake_packet.hint")
-                        .setToggleTexture(TJGuiTextures.TOGGLE_SEND_FLUID)
-                        .useToggleTexture(true));
+                .setToggleTooltipHoverText("ae2fc.tooltip.real_fluid.hint", "ae2fc.tooltip.fake_packet.hint")
+                .setToggleTexture(TJGuiTextures.TOGGLE_SEND_FLUID)
+                .useToggleTexture(true));
         tab.add(new TJToggleButtonWidget(-18, 112, 16, 16, () -> duality.getConfigManager().getSetting(Settings.LEVEL_TYPE).ordinal() == 0, this::setSplittingItemsFluids)
-                        .setToggleTooltipHoverText("ae2fc.tooltip.allow_splitting.hint", "ae2fc.tooltip.prevent_splitting.hint")
-                        .setToggleTexture(TJGuiTextures.TOGGLE_SPLITTING_ITEMS_FLUIDS)
-                        .useToggleTexture(true));
+                .setToggleTooltipHoverText("ae2fc.tooltip.allow_splitting.hint", "ae2fc.tooltip.prevent_splitting.hint")
+                .setToggleTexture(TJGuiTextures.TOGGLE_SPLITTING_ITEMS_FLUIDS)
+                .useToggleTexture(true));
         tab.add(new TJCycleButtonWidget<>(-18, 130, 16, 16, (EnumSet<CondenserOutput>) Settings.CONDENSER_OUTPUT.getPossibleValues(), () -> (Enum<CondenserOutput>) duality.getConfigManager().getSetting(Settings.CONDENSER_OUTPUT), this::setBlockModeEx)
-                        .setCycleHoverTooltipText("ae2fc.tooltip.block_all.hint", "ae2fc.tooltip.block_item.hint", "ae2fc.tooltip.block_fluid.hint")
-                        .setCycleTexture(TJGuiTextures.CYCLE_BLOCKING_MODE_EX));
+                .setCycleHoverTooltipText("ae2fc.tooltip.block_all.hint", "ae2fc.tooltip.block_item.hint", "ae2fc.tooltip.block_fluid.hint")
+                .setCycleTexture(TJGuiTextures.CYCLE_BLOCKING_MODE_EX));
     }
 
     private void createFluidInterfaceTab(List<Widget> tab, ButtonPopUpWidget<?> buttonPopUpWidget) {
@@ -243,6 +278,30 @@ public class PartSuperDualInterface extends PartInterface implements IFluidInter
         tab.add(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredFluids"));
         tab.add(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"));
         tab.add(new LabelWidget(7, 198, "container.inventory"));
+    }
+
+    private void writePatternMultiToolToNBT(IItemHandler itemHandler, NBTTagCompound compound) {
+        final NBTTagList tagList = new NBTTagList();
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            final ItemStack stack = itemHandler.getStackInSlot(i);
+            if (!stack.isEmpty()) {
+                final NBTTagCompound tagCompound = stack.serializeNBT();
+                tagCompound.setInteger("Slot", i);
+                tagList.appendTag(tagCompound);
+            }
+        }
+        compound.setTag("Items", tagList);
+    }
+
+    private void readPatternMultiToolNBT(IItemHandlerModifiable itemHandler, NBTTagList tagList) {
+        for (int i = 0; i < tagList.tagCount(); i++) {
+            final NBTTagCompound compound = tagList.getCompoundTagAt(i);
+            if (compound.hasKey("Slot")) {
+                final ItemStack patternStack = TJItemUtils.getItemStackFromName(compound.getString("id"), 1, compound.getShort("Damage"));
+                patternStack.setTagCompound(compound.getCompoundTag("tag"));
+                itemHandler.setStackInSlot(compound.getInteger("Slot"), patternStack);
+            }
+        }
     }
 
     @Override

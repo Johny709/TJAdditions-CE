@@ -40,7 +40,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
 
     private final IItemHandler itemHandler;
     private final TJSlotItemHandler slotItemHandler;
-    protected int slotIndex;
+    protected SlotLocationInfo slotLocationInfo = new SlotLocationInfo(false, false);
     private Supplier<IItemHandler> itemHandlerSupplier;
     protected Predicate<ItemStack> takeItemsPredicate;
     protected Predicate<ItemStack> putItemsPredicate;
@@ -48,6 +48,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     protected TextureArea[] inactiveBackgroundTexture;
     protected ISlotGroup widgetGroup;
     protected boolean simulating;
+    protected int slotIndex;
     protected int itemCount;
 
     @Nonnull
@@ -96,6 +97,11 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
 
     public R setInactiveBackgroundTexture(TextureArea... inactiveBackgroundTexture) {
         this.inactiveBackgroundTexture = inactiveBackgroundTexture;
+        return (R) this;
+    }
+
+    public R setSlotLocationInfo(boolean isPlayerInventory, boolean isHotbarSlot) {
+        this.slotLocationInfo = new SlotLocationInfo(isPlayerInventory, isHotbarSlot);
         return (R) this;
     }
 
@@ -379,7 +385,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
 
     @Override
     public SlotLocationInfo getSlotLocationInfo() {
-        return new SlotLocationInfo(false, false);
+        return this.slotLocationInfo;
     }
 
     @Override
