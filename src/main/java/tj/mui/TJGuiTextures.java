@@ -94,6 +94,7 @@ public class TJGuiTextures {
     public static final TextureArea SUPER_FLUID_INTERFACE = TextureArea.fullImage("textures/gui/super_fluid_interface.png");
     public static final TextureArea PATTERN_INTERFACE = TextureArea.fullImage("textures/gui/pattern_interface.png");
     public static final TextureArea INTERFACE_SETTINGS_EDGE_RIGHT = TextureArea.fullImage("textures/gui/widget/interface_settings_base_edge_right.png");
+    public static final TextureArea INTERFACE_SETTINGS_LEFT = TextureArea.fullImage("textures/gui/widget/interface_settings_base_left.png");
     public static final TextureArea UPGRADE_OVERLAY = TextureArea.fullImage("textures/gui/widget/me.upgrade_overlay.png");
     public static final TextureArea PATTERN_OVERLAY = TextureArea.fullImage("textures/gui/widget/me.pattern_overlay.png");
 }
