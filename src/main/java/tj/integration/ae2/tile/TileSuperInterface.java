@@ -64,8 +64,7 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
         final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(7, 133, 166, 72, 9)
                 .setScrollWidth(4);
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(0, 0, 0, 0);
-        final ButtonPopUpWidget<?> buttonPopUpPriorityWidget = new ButtonPopUpWidget<>();
-        final ButtonPopUpWidget<?> buttonPopUpMultiToolWidget = new ButtonPopUpWidget<>();
+        final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
         final ItemStack patternMultiTool = Optional.of(player.inventory.mainInventory)
                 .map(inventory -> {
@@ -78,7 +77,6 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
                 }).get();
         final NBTTagCompound tag = TJItemUtils.getCompoundFromStack(patternMultiTool)
                 .getCompoundTag("inv");
-        final NBTTagList inventoryList = tag.getTagList("Items", 10);
         final FilteredItemStackHandler patternSlots = new FilteredItemStackHandler(null, 36, 1)
                 .setItemStackPredicate((slot, itemStack) -> duality.getPatterns().insertItem(slot, itemStack, true).getCount() != itemStack.getCount());
         patternSlots.setOnContentsChangedPost((slot, itemStack) -> this.writePatternMultiToolToNBT(patternSlots, tag));
@@ -106,10 +104,18 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
         for (int i = 0; i < duality.getPatterns().getSlots(); i++) {
             final int index = i;
             scrollableWidgetGroup.addWidget(new AEPatternSlotWidget(duality.getPatterns(), i, 18 * (i % 9), 18 * (i / 9))
-                    .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) && selectionWidgetGroup.getIndex() < 0 && buttonPopUpPriorityWidget.getIndex() == 0)
+                    .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) && selectionWidgetGroup.getIndex() < 0 && buttonPopUpWidget.getIndex() == 0)
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
                     .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
                     .setActiveInit(false));
+        }
+        if (!patternMultiTool.isEmpty()) {
+            builder.widget(new ImageWidget(-115, 0, 100, 185, GuiTextures.BORDERED_BACKGROUND))
+                    .widget(new LabelWidget(-108, 4, "item.nae2.pattern_multiplier.name"));
+            for (int i = 0; i < 36; i++) {
+                builder.widget(new AEPatternSlotWidget(patternSlots, i, -108 + (18 * (i % 4)), 14 + (18 * (i / 4)))
+                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY));
+            }
         }
         builder.widget(new LabelWidget(7, 109, "gui.appliedenergistics2.StoredItems"))
                 .widget(new LabelWidget(7, 123, "gui.appliedenergistics2.Patterns"))
@@ -123,26 +129,6 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
         for (int i = 0; i < duality.getStorage().getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))
                     .setActiveBackgroundTexture(GuiTextures.SLOT));
-        }
-        if (!patternMultiTool.isEmpty()) {
-            builder.widget(buttonPopUpMultiToolWidget.setClickToDefault(false)
-                    .addPopup(widgetGroup -> true)
-                    .addClosingButton(new TJToggleButtonWidget(155, 109, 18, 18)
-                            .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
-                            .useToggleTexture(true)
-                            .setDisplayText("X"))
-                    .addPopup(new ButtonWidget<>(132, 0, 22, 22)
-                            .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_LEFT)
-                            .setTooltipText("item.nae2.pattern_multiplier.name")
-                            .setItemDisplay(patternMultiTool), widgetGroup -> {
-                        widgetGroup.addWidget(new ImageWidget(0, 105, 176, 102, GuiTextures.BORDERED_BACKGROUND));
-                        widgetGroup.addWidget(new LabelWidget(7, 110, "item.nae2.pattern_multiplier.name"));
-                        for (int i = 0; i < 36; i++) {
-                            widgetGroup.addWidget(new TJSlotWidget<>(patternSlots, i, 7 + (18 * (i % 9)), 127 + (18 * (i / 9)))
-                                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY));
-                        }
-                        return false;
-                    }));
         }
         return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
@@ -169,7 +155,7 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
                 .widget(new TJCycleButtonWidget<>(-18, 107, 16, 16, (EnumSet<CondenserOutput>) Settings.CONDENSER_OUTPUT.getPossibleValues(), () -> (Enum<CondenserOutput>) duality.getConfigManager().getSetting(Settings.CONDENSER_OUTPUT), this::setBlockModeEx)
                         .setCycleHoverTooltipText("ae2fc.tooltip.block_all.hint", "ae2fc.tooltip.block_item.hint", "ae2fc.tooltip.block_fluid.hint")
                         .setCycleTexture(TJGuiTextures.CYCLE_BLOCKING_MODE_EX))
-                .widget(buttonPopUpPriorityWidget.addPopup(widgetGroup -> true)
+                .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
                                 .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
                                 .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_EDGE_RIGHT)
@@ -192,7 +178,7 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 209, patternMultiTool))
                 .bindOpenListener(() -> {
                     if (!patternMultiTool.isEmpty())
-                        this.readPatternMultiToolNBT(patternSlots, inventoryList);
+                        this.readPatternMultiToolNBT(patternSlots, tag.getTagList("Items", 10));
                 }).build(holder, player);
     }
 
