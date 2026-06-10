@@ -180,6 +180,10 @@ public class RecipeInit {
                 'P', new UnificationEntry(OrePrefix.plate, StainlessSteel),
                 'T', new UnificationEntry(OrePrefix.pipeMedium, StainlessSteel),
                 'F', new UnificationEntry(OrePrefix.frameGt, StainlessSteel));
+        ModHandler.addShapedRecipe("quad_quad_input_hatch", QUADRUPLE_QUADRUPLE_INPUT_HATCH.getStackForm(), "d", "S",
+                'S', QUADRUPLE_QUADRUPLE_OUTPUT_HATCH.getStackForm());
+        ModHandler.addShapedRecipe("quad_quad_output_hatch", QUADRUPLE_QUADRUPLE_OUTPUT_HATCH.getStackForm(), "d", "S",
+                'S', QUADRUPLE_QUADRUPLE_INPUT_HATCH.getStackForm());
         ModHandler.addShapelessRecipe("bronze_solar_boiler", SOLAR_BOILER[0].getStackForm(), MetaTileEntities.STEAM_BOILER_SOLAR_BRONZE.getStackForm());
         ModHandler.addShapelessRecipe("bronze_coal_boiler", COAL_BOILER[0].getStackForm(), MetaTileEntities.STEAM_BOILER_COAL_BRONZE.getStackForm());
         ModHandler.addShapelessRecipe("bronze_fluid_boiler", FLUID_BOILER[0].getStackForm(), MetaTileEntities.STEAM_BOILER_LAVA_BRONZE.getStackForm());
