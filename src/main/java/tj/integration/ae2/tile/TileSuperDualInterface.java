@@ -3,6 +3,7 @@ package tj.integration.ae2.tile;
 import appeng.api.config.*;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.ticking.TickRateModulation;
+import appeng.core.Api;
 import appeng.fluids.helper.DualityFluidInterface;
 import appeng.fluids.helper.IConfigurableFluidInventory;
 import appeng.fluids.helper.IFluidInterfaceHost;
@@ -114,7 +115,8 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
                 .widget(tabBuilder.build())
                 .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
-                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS)
+                                .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
+                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_EDGE_RIGHT)
                                 .setTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
                             widgetGroup.addWidget(new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
                             widgetGroup.addWidget(new LabelWidget(14, 112, "gui.appliedenergistics2.Priority"));

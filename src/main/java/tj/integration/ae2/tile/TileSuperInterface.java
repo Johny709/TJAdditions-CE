@@ -1,6 +1,7 @@
 package tj.integration.ae2.tile;
 
 import appeng.api.config.*;
+import appeng.core.Api;
 import appeng.helpers.DualityInterface;
 import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.misc.TileInterface;
@@ -125,7 +126,8 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
                         .setCycleTexture(TJGuiTextures.CYCLE_BLOCKING_MODE_EX))
                 .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
-                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS)
+                                .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
+                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_EDGE_RIGHT)
                                 .setTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
                             widgetGroup.addWidget(new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
                             widgetGroup.addWidget(new LabelWidget(14, 112, "gui.appliedenergistics2.Priority"));

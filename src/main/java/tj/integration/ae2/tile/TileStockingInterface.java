@@ -8,6 +8,7 @@ import appeng.api.networking.ticking.TickingRequest;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IItemList;
+import appeng.core.Api;
 import appeng.core.settings.TickRates;
 import appeng.helpers.DualityInterface;
 import appeng.me.GridAccessException;
@@ -142,7 +143,8 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
                 .widget(selectionWidgetGroup)
                 .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
-                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS)
+                                .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
+                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_EDGE_RIGHT)
                                 .setTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
                             widgetGroup.addWidget(new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
                             widgetGroup.addWidget(new LabelWidget(14, 112, "gui.appliedenergistics2.Priority"));

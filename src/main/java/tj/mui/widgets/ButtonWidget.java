@@ -183,19 +183,23 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+        final Size size = this.getSize();
+        final Position pos = this.getPosition();
         if (this.backgroundTextures != null)
             for (TextureArea textureArea : this.backgroundTextures)
-                textureArea.draw(this.getPosition().getX(), this.getPosition().getY(), this.getSize().getWidth(), this.getSize().getHeight());
+                textureArea.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         if (this.displayText != null) {
             final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
             final String text = I18n.format(this.displayText);
             fontRenderer.drawString(text,
-                    this.getPosition().getX() + this.getSize().getWidth() / 2 - fontRenderer.getStringWidth(text) / 2,
-                    this.getPosition().getY() + this.getSize().getHeight() / 2 - fontRenderer.FONT_HEIGHT / 2, this.textColor);
+                    pos.getX() + size.getWidth() / 2 - fontRenderer.getStringWidth(text) / 2,
+                    pos.getY() + size.getHeight() / 2 - fontRenderer.FONT_HEIGHT / 2, this.textColor);
             GlStateManager.color(1.0f, 1.0f, 1.0f);
         }
         if (this.displayItem != null && !this.displayItem.isEmpty()) {
-            drawItemStack(this.displayItem, this.getPosition().getX() + 1, this.getPosition().getY() + 1, null);
+            final int offsetX = (size.getWidth() - 18) / 2;
+            final int offsetY = (size.getHeight() - 18) / 2;
+            drawItemStack(this.displayItem, pos.getX() + offsetX + 1, pos.getY() + offsetY + 1, null);
         }
     }
 
