@@ -6,6 +6,7 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import gregtech.api.recipes.CountableIngredient;
@@ -50,6 +51,7 @@ import tj.util.wrappers.GTFluidStackWrapper;
 import tj.util.wrappers.GTItemStackWrapper;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
@@ -107,10 +109,21 @@ public class ControllableDualCover extends DualCover {
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
+        final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
+                .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
+                .addTab(String.format("metaitem.robot.arm.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.ROBOT_ARMS[this.tier].getStackForm(), this::createRobotArmTab)
+                .addTab(String.format("metaitem.fluid.regulator.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.FLUID_REGULATORS[this.tier].getStackForm(), this::createRegulatorTab);
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 272)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+                        .setItemLabel(this.getPickItem()).setLocale(String.format("metaitem.controllable_dual_cover.%s.name", GAValues.VN[this.tier].toLowerCase())))
+                .widget(tabBuilder.build())
+                .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 190)
+                .build(this, player);
+    }
+
+    private void createRobotArmTab(List<Widget> widgetGroup) {
         final WidgetGroup itemWidgetGroup = new WidgetGroup(new Position(7, 95));
-        final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(7, 115));
         final SelectionWidgetGroup itemSelectionWidgetGroup = new SelectionWidgetGroup(7, 95, 72, 72);
-        final SelectionWidgetGroup fluidSelectionWidgetGroup = new SelectionWidgetGroup(7, 115, 72, 72);
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
             final int index = i;
             final BiConsumer<String, String> setItemCount = (text, id) -> {
@@ -134,6 +147,68 @@ public class ControllableDualCover extends DualCover {
             itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(122, 18, 38, 18, "*2", data -> setItemCount.accept(String.valueOf((long) this.itemFilter.getStackInSlot(index).getCount() * 2), "")));
             itemSelectionWidgetGroup.addSelectionBox(i, 18 * (i % 4), 18 * (i / 4), 18, 18);
         }
+        final WidgetGroup itemSupplyWidgetGroup = new WidgetGroup();
+        itemSupplyWidgetGroup.addWidget(new NewTextFieldWidget<>(92, 95, 76, 18, true, () -> String.valueOf(this.itemSupplyThroughput), this::setItemSupplyThroughput)
+                .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.itemSupplyThroughput)))
+                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                .setTooltipText("tj.machine.universal.item_amount")
+                .setUpdateOnTyping(true));
+        itemSupplyWidgetGroup.addWidget(new ClickButtonWidget(92, 113, 38, 18, "/2", data -> this.setItemSupplyThroughput(String.valueOf((long) this.itemSupplyThroughput / 2), "")));
+        itemSupplyWidgetGroup.addWidget(new ClickButtonWidget(130, 113, 38, 18, "*2", data -> this.setItemSupplyThroughput(String.valueOf((long) this.itemSupplyThroughput * 2), "")));
+        final PopUpWidget<?> itemFilterPopup = new PopUpWidget<>()
+                .setClickToDefault(false)
+                .setIndexSupplier(() -> {
+                    final ItemStack itemStack = this.itemFilterSlot.getStackInSlot(0);
+                    return ITEM_FILTER.isItemEqual(itemStack) ? 1 : SMART_FILTER.isItemEqual(itemStack) ? 2 : ORE_DICTIONARY_FILTER.isItemEqual(itemStack) ? 3 : 0;
+                }).addPopup(widgetGroup1 -> {
+                    widgetGroup1.addWidget(itemSupplyWidgetGroup);
+                    return false;
+                }).addPopup(widgetGroup1 -> {
+                    widgetGroup1.addWidget(itemWidgetGroup);
+                    widgetGroup1.addWidget(itemSelectionWidgetGroup);
+                    return false;
+                }).addPopup(widgetGroup1 -> {
+                    widgetGroup1.addWidget(new CycleButtonWidget(10, 133, 76, 18, RecipeMode.class, () -> this.itemRecipeMode, this::setItemRecipeMode));
+                    return false;
+                }).addPopup(widgetGroup1 -> {
+                    widgetGroup1.addWidget(itemSupplyWidgetGroup);
+                    this.oreDictionaryItemFilter.initUI(widgetGroup1::addWidget);
+                    return false;
+                });
+        widgetGroup.add(new LabelWidget(7, 5, "cover.robotic_arm.title", GAValues.VN[this.tier]));
+        widgetGroup.add(new ClickButtonWidget(7, 20, 23, 20, "-10", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 100 : 10))));
+        widgetGroup.add(new ClickButtonWidget(146, 20, 23, 20, "+10", data -> this.setItemTransferRate(this.itemTransferRate + (data.isShiftClick ? 100 : 10))));
+        widgetGroup.add(new ClickButtonWidget(30, 20, 20, 20, "-1", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 5 : 1))));
+        widgetGroup.add(new ClickButtonWidget(126, 20, 20, 20, "+1", data -> this.setItemTransferRate(this.itemTransferRate + (data.isShiftClick ? 5 : 1))));
+        widgetGroup.add(new ClickButtonWidget(50, 20, 38, 20,"/2", data -> this.setItemTransferRate(this.itemTransferRate / 2D)));
+        widgetGroup.add(new ClickButtonWidget(88, 20, 38, 20, "*2", data -> this.setItemTransferRate(this.itemTransferRate * 2)));
+        widgetGroup.add(new NewTextFieldWidget<>(7, 40, 162, 18, true, () -> String.valueOf(this.itemTransferRate), this::setItemTransferRate)
+                .setTooltipText("tj.machine.universal.item_throughput").setTooltipFormat(() -> new String[]{String.valueOf(this.itemTransferRate)})
+                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                .setUpdateOnTyping(true));
+        widgetGroup.add(new CycleButtonWidget(7, 65, 76, 20, CoverConveyor.ConveyorMode.class, () -> this.conveyorMode, this::setConveyorMode));
+        widgetGroup.add(new CycleButtonWidget(92, 65, 76, 20, TransferMode.class, () -> this.robotArmMode, this::setRobotArmMode)
+                .setTooltipHoverString("cover.robotic_arm.transfer_mode.description"));
+        widgetGroup.add(new ImageWidget(-28, 127, 26, 44, GuiTextures.BORDERED_BACKGROUND));
+        widgetGroup.add(new TJSlotWidget<>(this.itemFilterSlot, 0, -24, 131)
+                .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
+        widgetGroup.add(itemFilterPopup);
+        widgetGroup.add(new ToggleButtonWidget(-24, 149, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isItemBlacklist, this::setItemBlacklist)
+                .setTooltipText("cover.filter.blacklist"));
+        widgetGroup.add(new NewTextFieldWidget<>(92, 133, 76, 18, true, () -> String.valueOf(this.itemTicks), this::setItemTicks)
+                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                .setTooltipText("machine.universal.ticks.operation")
+                .setUpdateOnTyping(true));
+        widgetGroup.add(new ClickButtonWidget(92, 151, 38, 18, "/2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks / 2), "")));
+        widgetGroup.add(new ClickButtonWidget(130, 151, 38, 18, "*2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks * 2), "")));
+        widgetGroup.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
+        widgetGroup.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
+                .setTooltipText("machine.universal.toggle.run.mode"));
+    }
+
+    private void createRegulatorTab(List<Widget> widgetGroup) {
+        final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(7, 115));
+        final SelectionWidgetGroup fluidSelectionWidgetGroup = new SelectionWidgetGroup(7, 115, 72, 72);
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             final int index = i;
             final BiConsumer<String, String> setFluidCount = (text, id) -> {
@@ -158,128 +233,60 @@ public class ControllableDualCover extends DualCover {
             fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(123, 18, 38, 18, "*2", data -> setFluidCount.accept(String.valueOf((long) this.fluidFilter.getTankAt(index).getFluidAmount() * 2), "")));
             fluidSelectionWidgetGroup.addSelectionBox(i, 18 * (i % 4), 18 * (i / 4), 18, 18);
         }
-        final WidgetGroup itemSupplyWidgetGroup = new WidgetGroup();
-        itemSupplyWidgetGroup.addWidget(new NewTextFieldWidget<>(92, 95, 76, 18, true, () -> String.valueOf(this.itemSupplyThroughput), this::setItemSupplyThroughput)
-                .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.itemSupplyThroughput)))
-                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                .setTooltipText("tj.machine.universal.item_amount")
-                .setUpdateOnTyping(true));
-        itemSupplyWidgetGroup.addWidget(new ClickButtonWidget(92, 113, 38, 18, "/2", data -> this.setItemSupplyThroughput(String.valueOf((long) this.itemSupplyThroughput / 2), "")));
-        itemSupplyWidgetGroup.addWidget(new ClickButtonWidget(130, 113, 38, 18, "*2", data -> this.setItemSupplyThroughput(String.valueOf((long) this.itemSupplyThroughput * 2), "")));
-        final PopUpWidget<?> itemFilterPopup = new PopUpWidget<>()
-                .setClickToDefault(false)
-                .setIndexSupplier(() -> {
-                    final ItemStack itemStack = this.itemFilterSlot.getStackInSlot(0);
-                    return ITEM_FILTER.isItemEqual(itemStack) ? 1 : SMART_FILTER.isItemEqual(itemStack) ? 2 : ORE_DICTIONARY_FILTER.isItemEqual(itemStack) ? 3 : 0;
-                }).addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(itemSupplyWidgetGroup);
-                    return false;
-                }).addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(itemWidgetGroup);
-                    widgetGroup.addWidget(itemSelectionWidgetGroup);
-                    return false;
-                }).addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(new CycleButtonWidget(10, 133, 76, 18, RecipeMode.class, () -> this.itemRecipeMode, this::setItemRecipeMode));
-                    return false;
-                }).addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(itemSupplyWidgetGroup);
-                    this.oreDictionaryItemFilter.initUI(widgetGroup::addWidget);
-                    return false;
-                });
         final PopUpWidget<?> fluidFilterPopup = new PopUpWidget<>()
                 .setClickToDefault(false)
                 .setIndexSupplier(() -> {
                     final ItemStack itemStack = this.fluidFilterSlot.getStackInSlot(0);
                     return FLUID_FILTER.isItemEqual(itemStack) ? 1 : SMART_FILTER.isItemEqual(itemStack) ? 2 : 0;
                 })
-                .addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(new NewTextFieldWidget<>(92, 115, 76, 18, true, () -> String.valueOf(this.fluidSupplyThroughput), this::setFluidSupplyThroughput)
+                .addPopup(widgetGroup1 -> {
+                    widgetGroup1.addWidget(new NewTextFieldWidget<>(92, 115, 76, 18, true, () -> String.valueOf(this.fluidSupplyThroughput), this::setFluidSupplyThroughput)
                             .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.fluidSupplyThroughput)))
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setTooltipText("tj.machine.universal.fluid_amount")
                             .setUpdateOnTyping(true));
-                    widgetGroup.addWidget(new ClickButtonWidget(92, 133, 38, 18, "/2", data -> this.setFluidSupplyThroughput(String.valueOf((long) this.fluidSupplyThroughput / 2), "")));
-                    widgetGroup.addWidget(new ClickButtonWidget(130, 133, 38, 18, "*2", data -> this.setFluidSupplyThroughput(String.valueOf((long) this.fluidSupplyThroughput * 2), "")));
+                    widgetGroup1.addWidget(new ClickButtonWidget(92, 133, 38, 18, "/2", data -> this.setFluidSupplyThroughput(String.valueOf((long) this.fluidSupplyThroughput / 2), "")));
+                    widgetGroup1.addWidget(new ClickButtonWidget(130, 133, 38, 18, "*2", data -> this.setFluidSupplyThroughput(String.valueOf((long) this.fluidSupplyThroughput * 2), "")));
                     return false;
-                }).addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(fluidWidgetGroup);
-                    widgetGroup.addWidget(fluidSelectionWidgetGroup);
+                }).addPopup(widgetGroup1 -> {
+                    widgetGroup1.addWidget(fluidWidgetGroup);
+                    widgetGroup1.addWidget(fluidSelectionWidgetGroup);
                     return false;
-                }).addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(new CycleButtonWidget(10, 151, 76, 18, RecipeMode.class, () -> this.fluidRecipeMode, this::setFluidRecipeMode));
+                }).addPopup(widgetGroup1 -> {
+                    widgetGroup1.addWidget(new CycleButtonWidget(10, 151, 76, 18, RecipeMode.class, () -> this.fluidRecipeMode, this::setFluidRecipeMode));
                     return false;
                 });
-        final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
-                .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
-                .addTab(String.format("metaitem.robot.arm.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.ROBOT_ARMS[this.tier].getStackForm(), tab -> {
-                    tab.add(new LabelWidget(7, 5, "cover.robotic_arm.title", GAValues.VN[this.tier]));
-                    tab.add(new ClickButtonWidget(7, 20, 23, 20, "-10", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 100 : 10))));
-                    tab.add(new ClickButtonWidget(146, 20, 23, 20, "+10", data -> this.setItemTransferRate(this.itemTransferRate + (data.isShiftClick ? 100 : 10))));
-                    tab.add(new ClickButtonWidget(30, 20, 20, 20, "-1", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 5 : 1))));
-                    tab.add(new ClickButtonWidget(126, 20, 20, 20, "+1", data -> this.setItemTransferRate(this.itemTransferRate + (data.isShiftClick ? 5 : 1))));
-                    tab.add(new ClickButtonWidget(50, 20, 38, 20,"/2", data -> this.setItemTransferRate(this.itemTransferRate / 2D)));
-                    tab.add(new ClickButtonWidget(88, 20, 38, 20, "*2", data -> this.setItemTransferRate(this.itemTransferRate * 2)));
-                    tab.add(new NewTextFieldWidget<>(7, 40, 162, 18, true, () -> String.valueOf(this.itemTransferRate), this::setItemTransferRate)
-                            .setTooltipText("tj.machine.universal.item_throughput").setTooltipFormat(() -> new String[]{String.valueOf(this.itemTransferRate)})
-                            .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                            .setUpdateOnTyping(true));
-                    tab.add(new CycleButtonWidget(7, 65, 76, 20, CoverConveyor.ConveyorMode.class, () -> this.conveyorMode, this::setConveyorMode));
-                    tab.add(new CycleButtonWidget(92, 65, 76, 20, TransferMode.class, () -> this.robotArmMode, this::setRobotArmMode)
-                            .setTooltipHoverString("cover.robotic_arm.transfer_mode.description"));
-                    tab.add(new ImageWidget(-28, 127, 26, 44, GuiTextures.BORDERED_BACKGROUND));
-                    tab.add(new TJSlotWidget<>(this.itemFilterSlot, 0, -24, 131)
-                            .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
-                    tab.add(itemFilterPopup);
-                    tab.add(new ToggleButtonWidget(-24, 149, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isItemBlacklist, this::setItemBlacklist)
-                            .setTooltipText("cover.filter.blacklist"));
-                    tab.add(new NewTextFieldWidget<>(92, 133, 76, 18, true, () -> String.valueOf(this.itemTicks), this::setItemTicks)
-                            .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                            .setTooltipText("machine.universal.ticks.operation")
-                            .setUpdateOnTyping(true));
-                    tab.add(new ClickButtonWidget(92, 151, 38, 18, "/2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks / 2), "")));
-                    tab.add(new ClickButtonWidget(130, 151, 38, 18, "*2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks * 2), "")));
-                    tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
-                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
-                            .setTooltipText("machine.universal.toggle.run.mode"));
-                }).addTab(String.format("metaitem.fluid.regulator.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.FLUID_REGULATORS[this.tier].getStackForm(), tab -> {
-                    tab.add(new LabelWidget(7, 5, "cover.fluid_regulator.title", GAValues.VN[this.tier]));
-                    tab.add(new ClickButtonWidget(7, 20, 37, 20, "-100", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 500 : 100))));
-                    tab.add(new ClickButtonWidget(132, 20, 37, 20, "+100", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 500 : 100))));
-                    tab.add(new ClickButtonWidget(44, 20, 22, 20, "-10", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 50 : 10))));
-                    tab.add(new ClickButtonWidget(108, 20, 24, 20, "+10", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 50 : 10))));
-                    tab.add(new ClickButtonWidget(68, 20, 20, 20, "-1", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 5 : 1))));
-                    tab.add(new ClickButtonWidget(88, 20, 20, 20, "+1", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 5 : 1))));
-                    tab.add(new ClickButtonWidget(7, 40, 81, 20, "/2", data -> this.setFluidTransferRate(this.fluidTransferRate / 2D)));
-                    tab.add(new ClickButtonWidget(88, 40, 81, 20, "*2", data -> this.setFluidTransferRate(this.fluidTransferRate * 2)));
-                    tab.add(new NewTextFieldWidget<>(7, 60, 162, 18, true, () -> String.valueOf(this.fluidTransferRate), this::setFluidTransferRate)
-                            .setTooltipText("tj.machine.universal.fluid_throughput").setTooltipFormat(() -> new String[]{String.valueOf(this.fluidTransferRate)})
-                            .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                            .setUpdateOnTyping(true));
-                    tab.add(new CycleButtonWidget(7, 85, 76, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
-                    tab.add(new CycleButtonWidget(88, 85, 76, 18, TransferMode.class, () -> this.regulatorMode, this::setRegulatorMode)
-                            .setTooltipHoverString("cover.fluid_regulator.transfer_mode.description"));
-                    tab.add(new ImageWidget(-28, 147, 26, 44, GuiTextures.BORDERED_BACKGROUND));
-                    tab.add(new TJSlotWidget<>(this.fluidFilterSlot, 0, -24, 151)
-                            .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
-                    tab.add(fluidFilterPopup);
-                    tab.add(new ToggleButtonWidget(-24, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isFluidBlacklist, this::setFluidBlacklist)
-                            .setTooltipText("cover.filter.blacklist"));
-                    tab.add(new NewTextFieldWidget<>(92, 151, 76, 18, true, () -> String.valueOf(this.fluidTicks), this::setFluidTicks)
-                            .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                            .setTooltipText("machine.universal.ticks.operation")
-                            .setUpdateOnTyping(true));
-                    tab.add(new ClickButtonWidget(92, 169, 38, 18, "/2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks / 2), "")));
-                    tab.add(new ClickButtonWidget(130, 169, 38, 18, "*2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks * 2), "")));
-                    tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
-                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isPumpWorking, this::setPumpWorking)
-                            .setTooltipText("machine.universal.toggle.run.mode"));
-                });
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 272)
-                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setItemLabel(this.getPickItem()).setLocale(String.format("metaitem.controllable_dual_cover.%s.name", GAValues.VN[this.tier].toLowerCase())))
-                .widget(tabBuilder.build())
-                .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 190)
-                .build(this, player);
+        widgetGroup.add(new LabelWidget(7, 5, "cover.fluid_regulator.title", GAValues.VN[this.tier]));
+        widgetGroup.add(new ClickButtonWidget(7, 20, 37, 20, "-100", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 500 : 100))));
+        widgetGroup.add(new ClickButtonWidget(132, 20, 37, 20, "+100", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 500 : 100))));
+        widgetGroup.add(new ClickButtonWidget(44, 20, 22, 20, "-10", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 50 : 10))));
+        widgetGroup.add(new ClickButtonWidget(108, 20, 24, 20, "+10", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 50 : 10))));
+        widgetGroup.add(new ClickButtonWidget(68, 20, 20, 20, "-1", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 5 : 1))));
+        widgetGroup.add(new ClickButtonWidget(88, 20, 20, 20, "+1", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 5 : 1))));
+        widgetGroup.add(new ClickButtonWidget(7, 40, 81, 20, "/2", data -> this.setFluidTransferRate(this.fluidTransferRate / 2D)));
+        widgetGroup.add(new ClickButtonWidget(88, 40, 81, 20, "*2", data -> this.setFluidTransferRate(this.fluidTransferRate * 2)));
+        widgetGroup.add(new NewTextFieldWidget<>(7, 60, 162, 18, true, () -> String.valueOf(this.fluidTransferRate), this::setFluidTransferRate)
+                .setTooltipText("tj.machine.universal.fluid_throughput").setTooltipFormat(() -> new String[]{String.valueOf(this.fluidTransferRate)})
+                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                .setUpdateOnTyping(true));
+        widgetGroup.add(new CycleButtonWidget(7, 85, 76, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
+        widgetGroup.add(new CycleButtonWidget(88, 85, 76, 18, TransferMode.class, () -> this.regulatorMode, this::setRegulatorMode)
+                .setTooltipHoverString("cover.fluid_regulator.transfer_mode.description"));
+        widgetGroup.add(new ImageWidget(-28, 147, 26, 44, GuiTextures.BORDERED_BACKGROUND));
+        widgetGroup.add(new TJSlotWidget<>(this.fluidFilterSlot, 0, -24, 151)
+                .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
+        widgetGroup.add(fluidFilterPopup);
+        widgetGroup.add(new ToggleButtonWidget(-24, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isFluidBlacklist, this::setFluidBlacklist)
+                .setTooltipText("cover.filter.blacklist"));
+        widgetGroup.add(new NewTextFieldWidget<>(92, 151, 76, 18, true, () -> String.valueOf(this.fluidTicks), this::setFluidTicks)
+                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                .setTooltipText("machine.universal.ticks.operation")
+                .setUpdateOnTyping(true));
+        widgetGroup.add(new ClickButtonWidget(92, 169, 38, 18, "/2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks / 2), "")));
+        widgetGroup.add(new ClickButtonWidget(130, 169, 38, 18, "*2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks * 2), "")));
+        widgetGroup.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
+        widgetGroup.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isPumpWorking, this::setPumpWorking)
+                .setTooltipText("machine.universal.toggle.run.mode"));
     }
 
     @Override
