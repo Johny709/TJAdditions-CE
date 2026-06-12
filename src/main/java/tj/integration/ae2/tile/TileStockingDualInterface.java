@@ -112,7 +112,7 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
                         if (itemStack.isEmpty()) continue;
                         itemStack.setCount(Math.min(itemStack.getCount(), stackSize));
                         ((AppEngInternalAEInventory) this.getInterfaceDuality().getConfig()).setStackInSlot(index++, itemStack);
-                    }
+                    } else break;
                 }
             } catch (GridAccessException ignored) {}
         }
@@ -128,7 +128,7 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
                         final FluidStack fluidStack = aeFluidStack.getFluidStack();
                         fluidStack.amount = Math.min(fluidStack.amount, stackSize);
                         this.getDualityFluidInterface().getConfig().setFluidInSlot(index++, AEFluidStack.fromFluidStack(fluidStack));
-                    }
+                    } else break;
                 }
             } catch (GridAccessException ignored) {}
         }

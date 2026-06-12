@@ -109,7 +109,7 @@ public class PartStockingFluidInterface extends PartFluidInterface implements IT
                         final FluidStack fluidStack = aeFluidStack.getFluidStack();
                         fluidStack.amount = Math.min(fluidStack.amount, stackSize);
                         this.getDualityFluidInterface().getConfig().setFluidInSlot(index++, AEFluidStack.fromFluidStack(fluidStack));
-                    }
+                    } else break;
                 }
             } catch (GridAccessException ignored) {}
         }

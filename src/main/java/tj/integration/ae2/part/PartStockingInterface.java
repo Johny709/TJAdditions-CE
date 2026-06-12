@@ -105,7 +105,7 @@ public class PartStockingInterface extends PartInterface implements ITileEntityU
                         if (itemStack.isEmpty()) continue;
                         itemStack.setCount(Math.min(itemStack.getCount(), stackSize));
                         ((AppEngInternalAEInventory) this.getInterfaceDuality().getConfig()).setStackInSlot(index++, itemStack);
-                    }
+                    } else break;
                 }
             } catch (GridAccessException ignored) {}
         }

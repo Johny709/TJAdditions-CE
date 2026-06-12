@@ -100,7 +100,7 @@ public class TileStockingFluidInterface extends TileFluidInterface implements IT
                         final FluidStack fluidStack = aeFluidStack.getFluidStack();
                         fluidStack.amount = Math.min(fluidStack.amount, stackSize);
                         this.getDualityFluidInterface().getConfig().setFluidInSlot(index++, AEFluidStack.fromFluidStack(fluidStack));
-                    }
+                    } else break;
                 }
             } catch (GridAccessException ignored) {}
         }

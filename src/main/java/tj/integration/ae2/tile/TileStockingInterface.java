@@ -83,7 +83,7 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
                         if (itemStack.isEmpty()) continue;
                         itemStack.setCount(Math.min(itemStack.getCount(), stackSize));
                         ((AppEngInternalAEInventory) this.getInterfaceDuality().getConfig()).setStackInSlot(index++, itemStack);
-                    }
+                    } else break;
                 }
             } catch (GridAccessException ignored) {}
         }
