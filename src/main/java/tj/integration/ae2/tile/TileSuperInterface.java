@@ -13,11 +13,13 @@ import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -34,6 +36,7 @@ import tj.util.TJItemUtils;
 
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 
@@ -51,11 +54,6 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
         TileEntityHolder holder = new TileEntityHolder(tileEntity);
         holder.setFacing(facing);
         holder.openUI((EntityPlayerMP) player);
-    }
-
-    @Override
-    public ItemStack getItemStackRepresentation() {
-        return TJBlocks.SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY);
     }
 
     @Override
@@ -117,7 +115,13 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
                 .widget(selectionWidgetGroup);
         if (!patternMultiTool.isEmpty()) {
             builder.widget(new ImageWidget(-120, 0, 100, 200, GuiTextures.BORDERED_BACKGROUND))
-                    .widget(new LabelWidget(-113, 4, "item.nae2.pattern_multiplier.name"));
+                    .widget(new LabelWidget(-113, 4, "item.nae2.pattern_multiplier.name"))
+                    .widget(new ClickButtonWidget(-113, 176, 18, 18, "*2", data -> this.changePatternAmount(patternSlots, 2, () -> this.writePatternMultiToolToNBT(patternSlots, tag))))
+                    .widget(new ClickButtonWidget(-113, 194, 18, 18, "/2", data -> this.changePatternAmount(patternSlots, -2, () -> this.writePatternMultiToolToNBT(patternSlots, tag))))
+                    .widget(new ClickButtonWidget(-95, 176, 18, 18, "*3", data -> this.changePatternAmount(patternSlots, 3, () -> this.writePatternMultiToolToNBT(patternSlots, tag))))
+                    .widget(new ClickButtonWidget(-95, 194, 18, 18, "/3", data -> this.changePatternAmount(patternSlots, -3, () -> this.writePatternMultiToolToNBT(patternSlots, tag))))
+                    .widget(new ClickButtonWidget(-77, 176, 18, 18, "*4", data -> this.changePatternAmount(patternSlots, 4, () -> this.writePatternMultiToolToNBT(patternSlots, tag))))
+                    .widget(new ClickButtonWidget(-77, 194, 18, 18, "/4", data -> this.changePatternAmount(patternSlots, -4, () -> this.writePatternMultiToolToNBT(patternSlots, tag))));
             for (int i = 0; i < patternSlots.getSlots(); i++) {
                 builder.widget(new AEPatternSlotWidget(patternSlots, i, -113 + (18 * (i / 9)), 14 + (18 * (i % 9)))
                         .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
@@ -206,6 +210,78 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
                 itemHandler.setStackInSlot(compound.getInteger("Slot"), patternStack);
             }
         }
+    }
+
+    private void changePatternAmount(IItemHandler patternSlots, int multiplier, Runnable callback) {
+        final boolean divide = multiplier < 0;
+        if (divide)
+            multiplier = Math.abs(multiplier);
+        final int finalMultiplier = multiplier;
+        for (int i = 0; i < patternSlots.getSlots(); i++) {
+            final ItemStack stack = patternSlots.getStackInSlot(i);
+            final NBTTagCompound compound = stack.getTagCompound();
+            if (stack.isEmpty() || compound == null) continue;
+            final ResourceLocation resourcelocation = Item.REGISTRY.getNameForObject(stack.getItem());
+            final String id = resourcelocation != null ? resourcelocation.toString() : "minecraft:air";
+            final NBTTagList inputList = compound.getTagList(id.equals("ae2fc:dense_encoded_pattern") ? "Inputs" : "in", 10);
+            final NBTTagList outputList = compound.getTagList(id.equals("ae2fc:dense_encoded_pattern") ? "Outputs" : "out", 10);
+            final NBTTagList newInputList = new NBTTagList(), newOutputList = new NBTTagList();
+            final Predicate<Boolean> setPatternInputs = simulate -> {
+                for (int j = 0; j < inputList.tagCount(); j++) {
+                    final NBTTagCompound patternCompound = inputList.getCompoundTagAt(j);
+                    final long amount = patternCompound.hasKey("Cnt") ? patternCompound.getLong("Cnt") : patternCompound.getInteger("Count");
+                    final long newAmount = divide ? amount / finalMultiplier : amount * finalMultiplier;
+                    if (patternCompound.isEmpty()) {
+                        if (!simulate)
+                            newInputList.appendTag(patternCompound);
+                        continue;
+                    }
+                    if (newAmount > 0 && newAmount <= Integer.MAX_VALUE) {
+                        if (!simulate) {
+                            if (id.equals("ae2fc:dense_encoded_pattern")) {
+                                patternCompound.setLong("Cnt", newAmount);
+                            } else patternCompound.setInteger("Count", (int) newAmount);
+                            newInputList.appendTag(patternCompound);
+                        }
+                    } else return false;
+                }
+                for (int j = 0; j < outputList.tagCount(); j++) {
+                    final NBTTagCompound patternCompound = outputList.getCompoundTagAt(j);
+                    final long amount = patternCompound.hasKey("Cnt") ? patternCompound.getLong("Cnt") : patternCompound.getInteger("Count");
+                    final long newAmount = divide ? amount / finalMultiplier : amount * finalMultiplier;
+                    if (patternCompound.isEmpty()) {
+                        if (!simulate)
+                            newOutputList.appendTag(patternCompound);
+                        continue;
+                    }
+                    if (newAmount > 0 && newAmount <= Integer.MAX_VALUE) {
+                        if (!simulate) {
+                            if (id.equals("ae2fc:dense_encoded_pattern")) {
+                                patternCompound.setLong("Cnt", newAmount);
+                            } else patternCompound.setInteger("Count", (int) newAmount);
+                            newOutputList.appendTag(patternCompound);
+                        }
+                    } else return false;
+                }
+                if (!simulate) {
+                    compound.setTag("in", newInputList);
+                    compound.setTag("out", newOutputList);
+                    if (id.equals("ae2fc:dense_encoded_pattern")) {
+                        compound.setTag("Inputs", newInputList);
+                        compound.setTag("Outputs", newOutputList);
+                    }
+                }
+                return true;
+            };
+            if (setPatternInputs.test(true))
+                setPatternInputs.test(false);
+        }
+        callback.run();
+    }
+
+    @Override
+    public ItemStack getItemStackRepresentation() {
+        return TJBlocks.SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY);
     }
 
     private void setBlockingMode(boolean blockingMode) {
