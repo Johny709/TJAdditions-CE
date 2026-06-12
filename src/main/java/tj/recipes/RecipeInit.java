@@ -346,6 +346,9 @@ public class RecipeInit {
         ModHandler.addShapelessRecipe("tj_stocking_interface_part", PART_STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
         ModHandler.addShapelessRecipe("tj_stocking_fluid_interface", STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), PART_STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
         ModHandler.addShapelessRecipe("tj_stocking_fluid_interface_part", PART_STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_stocking_dual_interface", STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), PART_STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_stocking_dual_interface_part", PART_STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_stocking_dual_interface_2", STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
         ModHandler.addShapelessRecipe("tj_max_capacity_upgrade", new ItemStack(MAX_CAPACITY_UPGRADE), Api.INSTANCE.definitions().materials().advCard().maybeStack(1).orElse(ItemStack.EMPTY), INFINITY_CHEST.getStackForm());
         ModHandler.addShapelessRecipe("tj_max_capacity_upgrade_2", new ItemStack(MAX_CAPACITY_UPGRADE), Api.INSTANCE.definitions().materials().advCard().maybeStack(1).orElse(ItemStack.EMPTY), INFINITY_CRATE.getStackForm());
         for (int i = 0; i < 2; i++) {

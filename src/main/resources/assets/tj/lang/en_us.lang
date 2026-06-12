@@ -1193,6 +1193,7 @@ item.me.part.super_dual_interface.name=ME Super Dual Interface
 item.me.part.pattern_interface.name=ME Pattern Interface
 item.me.part.stocking_interface.name=ME Stocking Interface
 item.me.part.stocking_fluid_interface.name=ME Stocking Fluid Interface
+item.me.part.stocking_dual_interface.name=ME Stocking Dual Interface
 
 tile.me.super_interface.name=ME Super Interface
 tile.me.super_fluid_interface.name=ME Super Fluid Interface
