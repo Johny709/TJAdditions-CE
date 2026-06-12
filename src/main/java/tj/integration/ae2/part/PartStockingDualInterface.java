@@ -8,6 +8,7 @@ import appeng.core.Api;
 import appeng.fluids.helper.DualityFluidInterface;
 import appeng.fluids.helper.IConfigurableFluidInventory;
 import appeng.fluids.helper.IFluidInterfaceHost;
+import appeng.fluids.util.AEFluidInventory;
 import appeng.helpers.DualityInterface;
 import appeng.items.parts.PartModels;
 import appeng.parts.PartModel;
@@ -31,10 +32,12 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.items.IItemHandler;
 import tj.TJ;
 import tj.builder.WidgetTabBuilder;
 import tj.integration.ae2.helpers.DualitySuperFluidInterface;
 import tj.integration.ae2.helpers.DualitySuperInterface;
+import tj.integration.ae2.helpers.IDualitySuperFluidInterface;
 import tj.items.item.TJItems;
 import tj.mui.TJGuiTextures;
 import tj.mui.uifactory.ITileEntityUI;
@@ -151,11 +154,69 @@ public class PartStockingDualInterface extends PartInterface implements IFluidIn
     }
 
     private void createInterfaceTab(List<Widget> tab, ButtonPopUpWidget<?> buttonPopUpWidget) {
-
+        final DualityInterface duality = this.getInterfaceDuality();
+        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(0, 0, 0, 0);
+        final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
+        for (int i = 0; i < duality.getConfig().getSlots(); i++) {
+            final int index = i;
+            tab.add(new TJPhantomItemSlotWidget(7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18, i, duality.getConfig())
+                    .setBackgroundTextures(TJGuiTextures.SLOT_DOWN));
+            selectionWidgetGroup.addSubWidget(i, new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
+            selectionWidgetGroup.addSubWidget(i, new LabelWidget(14, 112, "machine.universal.stack_size"));
+            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(14, 153, 148, 18, true, () -> String.valueOf(duality.getConfig().getStackInSlot(index).getCount()), this::setStackSize)
+                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                    .setTextId(String.valueOf(index))
+                    .setUpdateOnTyping(true));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(15, 127, 25, 20, "+1", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() + 1), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(45, 127, 30, 20, "+10", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() + 10), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(80, 127, 35, 20, "+100", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() + 100), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(120, 127, 40, 20, "+1000", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() + 1000), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(15, 177, 25, 20, "-1", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() - 1), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(45, 177, 30, 20, "-10", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() - 10), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(80, 177, 35, 20, "-100", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() - 100), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(120, 177, 40, 20, "-1000", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() - 1000), String.valueOf(index))));
+            selectionWidgetGroup.addSelectionBox(i, 7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18);
+        }
+        tab.add(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredItems"));
+        tab.add(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"));
+        for (int i = 0; i < upgradeHandler.getSlots(); i++) {
+            tab.add(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
+        }
+        for (int i = 0; i < duality.getStorage().getSlots(); i++) {
+            tab.add(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))
+                    .setActiveSupplier(() -> buttonPopUpWidget.getIndex() == 0)
+                    .setInactiveBackgroundTexture(GuiTextures.SLOT)
+                    .setActiveBackgroundTexture(GuiTextures.SLOT));
+        }
+        tab.add(new TJToggleButtonWidget(-18, 35, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setAutoPull)
+                .setToggleTooltipHoverText("tile.me.stocking_interface.auto_pull", "tile.me.stocking_interface.auto_pull")
+                .setToggleTexture(TJGuiTextures.TOGGLE_AUTO_PULL)
+                .useToggleTexture(true));
+        tab.add(selectionWidgetGroup);
     }
 
     private void createFluidInterfaceTab(List<Widget> tab, ButtonPopUpWidget<?> buttonPopUpWidget) {
-
+        final DualityFluidInterface duality = this.getDualityFluidInterface();
+        final IItemHandler upgradeHandler = duality.getInventoryByName("upgrades");
+        for (int i = 0; i < duality.getConfig().getSlots(); i++) {
+            final int index = i;
+            tab.add(new TJPhantomAEFluidSlotWidget(7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18, i, duality.getConfig(), fluidStack -> ((IDualitySuperFluidInterface) duality).onFluidInventoryHasChanged(duality.getConfig(), index, null, null, null))
+                    .setBackgroundTexture(TJGuiTextures.SLOT_DOWN));
+        }
+        for (int i = 0; i < upgradeHandler.getSlots(); i++) {
+            tab.add(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
+        }
+        for (int i = 0; i < duality.getTanks().getSlots(); i++) {
+            tab.add(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)), 18, 18)
+                    .setActiveSupplier(() -> buttonPopUpWidget.getIndex() == 0)
+                    .setBackgroundTextures(GuiTextures.SLOT));
+        }
+        tab.add(new TJToggleButtonWidget(-18, 35, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setAutoPull)
+                .setToggleTooltipHoverText("tile.me.stocking_fluid_interface.auto_pull", "tile.me.stocking_fluid_interface.auto_pull")
+                .setToggleTexture(TJGuiTextures.TOGGLE_AUTO_PULL)
+                .useToggleTexture(true));
     }
 
     @Override
