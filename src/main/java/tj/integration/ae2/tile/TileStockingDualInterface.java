@@ -1,16 +1,26 @@
 package tj.integration.ae2.tile;
 
+import appeng.api.AEApi;
 import appeng.api.config.*;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.ticking.TickRateModulation;
+import appeng.api.networking.ticking.TickingRequest;
+import appeng.api.storage.channels.IFluidStorageChannel;
+import appeng.api.storage.channels.IItemStorageChannel;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IItemList;
 import appeng.core.Api;
+import appeng.core.settings.TickRates;
 import appeng.fluids.helper.DualityFluidInterface;
 import appeng.fluids.helper.IConfigurableFluidInventory;
 import appeng.fluids.helper.IFluidInterfaceHost;
 import appeng.fluids.util.AEFluidInventory;
+import appeng.fluids.util.AEFluidStack;
 import appeng.helpers.DualityInterface;
+import appeng.me.GridAccessException;
 import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.misc.TileInterface;
+import appeng.util.item.AEItemStack;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
@@ -20,6 +30,7 @@ import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -27,6 +38,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
@@ -53,6 +65,7 @@ import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStart
 public class TileStockingDualInterface extends TileInterface implements IFluidInterfaceHost, IConfigurableFluidInventory, ITileEntityUI {
 
     private final DualitySuperFluidInterface dualityFluid = new DualitySuperFluidInterface(this.getProxy(), this, 36);
+    private int tickTime = 100;
 
     public TileStockingDualInterface() {
         ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 36, 9), "duality");
@@ -76,8 +89,50 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
 
     @Nonnull
     @Override
+    public TickingRequest getTickingRequest(IGridNode node) {
+        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), this.getInterfaceDuality().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO && this.getDualityFluidInterface().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO, false);
+    }
+
+    @Nonnull
+    @Override
     public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        return TickRateModulation.values()[Math.max(super.tickingRequest(node, ticksSinceLastCall).ordinal(), this.dualityFluid.tickingRequest(node, ticksSinceLastCall).ordinal())];
+        if (!this.getProxy().isActive())
+            return TickRateModulation.SLEEP;
+        final TickRateModulation tickRateModulation = TickRateModulation.values()[Math.max(super.tickingRequest(node, ticksSinceLastCall).ordinal(), this.dualityFluid.tickingRequest(node, ticksSinceLastCall).ordinal())];
+        if (this.getInterfaceDuality().getConfigManager().getSetting(Settings.BLOCK) == YesNo.YES) {
+            try {
+                int index = 0;
+                final int stackSize = (int) Math.min(Integer.MAX_VALUE, 1024L << this.getInterfaceDuality().getInstalledUpgrades(Upgrades.CAPACITY) * 2);
+                final IItemList<?> iItemList = this.getProxy().getStorage().getInventory(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class)).getStorageList();
+                for (IAEStack<?> items : iItemList) {
+                    if (index < this.getInterfaceDuality().getConfig().getSlots()) {
+                        if (!items.isItem()) continue;
+                        final AEItemStack aeItemStack = (AEItemStack) items;
+                        final ItemStack itemStack = aeItemStack.createItemStack();
+                        if (itemStack.isEmpty()) continue;
+                        itemStack.setCount(Math.min(itemStack.getCount(), stackSize));
+                        ((AppEngInternalAEInventory) this.getInterfaceDuality().getConfig()).setStackInSlot(index++, itemStack);
+                    }
+                }
+            } catch (GridAccessException ignored) {}
+        }
+        if (this.getDualityFluidInterface().getConfigManager().getSetting(Settings.BLOCK) == YesNo.YES) {
+            try {
+                int index = 0;
+                final int stackSize = (int) Math.min(Integer.MAX_VALUE, 64000L << this.getDualityFluidInterface().getInstalledUpgrades(Upgrades.CAPACITY) * 2);
+                final IItemList<?> iItemList = this.getProxy().getStorage().getInventory(AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class)).getStorageList();
+                for (IAEStack<?> fluids : iItemList) {
+                    if (index < this.getDualityFluidInterface().getConfig().getSlots()) {
+                        if (fluids.isItem()) continue;
+                        final AEFluidStack aeFluidStack = (AEFluidStack) fluids;
+                        final FluidStack fluidStack = aeFluidStack.getFluidStack();
+                        fluidStack.amount = Math.min(fluidStack.amount, stackSize);
+                        this.getDualityFluidInterface().getConfig().setFluidInSlot(index++, AEFluidStack.fromFluidStack(fluidStack));
+                    }
+                }
+            } catch (GridAccessException ignored) {}
+        }
+        return TickRateModulation.values()[Math.max(tickRateModulation.ordinal(), this.tickTime > ticksSinceLastCall ? TickRateModulation.SLOWER.ordinal() : this.tickTime < ticksSinceLastCall ? TickRateModulation.FASTER.ordinal() : TickRateModulation.SAME.ordinal())];
     }
 
     @Nonnull
@@ -87,6 +142,7 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
         final NBTTagCompound compound = new NBTTagCompound();
         this.dualityFluid.writeToNBT(compound);
         data.setTag("dualityFluid", compound);
+        data.setInteger("tickTime", this.tickTime);
         return data;
     }
 
@@ -94,16 +150,18 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.dualityFluid.readFromNBT(data.getCompoundTag("dualityFluid"));
+        this.tickTime = Math.max(1, data.getInteger("tickTime"));
     }
 
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final DualityInterface duality = this.getInterfaceDuality();
         final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
+        final ButtonPopUpWidget<?> buttonPopUpTickWidget = new ButtonPopUpWidget<>();
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
-                .addTab("tile.me.stocking_interface.name", TJItems.PART_STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> this.createInterfaceTab(widgets, buttonPopUpWidget))
-                .addTab("tile.me.stocking_fluid_interface.name", TJItems.PART_STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> this.createFluidInterfaceTab(widgets, buttonPopUpWidget));
+                .addTab("tile.me.stocking_interface.name", TJItems.PART_STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> this.createInterfaceTab(widgets, buttonPopUpWidget, buttonPopUpTickWidget))
+                .addTab("tile.me.stocking_fluid_interface.name", TJItems.PART_STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> this.createFluidInterfaceTab(widgets, buttonPopUpWidget, buttonPopUpTickWidget));
         return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
@@ -112,7 +170,26 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
                         .setCentered(false)
                         .setCanSlide(false))
                 .widget(tabBuilder.build())
-                .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
+                .widget(buttonPopUpTickWidget.addPopup(widgetGroup -> true)
+                        .addPopup(new ButtonWidget<>(132, 0, 22, 22)
+                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_LEFT)
+                                .setTooltipText("machine.universal.ticks.operation")
+                                .setItemDisplay(new ItemStack(Items.CLOCK)), widgetGroup -> {
+                            widgetGroup.addWidget(new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
+                            widgetGroup.addWidget(new LabelWidget(14, 112, "machine.universal.ticks.operation"));
+                            widgetGroup.addWidget(new NewTextFieldWidget<>(14, 153, 148, 18, true, () -> String.valueOf(this.tickTime), this::setTickTime)
+                                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                                    .setUpdateOnTyping(true));
+                            widgetGroup.addWidget(new ClickButtonWidget(15, 127, 25, 20, "+1", data -> this.setTickTime(String.valueOf((long) this.tickTime + 1), "")));
+                            widgetGroup.addWidget(new ClickButtonWidget(45, 127, 30, 20, "+10", data -> this.setTickTime(String.valueOf((long) this.tickTime + 10), "")));
+                            widgetGroup.addWidget(new ClickButtonWidget(80, 127, 35, 20, "+100", data -> this.setTickTime(String.valueOf((long) this.tickTime + 100), "")));
+                            widgetGroup.addWidget(new ClickButtonWidget(120, 127, 40, 20, "+1000", data -> this.setTickTime(String.valueOf((long) this.tickTime + 1000), "")));
+                            widgetGroup.addWidget(new ClickButtonWidget(15, 177, 25, 20, "-1", data -> this.setTickTime(String.valueOf((long) this.tickTime - 1), "")));
+                            widgetGroup.addWidget(new ClickButtonWidget(45, 177, 30, 20, "-10", data -> this.setTickTime(String.valueOf((long) this.tickTime - 10), "")));
+                            widgetGroup.addWidget(new ClickButtonWidget(80, 177, 35, 20, "-100", data -> this.setTickTime(String.valueOf((long) this.tickTime - 100), "")));
+                            widgetGroup.addWidget(new ClickButtonWidget(120, 177, 40, 20, "-1000", data -> this.setTickTime(String.valueOf((long) this.tickTime - 1000), "")));
+                            return false;
+                        })).widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
                                 .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
                                 .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_EDGE_RIGHT)
@@ -136,7 +213,7 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
                 .build(holder, player);
     }
 
-    private void createInterfaceTab(List<Widget> tab, ButtonPopUpWidget<?> buttonPopUpWidget) {
+    private void createInterfaceTab(List<Widget> tab, ButtonPopUpWidget<?> buttonPopUpWidget, ButtonPopUpWidget<?> buttonPopUpTickWidget) {
         final DualityInterface duality = this.getInterfaceDuality();
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(0, 0, 0, 0);
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
@@ -168,7 +245,7 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
         }
         for (int i = 0; i < duality.getStorage().getSlots(); i++) {
             tab.add(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))
-                    .setActiveSupplier(() -> buttonPopUpWidget.getIndex() == 0)
+                    .setActiveSupplier(() -> buttonPopUpWidget.getIndex() == 0 && buttonPopUpTickWidget.getIndex() == 0)
                     .setInactiveBackgroundTexture(GuiTextures.SLOT)
                     .setActiveBackgroundTexture(GuiTextures.SLOT));
         }
@@ -179,7 +256,7 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
         tab.add(selectionWidgetGroup);
     }
 
-    private void createFluidInterfaceTab(List<Widget> tab, ButtonPopUpWidget<?> buttonPopUpWidget) {
+    private void createFluidInterfaceTab(List<Widget> tab, ButtonPopUpWidget<?> buttonPopUpWidget, ButtonPopUpWidget<?> buttonPopUpTickWidget) {
         final DualityFluidInterface duality = this.getDualityFluidInterface();
         final IItemHandler upgradeHandler = duality.getInventoryByName("upgrades");
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
@@ -193,7 +270,7 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
         }
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
             tab.add(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)), 18, 18)
-                    .setActiveSupplier(() -> buttonPopUpWidget.getIndex() == 0)
+                    .setActiveSupplier(() -> buttonPopUpWidget.getIndex() == 0 && buttonPopUpTickWidget.getIndex() == 0)
                     .setBackgroundTextures(GuiTextures.SLOT));
         }
         tab.add(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredFluids"));
@@ -249,6 +326,11 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
         if (itemStack.isEmpty()) return;
         itemStack.setCount(stackSize);
         ((AppEngInternalAEInventory) this.getInterfaceDuality().getConfig()).setStackInSlot(slot, itemStack);
+        this.markDirty();
+    }
+
+    private void setTickTime(String text, String id) {
+        this.tickTime = (int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
         this.markDirty();
     }
 
