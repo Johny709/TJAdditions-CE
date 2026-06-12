@@ -3,7 +3,9 @@ package tj.integration.ae2.tile;
 import appeng.api.config.*;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.ticking.TickRateModulation;
+import appeng.api.networking.ticking.TickingRequest;
 import appeng.core.Api;
+import appeng.core.settings.TickRates;
 import appeng.fluids.helper.DualityFluidInterface;
 import appeng.fluids.helper.IConfigurableFluidInventory;
 import appeng.fluids.helper.IFluidInterfaceHost;
@@ -83,6 +85,18 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
 
     @Nonnull
     @Override
+    public TickingRequest getTickingRequest(IGridNode node) {
+        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping && this.dualityFluid.getTickingRequest(node).isSleeping, true);
+    }
+
+    @Nonnull
+    @Override
+    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
+        return TickRateModulation.values()[Math.max(this.dualityFluid.tickingRequest(node, ticksSinceLastCall).ordinal(), super.tickingRequest(node, ticksSinceLastCall).ordinal())];
+    }
+
+    @Nonnull
+    @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         final NBTTagCompound compound = new NBTTagCompound();
@@ -95,13 +109,6 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.dualityFluid.readFromNBT(data.getCompoundTag("dualityFluid"));
-    }
-
-    @Nonnull
-    @Override
-    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        this.dualityFluid.tickingRequest(node, ticksSinceLastCall);
-        return super.tickingRequest(node, ticksSinceLastCall);
     }
 
     @Override

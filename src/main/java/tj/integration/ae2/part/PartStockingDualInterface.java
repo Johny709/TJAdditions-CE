@@ -65,11 +65,11 @@ public class PartStockingDualInterface extends PartInterface implements IFluidIn
     @PartModels
     public static final PartModel MODELS_HAS_CHANNEL = new PartModel(MODEL_BASE, new ResourceLocation(TJ.MODID, "part/me.part.stocking_dual_interface_has_channel"));
 
-    private final DualitySuperFluidInterface dualityFluid = new DualitySuperFluidInterface(this.getProxy(), this, 18);
+    private final DualitySuperFluidInterface dualityFluid = new DualitySuperFluidInterface(this.getProxy(), this, 36);
 
     public PartStockingDualInterface(ItemStack is) {
         super(is);
-        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 18, 72), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 36, 9), "duality");
     }
 
     @Override
@@ -92,6 +92,12 @@ public class PartStockingDualInterface extends PartInterface implements IFluidIn
         this.dualityFluid.gridChanged();
     }
 
+    @Nonnull
+    @Override
+    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
+        return TickRateModulation.values()[Math.max(super.tickingRequest(node, ticksSinceLastCall).ordinal(), this.dualityFluid.tickingRequest(node, ticksSinceLastCall).ordinal())];
+    }
+
     @Override
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
@@ -104,13 +110,6 @@ public class PartStockingDualInterface extends PartInterface implements IFluidIn
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.dualityFluid.readFromNBT(data.getCompoundTag("dualityFluid"));
-    }
-
-    @Nonnull
-    @Override
-    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        this.dualityFluid.tickingRequest(node, ticksSinceLastCall);
-    return super.tickingRequest(node, ticksSinceLastCall);
     }
 
     @Override
@@ -189,7 +188,7 @@ public class PartStockingDualInterface extends PartInterface implements IFluidIn
                     .setInactiveBackgroundTexture(GuiTextures.SLOT)
                     .setActiveBackgroundTexture(GuiTextures.SLOT));
         }
-        tab.add(new TJToggleButtonWidget(-18, 35, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setAutoPull)
+        tab.add(new TJToggleButtonWidget(-18, 58, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setAutoPull)
                 .setToggleTooltipHoverText("tile.me.stocking_interface.auto_pull", "tile.me.stocking_interface.auto_pull")
                 .setToggleTexture(TJGuiTextures.TOGGLE_AUTO_PULL)
                 .useToggleTexture(true));
@@ -213,7 +212,9 @@ public class PartStockingDualInterface extends PartInterface implements IFluidIn
                     .setActiveSupplier(() -> buttonPopUpWidget.getIndex() == 0)
                     .setBackgroundTextures(GuiTextures.SLOT));
         }
-        tab.add(new TJToggleButtonWidget(-18, 35, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setAutoPull)
+        tab.add(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredFluids"));
+        tab.add(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"));
+        tab.add(new TJToggleButtonWidget(-18, 58, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setAutoPull)
                 .setToggleTooltipHoverText("tile.me.stocking_fluid_interface.auto_pull", "tile.me.stocking_fluid_interface.auto_pull")
                 .setToggleTexture(TJGuiTextures.TOGGLE_AUTO_PULL)
                 .useToggleTexture(true));

@@ -76,6 +76,12 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
 
     @Nonnull
     @Override
+    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
+        return TickRateModulation.values()[Math.max(super.tickingRequest(node, ticksSinceLastCall).ordinal(), this.dualityFluid.tickingRequest(node, ticksSinceLastCall).ordinal())];
+    }
+
+    @Nonnull
+    @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         final NBTTagCompound compound = new NBTTagCompound();
@@ -88,13 +94,6 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.dualityFluid.readFromNBT(data.getCompoundTag("dualityFluid"));
-    }
-
-    @Nonnull
-    @Override
-    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        this.dualityFluid.tickingRequest(node, ticksSinceLastCall);
-        return super.tickingRequest(node, ticksSinceLastCall);
     }
 
     @Override
@@ -173,7 +172,7 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
                     .setInactiveBackgroundTexture(GuiTextures.SLOT)
                     .setActiveBackgroundTexture(GuiTextures.SLOT));
         }
-        tab.add(new TJToggleButtonWidget(-18, 35, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setAutoPull)
+        tab.add(new TJToggleButtonWidget(-18, 58, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setAutoPull)
                 .setToggleTooltipHoverText("tile.me.stocking_interface.auto_pull", "tile.me.stocking_interface.auto_pull")
                 .setToggleTexture(TJGuiTextures.TOGGLE_AUTO_PULL)
                 .useToggleTexture(true));
@@ -197,7 +196,9 @@ public class TileStockingDualInterface extends TileInterface implements IFluidIn
                     .setActiveSupplier(() -> buttonPopUpWidget.getIndex() == 0)
                     .setBackgroundTextures(GuiTextures.SLOT));
         }
-        tab.add(new TJToggleButtonWidget(-18, 35, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setAutoPull)
+        tab.add(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredFluids"));
+        tab.add(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"));
+        tab.add(new TJToggleButtonWidget(-18, 58, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setAutoPull)
                 .setToggleTooltipHoverText("tile.me.stocking_fluid_interface.auto_pull", "tile.me.stocking_fluid_interface.auto_pull")
                 .setToggleTexture(TJGuiTextures.TOGGLE_AUTO_PULL)
                 .useToggleTexture(true));
