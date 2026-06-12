@@ -148,6 +148,7 @@ public class CommonProxy {
         UPGRADES.put(PATTERN_INTERFACE.maybeItem().orElse(null), 1);
         UPGRADES.put(STOCKING_INTERFACE.maybeItem().orElse(null), 1);
         UPGRADES.put(STOCKING_FLUID_INTERFACE.maybeItem().orElse(null), 1);
+        UPGRADES.put(STOCKING_DUAL_INTERFACE.maybeItem().orElse(null), 1);
     }
 
     public void onPostLoad() {
