@@ -78,9 +78,9 @@ public class MegaRecipeLogic<R extends IRecipeHandler> extends BasicRecipeLogic<
 
     @Override
     protected void addChancedOutputs(int parallels, Recipe recipe) {
-        final int tier = this.handler.getTier() - TJUtility.getTierFromVoltage(this.overclockManager.getEUt());
+        final int tier = this.handler.getTier() - TJUtility.getTierFromVoltage(this.overclockManager.getEUt()) + 1;
         for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
-            final int chance = entry.getChance() + (entry.getBoostPerTier() * tier) / this.overclockManager.getChanceMultiplier() * 100;
+            final int chance = (entry.getChance() + (entry.getBoostPerTier() * tier)) / this.overclockManager.getChanceMultiplier() * 100;
             if (this.metaTileEntity.getWorld().rand.nextInt(10000) < chance) {
                 ItemStack stack = entry.getItemStack();
                 long amount = (long) stack.getCount() * parallels;
