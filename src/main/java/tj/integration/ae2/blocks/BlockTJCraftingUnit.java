@@ -22,6 +22,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.integration.ae2.tile.TileTJCraftingStorageTile;
 import tj.rendering.IBlockModel;
 
@@ -126,6 +128,7 @@ public class BlockTJCraftingUnit extends BlockCraftingUnit implements IBlockMode
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public StateMapperBase getStateMapper(ResourceLocation resourceLocation) {
         return new StateMapperBase() {
 
