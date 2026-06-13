@@ -88,10 +88,11 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             }
         }
         if (recipe != null) {
-            this.overclockManager.setDurationMultiplier(2.8F);
             this.overclockManager.setEUt(recipe.getEUt());
+            this.overclockManager.setDurationMultiplier(2.8F);
             this.overclockManager.setDuration(recipe.getDuration());
             this.overclockManager.setParallel(this.handler.getParallel());
+            this.overclockManager.setChanceMultiplier(this.handler.getChanceMultiplier());
             this.handler.preOverclock(this.overclockManager, recipe);
             if (this.handler.checkRecipe(recipe) && this.consumeRecipe(recipe, itemInputs)) {
                 this.calculateOverclock(this.overclockManager.getEUt(), this.overclockManager.getDuration(), this.overclockManager.getDurationMultiplier());
