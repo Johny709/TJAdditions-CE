@@ -320,14 +320,12 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
                 } else stackPair.getValue().grow(count);
             } else {
                 ItemStack itemStack = type instanceof Block ? new ItemStack((Block) type, count, meta) : new ItemStack((Item) type, count, meta);
-                if (this.blacklist == (this.oreDictFilter.matchItemStack(itemStack) != null))
-                    return false;
                 if (!this.silkTouch && this.handler.getFortuneLvl() > 1) {
                     final Recipe recipe = RecipeMaps.MACERATOR_RECIPES.findRecipe(Long.MAX_VALUE, Collections.singletonList(itemStack), Collections.emptyList(), 0);
                     if (recipe != null) {
                         itemStack = recipe.getResultItemOutputs(Integer.MAX_VALUE, this.metaTileEntity.getWorld().rand, this.handler.getTier()).get(0).copy();
                         final int originalCount = itemStack.getCount();
-                        if (OreDictUnifier.getPrefix(itemStack) == OrePrefix.crushed) {
+                        if (OreDictUnifier.getPrefix(itemStack) == OrePrefix.crushed && this.blacklist == (this.oreDictFilter.matchItemStack(itemStack) == null)) {
                             itemStack.setCount(this.getFortune(originalCount));
                             this.itemType.put(item, IntPair.of(originalCount, itemStack));
                             this.itemOutputs.add(itemStack);
@@ -335,6 +333,8 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
                         }
                     }
                 }
+                if (this.blacklist == (this.oreDictFilter.matchItemStack(itemStack) != null))
+                    return false;
                 this.itemType.put(item, IntPair.of(itemStack.getCount(), itemStack));
                 this.itemOutputs.add(itemStack);
             }
