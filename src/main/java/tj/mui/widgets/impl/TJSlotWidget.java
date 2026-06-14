@@ -16,6 +16,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
@@ -47,6 +48,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     protected TextureArea[] activeBackgroundTexture;
     protected TextureArea[] inactiveBackgroundTexture;
     protected ISlotGroup widgetGroup;
+    protected NBTTagCompound compound;
     protected boolean simulating;
     protected int slotIndex;
     protected int itemCount;
@@ -205,22 +207,6 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     }
 
     @Override
-    public void detectAndSendChanges() {
-        super.detectAndSendChanges();
-        if (this.getItemHandler() == null || this.simulating) return;
-        final ItemStack itemStack = this.getItemHandler().getStackInSlot(this.slotIndex);
-        if (!itemStack.isItemEqual(this.itemStack) && (itemStack.getTagCompound() == null || this.itemStack.getTagCompound() == null || !itemStack.getTagCompound().equals(this.itemStack.getTagCompound()))) {
-            this.itemStack = itemStack;
-            this.writeUpdateInfo(1, buffer -> buffer.writeItemStack(this.itemStack));
-        }
-        final int itemCount = itemStack.getCount();
-        if (this.itemCount != itemCount) {
-            this.itemCount = itemCount;
-            this.writeUpdateInfo(4, buffer -> buffer.writeInt(this.itemCount));
-        }
-    }
-
-    @Override
     public ItemStack insert(ItemStack stack, boolean simulate) {
         if (this.getItemHandler() == null || this.getItemHandler().getSlots() <= this.slotIndex)
             return stack;
@@ -244,6 +230,34 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
         final ItemStack oneStack = stack.copy();
         oneStack.setCount(amount);
         stack.shrink(amount - this.insert(oneStack, false).getCount());
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        if (this.getItemHandler() == null || this.simulating) return;
+        final ItemStack itemStack = this.getItemHandler().getStackInSlot(this.slotIndex);
+        if (!itemStack.isItemEqual(this.itemStack)) {
+            this.itemStack = itemStack;
+            this.writeUpdateInfo(1, buffer -> buffer.writeItemStack(this.itemStack));
+        }
+        final int itemCount = itemStack.getCount();
+        if (this.itemCount != itemCount) {
+            this.itemCount = itemCount;
+            this.writeUpdateInfo(4, buffer -> buffer.writeInt(this.itemCount));
+        }
+        if (itemStack.getTagCompound() != null && !itemStack.getTagCompound().equals(this.compound)) {
+            TJ.logger.info("updating compound");
+            this.compound = itemStack.getTagCompound();
+            this.itemStack.setTagCompound(this.compound);
+            this.writeUpdateInfo(5, buffer -> buffer.writeCompoundTag(this.compound));
+        }
+        if (itemStack.getTagCompound() == null && this.compound != null) {
+            TJ.logger.info("removing compound");
+            this.compound = null;
+            this.itemStack.setTagCompound(null);
+            this.writeUpdateInfo(6, buffer -> {});
+        }
     }
 
     @Override
@@ -316,28 +330,32 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
         super.readUpdateInfo(id, buffer);
-        switch (id) {
-            case 1:
-                try {
+        try {
+            switch (id) {
+                case 1:
                     this.itemStack = buffer.readItemStack();
                     this.itemStack.setCount(1);
-                } catch (IOException e) {
-                    TJ.logger.info(e);
-                }
-                break;
-            case 2:
-                try {
+                    break;
+                case 2:
                     this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
-                } catch (IOException e) {
-                    TJ.logger.info(e);
-                }
-                break;
-            case 3:
-                if (this.widgetGroup != null)
-                    this.widgetGroup.setTimer(buffer.readInt());
-                break;
-            case 4:
-                this.itemCount = buffer.readInt();
+                    break;
+                case 3:
+                    if (this.widgetGroup != null)
+                        this.widgetGroup.setTimer(buffer.readInt());
+                    break;
+                case 4:
+                    this.itemCount = buffer.readInt();
+                    break;
+                case 5:
+                    this.compound = buffer.readCompoundTag();
+                    this.itemStack.setTagCompound(this.compound);
+                    break;
+                case 6:
+                    this.compound = null;
+                    this.itemStack.setTagCompound(null);
+            }
+        } catch (IOException e) {
+            TJ.logger.info(e);
         }
     }
 

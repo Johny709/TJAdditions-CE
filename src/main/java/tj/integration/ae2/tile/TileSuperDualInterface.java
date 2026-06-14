@@ -176,8 +176,11 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
                     if (!patternMultiTool.isEmpty()) {
                         this.readPatternMultiToolNBT(multiPatternSlots, invTag.getTagList("Items", 10));
                         this.readPatternMultiToolNBT(multiUpgradeSlots, upgradeTag.getTagList("Items", 10));
-                        if (patternMultiTool.getTagCompound() == null)
+                        if (patternMultiTool.getTagCompound() == null) {
+                            compound.setTag("inv", invTag);
+                            compound.setTag("upgrades", upgradeTag);
                             patternMultiTool.setTagCompound(compound);
+                        }
                     }
                 }).build(holder, player);
     }
