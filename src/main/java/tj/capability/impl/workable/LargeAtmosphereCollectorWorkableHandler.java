@@ -18,6 +18,7 @@ import java.util.function.Supplier;
 
 import static gregtech.api.unification.material.Materials.Air;
 import static gregtech.api.unification.material.Materials.DistilledWater;
+import static gregtech.common.metatileentities.multi.electric.generator.RotorHolderMultiblockController.ABILITY_ROTOR_HOLDER;
 
 public class LargeAtmosphereCollectorWorkableHandler extends TJFuelRecipeLogic {
 
@@ -98,16 +99,19 @@ public class LargeAtmosphereCollectorWorkableHandler extends TJFuelRecipeLogic {
         return null;
     }
 
-    public void setFastMode(boolean isFastMode) {
-        this.isFastMode = isFastMode;
+    public void setFastMode(boolean fastMode) {
+        this.fastMode = fastMode;
         this.getMetaTileEntity().markDirty();
     }
 
     public boolean isFastMode() {
-        return this.isFastMode;
+        return this.fastMode;
     }
 
     private void toggleFastMode(boolean toggle) {
+        for (MetaTileEntityRotorHolder rotorHolder : this.airCollector.getAbilities(ABILITY_ROTOR_HOLDER))
+            rotorHolder.resetRotorSpeed();
+        this.isFastMode = toggle;
         if (toggle) {
             this.fastModeMultiplier = 3;
             this.rotorDamageMultiplier = 16;

@@ -85,6 +85,7 @@
   "client": [
     "gregtech.client.IMultiblockInfoRecipeWrapperMixin",
     "gregtech.client.ModularUIGuiMixin",
+    "gregtech.client.ModularUIGuiHandlerMixin",
     "gregtech.client.MultiblockInfoRecipeWrapperMixin",
     "jei.InputHandlerMixin"
   ]

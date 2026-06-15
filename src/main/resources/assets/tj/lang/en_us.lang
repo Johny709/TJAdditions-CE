@@ -617,7 +617,7 @@ tj.multiblock.primitive_water_pump.description=Pumps §b%sL§7 of §bwater§7 ev
 
 tj.multiblock.distillation_tower.layers=Height can be built from §b%s§7 to §b%s§7 blocks.
 
-tj.multiblock.advanced_large_miner.description=More advanced version of §5Chunk Miner§7 with more stability and functions. §aMining level starts right below the miner.
+tj.multiblock.advanced_large_miner.description=More advanced version of §5Chunk Miner§7 with more stability and functions. §aMining level starts right below the miner. §eBlock filter checks on block. Ore dict filter checks on block drops. Both filter effects are combined, so set whitelist and blacklist carefully.
 tj.multiblock.advanced_large_miner.crushed=§dThis Large Chunk Miner outputs crushed ores with much higher yield than macerator. Affected by fortune.
 tj.multiblock.advanced_large_miner.output=§dThe Miner will try to output the items directly at an inventory adjacent to its output side before it tries outputting to its own output inventory.
 tj.multiblock.advanced_large_miner.chunk_index=Chunk Index: §b%s / %s
@@ -1193,6 +1193,7 @@ item.me.part.super_dual_interface.name=ME Super Dual Interface
 item.me.part.pattern_interface.name=ME Pattern Interface
 item.me.part.stocking_interface.name=ME Stocking Interface
 item.me.part.stocking_fluid_interface.name=ME Stocking Fluid Interface
+item.me.part.stocking_dual_interface.name=ME Stocking Dual Interface
 
 tile.me.super_interface.name=ME Super Interface
 tile.me.super_fluid_interface.name=ME Super Fluid Interface
@@ -1200,6 +1201,7 @@ tile.me.super_dual_interface.name=ME Super Dual Interface
 tile.me.pattern_interface.name=ME Pattern Interface
 tile.me.stocking_interface.name=ME Stocking Interface
 tile.me.stocking_fluid_interface.name=ME Stocking Fluid Interface
+tile.me.stocking_dual_interface.name=ME Stocking Dual Interface
 
 tile.me.crafting_storage.65536k.name=§165536k§f Crafting Storage
 tile.me.crafting_storage.262144k.name=§b262144k§f Crafting Storage

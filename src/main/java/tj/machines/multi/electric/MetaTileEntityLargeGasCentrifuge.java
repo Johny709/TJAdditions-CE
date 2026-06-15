@@ -74,7 +74,6 @@ public class MetaTileEntityLargeGasCentrifuge extends TJRecipeMapMultiblockContr
 
     @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setChanceMultiplier(this.getChanceMultiplier());
         overclockManager.setEUt(overclockManager.getEUt() * this.getEUtMultiplier() / 100);
         overclockManager.setDuration(overclockManager.getDuration() * this.getDurationMultiplier() / 100);
         overclockManager.setParallel(this.parallelLayer);

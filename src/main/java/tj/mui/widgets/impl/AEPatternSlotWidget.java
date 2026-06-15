@@ -59,12 +59,14 @@ public class AEPatternSlotWidget extends TJSlotWidget<AEPatternSlotWidget> {
                     final String id = this.outputCompound.getString("id");
                     if (id.equals("ae2fc:fluid_drop")) {
                         this.output = ItemStack.EMPTY;
-                            this.fluidOutput = new FluidStack(FluidRegistry.getFluid(this.outputCompound.getCompoundTag("tag").getString("Fluid")), 1);
+                        this.fluidOutput = new FluidStack(FluidRegistry.getFluid(this.outputCompound.getCompoundTag("tag").getString("Fluid")), 1);
                     } else {
                         this.output = TJItemUtils.getItemStackFromName(id, 1, this.outputCompound.getShort("Damage"));
                         this.fluidOutput = null;
                     }
                     this.count = this.outputCompound.getLong("Cnt");
+                    if (this.count < 1)
+                        this.count = this.outputCompound.getInteger("Count");
                 }
                 GlStateManager.disableBlend();
                 if (!this.output.isEmpty())

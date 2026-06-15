@@ -42,7 +42,8 @@ public final class TJGuiUtils {
     public static WidgetGroup bindPlayerInventory(WidgetGroup widgetGroup, InventoryPlayer inventoryPlayer, int x, int y, ItemStack stack) {
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
-                widgetGroup.addWidget((new SlotWidget(inventoryPlayer, col + (row + 1) * 9, x + col * 18, y + row * 18))
+                final boolean interact = inventoryPlayer.player.inventory.getStackInSlot(col + (row + 1) * 9) != stack || stack.isEmpty();
+                widgetGroup.addWidget((new SlotWidget(inventoryPlayer, col + (row + 1) * 9, x + col * 18, y + row * 18, interact, interact))
                         .setBackgroundTexture(GuiTextures.SLOT)
                         .setLocationInfo(true, false));
             }
@@ -52,7 +53,7 @@ public final class TJGuiUtils {
 
     private static WidgetGroup bindPlayerHotbar(WidgetGroup widgetGroup, InventoryPlayer inventoryPlayer, int x, int y, ItemStack stack) {
         for (int slot = 0; slot < 9; ++slot) {
-            final boolean interact = inventoryPlayer.player.inventory.getStackInSlot(slot) != stack;
+            final boolean interact = inventoryPlayer.player.inventory.getStackInSlot(slot) != stack || stack.isEmpty();
             widgetGroup.addWidget((new SlotWidget(inventoryPlayer, slot, x + slot * 18, y, interact, interact))
                     .setBackgroundTexture(GuiTextures.SLOT)
                     .setLocationInfo(true, true));

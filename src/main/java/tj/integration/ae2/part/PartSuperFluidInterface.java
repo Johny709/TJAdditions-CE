@@ -1,6 +1,7 @@
 package tj.integration.ae2.part;
 
 import appeng.api.parts.IPartModel;
+import appeng.core.Api;
 import appeng.fluids.helper.DualityFluidInterface;
 import appeng.fluids.parts.PartFluidInterface;
 import appeng.fluids.util.AEFluidInventory;
@@ -119,7 +120,8 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
                 .widget(new LabelWidget(7, 198, "container.inventory"))
                 .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
-                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS)
+                                .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
+                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_EDGE_RIGHT)
                                 .setTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
                             widgetGroup.addWidget(new ImageWidget(7, 90, 162, 100, GuiTextures.BORDERED_BACKGROUND));
                             widgetGroup.addWidget(new LabelWidget(14, 95, "gui.appliedenergistics2.Priority"));

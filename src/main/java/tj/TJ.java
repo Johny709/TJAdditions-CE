@@ -134,5 +134,10 @@ public class TJ {
         Upgrades.CAPACITY.registerItem(TJItems.PART_STOCKING_INTERFACE, 4);
         Upgrades.CRAFTING.registerItem(TJBlocks.STOCKING_INTERFACE, 1);
         Upgrades.CRAFTING.registerItem(TJItems.PART_STOCKING_INTERFACE, 1);
+
+        Upgrades.CAPACITY.registerItem(TJBlocks.STOCKING_DUAL_INTERFACE, 4);
+        Upgrades.CAPACITY.registerItem(TJItems.PART_STOCKING_DUAL_INTERFACE, 4);
+        Upgrades.CRAFTING.registerItem(TJBlocks.STOCKING_DUAL_INTERFACE, 1);
+        Upgrades.CRAFTING.registerItem(TJItems.PART_STOCKING_DUAL_INTERFACE, 1);
     }
 }

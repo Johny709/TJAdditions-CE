@@ -3,6 +3,9 @@ package tj.integration.ae2.tile;
 import appeng.api.config.*;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.ticking.TickRateModulation;
+import appeng.api.networking.ticking.TickingRequest;
+import appeng.core.Api;
+import appeng.core.settings.TickRates;
 import appeng.fluids.helper.DualityFluidInterface;
 import appeng.fluids.helper.IConfigurableFluidInventory;
 import appeng.fluids.helper.IFluidInterfaceHost;
@@ -16,22 +19,29 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ClickButtonWidget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
+import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.blocks.block.TJBlocks;
 import tj.builder.WidgetTabBuilder;
+import tj.items.handlers.FilteredItemStackHandler;
 import tj.mui.TJGuiTextures;
+import tj.mui.TJGuiUtils;
 import tj.mui.uifactory.ITileEntityUI;
 import tj.mui.uifactory.TileEntityHolder;
 import tj.integration.ae2.helpers.DualitySuperFluidInterface;
@@ -39,11 +49,14 @@ import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.integration.ae2.helpers.IDualitySuperFluidInterface;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.*;
+import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLocation.LEFT;
@@ -75,6 +88,18 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
 
     @Nonnull
     @Override
+    public TickingRequest getTickingRequest(IGridNode node) {
+        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping && this.dualityFluid.getTickingRequest(node).isSleeping, true);
+    }
+
+    @Nonnull
+    @Override
+    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
+        return TickRateModulation.values()[Math.max(this.dualityFluid.tickingRequest(node, ticksSinceLastCall).ordinal(), super.tickingRequest(node, ticksSinceLastCall).ordinal())];
+    }
+
+    @Nonnull
+    @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         final NBTTagCompound compound = new NBTTagCompound();
@@ -89,23 +114,29 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
         this.dualityFluid.readFromNBT(data.getCompoundTag("dualityFluid"));
     }
 
-    @Nonnull
-    @Override
-    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        this.dualityFluid.tickingRequest(node, ticksSinceLastCall);
-        return super.tickingRequest(node, ticksSinceLastCall);
-    }
-
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final DualityInterface duality = this.getInterfaceDuality();
+        final ItemStack patternMultiTool = ItemStack.EMPTY;
+        final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(patternMultiTool);
+        final NBTTagCompound invTag = compound.getCompoundTag("inv");
+        final NBTTagCompound upgradeTag = compound.getCompoundTag("upgrades");
+        final FilteredItemStackHandler multiPatternSlots = new FilteredItemStackHandler(null, 36, 64)
+                .setItemStackPredicate((slot, itemStack) -> itemStack.isItemEqual(Api.INSTANCE.definitions().materials().blankPattern().maybeStack(1).orElse(ItemStack.EMPTY)) ||
+                        itemStack.isItemEqual(Api.INSTANCE.definitions().items().encodedPattern().maybeStack(1).orElse(ItemStack.EMPTY)) || itemStack.isItemEqual(TJItemUtils.getItemStackFromName("ae2fc:dense_encoded_pattern")));
+        multiPatternSlots.setOnContentsChangedPost((slot, itemStack) -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag));
+        final FilteredItemStackHandler multiUpgradeSlots = new FilteredItemStackHandler(null, 3, 1)
+                .setItemStackPredicate((slot, itemStack) -> itemStack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)));
+        multiUpgradeSlots.setOnContentsChangedPost((slot, itemStack) -> this.writePatternMultiToolToNBT(multiUpgradeSlots, upgradeTag));
         final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
-                .addTab("tile.me.super_interface.name", TJBlocks.SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), this::createInterfaceTab)
+                .addTab("tile.me.super_interface.name", TJBlocks.SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> this.createInterfaceTab(widgets, patternMultiTool, multiPatternSlots, multiUpgradeSlots, invTag))
                 .addTab("tile.me.super_fluid_interface.name", TJBlocks.SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> this.createFluidInterfaceTab(widgets, buttonPopUpWidget));
-        return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292)
-                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292);
+        if (!patternMultiTool.isEmpty())
+            builder.widget(new ImageWidget(-125, 0, 105, 218, GuiTextures.BORDERED_BACKGROUND));
+        return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getItemStackRepresentation()).setLocale(this.getItemStackRepresentation().getDisplayName()))
                 .widget(new TJLabelWidget(4, 0, 162, 18, null)
                         .setDynamicLocale(this::getCustomInventoryName)
@@ -114,7 +145,8 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
                 .widget(tabBuilder.build())
                 .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
-                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS)
+                                .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
+                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_EDGE_RIGHT)
                                 .setTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
                             widgetGroup.addWidget(new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
                             widgetGroup.addWidget(new LabelWidget(14, 112, "gui.appliedenergistics2.Priority"));
@@ -131,11 +163,21 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
                             widgetGroup.addWidget(new ClickButtonWidget(120, 177, 40, 20, "-1000", data -> this.setPriority(String.valueOf((long) duality.getPriority() - 1000), "")));
                             return false;
                         }))
-                .bindPlayerInventory(player.inventory, 209)
-                .build(holder, player);
+                .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 209, patternMultiTool))
+                .bindOpenListener(() -> {
+                    if (!patternMultiTool.isEmpty()) {
+                        this.readPatternMultiToolNBT(multiPatternSlots, invTag.getTagList("Items", 10));
+                        this.readPatternMultiToolNBT(multiUpgradeSlots, upgradeTag.getTagList("Items", 10));
+                        if (patternMultiTool.getTagCompound() == null) {
+                            compound.setTag("inv", invTag);
+                            compound.setTag("upgrades", upgradeTag);
+                            patternMultiTool.setTagCompound(compound);
+                        }
+                    }
+                }).build(holder, player);
     }
 
-    private void createInterfaceTab(List<Widget> tab) {
+    private void createInterfaceTab(List<Widget> tab, ItemStack patternMultiTool, IItemHandler multiPatternSlots, FilteredItemStackHandler multiUpgradeSlots, NBTTagCompound invTag) {
         final DualityInterface duality = this.getInterfaceDuality();
         final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(7, 133, 166, 72, 9)
                 .setScrollWidth(4);
@@ -175,6 +217,28 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
         tab.add(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"));
         tab.add(scrollableWidgetGroup);
         tab.add(selectionWidgetGroup);
+        if (!patternMultiTool.isEmpty()) {
+            tab.add(new ImageWidget(-125, 0, 105, 218, GuiTextures.BORDERED_BACKGROUND));
+            tab.add(new LabelWidget(-118, 4, "item.nae2.pattern_multiplier.name"));
+            tab.add(new ClickButtonWidget(-118, 176, 18, 18, "*2", data -> this.changePatternAmount(multiPatternSlots, 2, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            tab.add(new ClickButtonWidget(-118, 194, 18, 18, "/2", data -> this.changePatternAmount(multiPatternSlots, -2, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            tab.add(new ClickButtonWidget(-100, 176, 18, 18, "*3", data -> this.changePatternAmount(multiPatternSlots, 3, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            tab.add(new ClickButtonWidget(-100, 194, 18, 18, "/3", data -> this.changePatternAmount(multiPatternSlots, -3, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            tab.add(new ClickButtonWidget(-82, 176, 18, 18, "*4", data -> this.changePatternAmount(multiPatternSlots, 4, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            tab.add(new ClickButtonWidget(-82, 194, 18, 18, "/4", data -> this.changePatternAmount(multiPatternSlots, -4, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            for (int i = 0; i < multiPatternSlots.getSlots(); i++) {
+                final int index = i;
+                tab.add(new AEPatternSlotWidget(multiPatternSlots, i, -118 + (18 * (i / 9)), 14 + (18 * (i % 9)))
+                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
+                        .setActiveSupplier(() -> index / 9 <= multiUpgradeSlots.getSlotsFilled())
+                        .setSlotLocationInfo(true, false)
+                        .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT));
+            }
+            for (int i = 0; i < multiUpgradeSlots.getSlots(); i++) {
+                tab.add(new TJSlotWidget<>(multiUpgradeSlots, i, -46, 14 + (i * 18))
+                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
+            }
+        }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             tab.add(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
@@ -224,6 +288,97 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
         tab.add(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredFluids"));
         tab.add(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"));
         tab.add(new LabelWidget(7, 198, "container.inventory"));
+    }
+
+    private void writePatternMultiToolToNBT(IItemHandler itemHandler, NBTTagCompound compound) {
+        final NBTTagList tagList = new NBTTagList();
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            final ItemStack stack = itemHandler.getStackInSlot(i);
+            if (!stack.isEmpty()) {
+                final NBTTagCompound tagCompound = stack.serializeNBT();
+                tagCompound.setInteger("Slot", i);
+                tagList.appendTag(tagCompound);
+            }
+        }
+        compound.setTag("Items", tagList);
+    }
+
+    private void readPatternMultiToolNBT(IItemHandlerModifiable itemHandler, NBTTagList tagList) {
+        for (int i = 0; i < tagList.tagCount(); i++) {
+            final NBTTagCompound compound = tagList.getCompoundTagAt(i);
+            if (compound.hasKey("Slot")) {
+                final ItemStack patternStack = TJItemUtils.getItemStackFromName(compound.getString("id"), 1, compound.getShort("Damage"));
+                patternStack.setTagCompound(compound.getCompoundTag("tag"));
+                itemHandler.setStackInSlot(compound.getInteger("Slot"), patternStack);
+            }
+        }
+    }
+
+    private void changePatternAmount(IItemHandler patternSlots, int multiplier, Runnable callback) {
+        final boolean divide = multiplier < 0;
+        if (divide)
+            multiplier = Math.abs(multiplier);
+        final int finalMultiplier = multiplier;
+        for (int i = 0; i < patternSlots.getSlots(); i++) {
+            final ItemStack stack = patternSlots.getStackInSlot(i);
+            final NBTTagCompound compound = stack.getTagCompound();
+            if (stack.isEmpty() || compound == null) continue;
+            final ResourceLocation resourcelocation = Item.REGISTRY.getNameForObject(stack.getItem());
+            final String id = resourcelocation != null ? resourcelocation.toString() : "minecraft:air";
+            final NBTTagList inputList = compound.getTagList(id.equals("ae2fc:dense_encoded_pattern") ? "Inputs" : "in", 10);
+            final NBTTagList outputList = compound.getTagList(id.equals("ae2fc:dense_encoded_pattern") ? "Outputs" : "out", 10);
+            final NBTTagList newInputList = new NBTTagList(), newOutputList = new NBTTagList();
+            final Predicate<Boolean> setPatternInputs = simulate -> {
+                for (int j = 0; j < inputList.tagCount(); j++) {
+                    final NBTTagCompound patternCompound = inputList.getCompoundTagAt(j);
+                    final long amount = patternCompound.hasKey("Cnt") ? patternCompound.getLong("Cnt") : patternCompound.getInteger("Count");
+                    final long newAmount = divide ? amount / finalMultiplier : amount * finalMultiplier;
+                    if (patternCompound.isEmpty()) {
+                        if (!simulate)
+                            newInputList.appendTag(patternCompound);
+                        continue;
+                    }
+                    if (newAmount > 0 && newAmount <= Integer.MAX_VALUE) {
+                        if (!simulate) {
+                            if (id.equals("ae2fc:dense_encoded_pattern")) {
+                                patternCompound.setLong("Cnt", newAmount);
+                            } else patternCompound.setInteger("Count", (int) newAmount);
+                            newInputList.appendTag(patternCompound);
+                        }
+                    } else return false;
+                }
+                for (int j = 0; j < outputList.tagCount(); j++) {
+                    final NBTTagCompound patternCompound = outputList.getCompoundTagAt(j);
+                    final long amount = patternCompound.hasKey("Cnt") ? patternCompound.getLong("Cnt") : patternCompound.getInteger("Count");
+                    final long newAmount = divide ? amount / finalMultiplier : amount * finalMultiplier;
+                    if (patternCompound.isEmpty()) {
+                        if (!simulate)
+                            newOutputList.appendTag(patternCompound);
+                        continue;
+                    }
+                    if (newAmount > 0 && newAmount <= Integer.MAX_VALUE) {
+                        if (!simulate) {
+                            if (id.equals("ae2fc:dense_encoded_pattern")) {
+                                patternCompound.setLong("Cnt", newAmount);
+                            } else patternCompound.setInteger("Count", (int) newAmount);
+                            newOutputList.appendTag(patternCompound);
+                        }
+                    } else return false;
+                }
+                if (!simulate) {
+                    compound.setTag("in", newInputList);
+                    compound.setTag("out", newOutputList);
+                    if (id.equals("ae2fc:dense_encoded_pattern")) {
+                        compound.setTag("Inputs", newInputList);
+                        compound.setTag("Outputs", newOutputList);
+                    }
+                }
+                return true;
+            };
+            if (setPatternInputs.test(true))
+                setPatternInputs.test(false);
+        }
+        callback.run();
     }
 
     @Override
