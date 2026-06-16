@@ -30,49 +30,92 @@ public class IParallelItemFluidHandlerInfoProvider extends CapabilityInfoProvide
         final Int2ObjectMap<List<ItemStack>> itemOutputs = capability.getAllItemOutputs();
         final Int2ObjectMap<List<FluidStack>> fluidOutputs = capability.getAllFluidOutputs();
         if (fluidInputs != null && !fluidInputs.isEmpty() || itemInputs != null && !itemInputs.isEmpty()) {
-            final IProbeInfo inputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-            inputInfo.text(TextStyleClass.INFO + "{*tj.top.inputs*} ");
+            boolean areInputsEmpty = true;
             if (fluidInputs != null && !fluidInputs.isEmpty()) {
                 for (Int2ObjectMap.Entry<List<FluidStack>> entry : fluidInputs.int2ObjectEntrySet()) {
                     if (entry.getValue() == null) continue;
-                    for (FluidStack fluid : entry.getValue()) {
-                        if (fluid == null) continue;
-                        final ItemStack fluidItem = FluidUtil.getFilledBucket(fluid);
-                        fluidItem.setCount(fluid.amount);
-                        inputInfo.item(fluidItem);
+                    if (!entry.getValue().isEmpty()) {
+                        areInputsEmpty = false;
+                        break;
                     }
                 }
             }
             if (itemInputs != null && !itemInputs.isEmpty()) {
                 for (Int2ObjectMap.Entry<List<ItemStack>> entry : itemInputs.int2ObjectEntrySet()) {
                     if (entry.getValue() == null) continue;
-                    for (ItemStack item : entry.getValue()) {
-                        if (item.isEmpty()) continue;
-                        inputInfo.item(item);
+                    if (!entry.getValue().isEmpty()) {
+                        areInputsEmpty = false;
+                        break;
+                    }
+                }
+            }
+            if (!areInputsEmpty) {
+                final IProbeInfo inputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+                inputInfo.text(TextStyleClass.INFO + "{*tj.top.inputs*} ");
+                if (fluidInputs != null && !fluidInputs.isEmpty()) {
+                    for (Int2ObjectMap.Entry<List<FluidStack>> entry : fluidInputs.int2ObjectEntrySet()) {
+                        if (entry.getValue() == null) continue;
+                        for (FluidStack fluid : entry.getValue()) {
+                            if (fluid == null) continue;
+                            final ItemStack fluidItem = FluidUtil.getFilledBucket(fluid);
+                            fluidItem.setCount(fluid.amount);
+                            inputInfo.item(fluidItem);
+                        }
+                    }
+                }
+                if (itemInputs != null && !itemInputs.isEmpty()) {
+                    for (Int2ObjectMap.Entry<List<ItemStack>> entry : itemInputs.int2ObjectEntrySet()) {
+                        if (entry.getValue() == null) continue;
+                        for (ItemStack item : entry.getValue()) {
+                            if (item.isEmpty()) continue;
+                            inputInfo.item(item);
+                        }
                     }
                 }
             }
         }
         if (fluidOutputs != null && !fluidOutputs.isEmpty() || itemOutputs != null && !itemOutputs.isEmpty()) {
-            final IProbeInfo outputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-            outputInfo.text(TextStyleClass.INFO + "{*tj.top.outputs*} ");
+            boolean areOutputsEmpty = true;
             if (fluidOutputs != null && !fluidOutputs.isEmpty()) {
+                FluidOutputs:
                 for (Int2ObjectMap.Entry<List<FluidStack>> entry : fluidOutputs.int2ObjectEntrySet()) {
                     if (entry.getValue() == null) continue;
-                    for (FluidStack fluid : entry.getValue()) {
-                        if (fluid == null) continue;
-                        final ItemStack fluidItem = FluidUtil.getFilledBucket(fluid);
-                        fluidItem.setCount(fluid.amount);
-                        outputInfo.item(fluidItem);
+                    if (!entry.getValue().isEmpty()) {
+                        areOutputsEmpty = false;
+                        break ;
                     }
                 }
             }
             if (itemOutputs != null && !itemOutputs.isEmpty()) {
                 for (Int2ObjectMap.Entry<List<ItemStack>> entry : itemOutputs.int2ObjectEntrySet()) {
                     if (entry.getValue() == null) continue;
-                    for (ItemStack item : entry.getValue()) {
-                        if (item.isEmpty()) continue;
-                        outputInfo.item(item);
+                    if (!entry.getValue().isEmpty()) {
+                        areOutputsEmpty = false;
+                        break ;
+                    }
+                }
+            }
+            if (!areOutputsEmpty) {
+                final IProbeInfo outputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+                outputInfo.text(TextStyleClass.INFO + "{*tj.top.outputs*} ");
+                if (fluidOutputs != null && !fluidOutputs.isEmpty()) {
+                    for (Int2ObjectMap.Entry<List<FluidStack>> entry : fluidOutputs.int2ObjectEntrySet()) {
+                        if (entry.getValue() == null) continue;
+                        for (FluidStack fluid : entry.getValue()) {
+                            if (fluid == null) continue;
+                            final ItemStack fluidItem = FluidUtil.getFilledBucket(fluid);
+                            fluidItem.setCount(fluid.amount);
+                            outputInfo.item(fluidItem);
+                        }
+                    }
+                }
+                if (itemOutputs != null && !itemOutputs.isEmpty()) {
+                    for (Int2ObjectMap.Entry<List<ItemStack>> entry : itemOutputs.int2ObjectEntrySet()) {
+                        if (entry.getValue() == null) continue;
+                        for (ItemStack item : entry.getValue()) {
+                            if (item.isEmpty()) continue;
+                            outputInfo.item(item);
+                        }
                     }
                 }
             }
