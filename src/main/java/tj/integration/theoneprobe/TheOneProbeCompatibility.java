@@ -14,6 +14,7 @@ public class TheOneProbeCompatibility {
         probe.registerProvider(new IHeatInfoProvider());
         probe.registerProvider(new IGeneratorInfoProvider());
         probe.registerProvider(new IItemFluidHandlerInfoProvider());
+        probe.registerProvider(new IParallelItemFluidHandlerInfoProvider());
         probe.registerProvider(new StructureInfoProvider());
     }
 }

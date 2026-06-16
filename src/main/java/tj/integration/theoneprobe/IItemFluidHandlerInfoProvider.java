@@ -24,19 +24,19 @@ public class IItemFluidHandlerInfoProvider extends CapabilityInfoProvider<IItemF
 
     @Override
     protected void addProbeInfo(IItemFluidHandlerInfo capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
-        List<ItemStack> itemInputs = capability.getItemInputs();
-        List<FluidStack> fluidInputs = capability.getFluidInputs();
-        List<ItemStack> itemOutputs = capability.getItemOutputs();
-        List<FluidStack> fluidOutputs = capability.getFluidOutputs();
+        final List<ItemStack> itemInputs = capability.getItemInputs();
+        final List<FluidStack> fluidInputs = capability.getFluidInputs();
+        final List<ItemStack> itemOutputs = capability.getItemOutputs();
+        final List<FluidStack> fluidOutputs = capability.getFluidOutputs();
         if (fluidInputs != null && !fluidInputs.isEmpty() || itemInputs != null && !itemInputs.isEmpty()) {
-            IProbeInfo inputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+            final IProbeInfo inputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
             inputInfo.text(TextStyleClass.INFO + "{*tj.top.inputs*} ");
 
             if (fluidInputs != null && !fluidInputs.isEmpty()) {
                 for (FluidStack fluid : fluidInputs) {
                     if (fluid == null)
                         continue;
-                    ItemStack fluidItem = FluidUtil.getFilledBucket(fluid);
+                    final ItemStack fluidItem = FluidUtil.getFilledBucket(fluid);
                     fluidItem.setCount(fluid.amount);
                     inputInfo.item(fluidItem);
                 }
@@ -51,14 +51,14 @@ public class IItemFluidHandlerInfoProvider extends CapabilityInfoProvider<IItemF
             }
         }
         if (fluidOutputs != null && !fluidOutputs.isEmpty() || itemOutputs != null && !itemOutputs.isEmpty()) {
-            IProbeInfo outputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+            final IProbeInfo outputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
             outputInfo.text(TextStyleClass.INFO + "{*tj.top.outputs*} ");
 
             if (fluidOutputs != null && !fluidOutputs.isEmpty()) {
                 for (FluidStack fluid : fluidOutputs) {
                     if (fluid == null)
                         continue;
-                    ItemStack fluidItem = FluidUtil.getFilledBucket(fluid);
+                    final ItemStack fluidItem = FluidUtil.getFilledBucket(fluid);
                     fluidItem.setCount(fluid.amount);
                     outputInfo.item(fluidItem);
                 }

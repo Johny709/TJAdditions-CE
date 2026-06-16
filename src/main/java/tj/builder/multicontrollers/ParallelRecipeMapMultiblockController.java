@@ -194,7 +194,9 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                 .addVoltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
                 .addEnergyInputLine(this.inputEnergyContainer, this.getTotalEnergyConsumption())
                 .addEnergyBonusLine(this.energyBonus, this.isStructureFormed() && this.energyBonus >= 0)
-                .addRecipeMapLine(this.getMultiblockRecipe());
+                .addRecipeMapLine(this.getMultiblockRecipe())
+                .addRecipeParallelInputLine(this.recipeLogic, 999)
+                .addRecipeParallelOutputLine(this.recipeLogic, 1000);
     }
 
     @Override
@@ -235,8 +237,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                         .addTranslationLine("tj.multiblock.eu", TJValues.thousandFormat.format(this.recipeLogic.getRecipeEUt(finalI)), tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier])
                         .addTranslationLine("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) (this.recipeLogic.getProgress(finalI) - progressOffset) / 20), TJValues.thousandTwoPlaceFormat.format((double) this.recipeLogic.getMaxProgress(finalI) / 20), (int) progressPercent)
                         .addTranslationLine("tj.multiblock.max_parallel", TJValues.thousandFormat.format(this.recipeLogic.getParallelsPerformed(finalI)), TJValues.thousandFormat.format(this.recipeLogic.getParallel(finalI)));
-                final List<ItemStack> itemInputs = this.recipeLogic.getItemInputsAt(finalI);
-                final List<FluidStack> fluidInputs = this.recipeLogic.getFluidInputsAt(finalI);
+                final List<ItemStack> itemInputs = this.recipeLogic.getAllItemInputs().get(finalI);
+                final List<FluidStack> fluidInputs = this.recipeLogic.getAllFluidInputs().get(finalI);
                 if (itemInputs != null && !itemInputs.isEmpty() || fluidInputs != null && !fluidInputs.isEmpty())
                     hoverBuilder.addTranslationLine("machine.universal.consumption");
                 if (itemInputs != null) {
@@ -249,8 +251,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                         hoverBuilder.addFluidStack(stack);
                     }
                 }
-                final List<ItemStack> itemOutputs = this.recipeLogic.getItemOutputsAt(finalI);
-                final List<FluidStack> fluidOutputs = this.recipeLogic.getFluidOutputsAt(finalI);
+                final List<ItemStack> itemOutputs = this.recipeLogic.getAllItemOutputs().get(finalI);
+                final List<FluidStack> fluidOutputs = this.recipeLogic.getAllFluidOutputs().get(finalI);
                 if (itemOutputs != null && !itemOutputs.isEmpty() || fluidOutputs != null && !fluidOutputs.isEmpty())
                     hoverBuilder.addTranslationLine("machine.universal.producing");
                 if (itemOutputs != null) {

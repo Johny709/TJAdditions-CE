@@ -26,6 +26,9 @@ public final class TJCapabilities {
     @CapabilityInject(IItemFluidHandlerInfo.class)
     public static Capability<IItemFluidHandlerInfo> CAPABILITY_ITEM_FLUID_HANDLING = null;
 
+    @CapabilityInject(IParallelItemFluidHandlerInfo.class)
+    public static Capability<IParallelItemFluidHandlerInfo> CAPABILITY_PARALLEL_ITEM_FLUID_HANDLING = null;
+
     @CapabilityInject(IGeneratorInfo.class)
     public static Capability<IGeneratorInfo> CAPABILITY_GENERATOR = null;
 }
