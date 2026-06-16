@@ -247,13 +247,11 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
             this.writeUpdateInfo(4, buffer -> buffer.writeInt(this.itemCount));
         }
         if (itemStack.getTagCompound() != null && !itemStack.getTagCompound().equals(this.compound)) {
-            TJ.logger.info("updating compound");
             this.compound = itemStack.getTagCompound();
             this.itemStack.setTagCompound(this.compound);
             this.writeUpdateInfo(5, buffer -> buffer.writeCompoundTag(this.compound));
         }
         if (itemStack.getTagCompound() == null && this.compound != null) {
-            TJ.logger.info("removing compound");
             this.compound = null;
             this.itemStack.setTagCompound(null);
             this.writeUpdateInfo(6, buffer -> {});
