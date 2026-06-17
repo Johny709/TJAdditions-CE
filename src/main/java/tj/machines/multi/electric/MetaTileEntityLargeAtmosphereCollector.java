@@ -57,12 +57,12 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultiblockControllerBase {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH, MultiblockAbility.IMPORT_ITEMS, GregicAdditionsCapabilities.STEAM};
+    public static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH, MultiblockAbility.IMPORT_ITEMS, GregicAdditionsCapabilities.STEAM};
     public final MetaTileEntityLargeTurbine.TurbineType turbineType;
     public IFluidHandler exportFluidHandler;
     public ItemHandlerList importItemHandler;
-    private LargeAtmosphereCollectorWorkableHandler airCollectorHandler;
-    private BooleanConsumer fastModeConsumer;
+    protected LargeAtmosphereCollectorWorkableHandler airCollectorHandler;
+    protected BooleanConsumer fastModeConsumer;
 
     public MetaTileEntityLargeAtmosphereCollector(ResourceLocation metaTileEntityId, MetaTileEntityLargeTurbine.TurbineType turbineType) {
         super(metaTileEntityId, turbineType.recipeMap, GTValues.V[4]);
@@ -219,7 +219,7 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return turbineType.casingRenderer;
+        return this.turbineType.casingRenderer;
     }
 
     public IBlockState getPipeState() {
@@ -263,15 +263,15 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
         return 1;
     }
 
-    private IEnergyContainer getEnergyContainer() {
+    protected IEnergyContainer getEnergyContainer() {
         return this.energyContainer;
     }
 
-    private IMultipleTankHandler getImportFluidHandler() {
+    protected IMultipleTankHandler getImportFluidHandler() {
         return this.importFluidHandler;
     }
 
-    private IFluidHandler getExportFluidHandler() {
+    protected IFluidHandler getExportFluidHandler() {
         return this.exportFluidHandler;
     }
 }

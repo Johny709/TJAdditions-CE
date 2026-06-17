@@ -1,0 +1,100 @@
+package tj.integration.jei.multi.electric;
+
+import gregicadditions.item.GAMetaItems;
+import gregicadditions.machines.GATileEntities;
+import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
+import gregtech.api.unification.material.Materials;
+import gregtech.common.items.behaviors.TurbineRotorBehavior;
+import gregtech.common.metatileentities.MetaTileEntities;
+import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
+import tj.TJConfig;
+import tj.capability.impl.workable.XLTurbineWorkableHandler;
+import tj.integration.jei.TJMultiblockInfoPage;
+import tj.integration.jei.TJMultiblockShapeInfo;
+import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
+import tj.machines.multi.electric.MetaTileEntityXLAtmosphereCollector;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+
+public class XLAtmosphereCollectorInfo extends TJMultiblockInfoPage implements IParallelMultiblockInfoPage {
+
+    public final MetaTileEntityXLAtmosphereCollector atmosphereCollector;
+
+    public XLAtmosphereCollectorInfo(MetaTileEntityXLAtmosphereCollector atmosphereCollector) {
+        this.atmosphereCollector = atmosphereCollector;
+    }
+
+    @Override
+    public MultiblockControllerBase getController() {
+        return this.atmosphereCollector;
+    }
+
+    @Override
+    public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
+        final MetaTileEntityHolder holderNorth = new MetaTileEntityHolder();
+        final MetaTileEntityHolder holderSouth = new MetaTileEntityHolder();
+        holderNorth.setMetaTileEntity(MetaTileEntities.ROTOR_HOLDER[2]);
+        holderSouth.setMetaTileEntity(MetaTileEntities.ROTOR_HOLDER[2]);
+        final ItemStack rotorStack = GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm();
+        //noinspection ConstantConditions
+        TurbineRotorBehavior.getInstanceFor(rotorStack).setPartMaterial(rotorStack, Materials.Darmstadtium);
+        ((MetaTileEntityRotorHolder) holderNorth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
+        ((MetaTileEntityRotorHolder) holderSouth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
+        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
+        for (int shapeInfo = 0; shapeInfo < 7; shapeInfo++) {
+            TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+                    .aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCOCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC")
+                    .aisle("CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC")
+                    .aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC");
+            for (int j = 0; j <= shapeInfo; j++) {
+                builder.aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC");
+                builder.aisle("CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC");
+                builder.aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC");
+            }
+            builder.aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC")
+                    .aisle("CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC")
+                    .aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPISJPPPC", "CPPPCMCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC");
+            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
+            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
+            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
+                infos[tier] = builder.where('S', this.atmosphereCollector, EnumFacing.WEST)
+                        .where('C', this.atmosphereCollector.turbineType.casingState)
+                        .where('P', this.atmosphereCollector.getPipeState())
+                        .where('R', holderNorth.getMetaTileEntity(), EnumFacing.NORTH)
+                        .where('T', holderSouth.getMetaTileEntity(), EnumFacing.SOUTH)
+                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
+                        .where('J', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)
+                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.WEST)
+                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                        .where(!this.atmosphereCollector.turbineType.hasOutputHatch ? 'O' : '#', !this.atmosphereCollector.turbineType.hasOutputHatch ? this.atmosphereCollector.turbineType.casingState : Blocks.AIR.getDefaultState())
+                        .build();
+            }
+            shapeInfos.add(infos);
+        }
+        return shapeInfos;
+    }
+
+    @Override
+    public String[] getDescription() {
+        return new String[]{I18n.format("tj.multiblock.turbine.description"),
+                I18n.format("tj.multiblock.turbine.fast_mode.description"),
+                I18n.format("tj.multiblock.universal.tooltip.1", this.atmosphereCollector.getRecipeMapName()),
+                I18n.format("tj.multiblock.universal.tooltip.2", 12),
+                I18n.format("tj.multiblock.turbine.tooltip.efficiency"),
+                I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLTurbineWorkableHandler.getTurbineBonus()),
+                I18n.format("tj.multiblock.turbine.tooltip.efficiency.fast", 100)};
+    }
+
+    @Override
+    public float getDefaultZoom() {
+        return 0.5f;
+    }
+}

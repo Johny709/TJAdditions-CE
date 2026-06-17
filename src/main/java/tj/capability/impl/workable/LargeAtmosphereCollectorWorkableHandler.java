@@ -22,18 +22,18 @@ import static gregtech.common.metatileentities.multi.electric.generator.RotorHol
 
 public class LargeAtmosphereCollectorWorkableHandler extends TJFuelRecipeLogic {
 
-    private static final int CYCLE_LENGTH = 230;
-    private static final int BASE_ROTOR_DAMAGE = 22;
-    private static final long BASE_EU_OUTPUT = 512;
+    protected static final int CYCLE_LENGTH = 230;
+    protected static final int BASE_ROTOR_DAMAGE = 22;
+    protected static final long BASE_EU_OUTPUT = 512;
 
-    private final MetaTileEntityLargeAtmosphereCollector airCollector;
-    private int rotorCycleLength = CYCLE_LENGTH;
+    protected final MetaTileEntityLargeAtmosphereCollector airCollector;
+    protected int rotorCycleLength = CYCLE_LENGTH;
 
-    private long totalAirProduced;
-    private int fastModeMultiplier = 1;
-    private int rotorDamageMultiplier = 1;
-    private boolean isFastMode;
-    private boolean fastMode;
+    protected long totalAirProduced;
+    protected int fastModeMultiplier = 1;
+    protected int rotorDamageMultiplier = 1;
+    protected boolean isFastMode;
+    protected boolean fastMode;
 
     public LargeAtmosphereCollectorWorkableHandler(MetaTileEntityLargeAtmosphereCollector metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank) {
         super(metaTileEntity, recipeMap, energyContainer, fluidTank, 0L);
@@ -153,7 +153,7 @@ public class LargeAtmosphereCollectorWorkableHandler extends TJFuelRecipeLogic {
         return rotorHolder.isHasRotor();
     }
 
-    private int getBonusForTurbineType(MetaTileEntityLargeAtmosphereCollector turbine) {
+    protected int getBonusForTurbineType(MetaTileEntityLargeAtmosphereCollector turbine) {
         switch (turbine.turbineType) {
             case GAS: return ConfigHolder.gasTurbineBonusOutput;
             case PLASMA: return ConfigHolder.plasmaTurbineBonusOutput;

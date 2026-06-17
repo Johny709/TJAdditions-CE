@@ -209,7 +209,7 @@ public class RecipeInit {
                 'G', Blocks.GLASS,
                 'H', MetaTileEntities.HULL[1].getStackForm());
         for (int i = 0; i < AIR_COLLECTORS.length; i++) {
-            ModHandler.addShapedRecipe("large_atmosphere_collector." + i, LARGE_ATMOSPHERE_COLLECTOR[i].getStackForm(), "CRC", "RSR", "PRP",
+            ModHandler.addShapedRecipe("large_atmosphere_collector." + i, LARGE_ATMOSPHERE_COLLECTORS[i].getStackForm(), "CRC", "RSR", "PRP",
                     'C', CraftingComponent.CIRCUIT.getIngredient(5 + i),
                     'R', CraftingComponent.ROTOR.getIngredient(5 + i),
                     'S', AIR_COLLECTORS[i].getStackForm(),

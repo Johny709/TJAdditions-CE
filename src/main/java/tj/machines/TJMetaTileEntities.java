@@ -52,8 +52,9 @@ public class TJMetaTileEntities {
     public static final MetaTileEntityEnderEnergyHatch[] ENDER_ENERGY_OUTPUT_HATCHES = new MetaTileEntityEnderEnergyHatch[14];
     public static final MetaTileEntityFilteredBus[] FILTERED_INPUT_BUSES = new MetaTileEntityFilteredBus[15];
     public static final MetaTileEntityFilteredBus[] FILTERED_OUTPUT_BUSES = new MetaTileEntityFilteredBus[15];
-    public static final MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTOR = new MetaTileEntityLargeAtmosphereCollector[3];
+    public static final MetaTileEntityLargeAtmosphereCollector[] LARGE_ATMOSPHERE_COLLECTORS = new MetaTileEntityLargeAtmosphereCollector[3];
     public static final MetaTileEntityAdvancedLargeChunkMiner[] ADVANCED_LARGE_CHUNK_MINERS = new MetaTileEntityAdvancedLargeChunkMiner[11];
+    public static final MetaTileEntityXLAtmosphereCollector[] XL_ATMOSPHERE_COLLECTORS = new MetaTileEntityXLAtmosphereCollector[3];
     public static final MetaTileEntityBuffer[] BUFFERS = new MetaTileEntityBuffer[15];
     public static MetaTileEntityPrimitiveAlloy PRIMITIVE_ALLOY;
     public static MetaTileEntityCokeOven COKE_OVEN;
@@ -202,9 +203,9 @@ public class TJMetaTileEntities {
         MEGA_BOILER[2] = GregTechAPI.registerMetaTileEntity(5056, new MetaTileEntityMegaBoiler(TJId("mega_titanium_boiler"), MetaTileEntityLargeBoiler.BoilerType.TITANIUM, 512));
         MEGA_BOILER[3] = GregTechAPI.registerMetaTileEntity(5057, new MetaTileEntityMegaBoiler(TJId("mega_tungstensteel_boiler"), MetaTileEntityLargeBoiler.BoilerType.TUNGSTENSTEEL, 512));
 
-        LARGE_ATMOSPHERE_COLLECTOR[0] = GregTechAPI.registerMetaTileEntity(5078, new MetaTileEntityLargeAtmosphereCollector(TJId("steam_air_collector_turbine"), MetaTileEntityLargeTurbine.TurbineType.STEAM));
-        LARGE_ATMOSPHERE_COLLECTOR[1] = GregTechAPI.registerMetaTileEntity(5079, new MetaTileEntityLargeAtmosphereCollector(TJId("gas_air_collector_turbine"), MetaTileEntityLargeTurbine.TurbineType.GAS));
-        LARGE_ATMOSPHERE_COLLECTOR[2] = GregTechAPI.registerMetaTileEntity(5080, new MetaTileEntityLargeAtmosphereCollector(TJId("plasma_air_collector_turbine"), MetaTileEntityLargeTurbine.TurbineType.PLASMA));
+        LARGE_ATMOSPHERE_COLLECTORS[0] = GregTechAPI.registerMetaTileEntity(5078, new MetaTileEntityLargeAtmosphereCollector(TJId("steam_air_collector_turbine"), MetaTileEntityLargeTurbine.TurbineType.STEAM));
+        LARGE_ATMOSPHERE_COLLECTORS[1] = GregTechAPI.registerMetaTileEntity(5079, new MetaTileEntityLargeAtmosphereCollector(TJId("gas_air_collector_turbine"), MetaTileEntityLargeTurbine.TurbineType.GAS));
+        LARGE_ATMOSPHERE_COLLECTORS[2] = GregTechAPI.registerMetaTileEntity(5080, new MetaTileEntityLargeAtmosphereCollector(TJId("plasma_air_collector_turbine"), MetaTileEntityLargeTurbine.TurbineType.PLASMA));
 
         INFINITE_FLUID_DRILL = GregTechAPI.registerMetaTileEntity(5081, new MetaTileEntityInfiniteFluidDrill(TJId("infinite_fluid_drill")));
         INDUSTRIAL_STEAM_ENGINE = GregTechAPI.registerMetaTileEntity(5082, new MetaTileEntityIndustrialSteamEngine(TJId("industrial_steam_engine")));
@@ -262,6 +263,9 @@ public class TJMetaTileEntities {
         DRAGON_REPLICATOR = GregTechAPI.registerMetaTileEntity(5148, new MetaTileEntityDragonReplicator(TJId("dragon_egg_replicator")));
         LARGE_POWERED_SPAWNER = GregTechAPI.registerMetaTileEntity(5149, new MetaTileEntityLargePoweredSpawner(TJId("large_powered_spawner")));
         LARGE_VIAL_PROCESSOR = GregTechAPI.registerMetaTileEntity(5150, new MetaTileEntityLargeVialProcessor(TJId("large_vial_processor")));
+        XL_ATMOSPHERE_COLLECTORS[0] = GregTechAPI.registerMetaTileEntity(5151, new MetaTileEntityXLAtmosphereCollector(TJId("steam_atmosphere_collector_turbine"), MetaTileEntityLargeTurbine.TurbineType.STEAM));
+        XL_ATMOSPHERE_COLLECTORS[1] = GregTechAPI.registerMetaTileEntity(5152, new MetaTileEntityXLAtmosphereCollector(TJId("gas_atmosphere_collector_turbine"), MetaTileEntityLargeTurbine.TurbineType.GAS));
+        XL_ATMOSPHERE_COLLECTORS[2] = GregTechAPI.registerMetaTileEntity(5153, new MetaTileEntityXLAtmosphereCollector(TJId("plasma_atmosphere_collector_turbine"), MetaTileEntityLargeTurbine.TurbineType.PLASMA));
 
         // range 5300+ -> singleblocks
         COAL_BOILER[0] = GregTechAPI.registerMetaTileEntity(5300, new MetaTileEntityCoalBoiler(TJId("coal_boiler_bronze"), BRONZE));
