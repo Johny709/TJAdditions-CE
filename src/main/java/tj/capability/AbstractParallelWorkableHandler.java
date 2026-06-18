@@ -56,6 +56,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
         this.problemConsumer = problemConsumer;
     }
 
+    @OverridingMethodsMustInvokeSuper
     public void setLayer(int i, boolean remove) {
         this.size = i;
         this.isWorking = Arrays.copyOf(this.isWorking, this.size);
@@ -74,6 +75,12 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
             this.sleepTime[this.size -1] = 1;
             this.isWorking[this.size -1] = true;
             this.parallel[this.size -1] = 1;
+        }
+        if (!this.metaTileEntity.getWorld().isRemote) {
+            this.writeCustomData(4, buffer -> {
+                buffer.writeInt(this.size);
+                buffer.writeBoolean(remove);
+            });
         }
     }
 
@@ -192,6 +199,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
             case 1: this.isActive[buffer.readInt()] = buffer.readBoolean(); break;
             case 2: this.hasProblem[buffer.readInt()] = buffer.readBoolean(); break;
             case 3: this.isWorking[buffer.readInt()] = buffer.readBoolean(); break;
+            case 4: this.setLayer(buffer.readInt(), buffer.readBoolean()); break;
         }
         this.metaTileEntity.scheduleRenderUpdate();
     }
