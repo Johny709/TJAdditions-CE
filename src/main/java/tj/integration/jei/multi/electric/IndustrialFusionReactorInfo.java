@@ -32,27 +32,27 @@ public class IndustrialFusionReactorInfo extends MultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
-        final List<MultiblockShapeInfo> shapes = new ArrayList<>();
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
+
         final int tier = fusionReactor.getTier();
-        for (int index = 0; index < 16; index++) {
-            final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(LEFT, FRONT, DOWN);
-            for (int num = 0; num < index; num++) {
-                builder.aisle("###############", "######CCC######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#C###########C#", "#C###########C#", "#C###########C#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######CCC######", "###############");
-                builder.aisle("######CCC######", "####CCcccCC####", "###CccCCCccC###", "##CcCC###CCcC##", "#CcC#######CcC#", "#CcC#######CcC#", "CcC#########CcC", "CcC#########CcC", "CcC#########CcC", "#CcC#######CcC#", "#CcC#######CcC#", "##CcCC###CCcC##", "###CccCCCccC###", "####CCcccCC####", "######CCC######");
-            }
-            builder.aisle("###############", "######ICI######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#I###########I#", "#C###########C#", "#I###########I#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######ICI######", "###############");
-            builder.aisle("######OCO######", "####CCcccCC####", "###EccOCOccE###", "##EcEC###CEcE##", "#CcE#######EcC#", "#CcC#######CcC#", "OcO#########OcO", "CcC#########CcS", "OcO#########OcO", "#CcC#######CcC#", "#CcE#######EcC#", "##EcEC###CEcE##", "###EccOCOccE###", "####CCcccCC####", "######OCO######");
-            builder.aisle("###############", "######ICI######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#I###########I#", "#C###########C#", "#I###########I#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######ICI######", "###############");
-                    builder.where('S', fusionReactor, EnumFacing.WEST)
-                    .where('C', fusionReactor.getCasingState())
-                    .where('c', fusionReactor.getCoilState())
-                    .where('E', tier < 9 ? MetaTileEntities.ENERGY_INPUT_HATCH[tier] : GATileEntities.ENERGY_INPUT[tier - 9], EnumFacing.WEST)
-                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
-                    .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.WEST);
-            shapes.add(builder.build());
+
+        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(LEFT, FRONT, DOWN);
+        for (int num = 0; num < extent; num++) {
+            builder.aisle("###############", "######CCC######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#C###########C#", "#C###########C#", "#C###########C#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######CCC######", "###############");
+            builder.aisle("######CCC######", "####CCcccCC####", "###CccCCCccC###", "##CcCC###CCcC##", "#CcC#######CcC#", "#CcC#######CcC#", "CcC#########CcC", "CcC#########CcC", "CcC#########CcC", "#CcC#######CcC#", "#CcC#######CcC#", "##CcCC###CCcC##", "###CccCCCccC###", "####CCcccCC####", "######CCC######");
         }
-        return shapes;
+        builder.aisle("###############", "######ICI######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#I###########I#", "#C###########C#", "#I###########I#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######ICI######", "###############");
+        builder.aisle("######OCO######", "####CCcccCC####", "###EccOCOccE###", "##EcEC###CEcE##", "#CcE#######EcC#", "#CcC#######CcC#", "OcO#########OcO", "CcC#########CcS", "OcO#########OcO", "#CcC#######CcC#", "#CcE#######EcC#", "##EcEC###CEcE##", "###EccOCOccE###", "####CCcccCC####", "######OCO######");
+        builder.aisle("###############", "######ICI######", "####CC###CC####", "###C#######C###", "##C#########C##", "##C#########C##", "#I###########I#", "#C###########C#", "#I###########I#", "##C#########C##", "##C#########C##", "###C#######C###", "####CC###CC####", "######ICI######", "###############");
+        return builder.where('S', fusionReactor, EnumFacing.WEST)
+                .where('C', fusionReactor.getCasingState())
+                .where('c', fusionReactor.getCoilState())
+                .where('E', tier < 9 ? MetaTileEntities.ENERGY_INPUT_HATCH[tier] : GATileEntities.ENERGY_INPUT[tier - 9], EnumFacing.WEST)
+                .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
+                .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.WEST).build();
+
+
+
     }
 
     @Override

@@ -7,6 +7,7 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.util.EnumFacing;
 import tj.TJConfig;
 import tj.blocks.BlockFusionCasings;
@@ -31,9 +32,8 @@ public class InterStellarForgeInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
         final List<String[]> pattern = new ArrayList<>();
-        final List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
         pattern.add(new String[]{"~~~~~~~~CCCCCCCCCCC~~~~~~~~", "~~~~~CCCCCCCCCCCCCCCCC~~~~~", "~~~~CCCCCCCCCCCCCCCCCCC~~~~", "~~~CCCCCCC~CC~CC~CCCCCCC~~~", "~~CCCCC~~~~CC~CC~~~~CCCCC~~", "~CCCCC~~~~~~~~~~~~~~~CCCCC~", "~CCCC~~~~~~~~~~~~~~~~~CCCC~", "~CCC~~~~~~~CC~CC~~~~~~~CCC~", "CCCC~~~~~~~CC~CC~~~~~~~CCCC", "CCCC~~~~~~~~~~~~~~~~~~~CCCC", "CCC~~~~~~~~~~~~~~~~~~~~~CCC", "CCCCC~~CC~~~~~~~~~CC~~CCCCC", "CCCCC~~CC~~~~~~~~~CC~~CCCCC", "CCC~~~~~~~~~~~~~~~~~~~~~CCC", "CCCCC~~CC~~~~~~~~~CC~~CCCCC", "CCCCC~~CC~~~~~~~~~CC~~CCCCC", "CCC~~~~~~~~~~~~~~~~~~~~~CCC", "CCCC~~~~~~~~~~~~~~~~~~~CCCC", "CCCC~~~~~~~CC~CC~~~~~~~CCCC", "~CCC~~~~~~~CC~CC~~~~~~~CCC~", "~CCCC~~~~~~~~~~~~~~~~~CCCC~", "~CCCCC~~~~~~~~~~~~~~~CCCCC~", "~~CCCCC~~~~CC~CC~~~~CCCCC~~", "~~~CCCCCCC~CC~CC~CCCCCCC~~~", "~~~~CCCCCCCCCCCCCCCCCCC~~~~", "~~~~~CCCCCCCCCCCCCCCCC~~~~~", "~~~~~~~~CCCCCCCCCCC~~~~~~~~"});
         pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~VVVVVVVVV~~~~~~~~~", "~~~~~~VVV~~~VGV~~~VVV~~~~~~", "~~~~~V~~~~~CVGVC~~~~~V~~~~~", "~~~~V~~~~~~CVGVC~~~~~~V~~~~", "~~~V~~~~~~~~VGV~~~~~~~~V~~~", "~~V~~~~~~~~~VGV~~~~~~~~~V~~", "~~V~~~~~~~~CVGVC~~~~~~~~V~~", "~~V~~~~~~~~CVGVC~~~~~~~~V~~", "~V~~~~~~~~~~VGV~~~~~~~~~~V~", "~V~~~~~~~~~~VGV~~~~~~~~~~V~", "~V~CC~~CC~~~VGV~~~CC~~CC~V~", "~VVVVVVVVVVVVVVVVVVVVVVVVV~", "~VGGGGGGGGGGVGVGGGGGGGGGGV~", "~VVVVVVVVVVVVVVVVVVVVVVVVV~", "~V~CC~~CC~~~VGV~~~CC~~CC~V~", "~V~~~~~~~~~~VGV~~~~~~~~~~V~", "~V~~~~~~~~~~VGV~~~~~~~~~~V~", "~~V~~~~~~~~CVGVC~~~~~~~~V~~", "~~V~~~~~~~~CVGVC~~~~~~~~V~~", "~~V~~~~~~~~~VGV~~~~~~~~~V~~", "~~~V~~~~~~~~VGV~~~~~~~~V~~~", "~~~~V~~~~~~CVGVC~~~~~~V~~~~", "~~~~~V~~~~~CVGVC~~~~~V~~~~~", "~~~~~~VVV~~~VGV~~~VVV~~~~~~", "~~~~~~~~~VVVVVVVVV~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
@@ -60,7 +60,7 @@ public class InterStellarForgeInfo extends TJMultiblockInfoPage {
         }
         Collections.reverse(pattern);
         pattern.forEach(builder::aisle);
-        builder.where('S', this.getController(), EnumFacing.WEST)
+        return builder.where('S', this.getController(), EnumFacing.WEST)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST)
                 .where('C', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.CHAOS_ALLOY))
                 .where('s', TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.CHAOS_ALLOY))
@@ -69,18 +69,15 @@ public class InterStellarForgeInfo extends TJMultiblockInfoPage {
                 .where('G', TJMetaBlocks.FUSION_GLASS.getState(BlockFusionGlass.GlassType.FUSION_GLASS_UEV))
                 .where('c', TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_COIL_UEV))
                 .where('T', GAMetaBlocks.MUTLIBLOCK_CASING2.getState(GAMultiblockCasing2.CasingType.STELLAR_CONTAINMENT))
-                .where('D', GAMetaBlocks.DIVERTOR_CASING.getState(GADivertorCasing.CasingType.DIVERTOR_2));
-        final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
-        for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
-            shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
-                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)
-                    .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
-                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[tier], EnumFacing.WEST)
-                    .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.WEST)
-                    .where('v', this.getVoltageCasing(tier))
-                    .build());
-        }
-        return shapeInfos;
+                .where('D', GAMetaBlocks.DIVERTOR_CASING.getState(GADivertorCasing.CasingType.DIVERTOR_2))
+                .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.EAST)
+                .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
+                .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+                .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
+                .where('o', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
+                .where('v', PlaceholderType.FRAMEWORK, this.getVoltageCasing(0))
+                .build();
+
     }
 
     @Override

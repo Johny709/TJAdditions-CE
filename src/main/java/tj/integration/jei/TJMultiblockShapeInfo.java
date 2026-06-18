@@ -6,6 +6,7 @@ import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.util.BlockInfo;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
 import net.minecraft.block.state.IBlockState;
@@ -27,8 +28,8 @@ public class TJMultiblockShapeInfo extends MultiblockShapeInfo {
 
     private final BlockInfo[][][] blocks; //[z][y][x]
 
-    public TJMultiblockShapeInfo(BlockInfo[][][] blocks) {
-        super(blocks);
+    public TJMultiblockShapeInfo(BlockInfo[][][] blocks, boolean isTiered) {
+        super(blocks, isTiered);
         this.blocks = blocks;
     }
 
@@ -51,6 +52,7 @@ public class TJMultiblockShapeInfo extends MultiblockShapeInfo {
         private final Char2ObjectMap<BlockInfo> symbolMap = new Char2ObjectOpenHashMap<>();
         private final BlockPattern.RelativeDirection[] structureDir = new BlockPattern.RelativeDirection[3];
         private final BlockPattern.RelativeDirection[] idealDir = {RIGHT, UP, FRONT};
+        private boolean isTiered;
 
         public Builder(BlockPattern.RelativeDirection charDir, BlockPattern.RelativeDirection stringDir, BlockPattern.RelativeDirection aisleDir) {
             this.structureDir[0] = charDir;
@@ -96,11 +98,11 @@ public class TJMultiblockShapeInfo extends MultiblockShapeInfo {
         }
 
         @Override
-        public Builder where(char symbol, MetaTileEntity tileEntity, EnumFacing frontSide) {
+        public Builder where(char symbol, PlaceholderType type, MetaTileEntity tileEntity, EnumFacing frontSide) {
             MetaTileEntityHolder holder = new MetaTileEntityHolder();
             holder.setMetaTileEntity(tileEntity);
             holder.getMetaTileEntity().setFrontFacing(frontSide);
-            return where(symbol, new BlockInfo(MetaBlocks.MACHINE.getDefaultState(), holder));
+            return where(symbol, new BlockInfo(MetaBlocks.MACHINE.getDefaultState(), holder, type));
         }
 
         public Builder where(char symbol, EnumFacing frontSide, MetaTileEntity... mte) {
@@ -134,7 +136,7 @@ public class TJMultiblockShapeInfo extends MultiblockShapeInfo {
                             newHolder.setMetaTileEntity(holder.getMetaTileEntity().createMetaTileEntity(newHolder));
                             newHolder.getMetaTileEntity().setFrontFacing(holder.getMetaTileEntity().getFrontFacing());
 
-                            positionData = new BlockInfo(positionData.getBlockState(), newHolder);
+                            positionData = new BlockInfo(positionData.getBlockState(), newHolder, positionData.getPlaceHolderType());
                         }
                         if (this.idealDir != this.structureDir) {
                             IntTriple blockInfoPosition = transformPos(i, j, k, shape.size(), aisleEntry.length, rowEntry.length(), true);
@@ -195,7 +197,7 @@ public class TJMultiblockShapeInfo extends MultiblockShapeInfo {
 
         @Override
         public TJMultiblockShapeInfo build() {
-            return new TJMultiblockShapeInfo(this.bakeArray());
+            return new TJMultiblockShapeInfo(this.bakeArray(), this.isTiered);
         }
     }
 }

@@ -8,6 +8,8 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
+import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
@@ -33,35 +35,25 @@ public class ParallelLargeMaceratorInfo extends TJMultiblockInfoPage implements 
     }
 
     @Override
-    public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        final int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
-        for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT);
-            builder.aisle("CCCCC", "CMEMC", "CCCCC", "CCCCC");
-            for (int layer = 0; layer < shapeInfo; layer++) {
-                builder.aisle("CCCCC", "CGBGC", "CB#BC", "C###C");
-                builder.aisle("CCCCC", "CGBGC", "CB#BC", "C###C");
-            }
-            builder.aisle("CCCCC", "CGBGC", "CB#BC", "C###C")
-                    .aisle("CCCCC", "CMSMC", "CImOC", "CCCCC");
-            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
-            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
-                infos[tier] = builder.where('S', this.getController(), EnumFacing.WEST)
-                        .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STELLITE))
-                        .where('G', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
-                        .where('B', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
-                        .where('M', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)
-                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[tier], EnumFacing.WEST)
-                        .where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
-                        .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                        .build();
-            }
-            shapeInfos.add(infos);
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
+
+        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT);
+        builder.aisle("CCCCC", "CMEMC", "CCCCC", "CCCCC");
+        for (int layer = 0; layer < extent; layer++) {
+            builder.aisle("CCCCC", "CGBGC", "CB#BC", "C###C");
+            builder.aisle("CCCCC", "CGBGC", "CB#BC", "C###C");
         }
-        return shapeInfos;
+        return builder.aisle("CCCCC", "CGBGC", "CB#BC", "C###C")
+                .aisle("CCCCC", "CMSMC", "CImOC", "CCCCC").where('S', this.getController(), EnumFacing.WEST)
+                .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STELLITE))
+                .where('G', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
+                .where('B', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
+                .where('M', PlaceholderType.MOTOR, GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[0]))
+                .where('I', PlaceholderType.INPUT_BUS, MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
+                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
+                .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.EAST)
+                .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                .build();
     }
 
     @Override

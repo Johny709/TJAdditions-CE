@@ -7,6 +7,8 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.common.blocks.BlockTurbineCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
+import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -34,33 +36,24 @@ public class ParallelLargeWiremillInfo extends TJMultiblockInfoPage implements I
     }
 
     @Override
-    public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        final int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
-        for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            final TJMultiblockShapeInfo.Builder builder = new TJMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
-            for (int layer = 0; layer < shapeInfo; layer++) {
-                String energyE = layer == 0 ? "CCECC" : "CCCCC";
-                builder.aisle(energyE, "~CCC~", "~~~~~", "~~~~~", "~~~~~");
-                builder.aisle("CCCCC", "CmGmC", "C###C", "CmGmC", "CCCCC");
-            }
-            builder.aisle("CCMCC", "~ISO~", "~~~~~", "~~~~~", "~~~~~");
-            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
-            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
-                infos[tier] = builder.where('S', this.getController(), WEST)
-                        .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.MARAGING_STEEL_250))
-                        .where('G', MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.TITANIUM_GEARBOX))
-                        .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                        .where('E', this.getEnergyHatch(tier, false), EAST)
-                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[tier], WEST)
-                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[tier], WEST)
-                        .build();
-            }
-            shapeInfos.add(infos);
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
+
+        final TJMultiblockShapeInfo.Builder builder = new TJMultiblockShapeInfo.Builder(FRONT, UP, LEFT);
+        for (int layer = 0; layer < extent; layer++) {
+            String energyE = layer == 0 ? "CCECC" : "CCCCC";
+            builder.aisle(energyE, "~CCC~", "~~~~~", "~~~~~", "~~~~~");
+            builder.aisle("CCCCC", "CmGmC", "C###C", "CmGmC", "CCCCC");
         }
-        return shapeInfos;
+        return builder.aisle("CCMCC", "~ISO~", "~~~~~", "~~~~~", "~~~~~").where('S', this.getController(), WEST)
+                    .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.MARAGING_STEEL_250))
+                    .where('G', MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.TITANIUM_GEARBOX))
+                    .where('M', PlaceholderType.MOTOR , GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[0]))
+                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
+                    .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EAST)
+                    .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
+                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
+                    .build();
+
     }
 
     @Override

@@ -22,8 +22,8 @@ public class CharcoalPitInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
-        return Collections.singletonList(TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
+        return TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("~~~~~", "~GGG~", "~GGG~", "~GGG~", "~~~~~")
                 .aisle("~GGG~", "GCCCG", "GCCCG", "GCCCG", "~GGG~")
                 .aisle("~GGG~", "GCCCG", "GCCCG", "GCCCG", "~GSG~")
@@ -32,7 +32,7 @@ public class CharcoalPitInfo extends TJMultiblockInfoPage {
                 .where('S', this.getController(), EnumFacing.UP)
                 .where('G', Blocks.DIRT.getDefaultState())
                 .where('C', Blocks.LOG.getDefaultState())
-                .build());
+                .build();
     }
 
     @Override

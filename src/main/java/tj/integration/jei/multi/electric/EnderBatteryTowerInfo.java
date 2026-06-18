@@ -5,6 +5,8 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
+import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
@@ -31,31 +33,22 @@ public class EnderBatteryTowerInfo extends TJMultiblockInfoPage implements IPara
     }
 
     @Override
-    public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        final int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
-        for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
-            builder.aisle("CCCCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC");
-            for (int layer = 0; layer < shapeInfo; layer++) {
-                builder.aisle("GGGGG", "GcccG", "GcccG", "GcccG", "GGGGG");
-            }
-            builder.aisle("CCSCC", "CCCCC", "CCCCC", "CCCCC", "CEMeC");
-            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
-            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
-                infos[tier] = builder.where('S', this.getController(), EnumFacing.WEST)
-                        .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.BOROSILICATE_GLASS))
-                        .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.HASTELLOY_X78))
-                        .where('c', GAMetaBlocks.CELL_CASING.getState(CellCasing.CellType.values()[Math.max(0, tier - 3)]))
-                        .where('e', this.getEnergyHatch(tier, true), EnumFacing.EAST)
-                        .where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
-                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST)
-                        .build();
-            }
-            shapeInfos.add(infos);
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
+        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
+        builder.aisle("CCCCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC");
+        for (int layer = 0; layer < extent; layer++) {
+            builder.aisle("GGGGG", "GcccG", "GcccG", "GcccG", "GGGGG");
         }
-        return shapeInfos;
+        return builder.aisle("CCSCC", "CCCCC", "CCCCC", "CCCCC", "CEMeC")
+            .where('S', this.getController(), EnumFacing.WEST)
+            .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.BOROSILICATE_GLASS))
+            .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.HASTELLOY_X78))
+            .where('c', PlaceholderType.CELL,GAMetaBlocks.CELL_CASING.getState(CellCasing.CellType.values()[0]))
+            .where('e', PlaceholderType.ENERGY_OUTPUT_HATCH, this.getEnergyHatch(0, true), EnumFacing.EAST)
+            .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.EAST)
+            .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST)
+            .build();
+
     }
 
     @Override
