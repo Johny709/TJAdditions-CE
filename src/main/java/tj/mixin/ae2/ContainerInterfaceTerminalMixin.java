@@ -3,7 +3,6 @@ package tj.mixin.ae2;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IMachineSet;
 import appeng.container.implementations.ContainerInterfaceTerminal;
-import appeng.me.MachineSet;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,7 +23,8 @@ public abstract class ContainerInterfaceTerminalMixin {
 
     @ModifyExpressionValue(method = "detectAndSendChanges", at = @At(value = "INVOKE", target = "Lappeng/api/networking/IGrid;getMachines(Ljava/lang/Class;)Lappeng/api/networking/IMachineSet;", ordinal = 0))
     private IMachineSet modifyExpressionValueDetectAndSendChanges(IMachineSet original) {
-        return new MachineSets((MachineSet) original)
+        return new MachineSets()
+                .tryToAdd(original)
                 .tryToAdd(this.grid.getMachines(TileSuperInterface.class))
                 .tryToAdd(this.grid.getMachines(TileSuperDualInterface.class))
                 .tryToAdd(this.grid.getMachines(TilePatternInterface.class));
@@ -41,7 +41,8 @@ public abstract class ContainerInterfaceTerminalMixin {
     
     @ModifyExpressionValue(method = "regenList", at = @At(value = "INVOKE", target = "Lappeng/api/networking/IGrid;getMachines(Ljava/lang/Class;)Lappeng/api/networking/IMachineSet;", ordinal = 0))
     private IMachineSet modifyExpressionValueRegenList(IMachineSet original) {
-        return new MachineSets((MachineSet) original)
+        return new MachineSets()
+                .tryToAdd(original)
                 .tryToAdd(this.grid.getMachines(TileSuperInterface.class))
                 .tryToAdd(this.grid.getMachines(TileSuperDualInterface.class))
                 .tryToAdd(this.grid.getMachines(TilePatternInterface.class));
