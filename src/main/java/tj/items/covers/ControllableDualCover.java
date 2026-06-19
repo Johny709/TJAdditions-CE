@@ -52,7 +52,6 @@ import tj.util.wrappers.GTItemStackWrapper;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLocation.LEFT;
@@ -124,27 +123,24 @@ public class ControllableDualCover extends DualCover {
     private void createRobotArmTab(List<Widget> widgetGroup) {
         final WidgetGroup itemWidgetGroup = new WidgetGroup(new Position(7, 95));
         final SelectionWidgetGroup itemSelectionWidgetGroup = new SelectionWidgetGroup(7, 95, 72, 72);
+        final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(84, 18, 38, 18, "/2", data -> this.setItemCount(String.valueOf(Long.parseLong(this.getItemCount(itemSelectionWidgetGroup.getIndex())) / 2), String.valueOf(itemSelectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonMultiply = new ClickButtonWidget(122, 18, 38, 18, "*2", data -> this.setItemCount(String.valueOf(Long.parseLong(this.getItemCount(itemSelectionWidgetGroup.getIndex())) * 2), String.valueOf(itemSelectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> itemCountTextField = new NewTextFieldWidget<>(84, 0, 76, 18, true, null, this::setItemCount)
+                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                .setTooltipText("tj.machine.universal.item_amount")
+                .setUpdateOnTyping(true);
+        itemCountTextField.setTooltipFormat(() -> new String[]{this.getItemCount((int) itemCountTextField.getTextIdLong())})
+                .setTextSupplier(() -> this.getItemCount((int) itemCountTextField.getTextIdLong()));
+        itemSelectionWidgetGroup.setIndexListener(itemCountTextField::setTextIdLong);
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
-            final int index = i;
-            final BiConsumer<String, String> setItemCount = (text, id) -> {
-                ItemStack stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, true);
-                if (stack.isEmpty()) return;
-                stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, false);
-                stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-                this.itemFilter.insertItem(index, stack, false);
-                this.itemType.put(stack, stack);
-            };
             itemWidgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, this.itemFilter, item -> {
                 if (!item.isEmpty())
                     this.itemType.put(item, item);
             }, this.itemType::remove).setBackgroundTextures(GuiTextures.SLOT)
                     .setPutItemsPredicate(item -> this.itemType.get(item) == null));
-            itemSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(84, 0, 76, 18, true, () -> String.valueOf(this.itemFilter.getStackInSlot(index).getCount()), setItemCount)
-                    .setTooltipText("tj.machine.universal.item_amount").setTooltipFormat(() -> new String[]{String.valueOf(this.itemFilter.getStackInSlot(index).getCount())})
-                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                    .setUpdateOnTyping(true));
-            itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(84, 18, 38, 18, "/2", data -> setItemCount.accept(String.valueOf((long) this.itemFilter.getStackInSlot(index).getCount() / 2), "")));
-            itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(122, 18, 38, 18, "*2", data -> setItemCount.accept(String.valueOf((long) this.itemFilter.getStackInSlot(index).getCount() * 2), "")));
+            itemSelectionWidgetGroup.addSubWidget(i, clickButtonDivide);
+            itemSelectionWidgetGroup.addSubWidget(i, clickButtonMultiply);
+            itemSelectionWidgetGroup.addSubWidget(i, itemCountTextField);
             itemSelectionWidgetGroup.addSelectionBox(i, 18 * (i % 4), 18 * (i / 4), 18, 18);
         }
         final WidgetGroup itemSupplyWidgetGroup = new WidgetGroup();
@@ -209,28 +205,24 @@ public class ControllableDualCover extends DualCover {
     private void createRegulatorTab(List<Widget> widgetGroup) {
         final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(7, 115));
         final SelectionWidgetGroup fluidSelectionWidgetGroup = new SelectionWidgetGroup(7, 115, 72, 72);
+        final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(84, 18, 38, 18, "/2", data -> this.setFluidCount(String.valueOf(Long.parseLong(this.getFluidCount(fluidSelectionWidgetGroup.getIndex())) / 2), String.valueOf(fluidSelectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonMultiply = new ClickButtonWidget(122, 18, 38, 18, "*2", data -> this.setFluidCount(String.valueOf(Long.parseLong(this.getFluidCount(fluidSelectionWidgetGroup.getIndex())) * 2), String.valueOf(fluidSelectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> fluidCountTextField = new NewTextFieldWidget<>(84, 0, 76, 18, true, null, this::setFluidCount)
+                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                .setTooltipText("tj.machine.universal.fluid_amount")
+                .setUpdateOnTyping(true);
+        fluidCountTextField.setTooltipFormat(() -> new String[]{this.getFluidCount((int) fluidCountTextField.getTextIdLong())})
+                .setTextSupplier(() -> this.getFluidCount((int) fluidCountTextField.getTextIdLong()));
+        fluidSelectionWidgetGroup.setIndexListener(fluidCountTextField::setTextIdLong);
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
-            final int index = i;
-            final BiConsumer<String, String> setFluidCount = (text, id) -> {
-                FluidStack stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
-                if (stack == null) return;
-                stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
-                if (stack == null) return;
-                stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
-                this.fluidFilter.getTankAt(index).fill(stack, true);
-                this.fluidType.put(stack, stack);
-            };
             fluidWidgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, this.fluidFilter, fluid -> {
                 if (fluid != null)
                     this.fluidType.put(fluid, fluid);
             }, this.fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
                     .setPutFluidsPredicate(fluid -> this.fluidType.get(fluid) == null));
-            fluidSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(85, 0, 76, 18, true, () -> String.valueOf(this.fluidFilter.getTankAt(index).getFluidAmount()), setFluidCount)
-                    .setTooltipText("tj.machine.universal.fluid_amount").setTooltipFormat(() -> new String[]{String.valueOf(this.fluidFilter.getTankAt(index).getFluidAmount())})
-                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                    .setUpdateOnTyping(true));
-            fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(85, 18, 38, 18, "/2", data -> setFluidCount.accept(String.valueOf((long) this.fluidFilter.getTankAt(index).getFluidAmount() / 2), "")));
-            fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(123, 18, 38, 18, "*2", data -> setFluidCount.accept(String.valueOf((long) this.fluidFilter.getTankAt(index).getFluidAmount() * 2), "")));
+            fluidSelectionWidgetGroup.addSubWidget(i, clickButtonDivide);
+            fluidSelectionWidgetGroup.addSubWidget(i, clickButtonMultiply);
+            fluidSelectionWidgetGroup.addSubWidget(i, fluidCountTextField);
             fluidSelectionWidgetGroup.addSelectionBox(i, 18 * (i % 4), 18 * (i / 4), 18, 18);
         }
         final PopUpWidget<?> fluidFilterPopup = new PopUpWidget<>()
@@ -238,8 +230,7 @@ public class ControllableDualCover extends DualCover {
                 .setIndexSupplier(() -> {
                     final ItemStack itemStack = this.fluidFilterSlot.getStackInSlot(0);
                     return FLUID_FILTER.isItemEqual(itemStack) ? 1 : SMART_FILTER.isItemEqual(itemStack) ? 2 : 0;
-                })
-                .addPopup(widgetGroup1 -> {
+                }).addPopup(widgetGroup1 -> {
                     widgetGroup1.addWidget(new NewTextFieldWidget<>(92, 115, 76, 18, true, () -> String.valueOf(this.fluidSupplyThroughput), this::setFluidSupplyThroughput)
                             .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.fluidSupplyThroughput)))
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
@@ -679,6 +670,39 @@ public class ControllableDualCover extends DualCover {
         this.itemRecipeMap.clear();
         this.fluidRecipeMap.clear();
         this.markAsDirty();
+    }
+
+    private void setItemCount(String text, String id) {
+        final int index = Integer.parseInt(id);
+        if (index < 0 || index >= this.itemFilter.getSlots()) return;
+        ItemStack stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, true);
+        if (stack.isEmpty()) return;
+        stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, false);
+        stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+        this.itemFilter.insertItem(index, stack, false);
+        this.itemType.put(stack, stack);
+        this.markAsDirty();
+    }
+
+    private String getItemCount(int index) {
+        return String.valueOf(this.itemFilter.getStackInSlot(index).getCount());
+    }
+
+    private void setFluidCount(String text, String id) {
+        final int index = Integer.parseInt(id);
+        if (index < 0 || index >= this.fluidFilter.getTanks()) return;
+        FluidStack stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
+        if (stack == null) return;
+        stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
+        if (stack == null) return;
+        stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+        this.fluidFilter.getTankAt(index).fill(stack, true);
+        this.fluidType.put(stack, stack);
+        this.markAsDirty();
+    }
+
+    private String getFluidCount(int index) {
+        return String.valueOf(this.fluidFilter.getTankAt(index).getFluidAmount());
     }
 
     public enum RecipeMode implements IStringSerializable {

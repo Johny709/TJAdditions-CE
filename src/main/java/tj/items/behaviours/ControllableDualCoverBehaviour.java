@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -63,22 +64,6 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
 
     @Override
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
-        final ObjectReference<CoverConveyor.ConveyorMode> conveyorMode = new ObjectReference<>(CoverConveyor.ConveyorMode.EXPORT);
-        final ObjectReference<CoverPump.PumpMode> pumpMode = new ObjectReference<>(CoverPump.PumpMode.EXPORT);
-        final ObjectReference<TransferMode> robotArmMode = new ObjectReference<>(TransferMode.TRANSFER_ANY);
-        final ObjectReference<TransferMode> regulatorMode = new ObjectReference<>(TransferMode.TRANSFER_ANY);
-        final ObjectReference<ControllableDualCover.RecipeMode> itemRecipeMode = new ObjectReference<>(ControllableDualCover.RecipeMode.ELECTROLYZER);
-        final ObjectReference<ControllableDualCover.RecipeMode> fluidRecipeMode = new ObjectReference<>(ControllableDualCover.RecipeMode.ELECTROLYZER);
-        final IntegerReference itemTicks = new IntegerReference(20);
-        final IntegerReference fluidTicks = new IntegerReference(20);
-        final IntegerReference itemSupplyThroughput = new IntegerReference();
-        final IntegerReference fluidSupplyThroughput = new IntegerReference();
-        final IntegerReference itemTransferRate = new IntegerReference(this.maxItemTransferRate);
-        final IntegerReference fluidTransferRate = new IntegerReference(this.maxFluidTransferRate);
-        final BooleanReference itemBlacklist = new BooleanReference();
-        final BooleanReference fluidBlacklist = new BooleanReference();
-        final BooleanReference itemWorking = new BooleanReference();
-        final BooleanReference fluidWorking = new BooleanReference();
         final ItemStack itemStack = player.getHeldItemMainhand();
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
         final FilteredItemStackHandler itemFilterSlot = new FilteredItemStackHandler(null, 1, 1)
@@ -120,20 +105,72 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                         .setValidator(str -> Pattern.compile("\\*?[a-zA-Z0-9_]*\\*?").matcher(str).matches()));
             }
         };
+        final ObjectReference<CoverConveyor.ConveyorMode> conveyorMode = new ObjectReference<>(CoverConveyor.ConveyorMode.EXPORT);
+        final ObjectReference<CoverPump.PumpMode> pumpMode = new ObjectReference<>(CoverPump.PumpMode.EXPORT);
+        final ObjectReference<TransferMode> robotArmMode = new ObjectReference<>(TransferMode.TRANSFER_ANY);
+        final ObjectReference<TransferMode> regulatorMode = new ObjectReference<>(TransferMode.TRANSFER_ANY);
+        final ObjectReference<ControllableDualCover.RecipeMode> itemRecipeMode = new ObjectReference<>(ControllableDualCover.RecipeMode.ELECTROLYZER);
+        final ObjectReference<ControllableDualCover.RecipeMode> fluidRecipeMode = new ObjectReference<>(ControllableDualCover.RecipeMode.ELECTROLYZER);
+        final IntegerReference itemTicks = new IntegerReference(20);
+        final IntegerReference fluidTicks = new IntegerReference(20);
+        final IntegerReference itemSupplyThroughput = new IntegerReference();
+        final IntegerReference fluidSupplyThroughput = new IntegerReference();
+        final IntegerReference itemTransferRate = new IntegerReference(this.maxItemTransferRate);
+        final IntegerReference fluidTransferRate = new IntegerReference(this.maxFluidTransferRate);
+        final BooleanReference itemBlacklist = new BooleanReference();
+        final BooleanReference fluidBlacklist = new BooleanReference();
+        final BooleanReference itemWorking = new BooleanReference();
+        final BooleanReference fluidWorking = new BooleanReference();
+
+        final BiConsumer<String, String> setItemTransferRate2 = (text, id) -> {
+            itemTransferRate.setValue((int) Math.max(1, Math.min(this.maxItemTransferRate, Double.parseDouble(text))));
+            compound.setInteger("itemTransferRate", itemTransferRate.getValue());
+        };
+        final BiConsumer<String, String> setFluidTransferRate2 = (text, id) -> {
+            fluidTransferRate.setValue((int) Math.max(1, Math.min(this.maxFluidTransferRate, Double.parseDouble(text))));
+            compound.setInteger("fluidTransferRate", fluidTransferRate.getValue());
+        };
+        final BiConsumer<String, String> setItemSupplyThroughput = (text, id) -> {
+            itemSupplyThroughput.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+            compound.setInteger("itemSupplyThroughput", itemSupplyThroughput.getValue());
+        };
+        final BiConsumer<String, String> setItemCount = (text, id) -> {
+            final int index = Integer.parseInt(id);
+            if (index < 0 || index >= itemFilter.getSlots()) return;
+            ItemStack stack = itemFilter.extractItem(index, Integer.MAX_VALUE, true);
+            if (stack.isEmpty()) return;
+            stack = itemFilter.extractItem(index, Integer.MAX_VALUE, false);
+            stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+            compound.setTag("itemSlot:" + index, stack.serializeNBT());
+            itemFilter.insertItem(index, stack, false);
+        };
+        final IntFunction<String> getItemCount = index -> String.valueOf(itemFilter.getStackInSlot(index).getCount());
+        final BiConsumer<String, String> setFluidCount = (text, id) -> {
+            final int index = Integer.parseInt(id);
+            if (index < 0 || index >= fluidFilter.getTanks()) return;
+            FluidStack stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
+            if (stack == null) return;
+            stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
+            if (stack == null) return;
+            stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+            compound.setTag("fluidSlot:" + index, stack.writeToNBT(new NBTTagCompound()));
+            fluidFilter.getTankAt(index).fill(stack, true);
+        };
+        final IntFunction<String> getFluidCount = index -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount());
+
         final WidgetGroup itemWidgetGroup = new WidgetGroup(new Position(7, 95));
-        final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(7, 115));
         final SelectionWidgetGroup itemSelectionWidgetGroup = new SelectionWidgetGroup(7, 95, 72, 72);
-        final SelectionWidgetGroup fluidSelectionWidgetGroup = new SelectionWidgetGroup(7, 115, 72, 72);
+        final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(84, 18, 38, 18, "/2", data -> setItemCount.accept(String.valueOf(Long.parseLong(getItemCount.apply(itemSelectionWidgetGroup.getIndex())) / 2), String.valueOf(itemSelectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonMultiply = new ClickButtonWidget(122, 18, 38, 18, "*2", data -> setItemCount.accept(String.valueOf(Long.parseLong(getItemCount.apply(itemSelectionWidgetGroup.getIndex())) * 2), String.valueOf(itemSelectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> itemCountTextField = new NewTextFieldWidget<>(84, 0, 76, 18, true, null, setItemCount)
+                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                .setTooltipText("tj.machine.universal.item_amount")
+                .setUpdateOnTyping(true);
+        itemCountTextField.setTooltipFormat(() -> new String[]{getItemCount.apply((int) itemCountTextField.getTextIdLong())})
+                .setTextSupplier(() -> getItemCount.apply((int) itemCountTextField.getTextIdLong()));
+        itemSelectionWidgetGroup.setIndexListener(itemCountTextField::setTextIdLong);
         for (int i = 0; i < itemFilter.getSlots(); i++) {
             final int index = i;
-            final BiConsumer<String, String> setItemCount = (text, id) -> {
-                ItemStack stack = itemFilter.extractItem(index, Integer.MAX_VALUE, true);
-                if (stack.isEmpty()) return;
-                stack = itemFilter.extractItem(index, Integer.MAX_VALUE, false);
-                stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-                compound.setTag("itemSlot:" + index, stack.serializeNBT());
-                itemFilter.insertItem(index, stack, false);
-            };
             itemWidgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, itemFilter, item -> {
                 if (!item.isEmpty()) {
                     itemType.put(item, item);
@@ -141,44 +178,11 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                 } else compound.removeTag("itemSlot:" + index);
             }, itemType::remove).setBackgroundTextures(GuiTextures.SLOT)
                     .setPutItemsPredicate(item -> !itemType.containsKey(item)));
-            itemSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(84, 0, 76, 18, true, () -> String.valueOf(itemFilter.getStackInSlot(index).getCount()), setItemCount)
-                    .setTooltipText("tj.machine.universal.item_amount").setTooltipFormat(() -> new String[]{String.valueOf(itemFilter.getStackInSlot(index).getCount())})
-                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                    .setUpdateOnTyping(true));
-            itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(84, 18, 38, 18, "/2", data -> setItemCount.accept(String.valueOf((long) itemFilter.getStackInSlot(index).getCount() / 2), "")));
-            itemSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(122, 18, 38, 18, "*2", data -> setItemCount.accept(String.valueOf((long) itemFilter.getStackInSlot(index).getCount() * 2), "")));
+            itemSelectionWidgetGroup.addSubWidget(i, clickButtonDivide);
+            itemSelectionWidgetGroup.addSubWidget(i, clickButtonMultiply);
+            itemSelectionWidgetGroup.addSubWidget(i, itemCountTextField);
             itemSelectionWidgetGroup.addSelectionBox(i, 18 * (i % 4), 18 * (i / 4), 18, 18);
         }
-        for (int i = 0; i < fluidFilter.getTanks(); i++) {
-            final int index = i;
-            final BiConsumer<String, String> setFluidCount = (text, id) -> {
-                FluidStack stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
-                if (stack == null) return;
-                stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
-                if (stack == null) return;
-                stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
-                compound.setTag("fluidSlot:" + index, stack.writeToNBT(new NBTTagCompound()));
-                fluidFilter.getTankAt(index).fill(stack, true);
-            };
-            fluidWidgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, fluidFilter, fluid -> {
-                if (fluid != null) {
-                    fluidType.add(fluid);
-                    compound.setTag("fluidSlot:" + index, fluid.writeToNBT(new NBTTagCompound()));
-                } else compound.removeTag("fluidSlot:" + index);
-            }, fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
-                    .setPutFluidsPredicate(fluid -> !fluidType.contains(fluid)));
-            fluidSelectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(85, 0, 76, 18, true, () -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount()), setFluidCount)
-                    .setTooltipText("tj.machine.universal.fluid_amount").setTooltipFormat(() -> new String[]{String.valueOf(fluidFilter.getTankAt(index).getFluidAmount())})
-                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                    .setUpdateOnTyping(true));
-            fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(85, 18, 38, 18, "/2", data -> setFluidCount.accept(String.valueOf((long) fluidFilter.getTankAt(index).getFluidAmount() / 2), "")));
-            fluidSelectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(123, 18, 38, 18, "*2", data -> setFluidCount.accept(String.valueOf((long) fluidFilter.getTankAt(index).getFluidAmount() * 2), "")));
-            fluidSelectionWidgetGroup.addSelectionBox(i, 18 * (i % 4), 18 * (i / 4), 18, 18);
-        }
-        final BiConsumer<String, String> setItemSupplyThroughput = (text, id) -> {
-            itemSupplyThroughput.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-            compound.setInteger("itemSupplyThroughput", itemSupplyThroughput.getValue());
-        };
         final WidgetGroup itemSupplyWidgetGroup = new WidgetGroup();
         itemSupplyWidgetGroup.addWidget(new NewTextFieldWidget<>(92, 95, 76, 18, true, () -> String.valueOf(itemSupplyThroughput.getValue()), setItemSupplyThroughput)
                 .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(itemSupplyThroughput.getValue())))
@@ -210,6 +214,31 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     oreDictionaryItemFilter.initUI(widgetGroup::addWidget);
                     return false;
                 });
+        final WidgetGroup fluidWidgetGroup = new WidgetGroup(new Position(7, 115));
+        final SelectionWidgetGroup fluidSelectionWidgetGroup = new SelectionWidgetGroup(7, 115, 72, 72);
+        final ClickButtonWidget clickButtonDivide1 = new ClickButtonWidget(84, 18, 38, 18, "/2", data -> setFluidCount.accept(String.valueOf(Long.parseLong(getFluidCount.apply(fluidSelectionWidgetGroup.getIndex())) / 2), String.valueOf(fluidSelectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonMultiply1 = new ClickButtonWidget(122, 18, 38, 18, "*2", data -> setFluidCount.accept(String.valueOf(Long.parseLong(getFluidCount.apply(fluidSelectionWidgetGroup.getIndex())) * 2), String.valueOf(fluidSelectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> fluidCountTextField = new NewTextFieldWidget<>(84, 0, 76, 18, true, null, setFluidCount)
+                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                .setTooltipText("tj.machine.universal.fluid_amount")
+                .setUpdateOnTyping(true);
+        fluidCountTextField.setTooltipFormat(() -> new String[]{getFluidCount.apply((int) fluidCountTextField.getTextIdLong())})
+                .setTextSupplier(() -> getFluidCount.apply((int) fluidCountTextField.getTextIdLong()));
+        fluidSelectionWidgetGroup.setIndexListener(fluidCountTextField::setTextIdLong);
+        for (int i = 0; i < fluidFilter.getTanks(); i++) {
+            final int index = i;
+            fluidWidgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, fluidFilter, fluid -> {
+                if (fluid != null) {
+                    fluidType.add(fluid);
+                    compound.setTag("fluidSlot:" + index, fluid.writeToNBT(new NBTTagCompound()));
+                } else compound.removeTag("fluidSlot:" + index);
+            }, fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
+                    .setPutFluidsPredicate(fluid -> !fluidType.contains(fluid)));
+            fluidSelectionWidgetGroup.addSubWidget(i, clickButtonDivide1);
+            fluidSelectionWidgetGroup.addSubWidget(i, clickButtonMultiply1);
+            fluidSelectionWidgetGroup.addSubWidget(i, fluidCountTextField);
+            fluidSelectionWidgetGroup.addSelectionBox(i, 18 * (i % 4), 18 * (i / 4), 18, 18);
+        }
         final PopUpWidget<?> fluidFilterPopup = new PopUpWidget<>()
                 .setClickToDefault(false)
                 .setIndexSupplier(() -> {
@@ -240,14 +269,6 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     }));
                     return false;
                 });
-        final BiConsumer<String, String> setItemTransferRate2 = (text, id) -> {
-            itemTransferRate.setValue((int) Math.max(1, Math.min(this.maxItemTransferRate, Double.parseDouble(text))));
-            compound.setInteger("itemTransferRate", itemTransferRate.getValue());
-        };
-        final BiConsumer<String, String> setFluidTransferRate2 = (text, id) -> {
-            fluidTransferRate.setValue((int) Math.max(1, Math.min(this.maxFluidTransferRate, Double.parseDouble(text))));
-            compound.setInteger("fluidTransferRate", fluidTransferRate.getValue());
-        };
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
                 .addTab(String.format("metaitem.fluid.regulator.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.ROBOT_ARMS[this.tier].getStackForm(), tab -> {
