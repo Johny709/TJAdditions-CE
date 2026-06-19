@@ -71,24 +71,28 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
         return EnumActionResult.SUCCESS;
     }
 
+    private void displayText(List<ITextComponent> textList) {
+        textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", this.speed));
+    }
+
     @Override
     public ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 25));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 25, 54, 54);
+        final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(-54, -20, 18, 18, "/2", data -> this.setFluidAmount(String.valueOf(Long.parseLong(this.getFluidAmount(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonMultiply = new ClickButtonWidget(90, -20, 18, 18, "*2", data -> this.setFluidAmount(String.valueOf(Long.parseLong(this.getFluidAmount(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> stackSizeTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, this::setFluidAmount)
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setUpdateOnTyping(true)
+                .setMaxStringLength(11);
+        stackSizeTextField.setTextSupplier(() -> this.getFluidAmount((int) stackSizeTextField.getTextIdLong()));
+        selectionWidgetGroup.setIndexListener(stackSizeTextField::setTextIdLong);
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
-            final int index = i;
             widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.fluidFilter, null)
                     .setBackgroundTexture(GuiTextures.FLUID_SLOT));
-            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(0, -20, 54, 18, true, () -> String.valueOf(this.fluidFilter.getTankAt(index).getFluidAmount()), (text, id) -> {
-                FluidStack stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
-                if (stack == null) return;
-                stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
-                if (stack == null) return;
-                stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
-                this.fluidFilter.getTankAt(index).fill(stack, true);
-            }).setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                    .setUpdateOnTyping(true)
-                    .setMaxStringLength(11));
+            selectionWidgetGroup.addSubWidget(i, clickButtonDivide);
+            selectionWidgetGroup.addSubWidget(i, clickButtonMultiply);
+            selectionWidgetGroup.addSubWidget(i, stackSizeTextField);
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
@@ -150,6 +154,22 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
             this.speed = data.getInteger("Speed");
     }
 
+    private void setFluidAmount(String text, String id) {
+        final int index = Integer.parseInt(id);
+        if (index < 0 || index >= this.fluidFilter.getTanks()) return;
+        FluidStack stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
+        if (stack == null) return;
+        stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
+        if (stack == null) return;
+        stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+        this.fluidFilter.getTankAt(index).fill(stack, true);
+        this.markAsDirty();
+    }
+
+    private String getFluidAmount(int index) {
+        return String.valueOf(this.fluidFilter.getTankAt(index).getFluidAmount());
+    }
+
     @Override
     public void setWorkingEnabled(boolean isWorking) {
         this.isWorking = isWorking;
@@ -164,10 +184,6 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
     private void onReset(boolean reset) {
         this.speed = 1;
         this.markAsDirty();
-    }
-
-    private void displayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", this.speed));
     }
 
     private void onIncrement(Widget.ClickData clickData) {

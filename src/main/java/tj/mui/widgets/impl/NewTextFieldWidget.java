@@ -42,6 +42,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
     protected String tooltipText;
     protected String textId;
     protected String[] format;
+    protected long textIdLong;
 
     public NewTextFieldWidget(int x, int y, int width, int height) {
         this(x, y, width, height, false, null, null);
@@ -187,8 +188,15 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
 
     public R setTextId(String textId) {
         this.textId = textId;
-        if (!isClientSide())
-            this.writeUpdateInfo(2, buffer -> buffer.writeString(this.textId));
+        try {
+            this.textIdLong = Long.parseLong(textId);
+        } catch (NumberFormatException ignored) {}
+        return (R) this;
+    }
+
+    public R setTextIdLong(long textIdLong) {
+        this.textIdLong = textIdLong;
+        this.textId = String.valueOf(textIdLong);
         return (R) this;
     }
 
@@ -371,5 +379,9 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
             if (!isActive)
                 this.textField.setFocused(false);
         }
+    }
+
+    public long getTextIdLong() {
+        return this.textIdLong;
     }
 }
