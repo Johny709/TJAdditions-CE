@@ -22,10 +22,9 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import tj.TJConfig;
 import tj.capability.IRecipeMap;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.TJProgressBarWidget;
-import tj.mui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.mui.widgets.impl.*;
 import tj.mixin.gregtech.IAbstractRecipeLogicMixin;
+import tj.util.TJItemUtils;
 
 @Mixin(value = GASimpleMachineMetaTileEntity.class, remap = false)
 public abstract class GASimpleMachineMetaTileEntityMixin extends GAWorkableTieredMetaTileEntityMixin {
@@ -61,6 +60,7 @@ public abstract class GASimpleMachineMetaTileEntityMixin extends GAWorkableTiere
         ModularUI.Builder newBuilder = ((IRecipeMap) this.workable.recipeMap).createUITemplateAdvanced(this.workable::getProgressPercent, this.importItems, this.exportItems, this.importFluids, this.exportFluids, displayWidget)
                 .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
                 .image(-28, 138, 26, 26, GuiTextures.BORDERED_BACKGROUND)
+                .image(-28, 108, 26, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2, () -> Gregicality.MODID + ":" + this.workable.recipeMap.getUnlocalizedName())
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
@@ -79,7 +79,18 @@ public abstract class GASimpleMachineMetaTileEntityMixin extends GAWorkableTiere
                         .setTooltipText("gregtech.gui.overclock"))
                 .widget(new GhostCircuitWidget(this.ghostCircuitInventory, 133, 62))
                 .bindPlayerInventory(player.inventory)
-                .widget(displayWidget);
+                .widget(displayWidget)
+                .widget(new ButtonPopUpWidget<>()
+                        .addPopup(widgetGroup -> true)
+                        .addPopup(new TJToggleButtonWidget(-24, 112, 18, 18)
+                                .setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11))
+                                .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                                .useToggleTexture(true), widgetGroup -> {
+                            final GASimpleMachineMetaTileEntity simpleMachineMetaTile = (GASimpleMachineMetaTileEntity) (Object) this;
+                            widgetGroup.addWidget(new WorldSceneRenderWidget(4, 4, 168, 76, simpleMachineMetaTile)
+                                    .setBackgroundTexture(TJGuiTextures.MULTIBLOCK_DISPLAY_BASE));
+                            return false;
+                        }));
 
         leftButtonStartX = 7;
         if (this.workable.recipeMap instanceof SimpleMachineMetaTileEntity.RecipeMapWithConfigButton) {
