@@ -48,16 +48,15 @@ public class VoidAdvancedFluidCoverBehaviour extends VoidFluidCoverBehaviour {
         final ObjectReference<VoidMode> voidMode = new ObjectReference<>(VoidMode.NORMAL);
         final BooleanReference isWorking = new BooleanReference();
         final IntegerReference tickTime = new IntegerReference(20);
+
         final BiConsumer<String, String> setFluidCount = (text, id) -> {
             final int index = Integer.parseInt(id);
             if (index < 0 || index >= fluidFilter.getTanks()) return;
-            FluidStack stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
-            if (stack == null) return;
-            stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
-            if (stack == null) return;
-            stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
-            compound.setTag("slot:" + index, stack.writeToNBT(new NBTTagCompound()));
-            fluidFilter.getTankAt(index).fill(stack, true);
+            final FluidStack fluidStack = fluidFilter.getTankAt(index).getFluid();
+            if (fluidStack == null) return;
+            fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text));
+            fluidType.put(fluidStack, fluidStack);
+            compound.setTag("slot:" + index, fluidStack.writeToNBT(new NBTTagCompound()));
         };
         final IntFunction<String> getFluidCount = index -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount());
         final BiConsumer<String, String> setTickTime = (text, id) -> {
@@ -68,6 +67,7 @@ public class VoidAdvancedFluidCoverBehaviour extends VoidFluidCoverBehaviour {
             isWorking.setValue(working);
             compound.setBoolean("isWorking", working);
         };
+
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 48));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 48, 54, 54);
         final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(-54, -20, 18, 18, "/2", data -> setFluidCount.accept(String.valueOf(Long.parseLong(getFluidCount.apply(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));

@@ -47,17 +47,15 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
         final ItemStack itemStack = player.getHeldItem(EnumHand.MAIN_HAND);
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
         final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, Integer.MAX_VALUE);
-        final BiConsumer<String, String> setStackSize = (text, id) -> {
+        final BiConsumer<String, String> setItemCount = (text, id) -> {
             final int index = Integer.parseInt(id);
             if (index < 0 || index >= itemFilter.getSlots()) return;
-            ItemStack stack = itemFilter.extractItem(index, Integer.MAX_VALUE, true);
+            final ItemStack stack = itemFilter.getStackInSlot(index);
             if (stack.isEmpty()) return;
-            stack = itemFilter.extractItem(index, Integer.MAX_VALUE, false);
-            stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+            stack.setCount((int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
             compound.setTag("slot:" + index, stack.serializeNBT());
-            itemFilter.insertItem(index, stack, false);
         };
-        final IntFunction<String> getStackSize = index -> String.valueOf(itemFilter.getStackInSlot(index).getCount());
+        final IntFunction<String> getItemCount = index -> String.valueOf(itemFilter.getStackInSlot(index).getCount());
         final Consumer<Widget.ClickData> onIncrement = clickData -> {
             final int speed = compound.getInteger("speed");
             final int value = clickData.isCtrlClick ? 100
@@ -74,14 +72,14 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
         };
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 25));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 25, 54, 54);
-        final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(-54, -20, 18, 18, "/2", data -> setStackSize.accept(String.valueOf(Long.parseLong(getStackSize.apply(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ClickButtonWidget clickButtonMultiply = new ClickButtonWidget(90, -20, 18, 18, "*2", data -> setStackSize.accept(String.valueOf(Long.parseLong(getStackSize.apply(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final NewTextFieldWidget<?> stackSizeTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, setStackSize)
+        final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(-54, -20, 18, 18, "/2", data -> setItemCount.accept(String.valueOf(Long.parseLong(getItemCount.apply(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonMultiply = new ClickButtonWidget(90, -20, 18, 18, "*2", data -> setItemCount.accept(String.valueOf(Long.parseLong(getItemCount.apply(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> itemCountTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, setItemCount)
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                 .setUpdateOnTyping(true)
                 .setMaxStringLength(11);
-        stackSizeTextField.setTextSupplier(() -> getStackSize.apply((int) stackSizeTextField.getTextIdLong()));
-        selectionWidgetGroup.setIndexListener(stackSizeTextField::setTextIdLong);
+        itemCountTextField.setTextSupplier(() -> getItemCount.apply((int) itemCountTextField.getTextIdLong()));
+        selectionWidgetGroup.setIndexListener(itemCountTextField::setTextIdLong);
         for (int i = 0; i < itemFilter.getSlots(); i++) {
             final int index = i;
             widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, itemFilter, item -> {
@@ -91,7 +89,7 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
             }).setBackgroundTextures(GuiTextures.SLOT));
             selectionWidgetGroup.addSubWidget(i, clickButtonDivide);
             selectionWidgetGroup.addSubWidget(i, clickButtonMultiply);
-            selectionWidgetGroup.addSubWidget(i, stackSizeTextField);
+            selectionWidgetGroup.addSubWidget(i, itemCountTextField);
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)

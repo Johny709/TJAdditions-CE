@@ -7,6 +7,7 @@ import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.widgets.ClickButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -73,21 +74,23 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
     protected ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(43, 24));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(43, 24, 72, 72);
+        final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(-36, -20, 18, 18, "/2", data -> this.setItemCount(String.valueOf(Long.parseLong(this.getItemCount(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonMultiply = new ClickButtonWidget(108, -20, 18, 18, "*2", data -> this.setItemCount(String.valueOf(Long.parseLong(this.getItemCount(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> itemCountTextField = new NewTextFieldWidget<>(-17, -20, 124, 18, true, null, this::setItemCount)
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setUpdateOnTyping(true)
+                .setMaxStringLength(11);
+        itemCountTextField.setTextSupplier(() -> this.getItemCount((int) itemCountTextField.getTextIdLong()));
+        selectionWidgetGroup.setIndexListener(itemCountTextField::setTextIdLong);
         for (int i = 0; i < this.importItems.getSlots(); i++) {
-            final int finalI = i;
             final int x = 18 + 18 * (i % 4);
             final int y = 18 * (i / 4);
             widgetGroup.addWidget(new TJPhantomItemSlotWidget(x, y, 18, 18, i, this.importItems, item -> {})
                     .setBackgroundTextures(GuiTextures.SLOT)
                     .setSpecialExtractingMode(true));
-            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(21, -14, 72, 18, () -> String.valueOf(this.importItems.getStackInSlot(finalI).getCount()), (text, id) -> {
-                final ItemStack stack = this.importItems.getStackInSlot(finalI);
-                if (!stack.isEmpty())
-                    stack.setCount((int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
-            }).setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                    .setUpdateOnTyping(true)
-                    .setMaxStringLength(11)
-                    .enableBackground(true));
+            selectionWidgetGroup.addSubWidget(i, clickButtonDivide);
+            selectionWidgetGroup.addSubWidget(i, clickButtonMultiply);
+            selectionWidgetGroup.addSubWidget(i, itemCountTextField);
             selectionWidgetGroup.addSelectionBox(i, x, y, 18, 18);
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 184)
@@ -128,5 +131,18 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
     @Override
     public void registerAbilities(List<IItemHandlerModifiable> list) {
         list.add(this.getImportItems());
+    }
+
+    private void setItemCount(String text, String id) {
+        final int index = Integer.parseInt(id);
+        if (index < 0 || index >= this.importItems.getSlots()) return;
+        final ItemStack stack = this.importItems.getStackInSlot(index);
+        if (stack.isEmpty()) return;
+        stack.setCount((int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+        this.markDirty();
+    }
+
+    private String getItemCount(int index) {
+        return String.valueOf(this.importItems.getStackInSlot(index).getCount());
     }
 }

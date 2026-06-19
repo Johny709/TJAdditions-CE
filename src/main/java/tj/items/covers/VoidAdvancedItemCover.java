@@ -132,11 +132,9 @@ public class VoidAdvancedItemCover extends VoidItemCover {
     private void setItemCount(String text, String id) {
         final int index = Integer.parseInt(id);
         if (index < 0 || index >= this.itemFilter.getSlots()) return;
-        ItemStack stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, true);
+        final ItemStack stack = this.itemFilter.getStackInSlot(index);
         if (stack.isEmpty()) return;
-        stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, false);
-        stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-        this.itemFilter.insertItem(index, stack, false);
+        stack.setCount((int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
         this.itemType.put(stack, stack);
         this.markAsDirty();
     }

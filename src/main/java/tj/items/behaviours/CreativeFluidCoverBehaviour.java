@@ -53,18 +53,16 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
         final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
                 .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
                 .collect(Collectors.toList()));
-        final BiConsumer<String, String> setFluidAmount = (text, id) -> {
+
+        final BiConsumer<String, String> setFluidCount = (text, id) -> {
             final int index = Integer.parseInt(id);
             if (index < 0 || index >= fluidFilter.getTanks()) return;
-            FluidStack stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
-            if (stack == null) return;
-            stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
-            if (stack == null) return;
-            stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
-            compound.setTag("slot:" + index, stack.writeToNBT(new NBTTagCompound()));
-            fluidFilter.getTankAt(index).fill(stack, true);
+            final FluidStack fluidStack = fluidFilter.getTankAt(index).getFluid();
+            if (fluidStack == null) return;
+            fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text));
+            compound.setTag("slot:" + index, fluidStack.writeToNBT(new NBTTagCompound()));
         };
-        final IntFunction<String> getFluidAmount = index -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount());
+        final IntFunction<String> getFluidCount = index -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount());
         final Consumer<Widget.ClickData> onIncrement = clickData -> {
             final int speed = compound.getInteger("speed");
             final int value = clickData.isCtrlClick ? 100
@@ -79,16 +77,17 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
                     : 1;
             compound.setInteger("speed", MathHelper.clamp(speed - value, 1, Integer.MAX_VALUE));
         };
+
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 25));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 25, 54, 54);
-        final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(-54, -20, 18, 18, "/2", data -> setFluidAmount.accept(String.valueOf(Long.parseLong(getFluidAmount.apply(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ClickButtonWidget clickButtonMultiply = new ClickButtonWidget(90, -20, 18, 18, "*2", data -> setFluidAmount.accept(String.valueOf(Long.parseLong(getFluidAmount.apply(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final NewTextFieldWidget<?> stackSizeTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, setFluidAmount)
+        final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(-54, -20, 18, 18, "/2", data -> setFluidCount.accept(String.valueOf(Long.parseLong(getFluidCount.apply(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonMultiply = new ClickButtonWidget(90, -20, 18, 18, "*2", data -> setFluidCount.accept(String.valueOf(Long.parseLong(getFluidCount.apply(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> fluidCountTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, setFluidCount)
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                 .setUpdateOnTyping(true)
                 .setMaxStringLength(11);
-        stackSizeTextField.setTextSupplier(() -> getFluidAmount.apply((int) stackSizeTextField.getTextIdLong()));
-        selectionWidgetGroup.setIndexListener(stackSizeTextField::setTextIdLong);
+        fluidCountTextField.setTextSupplier(() -> getFluidCount.apply((int) fluidCountTextField.getTextIdLong()));
+        selectionWidgetGroup.setIndexListener(fluidCountTextField::setTextIdLong);
         for (int i = 0; i < fluidFilter.getTanks(); i++) {
             final int index = i;
             widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, fluidFilter, fluid -> {
@@ -98,7 +97,7 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
             }).setBackgroundTexture(GuiTextures.FLUID_SLOT));
             selectionWidgetGroup.addSubWidget(i, clickButtonDivide);
             selectionWidgetGroup.addSubWidget(i, clickButtonMultiply);
-            selectionWidgetGroup.addSubWidget(i, stackSizeTextField);
+            selectionWidgetGroup.addSubWidget(i, fluidCountTextField);
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)

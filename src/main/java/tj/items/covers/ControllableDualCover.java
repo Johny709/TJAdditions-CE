@@ -675,11 +675,9 @@ public class ControllableDualCover extends DualCover {
     private void setItemCount(String text, String id) {
         final int index = Integer.parseInt(id);
         if (index < 0 || index >= this.itemFilter.getSlots()) return;
-        ItemStack stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, true);
+        final ItemStack stack = this.itemFilter.getStackInSlot(index);
         if (stack.isEmpty()) return;
-        stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, false);
-        stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-        this.itemFilter.insertItem(index, stack, false);
+        stack.setCount((int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
         this.itemType.put(stack, stack);
         this.markAsDirty();
     }
@@ -691,13 +689,10 @@ public class ControllableDualCover extends DualCover {
     private void setFluidCount(String text, String id) {
         final int index = Integer.parseInt(id);
         if (index < 0 || index >= this.fluidFilter.getTanks()) return;
-        FluidStack stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
-        if (stack == null) return;
-        stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
-        if (stack == null) return;
-        stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
-        this.fluidFilter.getTankAt(index).fill(stack, true);
-        this.fluidType.put(stack, stack);
+        final FluidStack fluidStack = this.fluidFilter.getTankAt(index).getFluid();
+        if (fluidStack == null) return;
+        fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text));
+        this.fluidType.put(fluidStack, fluidStack);
         this.markAsDirty();
     }
 

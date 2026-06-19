@@ -75,20 +75,20 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
     public ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 25));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 25, 54, 54);
-        final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(-54, -20, 18, 18, "/2", data -> this.setStackSize(String.valueOf(Long.parseLong(this.getStackSize(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ClickButtonWidget clickButtonMultiply = new ClickButtonWidget(90, -20, 18, 18, "*2", data -> this.setStackSize(String.valueOf(Long.parseLong(this.getStackSize(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final NewTextFieldWidget<?> stackSizeTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, this::setStackSize)
+        final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(-54, -20, 18, 18, "/2", data -> this.setItemCount(String.valueOf(Long.parseLong(this.getItemCount(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonMultiply = new ClickButtonWidget(90, -20, 18, 18, "*2", data -> this.setItemCount(String.valueOf(Long.parseLong(this.getItemCount(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> itemCountTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, this::setItemCount)
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                 .setUpdateOnTyping(true)
                 .setMaxStringLength(11);
-        stackSizeTextField.setTextSupplier(() -> this.getStackSize((int) stackSizeTextField.getTextIdLong()));
-        selectionWidgetGroup.setIndexListener(stackSizeTextField::setTextIdLong);
+        itemCountTextField.setTextSupplier(() -> this.getItemCount((int) itemCountTextField.getTextIdLong()));
+        selectionWidgetGroup.setIndexListener(itemCountTextField::setTextIdLong);
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
             widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilter)
                     .setBackgroundTextures(GuiTextures.SLOT));
             selectionWidgetGroup.addSubWidget(i, clickButtonDivide);
             selectionWidgetGroup.addSubWidget(i, clickButtonMultiply);
-            selectionWidgetGroup.addSubWidget(i, stackSizeTextField);
+            selectionWidgetGroup.addSubWidget(i, itemCountTextField);
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
@@ -148,18 +148,16 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
             this.speed = data.getInteger("Speed");
     }
 
-    private void setStackSize(String text, String id) {
+    private void setItemCount(String text, String id) {
         final int index = Integer.parseInt(id);
         if (index < 0 || index >= this.itemFilter.getSlots()) return;
-        ItemStack stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, true);
+        final ItemStack stack = this.itemFilter.getStackInSlot(index);
         if (stack.isEmpty()) return;
-        stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, false);
-        stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-        this.itemFilter.insertItem(index, stack, false);
+        stack.setCount((int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
         this.markAsDirty();
     }
 
-    private String getStackSize(int index) {
+    private String getItemCount(int index) {
         return String.valueOf(this.itemFilter.getStackInSlot(index).getCount());
     }
 

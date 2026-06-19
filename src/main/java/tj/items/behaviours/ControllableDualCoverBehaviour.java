@@ -15,6 +15,7 @@ import gregtech.common.covers.TransferMode;
 import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -41,9 +42,7 @@ import tj.util.references.BooleanReference;
 import tj.util.references.IntegerReference;
 import tj.util.references.ObjectReference;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
@@ -89,7 +88,7 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                 .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
                 .collect(Collectors.toList()));
         final Object2ObjectMap<ItemStack, ItemStack> itemType = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
-        final Set<FluidStack> fluidType = new HashSet<>();
+        final Object2ObjectMap<FluidStack, FluidStack> fluidType = new Object2ObjectOpenHashMap<>();
         final OreDictionaryItemFilter oreDictionaryItemFilter = new OreDictionaryItemFilter() {
             @Override
             public void initUI(Consumer<Widget> widgetGroup) {
@@ -137,24 +136,21 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
         final BiConsumer<String, String> setItemCount = (text, id) -> {
             final int index = Integer.parseInt(id);
             if (index < 0 || index >= itemFilter.getSlots()) return;
-            ItemStack stack = itemFilter.extractItem(index, Integer.MAX_VALUE, true);
+            final ItemStack stack = itemFilter.getStackInSlot(index);
             if (stack.isEmpty()) return;
-            stack = itemFilter.extractItem(index, Integer.MAX_VALUE, false);
-            stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+            stack.setCount((int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+            itemType.put(stack, stack);
             compound.setTag("itemSlot:" + index, stack.serializeNBT());
-            itemFilter.insertItem(index, stack, false);
         };
         final IntFunction<String> getItemCount = index -> String.valueOf(itemFilter.getStackInSlot(index).getCount());
         final BiConsumer<String, String> setFluidCount = (text, id) -> {
             final int index = Integer.parseInt(id);
             if (index < 0 || index >= fluidFilter.getTanks()) return;
-            FluidStack stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
-            if (stack == null) return;
-            stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
-            if (stack == null) return;
-            stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
-            compound.setTag("fluidSlot:" + index, stack.writeToNBT(new NBTTagCompound()));
-            fluidFilter.getTankAt(index).fill(stack, true);
+            final FluidStack fluidStack = fluidFilter.getTankAt(index).getFluid();
+            if (fluidStack == null) return;
+            fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text));
+            fluidType.put(fluidStack, fluidStack);
+            compound.setTag("fluidSlot:" + index, fluidStack.writeToNBT(new NBTTagCompound()));
         };
         final IntFunction<String> getFluidCount = index -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount());
 
@@ -229,11 +225,11 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
             final int index = i;
             fluidWidgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, fluidFilter, fluid -> {
                 if (fluid != null) {
-                    fluidType.add(fluid);
+                    fluidType.put(fluid, fluid);
                     compound.setTag("fluidSlot:" + index, fluid.writeToNBT(new NBTTagCompound()));
                 } else compound.removeTag("fluidSlot:" + index);
             }, fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
-                    .setPutFluidsPredicate(fluid -> !fluidType.contains(fluid)));
+                    .setPutFluidsPredicate(fluid -> !fluidType.containsKey(fluid)));
             fluidSelectionWidgetGroup.addSubWidget(i, clickButtonDivide1);
             fluidSelectionWidgetGroup.addSubWidget(i, clickButtonMultiply1);
             fluidSelectionWidgetGroup.addSubWidget(i, fluidCountTextField);
@@ -413,7 +409,8 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     for (int i = 0; i < fluidFilter.getTanks(); i++) {
                         if (compound.hasKey("fluidSlot:" + i)) {
                             fluidFilter.getTankAt(i).fill(FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("fluidSlot:" + i)), true);
-                            fluidType.add(fluidFilter.getTankAt(i).getFluid());
+                            final FluidStack fluidStack = fluidFilter.getTankAt(i).getFluid();
+                            fluidType.put(fluidStack, fluidStack);
                         }
                     }
                 }).bindCloseListener(() -> itemStack.getOrCreateSubCompound("init").merge(compound))

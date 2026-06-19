@@ -79,20 +79,20 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
     public ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 25));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 25, 54, 54);
-        final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(-54, -20, 18, 18, "/2", data -> this.setFluidAmount(String.valueOf(Long.parseLong(this.getFluidAmount(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ClickButtonWidget clickButtonMultiply = new ClickButtonWidget(90, -20, 18, 18, "*2", data -> this.setFluidAmount(String.valueOf(Long.parseLong(this.getFluidAmount(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final NewTextFieldWidget<?> stackSizeTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, this::setFluidAmount)
+        final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(-54, -20, 18, 18, "/2", data -> this.setFluidCount(String.valueOf(Long.parseLong(this.getFluidCount(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonMultiply = new ClickButtonWidget(90, -20, 18, 18, "*2", data -> this.setFluidCount(String.valueOf(Long.parseLong(this.getFluidCount(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> fluidCountTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, this::setFluidCount)
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                 .setUpdateOnTyping(true)
                 .setMaxStringLength(11);
-        stackSizeTextField.setTextSupplier(() -> this.getFluidAmount((int) stackSizeTextField.getTextIdLong()));
-        selectionWidgetGroup.setIndexListener(stackSizeTextField::setTextIdLong);
+        fluidCountTextField.setTextSupplier(() -> this.getFluidCount((int) fluidCountTextField.getTextIdLong()));
+        selectionWidgetGroup.setIndexListener(fluidCountTextField::setTextIdLong);
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.fluidFilter, null)
                     .setBackgroundTexture(GuiTextures.FLUID_SLOT));
             selectionWidgetGroup.addSubWidget(i, clickButtonDivide);
             selectionWidgetGroup.addSubWidget(i, clickButtonMultiply);
-            selectionWidgetGroup.addSubWidget(i, stackSizeTextField);
+            selectionWidgetGroup.addSubWidget(i, fluidCountTextField);
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
@@ -154,19 +154,16 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
             this.speed = data.getInteger("Speed");
     }
 
-    private void setFluidAmount(String text, String id) {
+    private void setFluidCount(String text, String id) {
         final int index = Integer.parseInt(id);
         if (index < 0 || index >= this.fluidFilter.getTanks()) return;
-        FluidStack stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
-        if (stack == null) return;
-        stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
-        if (stack == null) return;
-        stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
-        this.fluidFilter.getTankAt(index).fill(stack, true);
+        final FluidStack fluidStack = this.fluidFilter.getTankAt(index).getFluid();
+        if (fluidStack == null) return;
+        fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text));
         this.markAsDirty();
     }
 
-    private String getFluidAmount(int index) {
+    private String getFluidCount(int index) {
         return String.valueOf(this.fluidFilter.getTankAt(index).getFluidAmount());
     }
 
