@@ -61,8 +61,16 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(63, 48));
-        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(63, 48, 54, 54);
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 48));
+        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 48, 54, 54);
+        final ClickButtonWidget clickButtonDivide = new ClickButtonWidget(-54, -20, 18, 18, "/2", data -> this.setFluidCount(String.valueOf(Long.parseLong(this.getFluidCount(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonMultiply = new ClickButtonWidget(90, -20, 18, 18, "*2", data -> this.setFluidCount(String.valueOf(Long.parseLong(this.getFluidCount(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> stackSizeTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, this::setFluidCount)
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setUpdateOnTyping(true)
+                .setMaxStringLength(11);
+        stackSizeTextField.setTextSupplier(() -> this.getFluidCount((int) stackSizeTextField.getTextIdLong()));
+        selectionWidgetGroup.setIndexListener(stackSizeTextField::setTextIdLong);
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             final int index = i;
             widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.fluidFilter, fluid -> {
@@ -71,13 +79,9 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
                 this.fluidFilter.getTankAt(index).fill(fluid, true);
                 this.fluidType.put(fluid, fluid);
             }).setBackgroundTexture(GuiTextures.FLUID_SLOT));
-            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(-37, -20, 124, 18, true, () -> String.valueOf(this.fluidFilter.getTankAt(index).getFluidAmount()), this::setFluidCount)
-                    .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                    .setTextId(String.valueOf(index))
-                    .setUpdateOnTyping(true)
-                    .setMaxStringLength(11));
-            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(-56, -20, 18, 18, "/2", data -> this.setFluidCount(String.valueOf((long) this.fluidFilter.getTankAt(index).getFluidAmount() / 2), String.valueOf(index))));
-            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(88, -20, 18, 18, "*2", data -> this.setFluidCount(String.valueOf((long) this.fluidFilter.getTankAt(index).getFluidAmount() * 2), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, clickButtonDivide);
+            selectionWidgetGroup.addSubWidget(i, clickButtonMultiply);
+            selectionWidgetGroup.addSubWidget(i, stackSizeTextField);
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 208)
@@ -134,8 +138,9 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
         this.voidMode = VoidMode.values()[tagCompound.getInteger("voidMode")];
     }
 
-    public void setFluidCount(String text, String id) {
+    private void setFluidCount(String text, String id) {
         final int index = Integer.parseInt(id);
+        if (index < 0 || index >= this.fluidFilter.getTanks()) return;
         FluidStack stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
         if (stack == null) return;
         stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
@@ -144,6 +149,10 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
         this.fluidFilter.getTankAt(index).fill(stack, true);
         this.fluidType.put(stack, stack);
         this.markAsDirty();
+    }
+
+    private String getFluidCount(int index) {
+        return String.valueOf(this.fluidFilter.getTankAt(index).getFluidAmount());
     }
 
     public void setVoidMode(VoidMode voidMode) {
