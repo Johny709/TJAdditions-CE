@@ -127,29 +127,41 @@ public class PartStockingInterface extends PartInterface implements ITileEntityU
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final DualityInterface duality = this.getInterfaceDuality();
-        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(0, 0, 0, 0);
+        final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
         final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         final ButtonPopUpWidget<?> buttonPopUpTickWidget = new ButtonPopUpWidget<>();
-        final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
+        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(0, 0, 0, 0);
+        final ImageWidget stackSizeDisplay = new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND);
+        final LabelWidget stackSizeLabel = new LabelWidget(14, 112, "machine.universal.stack_size");
+        final ClickButtonWidget clickButtonAdd1 = new ClickButtonWidget(15, 127, 25, 20, "+1", data -> this.setStackSize(String.valueOf(Long.parseLong(this.getStackSize(selectionWidgetGroup.getIndex())) + 1), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonAdd10 = new ClickButtonWidget(45, 127, 30, 20, "+10", data -> this.setStackSize(String.valueOf(Long.parseLong(this.getStackSize(selectionWidgetGroup.getIndex())) + 10), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonAdd100 = new ClickButtonWidget(80, 127, 35, 20, "+100", data -> this.setStackSize(String.valueOf(Long.parseLong(this.getStackSize(selectionWidgetGroup.getIndex())) + 100), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonAdd1000 = new ClickButtonWidget(120, 127, 40, 20, "+1000", data -> this.setStackSize(String.valueOf(Long.parseLong(this.getStackSize(selectionWidgetGroup.getIndex())) + 1000), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonSub1 = new ClickButtonWidget(15, 177, 25, 20, "-1", data -> this.setStackSize(String.valueOf(Long.parseLong(this.getStackSize(selectionWidgetGroup.getIndex())) - 1), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonSub10 = new ClickButtonWidget(45, 177, 30, 20, "-10", data -> this.setStackSize(String.valueOf(Long.parseLong(this.getStackSize(selectionWidgetGroup.getIndex())) - 10), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonSub100 = new ClickButtonWidget(80, 177, 35, 20, "-100", data -> this.setStackSize(String.valueOf(Long.parseLong(this.getStackSize(selectionWidgetGroup.getIndex())) - 100), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ClickButtonWidget clickButtonSub1000 = new ClickButtonWidget(120, 177, 40, 20, "-1000", data -> this.setStackSize(String.valueOf(Long.parseLong(this.getStackSize(selectionWidgetGroup.getIndex())) - 1000), String.valueOf(selectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> stackSizeTextField = new NewTextFieldWidget<>(14, 153, 148, 18, true, null, this::setStackSize)
+                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                .setUpdateOnTyping(true)
+                .setMaxStringLength(11);
+        stackSizeTextField.setTextSupplier(() -> this.getStackSize((int) stackSizeTextField.getTextIdLong()));
+        selectionWidgetGroup.setIndexListener(stackSizeTextField::setTextIdLong);
         final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292);
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
-            final int index = i;
             builder.widget(new TJPhantomItemSlotWidget(7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18, i, duality.getConfig())
                     .setBackgroundTextures(TJGuiTextures.SLOT_DOWN));
-            selectionWidgetGroup.addSubWidget(i, new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
-            selectionWidgetGroup.addSubWidget(i, new LabelWidget(14, 112, "machine.universal.stack_size"));
-            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(14, 153, 148, 18, true, () -> String.valueOf(duality.getConfig().getStackInSlot(index).getCount()), this::setStackSize)
-                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                    .setTextId(String.valueOf(index))
-                    .setUpdateOnTyping(true));
-            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(15, 127, 25, 20, "+1", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() + 1), String.valueOf(index))));
-            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(45, 127, 30, 20, "+10", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() + 10), String.valueOf(index))));
-            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(80, 127, 35, 20, "+100", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() + 100), String.valueOf(index))));
-            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(120, 127, 40, 20, "+1000", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() + 1000), String.valueOf(index))));
-            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(15, 177, 25, 20, "-1", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() - 1), String.valueOf(index))));
-            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(45, 177, 30, 20, "-10", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() - 10), String.valueOf(index))));
-            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(80, 177, 35, 20, "-100", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() - 100), String.valueOf(index))));
-            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(120, 177, 40, 20, "-1000", data -> this.setStackSize(String.valueOf((long) duality.getConfig().getStackInSlot(index).getCount() - 1000), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, stackSizeDisplay);
+            selectionWidgetGroup.addSubWidget(i, stackSizeLabel);
+            selectionWidgetGroup.addSubWidget(i, clickButtonAdd1);
+            selectionWidgetGroup.addSubWidget(i, clickButtonAdd10);
+            selectionWidgetGroup.addSubWidget(i, clickButtonAdd100);
+            selectionWidgetGroup.addSubWidget(i, clickButtonAdd1000);
+            selectionWidgetGroup.addSubWidget(i, clickButtonSub1);
+            selectionWidgetGroup.addSubWidget(i, clickButtonSub10);
+            selectionWidgetGroup.addSubWidget(i, clickButtonSub100);
+            selectionWidgetGroup.addSubWidget(i, clickButtonSub1000);
+            selectionWidgetGroup.addSubWidget(i, stackSizeTextField);
             selectionWidgetGroup.addSelectionBox(i, 7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18);
         }
         builder.widget(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredItems"))
@@ -251,6 +263,10 @@ public class PartStockingInterface extends PartInterface implements ITileEntityU
         itemStack.setCount(stackSize);
         ((AppEngInternalAEInventory) this.getInterfaceDuality().getConfig()).setStackInSlot(slot, itemStack);
         this.getTile().markDirty();
+    }
+
+    private String getStackSize(int index) {
+        return String.valueOf(this.getInterfaceDuality().getConfig().getStackInSlot(index).getCount());
     }
 
     private void setTickTime(String text, String id) {
