@@ -63,7 +63,15 @@ public class TilePatternInterface extends TileInterface implements ITileEntityUI
                 .setScrollWidth(4);
         final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
-        final ItemStack patternMultiTool = ItemStack.EMPTY;
+        final ItemStack patternMultiTool = Optional.of(player.inventory.mainInventory)
+                .map(inventory -> {
+                    final ItemStack patternTool = TJItemUtils.getItemStackFromName("nae2:pattern_multiplier");
+                    for (final ItemStack stack : inventory) {
+                        if (stack.isItemEqual(patternTool))
+                            return stack;
+                    }
+                    return ItemStack.EMPTY;
+                }).get();
         final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(patternMultiTool);
         final NBTTagCompound invTag = compound.getCompoundTag("inv");
         final NBTTagCompound upgradeTag = compound.getCompoundTag("upgrades");
