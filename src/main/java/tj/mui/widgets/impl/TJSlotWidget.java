@@ -414,6 +414,12 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
         return ItemStack.EMPTY;
     }
 
+    public void forceUpdate() {
+        this.itemStack = ItemStack.EMPTY;
+        this.itemCount = 0;
+        this.compound = null;
+    }
+
     private static class TJSlotItemHandler extends SlotItemHandler {
 
         public TJSlotItemHandler(IItemHandler itemHandler, int index, int xPosition, int yPosition) {

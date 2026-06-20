@@ -56,6 +56,7 @@ import tj.mui.widgets.impl.*;
 import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -255,21 +256,24 @@ public class PartSuperDualInterface extends PartInterface implements IFluidInter
         tab.add(scrollableWidgetGroup);
         tab.add(selectionWidgetGroup);
         if (!patternMultiTool.isEmpty()) {
+            final List<AEPatternSlotWidget> patternSlotWidgets = new ArrayList<>();
             tab.add(new ImageWidget(-125, 0, 105, 218, GuiTextures.BORDERED_BACKGROUND));
             tab.add(new LabelWidget(-118, 4, "item.nae2.pattern_multiplier.name"));
-            tab.add(new ClickButtonWidget(-118, 176, 18, 18, "*2", data -> this.changePatternAmount(multiPatternSlots, 2, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
-            tab.add(new ClickButtonWidget(-118, 194, 18, 18, "/2", data -> this.changePatternAmount(multiPatternSlots, -2, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
-            tab.add(new ClickButtonWidget(-100, 176, 18, 18, "*3", data -> this.changePatternAmount(multiPatternSlots, 3, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
-            tab.add(new ClickButtonWidget(-100, 194, 18, 18, "/3", data -> this.changePatternAmount(multiPatternSlots, -3, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
-            tab.add(new ClickButtonWidget(-82, 176, 18, 18, "*4", data -> this.changePatternAmount(multiPatternSlots, 4, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
-            tab.add(new ClickButtonWidget(-82, 194, 18, 18, "/4", data -> this.changePatternAmount(multiPatternSlots, -4, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            tab.add(new ClickButtonWidget(-118, 176, 18, 18, "*2", data -> this.changePatternAmount(multiPatternSlots, 2, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            tab.add(new ClickButtonWidget(-118, 194, 18, 18, "/2", data -> this.changePatternAmount(multiPatternSlots, -2, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            tab.add(new ClickButtonWidget(-100, 176, 18, 18, "*3", data -> this.changePatternAmount(multiPatternSlots, 3, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            tab.add(new ClickButtonWidget(-100, 194, 18, 18, "/3", data -> this.changePatternAmount(multiPatternSlots, -3, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            tab.add(new ClickButtonWidget(-82, 176, 18, 18, "*4", data -> this.changePatternAmount(multiPatternSlots, 4, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            tab.add(new ClickButtonWidget(-82, 194, 18, 18, "/4", data -> this.changePatternAmount(multiPatternSlots, -4, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
             for (int i = 0; i < multiPatternSlots.getSlots(); i++) {
                 final int index = i;
-                tab.add(new AEPatternSlotWidget(multiPatternSlots, i, -118 + (18 * (i / 9)), 14 + (18 * (i % 9)))
+                final AEPatternSlotWidget patternSlotWidget = new AEPatternSlotWidget(multiPatternSlots, i, -118 + (18 * (i / 9)), 14 + (18 * (i % 9)))
                         .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
                         .setActiveSupplier(() -> index / 9 <= multiUpgradeSlots.getSlotsFilled())
                         .setSlotLocationInfo(true, false)
-                        .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT));
+                        .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT);
+                tab.add(patternSlotWidget);
+                patternSlotWidgets.add(patternSlotWidget);
             }
             for (int i = 0; i < multiUpgradeSlots.getSlots(); i++) {
                 tab.add(new TJSlotWidget<>(multiUpgradeSlots, i, -46, 14 + (i * 18))
@@ -351,7 +355,7 @@ public class PartSuperDualInterface extends PartInterface implements IFluidInter
         }
     }
 
-    private void changePatternAmount(IItemHandler patternSlots, int multiplier, Runnable callback) {
+    private void changePatternAmount(IItemHandler patternSlots, int multiplier, List<AEPatternSlotWidget> patternSlotWidgets, Runnable callback) {
         final boolean divide = multiplier < 0;
         if (divide)
             multiplier = Math.abs(multiplier);
@@ -415,6 +419,8 @@ public class PartSuperDualInterface extends PartInterface implements IFluidInter
             if (setPatternInputs.test(true))
                 setPatternInputs.test(false);
         }
+        for (AEPatternSlotWidget slotWidget : patternSlotWidgets)
+            slotWidget.forceUpdate();
         callback.run();
     }
 
