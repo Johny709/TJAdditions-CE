@@ -4,6 +4,7 @@ import appeng.api.config.*;
 import appeng.core.Api;
 import appeng.helpers.DualityInterface;
 import appeng.tile.misc.TileInterface;
+import baubles.api.BaublesApi;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.ClickButtonWidget;
@@ -60,10 +61,17 @@ public class TilePatternInterface extends TileInterface implements ITileEntityUI
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final DualityInterface duality = this.getInterfaceDuality();
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
-        final ItemStack patternMultiTool = player.inventory.mainInventory.stream()
-                .filter(itemStack -> itemStack.isItemEqual(TJItemUtils.getItemStackFromName("nae2:pattern_multiplier")))
-                .findFirst()
-                .orElse(ItemStack.EMPTY);
+        final ItemStack patternMultiTool = Optional.of(player.inventory.mainInventory)
+                .map(inventory -> {
+                    for (ItemStack stack : inventory)
+                        if (stack.isItemEqual(TJItemUtils.getItemStackFromName("nae2:pattern_multiplier")))
+                            return stack;
+                    final IItemHandlerModifiable baubleSlots = BaublesApi.getBaublesHandler(player);
+                    for (int i = 0; i < baubleSlots.getSlots(); i++)
+                        if (baubleSlots.getStackInSlot(i).isItemEqual(TJItemUtils.getItemStackFromName("nae2:pattern_multiplier")))
+                            return baubleSlots.getStackInSlot(i);
+                    return ItemStack.EMPTY;
+                }).get();
         final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(patternMultiTool);
         final NBTTagCompound invTag = compound.getCompoundTag("inv");
         final NBTTagCompound upgradeTag = compound.getCompoundTag("upgrades");
