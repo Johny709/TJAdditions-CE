@@ -80,15 +80,10 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final DualityInterface duality = this.getInterfaceDuality();
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
-        final ItemStack patternMultiTool = Optional.of(player.inventory.mainInventory)
-                .map(inventory -> {
-                    final ItemStack patternTool = TJItemUtils.getItemStackFromName("nae2:pattern_multiplier");
-                    for (final ItemStack stack : inventory) {
-                        if (stack.isItemEqual(patternTool))
-                            return stack;
-                    }
-                    return ItemStack.EMPTY;
-                }).get();
+        final ItemStack patternMultiTool = player.inventory.mainInventory.stream()
+                .filter(itemStack -> itemStack.isItemEqual(TJItemUtils.getItemStackFromName("nae2:pattern_multiplier")))
+                .findFirst()
+                .orElse(ItemStack.EMPTY);
         final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(patternMultiTool);
         final NBTTagCompound invTag = compound.getCompoundTag("inv");
         final NBTTagCompound upgradeTag = compound.getCompoundTag("upgrades");
@@ -179,7 +174,7 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
                     if (!patternMultiTool.isEmpty()) {
                         this.readPatternMultiToolNBT(multiPatternSlots, invTag.getTagList("Items", 10));
                         this.readPatternMultiToolNBT(multiUpgradeSlots, upgradeTag.getTagList("Items", 10));
-                        if (patternMultiTool.getTagCompound() == null) {
+                        if (patternMultiTool.getTagCompound() == null || patternMultiTool.getTagCompound().isEmpty()) {
                             compound.setTag("inv", invTag);
                             compound.setTag("upgrades", upgradeTag);
                             patternMultiTool.setTagCompound(compound);
@@ -239,7 +234,7 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
         for (int i = 0; i < tagList.tagCount(); i++) {
             final NBTTagCompound compound = tagList.getCompoundTagAt(i);
             if (compound.hasKey("Slot")) {
-                final ItemStack patternStack = TJItemUtils.getItemStackFromName(compound.getString("id"), 1, compound.getShort("Damage"));
+                final ItemStack patternStack = TJItemUtils.getItemStackFromName(compound.getString("id"), compound.getInteger("Count"), compound.getShort("Damage"));
                 patternStack.setTagCompound(compound.getCompoundTag("tag"));
                 itemHandler.setStackInSlot(compound.getInteger("Slot"), patternStack);
             }
