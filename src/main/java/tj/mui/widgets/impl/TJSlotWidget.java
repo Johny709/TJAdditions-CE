@@ -137,13 +137,13 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
             textureArea.draw(pos.getX(), pos.getY(), 18, 18);
         }
         if (this.isActive) {
-            if (!this.itemStack.isEmpty()) {
+            if (!this.itemStack.isEmpty() || this.simulating) {
                 final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
                 GlStateManager.disableBlend();
-                drawItemStack(this.itemStack, stackX, stackY, null);
+                drawItemStack(this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex) : this.itemStack, stackX, stackY, null);
                 GlStateManager.pushMatrix();
                 GlStateManager.scale(0.5, 0.5, 1);
-                final String s = TextFormattingUtil.formatLongToCompactString(this.itemCount, 4);
+                final String s = TextFormattingUtil.formatLongToCompactString(this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex).getCount() : this.itemCount, 4);
                 fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + 12) * 2, 0xFFFFFF);
                 GlStateManager.popMatrix();
                 GlStateManager.enableBlend();
