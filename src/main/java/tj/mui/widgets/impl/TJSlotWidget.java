@@ -276,10 +276,13 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
                             final int amount = isCtrlKeyPressed ? Integer.MAX_VALUE : 64;
                             if (this.takeItemsPredicate != null && !this.takeItemsPredicate.test(this.getItemHandler().extractItem(this.slotIndex, amount, true))) return;
                             newStack = this.getItemHandler().extractItem(this.slotIndex, amount, false);
+                            if (this.widgetGroup != null) {
+                                if (isShiftKeyPressed && this.widgetGroup.getItemStackTransfer() != null) {
+                                    newStack = this.widgetGroup.getItemStackTransfer().apply(newStack);
+                                } else this.writeUpdateInfo(3, buffer1 -> buffer1.writeInt(5));
+                            }
                             if (isShiftKeyPressed)
                                 newStack = TJItemUtils.insertInMainInventory(player.inventory, newStack);
-                            if (this.widgetGroup != null)
-                                this.writeUpdateInfo(3, buffer1 -> buffer1.writeInt(5));
                         } else return;
                     } else if (this.widgetGroup == null && (this.putItemsPredicate == null || this.putItemsPredicate.test(handStack))) {
                         // if this slot was not added to a slot group then let this slot handle the stack insertion

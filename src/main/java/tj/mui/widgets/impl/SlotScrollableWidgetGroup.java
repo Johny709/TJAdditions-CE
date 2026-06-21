@@ -25,11 +25,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup {
 
-    protected static final int SLOT_HEIGHT = 18;
     private final int rowLength;
     protected int totalListHeight;
     protected int scrollOffset;
@@ -38,6 +38,7 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     protected int lastMouseY;
     protected boolean draggedOnScrollBar;
     protected IItemHandler itemHandler;
+    protected UnaryOperator<ItemStack> itemStackTransfer;
 
     private final Map<ISlotHandler, ItemStack> dragWidgets = new HashMap<>();
 
@@ -61,6 +62,11 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
 
     public SlotScrollableWidgetGroup setItemHandler(IItemHandler itemHandler) {
         this.itemHandler = itemHandler;
+        return this;
+    }
+
+    public SlotScrollableWidgetGroup setItemStackTransfer(UnaryOperator<ItemStack> itemStackTransfer) {
+        this.itemStackTransfer = itemStackTransfer;
         return this;
     }
 
@@ -113,6 +119,14 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
             widget.applyScissor(position.x, position.y, size.width - this.scrollPaneWidth, size.height);
         }
         this.totalListHeight = totalListHeight;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void updateScreen() {
+        super.updateScreen();
+        if (this.timer > 0)
+            this.timer--;
     }
 
     @Override
@@ -264,10 +278,6 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
             final int widgetUpdateId = buffer.readVarInt();
             final Widget widget = this.widgets.get(Math.min(this.widgets.size() - 1, widgetIndex));
             widget.readUpdateInfo(widgetUpdateId, buffer);
-        } else if (id == 2) {
-            final int time = buffer.readInt();
-            if (this.timer > 0 && time == 1)
-                this.timer--;
         } else if (id == 3) {
             try {
                 this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
@@ -332,12 +342,6 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     }
 
     @Override
-    public void detectAndSendChanges() {
-        super.detectAndSendChanges();
-        this.writeUpdateInfo(2, buffer -> buffer.writeInt(1));
-    }
-
-    @Override
     @SideOnly(Side.CLIENT)
     public void addSlotToDrag(ISlotHandler widget, Runnable callback) {
         if (this.canAddWidgets && !this.dragWidgets.containsKey(widget)) {
@@ -377,5 +381,10 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     @SideOnly(Side.CLIENT)
     public void setTimer(int timer) {
         this.timer = timer;
+    }
+
+    @Override
+    public UnaryOperator<ItemStack> getItemStackTransfer() {
+        return this.itemStackTransfer;
     }
 }

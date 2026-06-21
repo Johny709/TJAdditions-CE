@@ -39,10 +39,7 @@ import tj.mui.widgets.impl.*;
 import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -82,11 +79,6 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final DualityInterface duality = this.getInterfaceDuality();
-        final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(7, 123, 166, 72, 9)
-                .setScrollWidth(4);
-        final SlotScrollableWidgetGroup scrollableWidgetGroup1 = new SlotScrollableWidgetGroup(186, 7, 40, 180, 2)
-                .setScrollWidth(4);
-        final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
         final ItemStack patternMultiTool = Optional.of(player.inventory.mainInventory)
                 .map(inventory -> {
@@ -107,48 +99,32 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
         final FilteredItemStackHandler multiUpgradeSlots = new FilteredItemStackHandler(null, 3, 1)
                 .setItemStackPredicate((slot, itemStack) -> itemStack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)));
         multiUpgradeSlots.setOnContentsChangedPost((slot, itemStack) -> this.writePatternMultiToolToNBT(multiUpgradeSlots, upgradeTag));
+
+        final SlotScrollableWidgetGroup patternScrollableSlotGroup = new SlotScrollableWidgetGroup(7, 123, 166, 72, 9)
+                .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(multiPatternSlots, itemStack, false))
+                .setItemHandler(duality.getPatterns())
+                .setScrollWidth(4);
+        final SlotScrollableWidgetGroup upgradeScrollableSlotGroup = new SlotScrollableWidgetGroup(186, 7, 40, 180, 2)
+                .setScrollWidth(4);
+        final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
-            scrollableWidgetGroup1.addWidget(new TJSlotWidget<>(upgradeHandler, i, 18 * (i % 2), 18 * (i / 2))
+            upgradeScrollableSlotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 18 * (i % 2), 18 * (i / 2))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
         }
         for (int i = 0; i < duality.getPatterns().getSlots(); i++) {
             final int index = i;
-            scrollableWidgetGroup.addWidget(new AEPatternSlotWidget(duality.getPatterns(), i, 18 * (i % 9), 18 * (i / 9))
+            patternScrollableSlotGroup.addWidget(new AEPatternSlotWidget(duality.getPatterns(), i, 18 * (i % 9), 18 * (i / 9))
                     .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) && buttonPopUpWidget.getIndex() == 0)
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
                     .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
+                    .setWidgetGroup(patternScrollableSlotGroup)
                     .setActiveInit(false));
         }
-        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.PATTERN_INTERFACE, 229, 292)
-                .widget(new LabelWidget(7, 23, "gui.appliedenergistics2.StoredItems"))
+        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.PATTERN_INTERFACE, 229, 292);
+        this.createPatternMultiToolGUI(builder.widget(new LabelWidget(7, 23, "gui.appliedenergistics2.StoredItems"))
                 .widget(new LabelWidget(7, 113, "gui.appliedenergistics2.Patterns"))
-                .widget(scrollableWidgetGroup)
-                .widget(scrollableWidgetGroup1);
-        if (!patternMultiTool.isEmpty()) {
-            final List<AEPatternSlotWidget> patternSlotWidgets = new ArrayList<>();
-            builder.widget(new ImageWidget(-125, 0, 105, 218, GuiTextures.BORDERED_BACKGROUND))
-                    .widget(new LabelWidget(-118, 4, "item.nae2.pattern_multiplier.name"))
-                    .widget(new ClickButtonWidget(-118, 176, 18, 18, "*2", data -> this.changePatternAmount(multiPatternSlots, 2, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
-                    .widget(new ClickButtonWidget(-118, 194, 18, 18, "/2", data -> this.changePatternAmount(multiPatternSlots, -2, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
-                    .widget(new ClickButtonWidget(-100, 176, 18, 18, "*3", data -> this.changePatternAmount(multiPatternSlots, 3, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
-                    .widget(new ClickButtonWidget(-100, 194, 18, 18, "/3", data -> this.changePatternAmount(multiPatternSlots, -3, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
-                    .widget(new ClickButtonWidget(-82, 176, 18, 18, "*4", data -> this.changePatternAmount(multiPatternSlots, 4, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
-                    .widget(new ClickButtonWidget(-82, 194, 18, 18, "/4", data -> this.changePatternAmount(multiPatternSlots, -4, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
-            for (int i = 0; i < multiPatternSlots.getSlots(); i++) {
-                final int index = i;
-                final AEPatternSlotWidget patternSlotWidget = new AEPatternSlotWidget(multiPatternSlots, i, -118 + (18 * (i / 9)), 14 + (18 * (i % 9)))
-                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
-                        .setActiveSupplier(() -> index / 9 <= multiUpgradeSlots.getSlotsFilled())
-                        .setSlotLocationInfo(true, false)
-                        .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT);
-                builder.widget(patternSlotWidget);
-                patternSlotWidgets.add(patternSlotWidget);
-            }
-            for (int i = 0; i < multiUpgradeSlots.getSlots(); i++) {
-                builder.widget(new TJSlotWidget<>(multiUpgradeSlots, i, -46, 14 + (i * 18))
-                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
-            }
-        }
+                .widget(patternScrollableSlotGroup)
+                .widget(upgradeScrollableSlotGroup), patternMultiTool, multiUpgradeSlots, duality.getPatterns(), multiPatternSlots, invTag);
         for (int i = 0; i < duality.getStorage().getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 34 + (18 * (i / 9)))
                     .setActiveBackgroundTexture(GuiTextures.SLOT));
@@ -210,6 +186,40 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
                         }
                     }
                 }).build(holder, player);
+    }
+
+    private void createPatternMultiToolGUI(ModularUI.Builder builder, ItemStack patternMultiTool, FilteredItemStackHandler multiUpgradeSlots, IItemHandler patternSlots, IItemHandler multiPatternSlots, NBTTagCompound invTag) {
+        if (!patternMultiTool.isEmpty()) {
+            final List<AEPatternSlotWidget> patternSlotWidgets = new ArrayList<>();
+            final SlotScrollableWidgetGroup multiPatternSlotGroup = new SlotScrollableWidgetGroup(-118, 14, 72, 162, 4)
+                    .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(patternSlots, itemStack, false))
+                    .setItemHandler(multiUpgradeSlots)
+                    .setScrollWidth(0);
+            builder.widget(new ImageWidget(-125, 0, 105, 218, GuiTextures.BORDERED_BACKGROUND))
+                    .widget(new LabelWidget(-118, 4, "item.nae2.pattern_multiplier.name"))
+                    .widget(new ClickButtonWidget(-118, 176, 18, 18, "*2", data -> this.changePatternAmount(multiPatternSlots, 2, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
+                    .widget(new ClickButtonWidget(-118, 194, 18, 18, "/2", data -> this.changePatternAmount(multiPatternSlots, -2, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
+                    .widget(new ClickButtonWidget(-100, 176, 18, 18, "*3", data -> this.changePatternAmount(multiPatternSlots, 3, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
+                    .widget(new ClickButtonWidget(-100, 194, 18, 18, "/3", data -> this.changePatternAmount(multiPatternSlots, -3, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
+                    .widget(new ClickButtonWidget(-82, 176, 18, 18, "*4", data -> this.changePatternAmount(multiPatternSlots, 4, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
+                    .widget(new ClickButtonWidget(-82, 194, 18, 18, "/4", data -> this.changePatternAmount(multiPatternSlots, -4, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            for (int i = 0; i < multiPatternSlots.getSlots(); i++) {
+                final int index = i;
+                final AEPatternSlotWidget patternSlotWidget = new AEPatternSlotWidget(multiPatternSlots, i, 18 * (i / 9), 18 * (i % 9))
+                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
+                        .setActiveSupplier(() -> index / 9 <= multiUpgradeSlots.getSlotsFilled())
+                        .setSlotLocationInfo(true, false)
+                        .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
+                        .setWidgetGroup(multiPatternSlotGroup);
+                multiPatternSlotGroup.addWidget(patternSlotWidget);
+                patternSlotWidgets.add(patternSlotWidget);
+            }
+            builder.widget(multiPatternSlotGroup);
+            for (int i = 0; i < multiUpgradeSlots.getSlots(); i++) {
+                builder.widget(new TJSlotWidget<>(multiUpgradeSlots, i, -46, 14 + (i * 18))
+                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
+            }
+        }
     }
 
     private void writePatternMultiToolToNBT(IItemHandler itemHandler, NBTTagCompound compound) {
@@ -321,7 +331,6 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
             return MODELS_OFF;
         }
     }
-
 
     private void setBlockingMode(boolean blockingMode) {
         this.getInterfaceDuality().getConfigManager().putSetting(Settings.BLOCK, blockingMode ? YesNo.YES : YesNo.NO);
