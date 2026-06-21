@@ -154,7 +154,8 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("steam_oven", new MultiblockInfoRecipeWrapper(new SteamOvenInfo()))
                             .put("steam_atmosphere_collector_turbine", new MultiblockInfoRecipeWrapper(new XLAtmosphereCollectorInfo(XL_ATMOSPHERE_COLLECTORS[0])))
                             .put("gas_atmosphere_collector_turbine", new MultiblockInfoRecipeWrapper(new XLAtmosphereCollectorInfo(XL_ATMOSPHERE_COLLECTORS[1])))
-                            .put("plasma_atmosphere_collector_turbine", new MultiblockInfoRecipeWrapper(new XLAtmosphereCollectorInfo(XL_ATMOSPHERE_COLLECTORS[2])));
+                            .put("plasma_atmosphere_collector_turbine", new MultiblockInfoRecipeWrapper(new XLAtmosphereCollectorInfo(XL_ATMOSPHERE_COLLECTORS[2])))
+                            .put("mega_alloy_blast_smelter", new MultiblockInfoRecipeWrapper(new MegaAlloyBlastSmelterInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;

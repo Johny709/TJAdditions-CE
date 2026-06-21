@@ -135,6 +135,7 @@ tj.machine.void_large_chunk_miner.name=Void Large Chunk Miner (VLCM)
 tj.machine.large_bio_reactor.name=Large Bio Reactor (LBR)
 tj.machine.large_gas_centrifuge.name=Large Gas Centrifuge (LGC)
 tj.machine.large_nuclear_reactor.name=Large Nuclear Reactor (LNR)
+tj.machine.mega_alloy_blast_smelter.name=Mega Alloy Blast Smelter (MABS)
 
 tj.machine.architect_workbench_lv.name=Basic Architect Workbench
 tj.machine.architect_workbench_mv.name=Advanced Architect Workbench
