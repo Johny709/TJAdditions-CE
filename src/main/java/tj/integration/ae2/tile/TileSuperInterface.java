@@ -210,7 +210,7 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
             final List<AEPatternSlotWidget> patternSlotWidgets = new ArrayList<>();
             final SlotScrollableWidgetGroup multiPatternSlotGroup = new SlotScrollableWidgetGroup(-118, 14, 72, 162, 4)
                     .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(patternSlots, itemStack, false))
-                    .setItemHandler(multiUpgradeSlots)
+                    .setItemHandler(multiPatternSlots)
                     .setScrollWidth(0);
             builder.widget(new ImageWidget(-125, 0, 105, 218, GuiTextures.BORDERED_BACKGROUND))
                     .widget(new LabelWidget(-118, 4, "item.nae2.pattern_multiplier.name"))
