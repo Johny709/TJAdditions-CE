@@ -15,6 +15,7 @@
     "ae2.IMultiCraftingTrackerMixin",
     "ae2.TileCableBusMixin",
     "gregic_probe.ElectricContainerInfoProviderMixin",
+    "gregic_probe.RecipeFluidOutputInfoProviderMixin",
     "gregic_probe.RecipeInfoProviderMixin",
     "gregic_probe.WorkableInfoProviderMixin",
     "gregicality.GAFueledMultiblockControllerMixin",

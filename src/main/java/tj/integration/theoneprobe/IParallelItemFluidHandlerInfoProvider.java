@@ -10,9 +10,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
 import tj.capability.IParallelItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
+import tj.integration.theoneprobe.impl.ElementFluidStack;
 
 import java.util.List;
 
@@ -57,9 +57,7 @@ public class IParallelItemFluidHandlerInfoProvider extends CapabilityInfoProvide
                         if (entry.getValue() == null) continue;
                         for (FluidStack fluid : entry.getValue()) {
                             if (fluid == null) continue;
-                            final ItemStack fluidItem = FluidUtil.getFilledBucket(fluid);
-                            fluidItem.setCount(fluid.amount);
-                            inputInfo.item(fluidItem);
+                            inputInfo.element(new ElementFluidStack(fluid));
                         }
                     }
                 }
@@ -102,9 +100,7 @@ public class IParallelItemFluidHandlerInfoProvider extends CapabilityInfoProvide
                         if (entry.getValue() == null) continue;
                         for (FluidStack fluid : entry.getValue()) {
                             if (fluid == null) continue;
-                            final ItemStack fluidItem = FluidUtil.getFilledBucket(fluid);
-                            fluidItem.setCount(fluid.amount);
-                            outputInfo.item(fluidItem);
+                            outputInfo.element(new ElementFluidStack(fluid));
                         }
                     }
                 }

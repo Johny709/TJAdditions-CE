@@ -2,8 +2,15 @@ package tj.integration.theoneprobe;
 
 import mcjty.theoneprobe.TheOneProbe;
 import mcjty.theoneprobe.api.ITheOneProbe;
+import tj.integration.theoneprobe.impl.ElementFluidStack;
 
 public class TheOneProbeCompatibility {
+
+    public static int ELEMENT_FLUIDSTACK;
+
+    public static void registerElements() {
+        ELEMENT_FLUIDSTACK = TheOneProbe.theOneProbeImp.registerElementFactory(ElementFluidStack::new);
+    }
 
     public static void registerCompatibility() {
         ITheOneProbe probe = TheOneProbe.theOneProbeImp;

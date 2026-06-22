@@ -56,6 +56,7 @@ public class TJ {
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
         if (GTValues.isModLoaded(GTValues.MODID_TOP)) {
             logger.info("TheOneProbe found. Enabling integration...");
+            TheOneProbeCompatibility.registerElements();
             TheOneProbeCompatibility.registerCompatibility();
         }
         TJCoverBehaviours.init();
