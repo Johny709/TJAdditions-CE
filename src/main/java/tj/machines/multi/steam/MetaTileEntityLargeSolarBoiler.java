@@ -43,7 +43,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
-import tj.blocks.AbilityBlocks;
+import tj.blocks.BlockAbility;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
@@ -225,7 +225,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
 
     public static Predicate<BlockWorldState> solarCollectorPredicate() {
         return (blockWorldState) -> {
-            if (blockWorldState.getBlockState() != TJMetaBlocks.ABILITY_BLOCKS.getState(AbilityBlocks.AbilityType.SOLAR_COLLECTOR))
+            if (blockWorldState.getBlockState() != TJMetaBlocks.ABILITY_BLOCKS.getState(BlockAbility.AbilityType.SOLAR_COLLECTOR))
                 return false;
             if (blockWorldState.getWorld() != null) {
                 final Set<BlockPos> posList = blockWorldState.getMatchContext().getOrCreate("solarCollectors", HashSet::new);

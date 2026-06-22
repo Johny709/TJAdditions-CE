@@ -36,13 +36,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class EnergyPortCasings extends VariantBlock<EnergyPortCasings.AbilityType> implements IBlockController {
+public class BlockEnergyPortCasings extends VariantBlock<BlockEnergyPortCasings.AbilityType> implements IBlockController {
 
     public static final PropertyBool ACTIVE = PropertyBool.create("active");
     private final int amps;
     private MultiblockControllerBase controller;
 
-    public EnergyPortCasings(int amps) {
+    public BlockEnergyPortCasings(int amps) {
         super(Material.IRON);
         this.setHardness(5.0f);
         this.setResistance(10.0f);

@@ -11,9 +11,9 @@ import net.minecraft.world.IBlockAccess;
 
 import javax.annotation.Nonnull;
 
-public class AbilityBlocks extends VariantBlock<AbilityBlocks.AbilityType> {
+public class BlockAbility extends VariantBlock<BlockAbility.AbilityType> {
 
-    public AbilityBlocks() {
+    public BlockAbility() {
         super(Material.IRON);
         this.setHardness(5.0f);
         this.setResistance(10.0f);

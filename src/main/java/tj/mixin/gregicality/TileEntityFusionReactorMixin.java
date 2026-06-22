@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import tj.blocks.EnergyPortCasings;
+import tj.blocks.BlockEnergyPortCasings;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
@@ -97,10 +97,10 @@ public abstract class TileEntityFusionReactorMixin extends RecipeMapMultiblockCo
     public Predicate<BlockWorldState> energyPortPredicate(int tier) {
         return (blockWorldState) -> {
             IBlockState blockState = blockWorldState.getBlockState();
-            if (blockState.getBlock() instanceof EnergyPortCasings) {
-                EnergyPortCasings abilityCasings = (EnergyPortCasings) blockState.getBlock();
-                EnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
-                List<EnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
+            if (blockState.getBlock() instanceof BlockEnergyPortCasings) {
+                BlockEnergyPortCasings abilityCasings = (BlockEnergyPortCasings) blockState.getBlock();
+                BlockEnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
+                List<BlockEnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
                 currentCasing.add(tieredCasingType);
                 return currentCasing.get(0).getName().equals(tieredCasingType.getName()) && currentCasing.get(0).getTier() >= tier;
             }

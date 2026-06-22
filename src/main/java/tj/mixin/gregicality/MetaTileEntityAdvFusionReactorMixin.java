@@ -28,7 +28,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import tj.blocks.AdvEnergyPortCasings;
+import tj.blocks.BlockAdvEnergyPortCasings;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
@@ -95,14 +95,14 @@ public abstract class MetaTileEntityAdvFusionReactorMixin extends RecipeMapMulti
         this.outputInventory = new ItemHandlerList(this.getAbilities(MultiblockAbility.EXPORT_ITEMS));
         this.outputFluidInventory = new FluidTankList(true, this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
         List<IEnergyContainer> energyInputs = this.getAbilities(MultiblockAbility.INPUT_ENERGY);
-        List<AdvEnergyPortCasings.AbilityType> energyPorts = context.getOrDefault("EnergyPort", new ArrayList<>());
+        List<BlockAdvEnergyPortCasings.AbilityType> energyPorts = context.getOrDefault("EnergyPort", new ArrayList<>());
         this.inputEnergyContainers = new EnergyContainerList(energyInputs);
         long euCapacity = 0, count = 0;
         for (IEnergyContainer energyContainer : energyInputs) {
             euCapacity += 10000000L * (long) Math.pow(2, Math.min(GAUtility.getTierByVoltage(energyContainer.getInputVoltage()), this.tier) - GAValues.LuV);
             count++;
         }
-        for (AdvEnergyPortCasings.AbilityType energyPort : energyPorts) {
+        for (BlockAdvEnergyPortCasings.AbilityType energyPort : energyPorts) {
             euCapacity += 10000000L * (long) Math.pow(2, Math.min(energyPort.getTier(), this.tier) - GAValues.LuV);
             count++;
         }
@@ -136,10 +136,10 @@ public abstract class MetaTileEntityAdvFusionReactorMixin extends RecipeMapMulti
     public Predicate<BlockWorldState> energyPortPredicate() {
         return (blockWorldState) -> {
             IBlockState blockState = blockWorldState.getBlockState();
-            if (blockState.getBlock() instanceof AdvEnergyPortCasings) {
-                AdvEnergyPortCasings abilityCasings = (AdvEnergyPortCasings) blockState.getBlock();
-                AdvEnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
-                List<AdvEnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
+            if (blockState.getBlock() instanceof BlockAdvEnergyPortCasings) {
+                BlockAdvEnergyPortCasings abilityCasings = (BlockAdvEnergyPortCasings) blockState.getBlock();
+                BlockAdvEnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
+                List<BlockAdvEnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
                 currentCasing.add(tieredCasingType);
                 return currentCasing.get(0).getName().equals(tieredCasingType.getName());
             }

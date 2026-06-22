@@ -303,12 +303,12 @@ public class RecipeInit {
                 'W', new UnificationEntry(OrePrefix.cableGtSingle, Tin),
                 'C', new UnificationEntry(OrePrefix.circuit, Basic),
                 'S', SOLAR_BOILER[2].getStackForm());
-        ModHandler.addShapedRecipe("solar_collector", TJMetaBlocks.ABILITY_BLOCKS.getItemVariant(AbilityBlocks.AbilityType.SOLAR_COLLECTOR), "GGG", "DDD", "PSP",
+        ModHandler.addShapedRecipe("solar_collector", TJMetaBlocks.ABILITY_BLOCKS.getItemVariant(BlockAbility.AbilityType.SOLAR_COLLECTOR), "GGG", "DDD", "PSP",
                 'G', new ItemStack(Blocks.GLASS),
                 'D', new UnificationEntry(OrePrefix.plateDense, Silver),
                 'P', new UnificationEntry(OrePrefix.pipeLarge, Steel),
                 'S', HULL[1].getStackForm());
-        ModHandler.addShapedRecipe("primitive_pump_casing", TJMetaBlocks.ABILITY_BLOCKS.getItemVariant(AbilityBlocks.AbilityType.PRIMITIVE_PUMP_CASING, 2), "   ", "SWS", "sCh",
+        ModHandler.addShapedRecipe("primitive_pump_casing", TJMetaBlocks.ABILITY_BLOCKS.getItemVariant(BlockAbility.AbilityType.PRIMITIVE_PUMP_CASING, 2), "   ", "SWS", "sCh",
                 'W', new UnificationEntry(OrePrefix.plank, Wood),
                 'S', new UnificationEntry(OrePrefix.screw, Iron),
                 'C', new ItemStack(Blocks.STONE_SLAB, 1, 3));

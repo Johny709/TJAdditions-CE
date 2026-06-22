@@ -12,6 +12,7 @@ import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
+import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
@@ -34,7 +35,9 @@ import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.capability.impl.workable.MegaRecipeLogic;
 
 import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
@@ -104,9 +107,9 @@ public class MetaTileEntityMegaAlloyBlastSmelter extends TJRecipeMapMultiblockCo
                 .aisle("~~XXXXXXX~~", "~~H#####H~~", "~~G#####G~~", "~~G#####G~~", "~~G#####G~~", "~~H#####H~~", "~~C#####C~~", "~~~CCCCC~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~CCCCC~~~")
                 .aisle("~XXXXXXXXX~", "~H#ccccc#H~", "~G#ccccc#G~", "~G#ccccc#G~", "~G#ccccc#G~", "~H#ccccc#H~", "~C#ccccc#C~", "~~CcccccC~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~CCCCCCC~~")
                 .aisle("XXXXXXXXXXX", "H#c#####c#H", "G#c#####c#G", "G#c#####c#G", "G#c#####c#G", "H#c#####c#H", "C#c#####c#C", "~Cc#####cC~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~CCCCCCCCC~")
-                .aisle("XXXXXXXXXXX", "H#c#####c#H", "G#c#####c#G", "G#c#####c#G", "G#c#####c#G", "H#c#####c#H", "C#c#####c#C", "~Cc#####cC~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~CCCCCCCCC~")
-                .aisle("XXXXXXXXXXX", "H#c#####c#H", "G#c#####c#G", "G#c#####c#G", "G#c#####c#G", "H#c#####c#H", "C#c#####c#C", "~Cc#####cC~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~CCCCMCCCC~")
-                .aisle("XXXXXXXXXXX", "H#c#####c#H", "G#c#####c#G", "G#c#####c#G", "G#c#####c#G", "H#c#####c#H", "C#c#####c#C", "~Cc#####cC~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~CCCCCCCCC~")
+                .aisle("XXXXXFXXXXX", "H#c#####c#H", "G#c#####c#G", "G#c#####c#G", "G#c#####c#G", "H#c#####c#H", "C#c#####c#C", "~Cc#####cC~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~CCCCCCCCC~")
+                .aisle("XXXXFFFXXXX", "H#c#####c#H", "G#c#####c#G", "G#c#####c#G", "G#c#####c#G", "H#c#####c#H", "C#c#####c#C", "~Cc#####cC~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~CCCCMCCCC~")
+                .aisle("XXXXXFXXXXX", "H#c#####c#H", "G#c#####c#G", "G#c#####c#G", "G#c#####c#G", "H#c#####c#H", "C#c#####c#C", "~Cc#####cC~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~CCCCCCCCC~")
                 .aisle("XXXXXXXXXXX", "H#c#####c#H", "G#c#####c#G", "G#c#####c#G", "G#c#####c#G", "H#c#####c#H", "C#c#####c#C", "~Cc#####cC~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~Gc#####cG~", "~CCCCCCCCC~")
                 .aisle("~XXXXXXXXX~", "~H#ccccc#H~", "~G#ccccc#G~", "~G#ccccc#G~", "~G#ccccc#G~", "~H#ccccc#H~", "~C#ccccc#C~", "~~CcccccC~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~GcccccG~~", "~~CCCCCCC~~")
                 .aisle("~~XXXXXXX~~", "~~H#####H~~", "~~G#####G~~", "~~G#####G~~", "~~G#####G~~", "~~H#####H~~", "~~C#####C~~", "~~~CCCCC~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~GGGGG~~~", "~~~CCCCC~~~")
@@ -114,9 +117,10 @@ public class MetaTileEntityMegaAlloyBlastSmelter extends TJRecipeMapMultiblockCo
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('H', statePredicate(TJMetaBlocks.ACTIVE_ABILITY_BLOCKS.getState(BlockActiveAbility.AbilityType.HEAT_VENT)))
                 .where('G', statePredicate(GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS)))
                 .where('M', abilityPartPredicate(MUFFLER_HATCH))
+                .where('H', heatVentPredicate())
+                .where('F', frameworkPredicate())
                 .where('c', coilPredicate())
                 .where('#', isAirPredicate())
                 .where('~', tile -> true)
@@ -141,6 +145,18 @@ public class MetaTileEntityMegaAlloyBlastSmelter extends TJRecipeMapMultiblockCo
         super.invalidateStructure();
         this.blastFurnaceTemperature = 0;
         this.bonusTemperature = 0;
+    }
+
+    public static Predicate<BlockWorldState> heatVentPredicate() {
+        return blockWorldState -> {
+            final IBlockState state = blockWorldState.getBlockState();
+            if (state.getBlock() instanceof BlockActiveAbility) {
+                if (!((BlockActiveAbility) state.getBlock()).getState(state).getName().equals("heat_vent"))
+                    return false;
+                blockWorldState.getMatchContext().getOrCreate("heatVents", HashSet::new).add(blockWorldState.getPos());
+                return true;
+            } else return false;
+        };
     }
 
     private IBlockState getCasingState() {

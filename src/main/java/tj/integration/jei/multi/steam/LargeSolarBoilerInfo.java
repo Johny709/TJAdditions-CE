@@ -11,7 +11,7 @@ import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import tj.TJConfig;
-import tj.blocks.AbilityBlocks;
+import tj.blocks.BlockAbility;
 import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
@@ -65,7 +65,7 @@ public class LargeSolarBoilerInfo extends MultiblockInfoPage {
                 .where('F', MetaBlocks.BOILER_FIREBOX_CASING.getState(BlockFireboxCasing.FireboxCasingType.STEEL_FIREBOX))
                 .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
                 .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE))
-                .where('s', TJMetaBlocks.ABILITY_BLOCKS.getState(AbilityBlocks.AbilityType.SOLAR_COLLECTOR));
+                .where('s', TJMetaBlocks.ABILITY_BLOCKS.getState(BlockAbility.AbilityType.SOLAR_COLLECTOR));
         final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
         for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
             shapeInfos.add(builder.where('I', MetaTileEntities.FLUID_IMPORT_HATCH[Math.min(9, tier)], EnumFacing.WEST)

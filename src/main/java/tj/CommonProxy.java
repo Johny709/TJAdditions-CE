@@ -46,6 +46,7 @@ public class CommonProxy {
         registry.register(FUSION_CASING);
         registry.register(FUSION_GLASS);
         registry.register(ABILITY_BLOCKS);
+        registry.register(ACTIVE_ABILITY_BLOCKS);
         ENERGY_PORT_CASINGS.forEach(registry::register);
         ADV_ENERGY_PORT_CASINGS.forEach(registry::register);
     }
@@ -63,6 +64,7 @@ public class CommonProxy {
         registry.register(createItemBlock(FUSION_CASING, VariantItemBlock::new));
         registry.register(createItemBlock(FUSION_GLASS, VariantItemBlock::new));
         registry.register(createItemBlock(ABILITY_BLOCKS, VariantItemBlock::new));
+        registry.register(createItemBlock(ACTIVE_ABILITY_BLOCKS, VariantItemBlock::new));
     }
 
     @SubscribeEvent

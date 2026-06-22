@@ -47,7 +47,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
 import tj.TJValues;
-import tj.blocks.EnergyPortCasings;
+import tj.blocks.BlockEnergyPortCasings;
 import tj.blocks.BlockFusionCasings;
 import tj.blocks.BlockFusionGlass;
 import tj.blocks.TJMetaBlocks;
@@ -180,10 +180,10 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     public static Predicate<BlockWorldState> energyPortPredicate(int tier) {
         return (blockWorldState) -> {
             final IBlockState blockState = blockWorldState.getBlockState();
-            if (blockState.getBlock() instanceof EnergyPortCasings) {
-                final EnergyPortCasings abilityCasings = (EnergyPortCasings) blockState.getBlock();
-                final EnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
-                final List<EnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
+            if (blockState.getBlock() instanceof BlockEnergyPortCasings) {
+                final BlockEnergyPortCasings abilityCasings = (BlockEnergyPortCasings) blockState.getBlock();
+                final BlockEnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
+                final List<BlockEnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
                 final Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
                 currentCasing.add(tieredCasingType);
                 activeStates.add(blockWorldState.getPos());
@@ -389,8 +389,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             final BlockPos pos = buffer.readBlockPos();
             IBlockState state = this.getWorld().getBlockState(pos);
             final Block block = state.getBlock();
-            if (block instanceof EnergyPortCasings) {
-                state = state.withProperty(EnergyPortCasings.ACTIVE, isActive);
+            if (block instanceof BlockEnergyPortCasings) {
+                state = state.withProperty(BlockEnergyPortCasings.ACTIVE, isActive);
                 this.getWorld().setBlockState(pos, state);
             }
         }

@@ -33,7 +33,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
-import tj.blocks.AbilityBlocks;
+import tj.blocks.BlockAbility;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
@@ -125,7 +125,7 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
     }
 
     private IBlockState getCasingState() {
-        return TJMetaBlocks.ABILITY_BLOCKS.getState(AbilityBlocks.AbilityType.PRIMITIVE_PUMP_CASING);
+        return TJMetaBlocks.ABILITY_BLOCKS.getState(BlockAbility.AbilityType.PRIMITIVE_PUMP_CASING);
     }
 
     @Override

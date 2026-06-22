@@ -209,11 +209,11 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
         return (blockWorldState) -> {
             final IBlockState blockState = blockWorldState.getBlockState();
             final Block block = blockState.getBlock();
-            if (block instanceof EnergyPortCasings) {
-                final EnergyPortCasings abilityCasings = (EnergyPortCasings) block;
+            if (block instanceof BlockEnergyPortCasings) {
+                final BlockEnergyPortCasings abilityCasings = (BlockEnergyPortCasings) block;
                 abilityCasings.setController(this);
-                final EnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
-                final List<EnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
+                final BlockEnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
+                final List<BlockEnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
                 final Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
                 final LongList amps = blockWorldState.getMatchContext().getOrCreate("EnergyAmps", LongArrayList::new);
                 currentCasing.add(tieredCasingType);
@@ -230,7 +230,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
         super.formStructure(context);
         this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
         final LongList energyPortAmps = context.getOrDefault("EnergyAmps", new LongArrayList());
-        final List<AdvEnergyPortCasings.AbilityType> energyPorts = context.getOrDefault("EnergyPort", new ArrayList<>());
+        final List<BlockAdvEnergyPortCasings.AbilityType> energyPorts = context.getOrDefault("EnergyPort", new ArrayList<>());
         final int fusionTier = 10;
         long energyCapacity = 0;
         for (int i = 0; i < energyPortAmps.size(); i++) {

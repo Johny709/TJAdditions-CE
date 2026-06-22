@@ -8,7 +8,7 @@ import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import tj.TJValues;
-import tj.blocks.AbilityBlocks;
+import tj.blocks.BlockAbility;
 import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
@@ -36,8 +36,8 @@ public class PrimitiveWaterPumpInfo extends TJMultiblockInfoPage {
                     .aisle(i % 2 == 0 ? new String[]{"CPOC", "F~~F", "FFFF"} : new String[]{"CPOPC", "F~~~F", "FFFFF"})
                     .aisle(i % 2 == 0 ? new String[]{"SCCC", "~~F~", "~~F~"} : new String[]{"SCCCC", "~~F~~", "~~F~~"})
                     .where('S', this.getController(), EnumFacing.WEST)
-                    .where('C', TJMetaBlocks.ABILITY_BLOCKS.getState(AbilityBlocks.AbilityType.PRIMITIVE_PUMP_CASING))
-                    .where('P', i < 2 ? TJMetaBlocks.ABILITY_BLOCKS.getState(AbilityBlocks.AbilityType.PRIMITIVE_PUMP_CASING) : GAMetaBlocks.PUMP_CASING.getDefaultState())
+                    .where('C', TJMetaBlocks.ABILITY_BLOCKS.getState(BlockAbility.AbilityType.PRIMITIVE_PUMP_CASING))
+                    .where('P', i < 2 ? TJMetaBlocks.ABILITY_BLOCKS.getState(BlockAbility.AbilityType.PRIMITIVE_PUMP_CASING) : GAMetaBlocks.PUMP_CASING.getDefaultState())
                     .where('F', MetaBlocks.FRAMES.get(Wood).getDefaultState())
                     .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[1], EnumFacing.UP)
                     .build());

@@ -799,6 +799,7 @@ tile.energy_casing.energy_port_umv.name=Advanced Fusion Energy Port (UMV)
 tile.energy_casing.energy_port_uxv.name=Advanced Fusion Energy Port (UXV)
 tile.energy_casing.energy_port_max.name=Advanced Fusion Energy Port (MAX)
 tile.ability_casing.energy_port.description=Non Tile Entity Substitute For Energy Hatches In Industrial Fusion Reactors. Right-Click with multi-amp input hatch to set amps. Shift-Right-Click to retrieve energy hatch from port.
+tile.active_ability_block.heat_vent.name=Heat Vent
 tile.pipe_casing.stainless_pipe.name=Stainless Pipe Casing
 tile.fusion_casing.fusion_casing_uhv.name=Fusion Casing MK IV
 tile.fusion_casing.fusion_coil_uhv.name=Fusion Coil Block MK IV
