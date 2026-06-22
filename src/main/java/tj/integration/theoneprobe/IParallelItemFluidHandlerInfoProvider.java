@@ -77,12 +77,11 @@ public class IParallelItemFluidHandlerInfoProvider extends CapabilityInfoProvide
         if (fluidOutputs != null && !fluidOutputs.isEmpty() || itemOutputs != null && !itemOutputs.isEmpty()) {
             boolean areOutputsEmpty = true;
             if (fluidOutputs != null && !fluidOutputs.isEmpty()) {
-                FluidOutputs:
                 for (Int2ObjectMap.Entry<List<FluidStack>> entry : fluidOutputs.int2ObjectEntrySet()) {
                     if (entry.getValue() == null) continue;
                     if (!entry.getValue().isEmpty()) {
                         areOutputsEmpty = false;
-                        break ;
+                        break;
                     }
                 }
             }
@@ -124,6 +123,6 @@ public class IParallelItemFluidHandlerInfoProvider extends CapabilityInfoProvide
 
     @Override
     public String getID() {
-        return "tj:item_handler_provider";
+        return "tj:parallel_item_handler_provider";
     }
 }
