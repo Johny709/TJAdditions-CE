@@ -145,6 +145,9 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
                         .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.NonBlocking", "gui.tooltips.appliedenergistics2.Blocking")
                         .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
                         .useToggleTexture(true))
+                .widget(new TJCycleButtonWidget<>(-18, 53, 16, 16, (EnumSet<LockCraftingMode>) Settings.UNLOCK.getPossibleValues(), () -> (Enum<LockCraftingMode>) duality.getConfigManager().getSetting(Settings.UNLOCK), this::setLockCrafting)
+                        .setCycleHoverTooltipText("gui.tooltips.appliedenergistics2.LockCraftingModeNone", "gui.tooltips.appliedenergistics2.LockCraftingUntilRedstonePulse", "gui.tooltips.appliedenergistics2.LockCraftingWhileRedstoneHigh", "gui.tooltips.appliedenergistics2.LockCraftingWhileRedstoneLow", "gui.tooltips.appliedenergistics2.LockCraftingUntilResultReturned")
+                        .setCycleTexture(TJGuiTextures.CYCLE_LOCK_CRAFTING))
                 .widget(new TJToggleButtonWidget(-18, 71, 16, 16, () -> duality.getConfigManager().getSetting(Settings.INTERFACE_TERMINAL).ordinal() == 0, this::setInterfaceTerminal)
                         .setTooltipText("gui.appliedenergistics2.InterfaceTerminalHint")
                         .setToggleTexture(TJGuiTextures.TOGGLE_INTERFACE_TERMINAL)
@@ -345,6 +348,11 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
 
     private void setBlockingMode(boolean blockingMode) {
         this.getInterfaceDuality().getConfigManager().putSetting(Settings.BLOCK, blockingMode ? YesNo.YES : YesNo.NO);
+        this.getTile().markDirty();
+    }
+
+    private void setLockCrafting(LockCraftingMode lockCrafting) {
+        this.getInterfaceDuality().getConfigManager().putSetting(Settings.UNLOCK, lockCrafting);
         this.getTile().markDirty();
     }
 
