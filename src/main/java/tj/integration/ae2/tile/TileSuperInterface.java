@@ -6,6 +6,9 @@ import appeng.helpers.DualityInterface;
 import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.misc.TileInterface;
 import baubles.api.BaublesApi;
+import com.circulation.random_complement.client.RCSettings;
+import com.circulation.random_complement.client.buttonsetting.IntelligentBlocking;
+import com.circulation.random_complement.common.interfaces.RCIConfigManager;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.ClickButtonWidget;
@@ -156,21 +159,26 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
                         .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.NonBlocking", "gui.tooltips.appliedenergistics2.Blocking")
                         .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
                         .useToggleTexture(true))
-                .widget(new TJToggleButtonWidget(-18, 53, 16, 16, () -> duality.getConfigManager().getSetting(Settings.INTERFACE_TERMINAL).ordinal() == 0, this::setInterfaceTerminal)
+                .widget(new TJToggleButtonWidget(-18, 71, 16, 16, () -> duality.getConfigManager().getSetting(Settings.INTERFACE_TERMINAL).ordinal() == 0, this::setInterfaceTerminal)
                         .setTooltipText("gui.appliedenergistics2.InterfaceTerminalHint")
                         .setToggleTexture(TJGuiTextures.TOGGLE_INTERFACE_TERMINAL)
                         .useToggleTexture(true))
-                .widget(new TJToggleButtonWidget(-18, 71, 16, 16, () -> duality.getConfigManager().getSetting(Settings.OPERATION_MODE).ordinal() == 0, this::setFluidPacket)
+                .widget(new TJToggleButtonWidget(-18, 89, 16, 16, () -> duality.getConfigManager().getSetting(Settings.OPERATION_MODE).ordinal() == 0, this::setFluidPacket)
                         .setToggleTooltipHoverText("ae2fc.tooltip.real_fluid.hint", "ae2fc.tooltip.fake_packet.hint")
                         .setToggleTexture(TJGuiTextures.TOGGLE_SEND_FLUID)
                         .useToggleTexture(true))
-                .widget(new TJToggleButtonWidget(-18, 89, 16, 16, () -> duality.getConfigManager().getSetting(Settings.LEVEL_TYPE).ordinal() == 0, this::setSplittingItemsFluids)
+                .widget(new TJToggleButtonWidget(-18, 107, 16, 16, () -> duality.getConfigManager().getSetting(Settings.LEVEL_TYPE).ordinal() == 0, this::setSplittingItemsFluids)
                         .setToggleTooltipHoverText("ae2fc.tooltip.allow_splitting.hint", "ae2fc.tooltip.prevent_splitting.hint")
                         .setToggleTexture(TJGuiTextures.TOGGLE_SPLITTING_ITEMS_FLUIDS)
                         .useToggleTexture(true))
-                .widget(new TJCycleButtonWidget<>(-18, 107, 16, 16, (EnumSet<CondenserOutput>) Settings.CONDENSER_OUTPUT.getPossibleValues(), () -> (Enum<CondenserOutput>) duality.getConfigManager().getSetting(Settings.CONDENSER_OUTPUT), this::setBlockModeEx)
+                .widget(new TJCycleButtonWidget<>(-18, 125, 16, 16, (EnumSet<CondenserOutput>) Settings.CONDENSER_OUTPUT.getPossibleValues(), () -> (Enum<CondenserOutput>) duality.getConfigManager().getSetting(Settings.CONDENSER_OUTPUT), this::setBlockModeEx)
                         .setCycleHoverTooltipText("ae2fc.tooltip.block_all.hint", "ae2fc.tooltip.block_item.hint", "ae2fc.tooltip.block_fluid.hint")
                         .setCycleTexture(TJGuiTextures.CYCLE_BLOCKING_MODE_EX))
+                .widget(new TJToggleButtonWidget(-18, 143, 16, 16, () -> duality.getConfigManager().getSetting(Settings.PLACE_BLOCK).ordinal() == 0, this::setIntelligentBlocking)
+                        .setToggleTooltipHoverText("gui.intelligent_blocking.CLOSE.text", "gui.intelligent_blocking.OPEN.text")
+                        .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
+                        .setInvertTexture(true)
+                        .useToggleTexture(true))
                 .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
                                 .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
@@ -362,6 +370,13 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI {
     private void setBlockModeEx(CondenserOutput blockModeEx) {
         this.getInterfaceDuality().getConfigManager().putSetting(Settings.CONDENSER_OUTPUT, blockModeEx);
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this.getInterfaceDuality(), blockModeEx.ordinal(), "blockModeEx");
+        this.markDirty();
+    }
+
+    private void setIntelligentBlocking(boolean intelligentBlocking) {
+        this.getInterfaceDuality().getConfigManager().putSetting(Settings.PLACE_BLOCK, intelligentBlocking ? YesNo.YES : YesNo.NO);
+        final RCIConfigManager configManager = ObfuscationReflectionHelper.getPrivateValue(DualityInterface.class, this.getInterfaceDuality(), "randomComplement$rcSettings");
+        configManager.putSetting(RCSettings.IntelligentBlocking, intelligentBlocking ? IntelligentBlocking.OPEN : IntelligentBlocking.CLOSE);
         this.markDirty();
     }
 

@@ -41,6 +41,8 @@ public class DualitySuperInterface extends DualityInterface {
         this.getConfigManager().registerSetting(Settings.LEVEL_TYPE, LevelType.ENERGY_LEVEL);
         // dummy config for Block All, Field: (int) blockModeEx
         this.getConfigManager().registerSetting(Settings.CONDENSER_OUTPUT, CondenserOutput.TRASH);
+        // dummy config for Intelligent Blocking, Field (RCIConfigManager) randomComplement$rcSettings
+        this.getConfigManager().registerSetting(Settings.PLACE_BLOCK, YesNo.NO);
 
         final AppEngInternalInventory patternInventory = new AppEngInternalInventory(this, patterns, 1);
         patternInventory.setFilter(new DualityPatternFilter());

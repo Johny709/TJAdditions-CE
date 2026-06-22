@@ -26,18 +26,19 @@ import java.util.function.Consumer;
 
 public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
 
-    private boolean useToggleTexture;
-    private boolean isPressed;
-    private String baseDisplayText;
-    private String activeDisplayText;
-    private String baseTooltipHoverText;
-    private String activeTooltipHoverText;
+    private BiConsumer<Boolean, String> toggleButtonResponder;
+    private BooleanSupplier isPressedCondition;
+    private BooleanConsumer buttonBoolResponder;
     private TextureArea toggleTexture;
     private TextureArea activeTexture;
     private TextureArea baseTexture;
-    private BooleanSupplier isPressedCondition;
-    private BooleanConsumer buttonBoolResponder;
-    private BiConsumer<Boolean, String> toggleButtonResponder;
+    private String activeTooltipHoverText;
+    private String baseTooltipHoverText;
+    private String activeDisplayText;
+    private String baseDisplayText;
+    private boolean useToggleTexture;
+    private boolean invertTexture;
+    private boolean isPressed;
 
     public TJToggleButtonWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -105,6 +106,15 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     }
 
     /**
+     * Set to invert toggle texture of button. Default: false.
+     * @param invertTexture invert toggle texture
+     */
+    public TJToggleButtonWidget setInvertTexture(boolean invertTexture) {
+        this.invertTexture = invertTexture;
+        return this;
+    }
+
+    /**
      * {@link #useToggleTexture(boolean)} must be set to false.
      * @param baseTexture The texture shown when the button is pressed.
      * @param activeTexture The texture shown when the button is pressed.
@@ -154,13 +164,13 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
         final Position pos = this.getPosition();
         final Size size = this.getSize();
         if (!this.useToggleTexture) {
-            if (this.isPressedCondition.getAsBoolean())
+            if (this.invertTexture != this.isPressedCondition.getAsBoolean()) {
                 this.activeTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
-            else this.baseTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
+            } else this.baseTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         } else if (this.toggleTexture instanceof SizedTextureArea) {
-            ((SizedTextureArea) this.toggleTexture).drawHorizontalCutSubArea(pos.x, pos.y, size.width, size.height, this.isPressed ? 0.5 : 0.0, 0.5);
+            ((SizedTextureArea) this.toggleTexture).drawHorizontalCutSubArea(pos.x, pos.y, size.width, size.height, this.invertTexture != this.isPressed ? 0.5 : 0.0, 0.5);
         } else {
-            this.toggleTexture.drawSubArea(pos.x, pos.y, size.width, size.height, 0.0, this.isPressed ? 0.5 : 0.0, 1.0, 0.5);
+            this.toggleTexture.drawSubArea(pos.x, pos.y, size.width, size.height, 0.0, this.invertTexture != this.isPressed ? 0.5 : 0.0, 1.0, 0.5);
         }
         if (this.baseDisplayText != null && this.activeDisplayText != null) {
             final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
