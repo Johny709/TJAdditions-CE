@@ -348,6 +348,7 @@ public class PartSuperDualInterface extends PartInterface implements IFluidInter
             tab.add(new ClickButtonWidget(-100, 194, 18, 18, "/3", data -> this.changePatternAmount(multiPatternSlots, -3, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
             tab.add(new ClickButtonWidget(-82, 176, 18, 18, "*4", data -> this.changePatternAmount(multiPatternSlots, 4, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
             tab.add(new ClickButtonWidget(-82, 194, 18, 18, "/4", data -> this.changePatternAmount(multiPatternSlots, -4, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            tab.add(new ClickButtonWidget(-64, 176, 36, 36, "X", data -> this.clearPatterns(multiPatternSlots, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
             for (int i = 0; i < multiPatternSlots.getSlots(); i++) {
                 final int index = i;
                 multiPatternSlotGroup.addWidget(new AEPatternSlotWidget(multiPatternSlots, i, 18 * (i / 9), 18 * (i % 9))
@@ -457,6 +458,15 @@ public class PartSuperDualInterface extends PartInterface implements IFluidInter
         patternSlotWidgets.getNativeWidgets().stream()
                 .filter(widget -> widget instanceof TJSlotWidget<?>)
                 .forEach(slot -> ((TJSlotWidget<?>) slot).forceUpdate());
+    }
+
+    private void clearPatterns(IItemHandler patternSlots, Runnable callback) {
+        for (int i = 0; i < patternSlots.getSlots(); i++) {
+            ItemStack pattern = patternSlots.extractItem(i, Integer.MAX_VALUE, false);
+            pattern = Api.INSTANCE.definitions().materials().blankPattern().maybeStack(pattern.getCount()).orElse(ItemStack.EMPTY);
+            patternSlots.insertItem(i, pattern, false);
+        }
+        callback.run();
     }
 
     @Override
