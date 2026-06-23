@@ -88,7 +88,7 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
                 .setAmountAtLeast('L', 9)
                 .where('S', this.selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('G', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
                 .where('P', pumpPredicate())
                 .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))

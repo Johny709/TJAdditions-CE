@@ -28,7 +28,6 @@ import tj.items.TJMetaItems;
 import tj.machines.AcceleratorBlacklist;
 import tj.machines.singleblock.MetaTileEntityAcceleratorAnchorPoint;
 import gregicadditions.GAValues;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.EmitterCasing;
@@ -74,6 +73,8 @@ import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
@@ -82,7 +83,7 @@ import static gregtech.api.unification.material.Materials.UUMatter;
 public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockControllerBase implements AcceleratorBlacklist, LinkPos, LinkEvent, IParallelController, IProgressBar {
 
     private static final FluidStack UUMATTER = UUMatter.getFluid(1);
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {INPUT_ENERGY, IMPORT_FLUIDS, MAINTENANCE_HATCH};
     private final AcceleratorWorkableHandler workableHandler = new AcceleratorWorkableHandler(this);
     private int tier;
     private final int pageSize = 4;

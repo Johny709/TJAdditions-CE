@@ -5,7 +5,6 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAMaterials;
 import gregicadditions.Gregicality;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
@@ -73,11 +72,13 @@ import java.util.List;
 import java.util.Queue;
 import java.util.function.UnaryOperator;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
 
 public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockControllerBase implements IMinerHandler, IProgressBar {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private final InfiniteMinerWorkableHandler workableHandler = new InfiniteMinerWorkableHandler(this);
     private FluidStack drillingFluid = GAMaterials.Taranium.getFluid(1);
     private int fortune;
@@ -212,7 +213,7 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        this.workableHandler.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
+        this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
         this.fortune = this.tier + this.tier;
         this.drillingFluid = GAMaterials.Taranium.getFluid(1 << this.getTier() - 1);
     }

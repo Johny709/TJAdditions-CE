@@ -40,13 +40,12 @@ import tj.capability.impl.workable.MegaRecipeLogic;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
+
 public class MetaTileEntityTJMegaBlastFurnace extends TJRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {
-            MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS,
-            MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY,
-            GregicAdditionsCapabilities.MAINTENANCE_HATCH, MultiblockAbility.EXPORT_FLUIDS
-    };
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, EXPORT_FLUIDS};
 
     private int blastFurnaceTemperature;
     private int bonusTemperature;
@@ -125,7 +124,7 @@ public class MetaTileEntityTJMegaBlastFurnace extends TJRecipeMapMultiblockContr
                 .where('C', statePredicate(this.getCasingState()))
                 .where('c', coilPredicate())
                 .where('f', frameworkPredicate())
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('m', abilityPartPredicate(GregicAdditionsCapabilities.MUFFLER_HATCH))
                 .where('B', statePredicate(MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.PRIMITIVE_BRICKS)))
                 .where('G', statePredicate(GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS)))

@@ -64,7 +64,7 @@ public class MetaTileEntityArmorInfuser extends TJRecipeMapMultiblockController 
                 .aisle("XXSXX", "~~~~~", "~~~~~", "GGGGG", "~~~~~", "~~~~~", "GGGGG", "~~~~~", "~~~~~", "CCCCC")
                 .where('S', this.selfPredicate())
                 .where('C', blockPredicate(this.getCasingState()))
-                .where('X', blockPredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(blockPredicate(Block.getBlockFromName("contenttweaker:draconiccasing"))))
+                .where('X', blockPredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('A', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.FUSION_CASING_MK2)))
                 .where('F', statePredicate(MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.FUSION_COIL)))
                 .where('G', statePredicate(GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.ADV_FUSION_COIL_1)))

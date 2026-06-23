@@ -3,7 +3,6 @@ package tj.machines.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregtech.api.GTValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
@@ -52,12 +51,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.STEAM;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultiblockControllerBase {
 
-    public static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH, MultiblockAbility.IMPORT_ITEMS, GregicAdditionsCapabilities.STEAM};
+    public static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, IMPORT_ITEMS, STEAM};
     public final MetaTileEntityLargeTurbine.TurbineType turbineType;
     public IFluidHandler exportFluidHandler;
     public ItemHandlerList importItemHandler;
@@ -92,10 +94,10 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
-        boolean hasInputFluid = abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS);
-        boolean hasSteamInput = abilities.containsKey(GregicAdditionsCapabilities.STEAM);
-        boolean hasOutputFluid = abilities.containsKey(MultiblockAbility.EXPORT_FLUIDS);
+        int maintenanceCount = abilities.getOrDefault(MAINTENANCE_HATCH, Collections.emptyList()).size();
+        boolean hasInputFluid = abilities.containsKey(IMPORT_FLUIDS);
+        boolean hasSteamInput = abilities.containsKey(STEAM);
+        boolean hasOutputFluid = abilities.containsKey(EXPORT_FLUIDS);
 
         if (this.turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM && hasSteamInput)
             return false;
@@ -148,12 +150,12 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         List<IFluidTank> fluidTanks = new ArrayList<>();
-        fluidTanks.addAll(this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
-        fluidTanks.addAll(this.getAbilities(GregicAdditionsCapabilities.STEAM));
+        fluidTanks.addAll(this.getAbilities(IMPORT_FLUIDS));
+        fluidTanks.addAll(this.getAbilities(STEAM));
 
         this.importFluidHandler = new FluidTankList(true, fluidTanks);
-        this.exportFluidHandler = new FluidTankList(true, this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
-        this.importItemHandler = new ItemHandlerList(this.getAbilities(MultiblockAbility.IMPORT_ITEMS));
+        this.exportFluidHandler = new FluidTankList(true, this.getAbilities(EXPORT_FLUIDS));
+        this.importItemHandler = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
     }
 
     @Override
@@ -210,8 +212,8 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.turbineType.casingState))
                 .where('P', statePredicate(this.getPipeState()))
-                .where('X', statePredicate(this.turbineType.casingState).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('F', abilityPartPredicate(MultiblockAbility.EXPORT_FLUIDS))
+                .where('X', statePredicate(this.turbineType.casingState).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
+                .where('F', abilityPartPredicate(EXPORT_FLUIDS))
                 .where('R', abilityPartPredicate(ABILITY_ROTOR_HOLDER))
                 .where('#', isAirPredicate())
                 .build();

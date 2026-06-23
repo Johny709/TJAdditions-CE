@@ -20,7 +20,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
@@ -63,14 +62,17 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.STEAM;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.EXPORT_FLUIDS;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
 import static gregtech.api.unification.material.Materials.DistilledWater;
 import static net.minecraft.util.text.TextFormatting.AQUA;
 import static net.minecraft.util.text.TextFormatting.RED;
 
 public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerBase implements IProgressBar, ISteamHandler {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
-            GregicAdditionsCapabilities.STEAM, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, STEAM, MAINTENANCE_HATCH};
     private final SteamEngineWorkableHandler workableHandler = new SteamEngineWorkableHandler(this, RecipeMaps.STEAM_TURBINE_FUELS);
     private double efficiency;
     private long maxVoltage;
@@ -128,8 +130,8 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
         final boolean hasOutputEnergy = abilities.containsKey(MultiblockAbility.OUTPUT_ENERGY);
-        final boolean hasInputFluid = abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS);
-        final boolean hasSteamInput = abilities.containsKey(GregicAdditionsCapabilities.STEAM);
+        final boolean hasInputFluid = abilities.containsKey(IMPORT_FLUIDS);
+        final boolean hasSteamInput = abilities.containsKey(STEAM);
 
         return super.checkStructureComponents(parts, abilities) && hasOutputEnergy && (hasInputFluid || hasSteamInput);
     }
@@ -150,8 +152,8 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         final List<IFluidTank> fluidTanks = new ArrayList<>();
-        fluidTanks.addAll(this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
-        fluidTanks.addAll(this.getAbilities(GregicAdditionsCapabilities.STEAM));
+        fluidTanks.addAll(this.getAbilities(IMPORT_FLUIDS));
+        fluidTanks.addAll(this.getAbilities(STEAM));
 
         final int motor = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
         this.tier = Math.min(motor, context.getOrDefault("frameworkTier", 0));

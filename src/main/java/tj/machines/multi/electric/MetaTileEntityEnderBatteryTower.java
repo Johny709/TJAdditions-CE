@@ -3,7 +3,6 @@ package tj.machines.multi.electric;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.CellCasing;
 import gregicadditions.item.GAMetaBlocks;
@@ -76,10 +75,13 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.gui.widgets.ProgressWidget.MoveType.VERTICAL;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.OUTPUT_ENERGY;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static net.minecraft.util.text.TextFormatting.GRAY;
 import static net.minecraft.util.text.TextFormatting.YELLOW;
@@ -89,7 +91,7 @@ import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPred
 
 public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockController implements IEnderNotifiable<BasicEnergyHandler>, IProgressBar, IBatteryHandler {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.INPUT_ENERGY, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {INPUT_ENERGY, OUTPUT_ENERGY, MAINTENANCE_HATCH};
     private final long maxTransferRate = Long.MAX_VALUE;
 
     private final EnderBatteryTowerWorkableHandler workableHandler = new EnderBatteryTowerWorkableHandler(this);
@@ -897,8 +899,8 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.inputEnergy = this.getAbilities(MultiblockAbility.INPUT_ENERGY);
-        this.outputEnergy = this.getAbilities(MultiblockAbility.OUTPUT_ENERGY);
+        this.inputEnergy = this.getAbilities(INPUT_ENERGY);
+        this.outputEnergy = this.getAbilities(OUTPUT_ENERGY);
         List<CellCasing.CellType> cellTypes = context.getOrCreate("Cells", ArrayList::new);
         long capacity = cellTypes.get(0).getStorage() * cellTypes.size();
         if (this.energyBuffer == null) {

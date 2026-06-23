@@ -453,7 +453,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockControllerBas
                 .aisle("HHHHH", "~HSH~", "~C~C~", "~C~C~", "~C~C~", "~C~C~", "~C~C~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
-                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('B', cellPredicate())
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Talonite).getDefaultState()))
                 .where('~', tile -> true)

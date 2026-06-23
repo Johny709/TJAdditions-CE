@@ -66,7 +66,7 @@ public class MetaTileEntityChaosReplicator extends TJRecipeMapMultiblockControll
                 .aisle("CCCCCCC", "CXXSXXC", "CQQCQQC", "CQQCQQC", "CQQCQQC", "CQQQQQC", "CQQQQQC", "CXXXXXC", "CCCCCCC")
                 .where('S', this.selfPredicate())
                 .where('C', blockPredicate(this.getCasingState()))
-                .where('X', blockPredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', blockPredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.EnrichedNaquadahAlloy).getDefaultState()))
                 .where('R', statePredicate(MetaBlocks.FRAMES.get(MATERIAL_REGISTRY.getObject("chaos")).getDefaultState()))
                 .where('D', blockPredicate(Block.getBlockFromName("draconicevolution:infused_obsidian")))

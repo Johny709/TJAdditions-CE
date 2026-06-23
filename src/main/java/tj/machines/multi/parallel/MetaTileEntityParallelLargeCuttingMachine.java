@@ -88,7 +88,7 @@ public class MetaTileEntityParallelLargeCuttingMachine extends ParallelRecipeMap
                 .where('S', this.selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(this.getCasingState()))
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('c', conveyorPredicate())
                 .where('M', motorPredicate())
                 .where('#', isAirPredicate())

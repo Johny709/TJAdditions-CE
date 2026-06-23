@@ -134,7 +134,7 @@ public class MetaTileEntityLargeEnchanter extends TJMultiblockControllerBase {
                 .where('S', this.selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(this.getCasingState()))
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('G', glassPredicate())
                 .where('E', emitterPredicate())
                 .where('O', blockPredicate(Blocks.OBSIDIAN))

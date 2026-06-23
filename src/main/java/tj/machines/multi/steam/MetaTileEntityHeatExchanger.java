@@ -27,10 +27,12 @@ import java.util.List;
 
 import static gregicadditions.client.ClientHandler.ZIRCONIUM_CARBIDE_CASING;
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.EXPORT_FLUIDS;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
 
 
 public class MetaTileEntityHeatExchanger extends TJRecipeMapMultiblockController {
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = new MultiblockAbility[]{MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS};
 
     public MetaTileEntityHeatExchanger(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, TJRecipeMaps.HEAT_EXCHANGER_RECIPES, false, true);

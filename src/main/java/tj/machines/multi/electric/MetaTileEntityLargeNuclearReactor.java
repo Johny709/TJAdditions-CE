@@ -1,7 +1,6 @@
 package tj.machines.multi.electric;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
-import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
@@ -9,7 +8,6 @@ import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.item.metal.NuclearCasing;
 import gregicadditions.recipes.GARecipeMaps;
-import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -104,7 +102,7 @@ public class MetaTileEntityLargeNuclearReactor extends TJMultiRecipeMapMultibloc
         return factoryPattern.aisle("~~~~~C~~~~~", "~~~~GCG~~~~", "~~CCCCCCC~~", "~~CCCCCCC~~", "~GCCCCCCCG~", "CCCCCCCCCCC", "~GCCCCCCCG~", "~~CCCCCCC~~", "~~CCCCCCC~~", "~~~~GCG~~~~", "~~~~~C~~~~~")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('N', statePredicate(GAMetaBlocks.NUCLEAR_CASING.getState(NuclearCasing.CasingType.NEPTUNIUM)))
                 .where('R', statePredicate(GAMetaBlocks.NUCLEAR_CASING.getState(NuclearCasing.CasingType.CURIUM)))
                 .where('A', statePredicate(GAMetaBlocks.NUCLEAR_CASING.getState(NuclearCasing.CasingType.AMERICIUM)))

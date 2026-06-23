@@ -7,7 +7,6 @@ import codechicken.lib.vec.Matrix4;
 import com.google.common.collect.Lists;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
@@ -74,7 +73,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static gregicadditions.GAMaterials.Taranium;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.unification.material.Materials.DrillingFluid;
 import static gregtech.api.unification.material.Materials.Duranium;
 import static tj.mui.TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON;
@@ -82,7 +83,7 @@ import static tj.mui.TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON;
 
 public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase implements TJMiner {
 
-    protected static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    protected static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {EXPORT_ITEMS, IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
 
     public final Type type;
     protected AtomicLong x = new AtomicLong(Long.MAX_VALUE), y = new AtomicLong(Long.MAX_VALUE), z = new AtomicLong(Long.MAX_VALUE);
@@ -144,9 +145,9 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
     }
 
     private void initializeAbilities() {
-        this.importFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
-        this.outputInventory = new ItemHandlerList(getAbilities(MultiblockAbility.EXPORT_ITEMS));
-        this.energyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
+        this.importFluidHandler = new FluidTankList(true, getAbilities(IMPORT_FLUIDS));
+        this.outputInventory = new ItemHandlerList(getAbilities(EXPORT_ITEMS));
+        this.energyContainer = new EnergyContainerList(getAbilities(INPUT_ENERGY));
     }
 
     private void resetTileAbilities() {
@@ -310,7 +311,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
                 .where('L', statePredicate(getCasingState()))
                 .where('C', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('P', statePredicate(getCasingState()))
-                .where('Q', statePredicate(getCasingState()).or(abilityPartPredicate(MultiblockAbility.EXPORT_ITEMS)))
+                .where('Q', statePredicate(getCasingState()).or(abilityPartPredicate(EXPORT_ITEMS)))
                 .where('F', statePredicate(getFrameState()))
                 .where('#', blockWorldState -> true)
                 .build();
@@ -327,10 +328,10 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
         //basically check minimal requirements for inputs count
-        int itemOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_ITEMS, Collections.emptyList())
+        int itemOutputsCount = abilities.getOrDefault(EXPORT_ITEMS, Collections.emptyList())
                 .stream().map(it -> (IItemHandler) it).mapToInt(IItemHandler::getSlots).sum();
-        int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
-        return itemOutputsCount >= 1 && fluidInputsCount >= 1 && abilities.containsKey(MultiblockAbility.INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
+        int fluidInputsCount = abilities.getOrDefault(IMPORT_FLUIDS, Collections.emptyList()).size();
+        return itemOutputsCount >= 1 && fluidInputsCount >= 1 && abilities.containsKey(INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
     }
 
     @Override

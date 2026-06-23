@@ -17,10 +17,12 @@ import net.minecraft.util.ResourceLocation;
 import tj.TJValues;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
+
 
 public class MetaTileEntityMegaCokeOven extends TJRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = new MultiblockAbility[]{MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_ITEMS};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {EXPORT_FLUIDS, EXPORT_ITEMS, IMPORT_ITEMS};
 
     public MetaTileEntityMegaCokeOven(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, TJRecipeMaps.TJ_COKE_OVEN_RECIPES, false, true);

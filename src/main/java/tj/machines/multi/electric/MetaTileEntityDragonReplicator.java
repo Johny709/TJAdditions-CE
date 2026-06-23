@@ -57,7 +57,7 @@ public class MetaTileEntityDragonReplicator extends TJRecipeMapMultiblockControl
                 .aisle("XXX", "XDX", "XXX")
                 .aisle("XXX", "XSX", "XXX")
                 .where('S', this.selfPredicate())
-                .where('X', blockPredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(blockPredicate(Block.getBlockFromName("contenttweaker:awakenedcasing"))))
+                .where('X', blockPredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('D', statePredicate(Blocks.DRAGON_EGG.getDefaultState()))
                 .build();
     }

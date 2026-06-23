@@ -21,7 +21,6 @@ import tj.capability.impl.workable.XLHotCoolantTurbineWorkableHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJHorizontoalTabListRenderer;
 import gregicadditions.GAConfig;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.GAMetaItems;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
@@ -74,10 +73,12 @@ import java.time.Instant;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.capabilities.MultiblockDataCodes.STORE_TAPED;
 import static gregicadditions.client.ClientHandler.MARAGING_STEEL_250_CASING;
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.mui.TJGuiTextures.*;
 import static tj.mui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
@@ -85,7 +86,7 @@ import static tj.mui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
 public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantTurbine implements IMaintenance, IProgressBar {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, IMPORT_ITEMS, OUTPUT_ENERGY, MAINTENANCE_HATCH};
     public static final int BASE_PARALLEL = 12;
     public final MetaTileEntityHotCoolantTurbine.TurbineType turbineType;
     private IMultipleTankHandler exportFluidHandler;
@@ -180,7 +181,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         if (!canForm)
             return false;
 
-        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
+        int maintenanceCount = abilities.getOrDefault(MAINTENANCE_HATCH, Collections.emptyList()).size();
 
         return maintenanceCount == 1;
     }
@@ -402,7 +403,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                 .where('S', this.selfPredicate())
                 .where('#', isAirPredicate())
                 .where('C', statePredicate(this.getCasingState()))
-                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('R', abilityPartPredicate(ABILITY_ROTOR_HOLDER))
                 .build();
     }
@@ -419,11 +420,11 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.exportFluidHandler = new FluidTankList(true, this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
-        this.importItemHandler = new ItemHandlerList(this.getAbilities(MultiblockAbility.IMPORT_ITEMS));
-        if (this.getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).isEmpty())
+        this.exportFluidHandler = new FluidTankList(true, this.getAbilities(EXPORT_FLUIDS));
+        this.importItemHandler = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
+        if (this.getAbilities(MAINTENANCE_HATCH).isEmpty())
             return;
-        MetaTileEntityMaintenanceHatch maintenanceHatch = this.getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).get(0);
+        MetaTileEntityMaintenanceHatch maintenanceHatch = this.getAbilities(MAINTENANCE_HATCH).get(0);
         if (maintenanceHatch.getType() == 2 || !GAConfig.GT5U.enableMaintenance) {
             this.maintenance_problems = 0b111111;
         } else {
@@ -578,7 +579,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
      */
 
     public void calculateMaintenance(int duration) {
-        MetaTileEntityMaintenanceHatch maintenanceHatch = getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).get(0);
+        MetaTileEntityMaintenanceHatch maintenanceHatch = getAbilities(MAINTENANCE_HATCH).get(0);
         if (maintenanceHatch.getType() == 2 || !GAConfig.GT5U.enableMaintenance) {
             return;
         }

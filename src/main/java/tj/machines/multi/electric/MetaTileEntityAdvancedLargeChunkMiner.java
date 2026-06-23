@@ -6,7 +6,6 @@ import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAMaterials;
 import gregicadditions.GAValues;
 import gregicadditions.Gregicality;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.MotorCasing;
@@ -70,10 +69,13 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.function.UnaryOperator;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
+
 
 public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControllerBase implements IMinerHandler, IProgressBar {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
     private final int fortune;
     private final int tier;
@@ -110,7 +112,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        return abilities.containsKey(MultiblockAbility.EXPORT_ITEMS) && abilities.containsKey(MultiblockAbility.INPUT_ENERGY) && abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS) && super.checkStructureComponents(parts, abilities);
+        return abilities.containsKey(EXPORT_ITEMS) && abilities.containsKey(MultiblockAbility.INPUT_ENERGY) && abilities.containsKey(IMPORT_FLUIDS) && super.checkStructureComponents(parts, abilities);
     }
 
     @Override
@@ -207,7 +209,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
                 .aisle("F~~~F", "F~~~F", "CCCCC", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('M', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('F', statePredicate(this.getFrameState()))
                 .where('~', tile -> true)
@@ -250,7 +252,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.currentTier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        this.workableHandler.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
+        this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
         this.drillingFluid = Materials.DrillingFluid.getFluid(1 << this.getTier() - 1);
     }
 

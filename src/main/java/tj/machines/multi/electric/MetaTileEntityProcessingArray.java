@@ -150,7 +150,7 @@ public class MetaTileEntityProcessingArray extends TJRecipeMapMultiblockControll
                 .where('S', this.selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
                 .where('F', frameworkPredicate())
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('#', isAirPredicate())
                 .build();
     }

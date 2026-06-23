@@ -125,7 +125,7 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
                 .setAmountAtLeast('L', 12)
                 .where('S', this.selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('#', isAirPredicate())

@@ -20,7 +20,6 @@ import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.workable.XLTurbineWorkableHandler;
 import tj.builder.multicontrollers.TJRotorHolderMultiblockControllerBase;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.GAMetaItems;
 import gregtech.api.GTValues;
 import gregtech.api.capability.impl.FluidTankList;
@@ -60,14 +59,17 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.STEAM;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 
 public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBase implements IProgressBar {
 
     public final MetaTileEntityLargeTurbine.TurbineType turbineType;
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH, GregicAdditionsCapabilities.STEAM};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, IMPORT_ITEMS, OUTPUT_ENERGY, MAINTENANCE_HATCH, STEAM};
     public static final int BASE_PARALLEL = 12;
     private IMultipleTankHandler exportFluidHandler;
     private ItemHandlerList importItemHandler;
@@ -216,8 +218,8 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
         boolean hasOutputEnergy = abilities.containsKey(MultiblockAbility.OUTPUT_ENERGY);
-        boolean hasInputFluid = abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS);
-        boolean hasSteamInput = abilities.containsKey(GregicAdditionsCapabilities.STEAM);
+        boolean hasInputFluid = abilities.containsKey(IMPORT_FLUIDS);
+        boolean hasSteamInput = abilities.containsKey(STEAM);
 
         if (this.turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM && hasSteamInput)
             return false;
@@ -229,12 +231,12 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         List<IFluidTank> fluidTanks = new ArrayList<>();
-        fluidTanks.addAll(this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
-        fluidTanks.addAll(this.getAbilities(GregicAdditionsCapabilities.STEAM));
+        fluidTanks.addAll(this.getAbilities(IMPORT_FLUIDS));
+        fluidTanks.addAll(this.getAbilities(STEAM));
 
         this.importFluidHandler = new FluidTankList(true, fluidTanks);
-        this.exportFluidHandler = new FluidTankList(true, this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
-        this.importItemHandler = new ItemHandlerList(this.getAbilities(MultiblockAbility.IMPORT_ITEMS));
+        this.exportFluidHandler = new FluidTankList(true, this.getAbilities(EXPORT_FLUIDS));
+        this.importItemHandler = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
     }
 
     @Override
@@ -316,7 +318,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
                 .where('S', this.selfPredicate())
                 .where('#', isAirPredicate())
                 .where('C', statePredicate(this.getCasingState()))
-                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('R', abilityPartPredicate(ABILITY_ROTOR_HOLDER))
                 .build();
     }

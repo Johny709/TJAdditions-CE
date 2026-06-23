@@ -1,7 +1,6 @@
 package tj.machines.multi.electric;
 
 import gregicadditions.GAValues;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
@@ -37,9 +36,12 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
+
 public class MetaTileEntityLargeGreenhouse extends TJMultiRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
 
     public MetaTileEntityLargeGreenhouse(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GARecipeMaps.GREEN_HOUSE_RECIPES, TJRecipeMaps.GREENHOUSE_TREE_RECIPES);
@@ -75,7 +77,7 @@ public class MetaTileEntityLargeGreenhouse extends TJMultiRecipeMapMultiblockCon
                 .setAmountAtLeast('L', 25)
                 .where('S', selfPredicate())
                 .where('L', statePredicate(getCasingState()))
-                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('G', glassPredicate())
                 .where('P', LargeSimpleRecipeMapMultiblockController. pumpPredicate())
                 .where('D', blockPredicate(Block.getBlockFromName("randomthings:fertilizeddirt")))

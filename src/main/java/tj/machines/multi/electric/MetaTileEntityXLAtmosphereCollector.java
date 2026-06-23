@@ -205,7 +205,7 @@ public class MetaTileEntityXLAtmosphereCollector extends MetaTileEntityLargeAtmo
                 .where('S', this.selfPredicate())
                 .where('C', statePredicate(this.turbineType.casingState))
                 .where('P', statePredicate(this.getPipeState()))
-                .where('X', statePredicate(this.turbineType.casingState).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.turbineType.casingState).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('F', abilityPartPredicate(MultiblockAbility.EXPORT_FLUIDS))
                 .where('R', abilityPartPredicate(ABILITY_ROTOR_HOLDER))
                 .where('#', isAirPredicate())
