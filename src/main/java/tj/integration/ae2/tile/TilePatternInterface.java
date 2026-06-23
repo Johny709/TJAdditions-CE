@@ -14,6 +14,7 @@ import gregtech.api.gui.widgets.ClickButtonWidget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.util.function.BooleanConsumer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -37,9 +38,7 @@ import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.*;
 import tj.util.TJItemUtils;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -150,6 +149,14 @@ public class TilePatternInterface extends TileInterface implements ITileEntityUI
                         .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
                         .setInvertTexture(true)
                         .useToggleTexture(true))
+                .widget(new TJToggleButtonWidget(-18, 161, 16, 16, () -> false, (BooleanConsumer) bool -> this.changePatternAmount(duality.getPatterns(), 2, patternScrollableSlotGroup, () -> {}))
+                        .setActiveTexture(TJGuiTextures.AE2_MULTIPLY2_BUTTON, TJGuiTextures.AE2_MULTIPLY2_BUTTON))
+                .widget(new TJToggleButtonWidget(-18, 179, 16, 16, () -> false, (BooleanConsumer) bool -> this.changePatternAmount(duality.getPatterns(), -2, patternScrollableSlotGroup, () -> {}))
+                        .setActiveTexture(TJGuiTextures.AE2_DIVIDE2_BUTTON, TJGuiTextures.AE2_DIVIDE2_BUTTON))
+                .widget(new TJToggleButtonWidget(-18, 197, 16, 16, () -> false, (BooleanConsumer) bool -> this.changePatternAmount(duality.getPatterns(), 3, patternScrollableSlotGroup, () -> {}))
+                        .setActiveTexture(TJGuiTextures.AE2_MULTIPLY3_BUTTON, TJGuiTextures.AE2_MULTIPLY3_BUTTON))
+                .widget(new TJToggleButtonWidget(-18, 215, 16, 16, () -> false, (BooleanConsumer) bool -> this.changePatternAmount(duality.getPatterns(), -3, patternScrollableSlotGroup, () -> {}))
+                        .setActiveTexture(TJGuiTextures.AE2_DIVIDE3_BUTTON, TJGuiTextures.AE2_DIVIDE3_BUTTON))
                 .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
                                 .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
@@ -186,29 +193,26 @@ public class TilePatternInterface extends TileInterface implements ITileEntityUI
 
     private void createPatternMultiToolGUI(ModularUI.Builder builder, ItemStack patternMultiTool, FilteredItemStackHandler multiUpgradeSlots, IItemHandler patternSlots, IItemHandler multiPatternSlots, NBTTagCompound invTag) {
         if (!patternMultiTool.isEmpty()) {
-            final List<AEPatternSlotWidget> patternSlotWidgets = new ArrayList<>();
             final SlotScrollableWidgetGroup multiPatternSlotGroup = new SlotScrollableWidgetGroup(-118, 14, 72, 162, 4)
                     .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(patternSlots, itemStack, false))
                     .setItemHandler(multiPatternSlots)
                     .setScrollWidth(0);
             builder.widget(new ImageWidget(-125, 0, 105, 218, GuiTextures.BORDERED_BACKGROUND))
                     .widget(new LabelWidget(-118, 4, "item.nae2.pattern_multiplier.name"))
-                    .widget(new ClickButtonWidget(-118, 176, 18, 18, "*2", data -> this.changePatternAmount(multiPatternSlots, 2, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
-                    .widget(new ClickButtonWidget(-118, 194, 18, 18, "/2", data -> this.changePatternAmount(multiPatternSlots, -2, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
-                    .widget(new ClickButtonWidget(-100, 176, 18, 18, "*3", data -> this.changePatternAmount(multiPatternSlots, 3, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
-                    .widget(new ClickButtonWidget(-100, 194, 18, 18, "/3", data -> this.changePatternAmount(multiPatternSlots, -3, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
-                    .widget(new ClickButtonWidget(-82, 176, 18, 18, "*4", data -> this.changePatternAmount(multiPatternSlots, 4, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
-                    .widget(new ClickButtonWidget(-82, 194, 18, 18, "/4", data -> this.changePatternAmount(multiPatternSlots, -4, patternSlotWidgets, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+                    .widget(new ClickButtonWidget(-118, 176, 18, 18, "*2", data -> this.changePatternAmount(multiPatternSlots, 2, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
+                    .widget(new ClickButtonWidget(-118, 194, 18, 18, "/2", data -> this.changePatternAmount(multiPatternSlots, -2, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
+                    .widget(new ClickButtonWidget(-100, 176, 18, 18, "*3", data -> this.changePatternAmount(multiPatternSlots, 3, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
+                    .widget(new ClickButtonWidget(-100, 194, 18, 18, "/3", data -> this.changePatternAmount(multiPatternSlots, -3, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
+                    .widget(new ClickButtonWidget(-82, 176, 18, 18, "*4", data -> this.changePatternAmount(multiPatternSlots, 4, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))))
+                    .widget(new ClickButtonWidget(-82, 194, 18, 18, "/4", data -> this.changePatternAmount(multiPatternSlots, -4, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
             for (int i = 0; i < multiPatternSlots.getSlots(); i++) {
                 final int index = i;
-                final AEPatternSlotWidget patternSlotWidget = new AEPatternSlotWidget(multiPatternSlots, i, 18 * (i / 9), 18 * (i % 9))
+                multiPatternSlotGroup.addWidget(new AEPatternSlotWidget(multiPatternSlots, i, 18 * (i / 9), 18 * (i % 9))
                         .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
                         .setActiveSupplier(() -> index / 9 <= multiUpgradeSlots.getSlotsFilled())
                         .setSlotLocationInfo(true, false)
                         .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
-                        .setWidgetGroup(multiPatternSlotGroup);
-                multiPatternSlotGroup.addWidget(patternSlotWidget);
-                patternSlotWidgets.add(patternSlotWidget);
+                        .setWidgetGroup(multiPatternSlotGroup));
             }
             builder.widget(multiPatternSlotGroup);
             for (int i = 0; i < multiUpgradeSlots.getSlots(); i++) {
@@ -242,7 +246,7 @@ public class TilePatternInterface extends TileInterface implements ITileEntityUI
         }
     }
 
-    private void changePatternAmount(IItemHandler patternSlots, int multiplier, List<AEPatternSlotWidget> patternSlotWidgets, Runnable callback) {
+    private void changePatternAmount(IItemHandler patternSlots, int multiplier, SlotScrollableWidgetGroup patternSlotWidgets, Runnable callback) {
         final boolean divide = multiplier < 0;
         if (divide)
             multiplier = Math.abs(multiplier);
@@ -306,9 +310,10 @@ public class TilePatternInterface extends TileInterface implements ITileEntityUI
             if (setPatternInputs.test(true))
                 setPatternInputs.test(false);
         }
-        for (AEPatternSlotWidget slotWidget : patternSlotWidgets)
-            slotWidget.forceUpdate();
         callback.run();
+        patternSlotWidgets.getNativeWidgets().stream()
+                .filter(widget -> widget instanceof TJSlotWidget<?>)
+                .forEach(slot -> ((TJSlotWidget<?>) slot).forceUpdate());
     }
 
     @Override
