@@ -5,12 +5,12 @@ import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
 import gregtech.api.items.metaitem.MetaItem;
-import gregtech.api.items.metaitem.stats.IMetaItemStats;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
+import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import net.minecraft.client.resources.I18n;
@@ -19,9 +19,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.*;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -86,12 +85,11 @@ public class MetaTileEntityXLAtmosphereCollector extends MetaTileEntityLargeAtmo
     protected IItemHandlerModifiable createImportItemHandler() {
         return new FilteredItemStackHandler(this, 1, 1)
                 .setItemStackPredicate((slot, stack) -> {
-                    Item item = stack.getItem();
+                    final Item item = stack.getItem();
                     if (item instanceof MetaItem<?>) {
-                        MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);
+                        final MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);
                         if (metaItem != null) {
-                            List<IMetaItemStats> stats = metaItem.getAllStats();
-                            return !stats.isEmpty() && stats.get(0) instanceof TurbineUpgradeBehaviour;
+                            return !metaItem.getAllStats().isEmpty() && metaItem.getAllStats().get(0) instanceof TurbineUpgradeBehaviour;
                         }
                     }
                     return false;
@@ -109,6 +107,37 @@ public class MetaTileEntityXLAtmosphereCollector extends MetaTileEntityLargeAtmo
     }
 
     @Override
+    protected void updateFormedValid() {
+        super.updateFormedValid();
+        if (this.isStructureFormed() && this.getOffsetTimer() % 100 == 0) {
+            for (MetaTileEntityRotorHolder rotorHolder : this.getAbilities(ABILITY_ROTOR_HOLDER)) {
+                if (rotorHolder.hasRotorInInventory()) continue;
+                final ItemStack rotorStack = this.checkAndConsumeItem();
+                if (rotorStack != null) {
+                    rotorHolder.getRotorInventory().setStackInSlot(0, rotorStack);
+                    rotorHolder.markDirty();
+                }
+            }
+        }
+    }
+
+    private ItemStack checkAndConsumeItem() {
+        for (int slotIndex = 0; slotIndex < this.importItemHandler.getSlots(); slotIndex++) {
+            final ItemStack stack = this.importItemHandler.getStackInSlot(slotIndex);
+            final Item item = stack.getItem();
+            if (item instanceof MetaItem<?>) {
+                final MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);
+                if (metaItem != null && !metaItem.getAllStats().isEmpty() && metaItem.getAllStats().get(0) instanceof TurbineRotorBehavior) {
+                    this.importItemHandler.setStackInSlot(slotIndex, ItemStack.EMPTY);
+                    this.markDirty();
+                    return stack;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         super.addTabs(tabBuilder);
         tabBuilder.addWidget(new TJSlotWidget<>(this.importItems, 0, 175, 191)
@@ -122,26 +151,32 @@ public class MetaTileEntityXLAtmosphereCollector extends MetaTileEntityLargeAtmo
 
     @Override
     protected void addDisplayText(GUIDisplayBuilder builder) {
-        super.addDisplayText(builder);
-        if (!this.isStructureFormed()) return;
-        builder.customLine(text -> {
-                    text.addTranslationLine("machine.universal.consuming.seconds", TJValues.thousandFormat.format(this.airCollectorHandler.getConsumption()),
-                            this.airCollectorHandler.getFuelName(),
-                            TJValues.thousandFormat.format(this.airCollectorHandler.getMaxProgress() / 20));
-                    final FluidStack fuelStack = this.airCollectorHandler.getFuelStack();
-                    final int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
+        if (this.isStructureFormed()) {
+            builder.customLine(text -> {
+                        text.addTranslationLine("machine.universal.consuming.seconds", TJValues.thousandFormat.format(this.airCollectorHandler.getConsumption()),
+                                this.airCollectorHandler.getFuelName(),
+                                TJValues.thousandFormat.format(this.airCollectorHandler.getMaxProgress() / 20));
+                        final FluidStack fuelStack = this.airCollectorHandler.getFuelStack();
+                        final int fuelAmount = fuelStack == null ? 0 : fuelStack.amount;
 
-                    final ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
-                    text.addTranslationLine("tj.multiblock.fuel_amount", TJValues.thousandFormat.format(fuelAmount), fuelName.getUnformattedText());
+                        final ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
+                        text.addTranslationLine("tj.multiblock.fuel_amount", TJValues.thousandFormat.format(fuelAmount), fuelName.getUnformattedText());
 
-                    text.addTranslationLine("tj.multiblock.extreme_turbine.energy", TJValues.thousandFormat.format(this.airCollectorHandler.getProduction()));
+                        text.addTranslationLine("tj.multiblock.extreme_turbine.energy", TJValues.thousandFormat.format(this.airCollectorHandler.getProduction()));
 
-                    text.addTextComponent(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode").appendText(" ")
-                            .appendSibling(this.airCollectorHandler.isFastMode() ? withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true")
-                                    : withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false")));
-                }).addIsWorkingLine(this.airCollectorHandler.isWorkingEnabled(), this.airCollectorHandler.isActive(), this.airCollectorHandler.getProgress(), this.airCollectorHandler.getMaxProgress())
-                .addRecipeInputLine(this.airCollectorHandler)
-                .addRecipeOutputLine(this.airCollectorHandler);
+                        text.addTextComponent(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode").appendText(" ")
+                                .appendSibling(this.airCollectorHandler.isFastMode() ? withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true")
+                                        : withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.false"), "false")));
+                    }).addIsWorkingLine(this.airCollectorHandler.isWorkingEnabled(), this.airCollectorHandler.isActive(), this.airCollectorHandler.getProgress(), this.airCollectorHandler.getMaxProgress())
+                    .addRecipeInputLine(this.airCollectorHandler)
+                    .addRecipeOutputLine(this.airCollectorHandler);
+        } else {
+            final ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
+            tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
+            builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
+                    .setStyle(new Style().setColor(TextFormatting.RED)
+                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip))));
+        }
     }
 
     private void addRotorDisplayText(GUIDisplayBuilder builder) {

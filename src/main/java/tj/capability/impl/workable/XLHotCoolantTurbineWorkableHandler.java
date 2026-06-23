@@ -111,10 +111,9 @@ public class XLHotCoolantTurbineWorkableHandler extends TJGAFuelRecipeLogic {
 
     @Override
     public boolean checkRecipe(HotCoolantRecipe recipe) {
-        List<MetaTileEntityRotorHolderForNuclearCoolant> rotorHolders = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER);
         if (++this.rotorCycleLength >= CYCLE_LENGTH) {
-            for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : rotorHolders) {
-                int damageToBeApplied = (int) Math.round((BASE_ROTOR_DAMAGE * rotorHolder.getRelativeRotorSpeed()) + 1) * rotorDamageMultiplier;
+            for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER)) {
+                final int damageToBeApplied = (int) Math.round((BASE_ROTOR_DAMAGE * rotorHolder.getRelativeRotorSpeed()) + 1) * this.rotorDamageMultiplier;
                 if (!rotorHolder.applyDamageToRotor(damageToBeApplied, false)) {
                     return false;
                 }
@@ -126,10 +125,9 @@ public class XLHotCoolantTurbineWorkableHandler extends TJGAFuelRecipeLogic {
 
     protected boolean isReadyForRecipes() {
         int areReadyForRecipes = 0;
-        int rotorHolderSize = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER).size();
+        final int rotorHolderSize = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER).size();
         for (int index = 0; index < rotorHolderSize; index++) {
-            MetaTileEntityRotorHolderForNuclearCoolant rotorHolder = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER).get(index);
-            if (rotorHolder.isHasRotor())
+            if (this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER).get(index).isHasRotor())
                 areReadyForRecipes++;
         }
         return areReadyForRecipes == rotorHolderSize;
@@ -145,10 +143,9 @@ public class XLHotCoolantTurbineWorkableHandler extends TJGAFuelRecipeLogic {
     @Override
     public long getMaxVoltage() {
         double totalEnergyOutput = 0;
-        List<MetaTileEntityRotorHolderForNuclearCoolant> rotorHolders = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER);
-        for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : rotorHolders) {
+        for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER)) {
             if (rotorHolder.hasRotorInInventory()) {
-                double rotorEfficiency = rotorHolder.getRotorEfficiency();
+                final double rotorEfficiency = rotorHolder.getRotorEfficiency();
                 totalEnergyOutput += BASE_EU_VOLTAGE + this.getBonusForTurbineType(this.extremeTurbine) * rotorEfficiency;
             }
         }
@@ -160,8 +157,8 @@ public class XLHotCoolantTurbineWorkableHandler extends TJGAFuelRecipeLogic {
         double totalEnergyOutput = 0;
         for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER)) {
             if (rotorHolder.getCurrentRotorSpeed() > 0 && rotorHolder.hasRotorInInventory() && rotorHolder.isFrontFaceFree()) {
-                double relativeRotorSpeed = rotorHolder.getRelativeRotorSpeed();
-                double rotorEfficiency = rotorHolder.getRotorEfficiency();
+                final double relativeRotorSpeed = rotorHolder.getRelativeRotorSpeed();
+                final double rotorEfficiency = rotorHolder.getRotorEfficiency();
                 totalEnergyOutput += (BASE_EU_OUTPUT + getBonusForTurbineType(this.extremeTurbine) * rotorEfficiency) * (relativeRotorSpeed * relativeRotorSpeed);
             }
         }
@@ -183,7 +180,7 @@ public class XLHotCoolantTurbineWorkableHandler extends TJGAFuelRecipeLogic {
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound tagCompound = super.serializeNBT();
+        final NBTTagCompound tagCompound = super.serializeNBT();
         tagCompound.setInteger("cycleLength", this.rotorCycleLength);
         tagCompound.setInteger("fastModeMultiplier", this.fastModeMultiplier);
         tagCompound.setInteger("damageMultiplier", this.rotorDamageMultiplier);

@@ -33,7 +33,7 @@ public class XLAtmosphereCollectorWorkableHandler extends LargeAtmosphereCollect
                 int baseRotorDamage = BASE_ROTOR_DAMAGE;
                 if (this.airCollector.turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM)
                     baseRotorDamage = 150;
-                int damageToBeApplied = (int) Math.round((baseRotorDamage * rotorHolder.getRelativeRotorSpeed()) + 1) * rotorDamageMultiplier;
+                int damageToBeApplied = (int) Math.round((baseRotorDamage * rotorHolder.getRelativeRotorSpeed()) + 1) * this.rotorDamageMultiplier;
                 if (!rotorHolder.applyDamageToRotor(damageToBeApplied, false)) {
                     return false;
                 }

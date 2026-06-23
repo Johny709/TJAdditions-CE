@@ -4,7 +4,6 @@ import gregicadditions.Gregicality;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.items.metaitem.MetaItem;
-import gregtech.api.items.metaitem.stats.IMetaItemStats;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import net.minecraft.item.Item;
 import net.minecraft.util.text.*;
@@ -127,41 +126,6 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     }
 
     @Override
-    protected HotCoolantRecipeLogic createWorkable(long maxVoltage) {
-        this.xlHotCoolantTurbineWorkableHandler = new XLHotCoolantTurbineWorkableHandler(this, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getExportFluidHandler);
-        this.fastModeConsumer = xlHotCoolantTurbineWorkableHandler::setFastMode;
-        return xlHotCoolantTurbineWorkableHandler;
-    }
-
-    @Override
-    protected IItemHandlerModifiable createImportItemHandler() {
-        return new FilteredItemStackHandler(this, 1, 1)
-                .setItemStackPredicate((slot, stack) -> {
-                    Item item = stack.getItem();
-                    if (item instanceof MetaItem<?>) {
-                        MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);
-                        if (metaItem != null) {
-                            List<IMetaItemStats> stats = metaItem.getAllStats();
-                            return !stats.isEmpty() && stats.get(0) instanceof TurbineUpgradeBehaviour;
-                        }
-                    }
-                    return false;
-                }).setOnContentsChangedPre((slot, stack, insert) -> {
-                    if (this.getWorld() != null && !this.getWorld().isRemote) {
-                        this.parallels = BASE_PARALLEL;
-                        Item item = stack.getItem();
-                        if (insert && item instanceof MetaItem<?>)
-                            this.parallels += ((TurbineUpgradeBehaviour) ((MetaItem<?>) item).getItem(stack).getAllStats().get(0)).getExtraParallels();
-                        this.writeCustomData(10, buf -> buf.writeInt(this.parallels));
-                        if (this.isStructureFormed())
-                            this.invalidateStructure();
-                        this.structurePattern = this.createStructurePattern();
-                        this.markDirty();
-                    }
-                });
-    }
-
-    @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.turbine.description"));
@@ -173,6 +137,38 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
             tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLHotCoolantTurbineWorkableHandler.getTurbineBonus()));
             tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.fast", 100));
         });
+    }
+
+    @Override
+    protected HotCoolantRecipeLogic createWorkable(long maxVoltage) {
+        this.xlHotCoolantTurbineWorkableHandler = new XLHotCoolantTurbineWorkableHandler(this, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getExportFluidHandler);
+        this.fastModeConsumer = xlHotCoolantTurbineWorkableHandler::setFastMode;
+        return xlHotCoolantTurbineWorkableHandler;
+    }
+
+    @Override
+    protected IItemHandlerModifiable createImportItemHandler() {
+        return new FilteredItemStackHandler(this, 1, 1)
+                .setItemStackPredicate((slot, stack) -> {
+                    final Item item = stack.getItem();
+                    if (item instanceof MetaItem<?>) {
+                        final MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);
+                        if (metaItem != null) {
+                            return !metaItem.getAllStats().isEmpty() && metaItem.getAllStats().get(0) instanceof TurbineUpgradeBehaviour;
+                        }
+                    }
+                    return false;
+                }).setOnContentsChangedPost((slot, stack) -> {
+                    this.parallels = 12;
+                    Item item = stack.getItem();
+                    if (item instanceof MetaItem<?>)
+                        this.parallels += ((TurbineUpgradeBehaviour) ((MetaItem<?>) item).getItem(stack).getAllStats().get(0)).getExtraParallels();
+                    this.writeCustomData(10, buf -> buf.writeInt(this.parallels));
+                    if (this.isStructureFormed())
+                        this.invalidateStructure();
+                    this.structurePattern = this.createStructurePattern();
+                    this.markDirty();
+                });
     }
 
     @Override
@@ -189,17 +185,32 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     @Override
     protected void updateFormedValid() {
         super.updateFormedValid();
-        if (this.isStructureFormed() && this.getOffsetTimer() % 20 == 0) {
+        if (this.isStructureFormed() && this.getOffsetTimer() % 100 == 0) {
             for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : this.getAbilities(ABILITY_ROTOR_HOLDER)) {
-                if (rotorHolder.hasRotorInInventory())
-                    continue;
-                ItemStack rotorStack = this.checkAndConsumeItem();
+                if (rotorHolder.hasRotorInInventory()) continue;
+                final ItemStack rotorStack = this.checkAndConsumeItem();
                 if (rotorStack != null) {
                     rotorHolder.getRotorInventory().setStackInSlot(0, rotorStack);
                     rotorHolder.markDirty();
                 }
             }
         }
+    }
+
+    private ItemStack checkAndConsumeItem() {
+        for (int slotIndex = 0; slotIndex < this.importItemHandler.getSlots(); slotIndex++) {
+            final ItemStack stack = this.importItemHandler.getStackInSlot(slotIndex);
+            final Item item = stack.getItem();
+            if (item instanceof MetaItem<?>) {
+                final MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);
+                if (metaItem != null && !metaItem.getAllStats().isEmpty() && metaItem.getAllStats().get(0) instanceof TurbineRotorBehavior) {
+                    this.importItemHandler.setStackInSlot(slotIndex, ItemStack.EMPTY);
+                    this.markDirty();
+                    return stack;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -333,16 +344,14 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                 final String shortRotorName = rotorName.length() > 26 ? rotorName.substring(0, 26) + "..." : rotorName;
                 builder.addTextComponentWithHover(new TextComponentString("-")
                         .appendText(" ")
-                        .appendSibling(new TextComponentString(colorText + "[" + rotorIndex + "] " + (shortRotorName.equals("Air") ? TextUtils.translate("tj.multiblock.extreme_turbine.insertrotor") : shortRotorName))), hoverBuilder -> {
-                    hoverBuilder.addTranslationLine("tj.multiblock.extreme_turbine.name", new TextComponentTranslation(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName().equals("Air") ?
-                            "gregtech.multiblock.extreme_turbine.norotor" : rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName()))
-                            .addTranslationLine("tj.multiblock.parallel.status", new TextComponentTranslation(rotorHolder.isFrontFaceFree() ? "tj.multiblock.extreme_turbine.obstructed.not"
-                                    : "tj.multiblock.extreme_turbine.obstructed"))
-                            .addTranslationLine("tj.multiblock.extreme_turbine.speed", TJValues.thousandFormat.format(rotorHolder.getCurrentRotorSpeed()), TJValues.thousandFormat.format(rotorHolder.getMaxRotorSpeed()))
-                            .addTranslationLine("tj.multiblock.extreme_turbine.efficiency", TJValues.thousandFormat.format(efficiency))
-                            .addTranslationLine("tj.multiblock.extreme_turbine.durability", TJValues.thousandFormat.format(durability))
-                            .addItemStack(rotorHolder.getRotorInventory().getStackInSlot(0));
-                });
+                        .appendSibling(new TextComponentString(colorText + "[" + rotorIndex + "] " + (shortRotorName.equals("Air") ? TextUtils.translate("tj.multiblock.extreme_turbine.insertrotor") : shortRotorName))), hoverBuilder -> hoverBuilder.addTranslationLine("tj.multiblock.extreme_turbine.name", new TextComponentTranslation(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName().equals("Air") ?
+                                "gregtech.multiblock.extreme_turbine.norotor" : rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName()))
+                                .addTranslationLine("tj.multiblock.parallel.status", new TextComponentTranslation(rotorHolder.isFrontFaceFree() ? "tj.multiblock.extreme_turbine.obstructed.not"
+                                        : "tj.multiblock.extreme_turbine.obstructed"))
+                                .addTranslationLine("tj.multiblock.extreme_turbine.speed", TJValues.thousandFormat.format(rotorHolder.getCurrentRotorSpeed()), TJValues.thousandFormat.format(rotorHolder.getMaxRotorSpeed()))
+                                .addTranslationLine("tj.multiblock.extreme_turbine.efficiency", TJValues.thousandFormat.format(efficiency))
+                                .addTranslationLine("tj.multiblock.extreme_turbine.durability", TJValues.thousandFormat.format(durability))
+                                .addItemStack(rotorHolder.getRotorInventory().getStackInSlot(0)));
             }
         }
     }
@@ -360,26 +369,6 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     @Override
     protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
         this.fastModeConsumer.apply(componentData.equals("false"));
-    }
-
-    private ItemStack checkAndConsumeItem() {
-        int getItemSlots = this.importItemHandler.getSlots();
-        for (int slotIndex = 0; slotIndex < getItemSlots; slotIndex++) {
-            ItemStack stack = this.importItemHandler.getStackInSlot(slotIndex);
-            Item item = stack.getItem();
-            if (item instanceof MetaItem<?>) {
-                MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);
-                if (metaItem != null) {
-                    List<IMetaItemStats> stats = metaItem.getAllStats();
-                    if (!stats.isEmpty() && stats.get(0) instanceof TurbineRotorBehavior) {
-                        this.importItemHandler.setStackInSlot(slotIndex, ItemStack.EMPTY);
-                        this.markDirty();
-                        return stack;
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     @Override
