@@ -18,7 +18,7 @@ import tj.mui.widgets.ButtonWidget;
 import tj.util.consumers.QuadConsumer;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
@@ -34,6 +34,8 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     private TextureArea baseTexture;
     private String activeTooltipHoverText;
     private String baseTooltipHoverText;
+    private String activeTitleTooltipHoverText;
+    private String baseTitleTooltipHoverText;
     private String activeDisplayText;
     private String baseDisplayText;
     private boolean useToggleTexture;
@@ -137,6 +139,20 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     }
 
     /**
+     * Button title hover tooltip.
+     * Text that will be displayed upon hovering over this button.
+     * This will attempt to translate the text if they're a lang string.
+     * @param baseTitleTooltipHoverText The text shown on the button when it's not pressed.
+     * @param activeTitleTooltipHoverText The text shown on the button when it's pressed.
+     */
+    public TJToggleButtonWidget setToggleTitleTooltipHoverText(String baseTitleTooltipHoverText, String activeTitleTooltipHoverText) {
+        this.baseTitleTooltipHoverText = baseTitleTooltipHoverText;
+        this.activeTitleTooltipHoverText = activeTitleTooltipHoverText;
+        return this;
+    }
+
+    /**
+     * Button description hover tooltip.
      * Text that will be displayed upon hovering over this button.
      * This will attempt to translate the text if they're a lang string.
      * @param baseTooltipHoverText The text shown on the button when it's not pressed.
@@ -152,10 +168,13 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         super.drawInForeground(mouseX, mouseY);
-        if (this.baseTooltipHoverText != null && this.activeTooltipHoverText != null && this.isMouseOverElement(mouseX, mouseY)) {
-            final List<String> hover = Collections.singletonList(this.isPressed ? I18n.format(this.activeTooltipHoverText) : I18n.format(this.baseTooltipHoverText));
-            this.drawHoveringText(ItemStack.EMPTY, hover, 300, mouseX, mouseY);
-        }
+        if (!this.isMouseOverElement(mouseX, mouseY)) return;
+        final List<String> hover = new ArrayList<>();
+        if (this.baseTitleTooltipHoverText != null && this.activeTitleTooltipHoverText != null)
+            hover.add(I18n.format(this.isPressed ? this.activeTitleTooltipHoverText : this.baseTitleTooltipHoverText));
+        if (this.baseTooltipHoverText != null && this.activeTooltipHoverText != null)
+            hover.add("§7" + I18n.format(this.isPressed ? this.activeTooltipHoverText : this.baseTooltipHoverText));
+        this.drawHoveringText(ItemStack.EMPTY, hover, 300, mouseX, mouseY);
     }
 
     @Override

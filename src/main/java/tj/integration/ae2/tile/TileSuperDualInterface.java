@@ -162,7 +162,7 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
                                 .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
                                 .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_EDGE_RIGHT)
-                                .setTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
+                                .setTitleHoverTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
                             widgetGroup.addWidget(new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
                             widgetGroup.addWidget(new LabelWidget(14, 112, "gui.appliedenergistics2.Priority"));
                             widgetGroup.addWidget(new NewTextFieldWidget<>(14, 153, 148, 18, true, () -> String.valueOf(duality.getPriority()), this::setPriority)
@@ -257,41 +257,56 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
                     .setActiveBackgroundTexture(GuiTextures.SLOT));
         }
         tab.add(new TJToggleButtonWidget(-18, 58, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, this::setBlockingMode)
+                .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.InterfaceBlockingMode", "gui.tooltips.appliedenergistics2.InterfaceBlockingMode")
                 .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.NonBlocking", "gui.tooltips.appliedenergistics2.Blocking")
                 .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
                 .useToggleTexture(true));
         tab.add(new TJCycleButtonWidget<>(-18, 76, 16, 16, (EnumSet<LockCraftingMode>) Settings.UNLOCK.getPossibleValues(), () -> (Enum<LockCraftingMode>) duality.getConfigManager().getSetting(Settings.UNLOCK), this::setLockCrafting)
                 .setCycleHoverTooltipText("gui.tooltips.appliedenergistics2.LockCraftingModeNone", "gui.tooltips.appliedenergistics2.LockCraftingUntilRedstonePulse", "gui.tooltips.appliedenergistics2.LockCraftingWhileRedstoneHigh", "gui.tooltips.appliedenergistics2.LockCraftingWhileRedstoneLow", "gui.tooltips.appliedenergistics2.LockCraftingUntilResultReturned")
+                .setCycleTitleHoverTooltipText("gui.tooltips.appliedenergistics2.LockCraftingMode", "gui.tooltips.appliedenergistics2.LockCraftingMode", "gui.tooltips.appliedenergistics2.LockCraftingMode", "gui.tooltips.appliedenergistics2.LockCraftingMode", "gui.tooltips.appliedenergistics2.LockCraftingMode")
                 .setCycleTexture(TJGuiTextures.CYCLE_LOCK_CRAFTING));
         tab.add(new TJToggleButtonWidget(-18, 94, 16, 16, () -> duality.getConfigManager().getSetting(Settings.INTERFACE_TERMINAL).ordinal() == 0, this::setInterfaceTerminal)
-                .setTooltipText("gui.appliedenergistics2.InterfaceTerminalHint")
+                .setToggleTitleTooltipHoverText("item.appliedenergistics2.multi_part.interface_terminal.name", "item.appliedenergistics2.multi_part.interface_terminal.name")
+                .setToggleTooltipHoverText("gui.appliedenergistics2.InterfaceTerminalHint", "gui.appliedenergistics2.InterfaceTerminalHint")
                 .setToggleTexture(TJGuiTextures.TOGGLE_INTERFACE_TERMINAL)
                 .setInvertTexture(true)
                 .useToggleTexture(true));
         tab.add(new TJToggleButtonWidget(-18, 112, 16, 16, () -> duality.getConfigManager().getSetting(Settings.OPERATION_MODE).ordinal() == 0, this::setFluidPacket)
+                .setToggleTitleTooltipHoverText("ae2fc.tooltip.real_fluid", "ae2fc.tooltip.fake_packet")
                 .setToggleTooltipHoverText("ae2fc.tooltip.real_fluid.hint", "ae2fc.tooltip.fake_packet.hint")
                 .setToggleTexture(TJGuiTextures.TOGGLE_SEND_FLUID)
                 .setInvertTexture(true)
                 .useToggleTexture(true));
         tab.add(new TJToggleButtonWidget(-18, 130, 16, 16, () -> duality.getConfigManager().getSetting(Settings.LEVEL_TYPE).ordinal() == 0, this::setSplittingItemsFluids)
                 .setToggleTooltipHoverText("ae2fc.tooltip.allow_splitting.hint", "ae2fc.tooltip.prevent_splitting.hint")
+                .setToggleTitleTooltipHoverText("ae2fc.tooltip.allow_splitting", "ae2fc.tooltip.allow_splitting")
                 .setToggleTexture(TJGuiTextures.TOGGLE_SPLITTING_ITEMS_FLUIDS)
                 .useToggleTexture(true));
         tab.add(new TJCycleButtonWidget<>(-18, 148, 16, 16, (EnumSet<CondenserOutput>) Settings.CONDENSER_OUTPUT.getPossibleValues(), () -> (Enum<CondenserOutput>) duality.getConfigManager().getSetting(Settings.CONDENSER_OUTPUT), this::setBlockModeEx)
                 .setCycleHoverTooltipText("ae2fc.tooltip.block_all.hint", "ae2fc.tooltip.block_item.hint", "ae2fc.tooltip.block_fluid.hint")
+                .setCycleTitleHoverTooltipText("ae2fc.tooltip.block_all", "ae2fc.tooltip.block_item", "ae2fc.tooltip.block_fluid")
                 .setCycleTexture(TJGuiTextures.CYCLE_BLOCKING_MODE_EX));
         tab.add(new TJToggleButtonWidget(-18, 166, 16, 16, () -> ((RCIConfigurableObject) duality).r$getConfigManager().getSetting(RCSettings.IntelligentBlocking).ordinal() == 0, this::setIntelligentBlocking)
+                .setToggleTitleTooltipHoverText("gui.intelligent_blocking.name", "gui.intelligent_blocking.name")
                 .setToggleTooltipHoverText("gui.intelligent_blocking.CLOSE.text", "gui.intelligent_blocking.OPEN.text")
                 .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
                 .setInvertTexture(true)
                 .useToggleTexture(true));
         tab.add(new TJToggleButtonWidget(-18, 184, 16, 16, () -> false, (BooleanConsumer) bool -> this.changePatternAmount(duality.getPatterns(), 2, patternScrollableSlotGroup, () -> {}))
+                .setToggleTooltipHoverText("gui.pattern_term.auto_fill_pattern.MULTIPLY_2.text", "gui.pattern_term.auto_fill_pattern.MULTIPLY_2.text")
+                .setToggleTitleTooltipHoverText("gui.action.MULTIPLY_2.name", "gui.action.MULTIPLY_2.name")
                 .setActiveTexture(TJGuiTextures.AE2_MULTIPLY2_BUTTON, TJGuiTextures.AE2_MULTIPLY2_BUTTON));
         tab.add(new TJToggleButtonWidget(-18, 202, 16, 16, () -> false, (BooleanConsumer) bool -> this.changePatternAmount(duality.getPatterns(), -2, patternScrollableSlotGroup, () -> {}))
+                .setToggleTooltipHoverText("gui.pattern_term.auto_fill_pattern.DIVIDE_2.text", "gui.pattern_term.auto_fill_pattern.DIVIDE_2.text")
+                .setToggleTitleTooltipHoverText("gui.action.DIVIDE_2.name", "gui.action.DIVIDE_2.name")
                 .setActiveTexture(TJGuiTextures.AE2_DIVIDE2_BUTTON, TJGuiTextures.AE2_DIVIDE2_BUTTON));
         tab.add(new TJToggleButtonWidget(-18, 220, 16, 16, () -> false, (BooleanConsumer) bool -> this.changePatternAmount(duality.getPatterns(), 3, patternScrollableSlotGroup, () -> {}))
+                .setToggleTooltipHoverText("gui.pattern_term.auto_fill_pattern.MULTIPLY_3.text", "gui.pattern_term.auto_fill_pattern.MULTIPLY_3.text")
+                .setToggleTitleTooltipHoverText("gui.action.MULTIPLY_3.name", "gui.action.MULTIPLY_3.name")
                 .setActiveTexture(TJGuiTextures.AE2_MULTIPLY3_BUTTON, TJGuiTextures.AE2_MULTIPLY3_BUTTON));
         tab.add(new TJToggleButtonWidget(-18, 238, 16, 16, () -> false, (BooleanConsumer) bool -> this.changePatternAmount(duality.getPatterns(), -3, patternScrollableSlotGroup, () -> {}))
+                .setToggleTooltipHoverText("gui.pattern_term.auto_fill_pattern.DIVIDE_3.text", "gui.pattern_term.auto_fill_pattern.DIVIDE_3.text")
+                .setToggleTitleTooltipHoverText("gui.action.DIVIDE_3.name", "gui.action.DIVIDE_3.name")
                 .setActiveTexture(TJGuiTextures.AE2_DIVIDE3_BUTTON, TJGuiTextures.AE2_DIVIDE3_BUTTON));
     }
 
@@ -325,13 +340,20 @@ public class TileSuperDualInterface extends TileInterface implements IFluidInter
                     .setScrollWidth(0);
             tab.add(new ImageWidget(-125, 0, 105, 218, GuiTextures.BORDERED_BACKGROUND));
             tab.add(new LabelWidget(-118, 4, "item.nae2.pattern_multiplier.name"));
-            tab.add(new ClickButtonWidget(-118, 176, 18, 18, "*2", data -> this.changePatternAmount(multiPatternSlots, 2, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
-            tab.add(new ClickButtonWidget(-118, 194, 18, 18, "/2", data -> this.changePatternAmount(multiPatternSlots, -2, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
-            tab.add(new ClickButtonWidget(-100, 176, 18, 18, "*3", data -> this.changePatternAmount(multiPatternSlots, 3, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
-            tab.add(new ClickButtonWidget(-100, 194, 18, 18, "/3", data -> this.changePatternAmount(multiPatternSlots, -3, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
-            tab.add(new ClickButtonWidget(-82, 176, 18, 18, "*4", data -> this.changePatternAmount(multiPatternSlots, 4, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
-            tab.add(new ClickButtonWidget(-82, 194, 18, 18, "/4", data -> this.changePatternAmount(multiPatternSlots, -4, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
-            tab.add(new ClickButtonWidget(-64, 176, 36, 36, "X", data -> this.clearPatterns(multiPatternSlots, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag))));
+            tab.add(new ButtonWidget<>(-118, 176, 18, 18, "*2", data -> this.changePatternAmount(multiPatternSlots, 2, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag)))
+                    .setTitleHoverTooltipText("gui.action.MULTIPLY_2.name").setHoverTooltipText("gui.pattern_term.auto_fill_pattern.MULTIPLY_2.text").setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            tab.add(new ButtonWidget<>(-118, 194, 18, 18, "/2", data -> this.changePatternAmount(multiPatternSlots, -2, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag)))
+                    .setTitleHoverTooltipText("gui.action.DIVIDE_2.name").setHoverTooltipText("gui.pattern_term.auto_fill_pattern.DIVIDE_2.text").setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            tab.add(new ButtonWidget<>(-100, 176, 18, 18, "*3", data -> this.changePatternAmount(multiPatternSlots, 3, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag)))
+                    .setTitleHoverTooltipText("gui.action.MULTIPLY_3.name").setHoverTooltipText("gui.pattern_term.auto_fill_pattern.MULTIPLY_3.text").setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            tab.add(new ButtonWidget<>(-100, 194, 18, 18, "/3", data -> this.changePatternAmount(multiPatternSlots, -3, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag)))
+                    .setTitleHoverTooltipText("gui.action.DIVIDE_3.name").setHoverTooltipText("gui.pattern_term.auto_fill_pattern.DIVIDE_3.text").setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            tab.add(new ButtonWidget<>(-82, 176, 18, 18, "*4", data -> this.changePatternAmount(multiPatternSlots, 4, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag)))
+                    .setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            tab.add(new ButtonWidget<>(-82, 194, 18, 18, "/4", data -> this.changePatternAmount(multiPatternSlots, -4, multiPatternSlotGroup, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag)))
+                    .setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            tab.add(new ButtonWidget<>(-64, 176, 36, 36, "X", data -> this.clearPatterns(multiPatternSlots, () -> this.writePatternMultiToolToNBT(multiPatternSlots, invTag)))
+                    .setTitleHoverTooltipText("nae2.pattern_multiplier.unencode").setHoverTooltipText("nae2.pattern_multiplier.unencode.desc").setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
             for (int i = 0; i < multiPatternSlots.getSlots(); i++) {
                 final int index = i;
                 multiPatternSlotGroup.addWidget(new AEPatternSlotWidget(multiPatternSlots, i, 18 * (i / 9), 18 * (i % 9))

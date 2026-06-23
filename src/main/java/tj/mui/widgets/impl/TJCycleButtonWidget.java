@@ -9,7 +9,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.mui.widgets.ButtonWidget;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Consumer;
@@ -21,6 +21,7 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
     private final Consumer<T> onCycle;
     private final EnumSet<T> cycles;
     private TextureArea cycleTexture;
+    private String[] cycleTitleHoverTooltipText;
     private String[] cycleHoverTooltipText;
     private int index;
 
@@ -37,6 +38,18 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
     }
 
     /**
+     * Button title hover tooltip.
+     * Text that will be displayed upon hovering over this button.
+     * This will attempt to translate the texts if they're a lang string.
+     * @param cycleTitleHoverTooltipText array of texts to display.
+     */
+    public TJCycleButtonWidget<T> setCycleTitleHoverTooltipText(String... cycleTitleHoverTooltipText) {
+        this.cycleTitleHoverTooltipText = cycleTitleHoverTooltipText;
+        return this;
+    }
+
+    /**
+     * Button description hover tooltip.
      * Text that will be displayed upon hovering over this button.
      * This will attempt to translate the texts if they're a lang string.
      * @param cycleHoverTooltipText array of texts to display.
@@ -50,10 +63,13 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         super.drawInForeground(mouseX, mouseY);
-        if (this.cycleHoverTooltipText != null && this.isMouseOverElement(mouseX, mouseY)) {
-            final List<String> hoverList = Collections.singletonList(I18n.format(this.cycleHoverTooltipText[this.index]));
-            this.drawHoveringText(ItemStack.EMPTY, hoverList, 300, mouseX, mouseY);
-        }
+        if (!this.isMouseOverElement(mouseX, mouseY)) return;
+        final List<String> hover = new ArrayList<>();
+        if (this.cycleTitleHoverTooltipText != null)
+            hover.add(I18n.format(this.cycleTitleHoverTooltipText[this.index]));
+        if (this.cycleHoverTooltipText != null)
+            hover.add("§7" + I18n.format(this.cycleHoverTooltipText[this.index]));
+        this.drawHoveringText(ItemStack.EMPTY, hover, 300, mouseX, mouseY);
     }
 
     @Override

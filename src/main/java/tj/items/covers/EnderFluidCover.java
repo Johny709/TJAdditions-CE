@@ -113,7 +113,7 @@ public class EnderFluidCover extends AbstractEnderCover<FluidTank> {
     @Override
     protected void addToPopUpWidget(PopUpWidget<?> buttonPopUpWidget) {
         ((ButtonPopUpWidget<?>) buttonPopUpWidget).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 161, 18, 18)
-                .setTooltipText("cover.pump.fluid_filter.title")
+                .setHoverTooltipText("cover.pump.fluid_filter.title")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .setBackgroundTextures(FLUID_FILTER)
                 .useToggleTexture(true), widgetGroup -> {

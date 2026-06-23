@@ -98,7 +98,7 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
     @Override
     protected void addToPopUpWidget(PopUpWidget<?> buttonPopUpWidget) {
         ((ButtonPopUpWidget<?>) buttonPopUpWidget).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 161, 18, 18)
-                        .setTooltipText("cover.conveyor.item_filter.title")
+                        .setHoverTooltipText("cover.conveyor.item_filter.title")
                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                         .setBackgroundTextures(ITEM_FILTER)
                         .useToggleTexture(true), widgetGroup -> {

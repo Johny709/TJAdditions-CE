@@ -215,19 +215,19 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                 .setMaxStringLength(256)
                                 .setUpdateOnTyping(true));
                         widgetGroup.addWidget(new TJToggleButtonWidget(169, 17, 18, 18, TJValues::isFalse, this::onIncrement)
-                                .setTooltipText("machine.universal.toggle.increment.disabled")
+                                .setHoverTooltipText("machine.universal.toggle.increment.disabled")
                                 .setButtonId(player.getUniqueID().toString())
                                 .setToggleTexture(TOGGLE_DISPLAY)
                                 .useToggleTexture(true)
                                 .setDisplayText("§e+"));
                         widgetGroup.addWidget(new TJToggleButtonWidget(12, 17, 18, 18, TJValues::isFalse, this::onDecrement)
-                                .setTooltipText("machine.universal.toggle.decrement.disabled")
+                                .setHoverTooltipText("machine.universal.toggle.decrement.disabled")
                                 .setButtonId(player.getUniqueID().toString())
                                 .setToggleTexture(TOGGLE_DISPLAY)
                                 .useToggleTexture(true)
                                 .setDisplayText("§e-"));
                         widgetGroup.addWidget(new TJToggleButtonWidget(7, this.getOffsetY(144), 18, 18)
-                                .setTooltipText("machine.universal.toggle.clear")
+                                .setHoverTooltipText("machine.universal.toggle.clear")
                                 .setButtonId(player.getUniqueID().toString())
                                 .setBackgroundTextures(BUTTON_CLEAR_GRID)
                                 .setToggleButtonResponder(this::onClear)
@@ -237,7 +237,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                         return true;
                     }).addPopup(130, 61, 60, 78, new TJToggleButtonWidget(175, this.getOffsetY(144), 18, 18) // search settings button
                             .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
-                            .setTooltipText("machine.universal.search.settings")
+                            .setHoverTooltipText("machine.universal.search.settings")
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
                             .useToggleTexture(true), widgetGroup -> this.addSearchTextWidgets(widgetGroup, patternFlags, 0))
                     .addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
@@ -280,7 +280,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                             .setButtonSupplier(TJValues::isFalse)
                             .useToggleTexture(true))
                     .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(169, 40, 18, 18)
-                            .setTooltipText("machine.universal.toggle.add.channel")
+                            .setHoverTooltipText("machine.universal.toggle.add.channel")
                             .setButtonId("channel:" + player.getUniqueID())
                             .setToggleTexture(TOGGLE_DISPLAY)
                             .useToggleTexture(true)
@@ -384,7 +384,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                             .setButtonSupplier(TJValues::isFalse)
                             .useToggleTexture(true))
                     .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(169, 17, 18, 18)
-                            .setTooltipText("machine.universal.toggle.add.frequency")
+                            .setHoverTooltipText("machine.universal.toggle.add.frequency")
                             .setToggleTexture(TOGGLE_DISPLAY)
                             .useToggleTexture(true)
                             .setDisplayText("§eO"), widgetGroup -> {
@@ -422,41 +422,41 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                                 widgetGroup2.addWidget(new TJToggleButtonWidget(3, 25, 88, 18)
                                                         .setToggleDisplayText("machine.universal.false", "machine.universal.true")
                                                         .setToggleButtonResponder((toggle, id) -> permissions[0][0] = toggle ? 1 : 0)
-                                                        .setTooltipText("metaitem.ender_cover.permission.0")
+                                                        .setHoverTooltipText("metaitem.ender_cover.permission.0")
                                                         .setButtonSupplier(() -> permissions[0][0] != 0)
                                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                                         .useToggleTexture(true));
                                                 widgetGroup2.addWidget(new TJToggleButtonWidget(91, 25, 88, 18)
                                                         .setToggleDisplayText("machine.universal.false", "machine.universal.true")
                                                         .setToggleButtonResponder((toggle, id) -> permissions[0][1] = toggle ? 1 : 0)
-                                                        .setTooltipText("metaitem.ender_cover.permission.1")
+                                                        .setHoverTooltipText("metaitem.ender_cover.permission.1")
                                                         .setButtonSupplier(() -> permissions[0][1] != 0)
                                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                                         .useToggleTexture(true));
                                                 widgetGroup2.addWidget(new TJToggleButtonWidget(3, 43, 88, 18)
                                                         .setToggleDisplayText("machine.universal.false", "machine.universal.true")
                                                         .setToggleButtonResponder((toggle, id) -> permissions[0][2] = toggle ? 1 : 0)
-                                                        .setTooltipText("metaitem.ender_cover.permission.2")
+                                                        .setHoverTooltipText("metaitem.ender_cover.permission.2")
                                                         .setButtonSupplier(() -> permissions[0][2] != 0)
                                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                                         .useToggleTexture(true));
                                                 widgetGroup2.addWidget(new TJToggleButtonWidget(91, 43, 88, 18)
                                                         .setToggleDisplayText("machine.universal.false", "machine.universal.true")
                                                         .setToggleButtonResponder((toggle, id) -> permissions[0][3] = toggle ? 1 : 0)
-                                                        .setTooltipText("metaitem.ender_cover.permission.3")
+                                                        .setHoverTooltipText("metaitem.ender_cover.permission.3")
                                                         .setButtonSupplier(() -> permissions[0][3] != 0)
                                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                                         .useToggleTexture(true));
                                                 widgetGroup2.addWidget(new TJToggleButtonWidget(3, 61, 88, 18)
                                                         .setToggleDisplayText("machine.universal.false", "machine.universal.true")
                                                         .setToggleButtonResponder((toggle, id) -> permissions[0][4] = toggle ? 1 : 0)
-                                                        .setTooltipText("metaitem.ender_cover.permission.4")
+                                                        .setHoverTooltipText("metaitem.ender_cover.permission.4")
                                                         .setButtonSupplier(() -> permissions[0][4] != 0)
                                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                                         .useToggleTexture(true));
                                                 widgetGroup2.addWidget(new TJToggleButtonWidget(91, 61, 88, 18).setToggleDisplayText("machine.universal.false", "machine.universal.true")
                                                         .setToggleButtonResponder((toggle, id) -> permissions[0][5] = toggle ? 1 : 0)
-                                                        .setTooltipText("metaitem.ender_cover.permission.5")
+                                                        .setHoverTooltipText("metaitem.ender_cover.permission.5")
                                                         .setButtonSupplier(() -> permissions[0][5] != 0)
                                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                                         .useToggleTexture(true));
@@ -479,13 +479,13 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                     return true;
                                 }).addPopup(117, 25, 60, 78, new TJToggleButtonWidget(151, 106, 18, 18) // search settings button
                                         .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
-                                        .setTooltipText("machine.universal.search.settings")
+                                        .setHoverTooltipText("machine.universal.search.settings")
                                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                                         .useToggleTexture(true), innerWidgetGroup -> this.addSearchTextWidgets(innerWidgetGroup, patternFlags, 2)));
                         return false;
                     }).addPopup(130, 61, 60, 78, new TJToggleButtonWidget(175, this.getOffsetY(144), 18, 18) // search settings button
                             .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
-                            .setTooltipText("machine.universal.search.settings")
+                            .setHoverTooltipText("machine.universal.search.settings")
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
                             .useToggleTexture(true), widgetGroup -> this.addSearchTextWidgets(widgetGroup, patternFlags, 1)));
         });
@@ -534,14 +534,14 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 3, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][0] = pressed ? Pattern.UNIX_LINES : 0)
                 .setDisplayText("string.regex.pattern.unix_lines.flag")
-                .setTooltipText("string.regex.pattern.unix_lines")
+                .setHoverTooltipText("string.regex.pattern.unix_lines")
                 .setButtonSupplier(() -> patternFlags[i][0] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(21, 3, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][1] = pressed ? Pattern.CASE_INSENSITIVE : 0)
                 .setDisplayText("string.regex.pattern.case_insensitive.flag")
-                .setTooltipText("string.regex.pattern.case_insensitive")
+                .setHoverTooltipText("string.regex.pattern.case_insensitive")
                 .setButtonSupplier(() -> patternFlags[i][1] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
@@ -549,13 +549,13 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][2] = pressed ? Pattern.COMMENTS : 0)
                 .setDisplayText("string.regex.pattern.comments.flag")
                 .setButtonSupplier(() -> patternFlags[i][2] != 0)
-                .setTooltipText("string.regex.pattern.comments")
+                .setHoverTooltipText("string.regex.pattern.comments")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 21, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][3] = pressed ? Pattern.MULTILINE : 0)
                 .setDisplayText("string.regex.pattern.multiline.flag")
-                .setTooltipText("string.regex.pattern.multiline")
+                .setHoverTooltipText("string.regex.pattern.multiline")
                 .setButtonSupplier(() -> patternFlags[i][3] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
@@ -563,20 +563,20 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][4] = pressed ? Pattern.LITERAL : 0)
                 .setDisplayText("string.regex.pattern.literal.flag")
                 .setButtonSupplier(() -> patternFlags[i][4] != 0)
-                .setTooltipText("string.regex.pattern.literal")
+                .setHoverTooltipText("string.regex.pattern.literal")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(39, 21, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][5] = pressed ? Pattern.DOTALL : 0)
                 .setDisplayText("string.regex.pattern.dotall.flag")
                 .setButtonSupplier(() -> patternFlags[i][5] != 0)
-                .setTooltipText("string.regex.pattern.dotall")
+                .setHoverTooltipText("string.regex.pattern.dotall")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 39, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][6] = pressed ? Pattern.UNICODE_CASE : 0)
                 .setDisplayText("string.regex.pattern.unicode_case.flag")
-                .setTooltipText("string.regex.pattern.unicode_case")
+                .setHoverTooltipText("string.regex.pattern.unicode_case")
                 .setButtonSupplier(() -> patternFlags[i][6] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
@@ -584,13 +584,13 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][7] = pressed ? Pattern.CANON_EQ : 0)
                 .setDisplayText("string.regex.pattern.canon_eq.flag")
                 .setButtonSupplier(() -> patternFlags[i][7] != 0)
-                .setTooltipText("string.regex.pattern.canon_eq")
+                .setHoverTooltipText("string.regex.pattern.canon_eq")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(39, 39, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][8] = pressed ? Pattern.UNICODE_CHARACTER_CLASS : 0)
                 .setDisplayText("string.regex.pattern.unicode_character_class.flag")
-                .setTooltipText("string.regex.pattern.unicode_character_class")
+                .setHoverTooltipText("string.regex.pattern.unicode_character_class")
                 .setButtonSupplier(() -> patternFlags[i][8] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));

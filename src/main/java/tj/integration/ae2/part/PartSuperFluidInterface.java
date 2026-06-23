@@ -122,7 +122,7 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
                                 .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
                                 .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_EDGE_RIGHT)
-                                .setTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
+                                .setTitleHoverTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
                             widgetGroup.addWidget(new ImageWidget(7, 90, 162, 100, GuiTextures.BORDERED_BACKGROUND));
                             widgetGroup.addWidget(new LabelWidget(14, 95, "gui.appliedenergistics2.Priority"));
                             widgetGroup.addWidget(new NewTextFieldWidget<>(14, 136, 148, 18, true, () -> String.valueOf(duality.getPriority()), this::setPriority)

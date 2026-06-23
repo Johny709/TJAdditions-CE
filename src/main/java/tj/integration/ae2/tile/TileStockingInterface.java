@@ -172,7 +172,7 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
                 .widget(buttonPopUpTickWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(132, 0, 22, 22)
                                 .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_LEFT)
-                                .setTooltipText("machine.universal.ticks.operation")
+                                .setHoverTooltipText("machine.universal.ticks.operation")
                                 .setItemDisplay(new ItemStack(Items.CLOCK)), widgetGroup -> {
                             widgetGroup.addWidget(new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
                             widgetGroup.addWidget(new LabelWidget(14, 112, "machine.universal.ticks.operation"));
@@ -192,7 +192,7 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
                                 .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
                                 .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_EDGE_RIGHT)
-                                .setTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
+                                .setTitleHoverTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
                             widgetGroup.addWidget(new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
                             widgetGroup.addWidget(new LabelWidget(14, 112, "gui.appliedenergistics2.Priority"));
                             widgetGroup.addWidget(new NewTextFieldWidget<>(14, 153, 148, 18, true, () -> String.valueOf(duality.getPriority()), this::setPriority)

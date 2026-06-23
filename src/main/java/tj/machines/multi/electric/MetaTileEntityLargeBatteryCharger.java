@@ -188,7 +188,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockControllerBas
                         return false;
                     }).addPopup(118, 31, 60, 78, new TJToggleButtonWidget(172, this.getOffsetY(114), 18, 18)
                             .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
-                            .setTooltipText("machine.universal.search.settings")
+                            .setHoverTooltipText("machine.universal.search.settings")
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
                             .useToggleTexture(true), widgetGroup -> this.addSearchTextWidgets(widgetGroup, patternFlags)));
         });
@@ -215,14 +215,14 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockControllerBas
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 3, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[0] = pressed ? Pattern.UNIX_LINES : 0)
                 .setDisplayText("string.regex.pattern.unix_lines.flag")
-                .setTooltipText("string.regex.pattern.unix_lines")
+                .setHoverTooltipText("string.regex.pattern.unix_lines")
                 .setButtonSupplier(() -> patternFlags[0] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(21, 3, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[1] = pressed ? Pattern.CASE_INSENSITIVE : 0)
                 .setDisplayText("string.regex.pattern.case_insensitive.flag")
-                .setTooltipText("string.regex.pattern.case_insensitive")
+                .setHoverTooltipText("string.regex.pattern.case_insensitive")
                 .setButtonSupplier(() -> patternFlags[1] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
@@ -230,13 +230,13 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockControllerBas
                 .setToggleButtonResponder((pressed, s) -> patternFlags[2] = pressed ? Pattern.COMMENTS : 0)
                 .setDisplayText("string.regex.pattern.comments.flag")
                 .setButtonSupplier(() -> patternFlags[2] != 0)
-                .setTooltipText("string.regex.pattern.comments")
+                .setHoverTooltipText("string.regex.pattern.comments")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 21, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[3] = pressed ? Pattern.MULTILINE : 0)
                 .setDisplayText("string.regex.pattern.multiline.flag")
-                .setTooltipText("string.regex.pattern.multiline")
+                .setHoverTooltipText("string.regex.pattern.multiline")
                 .setButtonSupplier(() -> patternFlags[3] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
@@ -244,20 +244,20 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockControllerBas
                 .setToggleButtonResponder((pressed, s) -> patternFlags[4] = pressed ? Pattern.LITERAL : 0)
                 .setDisplayText("string.regex.pattern.literal.flag")
                 .setButtonSupplier(() -> patternFlags[4] != 0)
-                .setTooltipText("string.regex.pattern.literal")
+                .setHoverTooltipText("string.regex.pattern.literal")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(39, 21, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[5] = pressed ? Pattern.DOTALL : 0)
                 .setDisplayText("string.regex.pattern.dotall.flag")
                 .setButtonSupplier(() -> patternFlags[5] != 0)
-                .setTooltipText("string.regex.pattern.dotall")
+                .setHoverTooltipText("string.regex.pattern.dotall")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 39, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[6] = pressed ? Pattern.UNICODE_CASE : 0)
                 .setDisplayText("string.regex.pattern.unicode_case.flag")
-                .setTooltipText("string.regex.pattern.unicode_case")
+                .setHoverTooltipText("string.regex.pattern.unicode_case")
                 .setButtonSupplier(() -> patternFlags[6] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
@@ -265,13 +265,13 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockControllerBas
                 .setToggleButtonResponder((pressed, s) -> patternFlags[7] = pressed ? Pattern.CANON_EQ : 0)
                 .setDisplayText("string.regex.pattern.canon_eq.flag")
                 .setButtonSupplier(() -> patternFlags[7] != 0)
-                .setTooltipText("string.regex.pattern.canon_eq")
+                .setHoverTooltipText("string.regex.pattern.canon_eq")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(39, 39, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[8] = pressed ? Pattern.UNICODE_CHARACTER_CLASS : 0)
                 .setDisplayText("string.regex.pattern.unicode_character_class.flag")
-                .setTooltipText("string.regex.pattern.unicode_character_class")
+                .setHoverTooltipText("string.regex.pattern.unicode_character_class")
                 .setButtonSupplier(() -> patternFlags[8] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
