@@ -7,7 +7,7 @@ import appeng.tile.misc.TileInterface;
 import baubles.api.BaublesApi;
 import com.circulation.random_complement.client.RCSettings;
 import com.circulation.random_complement.client.buttonsetting.IntelligentBlocking;
-import com.circulation.random_complement.common.interfaces.RCIConfigManager;
+import com.circulation.random_complement.common.interfaces.RCIConfigurableObject;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.ClickButtonWidget;
@@ -144,7 +144,7 @@ public class TilePatternInterface extends TileInterface implements ITileEntityUI
                 .widget(new TJCycleButtonWidget<>(-18, 125, 16, 16, (EnumSet<CondenserOutput>) Settings.CONDENSER_OUTPUT.getPossibleValues(), () -> (Enum<CondenserOutput>) duality.getConfigManager().getSetting(Settings.CONDENSER_OUTPUT), this::setBlockModeEx)
                         .setCycleHoverTooltipText("ae2fc.tooltip.block_all.hint", "ae2fc.tooltip.block_item.hint", "ae2fc.tooltip.block_fluid.hint")
                         .setCycleTexture(TJGuiTextures.CYCLE_BLOCKING_MODE_EX))
-                .widget(new TJToggleButtonWidget(-18, 143, 16, 16, () -> duality.getConfigManager().getSetting(Settings.PLACE_BLOCK).ordinal() == 0, this::setIntelligentBlocking)
+                .widget(new TJToggleButtonWidget(-18, 143, 16, 16, () -> ((RCIConfigurableObject) duality).r$getConfigManager().getSetting(RCSettings.IntelligentBlocking).ordinal() == 0, this::setIntelligentBlocking)
                         .setToggleTooltipHoverText("gui.intelligent_blocking.CLOSE.text", "gui.intelligent_blocking.OPEN.text")
                         .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
                         .setInvertTexture(true)
@@ -365,9 +365,7 @@ public class TilePatternInterface extends TileInterface implements ITileEntityUI
     }
 
     private void setIntelligentBlocking(boolean intelligentBlocking) {
-        this.getInterfaceDuality().getConfigManager().putSetting(Settings.PLACE_BLOCK, intelligentBlocking ? YesNo.YES : YesNo.NO);
-        final RCIConfigManager configManager = ObfuscationReflectionHelper.getPrivateValue(DualityInterface.class, this.getInterfaceDuality(), "randomComplement$rcSettings");
-        configManager.putSetting(RCSettings.IntelligentBlocking, intelligentBlocking ? IntelligentBlocking.OPEN : IntelligentBlocking.CLOSE);
+        ((RCIConfigurableObject) this.getInterfaceDuality()).r$getConfigManager().putSetting(RCSettings.IntelligentBlocking, intelligentBlocking ? IntelligentBlocking.OPEN : IntelligentBlocking.CLOSE);
         this.markDirty();
     }
 

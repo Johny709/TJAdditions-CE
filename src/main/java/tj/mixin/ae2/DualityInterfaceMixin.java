@@ -181,7 +181,7 @@ public abstract class DualityInterfaceMixin implements IDualitySuperInterface {
 
     @Override
     public InventoryAdaptor getTheAdaptor(int slot) {
-        return new AdaptorItemHandler(((TJAppEngNetworkInventory )this.storage).getBufferWrapper(slot));
+        return new AdaptorItemHandler(((TJAppEngNetworkInventory) this.storage).getBufferWrapper(slot));
     }
 
     @Override
@@ -224,7 +224,8 @@ public abstract class DualityInterfaceMixin implements IDualitySuperInterface {
                 }
             }
 
-            if (((IMultiCraftingTrackerMixin) this.craftingTracker).isItBusy(x)) {
+            final IAEItemStack iaeItemStack;
+            if (((IMultiCraftingTrackerMixin) this.craftingTracker).isItBusy(x) && itemStack.getStackSize() > 0 && ((iaeItemStack = this.gridProxy.getStorage().getInventory(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class)).getStorageList().findPrecise(itemStack)) == null || iaeItemStack.getStackSize() == 0)) {
                 changed = this.handleCrafting(x, adaptor, itemStack) || changed;
             } else if (itemStack.getStackSize() > 0) {
                 // make sure strange things didn't happen...
