@@ -29,8 +29,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import tj.mixin.gregicality.IGAMetaTileEntityEnergyHatchMixin;
-import tj.mixin.gregtech.IMetaTileEntityEnergyHatchMixin;
+import tj.mixin.gregicality.IMixinGAMetaTileEntityEnergyHatch;
+import tj.mixin.gregtech.IMixinMetaTileEntityEnergyHatch;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -79,11 +79,11 @@ public class BlockEnergyPortCasings extends VariantBlock<BlockEnergyPortCasings.
         IEnergyContainer energyContainer = null;
         MetaTileEntity tileEntity = GregTechAPI.META_TILE_ENTITY_REGISTRY.getObjectById(stack.getMetadata());
         if (tileEntity instanceof MetaTileEntityEnergyHatch) {
-            isExport = ((IMetaTileEntityEnergyHatchMixin) tileEntity).isExport();
-            energyContainer = ((IMetaTileEntityEnergyHatchMixin) tileEntity).getEnergyContainer();
+            isExport = ((IMixinMetaTileEntityEnergyHatch) tileEntity).isExport();
+            energyContainer = ((IMixinMetaTileEntityEnergyHatch) tileEntity).getEnergyContainer();
         } else if (tileEntity instanceof GAMetaTileEntityEnergyHatch) {
-            isExport = ((IGAMetaTileEntityEnergyHatchMixin) tileEntity).isExport();
-            energyContainer = ((IGAMetaTileEntityEnergyHatchMixin) tileEntity).getEnergyContainer();
+            isExport = ((IMixinGAMetaTileEntityEnergyHatch) tileEntity).isExport();
+            energyContainer = ((IMixinGAMetaTileEntityEnergyHatch) tileEntity).getEnergyContainer();
         }
         if (energyContainer == null) {
             playerIn.sendMessage(new TextComponentTranslation("tj.machine.energy_hatch.not_found"));
@@ -122,7 +122,7 @@ public class BlockEnergyPortCasings extends VariantBlock<BlockEnergyPortCasings.
 
     private ItemStack getEnergyHatch(int tier, int amps) {
         for (MetaTileEntity metaTileEntity : GregTechAPI.META_TILE_ENTITY_REGISTRY) {
-            if (metaTileEntity instanceof GAMetaTileEntityEnergyHatch && tier == ((GAMetaTileEntityEnergyHatch) metaTileEntity).getTier() && amps == ((IGAMetaTileEntityEnergyHatchMixin) metaTileEntity).getEnergyContainer().getInputAmperage()) {
+            if (metaTileEntity instanceof GAMetaTileEntityEnergyHatch && tier == ((GAMetaTileEntityEnergyHatch) metaTileEntity).getTier() && amps == ((IMixinGAMetaTileEntityEnergyHatch) metaTileEntity).getEnergyContainer().getInputAmperage()) {
                 return metaTileEntity.getStackForm();
             }
         }

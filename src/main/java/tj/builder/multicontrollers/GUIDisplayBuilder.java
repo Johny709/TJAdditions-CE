@@ -17,7 +17,7 @@ import tj.TJValues;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.IParallelItemFluidHandlerInfo;
 import tj.mui.widgets.impl.AdvancedDisplayWidget;
-import tj.mixin.gregtech.IAbstractRecipeLogicMixin;
+import tj.mixin.gregtech.IMixinAbstractRecipeLogic;
 import tj.util.TJFluidUtils;
 import tj.util.TJUtility;
 import tj.util.TextUtils;
@@ -551,15 +551,15 @@ public final class GUIDisplayBuilder {
         if (priority != 0)
             this.addTranslationLine(priority, "machine.universal.producing");
         else this.addTranslationLine("machine.universal.producing");
-        if (((IAbstractRecipeLogicMixin) recipeLogic).getFluidOutputs() != null) {
-            for (FluidStack stack : ((IAbstractRecipeLogicMixin) recipeLogic).getFluidOutputs()) {
+        if (((IMixinAbstractRecipeLogic) recipeLogic).getFluidOutputs() != null) {
+            for (FluidStack stack : ((IMixinAbstractRecipeLogic) recipeLogic).getFluidOutputs()) {
                 if (priority != 0)
                     this.addFluidStack(stack, priority);
                 else this.addFluidStack(stack);
             }
         }
-        if (((IAbstractRecipeLogicMixin) recipeLogic).getItemOutputs() != null) {
-            for (ItemStack stack : ((IAbstractRecipeLogicMixin) recipeLogic).getItemOutputs()) {
+        if (((IMixinAbstractRecipeLogic) recipeLogic).getItemOutputs() != null) {
+            for (ItemStack stack : ((IMixinAbstractRecipeLogic) recipeLogic).getItemOutputs()) {
                 if (priority != 0)
                     this.addItemStack(stack, priority);
                 else this.addItemStack(stack);

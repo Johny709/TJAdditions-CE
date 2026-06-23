@@ -10,12 +10,11 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.common.ConfigHolder;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.machines.multi.electric.MetaTileEntityXLHotCoolantTurbine;
-import tj.mixin.gregicality.IMetaTileEntityRotorHolderForNuclearCoolantMixin;
+import tj.mixin.gregicality.IMixinMetaTileEntityRotorHolderForNuclearCoolant;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -214,7 +213,7 @@ public class XLHotCoolantTurbineWorkableHandler extends TJGAFuelRecipeLogic {
 
     private void toggleFastMode(boolean toggle) {
         for (MetaTileEntityRotorHolderForNuclearCoolant rotorHolder : this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER))
-            ((IMetaTileEntityRotorHolderForNuclearCoolantMixin) rotorHolder).setCurrentRotorSpeed(0);
+            ((IMixinMetaTileEntityRotorHolderForNuclearCoolant) rotorHolder).setCurrentRotorSpeed(0);
         this.isFastMode = toggle;
         if (toggle) {
             this.fastModeMultiplier = 3;

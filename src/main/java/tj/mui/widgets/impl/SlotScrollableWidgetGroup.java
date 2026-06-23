@@ -17,7 +17,7 @@ import org.lwjgl.input.Keyboard;
 import tj.TJ;
 import tj.mui.widgets.ISlotGroup;
 import tj.mui.widgets.ISlotHandler;
-import tj.mixin.gregtech.IAbstractWidgetGroupMixin;
+import tj.mixin.gregtech.IMixinAbstractWidgetGroup;
 import tj.util.TJItemUtils;
 
 import java.awt.*;
@@ -71,9 +71,9 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     }
 
     public void clearWidgets() {
-        if (((IAbstractWidgetGroupMixin) this).getInit()) {
+        if (((IMixinAbstractWidgetGroup) this).getInit()) {
             this.clearAllWidgets();
-            ((IAbstractWidgetGroupMixin) this).setInit(false);
+            ((IMixinAbstractWidgetGroup) this).setInit(false);
         }
     }
 

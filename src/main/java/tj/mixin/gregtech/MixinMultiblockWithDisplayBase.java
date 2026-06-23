@@ -1,0 +1,165 @@
+package tj.mixin.gregtech;
+
+import gregicadditions.machines.GATileEntities;
+import gregtech.api.gui.GuiTextures;
+import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.*;
+import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
+import gregtech.api.metatileentity.multiblock.MultiblockWithDisplayBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.*;
+import net.minecraft.util.text.event.HoverEvent;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import tj.TJConfig;
+import tj.builder.WidgetTabBuilder;
+import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
+import tj.mui.TJGuiTextures;
+import tj.mui.TJHorizontoalTabListRenderer;
+import tj.mui.widgets.impl.AdvancedDisplayWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJProgressBarWidget;
+import tj.mui.widgets.impl.AnimatedImageWidget;
+import tj.mui.widgets.impl.ScrollableDisplayWidget;
+
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.Queue;
+import java.util.function.UnaryOperator;
+
+import static tj.mui.TJGuiTextures.*;
+import static tj.mui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
+import static tj.mui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
+
+@Mixin(value = MultiblockWithDisplayBase.class, remap = false)
+public abstract class MixinMultiblockWithDisplayBase extends MultiblockControllerBase {
+
+    @Unique
+    private boolean structureCheck;
+
+    public MixinMultiblockWithDisplayBase(ResourceLocation metaTileEntityId) {
+        super(metaTileEntityId);
+    }
+
+    @Shadow
+    protected abstract void addDisplayText(List<ITextComponent> textList);
+
+    @Shadow
+    protected abstract void handleDisplayClick(String componentData, Widget.ClickData clickData);
+
+    @Inject(method = "createUITemplate", at = @At("HEAD"), cancellable = true)
+    private void injectCreateUITemplate(EntityPlayer entityPlayer, CallbackInfoReturnable<ModularUI.Builder> cir) {
+        if (TJConfig.machines.multiblockUIOverrides) {
+            int height = this.getYExtended();
+            int[][] barMatrix = null;
+            height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
+            final ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 200, 216);
+            final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
+                    .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
+                    .setPosition(0, 1)
+                    .offsetPosition(0, height)
+                    .offsetY(132 - this.getYExtended());
+            builder.image(0, -20, 200, 237 + height, GuiTextures.BORDERED_BACKGROUND)
+                    .image(6, -14, 188, 145, MULTIBLOCK_DISPLAY_BASE)
+                    .widget(new TJLabelWidget(9, -38, 184, 18, MACHINE_LABEL_2, this::getJEIRecipeUid)
+                            .setItemLabel(this.getStackForm())
+                            .setLocale(this.getMetaFullName()));
+            this.addNewTabs(tabBuilder);
+            if (barMatrix != null)
+                this.addNewBars(barMatrix, builder);
+            builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,7, 134 + height)
+                    .widget(tabBuilder.build())
+                    .widget(tabBuilder.buildWidgetGroup())
+                    .widget(new AnimatedImageWidget(164, 102, 26, 26, 41, TJ_LOGO_ANIMATED))
+                    .build(this.getHolder(), entityPlayer);
+            cir.setReturnValue(builder);
+        }
+    }
+
+    @Unique
+    private void addNewBars(int[][] barMatrix, ModularUI.Builder builder) {
+        final Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars = new ArrayDeque<>();
+        ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars);
+        for (int i = 0; i < barMatrix.length; i++) {
+            final int[] column = barMatrix[i];
+            for (int j = 0; j < column.length; j++) {
+                final ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
+                final int height = 188 / column.length;
+                builder.widget(new TJProgressBarWidget(7 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
+                        .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
+                        .setLocale(bar.getLocale(), bar.getParams())
+                        .setFluid(bar.getFluidStackSupplier())
+                        .setColor(bar.getColor()));
+            }
+        }
+    }
+
+    @Unique
+    protected void addNewTabs(WidgetTabBuilder tabBuilder) {
+        tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::addMainDisplayTab);
+        tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
+                maintenanceTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
+                        .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::configureMaintenanceDisplayText, 0xFFFFFF)
+                                .setMaxWidthLimit(180))
+                        .setScrollPanelWidth(3)));
+    }
+
+    @Unique
+    protected void addMainDisplayTab(List<Widget> widgetGroup) {
+        widgetGroup.add(new ScrollableDisplayWidget(10, -11, 187, 140)
+                .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::configureDisplayText, 0xFFFFFF)
+                        .setClickHandler(this::handleDisplayClick)
+                        .setMaxWidthLimit(180))
+                .setScrollPanelWidth(3));
+        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, TOGGLE_CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
+                .setTooltipText("machine.universal.toggle.check.mode"));
+    }
+
+    @Unique
+    protected void configureDisplayText(GUIDisplayBuilder builder) {
+        if (!this.isStructureFormed()) {
+            final ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
+            tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
+            builder.customLine(text -> text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
+                    .setStyle(new Style().setColor(TextFormatting.RED)
+                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
+        }
+    }
+
+    @Unique
+    protected void configureMaintenanceDisplayText(GUIDisplayBuilder builder) {}
+
+    @Unique
+    private boolean isStructureCheck() {
+        if (this.isStructureFormed())
+            this.structureCheck = false;
+        return this.structureCheck;
+    }
+
+    @Unique
+    private void doStructureCheck(boolean check) {
+        if (this.isStructureFormed()) {
+            this.structureCheck = true;
+            this.invalidateStructure();
+            this.structurePattern = this.createStructurePattern();
+        }
+    }
+
+    @Unique
+    protected int getYExtended() {
+        return 0;
+    }
+
+    @Unique
+    public String getJEIRecipeUid() {
+        return null;
+    }
+}
