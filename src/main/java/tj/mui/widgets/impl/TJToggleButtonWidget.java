@@ -167,19 +167,20 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        super.drawInForeground(mouseX, mouseY);
-        if (!this.isMouseOverElement(mouseX, mouseY)) return;
+        if (!this.isActive || !this.isMouseOverElement(mouseX, mouseY)) return;
         final List<String> hover = new ArrayList<>();
         if (this.baseTitleTooltipHoverText != null && this.activeTitleTooltipHoverText != null)
             hover.add(I18n.format(this.isPressed ? this.activeTitleTooltipHoverText : this.baseTitleTooltipHoverText));
         if (this.baseTooltipHoverText != null && this.activeTooltipHoverText != null)
             hover.add("§7" + I18n.format(this.isPressed ? this.activeTooltipHoverText : this.baseTooltipHoverText));
         this.drawHoveringText(ItemStack.EMPTY, hover, 300, mouseX, mouseY);
+        super.drawInForeground(mouseX, mouseY);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+        if (!this.isActive) return;
         final Position pos = this.getPosition();
         final Size size = this.getSize();
         if (!this.useToggleTexture) {
@@ -187,10 +188,8 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
                 this.activeTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
             } else this.baseTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         } else if (this.toggleTexture instanceof SizedTextureArea) {
-            ((SizedTextureArea) this.toggleTexture).drawHorizontalCutSubArea(pos.x, pos.y, size.width, size.height, this.invertTexture != this.isPressed ? 0.5 : 0.0, 0.5);
-        } else {
-            this.toggleTexture.drawSubArea(pos.x, pos.y, size.width, size.height, 0.0, this.invertTexture != this.isPressed ? 0.5 : 0.0, 1.0, 0.5);
-        }
+            ((SizedTextureArea) this.toggleTexture).drawHorizontalCutSubArea(pos.x, pos.y, size.width, size.height, this.isMouseOverElement(mouseX, mouseY) ? 0.5 : 0.0, 0.5);
+        } else this.toggleTexture.drawSubArea(pos.x, pos.y, size.width, size.height, 0.0, this.invertTexture != this.isPressed ? 0.5 : 0.0, 1.0, 0.5);
         if (this.baseDisplayText != null && this.activeDisplayText != null) {
             final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
             final String text = I18n.format(this.isPressed ? this.activeDisplayText : this.baseDisplayText);
@@ -205,7 +204,7 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (this.isMouseOverElement(mouseX, mouseY)) {
+        if (this.isActive && this.isMouseOverElement(mouseX, mouseY)) {
             this.playButtonClickSound();
             this.isPressed = !this.isPressed;
             this.writeClientAction(1, buffer -> {
@@ -222,6 +221,7 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
 
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
+        super.handleClientAction(id, buffer);
         if (id == 1) {
             final String buttonId = buffer.readString(Short.MAX_VALUE);
             this.isPressed = buffer.readBoolean();

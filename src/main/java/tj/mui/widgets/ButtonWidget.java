@@ -1,7 +1,6 @@
 package tj.mui.widgets;
 
 import com.google.common.base.Preconditions;
-import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.resources.SizedTextureArea;
@@ -17,22 +16,23 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
+import org.lwjgl.input.Keyboard;
 import tj.util.consumers.QuadConsumer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
+public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
 
     protected QuadConsumer<String, Integer, Integer, Integer> textResponderWithMouse;
     protected Supplier<String[]> formatSupplier;
     protected Supplier<String> buttonIdSupplier;
     protected Supplier<String> dynamicTooltipText;
     protected Consumer<String> buttonResponder;
+    protected Consumer<ClickData> buttonResponder2;
     protected TextureArea[] backgroundTextures;
     protected String[] format;
     protected String buttonId;
@@ -47,10 +47,10 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
         this(x, y, width, height, null, null);
     }
 
-    public ButtonWidget(int x, int y, int width, int height, String displayText, Consumer<String> buttonResponder) {
+    public ButtonWidget(int x, int y, int width, int height, String displayText, Consumer<ClickData> buttonResponder2) {
         super(new Position(x, y), new Size(width, height));
         this.displayText = displayText;
-        this.buttonResponder = buttonResponder;
+        this.buttonResponder2 = buttonResponder2;
     }
 
     /**
@@ -193,7 +193,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        if (!this.isMouseOverElement(mouseX, mouseY)) return;
+        if (!this.isActive || !this.isMouseOverElement(mouseX, mouseY)) return;
         final List<String> hover = new ArrayList<>();
         if (this.titleHoverTooltipText != null)
             hover.add(I18n.format(this.titleHoverTooltipText));
@@ -207,6 +207,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+        if (!this.isActive) return;
         final Size size = this.getSize();
         final Position pos = this.getPosition();
         if (this.backgroundTextures != null)
@@ -232,35 +233,40 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (this.isMouseOverElement(mouseX, mouseY)) {
+        if (this.isActive && this.isMouseOverElement(mouseX, mouseY)) {
             this.playButtonClickSound();
             this.writeClientAction(1, buffer -> {
                 buffer.writeString(this.buttonId != null ? this.buttonId : "");
                 buffer.writeInt(mouseX);
                 buffer.writeInt(mouseY);
-                buffer.writeInt(button);
+                final ClickData clickData = new ClickData(button, Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT), Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL));
+                clickData.writeToBuf(buffer);
             });
             return true;
-        }
-        return false;
+        } else return false;
     }
 
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
+        super.handleClientAction(id, buffer);
         if (id == 1) {
             final String buttonId = buffer.readString(Short.MAX_VALUE);
             final int mouseX = buffer.readInt();
             final int mouseY = buffer.readInt();
-            final int button = buffer.readInt();
+            final ClickData clickData = ClickData.readFromBuf(buffer);
             if (this.buttonResponder != null)
                 this.buttonResponder.accept(buttonId);
+            if (this.buttonResponder2 != null)
+                this.buttonResponder2.accept(clickData);
             if (this.textResponderWithMouse != null)
-                this.textResponderWithMouse.accept(buttonId, mouseX, mouseY, button);
+                this.textResponderWithMouse.accept(buttonId, mouseX, mouseY, clickData.button);
         }
     }
 
     @Override
     public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        if (!this.isActive) return;
         if (this.formatSupplier != null) {
             final String[] formatArgs = this.formatSupplier.get();
             this.writeUpdateInfo(1, buffer -> {
@@ -289,6 +295,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends Widget {
     @Override
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
+        super.readUpdateInfo(id, buffer);
         if (id == 1) {
             final int size = buffer.readInt();
             for (int i = 0; i < size; i++) {

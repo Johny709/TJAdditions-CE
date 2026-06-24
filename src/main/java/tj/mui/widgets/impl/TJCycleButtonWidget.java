@@ -1,6 +1,7 @@
 package tj.mui.widgets.impl;
 
 import gregtech.api.gui.IRenderContext;
+import gregtech.api.gui.resources.SizedTextureArea;
 import gregtech.api.gui.resources.TextureArea;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
@@ -25,11 +26,11 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
     private String[] cycleHoverTooltipText;
     private int index;
 
-    public TJCycleButtonWidget(int x, int y, int width, int height, EnumSet<T> cycles, Supplier<Enum<T>> cycleSupplier, Consumer<T> onCycle) {
+    public TJCycleButtonWidget(int x, int y, int width, int height, Class<T> cycles, Supplier<Enum<T>> cycleSupplier, Consumer<T> onCycle) {
         super(x, y, width, height);
         this.cycleSupplier = cycleSupplier;
         this.onCycle = onCycle;
-        this.cycles = cycles;
+        this.cycles = EnumSet.allOf(cycles);
     }
 
     public TJCycleButtonWidget<T> setCycleTexture(TextureArea cycleTexture) {
@@ -62,30 +63,33 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        super.drawInForeground(mouseX, mouseY);
-        if (!this.isMouseOverElement(mouseX, mouseY)) return;
+        if (!this.isActive || !this.isMouseOverElement(mouseX, mouseY)) return;
         final List<String> hover = new ArrayList<>();
         if (this.cycleTitleHoverTooltipText != null)
             hover.add(I18n.format(this.cycleTitleHoverTooltipText[this.index]));
         if (this.cycleHoverTooltipText != null)
             hover.add("§7" + I18n.format(this.cycleHoverTooltipText[this.index]));
         this.drawHoveringText(ItemStack.EMPTY, hover, 300, mouseX, mouseY);
+        super.drawInForeground(mouseX, mouseY);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        super.drawInBackground(mouseX, mouseY, context);
+        if (!this.isActive) return;
         if (this.cycleTexture != null) {
             final double offsetY = 1.0 / this.cycles.size();
-            this.cycleTexture.drawSubArea(this.getPosition().getX(), this.getPosition().getY(), this.getSize().getWidth(), this.getSize().getHeight(), 0.0, offsetY * this.index, 1.0, offsetY);
+            if (this.cycleTexture instanceof SizedTextureArea) {
+                ((SizedTextureArea) this.cycleTexture).drawHorizontalCutSubArea(this.getPosition().getX(), this.getPosition().getY(), this.getSize().getWidth(), this.getSize().getHeight(), this.isMouseOverElement(mouseX, mouseY) ? 0.5 : 0.0, 0.5);
+            } else this.cycleTexture.drawSubArea(this.getPosition().getX(), this.getPosition().getY(), this.getSize().getWidth(), this.getSize().getHeight(), 0.0, offsetY * this.index, 1.0, offsetY);
         }
+        super.drawInBackground(mouseX, mouseY, context);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (this.isMouseOverElement(mouseX, mouseY)) {
+        if (this.isActive && this.isMouseOverElement(mouseX, mouseY)) {
             final int lastIndex = this.index;
             if (button == 0) {  // Left-Click
                 this.index++;
@@ -115,6 +119,7 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
 
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
+        super.handleClientAction(id, buffer);
         if (id == 1) {
             this.index = buffer.readInt();
             if (this.onCycle != null) {

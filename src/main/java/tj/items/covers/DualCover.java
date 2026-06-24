@@ -39,6 +39,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import tj.builder.WidgetTabBuilder;
 import tj.mui.TJGuiTextures;
+import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.NewTextFieldWidget;
 import tj.mui.widgets.PopUpWidget;
 import tj.mui.widgets.impl.TJLabelWidget;
@@ -225,12 +226,12 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                     return false;
                 });
         widgetGroup.add(new LabelWidget(7, 5, "cover.conveyor.title", GAValues.VN[this.tier]));
-        widgetGroup.add(new ClickButtonWidget(7, 20, 23, 20, "-10", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 100 : 10))));
-        widgetGroup.add(new ClickButtonWidget(146, 20, 23, 20, "+10", data -> this.setItemTransferRate(this.itemTransferRate + (data.isShiftClick ? 100 : 10))));
-        widgetGroup.add(new ClickButtonWidget(30, 20, 20, 20, "-1", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 5 : 1))));
-        widgetGroup.add(new ClickButtonWidget(126, 20, 20, 20, "+1", data -> this.setItemTransferRate(this.itemTransferRate + (data.isShiftClick ? 5 : 1))));
-        widgetGroup.add(new ClickButtonWidget(50, 20, 38, 20,"/2", data -> this.setItemTransferRate(this.itemTransferRate / 2D)));
-        widgetGroup.add(new ClickButtonWidget(88, 20, 38, 20, "*2", data -> this.setItemTransferRate(this.itemTransferRate * 2)));
+        widgetGroup.add(new ButtonWidget<>(7, 20, 23, 20, "-10", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 100 : 10))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(146, 20, 23, 20, "+10", data -> this.setItemTransferRate(this.itemTransferRate + (data.isShiftClick ? 100 : 10))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(30, 20, 20, 20, "-1", data -> this.setItemTransferRate(this.itemTransferRate - (data.isShiftClick ? 5 : 1))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(126, 20, 20, 20, "+1", data -> this.setItemTransferRate(this.itemTransferRate + (data.isShiftClick ? 5 : 1))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(50, 20, 38, 20,"/2", data -> this.setItemTransferRate(this.itemTransferRate / 2D)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(88, 20, 38, 20, "*2", data -> this.setItemTransferRate(this.itemTransferRate * 2)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
         widgetGroup.add(new NewTextFieldWidget<>(7, 40, 162, 18, true, () -> String.valueOf(this.itemTransferRate), this::setItemTransferRate)
                 .setTooltipText("tj.machine.universal.item_throughput").setTooltipFormat(() -> new String[]{String.valueOf(this.itemTransferRate)})
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
@@ -246,8 +247,8 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                 .setTooltipText("machine.universal.ticks.operation")
                 .setUpdateOnTyping(true));
-        widgetGroup.add(new ClickButtonWidget(92, 151, 38, 18, "/2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks / 2), "")));
-        widgetGroup.add(new ClickButtonWidget(130, 151, 38, 18, "*2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks * 2), "")));
+        widgetGroup.add(new ButtonWidget<>(92, 151, 38, 18, "/2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(130, 151, 38, 18, "*2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
         widgetGroup.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
         widgetGroup.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
                 .setTooltipText("machine.universal.toggle.run.mode"));
@@ -274,14 +275,14 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                     return false;
                 });
         widgetGroup.add(new LabelWidget(7, 5, "cover.pump.title", GAValues.VN[this.tier]));
-        widgetGroup.add(new ClickButtonWidget(7, 20, 37, 20, "-100", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 500 : 100))));
-        widgetGroup.add(new ClickButtonWidget(132, 20, 37, 20, "+100", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 500 : 100))));
-        widgetGroup.add(new ClickButtonWidget(44, 20, 24, 20, "-10", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 50 : 10))));
-        widgetGroup.add(new ClickButtonWidget(108, 20, 24, 20, "+10", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 50 : 10))));
-        widgetGroup.add(new ClickButtonWidget(68, 20, 20, 20, "-1", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 5 : 1))));
-        widgetGroup.add(new ClickButtonWidget(88, 20, 20, 20, "+1", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 5 : 1))));
-        widgetGroup.add(new ClickButtonWidget(7, 40, 81, 20, "/2", data -> this.setFluidTransferRate(this.fluidTransferRate / 2D)));
-        widgetGroup.add(new ClickButtonWidget(88, 40, 81, 20, "*2", data -> this.setFluidTransferRate(this.fluidTransferRate * 2)));
+        widgetGroup.add(new ButtonWidget<>(7, 20, 37, 20, "-100", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 500 : 100))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(132, 20, 37, 20, "+100", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 500 : 100))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(44, 20, 24, 20, "-10", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 50 : 10))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(108, 20, 24, 20, "+10", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 50 : 10))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(68, 20, 20, 20, "-1", data -> this.setFluidTransferRate(this.fluidTransferRate - (data.isShiftClick ? 5 : 1))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(88, 20, 20, 20, "+1", data -> this.setFluidTransferRate(this.fluidTransferRate + (data.isShiftClick ? 5 : 1))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(7, 40, 81, 20, "/2", data -> this.setFluidTransferRate(this.fluidTransferRate / 2D)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(88, 40, 81, 20, "*2", data -> this.setFluidTransferRate(this.fluidTransferRate * 2)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
         widgetGroup.add(new NewTextFieldWidget<>(7, 60, 162, 18, true, () -> String.valueOf(this.fluidTransferRate), this::setFluidTransferRate)
                 .setTooltipText("tj.machine.universal.fluid_throughput").setTooltipFormat(() -> new String[]{String.valueOf(this.fluidTransferRate)})
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
@@ -297,8 +298,8 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                 .setTooltipText("machine.universal.ticks.operation")
                 .setUpdateOnTyping(true));
-        widgetGroup.add(new ClickButtonWidget(92, 169, 38, 18, "/2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks / 2), "")));
-        widgetGroup.add(new ClickButtonWidget(130, 169, 38, 18, "*2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks * 2), "")));
+        widgetGroup.add(new ButtonWidget<>(92, 169, 38, 18, "/2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(130, 169, 38, 18, "*2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
         widgetGroup.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
         widgetGroup.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isPumpWorking, this::setPumpWorking)
                 .setTooltipText("machine.universal.toggle.run.mode"));

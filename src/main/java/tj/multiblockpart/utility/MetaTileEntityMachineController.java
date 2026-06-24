@@ -5,6 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import tj.TJValues;
 import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
+import tj.mui.widgets.ButtonWidget;
 import tj.multiblockpart.TJMultiblockAbility;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -72,8 +73,8 @@ public class MetaTileEntityMachineController extends MetaTileEntityMultiblockPar
                 .setTooltipHoverString("tj.machine.machine_controller.automatic.description"));
         widgetGroup.addWidget(new CycleButtonWidget(60, 60, 50, 20, this::isInverted, this::setInverted,
                 "cover.machine_controller.normal", "cover.machine_controller.inverted"));
-        widgetGroup.addWidget(new ClickButtonWidget(110, 60, 25, 20, "+", this::onIncrement));
-        widgetGroup.addWidget(new ClickButtonWidget(135, 60, 25, 20, "-", this::onDecrement));
+        widgetGroup.addWidget(new ButtonWidget<>(110, 60, 25, 20, "+", this::onIncrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.addWidget(new ButtonWidget<>(135, 60, 25, 20, "-", this::onDecrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
                 .widget(widgetGroup)
                 .label(10, 5, "cover.machine_controller.name")

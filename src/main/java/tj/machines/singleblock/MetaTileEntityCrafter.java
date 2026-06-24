@@ -35,6 +35,7 @@ import tj.capability.impl.workable.CrafterRecipeLogic;
 import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
 import tj.mui.TJGuiTextures;
+import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
 import tj.util.Color;
@@ -166,10 +167,10 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                         .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
                 .widget(new ImageWidget(79, 62, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.recipeLogic::hasNotEnoughEnergy))
-                .widget(new ClickButtonWidget(62, 14, 8, 8, "", (clickData) -> {
+                .widget(new ButtonWidget<>(62, 14, 8, 8, "", clickData -> {
                     this.clearCraftingResult();
                     this.setCraftingResult(0, ItemStack.EMPTY);
-                }).setButtonTexture(BUTTON_CLEAR_GRID))
+                }).setBackgroundTextures(BUTTON_CLEAR_GRID))
                 .widget(new CraftingRecipeTransferWidget(this::setCraftingResult))
                 .widget(craftingSlotGroup)
                 .widget(inventorySlotGroup)

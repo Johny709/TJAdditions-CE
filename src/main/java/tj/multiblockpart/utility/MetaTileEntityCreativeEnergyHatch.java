@@ -26,6 +26,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
 import tj.mui.TJGuiTextures;
+import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.NewTextFieldWidget;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.mui.widgets.impl.TJProgressBarWidget;
@@ -94,24 +95,24 @@ public class MetaTileEntityCreativeEnergyHatch extends GAMetaTileEntityMultibloc
                         .setTooltipText("metaitem.creative_energy_cover.set.energy_rate")
                         .setUpdateOnTyping(true)
                         .setMaxStringLength(20))
-                .widget(new ClickButtonWidget(7, 27, 18, 18, "/2", data -> this.setEnergyStored(String.valueOf((double) this.energyStored / 2), "")))
-                .widget(new ClickButtonWidget(151, 27, 18, 18, "*2", data -> this.setEnergyStored(String.valueOf((double) this.energyStored * 2), "")))
+                .widget(new ButtonWidget<>(7, 27, 18, 18, "/2", data -> this.setEnergyStored(String.valueOf((double) this.energyStored / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new ButtonWidget<>(151, 27, 18, 18, "*2", data -> this.setEnergyStored(String.valueOf((double) this.energyStored * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .widget(new NewTextFieldWidget<>(26, 47, 124, 18, true, () -> String.valueOf(this.inputVoltage), this::setInputVoltage)
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setBackgroundText("metaitem.creative_energy_cover.set.voltage")
                         .setTooltipText("metaitem.creative_energy_cover.set.voltage")
                         .setUpdateOnTyping(true)
                         .setMaxStringLength(20))
-                .widget(new ClickButtonWidget(7, 47, 18, 18, "/2", data -> this.setInputVoltage(String.valueOf(this.inputVoltage / 2), "")))
-                .widget(new ClickButtonWidget(151, 47, 18, 18, "*2", data -> this.setInputVoltage(String.valueOf(this.inputVoltage * 2), "")))
+                .widget(new ButtonWidget<>(7, 47, 18, 18, "/2", data -> this.setInputVoltage(String.valueOf(this.inputVoltage / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new ButtonWidget<>(151, 47, 18, 18, "*2", data -> this.setInputVoltage(String.valueOf(this.inputVoltage * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .widget(new NewTextFieldWidget<>(26, 67,124, 18, true, () -> String.valueOf(this.inputAmps), this::setInputAmps)
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setBackgroundText("metaitem.creative_energy_cover.set.amps")
                         .setTooltipText("metaitem.creative_energy_cover.set.amps")
                         .setUpdateOnTyping(true)
                         .setMaxStringLength(11))
-                .widget(new ClickButtonWidget(7, 67, 18, 18, "/2", data -> this.setInputAmps(String.valueOf(this.inputAmps / 2), "")))
-                .widget(new ClickButtonWidget(151, 67, 18, 18, "*2", data -> this.setInputAmps(String.valueOf(this.inputAmps * 2), "")))
+                .widget(new ButtonWidget<>(7, 67, 18, 18, "/2", data -> this.setInputAmps(String.valueOf(this.inputAmps / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new ButtonWidget<>(151, 67, 18, 18, "*2", data -> this.setInputAmps(String.valueOf(this.inputAmps * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .bindPlayerInventory(player.inventory, 96)
                 .build(this.getHolder(), player);
     }
