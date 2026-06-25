@@ -1,7 +1,5 @@
 package tj.integration.ae2.blocks;
 
-import appeng.api.config.CondenserOutput;
-import appeng.api.config.LockCraftingMode;
 import appeng.api.config.Settings;
 import appeng.api.config.Upgrades;
 import appeng.block.misc.BlockInterface;
@@ -51,7 +49,6 @@ import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -227,7 +224,7 @@ public class BlockSuperDualInterface extends BlockInterface {
                 .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.NonBlocking", "gui.tooltips.appliedenergistics2.Blocking")
                 .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
                 .useToggleTexture(true));
-        tab.add(new TJCycleButtonWidget<>(-18, 76, 16, 16, (EnumSet<LockCraftingMode>) Settings.UNLOCK.getPossibleValues(), () -> (Enum<LockCraftingMode>) duality.getConfigManager().getSetting(Settings.UNLOCK), superDualInterface::setLockCrafting)
+        tab.add(new TJCycleButtonWidget<>(-18, 76, 16, 16, Settings.UNLOCK.getPossibleValues(), () -> duality.getConfigManager().getSetting(Settings.UNLOCK), superDualInterface::setLockCrafting)
                 .setCycleHoverTooltipText("gui.tooltips.appliedenergistics2.LockCraftingModeNone", "gui.tooltips.appliedenergistics2.LockCraftingUntilRedstonePulse", "gui.tooltips.appliedenergistics2.LockCraftingWhileRedstoneHigh", "gui.tooltips.appliedenergistics2.LockCraftingWhileRedstoneLow", "gui.tooltips.appliedenergistics2.LockCraftingUntilResultReturned")
                 .setCycleTitleHoverTooltipText("gui.tooltips.appliedenergistics2.LockCraftingMode", "gui.tooltips.appliedenergistics2.LockCraftingMode", "gui.tooltips.appliedenergistics2.LockCraftingMode", "gui.tooltips.appliedenergistics2.LockCraftingMode", "gui.tooltips.appliedenergistics2.LockCraftingMode")
                 .setCycleTexture(TJGuiTextures.CYCLE_LOCK_CRAFTING));
@@ -247,7 +244,7 @@ public class BlockSuperDualInterface extends BlockInterface {
                 .setToggleTitleTooltipHoverText("ae2fc.tooltip.allow_splitting", "ae2fc.tooltip.allow_splitting")
                 .setToggleTexture(TJGuiTextures.TOGGLE_SPLITTING_ITEMS_FLUIDS)
                 .useToggleTexture(true));
-        tab.add(new TJCycleButtonWidget<>(-18, 148, 16, 16, (EnumSet<CondenserOutput>) Settings.CONDENSER_OUTPUT.getPossibleValues(), () -> (Enum<CondenserOutput>) duality.getConfigManager().getSetting(Settings.CONDENSER_OUTPUT), superDualInterface::setBlockModeEx)
+        tab.add(new TJCycleButtonWidget<>(-18, 148, 16, 16, Settings.CONDENSER_OUTPUT.getPossibleValues(), () -> duality.getConfigManager().getSetting(Settings.CONDENSER_OUTPUT), superDualInterface::setBlockModeEx)
                 .setCycleHoverTooltipText("ae2fc.tooltip.block_all.hint", "ae2fc.tooltip.block_item.hint", "ae2fc.tooltip.block_fluid.hint")
                 .setCycleTitleHoverTooltipText("ae2fc.tooltip.block_all", "ae2fc.tooltip.block_item", "ae2fc.tooltip.block_fluid")
                 .setCycleTexture(TJGuiTextures.CYCLE_BLOCKING_MODE_EX));

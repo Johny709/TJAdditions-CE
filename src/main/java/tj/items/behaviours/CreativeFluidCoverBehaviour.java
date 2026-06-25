@@ -24,10 +24,7 @@ import net.minecraftforge.fluids.FluidTank;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
 import tj.mui.widgets.ButtonWidget;
-import tj.mui.widgets.impl.NewTextFieldWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.SelectionWidgetGroup;
-import tj.mui.widgets.impl.TJPhantomFluidSlotWidget;
+import tj.mui.widgets.impl.*;
 import tj.items.TJMetaItems;
 
 import java.util.List;
@@ -108,10 +105,10 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
                 .widget(new AdvancedTextWidget(63, 85, textList -> textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", compound.getInteger("speed"))), 0xFFFFFF))
                 .widget(new ButtonWidget<>(43, 80, 18, 18, "+", onIncrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .widget(new ButtonWidget<>(116, 80, 18, 18, "-", onDecrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new ToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, b -> compound.setInteger("speed", 1))
-                        .setTooltipText("machine.universal.toggle.reset"))
-                .widget(new ToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> compound.getBoolean("power"), b -> compound.setBoolean("power", !compound.getBoolean("power")))
-                        .setTooltipText("machine.universal.toggle.run.mode"))
+                .widget(new TJToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, b -> compound.setInteger("speed", 1))
+                        .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
+                .widget(new TJToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> compound.getBoolean("power"), b -> compound.setBoolean("power", !compound.getBoolean("power")))
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 105, itemStack))

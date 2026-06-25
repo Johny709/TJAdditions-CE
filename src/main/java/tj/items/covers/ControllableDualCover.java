@@ -37,13 +37,8 @@ import tj.builder.WidgetTabBuilder;
 import tj.capability.ParallelRecipeLRUCache;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.ButtonWidget;
-import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.*;
 import tj.mui.widgets.PopUpWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.TJSlotWidget;
-import tj.mui.widgets.impl.SelectionWidgetGroup;
-import tj.mui.widgets.impl.TJPhantomFluidSlotWidget;
-import tj.mui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.items.TJMetaItems;
 import tj.util.Counter;
 import tj.util.TJItemUtils;
@@ -165,7 +160,7 @@ public class ControllableDualCover extends DualCover {
                     widgetGroup1.addWidget(itemSelectionWidgetGroup);
                     return false;
                 }).addPopup(widgetGroup1 -> {
-                    widgetGroup1.addWidget(new CycleButtonWidget(10, 133, 76, 18, RecipeMode.class, () -> this.itemRecipeMode, this::setItemRecipeMode));
+                    widgetGroup1.addWidget(new TJCycleButtonWidget<>(10, 133, 76, 18, RecipeMode.class, () -> this.itemRecipeMode, this::setItemRecipeMode).setCycleTexture(GuiTextures.VANILLA_BUTTON));
                     return false;
                 }).addPopup(widgetGroup1 -> {
                     widgetGroup1.addWidget(itemSupplyWidgetGroup);
@@ -183,15 +178,16 @@ public class ControllableDualCover extends DualCover {
                 .setTooltipText("tj.machine.universal.item_throughput").setTooltipFormat(() -> new String[]{String.valueOf(this.itemTransferRate)})
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                 .setUpdateOnTyping(true));
-        widgetGroup.add(new CycleButtonWidget(7, 65, 76, 20, CoverConveyor.ConveyorMode.class, () -> this.conveyorMode, this::setConveyorMode));
-        widgetGroup.add(new CycleButtonWidget(92, 65, 76, 20, TransferMode.class, () -> this.robotArmMode, this::setRobotArmMode)
-                .setTooltipHoverString("cover.robotic_arm.transfer_mode.description"));
+        widgetGroup.add(new TJCycleButtonWidget<>(7, 65, 76, 20, CoverConveyor.ConveyorMode.class, () -> this.conveyorMode, this::setConveyorMode).setCycleTexture(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new TJCycleButtonWidget<>(92, 65, 76, 20, TransferMode.class, () -> this.robotArmMode, this::setRobotArmMode)
+                .setHoverTooltipText("cover.robotic_arm.transfer_mode.description")
+                .setCycleTexture(GuiTextures.VANILLA_BUTTON));
         widgetGroup.add(new ImageWidget(-28, 127, 26, 44, GuiTextures.BORDERED_BACKGROUND));
         widgetGroup.add(new TJSlotWidget<>(this.itemFilterSlot, 0, -24, 131)
                 .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
         widgetGroup.add(itemFilterPopup);
-        widgetGroup.add(new ToggleButtonWidget(-24, 149, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isItemBlacklist, this::setItemBlacklist)
-                .setTooltipText("cover.filter.blacklist"));
+        widgetGroup.add(new TJToggleButtonWidget(-24, 149, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isItemBlacklist, this::setItemBlacklist)
+                .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled", "cover.filter.blacklist.enabled"));
         widgetGroup.add(new NewTextFieldWidget<>(92, 133, 76, 18, true, () -> String.valueOf(this.itemTicks), this::setItemTicks)
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                 .setTooltipText("machine.universal.ticks.operation")
@@ -199,8 +195,8 @@ public class ControllableDualCover extends DualCover {
         widgetGroup.add(new ButtonWidget<>(92, 151, 38, 18, "/2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
         widgetGroup.add(new ButtonWidget<>(130, 151, 38, 18, "*2", data -> this.setItemTicks(String.valueOf((long) this.itemTicks * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
         widgetGroup.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
-        widgetGroup.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
-                .setTooltipText("machine.universal.toggle.run.mode"));
+        widgetGroup.add(new TJToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isConveyorWorking, this::setConveyorWorking)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
     }
 
     private void createRegulatorTab(List<Widget> widgetGroup) {
@@ -245,7 +241,7 @@ public class ControllableDualCover extends DualCover {
                     widgetGroup1.addWidget(fluidSelectionWidgetGroup);
                     return false;
                 }).addPopup(widgetGroup1 -> {
-                    widgetGroup1.addWidget(new CycleButtonWidget(10, 151, 76, 18, RecipeMode.class, () -> this.fluidRecipeMode, this::setFluidRecipeMode));
+                    widgetGroup1.addWidget(new TJCycleButtonWidget<>(10, 151, 76, 18, RecipeMode.class, () -> this.fluidRecipeMode, this::setFluidRecipeMode));
                     return false;
                 });
         widgetGroup.add(new LabelWidget(7, 5, "cover.fluid_regulator.title", GAValues.VN[this.tier]));
@@ -261,15 +257,16 @@ public class ControllableDualCover extends DualCover {
                 .setTooltipText("tj.machine.universal.fluid_throughput").setTooltipFormat(() -> new String[]{String.valueOf(this.fluidTransferRate)})
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                 .setUpdateOnTyping(true));
-        widgetGroup.add(new CycleButtonWidget(7, 85, 76, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
-        widgetGroup.add(new CycleButtonWidget(88, 85, 76, 18, TransferMode.class, () -> this.regulatorMode, this::setRegulatorMode)
-                .setTooltipHoverString("cover.fluid_regulator.transfer_mode.description"));
+        widgetGroup.add(new TJCycleButtonWidget<>(7, 85, 76, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode).setCycleTexture(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new TJCycleButtonWidget<>(88, 85, 76, 18, TransferMode.class, () -> this.regulatorMode, this::setRegulatorMode)
+                .setHoverTooltipText("cover.fluid_regulator.transfer_mode.description")
+                .setCycleTexture(GuiTextures.VANILLA_BUTTON));
         widgetGroup.add(new ImageWidget(-28, 147, 26, 44, GuiTextures.BORDERED_BACKGROUND));
         widgetGroup.add(new TJSlotWidget<>(this.fluidFilterSlot, 0, -24, 151)
                 .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
         widgetGroup.add(fluidFilterPopup);
-        widgetGroup.add(new ToggleButtonWidget(-24, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isFluidBlacklist, this::setFluidBlacklist)
-                .setTooltipText("cover.filter.blacklist"));
+        widgetGroup.add(new TJToggleButtonWidget(-24, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> this.isFluidBlacklist, this::setFluidBlacklist)
+                .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled", "cover.filter.blacklist.enabled"));
         widgetGroup.add(new NewTextFieldWidget<>(92, 151, 76, 18, true, () -> String.valueOf(this.fluidTicks), this::setFluidTicks)
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                 .setTooltipText("machine.universal.ticks.operation")
@@ -277,8 +274,8 @@ public class ControllableDualCover extends DualCover {
         widgetGroup.add(new ButtonWidget<>(92, 169, 38, 18, "/2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
         widgetGroup.add(new ButtonWidget<>(130, 169, 38, 18, "*2", data -> this.setFluidTicks(String.valueOf((long) this.fluidTicks * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
         widgetGroup.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
-        widgetGroup.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isPumpWorking, this::setPumpWorking)
-                .setTooltipText("machine.universal.toggle.run.mode"));
+        widgetGroup.add(new TJToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isPumpWorking, this::setPumpWorking)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
     }
 
     @Override

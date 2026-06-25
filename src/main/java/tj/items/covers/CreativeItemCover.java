@@ -26,10 +26,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.ButtonWidget;
-import tj.mui.widgets.impl.NewTextFieldWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.SelectionWidgetGroup;
-import tj.mui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.mui.widgets.impl.*;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
 import tj.util.TJItemUtils;
@@ -99,10 +96,10 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
                 .widget(new AdvancedTextWidget(63, 85, this::displayText, 0xFFFFFF))
                 .widget(new ButtonWidget<>(43, 80, 18, 18, "+", this::onIncrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .widget(new ButtonWidget<>(116, 80, 18, 18, "-", this::onDecrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new ToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
-                        .setTooltipText("machine.universal.toggle.reset"))
-                .widget(new ToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                        .setTooltipText("machine.universal.toggle.run.mode"))
+                .widget(new TJToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
+                        .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
+                .widget(new TJToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)

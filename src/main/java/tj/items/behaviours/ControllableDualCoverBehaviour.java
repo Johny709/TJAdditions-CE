@@ -27,13 +27,8 @@ import tj.builder.WidgetTabBuilder;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
 import tj.mui.widgets.ButtonWidget;
-import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.*;
 import tj.mui.widgets.PopUpWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.TJSlotWidget;
-import tj.mui.widgets.impl.SelectionWidgetGroup;
-import tj.mui.widgets.impl.TJPhantomFluidSlotWidget;
-import tj.mui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.items.TJMetaItems;
 import tj.items.covers.ControllableDualCover;
 import tj.items.handlers.FilteredItemStackHandler;
@@ -201,10 +196,10 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     widgetGroup.addWidget(itemSelectionWidgetGroup);
                     return false;
                 }).addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(new CycleButtonWidget(10, 133, 76, 18, ControllableDualCover.RecipeMode.class, itemRecipeMode::getValue, itemRecipeMode1 -> {
+                    widgetGroup.addWidget(new TJCycleButtonWidget<>(10, 133, 76, 18, ControllableDualCover.RecipeMode.class, itemRecipeMode::getValue, itemRecipeMode1 -> {
                         itemRecipeMode.setValue(itemRecipeMode1);
                         compound.setInteger("itemRecipeMode", itemRecipeMode1.ordinal());
-                    }));
+                    }).setCycleTexture(GuiTextures.VANILLA_BUTTON));
                     return false;
                 }).addPopup(widgetGroup -> {
                     widgetGroup.addWidget(itemSupplyWidgetGroup);
@@ -260,10 +255,10 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     widgetGroup.addWidget(fluidSelectionWidgetGroup);
                     return false;
                 }).addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(new CycleButtonWidget(10, 151, 76, 18, ControllableDualCover.RecipeMode.class, fluidRecipeMode::getValue, fluidRecipeMode1 -> {
+                    widgetGroup.addWidget(new TJCycleButtonWidget<>(10, 151, 76, 18, ControllableDualCover.RecipeMode.class, fluidRecipeMode::getValue, fluidRecipeMode1 -> {
                         fluidRecipeMode.setValue(fluidRecipeMode1);
                         compound.setInteger("fluidRecipeMode", fluidRecipeMode1.ordinal());
-                    }));
+                    }).setCycleTexture(GuiTextures.VANILLA_BUTTON));
                     return false;
                 });
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
@@ -280,22 +275,23 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                             .setTooltipText("tj.machine.universal.item_throughput").setTooltipFormat(() -> new String[]{String.valueOf(itemTransferRate.getValue())})
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setUpdateOnTyping(true));
-                    tab.add(new CycleButtonWidget(7, 65, 76, 20, CoverConveyor.ConveyorMode.class, conveyorMode::getValue, conveyorMode1 -> {
+                    tab.add(new TJCycleButtonWidget<>(7, 65, 76, 20, CoverConveyor.ConveyorMode.class, conveyorMode::getValue, conveyorMode1 -> {
                         conveyorMode.setValue(conveyorMode1);
                         compound.setInteger("conveyorMode", conveyorMode1.ordinal());
-                    }));
-                    tab.add(new CycleButtonWidget(92, 65, 76, 20, TransferMode.class, robotArmMode::getValue, robotArmMode1 -> {
+                    }).setCycleTexture(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new TJCycleButtonWidget<>(92, 65, 76, 20, TransferMode.class, robotArmMode::getValue, robotArmMode1 -> {
                         robotArmMode.setValue(robotArmMode1);
                         compound.setInteger("robotArmMode", robotArmMode1.ordinal());
-                    }).setTooltipHoverString("cover.robotic_arm.transfer_mode.description"));
+                    }).setHoverTooltipText("cover.robotic_arm.transfer_mode.description")
+                            .setCycleTexture(GuiTextures.VANILLA_BUTTON));
                     tab.add(new ImageWidget(-28, 127, 26, 44, GuiTextures.BORDERED_BACKGROUND));
                     tab.add(new TJSlotWidget<>(itemFilterSlot, 0, -24, 131)
                             .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
                     tab.add(itemFilterPopup);
-                    tab.add(new ToggleButtonWidget(-24, 149, 18, 18, GuiTextures.BUTTON_BLACKLIST, itemBlacklist::isValue, b -> {
+                    tab.add(new TJToggleButtonWidget(-24, 149, 18, 18, GuiTextures.BUTTON_BLACKLIST, itemBlacklist::isValue, b -> {
                         itemBlacklist.setValue(b);
                         compound.setBoolean("itemBlacklist", itemBlacklist.isValue());
-                    }).setTooltipText("cover.filter.blacklist"));
+                    }).setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled", "cover.filter.blacklist.enabled"));
                     final BiConsumer<String, String> setItemTicks = (text, id) -> {
                         itemTicks.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
                         compound.setInteger("itemTicks", itemTicks.getValue());
@@ -307,10 +303,10 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     tab.add(new ButtonWidget<>(92, 151, 38, 18, "/2", data -> setItemTicks.accept(String.valueOf((long) itemTicks.getValue() / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
                     tab.add(new ButtonWidget<>(130, 151, 38, 18, "*2", data -> setItemTicks.accept(String.valueOf((long) itemTicks.getValue() * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
                     tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
-                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, itemWorking::isValue, w -> {
+                    tab.add(new TJToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, itemWorking::isValue, w -> {
                         itemWorking.setValue(w);
                         compound.setBoolean("itemWorking", itemWorking.isValue());
-                    }).setTooltipText("machine.universal.toggle.run.mode"));
+                    }).setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
                 }).addTab(String.format("metaitem.electric.pump.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.FLUID_REGULATORS[this.tier].getStackForm(), tab -> {
                     tab.add(new LabelWidget(7, 5, "cover.fluid_regulator.title", GAValues.VN[this.tier]));
                     tab.add(new ButtonWidget<>(7, 20, 37, 20, "-100", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() - (data.isShiftClick ? 500 : 100))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
@@ -325,22 +321,23 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                             .setTooltipText("tj.machine.universal.fluid_throughput").setTooltipFormat(() -> new String[]{String.valueOf(fluidTransferRate.getValue())})
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setUpdateOnTyping(true));
-                    tab.add(new CycleButtonWidget(7, 85, 76, 18, CoverPump.PumpMode.class, pumpMode::getValue, pumpMode1 -> {
+                    tab.add(new TJCycleButtonWidget<>(7, 85, 76, 18, CoverPump.PumpMode.class, pumpMode::getValue, pumpMode1 -> {
                         pumpMode.setValue(pumpMode1);
                         compound.setInteger("pumpMode", pumpMode1.ordinal());
-                    }));
-                    tab.add(new CycleButtonWidget(92, 85, 76, 18, TransferMode.class, regulatorMode::getValue, regulatorMode1 -> {
+                    }).setCycleTexture(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new TJCycleButtonWidget<>(92, 85, 76, 18, TransferMode.class, regulatorMode::getValue, regulatorMode1 -> {
                         regulatorMode.setValue(regulatorMode1);
                         compound.setInteger("regulatorMode", regulatorMode1.ordinal());
-                    }).setTooltipHoverString("cover.fluid_regulator.transfer_mode.description"));
+                    }).setHoverTooltipText("cover.fluid_regulator.transfer_mode.description")
+                            .setCycleTexture(GuiTextures.VANILLA_BUTTON));
                     tab.add(new ImageWidget(-28, 147, 26, 44, GuiTextures.BORDERED_BACKGROUND));
                     tab.add(new TJSlotWidget<>(fluidFilterSlot, 0, -24, 151)
                             .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
                     tab.add(fluidFilterPopup);
-                    tab.add(new ToggleButtonWidget(-24, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, fluidBlacklist::isValue, b -> {
+                    tab.add(new TJToggleButtonWidget(-24, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, fluidBlacklist::isValue, b -> {
                         fluidBlacklist.setValue(b);
                         compound.setBoolean("fluidBlacklist", fluidBlacklist.isValue());
-                    }).setTooltipText("cover.filter.blacklist"));
+                    }).setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled", "cover.filter.blacklist.enabled"));
                     final BiConsumer<String, String> setFluidTicks = (text, id) -> {
                         fluidTicks.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
                         compound.setInteger("fluidTicks", fluidTicks.getValue());
@@ -352,10 +349,10 @@ public class ControllableDualCoverBehaviour extends DualCoverBehaviour {
                     tab.add(new ButtonWidget<>(92, 169, 38, 18, "/2", data -> setFluidTicks.accept(String.valueOf((long) fluidTicks.getValue() / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
                     tab.add(new ButtonWidget<>(130, 169, 38, 18, "*2", data -> setFluidTicks.accept(String.valueOf((long) fluidTicks.getValue() * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
                     tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
-                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, fluidWorking::isValue, w -> {
+                    tab.add(new TJToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, fluidWorking::isValue, w -> {
                         fluidWorking.setValue(w);
                         compound.setBoolean("fluidWorking", fluidWorking.isValue());
-                    }).setTooltipText("machine.universal.toggle.run.mode"));
+                    }).setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
                 });
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 272)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)

@@ -70,6 +70,14 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
         this.textResponderWithMouse = textResponderWithMouse;
     }
 
+    public TJToggleButtonWidget(int x, int y, int width, int height, TextureArea toggleTexture, BooleanSupplier isPressedCondition, BooleanConsumer buttonBoolResponder) {
+        this(x, y, width, height);
+        this.isPressedCondition = isPressedCondition;
+        this.buttonBoolResponder = buttonBoolResponder;
+        this.toggleTexture = toggleTexture;
+        this.useToggleTexture(true);
+    }
+
     /**
      * Supplier to get the state of button.
      * @param isPressedCondition is button pressed
@@ -207,7 +215,7 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
         if (this.isActive && this.isMouseOverElement(mouseX, mouseY)) {
             this.playButtonClickSound();
             this.isPressed = !this.isPressed;
-            this.writeClientAction(1, buffer -> {
+            this.writeClientAction(2, buffer -> {
                 buffer.writeString(this.buttonId != null ? this.buttonId : "");
                 buffer.writeBoolean(this.isPressed);
                 buffer.writeInt(mouseX);
@@ -222,7 +230,7 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
-        if (id == 1) {
+        if (id == 2) {
             final String buttonId = buffer.readString(Short.MAX_VALUE);
             this.isPressed = buffer.readBoolean();
             final int mouseX = buffer.readInt();

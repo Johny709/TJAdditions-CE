@@ -3,8 +3,6 @@ package tj.items.behaviours;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.CycleButtonWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.items.gui.PlayerInventoryHolder;
 import gregtech.api.util.Position;
@@ -19,10 +17,7 @@ import net.minecraftforge.fluids.FluidTank;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
 import tj.mui.widgets.ButtonWidget;
-import tj.mui.widgets.impl.NewTextFieldWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.SelectionWidgetGroup;
-import tj.mui.widgets.impl.TJPhantomFluidSlotWidget;
+import tj.mui.widgets.impl.*;
 import tj.items.TJMetaItems;
 import tj.items.covers.VoidMode;
 import tj.util.references.BooleanReference;
@@ -101,12 +96,12 @@ public class VoidAdvancedFluidCoverBehaviour extends VoidFluidCoverBehaviour {
                         .setUpdateOnTyping(true))
                 .widget(new ButtonWidget<>(7, 7, 18, 18, "/2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .widget(new ButtonWidget<>(151, 7, 18, 18, "*2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new CycleButtonWidget(43, 106, 90, 18, VoidMode.class, voidMode::getValue, value -> {
+                .widget(new TJCycleButtonWidget<>(43, 106, 90, 18, VoidMode.class, voidMode::getValue, value -> {
                     compound.setInteger("voidMode", value.ordinal());
                     voidMode.setValue(value);
-                }))
-                .widget(new ToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, isWorking::isValue, setWorking)
-                        .setTooltipText("machine.universal.toggle.run.mode"))
+                }).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new TJToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, isWorking::isValue, setWorking)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 126, itemStack))

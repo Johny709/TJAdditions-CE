@@ -3,9 +3,15 @@ package tj.mui.widgets.impl;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.resources.SizedTextureArea;
 import gregtech.api.gui.resources.TextureArea;
+import gregtech.api.util.Position;
+import gregtech.api.util.Size;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IStringSerializable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.mui.widgets.ButtonWidget;
@@ -18,23 +24,41 @@ import java.util.function.Supplier;
 
 public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycleButtonWidget<T>> {
 
-    private final Supplier<Enum<T>> cycleSupplier;
+    private final Supplier<? extends Enum<?>> cycleSupplier;
+    private final EnumSet<? extends Enum<?>> cycles;
     private final Consumer<T> onCycle;
-    private final EnumSet<T> cycles;
-    private TextureArea cycleTexture;
     private String[] cycleTitleHoverTooltipText;
     private String[] cycleHoverTooltipText;
+    private String[] cycleDisplayText;
+    private TextureArea cycleTexture;
     private int index;
 
-    public TJCycleButtonWidget(int x, int y, int width, int height, Class<T> cycles, Supplier<Enum<T>> cycleSupplier, Consumer<T> onCycle) {
+    public TJCycleButtonWidget(int x, int y, int width, int height, Class<T> cycles, Supplier<? extends Enum<?>> cycleSupplier, Consumer<T> onCycle) {
+        this(x, y, width, height, EnumSet.allOf(cycles), cycleSupplier, onCycle);
+    }
+
+    public TJCycleButtonWidget(int x, int y, int width, int height, EnumSet<? extends Enum<?>> cycles, Supplier<? extends Enum<?>> cycleSupplier, Consumer<T> onCycle) {
         super(x, y, width, height);
         this.cycleSupplier = cycleSupplier;
         this.onCycle = onCycle;
-        this.cycles = EnumSet.allOf(cycles);
+        this.cycles = cycles;
+        this.setCycleDisplayText(cycles.stream()
+                .filter(e -> e instanceof IStringSerializable)
+                .map(e -> ((IStringSerializable) e).getName())
+                .toArray(String[]::new));
     }
 
     public TJCycleButtonWidget<T> setCycleTexture(TextureArea cycleTexture) {
         this.cycleTexture = cycleTexture;
+        return this;
+    }
+
+    /**
+     * Set cycle text to display on cycle button.
+     * @param cycleDisplayText text
+     */
+    public TJCycleButtonWidget<T> setCycleDisplayText(String... cycleDisplayText) {
+        this.cycleDisplayText = cycleDisplayText;
         return this;
     }
 
@@ -77,11 +101,21 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         if (!this.isActive) return;
+        final Size size = this.getSize();
+        final Position pos = this.getPosition();
         if (this.cycleTexture != null) {
             final double offsetY = 1.0 / this.cycles.size();
             if (this.cycleTexture instanceof SizedTextureArea) {
-                ((SizedTextureArea) this.cycleTexture).drawHorizontalCutSubArea(this.getPosition().getX(), this.getPosition().getY(), this.getSize().getWidth(), this.getSize().getHeight(), this.isMouseOverElement(mouseX, mouseY) ? 0.5 : 0.0, 0.5);
-            } else this.cycleTexture.drawSubArea(this.getPosition().getX(), this.getPosition().getY(), this.getSize().getWidth(), this.getSize().getHeight(), 0.0, offsetY * this.index, 1.0, offsetY);
+                ((SizedTextureArea) this.cycleTexture).drawHorizontalCutSubArea(pos.getX(), pos.getY(), size.getWidth(), size.getHeight(), this.isMouseOverElement(mouseX, mouseY) ? 0.5 : 0.0, 0.5);
+            } else this.cycleTexture.drawSubArea(pos.getX(), pos.getY(), size.getWidth(), size.getHeight(), 0.0, offsetY * this.index, 1.0, offsetY);
+        }
+        if (this.cycleDisplayText != null && this.cycleDisplayText.length > 0) {
+            final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+            final String text = I18n.format(this.cycleDisplayText[this.index]);
+            fontRenderer.drawString(text,
+                    pos.getX() + size.getWidth() / 2 - fontRenderer.getStringWidth(text) / 2,
+                    pos.getY() + size.getHeight() / 2 - fontRenderer.FONT_HEIGHT / 2, this.textColor);
+            GlStateManager.color(1.0f, 1.0f, 1.0f);
         }
         super.drawInBackground(mouseX, mouseY, context);
     }
@@ -101,7 +135,7 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
             if (this.index < 0)
                 this.index = this.cycles.size() - 1;
             if (lastIndex != this.index) {
-                this.writeClientAction(1, buffer -> buffer.writeInt(this.index));
+                this.writeClientAction(2, buffer -> buffer.writeInt(this.index));
                 return true;
             }
         }
@@ -120,10 +154,10 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
-        if (id == 1) {
+        if (id == 2) {
             this.index = buffer.readInt();
             if (this.onCycle != null) {
-                this.onCycle.accept(this.cycles.stream()
+                this.onCycle.accept((T) this.cycles.stream()
                         .filter(c -> c.ordinal() == this.index)
                         .findFirst()
                         .orElse(null));
