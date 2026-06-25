@@ -8,6 +8,7 @@ import gregtech.api.gui.widgets.PhantomFluidWidget;
 import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.common.covers.CoverPump;
 import gregtech.common.covers.filter.SimpleFluidFilter;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.ITextComponent;
@@ -27,7 +28,6 @@ import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
 
 import java.awt.*;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static gregtech.api.gui.GuiTextures.*;
@@ -84,12 +84,12 @@ public class EnderFluidCover extends AbstractEnderCover<FluidTank> {
     }
 
     @Override
-    protected Map<String, EnderCoverProfile<FluidTank>> getPlayerMap() {
+    protected Object2ObjectMap<String, EnderCoverProfile<FluidTank>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getFluidTankPlayerMap();
     }
 
     @Override
-    protected FluidTank createHandler() {
+    public FluidTank createHandler() {
         return new FluidTank(this.capacity);
     }
 

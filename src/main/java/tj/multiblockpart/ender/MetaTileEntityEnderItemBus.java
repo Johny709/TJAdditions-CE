@@ -8,6 +8,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.common.covers.filter.SimpleItemFilter;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -29,7 +30,6 @@ import tj.util.TextUtils;
 
 import java.awt.*;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static gregtech.api.gui.GuiTextures.*;
@@ -78,7 +78,7 @@ public class MetaTileEntityEnderItemBus extends AbstractEnderHatch<IItemHandlerM
     }
 
     @Override
-    protected Map<String, EnderCoverProfile<LargeItemStackHandler>> getPlayerMap() {
+    protected Object2ObjectMap<String, EnderCoverProfile<LargeItemStackHandler>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getItemChestPlayerMap();
     }
 
@@ -114,7 +114,7 @@ public class MetaTileEntityEnderItemBus extends AbstractEnderHatch<IItemHandlerM
     }
 
     @Override
-    protected LargeItemStackHandler createHandler() {
+    public LargeItemStackHandler createHandler() {
         return new LargeItemStackHandler(1, this.capacity);
     }
 

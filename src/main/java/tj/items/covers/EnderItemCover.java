@@ -5,6 +5,7 @@ import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.common.covers.filter.SimpleItemFilter;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -26,7 +27,6 @@ import tj.util.EnderWorldData;
 import tj.util.TextUtils;
 
 import java.awt.*;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static gregtech.api.gui.GuiTextures.*;
@@ -91,7 +91,7 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
     }
 
     @Override
-    protected Map<String, EnderCoverProfile<LargeItemStackHandler>> getPlayerMap() {
+    protected Object2ObjectMap<String, EnderCoverProfile<LargeItemStackHandler>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getItemChestPlayerMap();
     }
 
@@ -127,7 +127,7 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
     }
 
     @Override
-    protected LargeItemStackHandler createHandler() {
+    public LargeItemStackHandler createHandler() {
         return new LargeItemStackHandler(1, this.capacity);
     }
 
