@@ -99,8 +99,7 @@ public class MetaTileEntityEnderItemBus extends AbstractEnderHatch<IItemHandlerM
 
     @Override
     protected void addWidgets(Consumer<Widget> widget) {
-        widget.accept(new TJSlotWidget<>(null, 0, 7, 38)
-                .setItemHandlerSupplier(() -> this.handler)
+        widget.accept(new TJSlotWidget<>(() -> this.handler, 0, 7, 38)
                 .setActiveBackgroundTexture(SLOT));
     }
 

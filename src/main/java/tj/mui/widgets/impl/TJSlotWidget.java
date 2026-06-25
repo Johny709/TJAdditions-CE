@@ -72,9 +72,12 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
         this.slotItemHandler = new TJSlotItemHandler(this.itemHandler, slotIndex, x, y);
     }
 
-    public R setItemHandlerSupplier(Supplier<IItemHandler> itemHandlerSupplier) {
+    public TJSlotWidget(Supplier<IItemHandler> itemHandlerSupplier, int slotIndex, int x, int y) {
+        super(new Position(x, y), new Size(18, 18));
+        this.itemHandler = itemHandlerSupplier.get();
+        this.slotIndex = slotIndex;
+        this.slotItemHandler = new TJSlotItemHandler(itemHandlerSupplier, slotIndex, x, y);
         this.itemHandlerSupplier = itemHandlerSupplier;
-        return (R) this;
     }
 
     public R setWidgetGroup(ISlotGroup widgetGroup) {
@@ -425,8 +428,20 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
 
     private static class TJSlotItemHandler extends SlotItemHandler {
 
+        private Supplier<IItemHandler> itemHandlerSupplier;
+
         public TJSlotItemHandler(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
             super(itemHandler, index, xPosition, yPosition);
+        }
+
+        public TJSlotItemHandler(Supplier<IItemHandler> itemHandlerSupplier, int index, int xPosition, int yPosition) {
+            super(itemHandlerSupplier.get(), index, xPosition, yPosition);
+            this.itemHandlerSupplier = itemHandlerSupplier;
+        }
+
+        @Override
+        public IItemHandler getItemHandler() {
+            return this.itemHandlerSupplier != null ? this.itemHandlerSupplier.get() : super.getItemHandler();
         }
 
         @Override

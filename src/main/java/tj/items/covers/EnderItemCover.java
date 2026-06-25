@@ -12,7 +12,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -61,8 +60,7 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
                         () -> ignoreNBT, this::setIgnoreNBT).setTooltipText("cover.item_filter.ignore_nbt"));
             }
         };
-        if (FMLCommonHandler.instance().getSide().isClient())
-            this.handler = this.createHandler();
+        this.handler = this.createHandler();
     }
 
     @Override
@@ -112,8 +110,7 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
 
     @Override
     protected void addWidgets(Consumer<Widget> widget) {
-        widget.accept(new TJSlotWidget<>(null, 0, 7, 38)
-                .setItemHandlerSupplier(() -> this.handler)
+        widget.accept(new TJSlotWidget<>(() -> this.handler, 0, 7, 38)
                 .setActiveBackgroundTexture(SLOT));
     }
 
