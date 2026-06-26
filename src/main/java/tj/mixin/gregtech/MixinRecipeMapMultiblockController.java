@@ -5,7 +5,6 @@ import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.MultiblockRecipeLogic;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.multiblock.RecipeMapMultiblockController;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.common.ConfigHolder;
@@ -18,6 +17,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 
 import java.util.List;
 
@@ -61,8 +61,8 @@ public abstract class MixinRecipeMapMultiblockController extends MixinMultiblock
     @Override
     protected void addMainDisplayTab(List<Widget> widgetGroup) {
         super.addMainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, TOGGLE_POWER_BUTTON, this.recipeMapWorkable::isWorkingEnabled, this.recipeMapWorkable::setWorkingEnabled)
-                .setTooltipText("machine.universal.toggle.run.mode"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_POWER_BUTTON, this.recipeMapWorkable::isWorkingEnabled, this.recipeMapWorkable::setWorkingEnabled)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
     }
 
     @Override

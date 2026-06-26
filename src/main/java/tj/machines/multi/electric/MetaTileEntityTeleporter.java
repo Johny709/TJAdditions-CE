@@ -235,8 +235,8 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
                 .setTooltipText("machine.universal.tick.speed"));
         widgetGroup.add(new ButtonWidget<>(7, 114, 18, 18, "+", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
         widgetGroup.add(new ButtonWidget<>(175, 114, 18, 18, "-", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setReset)
-                .setTooltipText("machine.universal.toggle.reset"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setReset)
+                .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"));
     }
 
     private void addScrollWidgets(List<Widget> tab, Consumer<GUIDisplayBuilder> displayText2, int[] patternFlags, String[] search) {

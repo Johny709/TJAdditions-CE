@@ -9,7 +9,6 @@ import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -39,6 +38,7 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
 import tj.util.TJUtility;
@@ -109,8 +109,8 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_FLUID_VOID_BUTTON, this.workableHandler::isVoidingFluids, this.workableHandler::setVoidingFluids)
-                .setTooltipText("machine.universal.toggle.fluid_voiding"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_FLUID_VOID_BUTTON, this.workableHandler::isVoidingFluids, this.workableHandler::setVoidingFluids)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.fluid_voiding.disabled", "machine.universal.toggle.fluid_voiding.enabled"));
     }
 
     @Override

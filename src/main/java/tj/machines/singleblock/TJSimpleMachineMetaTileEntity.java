@@ -28,6 +28,7 @@ import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.mui.widgets.impl.TJProgressBarWidget;
 import tj.mui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -108,8 +109,8 @@ public class TJSimpleMachineMetaTileEntity extends TJTieredWorkableMetaTileEntit
                         .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.CHARGER_OVERLAY))
                 .widget(new ImageWidget(79, 42, 18, 18, GuiTextures.INDICATOR_NO_ENERGY)
                         .setPredicate(() -> this.energyContainer.getEnergyStored() < this.recipeLogic.getEnergyPerTick()))
-                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
-                        .setTooltipText("machine.universal.toggle.run.mode"))
+                .widget(new TJToggleButtonWidget(-24, 142, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
                 .bindPlayerInventory(player.inventory)
                 .widget(displayWidget);
 
@@ -118,15 +119,15 @@ public class TJSimpleMachineMetaTileEntity extends TJTieredWorkableMetaTileEntit
             leftButtonStartX += ((SimpleMachineMetaTileEntity.RecipeMapWithConfigButton) this.getRecipeMap()).getLeftButtonOffset();
         }
         if (this.exportItems.getSlots() > 0) {
-            newBuilder.widget(new ToggleButtonWidget(leftButtonStartX, 62, 18, 18,
+            newBuilder.widget(new TJToggleButtonWidget(leftButtonStartX, 62, 18, 18,
                     GuiTextures.BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
-                    .setTooltipText("gregtech.gui.item_auto_output.tooltip"));
+                    .setToggleTitleTooltipHoverText("gregtech.gui.item_auto_output.tooltip.disabled", "gregtech.gui.item_auto_output.tooltip.enabled"));
             leftButtonStartX += 18;
         }
         if (this.exportFluids.getTanks() > 0) {
-            newBuilder.widget(new ToggleButtonWidget(leftButtonStartX, 62, 18, 18,
+            newBuilder.widget(new TJToggleButtonWidget(leftButtonStartX, 62, 18, 18,
                     GuiTextures.BUTTON_FLUID_OUTPUT, this::isAutoOutputFluids, this::setFluidAutoOutput)
-                    .setTooltipText("gregtech.gui.fluid_auto_output.tooltip"));
+                    .setToggleTitleTooltipHoverText("gregtech.gui.fluid_auto_output.tooltip.disabled", "gregtech.gui.fluid_auto_output.tooltip.enabled"));
         }
         return newBuilder.build(this.getHolder(), player);
     }

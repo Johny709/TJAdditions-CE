@@ -40,13 +40,8 @@ import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.IEnderNotifiable;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.*;
 import tj.mui.widgets.PopUpWidget;
-import tj.mui.widgets.impl.TJAdvancedTextWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.ClickPopUpWidget;
-import tj.mui.widgets.impl.ScrollableDisplayWidget;
-import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.items.covers.EnderCoverProfile;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
@@ -202,9 +197,9 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                             .setBackgroundTextures(BUTTON_CLEAR_GRID)
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
                             .useToggleTexture(true));
-                    widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
-                    widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                            .setTooltipText("machine.universal.toggle.run.mode"));
+                    widgetGroup.addWidget(new TJCycleButtonWidget<>(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode).setBackgroundTextures(VANILLA_BUTTON));
+                    widgetGroup.addWidget(new TJToggleButtonWidget(7, 161, 18, 18, TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                            .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
                     this.addWidgets(widgetGroup::addWidget);
                     return true;
                 }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 142, 18, 18)

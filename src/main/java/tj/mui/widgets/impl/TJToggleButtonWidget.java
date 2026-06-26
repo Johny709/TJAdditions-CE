@@ -207,6 +207,8 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
             GlStateManager.color(1.0f, 1.0f, 1.0f);
         }
         super.drawInBackground(mouseX, mouseY, context);
+        if (this.isMouseOverElement(mouseX, mouseY))
+            drawSelectionOverlay(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
     }
 
     @Override

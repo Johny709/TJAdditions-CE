@@ -58,11 +58,7 @@ import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJHorizontoalTabListRenderer;
-import tj.mui.widgets.impl.AdvancedDisplayWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.TJProgressBarWidget;
-import tj.mui.widgets.impl.ScrollableDisplayWidget;
-import tj.mui.widgets.impl.AnimatedImageWidget;
+import tj.mui.widgets.impl.*;
 import tj.multiblockpart.TJMultiblockAbility;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -312,10 +308,10 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
                         .setClickHandler(this::handleDisplayClick)
                         .setMaxWidthLimit(180))
                 .setScrollPanelWidth(3));
-        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                .setTooltipText("machine.universal.toggle.run.mode"));
-        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, TOGGLE_CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
-                .setTooltipText("machine.universal.toggle.check.mode"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 133, 18, 18, TOGGLE_CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.check.mode.disabled", "machine.universal.toggle.check.mode.enabled"));
     }
 
     protected void addDisplayText(GUIDisplayBuilder builder) {

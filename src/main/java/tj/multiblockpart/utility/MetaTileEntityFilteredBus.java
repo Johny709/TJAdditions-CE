@@ -7,7 +7,6 @@ import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockP
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.SlotWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -156,8 +155,8 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
         return ModularUI.builder(GuiTextures.BACKGROUND, 196, 137 + Math.min(144, 18 * (this.getTier() - 1)))
                 .widget(new TJLabelWidget(7, -18, 178, 18, TJGuiTextures.MACHINE_LABEL)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
-                .widget(new ToggleButtonWidget(172, 91 + Math.min(144, 18 * (this.getTier() - 1)), 18, 18, TJGuiTextures.OUTPUT_BUTTON, () -> this.bypassEmptySlots, this::setBypassEmptySlots)
-                        .setTooltipText("machine.universal.toggle.bypass_empty_slots"))
+                .widget(new TJToggleButtonWidget(172, 91 + Math.min(144, 18 * (this.getTier() - 1)), 18, 18, TJGuiTextures.OUTPUT_BUTTON, () -> this.bypassEmptySlots, this::setBypassEmptySlots)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.bypass_empty_slots.disabled", "machine.universal.toggle.bypass_empty_slots.enabled"))
                 .widget(popUpWidget)
                 .bindPlayerInventory(player.inventory, 55 + Math.min(144, 18 * (this.getTier() - 1)))
                 .build(this.getHolder(), player);

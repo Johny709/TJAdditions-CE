@@ -7,7 +7,6 @@ import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.DischargerSlotWidget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.ProgressWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.common.gui.widget.GhostCircuitWidget;
 import gregtech.api.metatileentity.SimpleMachineMetaTileEntity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -72,11 +71,11 @@ public abstract class MixinGASimpleMachineMetaTileEntity extends MixinGAWorkable
                         .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.CHARGER_OVERLAY))
                 .widget(new ImageWidget(79, 42, 18, 18, GuiTextures.INDICATOR_NO_ENERGY)
                         .setPredicate(this.workable::isHasNotEnoughEnergy))
-                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this.workable::isWorkingEnabled, this.workable::setWorkingEnabled)
-                        .setTooltipText("machine.universal.toggle.run.mode"))
-                .widget(new ToggleButtonWidget(rightButtonStartX, 60, 20, 20,
+                .widget(new TJToggleButtonWidget(-24, 142, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this.workable::isWorkingEnabled, this.workable::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
+                .widget(new TJToggleButtonWidget(rightButtonStartX, 60, 20, 20,
                         GuiTextures.BUTTON_OVERCLOCK, this.workable::isAllowOverclocking, this.workable::setAllowOverclocking)
-                        .setTooltipText("gregtech.gui.overclock"))
+                        .setToggleTitleTooltipHoverText("gregtech.gui.overclock.disabled", "gregtech.gui.overclock.enabled"))
                 .widget(new GhostCircuitWidget(this.ghostCircuitInventory, 133, 62))
                 .bindPlayerInventory(player.inventory)
                 .widget(displayWidget)
@@ -97,15 +96,15 @@ public abstract class MixinGASimpleMachineMetaTileEntity extends MixinGAWorkable
             leftButtonStartX += ((SimpleMachineMetaTileEntity.RecipeMapWithConfigButton) workable.recipeMap).getLeftButtonOffset();
         }
         if (this.exportItems.getSlots() > 0) {
-            newBuilder.widget(new ToggleButtonWidget(leftButtonStartX, 62, 18, 18,
+            newBuilder.widget(new TJToggleButtonWidget(leftButtonStartX, 62, 18, 18,
                     GuiTextures.BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setAutoOutputItems)
-                    .setTooltipText("gregtech.gui.item_auto_output.tooltip"));
+                    .setToggleTitleTooltipHoverText("gregtech.gui.item_auto_output.tooltip.disabled", "gregtech.gui.item_auto_output.tooltip.enabled"));
             leftButtonStartX += 18;
         }
         if (this.exportFluids.getTanks() > 0) {
-            newBuilder.widget(new ToggleButtonWidget(leftButtonStartX, 62, 18, 18,
+            newBuilder.widget(new TJToggleButtonWidget(leftButtonStartX, 62, 18, 18,
                     GuiTextures.BUTTON_FLUID_OUTPUT, this::isAutoOutputFluids, this::setAutoOutputFluids)
-                    .setTooltipText("gregtech.gui.fluid_auto_output.tooltip"));
+                    .setToggleTitleTooltipHoverText("gregtech.gui.fluid_auto_output.tooltip.disabled", "gregtech.gui.fluid_auto_output.tooltip.emabled"));
         }
         cir.setReturnValue(newBuilder);
     }

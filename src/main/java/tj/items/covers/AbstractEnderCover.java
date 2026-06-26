@@ -193,9 +193,9 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                             .setBackgroundTextures(BUTTON_CLEAR_GRID)
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
                             .useToggleTexture(true));
-                    widgetGroup.addWidget(new CycleButtonWidget(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
-                    widgetGroup.addWidget(new ToggleButtonWidget(7, 161, 18, 18, TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                            .setTooltipText("machine.universal.toggle.run.mode"));
+                    widgetGroup.addWidget(new TJCycleButtonWidget<>(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode).setBackgroundTextures(VANILLA_BUTTON));
+                    widgetGroup.addWidget(new TJToggleButtonWidget(7, 161, 18, 18, TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                            .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
                     this.addWidgets(widgetGroup::addWidget);
                     return true;
                 }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 142, 18, 18)

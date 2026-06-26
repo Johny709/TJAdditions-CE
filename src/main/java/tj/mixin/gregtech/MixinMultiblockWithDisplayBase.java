@@ -24,11 +24,7 @@ import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJHorizontoalTabListRenderer;
-import tj.mui.widgets.impl.AdvancedDisplayWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.TJProgressBarWidget;
-import tj.mui.widgets.impl.AnimatedImageWidget;
-import tj.mui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.widgets.impl.*;
 
 import java.util.ArrayDeque;
 import java.util.List;
@@ -119,8 +115,8 @@ public abstract class MixinMultiblockWithDisplayBase extends MultiblockControlle
                         .setClickHandler(this::handleDisplayClick)
                         .setMaxWidthLimit(180))
                 .setScrollPanelWidth(3));
-        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, TOGGLE_CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
-                .setTooltipText("machine.universal.toggle.check.mode"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 133, 18, 18, TOGGLE_CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.check.mode.disabled", "machine.universal.toggle.check.mode.enabled"));
     }
 
     @Unique

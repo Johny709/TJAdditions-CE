@@ -6,7 +6,6 @@ import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
 import gregtech.api.GTValues;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.fluids.FluidStack;
@@ -38,6 +37,7 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
 import tj.util.TJUtility;
@@ -110,8 +110,8 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_FLUID_VOID_BUTTON, this.workableHandler::isVoidingFluids, this.workableHandler::setVoidingFluids)
-                .setTooltipText("machine.universal.toggle.fluid_voiding"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_FLUID_VOID_BUTTON, this.workableHandler::isVoidingFluids, this.workableHandler::setVoidingFluids)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.fluid_voiding.disabled", "machine.universal.toggle.fluid_voiding.enabled"));
     }
 
     @Override

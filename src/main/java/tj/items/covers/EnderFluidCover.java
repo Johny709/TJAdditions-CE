@@ -5,7 +5,6 @@ import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.PhantomFluidWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.common.covers.CoverPump;
 import gregtech.common.covers.filter.SimpleFluidFilter;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -118,8 +117,8 @@ public class EnderFluidCover extends AbstractEnderCover<FluidTank> {
                 .setBackgroundTextures(FLUID_FILTER)
                 .useToggleTexture(true), widgetGroup -> {
             widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
-            widgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
-                    .setTooltipText("cover.filter.blacklist"));
+            widgetGroup.addWidget(new TJToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
+                    .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled", "cover.filter.blacklist.enabled"));
             this.fluidFilter.initUI(widgetGroup::addWidget);
             return false;
         }).setClickArea(new Rectangle(346, 107, 60, 78));

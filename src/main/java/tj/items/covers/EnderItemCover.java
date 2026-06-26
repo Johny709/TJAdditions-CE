@@ -54,10 +54,12 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
                 for (int i = 0; i < 9; i++) {
                     widgetGroup.accept(new PhantomSlotWidget(itemFilterSlots, i, 3 + 18 * (i % 3), 3 + 18 * (i / 3)).setBackgroundTexture(SLOT));
                 }
-                widgetGroup.accept(new ToggleButtonWidget(21, 57, 18, 18, BUTTON_FILTER_DAMAGE,
-                        () -> ignoreDamage, this::setIgnoreDamage).setTooltipText("cover.item_filter.ignore_damage"));
-                widgetGroup.accept(new ToggleButtonWidget(39, 57, 18, 18, BUTTON_FILTER_NBT,
-                        () -> ignoreNBT, this::setIgnoreNBT).setTooltipText("cover.item_filter.ignore_nbt"));
+                widgetGroup.accept(new TJToggleButtonWidget(21, 57, 18, 18, BUTTON_FILTER_DAMAGE,
+                        () -> ignoreDamage, this::setIgnoreDamage)
+                        .setToggleTitleTooltipHoverText("cover.item_filter.ignore_damage.disabled", "cover.item_filter.ignore_damage.enabled"));
+                widgetGroup.accept(new TJToggleButtonWidget(39, 57, 18, 18, BUTTON_FILTER_NBT,
+                        () -> ignoreNBT, this::setIgnoreNBT)
+                        .setToggleTitleTooltipHoverText("cover.item_filter.ignore_nbt.disabled", "cover.item_filter.ignore_nbt.enabled"));
             }
         };
         this.handler = this.createHandler();
@@ -101,8 +103,8 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
                         .setBackgroundTextures(ITEM_FILTER)
                         .useToggleTexture(true), widgetGroup -> {
             widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
-            widgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
-                    .setTooltipText("cover.filter.blacklist"));
+            widgetGroup.addWidget(new TJToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
+                    .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled", "cover.filter.blacklist.enabled"));
             this.itemFilter.initUI(widgetGroup::addWidget);
             return false;
         }).setClickArea(new Rectangle(346, 107, 60, 78));

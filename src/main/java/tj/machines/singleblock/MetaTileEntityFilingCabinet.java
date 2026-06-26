@@ -42,6 +42,7 @@ import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.mui.widgets.impl.TJSlotWidget;
 import tj.items.handlers.CabinetItemStackHandler;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
@@ -165,10 +166,10 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
                 .bindCloseListener(() -> this.guiUsers.remove(player))
                 .widget(new ImageWidget(7, 15, 126, 18, GuiTextures.DISPLAY))
                 .widget(new AdvancedTextWidget(10, 20, this::addDisplayText, 0xFFFFFF))
-                .widget(new ToggleButtonWidget(133, 15, 18, 18, TJGuiTextures.TOGGLE_CLEAR_GRID_BUTTON, () -> false, this::onClear)
-                        .setTooltipText("machine.universal.toggle.clear"))
-                .widget(new ToggleButtonWidget(151, 15, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> ((CabinetItemStackHandler) this.importItems).isItemUnlocked(), this::setLocked)
-                        .setTooltipText("tj.machine.filing_cabinet.toggle"))
+                .widget(new TJToggleButtonWidget(133, 15, 18, 18, TJGuiTextures.TOGGLE_CLEAR_GRID_BUTTON, () -> false, this::onClear)
+                        .setTitleHoverTooltipText("machine.universal.toggle.clear.disabled"))
+                .widget(new TJToggleButtonWidget(151, 15, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> ((CabinetItemStackHandler) this.importItems).isItemUnlocked(), this::setLocked)
+                        .setToggleTitleTooltipHoverText("tj.machine.filing_cabinet.toggle.disabled", "tj.machine.filing_cabinet.toggle.enabled"))
                 .widget(new SortingButtonWidget(109, 4, 60, 10, "gregtech.gui.sort", (info) -> MetaTileEntityCompressedChest.sortInventorySlotContents(this.importItems)))
                 .widget(slotScrollableWidgetGroup)
                 .bindPlayerInventory(player.inventory, 115)

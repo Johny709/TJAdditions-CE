@@ -62,6 +62,7 @@ import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.PopUpWidgetGroup;
 import tj.machines.ExtendedItemFilter;
 import tj.machines.TJMiner;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
@@ -346,19 +347,19 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
             this.oreDictFilter.initUI(oreDictPopUp::addWidget);
             this.enableOreDictPopUp = oreDictPopUp::setEnabled;
             this.enableOreDictPopUp.apply(this.oreDict);
-            filterTab.add(new ToggleButtonWidget(175, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
-                    .setTooltipText("machine.universal.toggle.filter"));
+            filterTab.add(new TJToggleButtonWidget(175, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.filter.disabled", "machine.universal.toggle.filter.enabled"));
             filterTab.add(new ImageWidget(175, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
-            filterTab.add(new ToggleButtonWidget(175, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
-                    .setTooltipText("cover.filter.blacklist"));
-            filterTab.add(new ToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, this::isOreDict, this::setOreDict)
-                    .setTooltipText("cover.filter.ore_dictionary.open"));
+            filterTab.add(new TJToggleButtonWidget(175, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
+                    .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled", "cover.filter.blacklist.enabled"));
+            filterTab.add(new TJToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, this::isOreDict, this::setOreDict)
+                    .setToggleTitleTooltipHoverText("cover.filter.ore_dictionary.open.disabled", "cover.filter.ore_dictionary.open.enabled"));
             filterTab.add(slotsPopUp);
             filterTab.add(oreDictPopUp);
         });
         tabBuilder.addTab("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab -> {
-            settingsTab.add(new ToggleButtonWidget(175, 133, 18, 18, TOGGLE_ITEM_VOID_BUTTON, () -> this.voidItems, this::setVoidItems)
-                    .setTooltipText("machine.universal.toggle.item_voiding"));
+            settingsTab.add(new TJToggleButtonWidget(175, 133, 18, 18, TOGGLE_ITEM_VOID_BUTTON, () -> this.voidItems, this::setVoidItems)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
             settingsTab.add(new AdvancedTextWidget(10, -2, this::addSettingsDisplayText, 0xFFFFFF)
                     .setClickHandler(this::handleSettingDisplayText)
                     .setMaxWidthLimit(180));
@@ -368,8 +369,8 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::setDone)
-                .setTooltipText("machine.universal.toggle.reset"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::setDone)
+                .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"));
     }
 
     private void setDone(boolean reset) {

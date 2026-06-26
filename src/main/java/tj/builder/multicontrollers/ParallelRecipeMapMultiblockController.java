@@ -9,7 +9,6 @@ import gregicadditions.GAValues;
 import gregicadditions.Gregicality;
 import gregicadditions.capabilities.IMultiRecipe;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
@@ -45,10 +44,7 @@ import tj.capability.TJCapabilities;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.capability.impl.workable.ParallelRecipeLogic;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.impl.AdvancedDisplayWidget;
-import tj.mui.widgets.impl.OldCycleButtonWidget;
-import tj.mui.widgets.impl.JEIRecipeTransferWidget;
-import tj.mui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.widgets.impl.*;
 import tj.machines.multi.BatchMode;
 import tj.multiblockpart.TJMultiblockAbility;
 import tj.multiblockpart.utility.MetaTileEntityMachineController;
@@ -155,10 +151,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     .setToggle(true)
                     .setButtonTexture(TOGGLE_BUTTON_BACK)
                     .setTooltipHoverString("machine.universal.batch.amount"));
-            workableTab.add(new ToggleButtonWidget(175, 151, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
-                    .setTooltipText("machine.universal.toggle.item_voiding"));
-            workableTab.add(new ToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
-                    .setTooltipText("machine.universal.toggle.fluid_voiding"));
+            workableTab.add(new TJToggleButtonWidget(175, 151, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
+            workableTab.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.fluid_voiding.disabled", "machine.universal.toggle.fluid_voiding.enabled"));
             workableTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                     .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addWorkableDisplayText, 0xFFFFFF)
                             .setClickHandler(this::handleWorkableDisplayClick)
@@ -166,12 +162,12 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     .setScrollPanelWidth(3));
         });
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
-            debugTab.add(new ToggleButtonWidget(175, 133, 18, 18, TOGGLE_RESET_BUTTON, () -> false, b -> this.recipeLogic.getRecipeLRUCache().clear())
-                    .setTooltipText("tj.multiblock.parallel.recipe.clear"));
-            debugTab.add(new ToggleButtonWidget(175, 151, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
-                    .setTooltipText("machine.universal.toggle.item_voiding"));
-            debugTab.add(new ToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
-                    .setTooltipText("machine.universal.toggle.fluid_voiding"));
+            debugTab.add(new TJToggleButtonWidget(175, 133, 18, 18, TOGGLE_RESET_BUTTON, () -> false, b -> this.recipeLogic.getRecipeLRUCache().clear())
+                    .setTitleHoverTooltipText("tj.multiblock.parallel.recipe.clear.disabled"));
+            debugTab.add(new TJToggleButtonWidget(175, 151, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
+            debugTab.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.fluid_voiding.disabled", "machine.universal.toggle.fluid_voiding.enabled"));
             debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                     .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addDebugDisplayText, 0xFFFFFF)
                             .setMaxWidthLimit(180))
@@ -182,8 +178,8 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.recipeLogic::isDistinct, this.recipeLogic::setDistinct)
-                .setTooltipText("machine.universal.toggle.distinct.mode"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.recipeLogic::isDistinct, this.recipeLogic::setDistinct)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.distinct.mode.disabled", "machine.universal.toggle.distinct.mode.enabled"));
     }
 
     @Override

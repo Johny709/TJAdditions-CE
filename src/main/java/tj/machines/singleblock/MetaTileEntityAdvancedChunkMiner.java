@@ -126,17 +126,17 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                         .setInverted(true))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.CHARGER_OVERLAY))
-                .widget(new ToggleButtonWidget(-24, 124, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
-                        .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
-                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
-                        .setTooltipText("machine.universal.toggle.run.mode"))
+                .widget(new TJToggleButtonWidget(-24, 124, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
+                        .setToggleTitleTooltipHoverText("gregtech.gui.item_auto_output.tooltip.disabled", "gregtech.gui.item_auto_output.tooltip.enabled"))
+                .widget(new TJToggleButtonWidget(-24, 142, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
                 .widget(new TJToggleButtonWidget(151, 172, 18, 18, this.workableHandler::isSilkTouch, (bool, str) -> this.workableHandler.setSilkTouch(bool))
                         .setDynamicTooltipText(() -> this.workableHandler.isSilkTouch() ? "tj.multiblock.advanced_large_miner.silktouch_true" : "tj.multiblock.advanced_large_miner.silktouch_false")
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                         .setItemDisplay(new ItemStack(Blocks.WEB))
                         .useToggleTexture(true))
-                .widget(new ToggleButtonWidget(97, 172, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setDone)
-                        .setTooltipText("machine.universal.toggle.reset"))
+                .widget(new TJToggleButtonWidget(97, 172, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setDone)
+                        .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
                 .widget(new ButtonPopUpWidget<>()
                         .addPopup(widgetGroup -> {
                             widgetGroup.addWidget(new ProgressWidget(this.workableHandler::getProgressPercent, 90, 33, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL));
@@ -161,15 +161,15 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                                 widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 9), 18 * (i / 9), 18, 18, i, this.filterInventory, this.workableHandler::addItemToFilter, this.workableHandler::removeItemFromFilter)
                                         .setBackgroundTextures(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
                             }
-                            widgetGroup.addWidget(new ToggleButtonWidget(144, 57, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
-                                    .setTooltipText("tj.multiblock.advanced_large_miner.blacklist_block"));
+                            widgetGroup.addWidget(new TJToggleButtonWidget(144, 57, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
+                                    .setToggleTitleTooltipHoverText("tj.multiblock.advanced_large_miner.blacklist_block.disabled", "tj.multiblock.advanced_large_miner.blacklist_block.enabled"));
                             return false;
                         }).addPopup(30, 20, 0, 0, new TJToggleButtonWidget(133, 172, 18, 18)
                                 .setBackgroundTextures(TJGuiTextures.ITEM_FILTER)
                                 .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                                 .useToggleTexture(true), widgetGroup -> {
-                            widgetGroup.addWidget(new ToggleButtonWidget(121, 42, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
-                                    .setTooltipText("tj.multiblock.advanced_large_miner.blacklist"));
+                            widgetGroup.addWidget(new TJToggleButtonWidget(121, 42, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
+                                    .setToggleTitleTooltipHoverText("tj.multiblock.advanced_large_miner.blacklist.disabled", "tj.multiblock.advanced_large_miner.blacklist.enabled"));
                             this.workableHandler.getOreDictFilter().initUI(widgetGroup::addWidget);
                             return false;
                         }))

@@ -2,7 +2,6 @@ package tj.items.behaviours;
 
 import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.items.gui.ItemUIFactory;
 import gregtech.api.items.gui.PlayerInventoryHolder;
 import gregtech.api.items.metaitem.stats.IItemBehaviour;
@@ -30,6 +29,7 @@ import tj.capability.LinkPos;
 import tj.event.MTELinkEvent;
 import tj.mui.widgets.impl.NewTextFieldWidget;
 import tj.items.LinkingMode;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -275,7 +275,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
                         .setTooltipText("metaitem.linking.device.set.z")
                         .setUpdateOnTyping(true)
                         .setMaxStringLength(9))
-                .widget(new ToggleButtonWidget(4, 114, 166, 18, TOGGLE_BUTTON_BACK, () -> false, (bool) -> {
+                .widget(new TJToggleButtonWidget(4, 114, 166, 18, TOGGLE_BUTTON_BACK, () -> false, (bool) -> {
                     if (this.inRange(stack.getOrCreateSubCompound("Link.XYZ"), promptNBT, player))
                         this.setPos(stack.getOrCreateSubCompound("Link.XYZ"), promptNBT, player);
                     player.closeScreen();

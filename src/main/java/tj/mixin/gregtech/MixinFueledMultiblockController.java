@@ -6,7 +6,6 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.recipes.machines.FuelRecipeMap;
 import gregtech.common.metatileentities.multi.electric.generator.FueledMultiblockController;
 import net.minecraft.util.ResourceLocation;
@@ -49,8 +48,8 @@ public abstract class MixinFueledMultiblockController extends MixinMultiblockWit
     protected void addMainDisplayTab(List<Widget> widgetGroup) {
         super.addMainDisplayTab(widgetGroup);
         FuelRecipeLogic recipeLogic = this.getFuelRecipeLogic();
-        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, TOGGLE_POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
-                .setTooltipText("machine.universal.toggle.run.mode"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_POWER_BUTTON, recipeLogic::isWorkingEnabled, recipeLogic::setWorkingEnabled)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
         if (recipeLogic instanceof TJFuelRecipeLogic) {
             widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, ((TJFuelRecipeLogic) recipeLogic)::isVoidEnergy, ((TJFuelRecipeLogic) recipeLogic)::setVoidEnergy)
                     .setDynamicTooltipText(() -> ((TJFuelRecipeLogic) recipeLogic).isVoidEnergy() ? "machine.universal.toggle.energy_voiding.enabled" : "machine.universal.toggle.energy_voiding.disabled")

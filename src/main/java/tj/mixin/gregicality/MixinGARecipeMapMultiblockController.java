@@ -2,7 +2,6 @@ package tj.mixin.gregicality;
 
 import gregicadditions.capabilities.impl.GARecipeMapMultiblockController;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
@@ -31,6 +30,7 @@ import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.AdvancedDisplayWidget;
 import tj.mui.widgets.impl.ScrollableDisplayWidget;
 import tj.mixin.gregtech.MixinRecipeMapMultiblockController;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -85,8 +85,8 @@ public abstract class MixinGARecipeMapMultiblockController extends MixinRecipeMa
     protected void addNewTabs(WidgetTabBuilder tabBuilder) {
         super.addNewTabs(tabBuilder);
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
-            debugTab.add(new ToggleButtonWidget(175, 133, 18, 18, TOGGLE_RESET_BUTTON, () -> false, b -> this.recipeMapWorkable.previousRecipe.clear())
-                    .setTooltipText("tj.multiblock.parallel.recipe.clear"));
+            debugTab.add(new TJToggleButtonWidget(175, 133, 18, 18, TOGGLE_RESET_BUTTON, () -> false, b -> this.recipeMapWorkable.previousRecipe.clear())
+                    .setTitleHoverTooltipText("tj.multiblock.parallel.recipe.clear.disabled"));
             debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                     .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::configureDebugDisplayText, 0xFFFFFF)
                             .setMaxWidthLimit(180))
@@ -98,8 +98,8 @@ public abstract class MixinGARecipeMapMultiblockController extends MixinRecipeMa
     protected void addMainDisplayTab(List<Widget> widgetGroup) {
         super.addMainDisplayTab(widgetGroup);
         if (this.canDistinct)
-            widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, () -> this.isDistinct, this::setDistinctMode)
-                    .setTooltipText("machine.universal.toggle.distinct.mode"));
+            widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, () -> this.isDistinct, this::setDistinctMode)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.distinct.mode.disabled", "machine.universal.toggle.distinct.mode.enabled"));
     }
 
     @Override

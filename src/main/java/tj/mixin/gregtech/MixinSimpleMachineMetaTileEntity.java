@@ -69,8 +69,8 @@ public abstract class MixinSimpleMachineMetaTileEntity extends MixinWorkableTier
                         .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.CHARGER_OVERLAY))
                 .widget(new ImageWidget(79, 42, 18, 18, GuiTextures.INDICATOR_NO_ENERGY)
                         .setPredicate(this.workable::isHasNotEnoughEnergy))
-                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this.workable::isWorkingEnabled, this.workable::setWorkingEnabled)
-                        .setTooltipText("machine.universal.toggle.run.mode"))
+                .widget(new TJToggleButtonWidget(-24, 142, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this.workable::isWorkingEnabled, this.workable::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
                 .widget(new CycleButtonWidget(leftButtonStartX, 62, 18, 18, this.workable.getAvailableOverclockingTiers(), this.workable::getOverclockTier, this.workable::setOverclockTier)
                         .setTooltipHoverString("gregtech.gui.overclock.description")
                         .setButtonTexture(GuiTextures.BUTTON_OVERCLOCK))
@@ -94,16 +94,15 @@ public abstract class MixinSimpleMachineMetaTileEntity extends MixinWorkableTier
             leftButtonStartX += ((SimpleMachineMetaTileEntity.RecipeMapWithConfigButton) workable.recipeMap).getLeftButtonOffset();
         }
         if (this.exportItems.getSlots() > 0) {
-            newBuilder.widget(new ToggleButtonWidget(leftButtonStartX, 62, 18, 18,
+            newBuilder.widget(new TJToggleButtonWidget(leftButtonStartX, 62, 18, 18,
                     GuiTextures.BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setAutoOutputItems)
-                    .setTooltipText("gregtech.gui.item_auto_output.tooltip"));
+                    .setToggleTitleTooltipHoverText("gregtech.gui.item_auto_output.tooltip.disabled", "gregtech.gui.item_auto_output.tooltip.enabled"));
             leftButtonStartX += 18;
         }
         if (this.exportFluids.getTanks() > 0) {
-            newBuilder.widget(new ToggleButtonWidget(leftButtonStartX, 62, 18, 18,
+            newBuilder.widget(new TJToggleButtonWidget(leftButtonStartX, 62, 18, 18,
                     GuiTextures.BUTTON_FLUID_OUTPUT, this::isAutoOutputFluids, this::setAutoOutputFluids)
-                    .setTooltipText("gregtech.gui.fluid_auto_output.tooltip"));
-            leftButtonStartX += 18;
+                    .setToggleTitleTooltipHoverText("gregtech.gui.fluid_auto_output.tooltip.disabled", "gregtech.gui.fluid_auto_output.tooltip.enabled"));
         }
         cir.setReturnValue(newBuilder);
     }

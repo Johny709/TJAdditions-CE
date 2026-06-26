@@ -54,12 +54,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
-import tj.mui.widgets.impl.AdvancedDisplayWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.TJProgressBarWidget;
-import tj.mui.widgets.impl.TJSlotWidget;
-import tj.mui.widgets.impl.AnimatedImageWidget;
-import tj.mui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.widgets.impl.*;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.util.TJFluidUtils;
@@ -277,10 +272,10 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                         .setClickHandler(this::handleDisplayClick)
                         .setMaxWidthLimit(180))
                 .setScrollPanelWidth(3));
-        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                .setTooltipText("machine.universal.toggle.run.mode"));
-        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, TJGuiTextures.TOGGLE_CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
-                .setTooltipText("machine.universal.toggle.check.mode"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 169, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 133, 18, 18, TJGuiTextures.TOGGLE_CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.check.mode.disabled", "machine.universal.toggle.check.mode.enabled"));
     }
 
     protected void addDisplayText(GUIDisplayBuilder builder) {
