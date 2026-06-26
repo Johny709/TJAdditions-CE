@@ -120,7 +120,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
             debugTab.add(new TJToggleButtonWidget(175, 133, 18, 18, TOGGLE_RESET_BUTTON, () -> false, b -> this.recipeLogic.getRecipeLRUCache().clear())
                     .setTitleHoverTooltipText("tj.multiblock.parallel.recipe.clear.disabled"));
             debugTab.add(new TJToggleButtonWidget(175, 151, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
-                    .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle,item_voiding.enabled"));
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
             debugTab.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
                     .setToggleTitleTooltipHoverText("machine.universal.toggle.fluid_voiding.disabled", "machine.universal.toggle.fluid_voiding.enabled"));
             debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)

@@ -30,6 +30,7 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
     private String[] cycleTitleHoverTooltipText;
     private String[] cycleHoverTooltipText;
     private String[] cycleDisplayText;
+    private TextureArea[] cycleTextures;
     private TextureArea cycleTexture;
     private int index;
 
@@ -42,14 +43,29 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
         this.cycleSupplier = cycleSupplier;
         this.onCycle = onCycle;
         this.cycles = cycles;
-        this.setCycleDisplayText(cycles.stream()
-                .filter(e -> e instanceof IStringSerializable)
-                .map(e -> ((IStringSerializable) e).getName())
-                .toArray(String[]::new));
+        if (isClientSide())
+            this.setCycleDisplayText(cycles.stream()
+                    .filter(e -> e instanceof IStringSerializable)
+                    .map(e -> ((IStringSerializable) e).getName())
+                    .map(e -> {
+                      final String translated = I18n.format(e);
+                      return !e.equals(translated) ? translated : "";
+                    }).toArray(String[]::new));
     }
 
+    /**
+     * Set the cycle texture if {@link #setCycleTextures(TextureArea...)} is not defined.
+     */
     public TJCycleButtonWidget<T> setCycleTexture(TextureArea cycleTexture) {
         this.cycleTexture = cycleTexture;
+        return this;
+    }
+
+    /**
+     * This takes priority over {@link #setCycleTexture(TextureArea)}.
+     */
+    public TJCycleButtonWidget<T> setCycleTextures(TextureArea... cycleTextures) {
+        this.cycleTextures = cycleTextures;
         return this;
     }
 
@@ -88,26 +104,35 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         if (!this.isActive || !this.isMouseOverElement(mouseX, mouseY)) return;
+        super.drawInForeground(mouseX, mouseY);
         final List<String> hover = new ArrayList<>();
         if (this.cycleTitleHoverTooltipText != null)
             hover.add(I18n.format(this.cycleTitleHoverTooltipText[this.index]));
         if (this.cycleHoverTooltipText != null)
             hover.add("§7" + I18n.format(this.cycleHoverTooltipText[this.index]));
         this.drawHoveringText(ItemStack.EMPTY, hover, 300, mouseX, mouseY);
-        super.drawInForeground(mouseX, mouseY);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         if (!this.isActive) return;
+        super.drawInBackground(mouseX, mouseY, context);
         final Size size = this.getSize();
         final Position pos = this.getPosition();
-        if (this.cycleTexture != null) {
+        if (this.cycleTextures != null) {
+            if (this.cycleTextures[this.index] instanceof SizedTextureArea) {
+                ((SizedTextureArea) this.cycleTextures[this.index]).drawHorizontalCutSubArea(pos.getX(), pos.getY(), size.getWidth(), size.getHeight(), this.isMouseOverElement(mouseX, mouseY) ? 0.5 : 0.0, 0.5);
+            } else this.cycleTextures[this.index].draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
+        } else if (this.cycleTexture != null) {
             final double offsetY = 1.0 / this.cycles.size();
             if (this.cycleTexture instanceof SizedTextureArea) {
                 ((SizedTextureArea) this.cycleTexture).drawHorizontalCutSubArea(pos.getX(), pos.getY(), size.getWidth(), size.getHeight(), this.isMouseOverElement(mouseX, mouseY) ? 0.5 : 0.0, 0.5);
-            } else this.cycleTexture.drawSubArea(pos.getX(), pos.getY(), size.getWidth(), size.getHeight(), 0.0, offsetY * this.index, 1.0, offsetY);
+            } else {
+                this.cycleTexture.drawSubArea(pos.getX(), pos.getY(), size.getWidth(), size.getHeight(), 0.0, offsetY * this.index, 1.0, offsetY);
+                if (this.isMouseOverElement(mouseX, mouseY))
+                    drawSelectionOverlay(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
+            }
         }
         if (this.cycleDisplayText != null && this.cycleDisplayText.length > 0) {
             final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
@@ -117,13 +142,13 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
                     pos.getY() + size.getHeight() / 2 - fontRenderer.FONT_HEIGHT / 2, this.textColor);
             GlStateManager.color(1.0f, 1.0f, 1.0f);
         }
-        super.drawInBackground(mouseX, mouseY, context);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
         if (this.isActive && this.isMouseOverElement(mouseX, mouseY)) {
+            this.playButtonClickSound();
             final int lastIndex = this.index;
             if (button == 0) {  // Left-Click
                 this.index++;

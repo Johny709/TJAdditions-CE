@@ -6,6 +6,7 @@ import codechicken.lib.vec.Matrix4;
 import tj.TJValues;
 import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.multiblockpart.TJMultiblockAbility;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -68,11 +69,10 @@ public class MetaTileEntityMachineController extends MetaTileEntityMultiblockPar
         final WidgetGroup widgetGroup = new WidgetGroup();
         widgetGroup.addWidget(new ImageWidget(10, 40, 150, 20, GuiTextures.DISPLAY));
         widgetGroup.addWidget(new AdvancedTextWidget(15, 45, this::addDisplayText, 0xFFFFFF));
-        widgetGroup.addWidget(new CycleButtonWidget(10, 60, 50, 20, this::isAutomatic, this::setAutomatic,
-                "tj.machine.machine_controller.automatic.not", "tj.machine.machine_controller.automatic")
-                .setTooltipHoverString("tj.machine.machine_controller.automatic.description"));
-        widgetGroup.addWidget(new CycleButtonWidget(60, 60, 50, 20, this::isInverted, this::setInverted,
-                "cover.machine_controller.normal", "cover.machine_controller.inverted"));
+        widgetGroup.addWidget(new TJToggleButtonWidget(10, 60, 50, 20, this::isAutomatic, this::setAutomatic)
+                .setToggleTitleTooltipHoverText("tj.machine.machine_controller.automatic.not", "tj.machine.machine_controller.automatic"));
+        widgetGroup.addWidget(new TJToggleButtonWidget(60, 60, 50, 20, this::isInverted, this::setInverted)
+                .setToggleTitleTooltipHoverText("cover.machine_controller.normal", "cover.machine_controller.inverted"));
         widgetGroup.addWidget(new ButtonWidget<>(110, 60, 25, 20, "+", this::onIncrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
         widgetGroup.addWidget(new ButtonWidget<>(135, 60, 25, 20, "-", this::onDecrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)

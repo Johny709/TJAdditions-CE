@@ -54,8 +54,8 @@ import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
-import tj.mui.widgets.impl.OldCycleButtonWidget;
 import tj.machines.multi.BatchMode;
+import tj.mui.widgets.impl.TJCycleButtonWidget;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.TextUtils;
@@ -289,11 +289,11 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new OldCycleButtonWidget(175, 151, 18, 18, BatchMode.class, () -> this.batchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
-                .setTooltipFormat(this::getTooltipFormat)
-                .setToggle(true)
-                .setButtonTexture(TOGGLE_BUTTON_BACK)
-                .setTooltipHoverString("machine.universal.batch.amount"));
+        widgetGroup.add(new TJCycleButtonWidget<>(175, 151, 18, 18, BatchMode.class, () -> this.batchMode, this::setBatchMode)
+                .setCycleTextures(BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
+                .setHoverTooltipText("machine.universal.batch.amount")
+                .setBackgroundTextures(TOGGLE_BUTTON_BACK)
+                .setTooltipFormat(this::getTooltipFormat));
     }
 
     private void setBatchMode(BatchMode batchMode) {

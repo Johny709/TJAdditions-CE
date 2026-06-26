@@ -55,12 +55,7 @@ import tj.capability.IEnderNotifiable;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.AbstractWorkableHandler;
-import tj.mui.widgets.impl.AdvancedDisplayWidget;
-import tj.mui.widgets.impl.NewTextFieldWidget;
-import tj.mui.widgets.impl.TJAdvancedTextWidget;
-import tj.mui.widgets.impl.ClickPopUpWidget;
-import tj.mui.widgets.impl.ScrollableDisplayWidget;
-import tj.mui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.widgets.impl.*;
 import tj.items.covers.EnderCoverProfile;
 import tj.util.EnderWorldData;
 import tj.util.TJItemUtils;
@@ -155,7 +150,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new CycleButtonWidget(7, 114, 188, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode));
+        widgetGroup.add(new TJCycleButtonWidget<>(7, 114, 188, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode).setBackgroundTextures(VANILLA_BUTTON));
     }
 
     @Override

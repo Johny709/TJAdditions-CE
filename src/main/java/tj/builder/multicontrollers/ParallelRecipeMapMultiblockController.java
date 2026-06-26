@@ -146,11 +146,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         tabBuilder.addWidget(new JEIRecipeTransferWidget(0, 0, 100, 100)
                 .setRecipeConsumer(this::setRecipe));
         tabBuilder.addTab("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(STEEL_GEARBOX), workableTab -> {
-            workableTab.add(new OldCycleButtonWidget(175, 133, 18, 18, BatchMode.class, this::getBatchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
+            workableTab.add(new TJCycleButtonWidget<>(175, 151, 18, 18, BatchMode.class, () -> this.batchMode, this::setBatchMode)
+                    .setCycleTextures(BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
                     .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.batchMode.getAmount())))
-                    .setToggle(true)
-                    .setButtonTexture(TOGGLE_BUTTON_BACK)
-                    .setTooltipHoverString("machine.universal.batch.amount"));
+                    .setHoverTooltipText("machine.universal.batch.amount")
+                    .setBackgroundTextures(TOGGLE_BUTTON_BACK));
             workableTab.add(new TJToggleButtonWidget(175, 151, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
                     .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
             workableTab.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)

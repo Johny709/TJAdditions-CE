@@ -8,13 +8,13 @@ import tj.capability.LinkEvent;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.machines.multi.electric.MetaTileEntityLargeWorldAccelerator;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 import gregicadditions.GAUtility;
 import gregicadditions.client.ClientHandler;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
-import gregtech.api.gui.widgets.CycleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -113,8 +113,8 @@ public class MetaTileEntityAcceleratorAnchorPoint extends MetaTileEntity impleme
     protected ModularUI createUI(EntityPlayer player) {
         WidgetGroup widgetGroup = new WidgetGroup();
         widgetGroup.addWidget(new AdvancedTextWidget(15, 25, this::addDisplayText, 0xFFFFFF));
-        widgetGroup.addWidget(new CycleButtonWidget(10, 60, 150, 20, this::isInverted, this::setInverted,
-                "cover.machine_controller.normal", "cover.machine_controller.inverted"));
+        widgetGroup.addWidget(new TJToggleButtonWidget(10, 60, 150, 20, this::isInverted, this::setInverted)
+                .setToggleTitleTooltipHoverText("cover.machine_controller.normal", "cover.machine_controller.inverted"));
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
                 .widget(new TJLabelWidget(7, -18, 166, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
