@@ -26,40 +26,40 @@ public abstract class MixinContainerFluidInterfaceConfigurationTerminal {
     @ModifyExpressionValue(method = "detectAndSendChanges", at = @At(value = "INVOKE", target = "Lappeng/api/networking/IGrid;getMachines(Ljava/lang/Class;)Lappeng/api/networking/IMachineSet;", ordinal = 0))
     private IMachineSet modifyExpressionValueDetectAndSendChanges(IMachineSet original) {
         return new MachineSets()
-                .tryToAdd(original)
-                .tryToAdd(this.grid.getMachines(TileSuperFluidInterface.class))
-                .tryToAdd(this.grid.getMachines(TileSuperDualInterface.class))
-                .tryToAdd(this.grid.getMachines(TileStockingFluidInterface.class))
-                .tryToAdd(this.grid.getMachines(TileStockingDualInterface.class));
+                .addAll(original)
+                .addAll(this.grid.getMachines(TileSuperFluidInterface.class))
+                .addAll(this.grid.getMachines(TileSuperDualInterface.class))
+                .addAll(this.grid.getMachines(TileStockingFluidInterface.class))
+                .addAll(this.grid.getMachines(TileStockingDualInterface.class));
     }
 
     @ModifyExpressionValue(method = "detectAndSendChanges", at = @At(value = "INVOKE", target = "Lappeng/api/networking/IGrid;getMachines(Ljava/lang/Class;)Lappeng/api/networking/IMachineSet;", ordinal = 1))
     private IMachineSet modifyExpressionValueDetectAndSendChanges1(IMachineSet original) {
         return new MachineSets()
-                .tryToAdd(original)
-                .tryToAdd(this.grid.getMachines(PartSuperFluidInterface.class))
-                .tryToAdd(this.grid.getMachines(PartSuperDualInterface.class))
-                .tryToAdd(this.grid.getMachines(PartStockingFluidInterface.class))
-                .tryToAdd(this.grid.getMachines(PartStockingDualInterface.class));
+                .addAll(original)
+                .addAll(this.grid.getMachines(PartSuperFluidInterface.class))
+                .addAll(this.grid.getMachines(PartSuperDualInterface.class))
+                .addAll(this.grid.getMachines(PartStockingFluidInterface.class))
+                .addAll(this.grid.getMachines(PartStockingDualInterface.class));
     }
 
     @ModifyExpressionValue(method = "regenList", at = @At(value = "INVOKE", target = "Lappeng/api/networking/IGrid;getMachines(Ljava/lang/Class;)Lappeng/api/networking/IMachineSet;", ordinal = 0))
     private IMachineSet modifyExpressionValueRegenList(IMachineSet original) {
         return new MachineSets()
-                .tryToAdd(original)
-                .tryToAdd(this.grid.getMachines(TileSuperFluidInterface.class))
-                .tryToAdd(this.grid.getMachines(TileSuperDualInterface.class))
-                .tryToAdd(this.grid.getMachines(TileStockingFluidInterface.class))
-                .tryToAdd(this.grid.getMachines(TileStockingDualInterface.class));
+                .addAll(original)
+                .addAll(this.grid.getMachines(TileSuperFluidInterface.class))
+                .addAll(this.grid.getMachines(TileSuperDualInterface.class))
+                .addAll(this.grid.getMachines(TileStockingFluidInterface.class))
+                .addAll(this.grid.getMachines(TileStockingDualInterface.class));
     }
 
     @ModifyExpressionValue(method = "regenList", at = @At(value = "INVOKE", target = "Lappeng/api/networking/IGrid;getMachines(Ljava/lang/Class;)Lappeng/api/networking/IMachineSet;", ordinal = 1))
     private IMachineSet modifyExpressionValueRegenList1(IMachineSet original) {
         return new MachineSets()
-                .tryToAdd(original)
-                .tryToAdd(this.grid.getMachines(PartSuperFluidInterface.class))
-                .tryToAdd(this.grid.getMachines(PartSuperDualInterface.class))
-                .tryToAdd(this.grid.getMachines(PartStockingFluidInterface.class))
-                .tryToAdd(this.grid.getMachines(PartStockingDualInterface.class));
+                .addAll(original)
+                .addAll(this.grid.getMachines(PartSuperFluidInterface.class))
+                .addAll(this.grid.getMachines(PartSuperDualInterface.class))
+                .addAll(this.grid.getMachines(PartStockingFluidInterface.class))
+                .addAll(this.grid.getMachines(PartStockingDualInterface.class));
     }
 }

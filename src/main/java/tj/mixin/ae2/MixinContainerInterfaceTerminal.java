@@ -24,36 +24,36 @@ public abstract class MixinContainerInterfaceTerminal {
     @ModifyExpressionValue(method = "detectAndSendChanges", at = @At(value = "INVOKE", target = "Lappeng/api/networking/IGrid;getMachines(Ljava/lang/Class;)Lappeng/api/networking/IMachineSet;", ordinal = 0))
     private IMachineSet modifyExpressionValueDetectAndSendChanges(IMachineSet original) {
         return new MachineSets()
-                .tryToAdd(original)
-                .tryToAdd(this.grid.getMachines(TileSuperInterface.class))
-                .tryToAdd(this.grid.getMachines(TileSuperDualInterface.class))
-                .tryToAdd(this.grid.getMachines(TilePatternInterface.class));
+                .addAll(original)
+                .addAll(this.grid.getMachines(TileSuperInterface.class))
+                .addAll(this.grid.getMachines(TileSuperDualInterface.class))
+                .addAll(this.grid.getMachines(TilePatternInterface.class));
     }
 
     @ModifyExpressionValue(method = "detectAndSendChanges", at = @At(value = "INVOKE", target = "Lappeng/api/networking/IGrid;getMachines(Ljava/lang/Class;)Lappeng/api/networking/IMachineSet;", ordinal = 1))
     private IMachineSet modifyExpressionValueDetectAndSendChanges1(IMachineSet original) {
         return new MachineSets()
-                .tryToAdd(original)
-                .tryToAdd(this.grid.getMachines(PartSuperInterface.class))
-                .tryToAdd(this.grid.getMachines(PartSuperDualInterface.class))
-                .tryToAdd(this.grid.getMachines(PartPatternInterface.class));
+                .addAll(original)
+                .addAll(this.grid.getMachines(PartSuperInterface.class))
+                .addAll(this.grid.getMachines(PartSuperDualInterface.class))
+                .addAll(this.grid.getMachines(PartPatternInterface.class));
     }
     
     @ModifyExpressionValue(method = "regenList", at = @At(value = "INVOKE", target = "Lappeng/api/networking/IGrid;getMachines(Ljava/lang/Class;)Lappeng/api/networking/IMachineSet;", ordinal = 0))
     private IMachineSet modifyExpressionValueRegenList(IMachineSet original) {
         return new MachineSets()
-                .tryToAdd(original)
-                .tryToAdd(this.grid.getMachines(TileSuperInterface.class))
-                .tryToAdd(this.grid.getMachines(TileSuperDualInterface.class))
-                .tryToAdd(this.grid.getMachines(TilePatternInterface.class));
+                .addAll(original)
+                .addAll(this.grid.getMachines(TileSuperInterface.class))
+                .addAll(this.grid.getMachines(TileSuperDualInterface.class))
+                .addAll(this.grid.getMachines(TilePatternInterface.class));
     }
 
     @ModifyExpressionValue(method = "regenList", at = @At(value = "INVOKE", target = "Lappeng/api/networking/IGrid;getMachines(Ljava/lang/Class;)Lappeng/api/networking/IMachineSet;", ordinal = 1))
     private IMachineSet modifyExpressionValueRegenList1(IMachineSet original) {
         return new MachineSets()
-                .tryToAdd(original)
-                .tryToAdd(this.grid.getMachines(PartSuperInterface.class))
-                .tryToAdd(this.grid.getMachines(PartSuperDualInterface.class))
-                .tryToAdd(this.grid.getMachines(PartPatternInterface.class));
+                .addAll(original)
+                .addAll(this.grid.getMachines(PartSuperInterface.class))
+                .addAll(this.grid.getMachines(PartSuperDualInterface.class))
+                .addAll(this.grid.getMachines(PartPatternInterface.class));
     }
 }
