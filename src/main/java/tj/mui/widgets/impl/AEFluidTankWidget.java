@@ -73,17 +73,20 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
         if (this.backgroundTextures != null) for (TextureArea textureArea : this.backgroundTextures) {
             textureArea.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         }
-        if (this.amount < 1 || this.iaeFluidStack == null) return;
-        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        GlStateManager.disableBlend();
-        TJGuiUtils.drawFluidForGui(this.iaeFluidStack.getFluidStack(), this.amount, this.capacity, pos.getX() + 1, pos.getY() + 1, size.getWidth() - 1, size.getHeight() - 2);
-        GlStateManager.pushMatrix();
-        GlStateManager.scale(0.5, 0.5, 1);
-        final String s = TextFormattingUtil.formatLongToCompactString(this.amount, 4) + "L";
-        fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + size.getHeight() - 6) * 2, 0xFFFFFF);
-        GlStateManager.popMatrix();
-        GlStateManager.enableBlend();
-        GlStateManager.color(1.0f, 1.0f, 1.0f);
+        if (this.amount > 0 && this.iaeFluidStack != null) {
+            final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+            GlStateManager.disableBlend();
+            TJGuiUtils.drawFluidForGui(this.iaeFluidStack.getFluidStack(), this.amount, this.capacity, pos.getX() + 1, pos.getY() + 1, size.getWidth() - 1, size.getHeight() - 2);
+            GlStateManager.pushMatrix();
+            GlStateManager.scale(0.5, 0.5, 1);
+            final String s = TextFormattingUtil.formatLongToCompactString(this.amount, 4) + "L";
+            fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + size.getHeight() - 6) * 2, 0xFFFFFF);
+            GlStateManager.popMatrix();
+            GlStateManager.enableBlend();
+            GlStateManager.color(1.0f, 1.0f, 1.0f);
+        }
+        if (this.isMouseOverElement(mouseX, mouseY))
+            drawSelectionOverlay(pos.getX() + 1, pos.getY() + 1, size.getWidth() - 2, size.getHeight() - 2);
     }
 
     @Override
@@ -235,6 +238,6 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
 
     @Override
     public Object getIngredientOverMouse(int mouseX, int mouseY) {
-        return this.isMouseOverElement(mouseX, mouseY) ? this.getFluidStack(this.slotIndex) : null;
+        return !this.isMouseOverElement(mouseX, mouseY) ? null : this.iaeFluidStack != null ? this.iaeFluidStack.getFluidStack() : null;
     }
 }
