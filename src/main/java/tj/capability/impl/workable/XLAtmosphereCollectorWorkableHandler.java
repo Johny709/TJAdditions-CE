@@ -46,7 +46,7 @@ public class XLAtmosphereCollectorWorkableHandler extends LargeAtmosphereCollect
     @Override
     protected boolean isReadyForRecipes() {
         int areReadyForRecipes = 0;
-        int rotorHolderSize = this.airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).size();
+        final int rotorHolderSize = this.airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).size();
         for (int index = 0; index < rotorHolderSize; index++) {
             if (this.airCollector.getAbilities(MetaTileEntityLargeAtmosphereCollector.ABILITY_ROTOR_HOLDER).get(index).isHasRotor())
                 areReadyForRecipes++;

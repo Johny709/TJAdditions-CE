@@ -162,7 +162,7 @@ public class MetaTileEntityXLAtmosphereCollector extends MetaTileEntityLargeAtmo
                         final ITextComponent fuelName = new TextComponentTranslation(fuelAmount == 0 ? "gregtech.fluid.empty" : fuelStack.getUnlocalizedName());
                         text.addTranslationLine("tj.multiblock.fuel_amount", TJValues.thousandFormat.format(fuelAmount), fuelName.getUnformattedText());
 
-                        text.addTranslationLine("tj.multiblock.extreme_turbine.energy", TJValues.thousandFormat.format(this.airCollectorHandler.getProduction()));
+                        text.addTranslationLine("tj.multiblock.large_atmosphere_collector.air", TJValues.thousandFormat.format(this.airCollectorHandler.getProduction()));
 
                         text.addTextComponent(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode").appendText(" ")
                                 .appendSibling(this.airCollectorHandler.isFastMode() ? withButton(new TextComponentTranslation("tj.multiblock.extreme_turbine.fast_mode.true"), "true")

@@ -81,7 +81,7 @@ public class XLTurbineWorkableHandler extends TJFuelRecipeLogic {
 
     @Override
     protected FluidStack tryAcquireNewRecipe(FluidStack fuelStack) {
-        FuelRecipe currentRecipe;
+        final FuelRecipe currentRecipe;
         if (this.previousRecipe != null && this.previousRecipe.matches(this.getMaxVoltage(), fuelStack)) {
             //if previous recipe still matches inputs, try to use it
             currentRecipe = this.previousRecipe;
@@ -94,15 +94,15 @@ public class XLTurbineWorkableHandler extends TJFuelRecipeLogic {
             } else this.blacklistFluid.add(fuelStack); // blacklist fluid not found in recipe map to prevent search slowdown.
         }
         if (currentRecipe != null && this.checkRecipe(currentRecipe)) {
-            int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
+            final int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
             if (fuelStack.amount >= fuelAmountToUse) {
                 this.maxProgress = this.calculateRecipeDuration(currentRecipe);
                 if (this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.PLASMA) {
-                    FluidStack outputFluid = FluidRegistry.getFluidStack(FluidRegistry.getFluidName(currentRecipe.getRecipeFluid()).substring(7), fuelAmountToUse);
+                    final FluidStack outputFluid = FluidRegistry.getFluidStack(FluidRegistry.getFluidName(currentRecipe.getRecipeFluid()).substring(7), fuelAmountToUse);
                     this.exportFluidsSupplier.get().fill(outputFluid, true);
                     this.fluidOutputs.add(outputFluid);
                 } else if (this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM) {
-                    FluidStack outputFluid = DistilledWater.getFluid(fuelAmountToUse / 160);
+                    final FluidStack outputFluid = DistilledWater.getFluid(fuelAmountToUse / 160);
                     this.exportFluidsSupplier.get().fill(outputFluid, true);
                     this.fluidOutputs.add(outputFluid);
                 }

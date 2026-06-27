@@ -81,7 +81,7 @@ public class XLHotCoolantTurbineWorkableHandler extends TJGAFuelRecipeLogic {
 
     @Override
     protected FluidStack tryAcquireNewRecipe(FluidStack fuelStack) {
-        HotCoolantRecipe currentRecipe;
+        final HotCoolantRecipe currentRecipe;
         if (this.previousRecipe != null && this.previousRecipe.matches(this.getMaxVoltage(), fuelStack)) {
             //if previous recipe still matches inputs, try to use it
             currentRecipe = this.previousRecipe;
@@ -94,14 +94,14 @@ public class XLHotCoolantTurbineWorkableHandler extends TJGAFuelRecipeLogic {
             } else this.blacklistFluid.add(fuelStack); // blacklist fluid not found in recipe map to prevent search slowdown.
         }
         if (currentRecipe != null && this.checkRecipe(currentRecipe)) {
-            int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
+            final int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
             if (fuelStack.amount >= fuelAmountToUse) {
-                FluidStack outputFluid = currentRecipe.getOutputFluid().copy();
+                final FluidStack outputFluid = currentRecipe.getOutputFluid().copy();
                 outputFluid.amount = fuelAmountToUse;
                 this.fluidOutputs.add(outputFluid);
                 this.maxProgress = this.calculateRecipeDuration(currentRecipe);
                 this.exportFluidsSupplier.get().fill(outputFluid, true);
-                FluidStack recipeFluid = currentRecipe.getRecipeFluid();
+                final FluidStack recipeFluid = currentRecipe.getRecipeFluid();
                 recipeFluid.amount = fuelAmountToUse;
                 return recipeFluid;
             }
@@ -168,14 +168,7 @@ public class XLHotCoolantTurbineWorkableHandler extends TJGAFuelRecipeLogic {
 
     @Override
     protected int calculateFuelAmount(HotCoolantRecipe currentRecipe) {
-        int durationMultiplier = 1;
-        return (int) ((super.calculateFuelAmount(currentRecipe) * durationMultiplier) / (this.isFastMode ? 1 : TURBINE_BONUS));
-    }
-
-    @Override
-    protected int calculateRecipeDuration(HotCoolantRecipe currentRecipe) {
-        int durationMultiplier = 1;
-        return super.calculateRecipeDuration(currentRecipe) * durationMultiplier;
+        return (int) (super.calculateFuelAmount(currentRecipe) / (this.isFastMode ? 1 : TURBINE_BONUS));
     }
 
     @Override
