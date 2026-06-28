@@ -286,6 +286,7 @@ public class BlockSuperDualInterface extends BlockInterface {
         }
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
             tab.add(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
+                    .onContentsChanged(slot-> ((IDualitySuperFluidInterface) duality).onFluidInventoryHasChanged(duality.getTanks(), slot, null, null, null))
                     .setActiveSupplier(() -> buttonPopUpWidget.getIndex() == 0)
                     .setBackgroundTextures(GuiTextures.SLOT));
         }

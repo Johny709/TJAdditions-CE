@@ -29,12 +29,14 @@ import tj.util.TJItemUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.IntConsumer;
 
 public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements IIngredientSlot {
 
     private final AEFluidInventory fluidTank;
     private final int slotIndex;
 
+    private IntConsumer onContentsChanged;
     private TextureArea[] backgroundTextures;
     private IAEFluidStack iaeFluidStack;
     private int capacity;
@@ -48,6 +50,11 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
 
     public AEFluidTankWidget setBackgroundTextures(TextureArea... backgroundTextures) {
         this.backgroundTextures = backgroundTextures;
+        return this;
+    }
+
+    public AEFluidTankWidget onContentsChanged(IntConsumer onContentsChanged) {
+        this.onContentsChanged = onContentsChanged;
         return this;
     }
 
@@ -198,6 +205,8 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
             }
             this.gui.entityPlayer.inventory.setItemStack(itemStack);
             this.writeUpdateInfo(1, buffer1 -> buffer1.writeItemStack(this.gui.entityPlayer.inventory.getItemStack()));
+            if (this.onContentsChanged != null)
+                this.onContentsChanged.accept(this.slotIndex);
         } catch (IOException e) {
             TJ.logger.info(e.getMessage());
         }

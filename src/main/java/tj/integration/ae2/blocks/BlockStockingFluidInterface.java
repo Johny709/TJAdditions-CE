@@ -75,6 +75,7 @@ public class BlockStockingFluidInterface extends BlockFluidInterface {
         }
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
             builder.widget(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)), 18, 18)
+                    .onContentsChanged(slot -> ((IDualitySuperFluidInterface) duality).onFluidInventoryHasChanged(duality.getTanks(), slot, null, null, null))
                     .setActiveSupplier(() -> buttonPopUpWidget.getIndex() == 0 && buttonPopUpTickWidget.getIndex() == 0)
                     .setBackgroundTextures(GuiTextures.SLOT));
         }
