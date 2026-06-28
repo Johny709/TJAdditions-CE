@@ -7,6 +7,7 @@ import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.*;
+import gregtech.common.ConfigHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -62,7 +63,13 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
             tooltips.add(formula == null || formula.isEmpty() ? "" : "§7" + formula);
         }
         tooltips.add(I18n.format("gregtech.fluid.amount", this.amount, this.capacity));
-        this.drawHoveringText(ItemStack.EMPTY, tooltips, 200, mouseX, mouseY);
+        tooltips.add(""); //add empty line to separate things
+        tooltips.add(I18n.format(ConfigHolder.newTankFilling ? "gregtech.fluid.click_to_fill.new" : "gregtech.fluid.click_to_fill"));
+        tooltips.add(I18n.format(ConfigHolder.newTankFilling ? "gregtech.fluid.click_to_fill.shift.new" : "gregtech.fluid.click_to_fill.shift"));
+        tooltips.add(""); //add empty line to separate things
+        tooltips.add(I18n.format(ConfigHolder.newTankFilling ? "gregtech.fluid.click_to_empty.new" : "gregtech.fluid.click_to_empty"));
+        tooltips.add(I18n.format(ConfigHolder.newTankFilling ? "gregtech.fluid.click_to_empty.shift.new" : "gregtech.fluid.click_to_empty.shift"));
+        this.drawHoveringText(ItemStack.EMPTY, tooltips, 300, mouseX, mouseY);
     }
 
     @Override
@@ -100,15 +107,12 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
             return false;
         this.playButtonClickSound();
         final boolean shiftClick = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
-        if (button == 0) { // Left-Click
+        if (button == 0 || button == 1) { // Left-Click and Right-Click
             this.writeClientAction(1, buffer -> {
                 buffer.writeItemStack(itemStack);
                 buffer.writeBoolean(shiftClick);
-            });
-        } else if (button == 1) { // Right-Click
-            this.writeClientAction(2, buffer -> {
-                buffer.writeItemStack(itemStack);
-                buffer.writeBoolean(shiftClick);
+                buffer.writeBoolean(ConfigHolder.newTankFilling);
+                buffer.writeInt(button == 0 ? 1 : 2);
             });
         }
         return true;
@@ -139,14 +143,18 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
         try {
-            if (id > 2) return;
+            if (id != 1) return;
             ItemStack itemStack = buffer.readItemStack();
             final int size = buffer.readBoolean() ? itemStack.getCount() : 1;
-            final int tankCapacity = this.fluidTank.getTankProperties()[0].getCapacity();
+            final boolean advanced = buffer.readBoolean();
+            int type = buffer.readInt();
             if (!this.isActive) return;
+            final int tankCapacity = this.fluidTank.getTankProperties()[0].getCapacity();
             final IFluidHandlerItem fluidHandlerItem = itemStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
             if (fluidHandlerItem == null) return;
-            if (id == 1) {
+            if (!advanced && this.getFluidAmount(this.slotIndex) > 0)
+                type = 2;
+            if (type == 1) {
                 for (int i = 0; i < size; i++) {
                     final FluidStack fluidContained = FluidUtil.getFluidContained(itemStack);
                     if (fluidContained == null) return;
@@ -154,7 +162,7 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
                     final FluidStack bucketFluid = this.getFluidStack(this.slotIndex);
                     final FluidActionResult fluidActionResult = FluidUtil.tryEmptyContainer(itemStack, new FluidTank(bucketFluid, tankCapacity), toDrain, this.gui.entityPlayer, false);
                     if (fluidActionResult == FluidActionResult.FAILURE) break;
-                    if (itemStack.getCount() > 1) {
+                    if (itemStack.getCount() > (advanced ? 1 : 0)) {
                         if (!TJItemUtils.insertInMainInventory(this.gui.entityPlayer.inventory, fluidActionResult.getResult()).isEmpty()) break;
                         itemStack.shrink(1);
                     } else itemStack = fluidActionResult.getResult();
@@ -166,7 +174,7 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
                     this.iaeFluidStack = AEFluidStack.fromFluidStack(fluidStack);
                     this.fluidTank.setFluidInSlot(this.slotIndex, this.iaeFluidStack.copy());
                 }
-            } else if (id == 2) {
+            } else if (type == 2) {
                 this.iaeFluidStack = this.fluidTank.getFluidInSlot(this.slotIndex);
                 if (this.iaeFluidStack == null) return;
                 for (int i = 0; i < size; i++) {
@@ -177,7 +185,7 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
                     final IFluidHandler tank = new FluidTank(tankFluid, tankCapacity);
                     final FluidActionResult fluidActionResult = FluidUtil.tryFillContainer(itemStack, tank, toFill, this.gui.entityPlayer, false);
                     if (fluidActionResult == FluidActionResult.FAILURE) break;
-                    if (itemStack.getCount() > 1) {
+                    if (itemStack.getCount() > (advanced ? 1 : 0)) {
                         if (!TJItemUtils.insertInMainInventory(this.gui.entityPlayer.inventory, fluidActionResult.getResult()).isEmpty()) break;
                         itemStack.shrink(1);
                     } else itemStack = fluidActionResult.getResult();
