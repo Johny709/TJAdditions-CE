@@ -15,7 +15,7 @@ import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
+import tj.capability.IMachineHandler;
 import tj.util.TJItemUtils;
 
 import java.util.ArrayList;
@@ -46,8 +46,8 @@ public class VoidPlungerBehaviour implements IItemBehaviour {
                 importFluids = controller.getInputFluidInventory();
                 exportItems = controller.getOutputInventory();
                 exportFluids = controller.getOutputFluidInventory();
-            } else if (metaTileEntity instanceof OldParallelRecipeMapMultiblockController) {
-                OldParallelRecipeMapMultiblockController controller = (OldParallelRecipeMapMultiblockController) metaTileEntity;
+            } else if (metaTileEntity instanceof IMachineHandler) {
+                IMachineHandler controller = (IMachineHandler) metaTileEntity;
                 importItems = controller.getImportItemInventory();
                 importFluids = controller.getImportFluidTank();
                 exportItems = controller.getExportItemInventory();
@@ -57,8 +57,8 @@ public class VoidPlungerBehaviour implements IItemBehaviour {
             ITextComponent importItemText = new TextComponentTranslation("metaitem.void_plunger.message.void.item.input");
             this.listItems(importItems, voiding, player).stream()
                     .filter(item -> !item.isEmpty())
-                    .forEach(item -> importItemText.appendText("\n").appendSibling(new TextComponentTranslation(item.getTranslationKey() + ".name")
-                                    .setStyle(new Style().setColor(TextFormatting.GOLD))
+                    .forEach(item -> importItemText.appendText("\n").appendSibling(new TextComponentString(item.getDisplayName())
+                            .setStyle(new Style().setColor(TextFormatting.GOLD))
                     .appendText(" ").appendSibling(new TextComponentString(String.valueOf(item.getCount())))));
 
             ITextComponent importFluidText = new TextComponentTranslation("metaitem.void_plunger.message.void.fluid.input");
@@ -71,7 +71,7 @@ public class VoidPlungerBehaviour implements IItemBehaviour {
             ITextComponent exportItemText = new TextComponentTranslation("metaitem.void_plunger.message.void.item.output");
             this.listItems(exportItems, voiding, player).stream()
                     .filter(item -> !item.isEmpty())
-                    .forEach(item -> exportItemText.appendText("\n").appendSibling(new TextComponentTranslation(item.getTranslationKey() + ".name")
+                    .forEach(item -> exportItemText.appendText("\n").appendSibling(new TextComponentString(item.getDisplayName())
                             .setStyle(new Style().setColor(TextFormatting.GOLD))
                     .appendText(" ").appendSibling(new TextComponentString(String.valueOf(item.getCount())))));
 
