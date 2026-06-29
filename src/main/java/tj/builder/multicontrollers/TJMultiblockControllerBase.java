@@ -540,6 +540,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
                 blockWorldState.getMatchContext().getOrPut("coilLevel", coilType.getLevel());
                 blockWorldState.getMatchContext().getOrPut("coilTemperature", coilType.getCoilTemperature());
                 blockWorldState.getMatchContext().getOrPut("coilEnergyDiscount", coilType.getEnergyDiscount());
+                blockWorldState.getMatchContext().getOrCreate("coilPos", HashSet::new).add(blockWorldState.getPos());
                 return true;
             } else if (block instanceof GAHeatingCoil) {
                 final GAHeatingCoil.CoilType coilType = ((GAHeatingCoil) block).getState(state);
@@ -549,6 +550,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
                 blockWorldState.getMatchContext().getOrPut("coilLevel", coilType.getLevel());
                 blockWorldState.getMatchContext().getOrPut("coilTemperature", coilType.getCoilTemperature());
                 blockWorldState.getMatchContext().getOrPut("coilEnergyDiscount", coilType.getEnergyDiscount());
+                blockWorldState.getMatchContext().getOrCreate("coilPos", HashSet::new).add(blockWorldState.getPos());
                 return true;
             }
             return false;

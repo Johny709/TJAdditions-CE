@@ -2,6 +2,7 @@ package tj.machines.multi.electric;
 
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
+import gregicadditions.item.GAHeatingCoil;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.item.GATransparentCasing;
@@ -19,14 +20,23 @@ import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
+import gregtech.common.blocks.BlockFireboxCasing;
+import gregtech.common.blocks.BlockWireCoil;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import tj.TJConfig;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.OverclockManager;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.*;
@@ -35,10 +45,12 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 public class MetaTileEntityLargeBioReactor extends TJRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
+    private final Set<BlockPos> activeStates = new HashSet<>();
     private int energyBonus;
 
     public MetaTileEntityLargeBioReactor(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GARecipeMaps.BIO_REACTOR_RECIPES);
+        this.recipeLogic.setActiveConsumer(this::replaceCoilsAsActive);
     }
 
     @Override
@@ -97,6 +109,7 @@ public class MetaTileEntityLargeBioReactor extends TJRecipeMapMultiblockControll
         final int sensor = context.getOrDefault("Sensor", SensorCasing.CasingType.SENSOR_LV).getTier();
         final int pump = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
         final int tier = Math.min(fieldGen, Math.min(emitter, Math.min(sensor, pump)));
+        this.activeStates.addAll(context.getOrDefault("coilPos", new HashSet<>()));
         this.energyBonus = context.getOrDefault("coilIndex", 0) * 5;
         if (tier < GAValues.MAX) {
             this.maxVoltage = 8L << tier * 2;
@@ -107,7 +120,65 @@ public class MetaTileEntityLargeBioReactor extends TJRecipeMapMultiblockControll
     @Override
     public void invalidateStructure() {
         super.invalidateStructure();
+        this.activeStates.clear();
         this.energyBonus = 0;
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        this.writeActiveBlockPacket(buf, this.recipeLogic.isActive());
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.readActiveBlockPacket(buf);
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 128) {
+            this.readActiveBlockPacket(buf);
+        }
+    }
+
+    private void writeActiveBlockPacket(PacketBuffer buffer, boolean isActive) {
+        buffer.writeBoolean(isActive);
+        buffer.writeInt(this.activeStates.size());
+        for (BlockPos pos : this.activeStates) {
+            buffer.writeBlockPos(pos);
+        }
+    }
+
+    private void readActiveBlockPacket(PacketBuffer buffer) {
+        boolean isActive = buffer.readBoolean();
+        int size = buffer.readInt();
+        for (int i = 0; i < size; i++) {
+            BlockPos pos = buffer.readBlockPos();
+            IBlockState state = this.getWorld().getBlockState(pos);
+            Block block = state.getBlock();
+            if (block instanceof BlockWireCoil) {
+                state = state.withProperty(BlockFireboxCasing.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            } else if (block instanceof GAHeatingCoil) {
+                state = state.withProperty(GAHeatingCoil.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            }
+        }
+    }
+
+    private void replaceCoilsAsActive(boolean isActive) {
+        this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (!this.getWorld().isRemote) {
+            this.replaceCoilsAsActive(false);
+        }
     }
 
     private IBlockState getCasingState() {

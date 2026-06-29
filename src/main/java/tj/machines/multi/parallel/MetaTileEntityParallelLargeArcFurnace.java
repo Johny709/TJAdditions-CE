@@ -37,8 +37,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate;
-import static tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate2;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.pumpPredicate;
@@ -91,7 +89,7 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('G', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
                 .where('P', pumpPredicate())
-                .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
+                .where('c', coilPredicate())
                 .where('T', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE)))
                 .where('#', isAirPredicate())
                 .where('~', tile -> true)
@@ -124,8 +122,8 @@ public class MetaTileEntityParallelLargeArcFurnace extends ParallelRecipeMapMult
                 this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
         } else this.maxVoltage = 8L << tier * 2;
         this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
-        this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
-        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
+        this.energyBonus = context.getOrDefault("coilIndex", 0) * 5;
+        this.activeStates.addAll(context.getOrDefault("coilPos", new HashSet<>()));
     }
 
     @Override

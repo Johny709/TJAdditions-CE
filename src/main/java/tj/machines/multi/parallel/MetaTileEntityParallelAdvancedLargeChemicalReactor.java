@@ -46,8 +46,6 @@ import java.util.Set;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
-import static tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate;
-import static tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate2;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.motorPredicate;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.pumpPredicate;
@@ -127,7 +125,7 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
                 .where('C', statePredicate(this.getCasingState()))
                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Steel).getDefaultState()))
-                .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
+                .where('c', coilPredicate())
                 .where('p', pumpPredicate())
                 .where('m', motorPredicate())
                 .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(REDSTONE_CONTROLLER)))
@@ -174,8 +172,8 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
                 this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
         } else this.maxVoltage = 8L << tier * 2;
         this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
-        this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
-        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
+        this.energyBonus = context.getOrDefault("coilIndex", 0) * 5;
+        this.activeStates.addAll(context.getOrDefault("coilPos", new HashSet<>()));
     }
 
     @Override

@@ -45,8 +45,6 @@ import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENAN
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
-import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelter.heatingCoilPredicate;
-import static tj.machines.multi.electric.MetaTileEntityLargeAlloySmelter.heatingCoilPredicate2;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 
 
@@ -126,7 +124,7 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
                 .where('S', this.selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
-                .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
+                .where('c', coilPredicate())
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('#', isAirPredicate())
                 .where('M', abilityPartPredicate(MUFFLER_HATCH))
@@ -140,7 +138,7 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
+        this.activeStates.addAll(context.getOrDefault("coilPos", new HashSet<>()));
         this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                 .mapToLong(IEnergyContainer::getInputVoltage)
                 .max()
@@ -158,7 +156,7 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
             this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
         this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
         this.bonusTemperature = Math.max(0, 100 * (this.tier - 2));
-        this.blastFurnaceTemperature = context.getOrDefault("blastFurnaceTemperature", 0);
+        this.blastFurnaceTemperature = context.getOrDefault("coilTemperature", 0);
         this.blastFurnaceTemperature += this.bonusTemperature;
     }
 

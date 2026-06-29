@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
+import gregicadditions.item.GAHeatingCoil;
 import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -17,11 +18,17 @@ import gregtech.api.recipes.RecipeMap;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
+import gregtech.common.blocks.BlockFireboxCasing;
 import gregtech.common.blocks.BlockMetalCasing;
+import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -36,8 +43,10 @@ import tj.util.EnumFacingHelper;
 import tj.util.TJUtility;
 
 import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
@@ -47,7 +56,7 @@ public class MetaTileEntityTJMultiSmelter extends TJMultiblockControllerBase imp
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private final MultiSmelterWorkableHandler workableHandler = new MultiSmelterWorkableHandler(this);
-
+    private final Set<BlockPos> activeStates = new HashSet<>();
     private long maxVoltage;
     private int coilEnergyDiscount;
     private int coilLevel;
@@ -55,6 +64,7 @@ public class MetaTileEntityTJMultiSmelter extends TJMultiblockControllerBase imp
 
     public MetaTileEntityTJMultiSmelter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId);
+        this.workableHandler.setActiveConsumer(this::replaceCoilsAsActive);
     }
 
     @Override
@@ -126,6 +136,7 @@ public class MetaTileEntityTJMultiSmelter extends TJMultiblockControllerBase imp
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
+        this.activeStates.addAll(context.getOrDefault("coilPos", new HashSet<>()));
         this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
         this.coilLevel = context.getOrDefault("coilLevel", 0);
         this.coilEnergyDiscount = context.getOrDefault("coilEnergyDiscount", 0);
@@ -140,9 +151,10 @@ public class MetaTileEntityTJMultiSmelter extends TJMultiblockControllerBase imp
     @Override
     public void invalidateStructure() {
         super.invalidateStructure();
-        this.maxVoltage = 0;
+        this.activeStates.clear();
         this.coilEnergyDiscount = 0;
         this.coilLevel = 0;
+        this.maxVoltage = 0;
         this.tier = 0;
     }
 
@@ -153,6 +165,63 @@ public class MetaTileEntityTJMultiSmelter extends TJMultiblockControllerBase imp
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
         TJTextures.TJ_LOGO.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
         TJTextures.TJ_LOGO.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        this.writeActiveBlockPacket(buf, this.workableHandler.isActive());
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.readActiveBlockPacket(buf);
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 128) {
+            this.readActiveBlockPacket(buf);
+        }
+    }
+
+    private void writeActiveBlockPacket(PacketBuffer buffer, boolean isActive) {
+        buffer.writeBoolean(isActive);
+        buffer.writeInt(this.activeStates.size());
+        for (BlockPos pos : this.activeStates) {
+            buffer.writeBlockPos(pos);
+        }
+    }
+
+    private void readActiveBlockPacket(PacketBuffer buffer) {
+        boolean isActive = buffer.readBoolean();
+        int size = buffer.readInt();
+        for (int i = 0; i < size; i++) {
+            BlockPos pos = buffer.readBlockPos();
+            IBlockState state = this.getWorld().getBlockState(pos);
+            Block block = state.getBlock();
+            if (block instanceof BlockWireCoil) {
+                state = state.withProperty(BlockFireboxCasing.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            } else if (block instanceof GAHeatingCoil) {
+                state = state.withProperty(GAHeatingCoil.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            }
+        }
+    }
+
+    private void replaceCoilsAsActive(boolean isActive) {
+        this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (!this.getWorld().isRemote) {
+            this.replaceCoilsAsActive(false);
+        }
     }
 
     @Override

@@ -2,6 +2,7 @@ package tj.machines.multi.electric;
 
 import gregicadditions.GAValues;
 import gregicadditions.client.ClientHandler;
+import gregicadditions.item.GAHeatingCoil;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.metal.MetalCasing1;
@@ -18,10 +19,15 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.recipeproperties.BlastTemperatureProperty;
 import gregtech.api.render.ICubeRenderer;
+import gregtech.common.blocks.BlockFireboxCasing;
+import gregtech.common.blocks.BlockWireCoil;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -36,6 +42,7 @@ import tj.capability.impl.workable.MegaRecipeLogic;
 import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
@@ -45,11 +52,13 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 public class MetaTileEntityMegaAlloyBlastSmelter extends TJRecipeMapMultiblockController {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
+    private final Set<BlockPos> activeStates = new HashSet<>();
     private int blastFurnaceTemperature;
     private int bonusTemperature;
 
     public MetaTileEntityMegaAlloyBlastSmelter(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GARecipeMaps.BLAST_ALLOY_RECIPES);
+        this.recipeLogic.setActiveConsumer(this::replaceCoilsAsActive);
     }
 
     @Override
@@ -130,12 +139,14 @@ public class MetaTileEntityMegaAlloyBlastSmelter extends TJRecipeMapMultiblockCo
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         final int tier = context.getOrDefault("frameworkTier", 0);
-        this.blastFurnaceTemperature = context.getOrDefault("coilTemperature", 0);
         if (tier < GAValues.MAX) {
             this.maxVoltage = 8L << tier * 2;
             this.tier = tier;
         }
+        this.activeStates.addAll(context.getOrDefault("coilPos", new HashSet<>()));
+        this.activeStates.addAll(context.getOrDefault("heatVents", new HashSet<>()));
         this.bonusTemperature = Math.max(0, 100 * (this.tier - 2));
+        this.blastFurnaceTemperature = context.getOrDefault("coilTemperature", 0);
         this.blastFurnaceTemperature += this.bonusTemperature;
     }
 
@@ -144,6 +155,67 @@ public class MetaTileEntityMegaAlloyBlastSmelter extends TJRecipeMapMultiblockCo
         super.invalidateStructure();
         this.blastFurnaceTemperature = 0;
         this.bonusTemperature = 0;
+        this.activeStates.clear();
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        this.writeActiveBlockPacket(buf, this.recipeLogic.isActive());
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.readActiveBlockPacket(buf);
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 128) {
+            this.readActiveBlockPacket(buf);
+        }
+    }
+
+    private void writeActiveBlockPacket(PacketBuffer buffer, boolean isActive) {
+        buffer.writeBoolean(isActive);
+        buffer.writeInt(this.activeStates.size());
+        for (BlockPos pos : this.activeStates) {
+            buffer.writeBlockPos(pos);
+        }
+    }
+
+    private void readActiveBlockPacket(PacketBuffer buffer) {
+        boolean isActive = buffer.readBoolean();
+        int size = buffer.readInt();
+        for (int i = 0; i < size; i++) {
+            BlockPos pos = buffer.readBlockPos();
+            IBlockState state = this.getWorld().getBlockState(pos);
+            Block block = state.getBlock();
+            if (block instanceof BlockWireCoil) {
+                state = state.withProperty(BlockFireboxCasing.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            } else if (block instanceof GAHeatingCoil) {
+                state = state.withProperty(GAHeatingCoil.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            } else if (block instanceof BlockActiveAbility) {
+                state = state.withProperty(BlockActiveAbility.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            }
+        }
+    }
+
+    private void replaceCoilsAsActive(boolean isActive) {
+        this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (!this.getWorld().isRemote) {
+            this.replaceCoilsAsActive(false);
+        }
     }
 
     public static Predicate<BlockWorldState> heatVentPredicate() {

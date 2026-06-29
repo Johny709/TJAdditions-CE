@@ -8,7 +8,6 @@ import net.minecraft.block.Block;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import tj.TJConfig;
-import gregicadditions.GAConfig;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAHeatingCoil;
 import gregicadditions.item.GAMetaBlocks;
@@ -17,7 +16,6 @@ import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
-import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
@@ -35,11 +33,9 @@ import tj.capability.OverclockManager;
 import tj.util.TooltipHelper;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
@@ -103,10 +99,10 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
                 .where('C', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(REDSTONE_CONTROLLER)))
-                .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
+                .where('c', coilPredicate())
                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Steel).getDefaultState()))
-                .where('#', (tile) -> true)
+                .where('#', tile -> true)
                 .build();
     }
 
@@ -119,53 +115,11 @@ public class MetaTileEntityParallelLargeChemicalReactor extends ParallelRecipeMa
         return ClientHandler.CHEMICALLY_INERT;
     }
 
-    public static Predicate<BlockWorldState> heatingCoilPredicate() {
-        return blockWorldState -> {
-            final IBlockState blockState = blockWorldState.getBlockState();
-            if (!(blockState.getBlock() instanceof BlockWireCoil))
-                return false;
-            final BlockWireCoil blockWireCoil = (BlockWireCoil) blockState.getBlock();
-            final BlockWireCoil.CoilType coilType = blockWireCoil.getState(blockState);
-            if (Arrays.asList(GAConfig.multis.heatingCoils.gtceHeatingCoilsBlacklist).contains(coilType.getName()))
-                return false;
-
-            final int coilLevel = coilType.ordinal();
-            final int currentLevel = blockWorldState.getMatchContext().getOrPut("coilLevel", coilLevel);
-
-            final BlockWireCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("coilType", coilType);
-            final Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
-            activeStates.add(blockWorldState.getPos());
-
-            return currentLevel == coilLevel && coilType.equals(currentCoilType);
-        };
-    }
-
-    public static Predicate<BlockWorldState> heatingCoilPredicate2() {
-        return blockWorldState -> {
-            final IBlockState blockState = blockWorldState.getBlockState();
-            if (!(blockState.getBlock() instanceof GAHeatingCoil))
-                return false;
-            final GAHeatingCoil blockWireCoil = (GAHeatingCoil) blockState.getBlock();
-            final GAHeatingCoil.CoilType coilType = blockWireCoil.getState(blockState);
-            if (Arrays.asList(GAConfig.multis.heatingCoils.gregicalityheatingCoilsBlacklist).contains(coilType.getName()))
-                return false;
-
-            final int coilLevel = coilType.ordinal() + 8;
-            final int currentLevel = blockWorldState.getMatchContext().getOrPut("coilLevel", coilLevel);
-
-            final GAHeatingCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("gaCoilType", coilType);
-            final Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
-            activeStates.add(blockWorldState.getPos());
-
-            return currentLevel == coilLevel && coilType.equals(currentCoilType);
-        };
-    }
-
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
-        this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
+        this.activeStates.addAll(context.getOrDefault("coilPos", new HashSet<>()));
+        this.energyBonus = context.getOrDefault("coilIndex", 0) * 5;
         this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
                 .mapToLong(IEnergyContainer::getInputVoltage)
                 .max()

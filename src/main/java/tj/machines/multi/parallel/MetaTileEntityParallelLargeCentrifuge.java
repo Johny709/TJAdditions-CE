@@ -101,7 +101,7 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
                 .where('S', this.selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
-                .where('c', MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate().or(MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate2()))
+                .where('c', coilPredicate())
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE)))
                 .where('G', statePredicate(MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING)))
                 .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())
@@ -151,8 +151,8 @@ public class MetaTileEntityParallelLargeCentrifuge extends ParallelRecipeMapMult
                 this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
         } else this.maxVoltage = 8L << tier * 2;
         this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
-        this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
-        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
+        this.energyBonus = context.getOrDefault("coilIndex", 0) * 5;
+        this.activeStates.addAll(context.getOrDefault("coilPos", new HashSet<>()));
     }
 
     @Override
