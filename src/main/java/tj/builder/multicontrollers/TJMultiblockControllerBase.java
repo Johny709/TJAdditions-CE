@@ -546,7 +546,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
                 final GAHeatingCoil.CoilType coilType = ((GAHeatingCoil) block).getState(state);
                 final String name = blockWorldState.getMatchContext().getOrPut("coilName", coilType.getName());
                 if (!coilType.getName().equals(name) || Arrays.asList(GAConfig.multis.heatingCoils.gregicalityheatingCoilsBlacklist).contains(coilType.getName())) return false;
-                blockWorldState.getMatchContext().getOrPut("coilIndex", coilType.ordinal() + 8);
+                blockWorldState.getMatchContext().getOrPut("coilIndex", coilType.ordinal() + 7);
                 blockWorldState.getMatchContext().getOrPut("coilLevel", coilType.getLevel());
                 blockWorldState.getMatchContext().getOrPut("coilTemperature", coilType.getCoilTemperature());
                 blockWorldState.getMatchContext().getOrPut("coilEnergyDiscount", coilType.getEnergyDiscount());

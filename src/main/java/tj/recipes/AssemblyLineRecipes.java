@@ -4,6 +4,8 @@ import appeng.core.Api;
 import gregicadditions.GAEnums;
 import gregicadditions.item.*;
 import gregicadditions.item.metal.MetalCasing1;
+import gregtech.common.blocks.BlockWireCoil;
+import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidRegistry;
 import tj.blocks.BlockFusionCasings;
@@ -838,6 +840,26 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, Superconductor)
                 .outputs(PARALLEL_VOLCANUS.getStackForm())
                 .EUt(GAValues.VA[8]).duration(3000)
+                .buildAndRegister();
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(18432))
+                .fluidInputs(Lubricant.getFluid(64000))
+                .fluidInputs(ZirconiumCarbide.getFluid(18432))
+                .fluidInputs(Polybenzimidazole.getFluid(9216))
+                .inputs(LARGE_ALLOY_SMELTER.getStackForm(16))
+                .inputs(MetaBlocks.WIRE_COIL.getItemVariant(BlockWireCoil.CoilType.CUPRONICKEL, 64))
+                .inputs(ELECTRIC_MOTOR_UV.getStackForm(32))
+                .inputs(ELECTRIC_PISTON_UV.getStackForm(32))
+                .input(OrePrefix.gear, ZirconiumCarbide, 16)
+                .input(OrePrefix.cableGtQuadruple, NaquadahAlloy, 64)
+                .input(OrePrefix.frameGt, ZirconiumCarbide, 16)
+                .input(OrePrefix.plateDense, ZirconiumCarbide, 8)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .outputs(PARALLEL_LARGE_ALLOY_SMELTER.getStackForm())
+                .EUt(GAValues.VA[9]).duration(3000)
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216))
