@@ -6,9 +6,6 @@
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ae2.MixinContainerFluidInterfaceConfigurationTerminal",
-    "ae2.MixinContainerInterfaceConfigurationTerminal",
-    "ae2.MixinContainerInterfaceTerminal",
     "ae2.MixinDisassembleRecipe",
     "ae2.MixinDualityFluidInterface",
     "ae2.MixinDualityInterface",
@@ -87,9 +84,6 @@
   ],
   "server": [],
   "client": [
-    "ae2.client.MixinGuiFluidInterfaceConfigurationTerminal",
-    "ae2.client.MixinGuiInterfaceConfigurationTerminal",
-    "ae2.client.MixinGuiInterfaceTerminal",
     "gregtech.client.IMixinMultiblockInfoRecipeWrapper",
     "gregtech.client.MixinModularUIGuiHandler",
     "gregtech.client.MixinModularUIGui",
