@@ -72,7 +72,7 @@ public class XLAtmosphereCollectorInfo extends TJMultiblockInfoPage implements I
                         .where('T', holderSouth.getMetaTileEntity(), EnumFacing.SOUTH)
                         .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
                         .where('J', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)
-                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.WEST)
+                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.EAST)
                         .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                         .where(!this.atmosphereCollector.turbineType.hasOutputHatch ? 'O' : '#', !this.atmosphereCollector.turbineType.hasOutputHatch ? this.atmosphereCollector.turbineType.casingState : Blocks.AIR.getDefaultState())
                         .build();

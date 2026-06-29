@@ -326,6 +326,11 @@ public class RecipeInit {
                 'G', GACraftingComponents.GEAR.getIngredient(5),
                 'H', NAMING_MACHINES[4].getStackForm(),
                 'A', new ItemStack(Blocks.ANVIL));
+        ModHandler.addShapedRecipe("heat_vent", TJMetaBlocks.ACTIVE_ABILITY_BLOCKS.getItemVariant(BlockActiveAbility.AbilityType.HEAT_VENT, 2), "TMT", "RLR", "TMT",
+                'M', new UnificationEntry(GAEnums.GAOrePrefix.plateDouble, Molybdenum),
+                'L', new UnificationEntry(OrePrefix.stick, Molybdenum),
+                'T', new UnificationEntry(OrePrefix.plate, Tantalum),
+                'R', new UnificationEntry(OrePrefix.rotor, Titanium));
         ModHandler.addShapelessRecipe("tj_crafting_storage_65536k", CRAFTING_STORAGE_65536K.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_65536K.maybeStack(1).orElse(null), aeBlocks.craftingUnit().maybeStack(1).orElse(null));
         ModHandler.addShapelessRecipe("tj_crafting_storage_262144k", CRAFTING_STORAGE_262144K.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_262144K.maybeStack(1).orElse(null), aeBlocks.craftingUnit().maybeStack(1).orElse(null));
         ModHandler.addShapelessRecipe("tj_crafting_storage_1048m", CRAFTING_STORAGE_1048M.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_1048M.maybeStack(1).orElse(null), aeBlocks.craftingUnit().maybeStack(1).orElse(null));

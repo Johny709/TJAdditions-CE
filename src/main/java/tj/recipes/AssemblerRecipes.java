@@ -233,6 +233,14 @@ public class AssemblerRecipes {
                 .outputs(STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))
                 .EUt(GAValues.VA[6]).duration(1000)
                 .buildAndRegister();
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .input(GAEnums.GAOrePrefix.plateDouble, Molybdenum)
+                .input(OrePrefix.plate, Tantalum, 4)
+                .input(OrePrefix.rotor, Titanium, 2)
+                .input(OrePrefix.stick, Molybdenum)
+                .outputs(TJMetaBlocks.ACTIVE_ABILITY_BLOCKS.getItemVariant(BlockActiveAbility.AbilityType.HEAT_VENT, 2))
+                .EUt(16).duration(50)
+                .buildAndRegister();
         for (int i = 0; i < 15; i++) {
             if (i < 9) continue;
             ASSEMBLER_RECIPES.recipeBuilder()
