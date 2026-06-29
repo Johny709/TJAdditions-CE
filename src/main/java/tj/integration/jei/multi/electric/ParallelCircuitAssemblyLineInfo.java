@@ -21,6 +21,7 @@ import tj.machines.TJMetaTileEntities;
 import tj.machines.multi.electric.MetaTileEntityParallelCircuitAssemblyLine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
@@ -63,6 +64,13 @@ public class ParallelCircuitAssemblyLineInfo extends TJMultiblockInfoPage {
                     .build());
         }
         return shapeInfos;
+    }
+
+    @Override
+    protected void generateBlockTooltips() {
+        super.generateBlockTooltips();
+        Arrays.stream(ConveyorCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.CONVEYOR_CASING.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
+        Arrays.stream(RobotArmCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.ROBOT_ARM_CASING.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
     }
 
     @Override
