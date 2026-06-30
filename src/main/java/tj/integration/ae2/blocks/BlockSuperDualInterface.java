@@ -51,6 +51,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.LongUnaryOperator;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -254,19 +255,19 @@ public class BlockSuperDualInterface extends BlockInterface {
                 .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
                 .setInvertTexture(true)
                 .useToggleTexture(true));
-        tab.add(new TJToggleButtonWidget(-18, 184, 16, 16, () -> false, (BooleanConsumer) bool -> changePatternAmount(duality.getPatterns(), 2, patternScrollableSlotGroup, () -> updatePatterns(duality.getPatterns())))
+        tab.add(new TJToggleButtonWidget(-18, 184, 16, 16, () -> false, (BooleanConsumer) bool -> changePatternAmount(duality.getPatterns(), patternScrollableSlotGroup, m -> m * 2, () -> updatePatterns(duality.getPatterns())))
                 .setToggleTooltipHoverText("gui.pattern_term.auto_fill_pattern.MULTIPLY_2.text", "gui.pattern_term.auto_fill_pattern.MULTIPLY_2.text")
                 .setToggleTitleTooltipHoverText("gui.action.MULTIPLY_2.name", "gui.action.MULTIPLY_2.name")
                 .setActiveTexture(TJGuiTextures.AE2_MULTIPLY2_BUTTON, TJGuiTextures.AE2_MULTIPLY2_BUTTON));
-        tab.add(new TJToggleButtonWidget(-18, 202, 16, 16, () -> false, (BooleanConsumer) bool -> changePatternAmount(duality.getPatterns(), -2, patternScrollableSlotGroup, () -> updatePatterns(duality.getPatterns())))
+        tab.add(new TJToggleButtonWidget(-18, 202, 16, 16, () -> false, (BooleanConsumer) bool -> changePatternAmount(duality.getPatterns(), patternScrollableSlotGroup, m -> m / 2, () -> updatePatterns(duality.getPatterns())))
                 .setToggleTooltipHoverText("gui.pattern_term.auto_fill_pattern.DIVIDE_2.text", "gui.pattern_term.auto_fill_pattern.DIVIDE_2.text")
                 .setToggleTitleTooltipHoverText("gui.action.DIVIDE_2.name", "gui.action.DIVIDE_2.name")
                 .setActiveTexture(TJGuiTextures.AE2_DIVIDE2_BUTTON, TJGuiTextures.AE2_DIVIDE2_BUTTON));
-        tab.add(new TJToggleButtonWidget(-18, 220, 16, 16, () -> false, (BooleanConsumer) bool -> changePatternAmount(duality.getPatterns(), 3, patternScrollableSlotGroup, () -> updatePatterns(duality.getPatterns())))
+        tab.add(new TJToggleButtonWidget(-18, 220, 16, 16, () -> false, (BooleanConsumer) bool -> changePatternAmount(duality.getPatterns(), patternScrollableSlotGroup, m -> m * 3, () -> updatePatterns(duality.getPatterns())))
                 .setToggleTooltipHoverText("gui.pattern_term.auto_fill_pattern.MULTIPLY_3.text", "gui.pattern_term.auto_fill_pattern.MULTIPLY_3.text")
                 .setToggleTitleTooltipHoverText("gui.action.MULTIPLY_3.name", "gui.action.MULTIPLY_3.name")
                 .setActiveTexture(TJGuiTextures.AE2_MULTIPLY3_BUTTON, TJGuiTextures.AE2_MULTIPLY3_BUTTON));
-        tab.add(new TJToggleButtonWidget(-18, 238, 16, 16, () -> false, (BooleanConsumer) bool -> changePatternAmount(duality.getPatterns(), -3, patternScrollableSlotGroup, () -> updatePatterns(duality.getPatterns())))
+        tab.add(new TJToggleButtonWidget(-18, 238, 16, 16, () -> false, (BooleanConsumer) bool -> changePatternAmount(duality.getPatterns(), patternScrollableSlotGroup, m -> m / 3, () -> updatePatterns(duality.getPatterns())))
                 .setToggleTooltipHoverText("gui.pattern_term.auto_fill_pattern.DIVIDE_3.text", "gui.pattern_term.auto_fill_pattern.DIVIDE_3.text")
                 .setToggleTitleTooltipHoverText("gui.action.DIVIDE_3.name", "gui.action.DIVIDE_3.name")
                 .setActiveTexture(TJGuiTextures.AE2_DIVIDE3_BUTTON, TJGuiTextures.AE2_DIVIDE3_BUTTON));
@@ -303,18 +304,18 @@ public class BlockSuperDualInterface extends BlockInterface {
                     .setScrollWidth(0);
             tab.add(new ImageWidget(-125, 0, 105, 218, GuiTextures.BORDERED_BACKGROUND));
             tab.add(new LabelWidget(-118, 4, "item.nae2.pattern_multiplier.name"));
-            tab.add(new ButtonWidget<>(-118, 176, 18, 18, "*2", data -> changePatternAmount(multiPatternSlots, 2, multiPatternSlotGroup, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
+            tab.add(new ButtonWidget<>(-118, 176, 18, 18, "*2", data -> changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m * 2, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
                     .setTitleHoverTooltipText("gui.action.MULTIPLY_2.name").setHoverTooltipText("gui.pattern_term.auto_fill_pattern.MULTIPLY_2.text").setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            tab.add(new ButtonWidget<>(-118, 194, 18, 18, "/2", data -> changePatternAmount(multiPatternSlots, -2, multiPatternSlotGroup, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
+            tab.add(new ButtonWidget<>(-118, 194, 18, 18, "/2", data -> changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m / 2, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
                     .setTitleHoverTooltipText("gui.action.DIVIDE_2.name").setHoverTooltipText("gui.pattern_term.auto_fill_pattern.DIVIDE_2.text").setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            tab.add(new ButtonWidget<>(-100, 176, 18, 18, "*3", data -> changePatternAmount(multiPatternSlots, 3, multiPatternSlotGroup, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
+            tab.add(new ButtonWidget<>(-100, 176, 18, 18, "*3", data -> changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m * 3, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
                     .setTitleHoverTooltipText("gui.action.MULTIPLY_3.name").setHoverTooltipText("gui.pattern_term.auto_fill_pattern.MULTIPLY_3.text").setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            tab.add(new ButtonWidget<>(-100, 194, 18, 18, "/3", data -> changePatternAmount(multiPatternSlots, -3, multiPatternSlotGroup, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
+            tab.add(new ButtonWidget<>(-100, 194, 18, 18, "/3", data -> changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m / 3, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
                     .setTitleHoverTooltipText("gui.action.DIVIDE_3.name").setHoverTooltipText("gui.pattern_term.auto_fill_pattern.DIVIDE_3.text").setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            tab.add(new ButtonWidget<>(-82, 176, 18, 18, "*4", data -> changePatternAmount(multiPatternSlots, 4, multiPatternSlotGroup, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
-                    .setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            tab.add(new ButtonWidget<>(-82, 194, 18, 18, "/4", data -> changePatternAmount(multiPatternSlots, -4, multiPatternSlotGroup, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
-                    .setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            tab.add(new ButtonWidget<>(-82, 176, 18, 18, "+1", data -> changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m + 1, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
+                    .setTitleHoverTooltipText("gui.tooltips.appliedenergistics2.IncreaseByOne").setHoverTooltipText("gui.tooltips.appliedenergistics2.IncreaseByOneDesc").setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            tab.add(new ButtonWidget<>(-82, 194, 18, 18, "-1", data -> changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m - 1, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
+                    .setTitleHoverTooltipText("gui.tooltips.appliedenergistics2.DecreaseByOne").setHoverTooltipText("gui.tooltips.appliedenergistics2.DecreaseByOneDesc").setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
             tab.add(new ButtonWidget<>(-64, 176, 36, 36, "X", data -> clearPatterns(multiPatternSlots, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
                     .setTitleHoverTooltipText("nae2.pattern_multiplier.unencode").setHoverTooltipText("nae2.pattern_multiplier.unencode.desc").setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
             for (int i = 0; i < multiPatternSlots.getSlots(); i++) {
@@ -358,11 +359,7 @@ public class BlockSuperDualInterface extends BlockInterface {
         }
     }
 
-    private static void changePatternAmount(IItemHandler patternSlots, int multiplier, SlotScrollableWidgetGroup patternSlotWidgets, Runnable callback) {
-        final boolean divide = multiplier < 0;
-        if (divide)
-            multiplier = Math.abs(multiplier);
-        final int finalMultiplier = multiplier;
+    private static void changePatternAmount(IItemHandler patternSlots, SlotScrollableWidgetGroup patternSlotWidgets, LongUnaryOperator multiplier, Runnable callback) {
         for (int i = 0; i < patternSlots.getSlots(); i++) {
             final ItemStack stack = patternSlots.getStackInSlot(i);
             final NBTTagCompound compound = stack.getTagCompound();
@@ -376,7 +373,7 @@ public class BlockSuperDualInterface extends BlockInterface {
                 for (int j = 0; j < inputList.tagCount(); j++) {
                     final NBTTagCompound patternCompound = inputList.getCompoundTagAt(j);
                     final long amount = patternCompound.hasKey("Cnt") ? patternCompound.getLong("Cnt") : patternCompound.getInteger("Count");
-                    final long newAmount = divide ? amount / finalMultiplier : amount * finalMultiplier;
+                    final long newAmount = multiplier.applyAsLong(amount);
                     if (patternCompound.isEmpty()) {
                         if (!simulate)
                             newInputList.appendTag(patternCompound);
@@ -394,7 +391,7 @@ public class BlockSuperDualInterface extends BlockInterface {
                 for (int j = 0; j < outputList.tagCount(); j++) {
                     final NBTTagCompound patternCompound = outputList.getCompoundTagAt(j);
                     final long amount = patternCompound.hasKey("Cnt") ? patternCompound.getLong("Cnt") : patternCompound.getInteger("Count");
-                    final long newAmount = divide ? amount / finalMultiplier : amount * finalMultiplier;
+                    final long newAmount = multiplier.applyAsLong(amount);
                     if (patternCompound.isEmpty()) {
                         if (!simulate)
                             newOutputList.appendTag(patternCompound);
