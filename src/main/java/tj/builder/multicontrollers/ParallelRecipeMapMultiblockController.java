@@ -146,7 +146,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         tabBuilder.addWidget(new JEIRecipeTransferWidget(0, 0, 100, 100)
                 .setRecipeConsumer(this::setRecipe));
         tabBuilder.addTab("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(STEEL_GEARBOX), workableTab -> {
-            workableTab.add(new TJCycleButtonWidget<>(175, 151, 18, 18, BatchMode.class, () -> this.batchMode, this::setBatchMode)
+            workableTab.add(new TJCycleButtonWidget<>(175, 133, 18, 18, BatchMode.class, () -> this.batchMode, this::setBatchMode)
                     .setCycleTextures(BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
                     .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.batchMode.getAmount())))
                     .setHoverTooltipText("machine.universal.batch.amount")
