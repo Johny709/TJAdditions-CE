@@ -60,7 +60,8 @@ public class BlockSuperFluidInterface extends BlockFluidInterface {
         final DualitySuperFluidInterface duality = (DualitySuperFluidInterface) superFluidInterface.getDualityFluidInterface();
         final IItemHandler upgradeHandler = duality.getInventoryByName("upgrades");
         final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
-        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_FLUID_INTERFACE, 211, 292);
+        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
+                .image(179, 0, 32, 194, GuiTextures.BORDERED_BACKGROUND);
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
             final int index = i;
             builder.widget(new TJPhantomAEFluidSlotWidget(7 + (18 * (i % 9)), 34 + (72 * (i / 9)), 18, 18, i, duality.getConfig(), fluidStack -> ((IDualitySuperFluidInterface) duality).onFluidInventoryHasChanged(duality.getConfig(), index, null, null, null))

@@ -112,7 +112,8 @@ public class BlockSuperDualInterface extends BlockInterface {
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
                 .addTab("tile.me.super_interface.name", TJBlocks.SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> createInterfaceTab(widgets, superDualInterface, patternMultiTool, multiPatternSlots, multiUpgradeSlots, invTag))
                 .addTab("tile.me.super_fluid_interface.name", TJBlocks.SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> createFluidInterfaceTab(widgets, superDualInterface, buttonPopUpWidget));
-        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292);
+        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
+                .image(179, 0, 32, 194, GuiTextures.BORDERED_BACKGROUND);
         if (!patternMultiTool.isEmpty())
             builder.widget(new ImageWidget(-125, 0, 105, 218, GuiTextures.BORDERED_BACKGROUND));
         return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)

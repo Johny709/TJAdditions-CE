@@ -118,7 +118,8 @@ public class BlockPatternInterface extends BlockInterface {
                     .setWidgetGroup(patternScrollableSlotGroup)
                     .setActiveInit(false));
         }
-        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.PATTERN_INTERFACE, 229, 292);
+        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
+                .image(179, 0, 50, 194, GuiTextures.BORDERED_BACKGROUND);
         createPatternMultiToolGUI(builder.widget(new LabelWidget(7, 23, "gui.appliedenergistics2.StoredItems"))
                 .widget(new LabelWidget(7, 113, "gui.appliedenergistics2.Patterns"))
                 .widget(patternScrollableSlotGroup)
