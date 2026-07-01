@@ -5,14 +5,12 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAMaterials;
 import gregicadditions.Gregicality;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.AdvancedTextWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -73,11 +71,13 @@ import java.util.List;
 import java.util.Queue;
 import java.util.function.UnaryOperator;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
 
 public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockControllerBase implements IMinerHandler, IProgressBar {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private final InfiniteMinerWorkableHandler workableHandler = new InfiniteMinerWorkableHandler(this);
     private FluidStack drillingFluid = GAMaterials.Taranium.getFluid(1);
     private int fortune;
@@ -118,8 +118,8 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setDone)
-                .setTooltipText("machine.universal.toggle.reset"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setDone)
+                .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"));
     }
 
     @Override
@@ -174,16 +174,16 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
                             .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                             .useToggleTexture(true), widgetGroup -> {
                         WindowsWidgetGroup windowsWidgetGroup = new WindowsWidgetGroup(0, -3, 135, 45, GuiTextures.BORDERED_BACKGROUND)
-                                .addSubWidget(new ToggleButtonWidget(113, 23, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
-                                        .setTooltipText("tj.multiblock.advanced_large_miner.blacklist"));
+                                .addSubWidget(new TJToggleButtonWidget(113, 23, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
+                                        .setToggleTitleTooltipHoverText("tj.multiblock.advanced_large_miner.blacklist.disabled", "tj.multiblock.advanced_large_miner.blacklist.enabled"));
                         this.workableHandler.getOreDictFilter().initUI(windowsWidgetGroup::addSubWidget);
                         widgetGroup.addWidget(windowsWidgetGroup);
                         return false;
                     }));
-            tab.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON, this.workableHandler::isVoidItems, this.workableHandler::setVoidItems)
-                    .setTooltipText("machine.universal.toggle.item_voiding"));
-            tab.add(new ToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
-                    .setTooltipText("tj.multiblock.advanced_large_miner.blacklist_block"));
+            tab.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON, this.workableHandler::isVoidItems, this.workableHandler::setVoidItems)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
+            tab.add(new TJToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
+                    .setToggleTitleTooltipHoverText("tj.multiblock.advanced_large_miner.blacklist_block.disabled", "tj.multiblock.advanced_large_miner.blacklist_block.enabled"));
         });
     }
 
@@ -212,7 +212,7 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         this.tier = context.getOrDefault("Motor", MotorCasing.CasingType.MOTOR_LV).getTier();
-        this.workableHandler.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
+        this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
         this.fortune = this.tier + this.tier;
         this.drillingFluid = GAMaterials.Taranium.getFluid(1 << this.getTier() - 1);
     }

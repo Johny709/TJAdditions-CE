@@ -3,7 +3,6 @@ package tj.machines.multi.steam;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.IWorkable;
@@ -43,7 +42,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
-import tj.blocks.AbilityBlocks;
+import tj.blocks.BlockAbility;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
@@ -61,6 +60,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
@@ -70,7 +70,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
 
     private static final FluidStack WATER = Water.getFluid(1);
     private static final FluidStack DISTILLED_WATER = DistilledWater.getFluid(1);
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH, GregicAdditionsCapabilities.MUFFLER_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, MAINTENANCE_HATCH, MUFFLER_HATCH};
     private final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
     private final Set<BlockPos> solarCollectorPos = new HashSet<>();
     private final Set<BlockPos> activeStates = new HashSet<>();
@@ -225,7 +225,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
 
     public static Predicate<BlockWorldState> solarCollectorPredicate() {
         return (blockWorldState) -> {
-            if (blockWorldState.getBlockState() != TJMetaBlocks.ABILITY_BLOCKS.getState(AbilityBlocks.AbilityType.SOLAR_COLLECTOR))
+            if (blockWorldState.getBlockState() != TJMetaBlocks.ABILITY_BLOCKS.getState(BlockAbility.AbilityType.SOLAR_COLLECTOR))
                 return false;
             if (blockWorldState.getWorld() != null) {
                 final Set<BlockPos> posList = blockWorldState.getMatchContext().getOrCreate("solarCollectors", HashSet::new);

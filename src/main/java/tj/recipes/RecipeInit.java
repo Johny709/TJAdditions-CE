@@ -209,7 +209,7 @@ public class RecipeInit {
                 'G', Blocks.GLASS,
                 'H', MetaTileEntities.HULL[1].getStackForm());
         for (int i = 0; i < AIR_COLLECTORS.length; i++) {
-            ModHandler.addShapedRecipe("large_atmosphere_collector." + i, LARGE_ATMOSPHERE_COLLECTOR[i].getStackForm(), "CRC", "RSR", "PRP",
+            ModHandler.addShapedRecipe("large_atmosphere_collector." + i, LARGE_ATMOSPHERE_COLLECTORS[i].getStackForm(), "CRC", "RSR", "PRP",
                     'C', CraftingComponent.CIRCUIT.getIngredient(5 + i),
                     'R', CraftingComponent.ROTOR.getIngredient(5 + i),
                     'S', AIR_COLLECTORS[i].getStackForm(),
@@ -303,12 +303,12 @@ public class RecipeInit {
                 'W', new UnificationEntry(OrePrefix.cableGtSingle, Tin),
                 'C', new UnificationEntry(OrePrefix.circuit, Basic),
                 'S', SOLAR_BOILER[2].getStackForm());
-        ModHandler.addShapedRecipe("solar_collector", TJMetaBlocks.ABILITY_BLOCKS.getItemVariant(AbilityBlocks.AbilityType.SOLAR_COLLECTOR), "GGG", "DDD", "PSP",
+        ModHandler.addShapedRecipe("solar_collector", TJMetaBlocks.ABILITY_BLOCKS.getItemVariant(BlockAbility.AbilityType.SOLAR_COLLECTOR), "GGG", "DDD", "PSP",
                 'G', new ItemStack(Blocks.GLASS),
                 'D', new UnificationEntry(OrePrefix.plateDense, Silver),
                 'P', new UnificationEntry(OrePrefix.pipeLarge, Steel),
                 'S', HULL[1].getStackForm());
-        ModHandler.addShapedRecipe("primitive_pump_casing", TJMetaBlocks.ABILITY_BLOCKS.getItemVariant(AbilityBlocks.AbilityType.PRIMITIVE_PUMP_CASING, 2), "   ", "SWS", "sCh",
+        ModHandler.addShapedRecipe("primitive_pump_casing", TJMetaBlocks.ABILITY_BLOCKS.getItemVariant(BlockAbility.AbilityType.PRIMITIVE_PUMP_CASING, 2), "   ", "SWS", "sCh",
                 'W', new UnificationEntry(OrePrefix.plank, Wood),
                 'S', new UnificationEntry(OrePrefix.screw, Iron),
                 'C', new ItemStack(Blocks.STONE_SLAB, 1, 3));
@@ -326,6 +326,11 @@ public class RecipeInit {
                 'G', GACraftingComponents.GEAR.getIngredient(5),
                 'H', NAMING_MACHINES[4].getStackForm(),
                 'A', new ItemStack(Blocks.ANVIL));
+        ModHandler.addShapedRecipe("heat_vent", TJMetaBlocks.ACTIVE_ABILITY_BLOCKS.getItemVariant(BlockActiveAbility.AbilityType.HEAT_VENT, 2), "TMT", "RLR", "TMT",
+                'M', new UnificationEntry(GAEnums.GAOrePrefix.plateDouble, Molybdenum),
+                'L', new UnificationEntry(OrePrefix.stick, Molybdenum),
+                'T', new UnificationEntry(OrePrefix.plate, Tantalum),
+                'R', new UnificationEntry(OrePrefix.rotor, Titanium));
         ModHandler.addShapelessRecipe("tj_crafting_storage_65536k", CRAFTING_STORAGE_65536K.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_65536K.maybeStack(1).orElse(null), aeBlocks.craftingUnit().maybeStack(1).orElse(null));
         ModHandler.addShapelessRecipe("tj_crafting_storage_262144k", CRAFTING_STORAGE_262144K.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_262144K.maybeStack(1).orElse(null), aeBlocks.craftingUnit().maybeStack(1).orElse(null));
         ModHandler.addShapelessRecipe("tj_crafting_storage_1048m", CRAFTING_STORAGE_1048M.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_1048M.maybeStack(1).orElse(null), aeBlocks.craftingUnit().maybeStack(1).orElse(null));

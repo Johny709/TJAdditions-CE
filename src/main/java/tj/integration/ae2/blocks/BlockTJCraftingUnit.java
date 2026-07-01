@@ -11,6 +11,7 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -39,6 +40,11 @@ public class BlockTJCraftingUnit extends BlockCraftingUnit implements IBlockMode
         super(CraftingUnitType.UNIT);
         this.type = type;
         this.setTileEntity(TileTJCraftingStorageTile.class);
+    }
+
+    @Override
+    public boolean canCreatureSpawn(@Nonnull IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nonnull EntityLiving.SpawnPlacementType type) {
+        return false;
     }
 
     @Override

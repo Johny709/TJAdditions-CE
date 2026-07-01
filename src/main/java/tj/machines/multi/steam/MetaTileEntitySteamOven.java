@@ -6,7 +6,6 @@ import codechicken.lib.vec.Matrix4;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -40,6 +39,7 @@ import tj.capability.ProgressBar;
 import tj.capability.impl.handler.ICoilHandler;
 import tj.capability.impl.workable.MultiSmelterWorkableHandler;
 import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 import tj.util.TJFluidUtils;
@@ -93,8 +93,8 @@ public class MetaTileEntitySteamOven extends TJMultiblockControllerBase implemen
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
         if (!this.hasDistinct()) return;
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.workableHandler::isDistinct, this.workableHandler::setDistinct)
-                .setTooltipText("machine.universal.toggle.distinct.mode"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.workableHandler::isDistinct, this.workableHandler::setDistinct)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.distinct.mode.disabled", "machine.universal.toggle.distinct.mode.enabled"));
     }
 
     @Override

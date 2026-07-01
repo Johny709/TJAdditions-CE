@@ -35,7 +35,7 @@ public class DualitySuperInterface extends DualityInterface {
 
     public DualitySuperInterface(AENetworkProxy networkProxy, IInterfaceHost ih, int upgradeSlots, int storageSlots, int patterns) {
         super(networkProxy, ih);
-        // dummy config for Send Real Fluid, Field: (boolean) fluid packet
+        // dummy config for Send Real Fluid, Field: (boolean) fluidPacket
         this.getConfigManager().registerSetting(Settings.OPERATION_MODE, OperationMode.FILL);
         // dummy config for Allow Splitting Items and Fluids, Field: (boolean) allowSplitting
         this.getConfigManager().registerSetting(Settings.LEVEL_TYPE, LevelType.ENERGY_LEVEL);
@@ -49,7 +49,7 @@ public class DualitySuperInterface extends DualityInterface {
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new AppEngInternalAEInventory(this, storageSlots, 1024), "config");
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new DualityUpgradeInventory(this, upgradeSlots), "upgrades");
         try {
-            Field mySource = ObfuscationReflectionHelper.findField(DualityInterface.class, "mySource");
+            final Field mySource = ObfuscationReflectionHelper.findField(DualityInterface.class, "mySource");
             ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new TJAppEngNetworkInventory(() -> {
                 try {
                     return networkProxy.getStorage();
@@ -58,7 +58,7 @@ public class DualitySuperInterface extends DualityInterface {
                 }
             }, (IActionSource) mySource.get(this), this, storageSlots, 1024), "storage");
         } catch (IllegalAccessException e) {
-            TJ.logger.error("Error when trying to reflect on class {} for field storage", DualityInterface.class.getName());
+            TJ.logger.error("Error when trying to reflect on class {} for field: storage. {}", DualityInterface.class.getName(), e.getMessage());
         }
     }
 

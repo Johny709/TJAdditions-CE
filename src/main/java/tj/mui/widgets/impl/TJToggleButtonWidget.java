@@ -18,7 +18,7 @@ import tj.mui.widgets.ButtonWidget;
 import tj.util.consumers.QuadConsumer;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
@@ -26,18 +26,21 @@ import java.util.function.Consumer;
 
 public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
 
-    private boolean useToggleTexture;
-    private boolean isPressed;
-    private String baseDisplayText;
-    private String activeDisplayText;
-    private String baseTooltipHoverText;
-    private String activeTooltipHoverText;
+    private BiConsumer<Boolean, String> toggleButtonResponder;
+    private BooleanSupplier isPressedCondition;
+    private BooleanConsumer buttonBoolResponder;
     private TextureArea toggleTexture;
     private TextureArea activeTexture;
     private TextureArea baseTexture;
-    private BooleanSupplier isPressedCondition;
-    private BooleanConsumer buttonBoolResponder;
-    private BiConsumer<Boolean, String> toggleButtonResponder;
+    private String activeTooltipHoverText;
+    private String baseTooltipHoverText;
+    private String activeTitleTooltipHoverText;
+    private String baseTitleTooltipHoverText;
+    private String activeDisplayText;
+    private String baseDisplayText;
+    private boolean useToggleTexture;
+    private boolean invertTexture;
+    private boolean isPressed;
 
     public TJToggleButtonWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -65,6 +68,14 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
         this(x, y, width, height);
         this.isPressedCondition = isPressedCondition;
         this.textResponderWithMouse = textResponderWithMouse;
+    }
+
+    public TJToggleButtonWidget(int x, int y, int width, int height, TextureArea toggleTexture, BooleanSupplier isPressedCondition, BooleanConsumer buttonBoolResponder) {
+        this(x, y, width, height);
+        this.isPressedCondition = isPressedCondition;
+        this.buttonBoolResponder = buttonBoolResponder;
+        this.toggleTexture = toggleTexture;
+        this.useToggleTexture(true);
     }
 
     /**
@@ -105,6 +116,15 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     }
 
     /**
+     * Set to invert toggle texture of button. Default: false.
+     * @param invertTexture invert toggle texture
+     */
+    public TJToggleButtonWidget setInvertTexture(boolean invertTexture) {
+        this.invertTexture = invertTexture;
+        return this;
+    }
+
+    /**
      * {@link #useToggleTexture(boolean)} must be set to false.
      * @param baseTexture The texture shown when the button is pressed.
      * @param activeTexture The texture shown when the button is pressed.
@@ -127,6 +147,20 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     }
 
     /**
+     * Button title hover tooltip.
+     * Text that will be displayed upon hovering over this button.
+     * This will attempt to translate the text if they're a lang string.
+     * @param baseTitleTooltipHoverText The text shown on the button when it's not pressed.
+     * @param activeTitleTooltipHoverText The text shown on the button when it's pressed.
+     */
+    public TJToggleButtonWidget setToggleTitleTooltipHoverText(String baseTitleTooltipHoverText, String activeTitleTooltipHoverText) {
+        this.baseTitleTooltipHoverText = baseTitleTooltipHoverText;
+        this.activeTitleTooltipHoverText = activeTitleTooltipHoverText;
+        return this;
+    }
+
+    /**
+     * Button description hover tooltip.
      * Text that will be displayed upon hovering over this button.
      * This will attempt to translate the text if they're a lang string.
      * @param baseTooltipHoverText The text shown on the button when it's not pressed.
@@ -141,27 +175,29 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
+        if (!this.isActive || !this.isMouseOverElement(mouseX, mouseY)) return;
+        final List<String> hover = new ArrayList<>();
+        if (this.baseTitleTooltipHoverText != null && this.activeTitleTooltipHoverText != null)
+            hover.add(I18n.format(this.isPressed ? this.activeTitleTooltipHoverText : this.baseTitleTooltipHoverText));
+        if (this.baseTooltipHoverText != null && this.activeTooltipHoverText != null)
+            hover.add("§7" + I18n.format(this.isPressed ? this.activeTooltipHoverText : this.baseTooltipHoverText));
+        this.drawHoveringText(ItemStack.EMPTY, hover, 300, mouseX, mouseY);
         super.drawInForeground(mouseX, mouseY);
-        if (this.baseTooltipHoverText != null && this.activeTooltipHoverText != null && this.isMouseOverElement(mouseX, mouseY)) {
-            final List<String> hover = Collections.singletonList(this.isPressed ? I18n.format(this.activeTooltipHoverText) : I18n.format(this.baseTooltipHoverText));
-            this.drawHoveringText(ItemStack.EMPTY, hover, 300, mouseX, mouseY);
-        }
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+        if (!this.isActive) return;
         final Position pos = this.getPosition();
         final Size size = this.getSize();
         if (!this.useToggleTexture) {
-            if (this.isPressedCondition.getAsBoolean())
+            if (this.invertTexture != this.isPressedCondition.getAsBoolean()) {
                 this.activeTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
-            else this.baseTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
+            } else this.baseTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         } else if (this.toggleTexture instanceof SizedTextureArea) {
-            ((SizedTextureArea) this.toggleTexture).drawHorizontalCutSubArea(pos.x, pos.y, size.width, size.height, this.isPressed ? 0.5 : 0.0, 0.5);
-        } else {
-            this.toggleTexture.drawSubArea(pos.x, pos.y, size.width, size.height, 0.0, this.isPressed ? 0.5 : 0.0, 1.0, 0.5);
-        }
+            ((SizedTextureArea) this.toggleTexture).drawHorizontalCutSubArea(pos.x, pos.y, size.width, size.height, this.isMouseOverElement(mouseX, mouseY) ? 0.5 : 0.0, 0.5);
+        } else this.toggleTexture.drawSubArea(pos.x, pos.y, size.width, size.height, 0.0, this.invertTexture != this.isPressed ? 0.5 : 0.0, 1.0, 0.5);
         if (this.baseDisplayText != null && this.activeDisplayText != null) {
             final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
             final String text = I18n.format(this.isPressed ? this.activeDisplayText : this.baseDisplayText);
@@ -171,15 +207,17 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
             GlStateManager.color(1.0f, 1.0f, 1.0f);
         }
         super.drawInBackground(mouseX, mouseY, context);
+        if (this.isMouseOverElement(mouseX, mouseY))
+            drawSelectionOverlay(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (this.isMouseOverElement(mouseX, mouseY)) {
+        if (this.isActive && this.isMouseOverElement(mouseX, mouseY)) {
             this.playButtonClickSound();
             this.isPressed = !this.isPressed;
-            this.writeClientAction(1, buffer -> {
+            this.writeClientAction(2, buffer -> {
                 buffer.writeString(this.buttonId != null ? this.buttonId : "");
                 buffer.writeBoolean(this.isPressed);
                 buffer.writeInt(mouseX);
@@ -193,7 +231,8 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
 
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
-        if (id == 1) {
+        super.handleClientAction(id, buffer);
+        if (id == 2) {
             final String buttonId = buffer.readString(Short.MAX_VALUE);
             this.isPressed = buffer.readBoolean();
             final int mouseX = buffer.readInt();

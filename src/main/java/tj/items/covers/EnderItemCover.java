@@ -5,13 +5,13 @@ import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.common.covers.filter.SimpleItemFilter;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -26,7 +26,6 @@ import tj.util.EnderWorldData;
 import tj.util.TextUtils;
 
 import java.awt.*;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static gregtech.api.gui.GuiTextures.*;
@@ -55,14 +54,15 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
                 for (int i = 0; i < 9; i++) {
                     widgetGroup.accept(new PhantomSlotWidget(itemFilterSlots, i, 3 + 18 * (i % 3), 3 + 18 * (i / 3)).setBackgroundTexture(SLOT));
                 }
-                widgetGroup.accept(new ToggleButtonWidget(21, 57, 18, 18, BUTTON_FILTER_DAMAGE,
-                        () -> ignoreDamage, this::setIgnoreDamage).setTooltipText("cover.item_filter.ignore_damage"));
-                widgetGroup.accept(new ToggleButtonWidget(39, 57, 18, 18, BUTTON_FILTER_NBT,
-                        () -> ignoreNBT, this::setIgnoreNBT).setTooltipText("cover.item_filter.ignore_nbt"));
+                widgetGroup.accept(new TJToggleButtonWidget(21, 57, 18, 18, BUTTON_FILTER_DAMAGE,
+                        () -> ignoreDamage, this::setIgnoreDamage)
+                        .setToggleTitleTooltipHoverText("cover.item_filter.ignore_damage.disabled", "cover.item_filter.ignore_damage.enabled"));
+                widgetGroup.accept(new TJToggleButtonWidget(39, 57, 18, 18, BUTTON_FILTER_NBT,
+                        () -> ignoreNBT, this::setIgnoreNBT)
+                        .setToggleTitleTooltipHoverText("cover.item_filter.ignore_nbt.disabled", "cover.item_filter.ignore_nbt.enabled"));
             }
         };
-        if (FMLCommonHandler.instance().getSide().isClient())
-            this.handler = this.createHandler();
+        this.handler = this.createHandler();
     }
 
     @Override
@@ -91,20 +91,20 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
     }
 
     @Override
-    protected Map<String, EnderCoverProfile<LargeItemStackHandler>> getPlayerMap() {
+    protected Object2ObjectMap<String, EnderCoverProfile<LargeItemStackHandler>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getItemChestPlayerMap();
     }
 
     @Override
     protected void addToPopUpWidget(PopUpWidget<?> buttonPopUpWidget) {
         ((ButtonPopUpWidget<?>) buttonPopUpWidget).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 161, 18, 18)
-                        .setTooltipText("cover.conveyor.item_filter.title")
+                        .setHoverTooltipText("cover.conveyor.item_filter.title")
                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                         .setBackgroundTextures(ITEM_FILTER)
                         .useToggleTexture(true), widgetGroup -> {
             widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
-            widgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
-                    .setTooltipText("cover.filter.blacklist"));
+            widgetGroup.addWidget(new TJToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
+                    .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled", "cover.filter.blacklist.enabled"));
             this.itemFilter.initUI(widgetGroup::addWidget);
             return false;
         }).setClickArea(new Rectangle(346, 107, 60, 78));
@@ -112,8 +112,7 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
 
     @Override
     protected void addWidgets(Consumer<Widget> widget) {
-        widget.accept(new TJSlotWidget<>(null, 0, 7, 38)
-                .setItemHandlerSupplier(() -> this.handler)
+        widget.accept(new TJSlotWidget<>(() -> this.handler, 0, 7, 38)
                 .setActiveBackgroundTexture(SLOT));
     }
 
@@ -127,7 +126,7 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
     }
 
     @Override
-    protected LargeItemStackHandler createHandler() {
+    public LargeItemStackHandler createHandler() {
         return new LargeItemStackHandler(1, this.capacity);
     }
 

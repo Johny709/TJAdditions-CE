@@ -93,20 +93,24 @@ public class TJPhantomAEFluidSlotWidget extends Widget implements IGhostIngredie
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        if (this.backgroundTexture != null)
-            this.backgroundTexture.draw(this.getPosition().getX(), this.getPosition().getY(), this.getSize().getWidth(), this.getSize().getHeight());
-        if (this.fluidStack == null) return;
+        final Size size = this.getSize();
         final Position pos = this.getPosition();
-        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        GlStateManager.disableBlend();
-        TJGuiUtils.drawFluidForGui(this.fluidStack, this.fluidStack.amount, this.fluidStack.amount, pos.getX() + 1, pos.getY() + 1, 17, 17);
-        GlStateManager.pushMatrix();
-        GlStateManager.scale(0.5, 0.5, 1);
-        final String s = TextFormattingUtil.formatLongToCompactString(this.fluidStack.amount, 4) + "L";
-        fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + 12) * 2, 0xFFFFFF);
-        GlStateManager.popMatrix();
-        GlStateManager.enableBlend();
-        GlStateManager.color(1.0f, 1.0f, 1.0f);
+        if (this.backgroundTexture != null)
+            this.backgroundTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
+        if (this.fluidStack != null) {
+            final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+            GlStateManager.disableBlend();
+            TJGuiUtils.drawFluidForGui(this.fluidStack, this.fluidStack.amount, this.fluidStack.amount, pos.getX() + 1, pos.getY() + 1, 17, 17);
+            GlStateManager.pushMatrix();
+            GlStateManager.scale(0.5, 0.5, 1);
+            final String s = TextFormattingUtil.formatLongToCompactString(this.fluidStack.amount, 4) + "L";
+            fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + 12) * 2, 0xFFFFFF);
+            GlStateManager.popMatrix();
+            GlStateManager.enableBlend();
+            GlStateManager.color(1.0f, 1.0f, 1.0f);
+        }
+        if (this.isMouseOverElement(mouseX, mouseY))
+            drawSelectionOverlay(pos.getX() + 1, pos.getY() + 1, size.getWidth() - 2, size.getHeight() - 2);
     }
 
     @Override

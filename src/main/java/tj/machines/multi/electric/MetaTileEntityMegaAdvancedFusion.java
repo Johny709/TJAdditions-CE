@@ -43,7 +43,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
-import tj.blocks.AdvEnergyPortCasings;
+import tj.blocks.BlockAdvEnergyPortCasings;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
@@ -215,11 +215,11 @@ public class MetaTileEntityMegaAdvancedFusion extends TJRecipeMapMultiblockContr
         return (blockWorldState) -> {
             final IBlockState blockState = blockWorldState.getBlockState();
             final Block block = blockState.getBlock();
-            if (block instanceof AdvEnergyPortCasings) {
-                final AdvEnergyPortCasings abilityCasings = (AdvEnergyPortCasings) block;
+            if (block instanceof BlockAdvEnergyPortCasings) {
+                final BlockAdvEnergyPortCasings abilityCasings = (BlockAdvEnergyPortCasings) block;
                 abilityCasings.setController(this);
-                final AdvEnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
-                final List<AdvEnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
+                final BlockAdvEnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
+                final List<BlockAdvEnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
                 final Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
                 final LongList amps = blockWorldState.getMatchContext().getOrCreate("EnergyAmps", LongArrayList::new);
                 currentCasing.add(tieredCasingType);
@@ -235,7 +235,7 @@ public class MetaTileEntityMegaAdvancedFusion extends TJRecipeMapMultiblockContr
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         final LongList energyPortAmps = context.getOrDefault("EnergyAmps", new LongArrayList());
-        final List<AdvEnergyPortCasings.AbilityType> energyPorts = context.getOrDefault("EnergyPort", new ArrayList<>());
+        final List<BlockAdvEnergyPortCasings.AbilityType> energyPorts = context.getOrDefault("EnergyPort", new ArrayList<>());
         final int cryostat = context.getOrDefault("Cryostat", GACryostatCasing.CasingType.CRYOSTAT_1).getTier();
         this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
         this.divertorTier = context.getOrDefault("Divertor", GADivertorCasing.CasingType.DIVERTOR_1).getTier();
@@ -322,8 +322,8 @@ public class MetaTileEntityMegaAdvancedFusion extends TJRecipeMapMultiblockContr
             final BlockPos pos = buffer.readBlockPos();
             IBlockState state = this.getWorld().getBlockState(pos);
             Block block = state.getBlock();
-            if (block instanceof AdvEnergyPortCasings) {
-                state = state.withProperty(AdvEnergyPortCasings.ACTIVE, isActive);
+            if (block instanceof BlockAdvEnergyPortCasings) {
+                state = state.withProperty(BlockAdvEnergyPortCasings.ACTIVE, isActive);
                 this.getWorld().setBlockState(pos, state);
             }
         }

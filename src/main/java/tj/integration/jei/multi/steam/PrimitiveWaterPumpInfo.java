@@ -8,7 +8,7 @@ import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import tj.TJValues;
-import tj.blocks.AbilityBlocks;
+import tj.blocks.BlockAbility;
 import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;

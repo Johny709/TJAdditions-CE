@@ -99,12 +99,14 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+        final Size size = this.getSize();
         final Position pos = this.getPosition();
-        if (this.backgroundTextures != null) for (TextureArea textureArea : this.backgroundTextures) {
-            textureArea.draw(pos.getX(), pos.getY(), this.getSize().getWidth(), this.getSize().getHeight());
-        }
+        if (this.backgroundTextures != null) for (TextureArea textureArea : this.backgroundTextures)
+            textureArea.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         if (!this.itemStack.isEmpty())
             Widget.drawItemStack(this.itemStack, pos.getX() + 1, pos.getY() + 1, null);
+        if (this.isMouseOverElement(mouseX, mouseY))
+            drawSelectionOverlay(pos.getX() + 1, pos.getY() + 1, size.getWidth() - 1, size.getHeight() - 1);
     }
 
     @Override

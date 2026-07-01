@@ -137,7 +137,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
                 .addPopup(new TJToggleButtonWidget(175, 152, 18, 18)
                         .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
-                        .setTooltipText("tj.multiblock.tab.settings")
+                        .setHoverTooltipText("tj.multiblock.tab.settings")
                         .useToggleTexture(true), widgetGroup1 -> {
                     widgetGroup1.addWidget(new WindowsWidgetGroup(12, 60, 160, 120, GuiTextures.BORDERED_BACKGROUND)
                             .addSubWidget(new TJLabelWidget(0, -1, 160, 18, null)

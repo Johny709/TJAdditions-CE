@@ -7,9 +7,6 @@ import codechicken.lib.vec.Matrix4;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.ClickButtonWidget;
-import gregtech.api.gui.widgets.CycleButtonWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,10 +17,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.impl.NewTextFieldWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.SelectionWidgetGroup;
-import tj.mui.widgets.impl.TJPhantomFluidSlotWidget;
+import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
 
 import java.util.regex.Pattern;
@@ -61,8 +56,16 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(63, 48));
-        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(63, 48, 54, 54);
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 48));
+        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 48, 54, 54);
+        final ButtonWidget<?> clickButtonDivide = new ButtonWidget<>(-54, -20, 18, 18, "/2", data -> this.setFluidCount(String.valueOf(Long.parseLong(this.getFluidCount(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ButtonWidget<?> clickButtonMultiply = new ButtonWidget<>(90, -20, 18, 18, "*2", data -> this.setFluidCount(String.valueOf(Long.parseLong(this.getFluidCount(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> stackSizeTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, this::setFluidCount)
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setUpdateOnTyping(true)
+                .setMaxStringLength(11);
+        stackSizeTextField.setTextSupplier(() -> this.getFluidCount((int) stackSizeTextField.getTextIdLong()));
+        selectionWidgetGroup.setIndexListener(stackSizeTextField::setTextIdLong);
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             final int index = i;
             widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.fluidFilter, fluid -> {
@@ -71,13 +74,9 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
                 this.fluidFilter.getTankAt(index).fill(fluid, true);
                 this.fluidType.put(fluid, fluid);
             }).setBackgroundTexture(GuiTextures.FLUID_SLOT));
-            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(-37, -20, 124, 18, true, () -> String.valueOf(this.fluidFilter.getTankAt(index).getFluidAmount()), this::setFluidCount)
-                    .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                    .setTextId(String.valueOf(index))
-                    .setUpdateOnTyping(true)
-                    .setMaxStringLength(11));
-            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(-56, -20, 18, 18, "/2", data -> this.setFluidCount(String.valueOf((long) this.fluidFilter.getTankAt(index).getFluidAmount() / 2), String.valueOf(index))));
-            selectionWidgetGroup.addSubWidget(i, new ClickButtonWidget(88, -20, 18, 18, "*2", data -> this.setFluidCount(String.valueOf((long) this.fluidFilter.getTankAt(index).getFluidAmount() * 2), String.valueOf(index))));
+            selectionWidgetGroup.addSubWidget(i, clickButtonDivide.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            selectionWidgetGroup.addSubWidget(i, clickButtonMultiply.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            selectionWidgetGroup.addSubWidget(i, stackSizeTextField);
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 208)
@@ -87,11 +86,11 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setTooltipText("machine.universal.ticks.operation")
                         .setUpdateOnTyping(true))
-                .widget(new ClickButtonWidget(7, 7, 18, 18, "/2", data -> this.setTickTime(String.valueOf((long) this.tickTime / 2), "")))
-                .widget(new ClickButtonWidget(151, 7, 18, 18, "*2", data -> this.setTickTime(String.valueOf((long) this.tickTime * 2), "")))
-                .widget(new CycleButtonWidget(43, 106, 90, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode))
-                .widget(new ToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorking)
-                        .setTooltipText("machine.universal.toggle.run.mode"))
+                .widget(new ButtonWidget<>(7, 7, 18, 18, "/2", data -> this.setTickTime(String.valueOf((long) this.tickTime / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new ButtonWidget<>(151, 7, 18, 18, "*2", data -> this.setTickTime(String.valueOf((long) this.tickTime * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new TJCycleButtonWidget<>(43, 106, 90, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new TJToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorking)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 126)
@@ -134,16 +133,18 @@ public class VoidAdvancedFluidCover extends VoidFluidCover {
         this.voidMode = VoidMode.values()[tagCompound.getInteger("voidMode")];
     }
 
-    public void setFluidCount(String text, String id) {
+    private void setFluidCount(String text, String id) {
         final int index = Integer.parseInt(id);
-        FluidStack stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
-        if (stack == null) return;
-        stack = this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
-        if (stack == null) return;
-        stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
-        this.fluidFilter.getTankAt(index).fill(stack, true);
-        this.fluidType.put(stack, stack);
+        if (index < 0 || index >= this.fluidFilter.getTanks()) return;
+        final FluidStack fluidStack = this.fluidFilter.getTankAt(index).getFluid();
+        if (fluidStack == null) return;
+        fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text));
+        this.fluidType.put(fluidStack, fluidStack);
         this.markAsDirty();
+    }
+
+    private String getFluidCount(int index) {
+        return String.valueOf(this.fluidFilter.getTankAt(index).getFluidAmount());
     }
 
     public void setVoidMode(VoidMode voidMode) {

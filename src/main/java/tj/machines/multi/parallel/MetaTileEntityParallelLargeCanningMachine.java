@@ -75,7 +75,7 @@ public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMap
                 .where('S', this.selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
                 .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('G', statePredicate(this.getCasingState()).or(glassPredicate()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('G', statePredicate(this.getCasingState()).or(glassPredicate()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE)))
                 .where('p', pumpPredicate())
                 .where('#', isAirPredicate())

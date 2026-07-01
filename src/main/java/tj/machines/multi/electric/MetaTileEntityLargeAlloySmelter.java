@@ -1,8 +1,6 @@
 package tj.machines.multi.electric;
 
-import gregicadditions.GAConfig;
 import gregicadditions.GAValues;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAHeatingCoil;
 import gregicadditions.item.metal.MetalCasing1;
@@ -11,7 +9,6 @@ import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
-import gregtech.api.multiblock.BlockWorldState;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.RecipeMaps;
@@ -34,17 +31,17 @@ import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 
 public class MetaTileEntityLargeAlloySmelter extends TJRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private final Set<BlockPos> activeStates = new HashSet<>();
 
     public MetaTileEntityLargeAlloySmelter(ResourceLocation metaTileEntityId) {
@@ -77,70 +74,22 @@ public class MetaTileEntityLargeAlloySmelter extends TJRecipeMapMultiblockContro
                 .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(getCasingState()))
                 .where('H', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
+                .where('c', coilPredicate())
                 .where('#', isAirPredicate())
                 .where('~', (tile) -> true)
                 .build();
 
     }
 
-    public static Predicate<BlockWorldState> heatingCoilPredicate() {
-        return blockWorldState -> {
-            final IBlockState blockState = blockWorldState.getBlockState();
-            if (!(blockState.getBlock() instanceof BlockWireCoil))
-                return false;
-            final BlockWireCoil blockWireCoil = (BlockWireCoil) blockState.getBlock();
-            final BlockWireCoil.CoilType coilType = blockWireCoil.getState(blockState);
-            if (Arrays.asList(GAConfig.multis.heatingCoils.gtceHeatingCoilsBlacklist).contains(coilType.getName()))
-                return false;
-
-            final int blastFurnaceTemperature = coilType.getCoilTemperature();
-            final int currentTemperature = blockWorldState.getMatchContext().getOrPut("blastFurnaceTemperature", blastFurnaceTemperature);
-
-            BlockWireCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("coilType", coilType);
-            Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
-            activeStates.add(blockWorldState.getPos());
-
-            return currentTemperature == blastFurnaceTemperature && coilType.equals(currentCoilType);
-        };
-    }
-
-    public static Predicate<BlockWorldState> heatingCoilPredicate2() {
-        return blockWorldState -> {
-            final IBlockState blockState = blockWorldState.getBlockState();
-            if (!(blockState.getBlock() instanceof GAHeatingCoil))
-                return false;
-            final GAHeatingCoil blockWireCoil = (GAHeatingCoil) blockState.getBlock();
-            final GAHeatingCoil.CoilType coilType = blockWireCoil.getState(blockState);
-            if (Arrays.asList(GAConfig.multis.heatingCoils.gregicalityheatingCoilsBlacklist).contains(coilType.getName()))
-                return false;
-
-            final int blastFurnaceTemperature = coilType.getCoilTemperature();
-            final int currentTemperature = blockWorldState.getMatchContext().getOrPut("blastFurnaceTemperature", blastFurnaceTemperature);
-
-            final GAHeatingCoil.CoilType currentCoilType = blockWorldState.getMatchContext().getOrPut("gaCoilType", coilType);
-            final Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
-            activeStates.add(blockWorldState.getPos());
-
-            return currentTemperature == blastFurnaceTemperature && coilType.equals(currentCoilType);
-        };
-    }
-
     @Override
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
-        int tier = 0;
-        final BlockWireCoil.CoilType coilType;
-        final GAHeatingCoil.CoilType gaCoilType;
-        if ((coilType = context.getOrDefault("coilType", BlockWireCoil.CoilType.CUPRONICKEL)) != null)
-            tier = coilType.ordinal() + 1;
-        else if ((gaCoilType = context.getOrDefault("gaCoilType", GAHeatingCoil.CoilType.TITAN_STEEL_COIL)) != null)
-            tier = gaCoilType.ordinal() + 8;
+        final int tier = context.getOrDefault("coilIndex", 0) + 1;
         if (tier < GAValues.MAX) {
             this.maxVoltage = 8L << tier * 2;
             this.tier = tier;
         }
-        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
+        this.activeStates.addAll(context.getOrDefault("coilPos", new HashSet<>()));
     }
 
     @Override

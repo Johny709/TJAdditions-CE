@@ -81,7 +81,7 @@ public class XLTurbineWorkableHandler extends TJFuelRecipeLogic {
 
     @Override
     protected FluidStack tryAcquireNewRecipe(FluidStack fuelStack) {
-        FuelRecipe currentRecipe;
+        final FuelRecipe currentRecipe;
         if (this.previousRecipe != null && this.previousRecipe.matches(this.getMaxVoltage(), fuelStack)) {
             //if previous recipe still matches inputs, try to use it
             currentRecipe = this.previousRecipe;
@@ -94,15 +94,15 @@ public class XLTurbineWorkableHandler extends TJFuelRecipeLogic {
             } else this.blacklistFluid.add(fuelStack); // blacklist fluid not found in recipe map to prevent search slowdown.
         }
         if (currentRecipe != null && this.checkRecipe(currentRecipe)) {
-            int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
+            final int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
             if (fuelStack.amount >= fuelAmountToUse) {
                 this.maxProgress = this.calculateRecipeDuration(currentRecipe);
                 if (this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.PLASMA) {
-                    FluidStack outputFluid = FluidRegistry.getFluidStack(FluidRegistry.getFluidName(currentRecipe.getRecipeFluid()).substring(7), fuelAmountToUse);
+                    final FluidStack outputFluid = FluidRegistry.getFluidStack(FluidRegistry.getFluidName(currentRecipe.getRecipeFluid()).substring(7), fuelAmountToUse);
                     this.exportFluidsSupplier.get().fill(outputFluid, true);
                     this.fluidOutputs.add(outputFluid);
                 } else if (this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM) {
-                    FluidStack outputFluid = DistilledWater.getFluid(fuelAmountToUse / 160);
+                    final FluidStack outputFluid = DistilledWater.getFluid(fuelAmountToUse / 160);
                     this.exportFluidsSupplier.get().fill(outputFluid, true);
                     this.fluidOutputs.add(outputFluid);
                 }
@@ -116,13 +116,12 @@ public class XLTurbineWorkableHandler extends TJFuelRecipeLogic {
 
     @Override
     public boolean checkRecipe(FuelRecipe recipe) {
-        List<MetaTileEntityRotorHolder> rotorHolders = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER);
         if (++this.rotorCycleLength >= CYCLE_LENGTH) {
-            for (MetaTileEntityRotorHolder rotorHolder : rotorHolders) {
+            for (MetaTileEntityRotorHolder rotorHolder : this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER)) {
                 int baseRotorDamage = BASE_ROTOR_DAMAGE;
                 if (this.extremeTurbine.turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM)
                     baseRotorDamage = 150;
-                int damageToBeApplied = (int) Math.round((baseRotorDamage * rotorHolder.getRelativeRotorSpeed()) + 1) * rotorDamageMultiplier;
+                final int damageToBeApplied = (int) Math.round((baseRotorDamage * rotorHolder.getRelativeRotorSpeed()) + 1) * this.rotorDamageMultiplier;
                 if (!rotorHolder.applyDamageToRotor(damageToBeApplied, false)) {
                     return false;
                 }
@@ -135,10 +134,9 @@ public class XLTurbineWorkableHandler extends TJFuelRecipeLogic {
     @Override
     protected boolean isReadyForRecipes() {
         int areReadyForRecipes = 0;
-        int rotorHolderSize = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER).size();
+        final int rotorHolderSize = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER).size();
         for (int index = 0; index < rotorHolderSize; index++) {
-            MetaTileEntityRotorHolder rotorHolder = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER).get(index);
-            if (rotorHolder.isHasRotor())
+            if (this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER).get(index).isHasRotor())
                 areReadyForRecipes++;
         }
         return areReadyForRecipes == rotorHolderSize;
@@ -156,10 +154,9 @@ public class XLTurbineWorkableHandler extends TJFuelRecipeLogic {
     @Override
     public long getMaxVoltage() {
         double totalEnergyOutput = 0;
-        List<MetaTileEntityRotorHolder> rotorHolders = this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER);
-        for (MetaTileEntityRotorHolder rotorHolder : rotorHolders) {
+        for (MetaTileEntityRotorHolder rotorHolder : this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER)) {
             if (rotorHolder.hasRotorInInventory()) {
-                double rotorEfficiency = rotorHolder.getRotorEfficiency();
+                final double rotorEfficiency = rotorHolder.getRotorEfficiency();
                 totalEnergyOutput += BASE_EU_VOLTAGE + this.getBonusForTurbineType(this.extremeTurbine) * rotorEfficiency;
             }
         }
@@ -171,8 +168,8 @@ public class XLTurbineWorkableHandler extends TJFuelRecipeLogic {
         double totalEnergyOutput = 0;
         for (MetaTileEntityRotorHolder rotorHolder : this.extremeTurbine.getAbilities(ABILITY_ROTOR_HOLDER)) {
             if (rotorHolder.getCurrentRotorSpeed() > 0 && rotorHolder.hasRotorInInventory() && rotorHolder.isFrontFaceFree()) {
-                double relativeRotorSpeed = rotorHolder.getRelativeRotorSpeed();
-                double rotorEfficiency = rotorHolder.getRotorEfficiency();
+                final double relativeRotorSpeed = rotorHolder.getRelativeRotorSpeed();
+                final double rotorEfficiency = rotorHolder.getRotorEfficiency();
                 totalEnergyOutput += (BASE_EU_OUTPUT + getBonusForTurbineType(this.extremeTurbine) * rotorEfficiency) * (relativeRotorSpeed * relativeRotorSpeed);
             }
         }
@@ -182,19 +179,19 @@ public class XLTurbineWorkableHandler extends TJFuelRecipeLogic {
 
     @Override
     protected int calculateFuelAmount(FuelRecipe currentRecipe) {
-        int durationMultiplier = this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM ? 20 : 1;
+        final int durationMultiplier = this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM ? 20 : 1;
         return (int) ((super.calculateFuelAmount(currentRecipe) * durationMultiplier) / (this.isFastMode ? 1 : TURBINE_BONUS));
     }
 
     @Override
     protected int calculateRecipeDuration(FuelRecipe currentRecipe) {
-        int durationMultiplier = this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM ? 20 : 1;
+        final int durationMultiplier = this.extremeTurbine.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM ? 20 : 1;
         return super.calculateRecipeDuration(currentRecipe) * durationMultiplier;
     }
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound tagCompound = super.serializeNBT();
+        final NBTTagCompound tagCompound = super.serializeNBT();
         tagCompound.setInteger("cycleLength", this.rotorCycleLength);
         tagCompound.setInteger("fastModeMultiplier", this.fastModeMultiplier);
         tagCompound.setInteger("damageMultiplier", this.rotorDamageMultiplier);

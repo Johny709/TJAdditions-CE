@@ -24,8 +24,7 @@ import tj.machines.TJMetaTileEntities;
 
 import javax.annotation.Nonnull;
 
-import static tj.machines.TJMetaTileEntities.LARGE_WIRELESS_ENERGY_EMITTER;
-import static tj.machines.TJMetaTileEntities.LARGE_WIRELESS_ENERGY_RECEIVER;
+import static tj.machines.TJMetaTileEntities.*;
 import static tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.INPUT;
 import static tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.OUTPUT;
 
@@ -67,9 +66,9 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("world_destroyer", new MultiblockInfoRecipeWrapper(new LargeMinerInfo(TJMetaTileEntities.WORLD_DESTROYER)))
                             .put("large_world_accelerator", new MultiblockInfoRecipeWrapper(new LargeWorldAcceleratorInfo()))
                             .put("large_rock_breaker", new MultiblockInfoRecipeWrapper(new LargeRockBreakerInfo()))
-                            .put("steam_air_collector_turbine", new MultiblockInfoRecipeWrapper(new LargeAtmosphereCollectorInfo(TurbineType.STEAM, TJMetaTileEntities.LARGE_ATMOSPHERE_COLLECTOR[0])))
-                            .put("gas_air_collector_turbine", new MultiblockInfoRecipeWrapper(new LargeAtmosphereCollectorInfo(TurbineType.GAS, TJMetaTileEntities.LARGE_ATMOSPHERE_COLLECTOR[1])))
-                            .put("plasma_air_collector_turbine", new MultiblockInfoRecipeWrapper(new LargeAtmosphereCollectorInfo(TurbineType.PLASMA, TJMetaTileEntities.LARGE_ATMOSPHERE_COLLECTOR[2])))
+                            .put("steam_air_collector_turbine", new MultiblockInfoRecipeWrapper(new LargeAtmosphereCollectorInfo(TurbineType.STEAM, TJMetaTileEntities.LARGE_ATMOSPHERE_COLLECTORS[0])))
+                            .put("gas_air_collector_turbine", new MultiblockInfoRecipeWrapper(new LargeAtmosphereCollectorInfo(TurbineType.GAS, TJMetaTileEntities.LARGE_ATMOSPHERE_COLLECTORS[1])))
+                            .put("plasma_air_collector_turbine", new MultiblockInfoRecipeWrapper(new LargeAtmosphereCollectorInfo(TurbineType.PLASMA, TJMetaTileEntities.LARGE_ATMOSPHERE_COLLECTORS[2])))
                             .put("infinite_fluid_drill", new MultiblockInfoRecipeWrapper(new InfiniteFluidDrillInfo()))
                             .put("industrial_steam_engine", new MultiblockInfoRecipeWrapper(new IndustrialSteamEngineInfo()))
                             .put("advanced_parallel_chemical_reactor", new MultiblockInfoRecipeWrapper(new ParallelAdvancedChemicalReactorInfo()))
@@ -97,7 +96,8 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("parallel_electric_blast_furnace", new MultiblockInfoRecipeWrapper(new ParallelElectricBlastFurnaceInfo()))
                             .put("parallel_vacuum_freezer", new MultiblockInfoRecipeWrapper(new ParallelVacuumFreezerInfo()))
                             .put("parallel_cryogenic_freezer", new MultiblockInfoRecipeWrapper(new ParallelCryogenicFreezerInfo()))
-                            .put("parallel_volcunus", new MultiblockInfoRecipeWrapper(new ParallelVolcanusInfo()))
+                            .put("parallel_volcanus", new MultiblockInfoRecipeWrapper(new ParallelVolcanusInfo()))
+                            .put("parallel_large_alloy_smelter", new MultiblockInfoRecipeWrapper(new ParallelLargeAlloySmelterInfo()))
                             .put("large_wireless_energy_emitter", new MultiblockInfoRecipeWrapper(new LargeWirelessEnergyEmitterInfo(INPUT, LARGE_WIRELESS_ENERGY_EMITTER)))
                             .put("large_wireless_energy_receiver", new MultiblockInfoRecipeWrapper(new LargeWirelessEnergyEmitterInfo(OUTPUT, LARGE_WIRELESS_ENERGY_RECEIVER)))
                             .put("large_battery_charger", new MultiblockInfoRecipeWrapper(new LargeBatteryChargerInfo()))
@@ -152,7 +152,11 @@ public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoR
                             .put("large_powered_spawner", new MultiblockInfoRecipeWrapper(new LargePoweredSpawnerInfo()))
                             .put("large_vial_processor", new MultiblockInfoRecipeWrapper(new LargeVialProcessorInfo()))
                             .put("multi_smelter", new MultiblockInfoRecipeWrapper(new TJMultiSmelterInfo()))
-                            .put("steam_oven", new MultiblockInfoRecipeWrapper(new SteamOvenInfo()));
+                            .put("steam_oven", new MultiblockInfoRecipeWrapper(new SteamOvenInfo()))
+                            .put("steam_atmosphere_collector_turbine", new MultiblockInfoRecipeWrapper(new XLAtmosphereCollectorInfo(XL_ATMOSPHERE_COLLECTORS[0])))
+                            .put("gas_atmosphere_collector_turbine", new MultiblockInfoRecipeWrapper(new XLAtmosphereCollectorInfo(XL_ATMOSPHERE_COLLECTORS[1])))
+                            .put("plasma_atmosphere_collector_turbine", new MultiblockInfoRecipeWrapper(new XLAtmosphereCollectorInfo(XL_ATMOSPHERE_COLLECTORS[2])))
+                            .put("mega_alloy_blast_smelter", new MultiblockInfoRecipeWrapper(new MegaAlloyBlastSmelterInfo()));
                     return TJMultiblockInfoCategory.multiblockRecipes = multiblockRecipes.build();
         }
         return multiblockRecipes;

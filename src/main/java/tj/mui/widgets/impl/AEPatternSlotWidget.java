@@ -49,7 +49,7 @@ public class AEPatternSlotWidget extends TJSlotWidget<AEPatternSlotWidget> {
             textureArea.draw(pos.getX(), pos.getY(), 18, 18);
         }
         if (this.isActive) {
-            if (!this.itemStack.isEmpty()) {
+            if (!this.itemStack.isEmpty() || this.simulating) {
                 final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
                 final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(this.itemStack);
                 final NBTTagList outputList = compound.getTagList("out", 10);
@@ -69,14 +69,20 @@ public class AEPatternSlotWidget extends TJSlotWidget<AEPatternSlotWidget> {
                         this.count = this.outputCompound.getInteger("Count");
                 }
                 GlStateManager.disableBlend();
-                if (!this.output.isEmpty())
+                if (!this.output.isEmpty()) {
                     drawItemStack(this.output, stackX, stackY, null);
-                if (this.fluidOutput != null)
+                } else if (this.fluidOutput != null) {
                     TJGuiUtils.drawFluidForGui(this.fluidOutput, this.count, this.count, pos.getX() + 1, pos.getY() + 1, 17, 17);
+                } else drawItemStack(this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex) : this.itemStack, stackX, stackY, null);
                 GlStateManager.pushMatrix();
                 GlStateManager.scale(0.5, 0.5, 1);
                 final String s = TextFormattingUtil.formatLongToCompactString(this.count, 4) + (this.fluidOutput != null ? "L" : "");
                 fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + 12) * 2, 0xFFFFFF);
+                final int itemCount = this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex).getCount() : this.itemCount;
+                if (itemCount > 1) {
+                    final String s1 = TextFormattingUtil.formatLongToCompactString(itemCount, 4);
+                    fontRenderer.drawStringWithShadow(s1, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s1) + 21, (pos.getY() + 2) * 2, 0xFFFFFF);
+                }
                 GlStateManager.popMatrix();
                 GlStateManager.enableBlend();
                 GlStateManager.color(1.0f, 1.0f, 1.0f);

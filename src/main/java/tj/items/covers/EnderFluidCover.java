@@ -5,9 +5,9 @@ import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.PhantomFluidWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.common.covers.CoverPump;
 import gregtech.common.covers.filter.SimpleFluidFilter;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.ITextComponent;
@@ -27,7 +27,6 @@ import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
 
 import java.awt.*;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static gregtech.api.gui.GuiTextures.*;
@@ -84,12 +83,12 @@ public class EnderFluidCover extends AbstractEnderCover<FluidTank> {
     }
 
     @Override
-    protected Map<String, EnderCoverProfile<FluidTank>> getPlayerMap() {
+    protected Object2ObjectMap<String, EnderCoverProfile<FluidTank>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getFluidTankPlayerMap();
     }
 
     @Override
-    protected FluidTank createHandler() {
+    public FluidTank createHandler() {
         return new FluidTank(this.capacity);
     }
 
@@ -113,13 +112,13 @@ public class EnderFluidCover extends AbstractEnderCover<FluidTank> {
     @Override
     protected void addToPopUpWidget(PopUpWidget<?> buttonPopUpWidget) {
         ((ButtonPopUpWidget<?>) buttonPopUpWidget).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 161, 18, 18)
-                .setTooltipText("cover.pump.fluid_filter.title")
+                .setHoverTooltipText("cover.pump.fluid_filter.title")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .setBackgroundTextures(FLUID_FILTER)
                 .useToggleTexture(true), widgetGroup -> {
             widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
-            widgetGroup.addWidget(new ToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
-                    .setTooltipText("cover.filter.blacklist"));
+            widgetGroup.addWidget(new TJToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
+                    .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled", "cover.filter.blacklist.enabled"));
             this.fluidFilter.initUI(widgetGroup::addWidget);
             return false;
         }).setClickArea(new Rectangle(346, 107, 60, 78));

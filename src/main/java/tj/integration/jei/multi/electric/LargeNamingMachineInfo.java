@@ -16,6 +16,7 @@ import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
@@ -43,6 +44,12 @@ public class LargeNamingMachineInfo extends TJMultiblockInfoPage {
                 .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
                 .where('P', PlaceholderType.PISTON, GAMetaBlocks.PISTON_CASING.getState(PistonCasing.CasingType.values()[0]))
                 .build();
+    }
+
+    @Override
+    protected void generateBlockTooltips() {
+        super.generateBlockTooltips();
+        Arrays.stream(PistonCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.PISTON_CASING.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
     }
 
     @Override

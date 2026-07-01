@@ -1,7 +1,6 @@
 package tj.machines.multi.electric;
 
 import gregicadditions.GAMaterials;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -28,10 +27,13 @@ import tj.textures.TJTextures;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
+
 
 public class MetaTileEntityLargePoweredSpawner extends TJRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, IMPORT_FLUIDS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
 
     public MetaTileEntityLargePoweredSpawner(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, TJRecipeMaps.LARGE_POWERED_SPAWNER_RECIPES);
@@ -62,7 +64,7 @@ public class MetaTileEntityLargePoweredSpawner extends TJRecipeMapMultiblockCont
                 .aisle("XXXXX", "~TmT~", "~TmT~", "~TmT~", "XGGGX")
                 .aisle("XXSXX", "F~~~F", "F~~~F", "F~~~F", "XXXXX")
                 .where('S', this.selfPredicate())
-                .where('X', blockPredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(blockPredicate(Block.getBlockFromName("contenttweaker:soulcasing"))))
+                .where('X', blockPredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(GAMaterials.Protactinium.getMaterial()).getDefaultState()))
                 .where('T', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('m', blockPredicate(Block.getBlockFromName("enderio:block_decoration1")))

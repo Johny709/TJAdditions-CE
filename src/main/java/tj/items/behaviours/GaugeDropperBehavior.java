@@ -3,7 +3,6 @@ package tj.items.behaviours;
 import gregtech.api.GTValues;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.items.gui.ItemUIFactory;
 import gregtech.api.items.gui.PlayerInventoryHolder;
@@ -24,6 +23,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
+import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.NewTextFieldWidget;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
@@ -61,9 +61,10 @@ public class GaugeDropperBehavior implements IItemBehaviour, ItemUIFactory, IIte
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setUpdateOnTyping(true)
                         .setMaxStringLength(10))
-                .widget(new ToggleButtonWidget(7, 30, 18, 18, TOGGLE_PLUS_BUTTON, () -> false, plus -> compound.setInteger("capacity", Math.max(1, Math.min(1000, compound.getInteger("capacity") * 2)))))
-                .widget(new ToggleButtonWidget(151, 30, 18, 18, TOGGLE_MINUS_BUTTON, () -> false, minus -> compound.setInteger("capacity", Math.max(1, compound.getInteger("capacity") / 2))))
-                .widget(new ToggleButtonWidget(151, 48, 18, 18, TOGGLE_RESET_BUTTON, () -> false, reset -> compound.setInteger("capacity", 1000)))
+                .widget(new ButtonWidget<>(7, 30, 18, 18, "*2", plus -> compound.setInteger("capacity", Math.max(1, Math.min(1000, compound.getInteger("capacity") * 2)))))
+                .widget(new ButtonWidget<>(151, 30, 18, 18, "/2", minus -> compound.setInteger("capacity", Math.max(1, compound.getInteger("capacity") / 2))))
+                .widget(new TJToggleButtonWidget(151, 48, 18, 18, TOGGLE_RESET_BUTTON, () -> false, reset -> compound.setInteger("capacity", 1000))
+                        .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
                 .widget(new TJToggleButtonWidget(27, 48, 119, 18, () -> compound.getBoolean("voiding"), (bool, str) -> compound.setBoolean("voiding", bool))
                         .setToggleDisplayText("machine.universal.toggle.fluid_voiding.disabled", "machine.universal.toggle.fluid_voiding.enabled")
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)

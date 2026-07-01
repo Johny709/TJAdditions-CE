@@ -5,7 +5,6 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.PistonCasing;
@@ -50,12 +49,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 
 public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase implements INameHandler {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private final NamingMachineWorkableHandler workableHandler = new NamingMachineWorkableHandler(this);
     private long maxVoltage;
     private int parallel;
@@ -101,7 +101,7 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
                 .addPopup(new TJToggleButtonWidget(175, 152, 18, 18)
                         .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
-                        .setTooltipText("tj.multiblock.tab.settings")
+                        .setHoverTooltipText("tj.multiblock.tab.settings")
                         .useToggleTexture(true), widgetGroup1 -> {
                     widgetGroup1.addWidget(new WindowsWidgetGroup(12, 60, 160, 40, GuiTextures.BORDERED_BACKGROUND)
                             .addSubWidget(new TextFieldWidget(4, 15, 152, 18, true, this::getName, this::setName)

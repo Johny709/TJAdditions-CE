@@ -21,12 +21,14 @@ import tj.mui.widgets.TJWidget;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.IntConsumer;
 import java.util.stream.Collectors;
 
 public class SelectionWidgetGroup extends WidgetGroup {
 
     private final Int2ObjectMap<List<Widget>> widgetMap = new Int2ObjectOpenHashMap<>();
     private final Object2IntMap<Widget> selectionBoxes = new Object2IntOpenHashMap<>();
+    private IntConsumer indexListener;
     private int activeIndex = -1; // don't run any sub widgets until the player selected a rectangle box.
 
     public SelectionWidgetGroup(int x, int y, int width, int height) {
@@ -41,7 +43,15 @@ public class SelectionWidgetGroup extends WidgetGroup {
     public void addSubWidget(int index, Widget widget) {
         final List<Widget> widgetList = this.widgetMap.computeIfAbsent(index, list -> new ArrayList<>());
         widgetList.add(widget);
-        this.addWidget(widget);
+        if (!this.widgets.contains(widget))
+            this.addWidget(widget);
+    }
+
+    /**
+     * Fires every time a new selection index has been selected both on client and server.
+     */
+    public void setIndexListener(IntConsumer indexListener) {
+        this.indexListener = indexListener;
     }
 
     /**
@@ -123,6 +133,9 @@ public class SelectionWidgetGroup extends WidgetGroup {
         for (Object2IntMap.Entry<Widget> entry : this.selectionBoxes.object2IntEntrySet()) {
             if (entry.getKey().toRectangleBox().contains(mouseX, mouseY)) {
                 this.activeIndex = entry.getIntValue();
+                this.updateWidgets(lastIndex, this.activeIndex);
+                if (this.indexListener != null)
+                    this.indexListener.accept(this.activeIndex);
                 this.writeClientAction(2, buffer -> {
                     buffer.writeInt(lastIndex);
                     buffer.writeInt(this.activeIndex);
@@ -134,6 +147,8 @@ public class SelectionWidgetGroup extends WidgetGroup {
                 .noneMatch(widget -> widget.toRectangleBox().contains(mouseX, mouseY))) {
             this.activeIndex = -1;
             this.updateWidgets(lastIndex, this.activeIndex);
+            if (this.indexListener != null)
+                this.indexListener.accept(this.activeIndex);
             this.writeClientAction(2, buffer -> {
                 buffer.writeInt(lastIndex);
                 buffer.writeInt(this.activeIndex);
@@ -164,6 +179,8 @@ public class SelectionWidgetGroup extends WidgetGroup {
             final int lastIndex = buffer.readInt();
             this.activeIndex = buffer.readInt();
             this.updateWidgets(lastIndex, this.activeIndex);
+            if (this.indexListener != null)
+                this.indexListener.accept(this.activeIndex);
         }
     }
 

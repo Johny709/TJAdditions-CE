@@ -19,7 +19,6 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.mui.TJGuiTextures;
-import tj.multiblockpart.TJMultiblockAbility;
 import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.impl.*;
 import gregtech.api.capability.tool.ISoftHammerItem;
@@ -69,10 +68,11 @@ import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withHoverTextTranslate;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.unification.material.Materials.Water;
+import static tj.multiblockpart.TJMultiblockAbility.STEAM_OUTPUT;
 
 public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase implements IProgressBar, IBoilerHandler {
 
-    private static final MultiblockAbility<?>[] OUTPUT_ABILITIES = {MultiblockAbility.EXPORT_FLUIDS, TJMultiblockAbility.STEAM_OUTPUT};
+    private static final MultiblockAbility<?>[] OUTPUT_ABILITIES = {EXPORT_FLUIDS, STEAM_OUTPUT};
     private final MegaBoilerRecipeLogic boilerRecipeLogic = new MegaBoilerRecipeLogic(this);
     private final Set<BlockPos> activeStates = new HashSet<>();
     private final int parallel;
@@ -109,7 +109,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
         final boolean hasInputFluid = abilities.containsKey(IMPORT_FLUIDS);
-        final boolean hasSteamOutput = abilities.containsKey(TJMultiblockAbility.STEAM_OUTPUT);
+        final boolean hasSteamOutput = abilities.containsKey(STEAM_OUTPUT);
         final boolean hasOutputFluid = abilities.containsKey(MultiblockAbility.EXPORT_FLUIDS);
         int mufflerCount = abilities.getOrDefault(MUFFLER_HATCH, Collections.emptyList()).size();
 
@@ -190,7 +190,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
                 .where('l', statePredicate(GTUtility.getAllPropertyValues(this.boilerType.fireboxState, BlockFireboxCasing.ACTIVE)))
                 .where('P', statePredicate(this.boilerType.pipeState))
                 .where('X', state -> this.fireboxStatePredicate(GTUtility.getAllPropertyValues(this.boilerType.fireboxState, BlockFireboxCasing.ACTIVE))
-                        .or(abilityPartPredicate(IMPORT_FLUIDS, IMPORT_ITEMS, MAINTENANCE_HATCH, EXPORT_ITEMS, MUFFLER_HATCH)).test(state))
+                        .or(abilityPartPredicate(IMPORT_FLUIDS, IMPORT_ITEMS, MAINTENANCE_HATCH, EXPORT_ITEMS, MUFFLER_HATCH)).or(multiiPartPredicate()).test(state))
                 .where('C', statePredicate(this.boilerType.casingState).or(abilityPartPredicate(OUTPUT_ABILITIES)))
                 .build();
     }
@@ -209,7 +209,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
         super.formStructure(context);
         final List<IFluidTank> fluidTanks = new ArrayList<>();
         fluidTanks.addAll(this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
-        fluidTanks.addAll(this.getAbilities(TJMultiblockAbility.STEAM_OUTPUT));
+        fluidTanks.addAll(this.getAbilities(STEAM_OUTPUT));
 
         this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
         this.exportFluidTank = new FluidTankList(true, fluidTanks);
@@ -232,7 +232,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         if (sourcePart instanceof IMultiblockAbilityPart) {
             final MultiblockAbility<?> ability = ((IMultiblockAbilityPart<?>) sourcePart).getAbility();
-            if (ability == MultiblockAbility.EXPORT_FLUIDS || ability == TJMultiblockAbility.STEAM_OUTPUT)
+            if (ability == MultiblockAbility.EXPORT_FLUIDS || ability == STEAM_OUTPUT)
                 return this.boilerType.solidCasingRenderer;
         }
         return sourcePart == null ? this.boilerType.solidCasingRenderer : this.boilerRecipeLogic.isActive() ? this.boilerType.firefoxActiveRenderer : this.boilerType.fireboxIdleRenderer;
@@ -242,7 +242,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
     public int getLightValueForPart(IMultiblockPart sourcePart) {
         if (sourcePart instanceof IMultiblockAbilityPart) {
             final MultiblockAbility<?> ability = ((IMultiblockAbilityPart<?>) sourcePart).getAbility();
-            if (ability == MultiblockAbility.EXPORT_FLUIDS || ability == TJMultiblockAbility.STEAM_OUTPUT)
+            if (ability == MultiblockAbility.EXPORT_FLUIDS || ability == STEAM_OUTPUT)
                 return 0;
         }
         return sourcePart == null ? 0 : this.boilerRecipeLogic.isActive() ? 15 : 0;

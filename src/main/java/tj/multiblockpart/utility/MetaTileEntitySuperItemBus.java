@@ -36,6 +36,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
@@ -120,10 +121,10 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
                 .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()));
         widgetGroup.addWidget(new ImageWidget(169, 72 * tier, 18, 18, GuiTextures.DISPLAY));
         widgetGroup.addWidget(new AdvancedTextWidget(170, 5 + 72 * tier, this::addDisplayText, 0xFFFFFF));
-        widgetGroup.addWidget(new ToggleButtonWidget(169, -18 + 72 * tier, 18, 18, TJGuiTextures.TOGGLE_UP_BUTTON, () -> false, this::onIncrement)
-                .setTooltipText("machine.universal.toggle.increment"));
-        widgetGroup.addWidget(new ToggleButtonWidget(169, 18 + 72 * tier, 18, 18, TJGuiTextures.TOGGLE_DOWN_BUTTON, () -> false, this::onDecrement)
-                .setTooltipText("machine.universal.toggle.decrement"));
+        widgetGroup.addWidget(new TJToggleButtonWidget(169, -18 + 72 * tier, 18, 18, TJGuiTextures.TOGGLE_UP_BUTTON, () -> false, this::onIncrement)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.increment.disabled", "machine.universal.toggle.increment.enabled"));
+        widgetGroup.addWidget(new TJToggleButtonWidget(169, 18 + 72 * tier, 18, 18, TJGuiTextures.TOGGLE_DOWN_BUTTON, () -> false, this::onDecrement)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.decrement.disabled", "machine.universal.toggle.decrement.enabled"));
         widgetGroup.addWidget(new GhostCircuitWidget(this.ghostCircuitSlot, 169, 40 + 72 * tier));
         for (int i = 0; i < bus.getSlots(); i++) {
             widgetGroup.addWidget(new SlotWidget(bus, i, 7 + 18 * (i % 10), 14 + 18 * (i / 10), true, !this.isExport)

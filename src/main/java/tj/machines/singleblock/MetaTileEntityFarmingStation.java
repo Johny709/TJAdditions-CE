@@ -35,12 +35,7 @@ import tj.TJValues;
 import tj.capability.impl.handler.IFarmerHandler;
 import tj.capability.impl.workable.FarmingStationWorkableHandler;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.impl.TJProgressBarWidget;
-import tj.mui.widgets.impl.RecipeOutputDisplayWidget;
-import tj.mui.widgets.impl.RecipeOutputSlotWidget;
-import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.TJSlotWidget;
+import tj.mui.widgets.impl.*;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
@@ -168,14 +163,14 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setContainerClicking(true, true)
                         .setBackgroundTexture(FLUID_SLOT)
                         .setAlwaysShowFull(true))
-                .widget(new ToggleButtonWidget(151, 78, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.workableHandler::isVoidOutputs, this.workableHandler::setVoidOutputs)
-                        .setTooltipText("machine.universal.toggle.item_voiding"))
-                .widget(new ToggleButtonWidget(-24, 158, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
-                        .setTooltipText("machine.universal.toggle.run.mode"))
-                .widget(new ToggleButtonWidget(7, 78, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
-                        .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
-                .widget(new ToggleButtonWidget(79, 78, 18, 18, BUTTON_ALLOW_IMPORT_EXPORT, this.workableHandler::isOutputTools, this.workableHandler::setOutputTools)
-                        .setTooltipText("tj.machine.farming_station.tool_output.tooltip"))
+                .widget(new TJToggleButtonWidget(151, 78, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.workableHandler::isVoidOutputs, this.workableHandler::setVoidOutputs)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"))
+                .widget(new TJToggleButtonWidget(-24, 158, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
+                .widget(new TJToggleButtonWidget(7, 78, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
+                        .setToggleTitleTooltipHoverText("gregtech.gui.item_auto_output.tooltip.disabled", "gregtech.gui.item_auto_output.tooltip.enabled"))
+                .widget(new TJToggleButtonWidget(79, 78, 18, 18, BUTTON_ALLOW_IMPORT_EXPORT, this.workableHandler::isOutputTools, this.workableHandler::setOutputTools)
+                        .setToggleTitleTooltipHoverText("tj.machine.farming_station.tool_output.tooltip.disabled", "tj.machine.farming_station.tool_output.tooltip.enabled"))
                 .widget(new ImageWidget(79, 58, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
                 .widget(widgetGroup)

@@ -43,7 +43,7 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
         ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new AEFluidInventory(this, slots), "config");
         ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new DualityFluidUpgradeInventory(this, 4), "upgrades");
         try {
-            Field mySource = ObfuscationReflectionHelper.findField(DualityFluidInterface.class, "mySource");
+            final Field mySource = ObfuscationReflectionHelper.findField(DualityFluidInterface.class, "mySource");
             ObfuscationReflectionHelper.setPrivateValue(DualityFluidInterface.class, this, new TJAENetworkFluidInventory(() -> {
                 try {
                     return networkProxy.getStorage();
@@ -52,7 +52,7 @@ public class DualitySuperFluidInterface extends DualityFluidInterface {
                 }
             }, (IActionSource) mySource.get(this), this, slots, 64000), "tanks");
         } catch (IllegalAccessException e) {
-            TJ.logger.error("Error when trying to reflect on class {} for field storage", DualityFluidInterface.class.getName());
+            TJ.logger.error("Error when trying to reflect on class {} for field: storage. {}", DualityFluidInterface.class.getName(), e.getMessage());
         }
     }
 

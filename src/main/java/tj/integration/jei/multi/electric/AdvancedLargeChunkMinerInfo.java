@@ -16,6 +16,7 @@ import tj.machines.TJMetaTileEntities;
 import tj.machines.multi.electric.MetaTileEntityAdvancedLargeChunkMiner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
@@ -54,6 +55,12 @@ public class AdvancedLargeChunkMinerInfo extends TJMultiblockInfoPage {
                 .where('M', PlaceholderType.MOTOR, GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[0]))
                 .build();
 
+    }
+
+    @Override
+    protected void generateBlockTooltips() {
+        super.generateBlockTooltips();
+        Arrays.stream(MotorCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.MOTOR_CASING.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
     }
 
     @Override

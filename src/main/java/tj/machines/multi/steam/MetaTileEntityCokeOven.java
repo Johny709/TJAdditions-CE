@@ -27,9 +27,11 @@ import tj.capability.OverclockManager;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
+
 
 public class MetaTileEntityCokeOven extends TJRecipeMapMultiblockController {
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = new MultiblockAbility[]{MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_ITEMS};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {EXPORT_FLUIDS, EXPORT_ITEMS, IMPORT_ITEMS};
 
     public MetaTileEntityCokeOven(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, TJRecipeMaps.COKE_OVEN_RECIPES, false, true);

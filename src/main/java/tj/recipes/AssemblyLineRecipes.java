@@ -4,6 +4,8 @@ import appeng.core.Api;
 import gregicadditions.GAEnums;
 import gregicadditions.item.*;
 import gregicadditions.item.metal.MetalCasing1;
+import gregtech.common.blocks.BlockWireCoil;
+import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidRegistry;
 import tj.blocks.BlockFusionCasings;
@@ -840,6 +842,26 @@ public class AssemblyLineRecipes {
                 .EUt(GAValues.VA[8]).duration(3000)
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(18432))
+                .fluidInputs(Lubricant.getFluid(64000))
+                .fluidInputs(ZirconiumCarbide.getFluid(18432))
+                .fluidInputs(Polybenzimidazole.getFluid(9216))
+                .inputs(LARGE_ALLOY_SMELTER.getStackForm(16))
+                .inputs(MetaBlocks.WIRE_COIL.getItemVariant(BlockWireCoil.CoilType.CUPRONICKEL, 64))
+                .inputs(ELECTRIC_MOTOR_UV.getStackForm(32))
+                .inputs(ELECTRIC_PISTON_UV.getStackForm(32))
+                .input(OrePrefix.gear, ZirconiumCarbide, 16)
+                .input(OrePrefix.cableGtQuadruple, NaquadahAlloy, 64)
+                .input(OrePrefix.frameGt, ZirconiumCarbide, 16)
+                .input(OrePrefix.plateDense, ZirconiumCarbide, 8)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
+                .outputs(PARALLEL_LARGE_ALLOY_SMELTER.getStackForm())
+                .EUt(GAValues.VA[9]).duration(3000)
+                .buildAndRegister();
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(9216))
                 .fluidInputs(Lubricant.getFluid(16000))
                 .fluidInputs(Polybenzimidazole.getFluid(4608))
@@ -1208,6 +1230,64 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UEV, 2)
                 .outputs(PATTERN_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))
                 .EUt(GAValues.VA[10]).duration(1000)
+                .buildAndRegister();
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(18432), Pyrotheum.getFluid(64000), Polyetheretherketone.getFluid(18432))
+                .inputs(ALLOY_BLAST_FURNACE.getStackForm(64), ALLOY_BLAST_FURNACE.getStackForm(64), ALLOY_BLAST_FURNACE.getStackForm(64), ALLOY_BLAST_FURNACE.getStackForm(64), UHPIC.getStackForm(32), FIELD_GENERATOR_UHV.getStackForm(2))
+                .input(OrePrefix.wireFine, EnrichedNaquadahAlloy, 64)
+                .input(OrePrefix.plateDense, HastelloyK243, 7)
+                .input(OrePrefix.gear, BlackTitanium, 16)
+                .input(OrePrefix.gearSmall, Bohrium, 32)
+                .input(OrePrefix.foil, Rhenium, 64)
+                .input(OrePrefix.bolt, HG1223, 64)
+                .input(OrePrefix.circuit, UEV)
+                .input(OrePrefix.circuit, UEV)
+                .input(OrePrefix.circuit, UEV)
+                .input(OrePrefix.circuit, UEV)
+                .outputs(MEGA_ALLOY_BLAST_SMELTER.getStackForm())
+                .EUt(GAValues.VA[10]).duration(2400)
+                .buildAndRegister();
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(9216), Lubricant.getFluid(64000), Polybenzimidazole.getFluid(4608), Naquadria.getFluid(2304))
+                .inputs(HIGH_POWER_INTEGRATED_CIRCUIT.getStackForm(64), HIGH_POWER_INTEGRATED_CIRCUIT.getStackForm(64), ELECTRIC_MOTOR_UV.getStackForm(16), ELECTRIC_PUMP_UV.getStackForm(16), ROBOT_ARM_UV.getStackForm(12), LARGE_ATMOSPHERE_COLLECTORS[0].getStackForm(12))
+                .input(OrePrefix.wireGtDouble, UVSuperconductor, 64)
+                .input(OrePrefix.plateDense, BlackSteel, 7)
+                .input(OrePrefix.pipeLarge, Steel, 64)
+                .input(OrePrefix.gear, BlackSteel, 16)
+                .input(OrePrefix.circuit, Superconductor)
+                .input(OrePrefix.circuit, Superconductor)
+                .input(OrePrefix.circuit, Superconductor)
+                .input(OrePrefix.circuit, Superconductor)
+                .outputs(XL_ATMOSPHERE_COLLECTORS[0].getStackForm())
+                .EUt(GAValues.VA[9]).duration(2400)
+                .buildAndRegister();
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(9216), Lubricant.getFluid(64000), Polybenzimidazole.getFluid(4608), Naquadria.getFluid(2304))
+                .inputs(HIGH_POWER_INTEGRATED_CIRCUIT.getStackForm(64), HIGH_POWER_INTEGRATED_CIRCUIT.getStackForm(64), ELECTRIC_MOTOR_UV.getStackForm(16), ELECTRIC_PUMP_UV.getStackForm(16), ROBOT_ARM_UV.getStackForm(12), LARGE_ATMOSPHERE_COLLECTORS[1].getStackForm(12))
+                .input(OrePrefix.wireGtDouble, UVSuperconductor, 64)
+                .input(OrePrefix.plateDense, MaragingSteel250, 7)
+                .input(OrePrefix.pipeLarge, StainlessSteel, 64)
+                .input(OrePrefix.gear, MaragingSteel250, 16)
+                .input(OrePrefix.circuit, Superconductor)
+                .input(OrePrefix.circuit, Superconductor)
+                .input(OrePrefix.circuit, Superconductor)
+                .input(OrePrefix.circuit, Superconductor)
+                .outputs(XL_ATMOSPHERE_COLLECTORS[1].getStackForm())
+                .EUt(GAValues.VA[9]).duration(2400)
+                .buildAndRegister();
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(9216), Lubricant.getFluid(64000), Polyetheretherketone.getFluid(4608), Seaborgium.getFluid(2304))
+                .inputs(UHPIC.getStackForm(64), UHPIC.getStackForm(64), ELECTRIC_MOTOR_UHV.getStackForm(16), ELECTRIC_PUMP_UHV.getStackForm(16), ROBOT_ARM_UHV.getStackForm(12), LARGE_ATMOSPHERE_COLLECTORS[2].getStackForm(12))
+                .input(OrePrefix.wireGtDouble, UHVSuperconductor, 64)
+                .input(OrePrefix.plateDense, HastelloyK243, 7)
+                .input(OrePrefix.pipeLarge, TungstenSteel, 64)
+                .input(OrePrefix.gear, HastelloyK243, 16)
+                .input(OrePrefix.circuit, UEV)
+                .input(OrePrefix.circuit, UEV)
+                .input(OrePrefix.circuit, UEV)
+                .input(OrePrefix.circuit, UEV)
+                .outputs(XL_ATMOSPHERE_COLLECTORS[2].getStackForm())
+                .EUt(GAValues.VA[10]).duration(2400)
                 .buildAndRegister();
     }
 }

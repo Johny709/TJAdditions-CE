@@ -35,6 +35,7 @@ import tj.capability.impl.workable.CrafterRecipeLogic;
 import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
 import tj.mui.TJGuiTextures;
+import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
 import tj.util.Color;
@@ -158,18 +159,18 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                         .onPressedConsumer((button, slot, stack) -> this.addRecipe(this.currentRecipe)))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
-                .widget(new ToggleButtonWidget(151, 112, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
-                        .setTooltipText("machine.universal.toggle.item_voiding"))
-                .widget(new ToggleButtonWidget(-24, 192, 18, 18, TOGGLE_POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
-                        .setTooltipText("machine.universal.toggle.run.mode"))
-                .widget(new ToggleButtonWidget(7, 112, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
-                        .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
+                .widget(new TJToggleButtonWidget(151, 112, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"))
+                .widget(new TJToggleButtonWidget(-24, 192, 18, 18, TOGGLE_POWER_BUTTON, this.recipeLogic::isWorkingEnabled, this.recipeLogic::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
+                .widget(new TJToggleButtonWidget(7, 112, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
+                        .setToggleTitleTooltipHoverText("gregtech.gui.item_auto_output.tooltip.disabled", "gregtech.gui.item_auto_output.tooltip.enabled"))
                 .widget(new ImageWidget(79, 62, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.recipeLogic::hasNotEnoughEnergy))
-                .widget(new ClickButtonWidget(62, 14, 8, 8, "", (clickData) -> {
+                .widget(new ButtonWidget<>(62, 14, 8, 8, "", clickData -> {
                     this.clearCraftingResult();
                     this.setCraftingResult(0, ItemStack.EMPTY);
-                }).setButtonTexture(BUTTON_CLEAR_GRID))
+                }).setBackgroundTextures(BUTTON_CLEAR_GRID))
                 .widget(new CraftingRecipeTransferWidget(this::setCraftingResult))
                 .widget(craftingSlotGroup)
                 .widget(inventorySlotGroup)

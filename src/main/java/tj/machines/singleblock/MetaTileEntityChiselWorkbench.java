@@ -18,10 +18,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.capability.impl.workable.ChiselWorkbenchWorkableHandler;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.TJProgressBarWidget;
-import tj.mui.widgets.impl.RecipeOutputDisplayWidget;
-import tj.mui.widgets.impl.RecipeOutputSlotWidget;
+import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -103,11 +100,12 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
                         .setBackgroundTexture(SLOT, MOLD_OVERLAY))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
-                .widget(new ToggleButtonWidget(-24, 142, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
-                        .setTooltipText("machine.universal.toggle.run.mode"))
-                .widget(new ToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
-                        .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
-                .widget(new ToggleButtonWidget(25, 62, 18, 18, BUTTON_FLUID_OUTPUT, this::isAutoOutputFluids, this::setFluidAutoOutput))
+                .widget(new TJToggleButtonWidget(-24, 142, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
+                .widget(new TJToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
+                        .setToggleTitleTooltipHoverText("gregtech.gui.item_auto_output.tooltip.disabled", "gregtech.gui.item_auto_output.tooltip.enabled"))
+                .widget(new TJToggleButtonWidget(25, 62, 18, 18, BUTTON_FLUID_OUTPUT, this::isAutoOutputFluids, this::setFluidAutoOutput)
+                        .setToggleTitleTooltipHoverText("gregtech.gui.fluid_auto_output.tooltip.disabled", "grgetech.gui.fluid_auto_output.toolitp.enabled"))
                 .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
                 .bindPlayerInventory(player.inventory)

@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.items.IItemHandler;
@@ -30,7 +31,7 @@ import java.util.List;
 
 import static net.minecraft.item.ItemStack.areItemStacksEqual;
 
-public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParallelWorkableHandler<R> {
+public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParallelWorkableHandler<R> implements IParallelItemFluidHandlerInfo {
 
     private final ParallelRecipeLRUCache recipeLRUCache = new ParallelRecipeLRUCache(10);
     private final OverclockManager<?> overclockManager = new OverclockManager<>();
@@ -561,20 +562,29 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
         return fluidStackMap;
     }
 
-    public List<ItemStack> getItemInputsAt(int i) {
-        return this.itemInputs.get(i);
+    @Override
+    public <T> T getCapability(Capability<T> capability) {
+        return capability == TJCapabilities.CAPABILITY_PARALLEL_ITEM_FLUID_HANDLING ? TJCapabilities.CAPABILITY_PARALLEL_ITEM_FLUID_HANDLING.cast(this) : super.getCapability(capability);
     }
 
-    public List<ItemStack> getItemOutputsAt(int i) {
-        return this.itemOutputs.get(i);
+    @Override
+    public Int2ObjectMap<List<ItemStack>> getAllItemInputs() {
+        return this.itemInputs;
     }
 
-    public List<FluidStack> getFluidInputsAt(int i) {
-        return this.fluidInputs.get(i);
+    @Override
+    public Int2ObjectMap<List<ItemStack>> getAllItemOutputs() {
+        return this.itemOutputs;
     }
 
-    public List<FluidStack> getFluidOutputsAt(int i) {
-        return this.fluidOutputs.get(i);
+    @Override
+    public Int2ObjectMap<List<FluidStack>> getAllFluidInputs() {
+        return this.fluidInputs;
+    }
+
+    @Override
+    public Int2ObjectMap<List<FluidStack>> getAllFluidOutputs() {
+        return this.fluidOutputs;
     }
 
     public ParallelRecipeLRUCache getRecipeLRUCache() {

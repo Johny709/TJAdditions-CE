@@ -7,6 +7,7 @@ import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.*;
+import gregtech.common.ConfigHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -28,12 +29,14 @@ import tj.util.TJItemUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.IntConsumer;
 
 public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements IIngredientSlot {
 
     private final AEFluidInventory fluidTank;
     private final int slotIndex;
 
+    private IntConsumer onContentsChanged;
     private TextureArea[] backgroundTextures;
     private IAEFluidStack iaeFluidStack;
     private int capacity;
@@ -50,6 +53,11 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
         return this;
     }
 
+    public AEFluidTankWidget onContentsChanged(IntConsumer onContentsChanged) {
+        this.onContentsChanged = onContentsChanged;
+        return this;
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
@@ -62,7 +70,13 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
             tooltips.add(formula == null || formula.isEmpty() ? "" : "§7" + formula);
         }
         tooltips.add(I18n.format("gregtech.fluid.amount", this.amount, this.capacity));
-        this.drawHoveringText(ItemStack.EMPTY, tooltips, 200, mouseX, mouseY);
+        tooltips.add(""); //add empty line to separate things
+        tooltips.add(I18n.format(ConfigHolder.newTankFilling ? "gregtech.fluid.click_to_fill.new" : "gregtech.fluid.click_to_fill"));
+        tooltips.add(I18n.format(ConfigHolder.newTankFilling ? "gregtech.fluid.click_to_fill.shift.new" : "gregtech.fluid.click_to_fill.shift"));
+        tooltips.add(""); //add empty line to separate things
+        tooltips.add(I18n.format(ConfigHolder.newTankFilling ? "gregtech.fluid.click_to_empty.new" : "gregtech.fluid.click_to_empty"));
+        tooltips.add(I18n.format(ConfigHolder.newTankFilling ? "gregtech.fluid.click_to_empty.shift.new" : "gregtech.fluid.click_to_empty.shift"));
+        this.drawHoveringText(ItemStack.EMPTY, tooltips, 300, mouseX, mouseY);
     }
 
     @Override
@@ -73,17 +87,20 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
         if (this.backgroundTextures != null) for (TextureArea textureArea : this.backgroundTextures) {
             textureArea.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         }
-        if (this.amount < 1 || this.iaeFluidStack == null) return;
-        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        GlStateManager.disableBlend();
-        TJGuiUtils.drawFluidForGui(this.iaeFluidStack.getFluidStack(), this.amount, this.capacity, pos.getX() + 1, pos.getY() + 1, size.getWidth() - 1, size.getHeight() - 2);
-        GlStateManager.pushMatrix();
-        GlStateManager.scale(0.5, 0.5, 1);
-        final String s = TextFormattingUtil.formatLongToCompactString(this.amount, 4) + "L";
-        fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + size.getHeight() - 6) * 2, 0xFFFFFF);
-        GlStateManager.popMatrix();
-        GlStateManager.enableBlend();
-        GlStateManager.color(1.0f, 1.0f, 1.0f);
+        if (this.amount > 0 && this.iaeFluidStack != null) {
+            final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+            GlStateManager.disableBlend();
+            TJGuiUtils.drawFluidForGui(this.iaeFluidStack.getFluidStack(), this.amount, this.capacity, pos.getX() + 1, pos.getY() + 1, size.getWidth() - 1, size.getHeight() - 2);
+            GlStateManager.pushMatrix();
+            GlStateManager.scale(0.5, 0.5, 1);
+            final String s = TextFormattingUtil.formatLongToCompactString(this.amount, 4) + "L";
+            fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + size.getHeight() - 6) * 2, 0xFFFFFF);
+            GlStateManager.popMatrix();
+            GlStateManager.enableBlend();
+            GlStateManager.color(1.0f, 1.0f, 1.0f);
+        }
+        if (this.isMouseOverElement(mouseX, mouseY))
+            drawSelectionOverlay(pos.getX() + 1, pos.getY() + 1, size.getWidth() - 2, size.getHeight() - 2);
     }
 
     @Override
@@ -97,15 +114,12 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
             return false;
         this.playButtonClickSound();
         final boolean shiftClick = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
-        if (button == 0) { // Left-Click
+        if (button == 0 || button == 1) { // Left-Click and Right-Click
             this.writeClientAction(1, buffer -> {
                 buffer.writeItemStack(itemStack);
                 buffer.writeBoolean(shiftClick);
-            });
-        } else if (button == 1) { // Right-Click
-            this.writeClientAction(2, buffer -> {
-                buffer.writeItemStack(itemStack);
-                buffer.writeBoolean(shiftClick);
+                buffer.writeBoolean(ConfigHolder.newTankFilling);
+                buffer.writeInt(button == 0 ? 1 : 2);
             });
         }
         return true;
@@ -136,14 +150,18 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
         try {
-            if (id > 2) return;
+            if (id != 1) return;
             ItemStack itemStack = buffer.readItemStack();
             final int size = buffer.readBoolean() ? itemStack.getCount() : 1;
-            final int tankCapacity = this.fluidTank.getTankProperties()[0].getCapacity();
+            final boolean advanced = buffer.readBoolean();
+            int type = buffer.readInt();
             if (!this.isActive) return;
+            final int tankCapacity = this.fluidTank.getTankProperties()[0].getCapacity();
             final IFluidHandlerItem fluidHandlerItem = itemStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
             if (fluidHandlerItem == null) return;
-            if (id == 1) {
+            if (!advanced && this.getFluidAmount(this.slotIndex) > 0)
+                type = 2;
+            if (type == 1) {
                 for (int i = 0; i < size; i++) {
                     final FluidStack fluidContained = FluidUtil.getFluidContained(itemStack);
                     if (fluidContained == null) return;
@@ -151,7 +169,7 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
                     final FluidStack bucketFluid = this.getFluidStack(this.slotIndex);
                     final FluidActionResult fluidActionResult = FluidUtil.tryEmptyContainer(itemStack, new FluidTank(bucketFluid, tankCapacity), toDrain, this.gui.entityPlayer, false);
                     if (fluidActionResult == FluidActionResult.FAILURE) break;
-                    if (itemStack.getCount() > 1) {
+                    if (itemStack.getCount() > (advanced ? 1 : 0)) {
                         if (!TJItemUtils.insertInMainInventory(this.gui.entityPlayer.inventory, fluidActionResult.getResult()).isEmpty()) break;
                         itemStack.shrink(1);
                     } else itemStack = fluidActionResult.getResult();
@@ -163,7 +181,7 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
                     this.iaeFluidStack = AEFluidStack.fromFluidStack(fluidStack);
                     this.fluidTank.setFluidInSlot(this.slotIndex, this.iaeFluidStack.copy());
                 }
-            } else if (id == 2) {
+            } else if (type == 2) {
                 this.iaeFluidStack = this.fluidTank.getFluidInSlot(this.slotIndex);
                 if (this.iaeFluidStack == null) return;
                 for (int i = 0; i < size; i++) {
@@ -174,7 +192,7 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
                     final IFluidHandler tank = new FluidTank(tankFluid, tankCapacity);
                     final FluidActionResult fluidActionResult = FluidUtil.tryFillContainer(itemStack, tank, toFill, this.gui.entityPlayer, false);
                     if (fluidActionResult == FluidActionResult.FAILURE) break;
-                    if (itemStack.getCount() > 1) {
+                    if (itemStack.getCount() > (advanced ? 1 : 0)) {
                         if (!TJItemUtils.insertInMainInventory(this.gui.entityPlayer.inventory, fluidActionResult.getResult()).isEmpty()) break;
                         itemStack.shrink(1);
                     } else itemStack = fluidActionResult.getResult();
@@ -187,6 +205,8 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
             }
             this.gui.entityPlayer.inventory.setItemStack(itemStack);
             this.writeUpdateInfo(1, buffer1 -> buffer1.writeItemStack(this.gui.entityPlayer.inventory.getItemStack()));
+            if (this.onContentsChanged != null)
+                this.onContentsChanged.accept(this.slotIndex);
         } catch (IOException e) {
             TJ.logger.info(e.getMessage());
         }
@@ -235,6 +255,6 @@ public class AEFluidTankWidget extends TJWidget<AEFluidTankWidget> implements II
 
     @Override
     public Object getIngredientOverMouse(int mouseX, int mouseY) {
-        return this.isMouseOverElement(mouseX, mouseY) ? this.getFluidStack(this.slotIndex) : null;
+        return !this.isMouseOverElement(mouseX, mouseY) ? null : this.iaeFluidStack != null ? this.iaeFluidStack.getFluidStack() : null;
     }
 }

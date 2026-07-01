@@ -4,6 +4,7 @@ import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.metatileentity.MTETrait;
 import net.minecraft.item.Item;
 import net.minecraft.util.math.MathHelper;
@@ -19,6 +20,7 @@ import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
 import tj.mui.TJGuiTextures;
+import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.AdvancedDisplayWidget;
 import tj.mui.widgets.impl.NewTextFieldWidget;
 import tj.mui.widgets.impl.ClickPopUpWidget;
@@ -28,7 +30,6 @@ import tj.items.TJMetaItems;
 import tj.machines.AcceleratorBlacklist;
 import tj.machines.singleblock.MetaTileEntityAcceleratorAnchorPoint;
 import gregicadditions.GAValues;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.EmitterCasing;
@@ -74,6 +75,8 @@ import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
@@ -82,7 +85,7 @@ import static gregtech.api.unification.material.Materials.UUMatter;
 public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockControllerBase implements AcceleratorBlacklist, LinkPos, LinkEvent, IParallelController, IProgressBar {
 
     private static final FluidStack UUMATTER = UUMatter.getFluid(1);
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {INPUT_ENERGY, MultiblockAbility.IMPORT_FLUIDS, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {INPUT_ENERGY, IMPORT_FLUIDS, MAINTENANCE_HATCH};
     private final AcceleratorWorkableHandler workableHandler = new AcceleratorWorkableHandler(this);
     private int tier;
     private final int pageSize = 4;
@@ -195,7 +198,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockControllerB
                         return false;
                     }).addPopup(118, 31, 60, 78, new TJToggleButtonWidget(175, this.getOffsetY(114), 18, 18)
                             .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
-                            .setTooltipText("machine.universal.search.settings")
+                            .setHoverTooltipText("machine.universal.search.settings")
                             .setToggleTexture(TOGGLE_BUTTON_BACK)
                             .useToggleTexture(true), widgetGroup -> this.addSearchTextWidgets(widgetGroup, patternFlags)));
         });
@@ -209,10 +212,10 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockControllerB
                 .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.workableHandler.getMaxProgress())))
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                 .setTooltipText("machine.universal.tick.speed"));
-        widgetGroup.add(new ClickButtonWidget(7, 114, 18, 18, "+", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))));
-        widgetGroup.add(new ClickButtonWidget(175, 114, 18, 18, "-", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))));
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setReset)
-                .setTooltipText("machine.universal.toggle.reset"));
+        widgetGroup.add(new ButtonWidget<>(7, 114, 18, 18, "+", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() * 2, 1, Integer.MAX_VALUE))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new ButtonWidget<>(175, 114, 18, 18, "-", (click) -> this.workableHandler.setMaxProgress(MathHelper.clamp(this.workableHandler.getMaxProgress() / 2, 1, Integer.MAX_VALUE))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setReset)
+                .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"));
     }
 
     private boolean addSearchTextWidgets(WidgetGroup widgetGroup, int[] patternFlags) {
@@ -222,14 +225,14 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockControllerB
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 3, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[0] = pressed ? Pattern.UNIX_LINES : 0)
                 .setDisplayText("string.regex.pattern.unix_lines.flag")
-                .setTooltipText("string.regex.pattern.unix_lines")
+                .setHoverTooltipText("string.regex.pattern.unix_lines")
                 .setButtonSupplier(() -> patternFlags[0] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(21, 3, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[1] = pressed ? Pattern.CASE_INSENSITIVE : 0)
                 .setDisplayText("string.regex.pattern.case_insensitive.flag")
-                .setTooltipText("string.regex.pattern.case_insensitive")
+                .setHoverTooltipText("string.regex.pattern.case_insensitive")
                 .setButtonSupplier(() -> patternFlags[1] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
@@ -237,13 +240,13 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockControllerB
                 .setToggleButtonResponder((pressed, s) -> patternFlags[2] = pressed ? Pattern.COMMENTS : 0)
                 .setDisplayText("string.regex.pattern.comments.flag")
                 .setButtonSupplier(() -> patternFlags[2] != 0)
-                .setTooltipText("string.regex.pattern.comments")
+                .setHoverTooltipText("string.regex.pattern.comments")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 21, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[3] = pressed ? Pattern.MULTILINE : 0)
                 .setDisplayText("string.regex.pattern.multiline.flag")
-                .setTooltipText("string.regex.pattern.multiline")
+                .setHoverTooltipText("string.regex.pattern.multiline")
                 .setButtonSupplier(() -> patternFlags[3] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
@@ -251,20 +254,20 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockControllerB
                 .setToggleButtonResponder((pressed, s) -> patternFlags[4] = pressed ? Pattern.LITERAL : 0)
                 .setDisplayText("string.regex.pattern.literal.flag")
                 .setButtonSupplier(() -> patternFlags[4] != 0)
-                .setTooltipText("string.regex.pattern.literal")
+                .setHoverTooltipText("string.regex.pattern.literal")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(39, 21, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[5] = pressed ? Pattern.DOTALL : 0)
                 .setDisplayText("string.regex.pattern.dotall.flag")
                 .setButtonSupplier(() -> patternFlags[5] != 0)
-                .setTooltipText("string.regex.pattern.dotall")
+                .setHoverTooltipText("string.regex.pattern.dotall")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 39, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[6] = pressed ? Pattern.UNICODE_CASE : 0)
                 .setDisplayText("string.regex.pattern.unicode_case.flag")
-                .setTooltipText("string.regex.pattern.unicode_case")
+                .setHoverTooltipText("string.regex.pattern.unicode_case")
                 .setButtonSupplier(() -> patternFlags[6] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
@@ -272,13 +275,13 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockControllerB
                 .setToggleButtonResponder((pressed, s) -> patternFlags[7] = pressed ? Pattern.CANON_EQ : 0)
                 .setDisplayText("string.regex.pattern.canon_eq.flag")
                 .setButtonSupplier(() -> patternFlags[7] != 0)
-                .setTooltipText("string.regex.pattern.canon_eq")
+                .setHoverTooltipText("string.regex.pattern.canon_eq")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         widgetGroup.addWidget(new TJToggleButtonWidget(39, 39, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[8] = pressed ? Pattern.UNICODE_CHARACTER_CLASS : 0)
                 .setDisplayText("string.regex.pattern.unicode_character_class.flag")
-                .setTooltipText("string.regex.pattern.unicode_character_class")
+                .setHoverTooltipText("string.regex.pattern.unicode_character_class")
                 .setButtonSupplier(() -> patternFlags[8] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));

@@ -23,14 +23,14 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
-import tj.mui.widgets.impl.NewTextFieldWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.SelectionWidgetGroup;
-import tj.mui.widgets.impl.TJPhantomFluidSlotWidget;
+import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.impl.*;
 import tj.items.TJMetaItems;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -51,6 +51,16 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
         final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
                 .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
                 .collect(Collectors.toList()));
+
+        final BiConsumer<String, String> setFluidCount = (text, id) -> {
+            final int index = Integer.parseInt(id);
+            if (index < 0 || index >= fluidFilter.getTanks()) return;
+            final FluidStack fluidStack = fluidFilter.getTankAt(index).getFluid();
+            if (fluidStack == null) return;
+            fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text));
+            compound.setTag("slot:" + index, fluidStack.writeToNBT(new NBTTagCompound()));
+        };
+        final IntFunction<String> getFluidCount = index -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount());
         final Consumer<Widget.ClickData> onIncrement = clickData -> {
             final int speed = compound.getInteger("speed");
             final int value = clickData.isCtrlClick ? 100
@@ -65,8 +75,17 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
                     : 1;
             compound.setInteger("speed", MathHelper.clamp(speed - value, 1, Integer.MAX_VALUE));
         };
+
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 25));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 25, 54, 54);
+        final ButtonWidget<?> clickButtonDivide = new ButtonWidget<>(-54, -20, 18, 18, "/2", data -> setFluidCount.accept(String.valueOf(Long.parseLong(getFluidCount.apply(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ButtonWidget<?> clickButtonMultiply = new ButtonWidget<>(90, -20, 18, 18, "*2", data -> setFluidCount.accept(String.valueOf(Long.parseLong(getFluidCount.apply(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> fluidCountTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, setFluidCount)
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setUpdateOnTyping(true)
+                .setMaxStringLength(11);
+        fluidCountTextField.setTextSupplier(() -> getFluidCount.apply((int) fluidCountTextField.getTextIdLong()));
+        selectionWidgetGroup.setIndexListener(fluidCountTextField::setTextIdLong);
         for (int i = 0; i < fluidFilter.getTanks(); i++) {
             final int index = i;
             widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, fluidFilter, fluid -> {
@@ -74,17 +93,9 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
                     compound.setTag("slot:" + index, fluid.writeToNBT(new NBTTagCompound()));
                 } else compound.removeTag("slot:" + index);
             }).setBackgroundTexture(GuiTextures.FLUID_SLOT));
-            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(0, -20, 54, 18, true, () -> String.valueOf(fluidFilter.getTankAt(index).getFluidAmount()), (text, id) -> {
-                FluidStack stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, false);
-                if (stack == null) return;
-                stack = fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
-                if (stack == null) return;
-                stack.amount = Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
-                compound.setTag("slot:" + index, stack.writeToNBT(new NBTTagCompound()));
-                fluidFilter.getTankAt(index).fill(stack, true);
-            }).setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                    .setUpdateOnTyping(true)
-                    .setMaxStringLength(11));
+            selectionWidgetGroup.addSubWidget(i, clickButtonDivide.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            selectionWidgetGroup.addSubWidget(i, clickButtonMultiply.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            selectionWidgetGroup.addSubWidget(i, fluidCountTextField);
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
@@ -92,12 +103,12 @@ public class CreativeFluidCoverBehaviour implements IItemBehaviour, ItemUIFactor
                         .setItemLabel(TJMetaItems.CREATIVE_FLUID_COVER.getStackForm()).setLocale("cover.creative_fluid.title"))
                 .widget(new ImageWidget(61, 80, 55, 18, GuiTextures.DISPLAY))
                 .widget(new AdvancedTextWidget(63, 85, textList -> textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", compound.getInteger("speed"))), 0xFFFFFF))
-                .widget(new ClickButtonWidget(43, 80, 18, 18, "+", onIncrement))
-                .widget(new ClickButtonWidget(116, 80, 18, 18, "-", onDecrement))
-                .widget(new ToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, b -> compound.setInteger("speed", 1))
-                        .setTooltipText("machine.universal.toggle.reset"))
-                .widget(new ToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> compound.getBoolean("power"), b -> compound.setBoolean("power", !compound.getBoolean("power")))
-                        .setTooltipText("machine.universal.toggle.run.mode"))
+                .widget(new ButtonWidget<>(43, 80, 18, 18, "+", onIncrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new ButtonWidget<>(116, 80, 18, 18, "-", onDecrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new TJToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, b -> compound.setInteger("speed", 1))
+                        .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
+                .widget(new TJToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> compound.getBoolean("power"), b -> compound.setBoolean("power", !compound.getBoolean("power")))
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 105, itemStack))

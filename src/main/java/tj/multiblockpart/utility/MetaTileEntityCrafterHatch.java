@@ -36,6 +36,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.builder.RecipeUtility;
 import tj.mui.TJGuiTextures;
+import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
 import tj.mui.widgets.impl.CraftingRecipeTransferWidget;
@@ -116,10 +117,10 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
                 .widget(new ImageWidget(109, 14, 54, 54, DARKENED_SLOT))
                 .widget(new SlotDisplayWidget(this.resultInventory, 0, 76, 32)
                         .onPressedConsumer((button, slot, stack) -> this.addRecipe(this.currentRecipe)))
-                .widget(new ClickButtonWidget(62, 14, 8, 8, "", (clickData) -> {
+                .widget(new ButtonWidget<>(62, 14, 8, 8, "", clickData -> {
                     this.clearCraftingResult();
                     this.setCraftingResult(0, ItemStack.EMPTY);
-                }).setButtonTexture(BUTTON_CLEAR_GRID))
+                }).setBackgroundTextures(BUTTON_CLEAR_GRID))
                 .widget(new CraftingRecipeTransferWidget(this::setCraftingResult))
                 .widget(craftingSlotGroup)
                 .widget(scrollableWidgetGroup)

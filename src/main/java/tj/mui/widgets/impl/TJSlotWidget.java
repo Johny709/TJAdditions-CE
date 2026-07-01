@@ -72,9 +72,12 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
         this.slotItemHandler = new TJSlotItemHandler(this.itemHandler, slotIndex, x, y);
     }
 
-    public R setItemHandlerSupplier(Supplier<IItemHandler> itemHandlerSupplier) {
+    public TJSlotWidget(Supplier<IItemHandler> itemHandlerSupplier, int slotIndex, int x, int y) {
+        super(new Position(x, y), new Size(18, 18));
+        this.itemHandler = itemHandlerSupplier.get();
+        this.slotIndex = slotIndex;
+        this.slotItemHandler = new TJSlotItemHandler(itemHandlerSupplier, slotIndex, x, y);
         this.itemHandlerSupplier = itemHandlerSupplier;
-        return (R) this;
     }
 
     public R setWidgetGroup(ISlotGroup widgetGroup) {
@@ -137,13 +140,13 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
             textureArea.draw(pos.getX(), pos.getY(), 18, 18);
         }
         if (this.isActive) {
-            if (!this.itemStack.isEmpty()) {
+            if (!this.itemStack.isEmpty() || this.simulating) {
                 final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
                 GlStateManager.disableBlend();
-                drawItemStack(this.itemStack, stackX, stackY, null);
+                drawItemStack(this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex) : this.itemStack, stackX, stackY, null);
                 GlStateManager.pushMatrix();
                 GlStateManager.scale(0.5, 0.5, 1);
-                final String s = TextFormattingUtil.formatLongToCompactString(this.itemCount, 4);
+                final String s = TextFormattingUtil.formatLongToCompactString(this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex).getCount() : this.itemCount, 4);
                 fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + 12) * 2, 0xFFFFFF);
                 GlStateManager.popMatrix();
                 GlStateManager.enableBlend();
@@ -247,13 +250,11 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
             this.writeUpdateInfo(4, buffer -> buffer.writeInt(this.itemCount));
         }
         if (itemStack.getTagCompound() != null && !itemStack.getTagCompound().equals(this.compound)) {
-            TJ.logger.info("updating compound");
             this.compound = itemStack.getTagCompound();
             this.itemStack.setTagCompound(this.compound);
             this.writeUpdateInfo(5, buffer -> buffer.writeCompoundTag(this.compound));
         }
         if (itemStack.getTagCompound() == null && this.compound != null) {
-            TJ.logger.info("removing compound");
             this.compound = null;
             this.itemStack.setTagCompound(null);
             this.writeUpdateInfo(6, buffer -> {});
@@ -278,10 +279,13 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
                             final int amount = isCtrlKeyPressed ? Integer.MAX_VALUE : 64;
                             if (this.takeItemsPredicate != null && !this.takeItemsPredicate.test(this.getItemHandler().extractItem(this.slotIndex, amount, true))) return;
                             newStack = this.getItemHandler().extractItem(this.slotIndex, amount, false);
+                            if (this.widgetGroup != null) {
+                                if (isShiftKeyPressed && this.widgetGroup.getItemStackTransfer() != null) {
+                                    newStack = this.widgetGroup.getItemStackTransfer().apply(newStack);
+                                } else this.writeUpdateInfo(3, buffer1 -> buffer1.writeInt(5));
+                            }
                             if (isShiftKeyPressed)
                                 newStack = TJItemUtils.insertInMainInventory(player.inventory, newStack);
-                            if (this.widgetGroup != null)
-                                this.writeUpdateInfo(3, buffer1 -> buffer1.writeInt(5));
                         } else return;
                     } else if (this.widgetGroup == null && (this.putItemsPredicate == null || this.putItemsPredicate.test(handStack))) {
                         // if this slot was not added to a slot group then let this slot handle the stack insertion
@@ -416,10 +420,28 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
         return ItemStack.EMPTY;
     }
 
+    public void forceUpdate() {
+        this.itemStack = ItemStack.EMPTY;
+        this.itemCount = 0;
+        this.compound = null;
+    }
+
     private static class TJSlotItemHandler extends SlotItemHandler {
+
+        private Supplier<IItemHandler> itemHandlerSupplier;
 
         public TJSlotItemHandler(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
             super(itemHandler, index, xPosition, yPosition);
+        }
+
+        public TJSlotItemHandler(Supplier<IItemHandler> itemHandlerSupplier, int index, int xPosition, int yPosition) {
+            super(itemHandlerSupplier.get(), index, xPosition, yPosition);
+            this.itemHandlerSupplier = itemHandlerSupplier;
+        }
+
+        @Override
+        public IItemHandler getItemHandler() {
+            return this.itemHandlerSupplier != null ? this.itemHandlerSupplier.get() : super.getItemHandler();
         }
 
         @Override

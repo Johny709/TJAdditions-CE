@@ -12,7 +12,7 @@ import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import tj.TJConfig;
-import tj.blocks.AbilityBlocks;
+import tj.blocks.BlockAbility;
 import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;

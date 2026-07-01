@@ -78,7 +78,7 @@ public class MetaTileEntityInterStellarForge extends TJRecipeMapMultiblockContro
         return factoryPattern.where('S', this.selfPredicate())
                 .where('C', statePredicate(this.getCasingState()))
                 .where('s', statePredicate(this.getCasingState()))
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('V', statePredicate(TJMetaBlocks.SOLID_CASING.getState(BlockSolidCasings.SolidCasingType.VIBRANIUM)))
                 .where('G', statePredicate(TJMetaBlocks.FUSION_GLASS.getState(BlockFusionGlass.GlassType.FUSION_GLASS_UEV)))
                 .where('c', statePredicate(TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_COIL_UEV)))

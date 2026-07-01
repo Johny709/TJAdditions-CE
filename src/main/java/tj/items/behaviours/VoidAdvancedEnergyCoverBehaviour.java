@@ -2,8 +2,6 @@ package tj.items.behaviours;
 
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.CycleButtonWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.items.gui.ItemUIFactory;
 import gregtech.api.items.gui.PlayerInventoryHolder;
@@ -17,10 +15,13 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
+import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.TJCycleButtonWidget;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.items.TJMetaItems;
 import tj.items.covers.VoidMode;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.util.references.BooleanReference;
 import tj.util.references.IntegerReference;
 import tj.util.references.LongReference;
@@ -30,8 +31,6 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
-import static tj.mui.TJGuiTextures.TOGGLE_MINUS_BUTTON;
-import static tj.mui.TJGuiTextures.TOGGLE_PLUS_BUTTON;
 
 public class VoidAdvancedEnergyCoverBehaviour extends VoidEnergyCoverBehaviour implements ItemUIFactory {
 
@@ -65,20 +64,21 @@ public class VoidAdvancedEnergyCoverBehaviour extends VoidEnergyCoverBehaviour i
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setTooltipText("machine.universal.ticks.operation")
                         .setUpdateOnTyping(true))
-                .widget(new ToggleButtonWidget(7, 7, 18, 18, TOGGLE_MINUS_BUTTON, () -> false, data -> setTicks.accept(String.valueOf((long) ticks.getValue() / 2), "")))
-                .widget(new ToggleButtonWidget(151, 7, 18, 18, TOGGLE_PLUS_BUTTON, () -> false, data -> setTicks.accept(String.valueOf((long) ticks.getValue() * 2), "")))
-                .widget(new ToggleButtonWidget(7, 30, 18, 18, TOGGLE_MINUS_BUTTON, () -> false, b -> setThroughput.accept(String.valueOf((double) throughput.getValue() / 2), "")))
-                .widget(new ToggleButtonWidget(151, 30, 18, 18, TOGGLE_PLUS_BUTTON, () -> false, b -> setThroughput.accept(String.valueOf((double) throughput.getValue() * 2), "")))
+                .widget(new ButtonWidget<>(7, 7, 18, 18, "/2", data -> setTicks.accept(String.valueOf((long) ticks.getValue() / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new ButtonWidget<>(151, 7, 18, 18, "*2", data -> setTicks.accept(String.valueOf((long) ticks.getValue() * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new ButtonWidget<>(7, 30, 18, 18, "/2", b -> setThroughput.accept(String.valueOf((double) throughput.getValue() / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new ButtonWidget<>(151, 30, 18, 18, "*2", b -> setThroughput.accept(String.valueOf((double) throughput.getValue() * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .widget(new NewTextFieldWidget<>(26, 30, 124, 18, true, throughput::toString, setThroughput)
                         .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                         .setUpdateOnTyping(true))
-                .widget(new CycleButtonWidget(26, 50, 124, 18, VoidMode.class, voidMode::getValue, value -> {
+                .widget(new TJCycleButtonWidget<>(26, 50, 124, 18, VoidMode.class, voidMode::getValue, value -> {
                     compound.setInteger("voidMode", value.ordinal());
                     voidMode.setValue(value);
-                })).widget(new ToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, isWorking::isValue, working -> {
+                }).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new TJToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, isWorking::isValue, working -> {
                     isWorking.setValue(working);
                     compound.setBoolean("isWorking", isWorking.isValue());
-                }).setTooltipText("machine.universal.toggle.run.mode"))
+                }).setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 105, itemStack))
                 .bindOpenListener(()-> {
                     if (compound.hasKey("voidMode"))
