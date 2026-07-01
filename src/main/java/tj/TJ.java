@@ -138,5 +138,12 @@ public class TJ {
         Upgrades.CAPACITY.registerItem(TJItems.PART_STOCKING_DUAL_INTERFACE, 4);
         Upgrades.CRAFTING.registerItem(TJBlocks.STOCKING_DUAL_INTERFACE, 1);
         Upgrades.CRAFTING.registerItem(TJItems.PART_STOCKING_DUAL_INTERFACE, 1);
+
+        Upgrades.CAPACITY.registerItem(TJBlocks.SUPER_ULTIMATE_INTERFACE, 4);
+        Upgrades.CAPACITY.registerItem(TJItems.PART_SUPER_ULTIMATE_INTERFACE, 4);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJBlocks.SUPER_ULTIMATE_INTERFACE, 124);
+        Upgrades.PATTERN_EXPANSION.registerItem(TJItems.PART_SUPER_ULTIMATE_INTERFACE, 124);
+        Upgrades.CRAFTING.registerItem(TJBlocks.SUPER_ULTIMATE_INTERFACE, 1);
+        Upgrades.CRAFTING.registerItem(TJItems.PART_SUPER_ULTIMATE_INTERFACE, 1);
     }
 }
