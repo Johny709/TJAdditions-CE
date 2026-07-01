@@ -1209,6 +1209,7 @@ tile.me.pattern_interface.name=ME Pattern Interface
 tile.me.stocking_interface.name=ME Stocking Interface
 tile.me.stocking_fluid_interface.name=ME Stocking Fluid Interface
 tile.me.stocking_dual_interface.name=ME Stocking Dual Interface
+tile.me.super_ultimate_interface.name=ME Super Ultimate Interface
 
 tile.me.crafting_storage.65536k.name=§165536k§f Crafting Storage
 tile.me.crafting_storage.262144k.name=§b262144k§f Crafting Storage
