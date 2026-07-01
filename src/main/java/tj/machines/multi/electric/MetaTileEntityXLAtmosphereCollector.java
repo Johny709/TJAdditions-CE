@@ -19,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
@@ -29,6 +30,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.capability.IJEIExtentSync;
 import tj.capability.impl.workable.XLAtmosphereCollectorWorkableHandler;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
 import tj.items.handlers.FilteredItemStackHandler;
@@ -44,7 +46,7 @@ import java.util.List;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
-public class MetaTileEntityXLAtmosphereCollector extends MetaTileEntityLargeAtmosphereCollector {
+public class MetaTileEntityXLAtmosphereCollector extends MetaTileEntityLargeAtmosphereCollector implements IJEIExtentSync {
 
     private final int pageSize = 10;
     private int pageIndex;
@@ -295,5 +297,22 @@ public class MetaTileEntityXLAtmosphereCollector extends MetaTileEntityLargeAtmo
     protected void reinitializeStructurePattern() {
         this.parallels = 12;
         super.reinitializeStructurePattern();
+    }
+
+
+    @Override
+    public void setJEIPreviewLayer(int layer) {
+        this.parallels = MathHelper.clamp(layer, 1, this.getMaxExtent());
+        this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    public int getMinExtent() {
+        return 0;
+    }
+
+    @Override
+    public int getMaxExtent() {
+        return 7; // TODO: if you can find a better way to get the max extent then replace this. :p
     }
 }

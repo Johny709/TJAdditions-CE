@@ -160,9 +160,15 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
 
     @Override
     public void invalidateStructure() {
-        super.invalidateStructure();
+        //super.invalidateStructure();
+       // this.exportFluidHandler = null;
+        //this.importItemHandler = new ItemHandlerList(Collections.emptyList());
         this.exportFluidHandler = null;
         this.importItemHandler = new ItemHandlerList(Collections.emptyList());
+
+        if (!this.getAbilities(ABILITY_ROTOR_HOLDER).isEmpty()) {
+            super.invalidateStructure();
+        }
     }
 
     @Override

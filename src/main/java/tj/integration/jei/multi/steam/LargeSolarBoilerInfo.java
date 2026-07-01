@@ -11,16 +11,12 @@ import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
-import tj.TJConfig;
 import tj.blocks.BlockAbility;
 import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
 import tj.machines.multi.steam.MetaTileEntityLargeSolarBoiler;
 import tj.util.Color;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class LargeSolarBoilerInfo extends MultiblockInfoPage {
 
@@ -65,7 +61,7 @@ public class LargeSolarBoilerInfo extends MultiblockInfoPage {
                 .where('F', MetaBlocks.BOILER_FIREBOX_CASING.getState(BlockFireboxCasing.FireboxCasingType.STEEL_FIREBOX))
                 .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID))
                 .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE))
-                .where('s', TJMetaBlocks.ABILITY_BLOCKS.getState(AbilityBlocks.AbilityType.SOLAR_COLLECTOR))
+                .where('s', TJMetaBlocks.ABILITY_BLOCKS.getState(BlockAbility.AbilityType.SOLAR_COLLECTOR))
                 .where('I', PlaceholderType.INPUT_HATCH,MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
                 .where('O',PlaceholderType.OUTPUT_HATCH, MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
                 .build();
