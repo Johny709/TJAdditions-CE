@@ -6,6 +6,7 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.items.metaitem.MetaItem;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import net.minecraft.item.Item;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -14,6 +15,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.capability.IJEIExtentSync;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.workable.XLHotCoolantTurbineWorkableHandler;
@@ -78,7 +80,7 @@ import static tj.mui.TJGuiTextures.*;
 import static tj.mui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.mui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
-public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantTurbine implements IMaintenance, IProgressBar {
+public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantTurbine implements IMaintenance, IProgressBar, IJEIExtentSync {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, IMPORT_ITEMS, OUTPUT_ENERGY, MAINTENANCE_HATCH};
     public static final int BASE_PARALLEL = 12;
@@ -425,6 +427,11 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         super.invalidateStructure();
         this.importFluidHandler = new FluidTankList(true, Collections.emptyList());
         this.importItemHandler = new ItemHandlerList(Collections.emptyList());
+
+
+        if (!this.getAbilities(ABILITY_ROTOR_HOLDER).isEmpty()) {
+            super.invalidateStructure();
+        }
     }
 
     @Override
@@ -633,5 +640,24 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
      */
     public String getRecipeUid() {
         return Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName();
+    }
+
+
+    @Override
+    public void setJEIPreviewLayer(int layer) {
+        this.parallels = MathHelper.clamp(layer, 1, this.getMaxExtent());
+        this.structurePattern = this.createStructurePattern();
+    }
+
+
+    @Override
+    public int getMinExtent() {
+        return 0;
+    }
+
+
+    @Override
+    public int getMaxExtent() {
+        return 7; // TODO: if you can find a better way to get the max extent then replace this. :p
     }
 }
