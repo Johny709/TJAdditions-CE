@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup {
 
     private final int rowLength;
+    private final int posX;
     protected int totalListHeight;
     protected int scrollOffset;
     protected int scrollPaneWidth = 10;
@@ -53,6 +54,7 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     public SlotScrollableWidgetGroup(int x, int y, int width, int height, int rowLength) {
         super(new Position(x, y), new Size(width, height));
         this.rowLength = rowLength;
+        this.posX = x;
     }
 
     public SlotScrollableWidgetGroup setScrollWidth(int scrollPaneWidth) {
@@ -202,7 +204,7 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
-        if (this.isMouseOverElement(mouseX, mouseY, true)) {
+        if (this.isMouseInWidget(mouseX, mouseY)) {
             final int direction = -MathHelper.clamp(wheelDelta, -1, 1);
             final int moveDelta = direction * 10;
             this.addScrollOffset(moveDelta);
@@ -369,6 +371,12 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
             this.gui.entityPlayer.inventory.setItemStack(heldStack);
             this.writeClientAction(3, buffer -> buffer.writeItemStack(heldStack));
         }
+    }
+
+    private boolean isMouseInWidget(int mouseX, int mouseY) {
+        final Size size = this.getSize();
+        final int posY = this.getPosition().getY();
+        return mouseX >= this.posX && mouseX <= this.posX + size.getWidth() && mouseY >= posY && mouseY <= posY + size.getHeight();
     }
 
     @Override
