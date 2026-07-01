@@ -34,16 +34,7 @@ public class TJConfig {
         @Config.Comment("Set to replace Multiblock UIs with TJ Additions' edits and implementation")
         @Config.RequiresMcRestart
         public boolean multiblockUIOverrides = true;
-
-        @Config.Name("Max Extendable Layers Shown In JEI")
-        @Config.Comment("Set the maximum amount of layers to be shown in JEI preview of extendable multiblocks")
-        @Config.RequiresMcRestart
-        public int maxLayersInJEI = 4;
-
-        @Config.Name("Disable Layers In JEI")
-        @Config.Comment("Voltage layers won't be shown in multiblock previews if this is set true.")
-        @Config.RequiresMcRestart
-        public boolean disableLayersInJEI = false;
+        
     }
 
     @Config.Comment("Industrial Fusion Reactor")
