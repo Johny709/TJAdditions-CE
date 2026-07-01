@@ -36,10 +36,10 @@ public class TJMultiSmelterInfo extends TJMultiblockInfoPage {
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('m', GATileEntities.MUFFLER_HATCH[0], EnumFacing.UP)
                 .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF)).where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.EAST)
-                    .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
-                    .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
-                    .where('c', PlaceholderType.FRAMEWORK)
-                    .build();
+                .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
+                .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
+                .where('c', PlaceholderType.COIL)
+                .build();
     }
 
     @Override

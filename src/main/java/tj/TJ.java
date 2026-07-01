@@ -14,6 +14,7 @@ import tj.blocks.TJMetaBlocks;
 import tj.blocks.block.TJBlocks;
 import tj.capability.TJSimpleCapabilityManager;
 import tj.gui.GuiHandler;
+import tj.integration.jei.TJPlaceholderRegistry;
 import tj.mui.uifactory.PlayerUIFactory;
 import tj.mui.uifactory.TileEntityUIFactory;
 import tj.integration.theoneprobe.TheOneProbeCompatibility;
@@ -47,6 +48,7 @@ public class TJ {
         TJMetaBlocks.init();
         TJMetaTileEntities.init();
         TJSimpleCapabilityManager.init();
+        TJPlaceholderRegistry.init();
         logger = event.getModLog();
     }
 

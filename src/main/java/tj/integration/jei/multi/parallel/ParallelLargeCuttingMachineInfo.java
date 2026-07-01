@@ -54,7 +54,7 @@ public class ParallelLargeCuttingMachineInfo extends TJMultiblockInfoPage implem
                 new String[]{"~~CiMCC", "~~ISO#C", "~~~~C#C"}).where('S', this.getController(), WEST)
                     .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.MARAGING_STEEL_250))
                     .where('c', GAMetaBlocks.CONVEYOR_CASING.getDefaultState())
-                    .where('M', PlaceholderType.MOTOR , GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[0]))
+                    .where('m', PlaceholderType.MOTOR , GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[0]))
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
                     .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EAST)
                     .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)

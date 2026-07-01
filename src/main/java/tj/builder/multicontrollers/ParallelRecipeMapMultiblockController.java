@@ -38,10 +38,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
-import tj.capability.IParallelController;
-import tj.capability.IRecipeMap;
-import tj.capability.OverclockManager;
-import tj.capability.TJCapabilities;
+import tj.capability.*;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.capability.impl.workable.ParallelRecipeLogic;
 import tj.mui.TJGuiTextures;
@@ -70,7 +67,7 @@ import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.mui.TJGuiTextures.*;
 import static tj.mui.TJGuiTextures.TOGGLE_FLUID_VOID_BUTTON;
 
-public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockControllerBase implements IParallelController, IMultiRecipe, IRecipeHandler {
+public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockControllerBase implements IParallelController, IMultiRecipe, IRecipeHandler, IJEIExtentSync {
 
     private final RecipeMap<?>[] recipeMaps;
     protected final ParallelRecipeLogic<? extends IRecipeHandler> recipeLogic = this.createRecipeLogic();
@@ -589,4 +586,16 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
             this.invalidateStructure();
         this.structurePattern = this.createStructurePattern();
     }
+
+    @Override
+    public int getMaxExtent() {
+        return getMaxParallel();
+    }
+
+    @Override
+    public void setJEIPreviewLayer(int layer) {
+        this.parallelLayer = MathHelper.clamp(layer, 1, this.getMaxParallel());
+        this.structurePattern = this.createStructurePattern();
+    }
+
 }

@@ -36,6 +36,7 @@ import tj.TJConfig;
 import tj.TJValues;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockController;
+import tj.capability.IJEIExtentSync;
 import tj.capability.OverclockManager;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
@@ -51,7 +52,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
 
-public class MetaTileEntityLargeNuclearReactor extends TJMultiRecipeMapMultiblockController {
+public class MetaTileEntityLargeNuclearReactor extends TJMultiRecipeMapMultiblockController implements IJEIExtentSync {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
 
@@ -230,5 +231,11 @@ public class MetaTileEntityLargeNuclearReactor extends TJMultiRecipeMapMultibloc
     @Override
     public int getParallel() {
         return 0; // don't display parallel overclocking per tier on tooltip
+    }
+
+    @Override
+    public void setJEIPreviewLayer(int layer) {
+        this.parallelLayer = MathHelper.clamp(layer, 1, this.getMaxExtent());
+        this.structurePattern = this.createStructurePattern();
     }
 }

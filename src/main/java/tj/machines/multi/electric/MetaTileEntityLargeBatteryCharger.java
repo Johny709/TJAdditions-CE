@@ -90,7 +90,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockControllerBas
     private int pageIndex;
 
     public MetaTileEntityLargeBatteryCharger(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId);
+        super(metaTileEntityId,1,1,4);
     }
 
     @Override

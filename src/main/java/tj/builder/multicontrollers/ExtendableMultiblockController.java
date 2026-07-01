@@ -10,11 +10,12 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import tj.TJConfig;
+import tj.capability.IJEIExtentSync;
 import tj.util.TextUtils;
 
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 
-public abstract class ExtendableMultiblockController extends TJMultiblockControllerBase {
+public abstract class ExtendableMultiblockController extends TJMultiblockControllerBase implements IJEIExtentSync {
 
     protected int parallelLayer = 1;
 
@@ -44,6 +45,11 @@ public abstract class ExtendableMultiblockController extends TJMultiblockControl
 
     public int getMaxParallel() {
         return 1;
+    }
+
+    @Override
+    public int getMaxExtent() {
+        return getMaxParallel();
     }
 
     @Override
@@ -93,6 +99,13 @@ public abstract class ExtendableMultiblockController extends TJMultiblockControl
     private void resetStructure() {
         if (this.isStructureFormed())
             this.invalidateStructure();
+        this.structurePattern = this.createStructurePattern();
+    }
+
+
+    @Override
+    public void setJEIPreviewLayer(int layer) {
+        this.parallelLayer = MathHelper.clamp(layer, 1, this.getMaxExtent());
         this.structurePattern = this.createStructurePattern();
     }
 }

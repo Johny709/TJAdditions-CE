@@ -86,6 +86,13 @@ public class TJMultiblockShapeInfo extends MultiblockShapeInfo {
             return this;
         }
 
+        public Builder where(char symbol, PlaceholderType type) {
+            this.symbolMap.put(symbol, BlockInfo.placeholder(type));
+            this.isTiered = true;
+            return this;
+        }
+
+
         @Override
         public Builder where(char symbol, BlockInfo value) {
             this.symbolMap.put(symbol, value);
@@ -99,6 +106,7 @@ public class TJMultiblockShapeInfo extends MultiblockShapeInfo {
 
         @Override
         public Builder where(char symbol, PlaceholderType type, MetaTileEntity tileEntity, EnumFacing frontSide) {
+            this.isTiered = true;
             MetaTileEntityHolder holder = new MetaTileEntityHolder();
             holder.setMetaTileEntity(tileEntity);
             holder.getMetaTileEntity().setFrontFacing(frontSide);

@@ -140,12 +140,10 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     protected BlockPattern createStructurePattern() {
         final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            if (layer % 4 == 0) {
-                String muffler = layer == 0 ? "XXMXX" : "XXPXX";
-                factoryPattern.aisle("XXXXX", "XXXXX", muffler, "XXXXX", "XXXXX");
-                factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
-                factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
-            }
+            String muffler = layer == 0 ? "XXMXX" : "XXPXX";
+            factoryPattern.aisle("XXXXX", "XXXXX", muffler, "XXXXX", "XXXXX");
+            factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
+            factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
         }
         return factoryPattern.aisle("XXSXX", "XXXXX", "XXXXX", "XXXXX", "XXXXX")
                 .setAmountAtLeast('L', 12)

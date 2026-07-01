@@ -5,6 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJConfig;
@@ -39,6 +40,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.capability.IJEIExtentSync;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -48,7 +50,7 @@ import java.util.function.Predicate;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 
-public class MetaTileEntityLargeRockBreaker extends TJRecipeMapMultiblockController {
+public class MetaTileEntityLargeRockBreaker extends TJRecipeMapMultiblockController implements IJEIExtentSync {
 
     public static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
     private int slices;
@@ -179,4 +181,11 @@ public class MetaTileEntityLargeRockBreaker extends TJRecipeMapMultiblockControl
     public int getParallel() {
         return this.slices;
     }
+
+    @Override
+    public void setJEIPreviewLayer(int layer) {
+        this.slices = MathHelper.clamp(layer, 0, this.getMaxExtent());
+        this.structurePattern = this.createStructurePattern();
+    }
+
 }

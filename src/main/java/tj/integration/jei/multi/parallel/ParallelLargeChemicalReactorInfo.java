@@ -35,27 +35,27 @@ public class ParallelLargeChemicalReactorInfo extends TJMultiblockInfoPage imple
 
     @Override
     public MultiblockShapeInfo getMatchingShapes(int extent) {
-
-        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
+        TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
         builder.aisle("CCMCC", "CCCCC", "CCCCC", "CCCCC", "CCCCC");
         for (int layer = 0; layer < extent; layer++) {
             builder.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F");
             builder.aisle("F###F", "#PPP#", "#PcP#", "#PPP#", "F###F");
         }
         return builder.aisle("F###F", "#CCC#", "#CCC#", "#CCC#", "F###F")
-                .aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCECC").where('S', this.getController(), EnumFacing.WEST)
+                .aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCECC")
+
+           .where('S', this.getController(), EnumFacing.WEST)
                     .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CHEMICALLY_INERT))
                     .where('c', PlaceholderType.COIL)
                     .where('P', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE))
                     .where('F', MetaBlocks.FRAMES.get(Steel).getDefaultState())
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                     .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.WEST)
-                    .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
-                    .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
-                    .where('o', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
-                    .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
+                    .where('I', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+                    .where('i', PlaceholderType.INPUT_BUS, MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
+                    .where('O', PlaceholderType.OUTPUT_HATCH, MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
+                    .where('o', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
                     .build();
-
     }
 
     @Override

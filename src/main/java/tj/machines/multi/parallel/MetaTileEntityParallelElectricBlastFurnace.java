@@ -114,12 +114,10 @@ public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMa
     protected BlockPattern createStructurePattern() {
         final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            if (layer % 4 == 0) {
-                final String muffler = layer == 0 ? "XXMXX" : "XXPXX";
-                factoryPattern.aisle("XXXXX", "XXXXX", muffler, "XXXXX", "XXXXX");
-                factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
-                factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
-            }
+            final String muffler = layer == 0 ? "XXMXX" : "XXPXX";
+            factoryPattern.aisle("XXXXX", "XXXXX", muffler, "XXXXX", "XXXXX");
+            factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
+            factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
         }
         return factoryPattern.aisle("XXSXX", "XXXXX", "XXXXX", "XXXXX", "XXXXX")
                 .setAmountAtLeast('L', 12)

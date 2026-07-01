@@ -52,6 +52,7 @@ import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.capability.IJEIExtentSync;
 import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IAssemblyHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
@@ -70,7 +71,7 @@ import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
 
 
-public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockController implements IAssemblyHandler {
+public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockController implements IAssemblyHandler, IJEIExtentSync {
 
     private final List<BlockPos> inputBusPos = new ArrayList<>();
     private IQubitContainer qubitContainer;
@@ -371,5 +372,17 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
         public int getRecipeQubit() {
             return this.recipeQubit;
         }
+    }
+
+
+    @Override
+    public int getMaxExtent() {
+        return TJConfig.parallelCircuitAssemblyLine.maximumSlices;
+    }
+
+    @Override
+    public void setJEIPreviewLayer(int layer) {
+        this.parallelLayer = MathHelper.clamp(layer, 1, this.getMaxExtent());
+        this.structurePattern = this.createStructurePattern();
     }
 }

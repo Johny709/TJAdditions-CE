@@ -52,7 +52,7 @@ public class ParallelLargeMixerInfo extends TJMultiblockInfoPage implements IPar
                 .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.STABALLOY))
                 .where('G', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING))
                 .where('F', MetaBlocks.FRAMES.get(Staballoy).getDefaultState())
-                .where('M', PlaceholderType.MOTOR, GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[0]))
+                .where('m', PlaceholderType.MOTOR, GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[0]))
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
                 .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), WEST)
                 .where('I', PlaceholderType.INPUT_BUS, MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)

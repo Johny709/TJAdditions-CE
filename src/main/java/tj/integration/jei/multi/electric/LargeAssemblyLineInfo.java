@@ -41,7 +41,7 @@ public class LargeAssemblyLineInfo extends TJMultiblockInfoPage implements IPara
 
         final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("CCCCC", "CCOCC", "C###C", "CCCCC", "ECCCE", "~ECE~", "~~e~~");
-        for (int i = 0; i < 4 * extent; i++) {
+        for (int i = 0; i < extent; i++) {
             builder.aisle("FCICf", "G#c#G", "G###G", "G#r#G", "EAaAE", "~EAE~", "~~C~~");
         }
         return builder.aisle("CCCCC", "CCCCC", "C###C", "CCCCC", "ECSCE", "~EME~", "~~C~~")
@@ -51,7 +51,7 @@ public class LargeAssemblyLineInfo extends TJMultiblockInfoPage implements IPara
                 .where('E', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
                 .where('A', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING))
                 .where('a', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.ASSEMBLER_CASING))
-                .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.WEST)
+                .where('e', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.WEST)
                 .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.DOWN)
                 .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.EAST)
                 .where('F', MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.NORTH)

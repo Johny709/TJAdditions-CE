@@ -57,10 +57,10 @@ public class LargeBioReactorInfo extends TJMultiblockInfoPage {
                 .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.UP)
                 .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.UP)
                 .where('o', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.UP)
-                .where('P', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[0]))
-                .where('F', GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.values()[0]))
-                .where('e', GAMetaBlocks.EMITTER_CASING.getState(EmitterCasing.CasingType.values()[0]))
-                .where('s', GAMetaBlocks.SENSOR_CASING.getState(SensorCasing.CasingType.values()[0]))
+                .where('P', PlaceholderType.PUMP, GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[0]))
+                .where('F', PlaceholderType.FIELD_GEN, GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.values()[0]))
+                .where('e', PlaceholderType.EMITTER,GAMetaBlocks.EMITTER_CASING.getState(EmitterCasing.CasingType.values()[0]))
+                .where('s', PlaceholderType.SENSOR, GAMetaBlocks.SENSOR_CASING.getState(SensorCasing.CasingType.values()[0]))
                 .where('c', PlaceholderType.COIL)
                 .build();
     }

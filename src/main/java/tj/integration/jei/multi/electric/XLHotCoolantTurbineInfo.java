@@ -67,10 +67,10 @@ public class XLHotCoolantTurbineInfo extends TJMultiblockInfoPage implements IPa
             .where('C', this.turbine.turbineType.casingState)
             .where('R', holderNorth.getMetaTileEntity(), EnumFacing.NORTH)
             .where('T', holderSouth.getMetaTileEntity(), EnumFacing.SOUTH)
-            .where('e', PlaceholderType.ENERGY_OUTPUT_HATCH, this.getEnergyHatch(0, true), EnumFacing.EAST)
-            .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+            .where('E', PlaceholderType.ENERGY_OUTPUT_HATCH, this.getEnergyHatch(0, true), EnumFacing.EAST)
+            .where('I', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
             .where('J', MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
-            .where('o', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
+            .where('O', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
             .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
             .where(!this.turbine.turbineType.hasOutputHatch ? 'O' : '#', !this.turbine.turbineType.hasOutputHatch ? this.turbine.turbineType.casingState : Blocks.AIR.getDefaultState())
             .build();

@@ -20,6 +20,7 @@ import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
+import mezz.jei.api.JEIPlugin;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -37,6 +38,7 @@ import tj.TJConfig;
 import tj.TJValues;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
+import tj.capability.IJEIExtentSync;
 import tj.capability.OverclockManager;
 import tj.util.TextUtils;
 
@@ -48,7 +50,7 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 
-public class MetaTileEntityLargeGasCentrifuge extends TJRecipeMapMultiblockController {
+public class MetaTileEntityLargeGasCentrifuge extends TJRecipeMapMultiblockController implements IJEIExtentSync {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
 
@@ -239,5 +241,11 @@ public class MetaTileEntityLargeGasCentrifuge extends TJRecipeMapMultiblockContr
     protected void reinitializeStructurePattern() {
         this.parallelLayer = 1;
         super.reinitializeStructurePattern();
+    }
+
+    @Override
+    public void setJEIPreviewLayer(int layer) {
+        this.parallelLayer = MathHelper.clamp(layer, 1, this.getMaxExtent());
+        this.structurePattern = this.createStructurePattern();
     }
 }
