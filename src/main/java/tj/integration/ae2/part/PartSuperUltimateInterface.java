@@ -29,7 +29,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import tj.TJ;
 import tj.integration.ae2.ISuperDualInterface;
-import tj.integration.ae2.blocks.BlockSuperDualInterface;
+import tj.integration.ae2.blocks.BlockSuperUltimateInterface;
 import tj.integration.ae2.helpers.DualitySuperFluidInterface;
 import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.items.item.TJItems;
@@ -109,7 +109,7 @@ public class PartSuperUltimateInterface extends PartInterface implements ITileEn
 
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        return BlockSuperDualInterface.createDualInterfaceGUI(holder, player, this);
+        return BlockSuperUltimateInterface.createDualInterfaceGUI(holder, player, this);
     }
 
     @Override
@@ -225,7 +225,19 @@ public class PartSuperUltimateInterface extends PartInterface implements ITileEn
     }
 
     @Override
+    public void setTickTime(String tickTime, String id) {
+        this.tickTime = (int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(tickTime)));
+        this.getTile().markDirty();
+    }
+
+    @Override
+    public int getTickTime() {
+        return this.tickTime;
+    }
+
+    @Override
     public void setAutoPull(boolean autoPull) {
-        // No such feature
+        this.getInterfaceDuality().getConfigManager().putSetting(Settings.BLOCK, autoPull ? YesNo.YES : YesNo.NO);
+        this.getTile().markDirty();
     }
 }
