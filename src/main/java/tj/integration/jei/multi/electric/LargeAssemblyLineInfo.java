@@ -38,11 +38,9 @@ public class LargeAssemblyLineInfo extends TJMultiblockInfoPage implements IPara
 
     @Override
     public MultiblockShapeInfo getMatchingShapes(int extent) {
-
-
         final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("CCCCC", "CCOCC", "C###C", "CCCCC", "ECCCE", "~ECE~", "~~e~~");
-        for (int i = 0; i < extent; i++) {
+        for (int i = 0; i <extent; i++) {
             builder.aisle("FCICf", "G#c#G", "G###G", "G#r#G", "EAaAE", "~EAE~", "~~C~~");
         }
         return builder.aisle("CCCCC", "CCCCC", "C###C", "CCCCC", "ECSCE", "~EME~", "~~C~~")

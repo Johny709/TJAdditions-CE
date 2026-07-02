@@ -381,6 +381,13 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     }
 
     @Override
+    public int getMinExtent() {
+        return 4;
+    }
+
+
+
+    @Override
     public void setJEIPreviewLayer(int layer) {
         this.parallelLayer = MathHelper.clamp(layer, 1, this.getMaxExtent());
         this.structurePattern = this.createStructurePattern();

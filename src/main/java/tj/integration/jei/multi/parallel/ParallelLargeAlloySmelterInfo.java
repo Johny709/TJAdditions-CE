@@ -53,7 +53,7 @@ public class ParallelLargeAlloySmelterInfo extends TJMultiblockInfoPage implemen
                     .where('c', PlaceholderType.COIL)
                     .where('E', PlaceholderType.ENERGY_INPUT_HATCH,this.getEnergyHatch(0, false), EAST)
                     .where('I', PlaceholderType.INPUT_BUS, MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
-                    .where('O', PlaceholderType.OUTPUT_HATCH,MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
+                    .where('O', PlaceholderType.OUTPUT_BUS,MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
                     .build();
     }
 

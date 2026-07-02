@@ -184,6 +184,11 @@ public class MetaTileEntityLargeRockBreaker extends TJRecipeMapMultiblockControl
     }
 
     @Override
+    public int getMaxExtent() {
+        return TJConfig.largeRockBreaker.maximumSlices;
+    }
+
+    @Override
     public void setJEIPreviewLayer(int layer) {
         this.slices = MathHelper.clamp(layer, 0, this.getMaxExtent());
         this.structurePattern = this.createStructurePattern();
