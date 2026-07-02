@@ -1203,6 +1203,8 @@ item.me.part.stocking_fluid_interface.name=ME Stocking Fluid Interface
 item.me.part.stocking_dual_interface.name=ME Stocking Dual Interface
 item.me.part.super_ultimate_interface.name=ME Super Ultimate Interface
 
+item.me.part.super_interface_terminal.name=ME Super Interface Terminal
+
 tile.me.super_interface.name=ME Super Interface
 tile.me.super_fluid_interface.name=ME Super Fluid Interface
 tile.me.super_dual_interface.name=ME Super Dual Interface
