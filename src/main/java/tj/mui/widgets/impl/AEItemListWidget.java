@@ -3,9 +3,9 @@ package tj.mui.widgets.impl;
 import appeng.api.config.Settings;
 import appeng.api.config.YesNo;
 import appeng.api.networking.IGrid;
+import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
 import appeng.helpers.IInterfaceHost;
-import appeng.tile.misc.TileInterface;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.util.Position;
@@ -30,15 +30,18 @@ import java.util.List;
 public class AEItemListWidget extends TJWidget<AEItemListWidget> {
 
     private final Int2ObjectMap<Object> elements = new Int2ObjectLinkedOpenHashMap<>();
+    private final Class<? extends IGridHost>[] gridHosts;
     private final IGrid grid;
     private final int posX;
     private int scrollOffset;
     private int scrollHeight;
 
-    public AEItemListWidget(int x, int y, int width, int height, IGrid grid) {
+    @SafeVarargs
+    public AEItemListWidget(int x, int y, int width, int height, IGrid grid, Class<? extends IGridHost>... gridHosts) {
         super(new Position(x, y), new Size(width, height));
         this.grid = grid;
         this.posX = x;
+        this.gridHosts = gridHosts;
     }
 
     @Override
@@ -204,30 +207,32 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> {
         int index = 0;
         int scrollHeight = 0;
         grid:
-        for (IGridNode gridNode : this.grid.getMachines(TileInterface.class)) {
-            if (!gridNode.isActive()) continue;
-            final IInterfaceHost interfaceHost = (IInterfaceHost) gridNode.getMachine();
-            if (interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) == YesNo.NO) continue;
-            if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
-                index++;
-            scrollHeight += 18;
-            final IItemHandler patternInventory = interfaceHost.getInterfaceDuality().getPatterns();
-            for (int j = 0, slotColumn = 0; j < patternInventory.getSlots(); j++, slotColumn++) {
-                if (slotColumn > 8) {
-                    scrollHeight += 18;
-                    slotColumn = 0;
-                }
-                if (i == index) {
-                    final ItemStack output = patternInventory.extractItem(j, Integer.MAX_VALUE, false);
-                    if (patternInventory.insertItem(j, playerStack, false).isEmpty()) {
-                        playerStack = output;
-                    } else patternInventory.insertItem(j, output, false);
-                    break grid;
-                }
+        for (Class<? extends IGridHost> gridHost : this.gridHosts) {
+            for (IGridNode gridNode : this.grid.getMachines(gridHost)) {
+                if (!gridNode.isActive()) continue;
+                final IInterfaceHost interfaceHost = (IInterfaceHost) gridNode.getMachine();
+                if (interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) == YesNo.NO) continue;
                 if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
                     index++;
+                scrollHeight += 18;
+                final IItemHandler patternInventory = interfaceHost.getInterfaceDuality().getPatterns();
+                for (int j = 0, slotColumn = 0; j < patternInventory.getSlots(); j++, slotColumn++) {
+                    if (slotColumn > 8) {
+                        scrollHeight += 18;
+                        slotColumn = 0;
+                    }
+                    if (i == index) {
+                        final ItemStack output = patternInventory.extractItem(j, Integer.MAX_VALUE, false);
+                        if (patternInventory.insertItem(j, playerStack, false).isEmpty()) {
+                            playerStack = output;
+                        } else patternInventory.insertItem(j, output, false);
+                        break grid;
+                    }
+                    if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
+                        index++;
+                }
+                scrollHeight += 18;
             }
-            scrollHeight += 18;
         }
         final ItemStack finalPlayerStack = playerStack;
         this.gui.entityPlayer.inventory.setItemStack(finalPlayerStack);
@@ -240,23 +245,25 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> {
         this.elements.clear();
         int index = 0;
         int scrollHeight = 0;
-        for (IGridNode gridNode : this.grid.getMachines(TileInterface.class)) {
-            if (!gridNode.isActive()) continue;
-            final IInterfaceHost interfaceHost = (IInterfaceHost) gridNode.getMachine();
-            if (interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) == YesNo.NO) continue;
-            final IItemHandler patternInventory = interfaceHost.getInterfaceDuality().getPatterns();
-            if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
-                this.elements.put(index++, interfaceHost.getInterfaceDuality().getTermName());
-            scrollHeight += 18;
-            for (int i = 0, slotColumn = 0; i < patternInventory.getSlots(); i++, slotColumn++) {
-                if (slotColumn > 8) {
-                    scrollHeight += 18;
-                    slotColumn = 0;
-                }
+        for (Class<? extends IGridHost> gridHost : this.gridHosts) {
+            for (IGridNode gridNode : this.grid.getMachines(gridHost)) {
+                if (!gridNode.isActive()) continue;
+                final IInterfaceHost interfaceHost = (IInterfaceHost) gridNode.getMachine();
+                if (interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) == YesNo.NO) continue;
+                final IItemHandler patternInventory = interfaceHost.getInterfaceDuality().getPatterns();
                 if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
-                    this.elements.put(index++, patternInventory.getStackInSlot(i));
+                    this.elements.put(index++, interfaceHost.getInterfaceDuality().getTermName());
+                scrollHeight += 18;
+                for (int i = 0, slotColumn = 0; i < patternInventory.getSlots(); i++, slotColumn++) {
+                    if (slotColumn > 8) {
+                        scrollHeight += 18;
+                        slotColumn = 0;
+                    }
+                    if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
+                        this.elements.put(index++, patternInventory.getStackInSlot(i));
+                }
+                scrollHeight += 18;
             }
-            scrollHeight += 18;
         }
         if (this.scrollHeight != scrollHeight) {
             this.scrollHeight = scrollHeight;

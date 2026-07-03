@@ -1,6 +1,7 @@
 package tj.integration.ae2.part;
 
 import appeng.parts.reporting.PartInterfaceTerminal;
+import appeng.tile.misc.TileInterface;
 import appeng.tile.networking.TileCableBus;
 import gregtech.api.gui.ModularUI;
 import net.minecraft.entity.player.EntityPlayer;
@@ -8,6 +9,10 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
+import tj.integration.ae2.tile.TilePatternInterface;
+import tj.integration.ae2.tile.TileSuperDualInterface;
+import tj.integration.ae2.tile.TileSuperInterface;
+import tj.integration.ae2.tile.TileSuperUltimateInterface;
 import tj.items.item.TJItems;
 import tj.mui.TJGuiTextures;
 import tj.mui.uifactory.ITileEntityUI;
@@ -45,7 +50,7 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         .setDynamicLocale(this::getCustomInventoryName)
                         .setCentered(false)
                         .setCanSlide(false))
-                .widget(new AEItemListWidget(7, 34, 166, 162, this.getGridNode() != null ? this.getGridNode().getGrid() : null))
+                .widget(new AEItemListWidget(7, 34, 166, 162, this.getGridNode() != null ? this.getGridNode().getGrid() : null, TileInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class))
                 .bindPlayerInventory(player.inventory, 209)
                 .build(holder, player);
     }
