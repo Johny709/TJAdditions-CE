@@ -12,7 +12,7 @@ import tj.items.item.TJItems;
 import tj.mui.TJGuiTextures;
 import tj.mui.uifactory.ITileEntityUI;
 import tj.mui.uifactory.TileEntityHolder;
-import tj.mui.widgets.impl.MEInterfaceTerminalWidget;
+import tj.mui.widgets.impl.AEItemListWidget;
 import tj.mui.widgets.impl.TJLabelWidget;
 
 public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements ITileEntityUI {
@@ -45,7 +45,7 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         .setDynamicLocale(this::getCustomInventoryName)
                         .setCentered(false)
                         .setCanSlide(false))
-                .widget(new MEInterfaceTerminalWidget(7, 34, 166, 144))
+                .widget(new AEItemListWidget(7, 34, 166, 162, this.getGridNode() != null ? this.getGridNode().getGrid() : null))
                 .bindPlayerInventory(player.inventory, 209)
                 .build(holder, player);
     }
