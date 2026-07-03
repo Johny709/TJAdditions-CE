@@ -1,5 +1,8 @@
 package tj.integration.ae2.part;
 
+import appeng.api.config.Settings;
+import appeng.api.config.YesNo;
+import appeng.helpers.IInterfaceHost;
 import appeng.parts.reporting.PartInterfaceTerminal;
 import appeng.tile.misc.TileInterface;
 import appeng.tile.networking.TileCableBus;
@@ -50,7 +53,9 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         .setDynamicLocale(this::getCustomInventoryName)
                         .setCentered(false)
                         .setCanSlide(false))
-                .widget(new AEItemListWidget(7, 34, 166, 162, this.getGridNode(), TileInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class))
+                .widget(new AEItemListWidget<IInterfaceHost>(7, 34, 166, 162, this.getGridNode(), TileInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class)
+                        .setPredicate(interfaceHost -> interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) == YesNo.YES)
+                        .setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getPatterns()))
                 .bindPlayerInventory(player.inventory, 209)
                 .build(holder, player);
     }

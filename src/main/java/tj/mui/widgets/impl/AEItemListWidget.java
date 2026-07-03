@@ -1,11 +1,9 @@
 package tj.mui.widgets.impl;
 
-import appeng.api.config.Settings;
-import appeng.api.config.YesNo;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
-import appeng.helpers.IInterfaceHost;
+import appeng.helpers.ICustomNameObject;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.igredient.IIngredientSlot;
@@ -28,13 +26,17 @@ import tj.mui.widgets.TJWidget;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
-public class AEItemListWidget extends TJWidget<AEItemListWidget> implements IIngredientSlot {
+public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implements IIngredientSlot {
 
     private final Int2ObjectMap<Object> elements = new Int2ObjectLinkedOpenHashMap<>();
     private final Class<? extends IGridHost>[] gridHosts;
     private final IGrid grid;
     private final int posX;
+    private Function<T, IItemHandler> inventorySupplier;
+    private Predicate<T> predicate;
     private int scrollOffset;
     private int scrollHeight;
     private int autoScrollY;
@@ -46,6 +48,16 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> implements IIng
         this.grid = gridNode != null ? gridNode.getGrid() : null;
         this.posX = x;
         this.gridHosts = gridHosts;
+    }
+
+    public AEItemListWidget<T> setInventorySupplier(Function<T, IItemHandler> inventorySupplier) {
+        this.inventorySupplier = inventorySupplier;
+        return this;
+    }
+
+    public AEItemListWidget<T> setPredicate(Predicate<T> predicate) {
+        this.predicate = predicate;
+        return this;
     }
 
     @Override
@@ -223,23 +235,21 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> implements IIng
         grid:
         for (Class<? extends IGridHost> gridHost : this.gridHosts) {
             for (IGridNode gridNode : this.grid.getMachines(gridHost)) {
-                if (!gridNode.isActive()) continue;
-                final IInterfaceHost interfaceHost = (IInterfaceHost) gridNode.getMachine();
-                if (interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) == YesNo.NO) continue;
+                if (!gridNode.isActive() || !this.predicate.test((T) gridNode.getMachine())) continue;
+                final IItemHandler inventory = this.inventorySupplier.apply((T) gridNode.getMachine());
                 if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
                     index++;
                 scrollHeight += 18;
-                final IItemHandler patternInventory = interfaceHost.getInterfaceDuality().getPatterns();
-                for (int j = 0, slotColumn = 0; j < patternInventory.getSlots(); j++, slotColumn++) {
+                for (int j = 0, slotColumn = 0; j < inventory.getSlots(); j++, slotColumn++) {
                     if (slotColumn > 8) {
                         scrollHeight += 18;
                         slotColumn = 0;
                     }
                     if (i == index) {
-                        final ItemStack output = patternInventory.extractItem(j, Integer.MAX_VALUE, false);
-                        if (patternInventory.insertItem(j, playerStack, false).isEmpty()) {
+                        final ItemStack output = inventory.extractItem(j, Integer.MAX_VALUE, false);
+                        if (inventory.insertItem(j, playerStack, false).isEmpty()) {
                             playerStack = output;
-                        } else patternInventory.insertItem(j, output, false);
+                        } else inventory.insertItem(j, output, false);
                         break grid;
                     }
                     if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
@@ -261,20 +271,18 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> implements IIng
         int scrollHeight = 0;
         for (Class<? extends IGridHost> gridHost : this.gridHosts) {
             for (IGridNode gridNode : this.grid.getMachines(gridHost)) {
-                if (!gridNode.isActive()) continue;
-                final IInterfaceHost interfaceHost = (IInterfaceHost) gridNode.getMachine();
-                if (interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) == YesNo.NO) continue;
-                final IItemHandler patternInventory = interfaceHost.getInterfaceDuality().getPatterns();
+                if (!gridNode.isActive() || !this.predicate.test((T) gridNode.getMachine())) continue;
+                final IItemHandler inventory = this.inventorySupplier.apply((T) gridNode.getMachine());
                 if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
-                    this.elements.put(index++, interfaceHost.getInterfaceDuality().getTermName());
+                    this.elements.put(index++, ((ICustomNameObject) gridNode.getMachine()).getCustomInventoryName());
                 scrollHeight += 18;
-                for (int i = 0, slotColumn = 0; i < patternInventory.getSlots(); i++, slotColumn++) {
+                for (int i = 0, slotColumn = 0; i < inventory.getSlots(); i++, slotColumn++) {
                     if (slotColumn > 8) {
                         scrollHeight += 18;
                         slotColumn = 0;
                     }
                     if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
-                        this.elements.put(index++, patternInventory.getStackInSlot(i));
+                        this.elements.put(index++, inventory.getStackInSlot(i));
                 }
                 scrollHeight += 18;
             }
