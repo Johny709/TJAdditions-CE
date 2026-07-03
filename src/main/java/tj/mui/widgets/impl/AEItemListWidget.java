@@ -117,6 +117,44 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> {
 
     @Override
     @SideOnly(Side.CLIENT)
+    public boolean mouseClicked(int mouseX, int mouseY, int button) {
+        if (!this.isMouseOverElement(mouseX, mouseY))
+            return false;
+        final Position pos = this.getPosition();
+        int scrollOffset = 0;
+        int slotColumn = 0;
+        int slotXOffset = 0;
+        for (Int2ObjectMap.Entry<Object> entry : this.elements.int2ObjectEntrySet()) {
+            if (entry.getValue() instanceof ItemStack) {
+                if (slotColumn > 8) {
+                    slotColumn = 0;
+                    scrollOffset += 18;
+                    slotXOffset = 0;
+                }
+                final int x = pos.getX() + slotXOffset;
+                final int y = pos.getY() + scrollOffset - (this.scrollOffset % 18);
+                if (isMouseOver(x, y, 18, 18, mouseX, mouseY)) {
+                    this.writeClientAction(2, buffer -> {
+                        buffer.writeInt(entry.getIntKey());
+                        buffer.writeBoolean(true); // isSlot is true.
+                    });
+                    return true;
+                }
+                slotXOffset += 18;
+                slotColumn++;
+            } else {
+                if (entry.getIntKey() > 0)
+                    scrollOffset += 18;
+                scrollOffset += 18;
+                slotXOffset = 0;
+                slotColumn = 0;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
         if (this.isMouseInWidget(mouseX, mouseY)) {
             final int delta = MathHelper.clamp(wheelDelta, -1, 1) * 10;
@@ -143,6 +181,8 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> {
                         this.elements.put(index, buffer.readString(Short.MAX_VALUE));
                     } else this.elements.put(index, buffer.readItemStack());
                 }
+            } else if (id == 3) {
+                this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
             }
         } catch (IOException e) {
             TJ.logger.info(e.getMessage());
@@ -154,7 +194,44 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> {
         super.handleClientAction(id, buffer);
         if (id == 1) {
             this.scrollOffset = buffer.readInt();
+        } else if (id == 2) {
+            this.onAction(buffer.readInt(), buffer.readBoolean());
         }
+    }
+
+    private void onAction(int i, boolean isSlot) {
+        ItemStack playerStack = this.gui.entityPlayer.inventory.getItemStack();
+        int index = 0;
+        int scrollHeight = 0;
+        grid:
+        for (IGridNode gridNode : this.grid.getMachines(TileInterface.class)) {
+            if (!gridNode.isActive()) continue;
+            final IInterfaceHost interfaceHost = (IInterfaceHost) gridNode.getMachine();
+            if (interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) == YesNo.NO) continue;
+            if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
+                index++;
+            scrollHeight += 18;
+            final IItemHandler patternInventory = interfaceHost.getInterfaceDuality().getPatterns();
+            for (int j = 0, slotColumn = 0; j < patternInventory.getSlots(); j++, slotColumn++) {
+                if (slotColumn > 8) {
+                    scrollHeight += 18;
+                    slotColumn = 0;
+                }
+                if (i == index) {
+                    final ItemStack output = patternInventory.extractItem(j, Integer.MAX_VALUE, false);
+                    if (patternInventory.insertItem(j, playerStack, false).isEmpty()) {
+                        playerStack = output;
+                    } else patternInventory.insertItem(j, output, false);
+                    break grid;
+                }
+                if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
+                    index++;
+            }
+            scrollHeight += 18;
+        }
+        final ItemStack finalPlayerStack = playerStack;
+        this.gui.entityPlayer.inventory.setItemStack(finalPlayerStack);
+        this.writeUpdateInfo(3, buffer -> buffer.writeItemStack(finalPlayerStack));
     }
 
     @Override
