@@ -8,6 +8,7 @@ import appeng.api.networking.IGridNode;
 import appeng.helpers.IInterfaceHost;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.IRenderContext;
+import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.util.Position;
 import gregtech.api.util.RenderUtil;
 import gregtech.api.util.Size;
@@ -22,12 +23,13 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import tj.TJ;
+import tj.mui.TJGuiTextures;
 import tj.mui.widgets.TJWidget;
 
 import java.io.IOException;
 import java.util.List;
 
-public class AEItemListWidget extends TJWidget<AEItemListWidget> {
+public class AEItemListWidget extends TJWidget<AEItemListWidget> implements IIngredientSlot {
 
     private final Int2ObjectMap<Object> elements = new Int2ObjectLinkedOpenHashMap<>();
     private final Class<? extends IGridHost>[] gridHosts;
@@ -35,11 +37,13 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> {
     private final int posX;
     private int scrollOffset;
     private int scrollHeight;
+    private int autoScrollY;
+    private boolean autoScroll;
 
     @SafeVarargs
-    public AEItemListWidget(int x, int y, int width, int height, IGrid grid, Class<? extends IGridHost>... gridHosts) {
+    public AEItemListWidget(int x, int y, int width, int height, IGridNode gridNode, Class<? extends IGridHost>... gridHosts) {
         super(new Position(x, y), new Size(width, height));
-        this.grid = grid;
+        this.grid = gridNode != null ? gridNode.getGrid() : null;
         this.posX = x;
         this.gridHosts = gridHosts;
     }
@@ -48,7 +52,6 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> {
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         if (!this.isMouseOverElement(mouseX, mouseY)) return;
-        final Position pos = this.getPosition();
         int scrollOffset = 0;
         int slotColumn = 0;
         int slotXOffset = 0;
@@ -59,8 +62,8 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> {
                     scrollOffset += 18;
                     slotXOffset = 0;
                 }
-                final int x = pos.getX() + slotXOffset;
-                final int y = pos.getY() + scrollOffset - (this.scrollOffset % 18);
+                final int x = this.getPosition().getX() + slotXOffset;
+                final int y = this.getPosition().getY() + scrollOffset - (this.scrollOffset % 18);
                 final ItemStack itemStack = (ItemStack) entry.getValue();
                 if (!itemStack.isEmpty() && isMouseOver(x, y, 18, 18, mouseX, mouseY)) {
                     final List<String> tooltip = getItemToolTip(itemStack);
@@ -77,6 +80,16 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> {
                 slotXOffset = 0;
                 slotColumn = 0;
             }
+        }
+        if (this.autoScroll) {
+            int scroll = mouseY - this.autoScrollY;
+            if (scroll > 5 || scroll < -5) {
+                scroll -= scroll < 0 ? 5 : -5;
+                this.setScrollOffset(scroll);
+                if (scroll > 0)
+                    TJGuiTextures.AUTOSCROLL_DOWN.draw(mouseX - 8, mouseY - 8, 16, 16);
+                else TJGuiTextures.AUTOSCROLL_UP.draw(mouseX - 8, mouseY - 8, 16, 16);
+            } else TJGuiTextures.AUTOSCROLL.draw(mouseX - 8, mouseY - 8, 16, 16);
         }
     }
 
@@ -123,7 +136,12 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> {
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
         if (!this.isMouseOverElement(mouseX, mouseY))
             return false;
-        final Position pos = this.getPosition();
+        if (this.autoScroll) {
+            this.autoScroll = false;
+        } else if (button == 2) {
+            this.autoScrollY = mouseY;
+            this.autoScroll = true;
+        }
         int scrollOffset = 0;
         int slotColumn = 0;
         int slotXOffset = 0;
@@ -134,8 +152,8 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> {
                     scrollOffset += 18;
                     slotXOffset = 0;
                 }
-                final int x = pos.getX() + slotXOffset;
-                final int y = pos.getY() + scrollOffset - (this.scrollOffset % 18);
+                final int x = this.getPosition().getX() + slotXOffset;
+                final int y = this.getPosition().getY() + scrollOffset - (this.scrollOffset % 18);
                 if (isMouseOver(x, y, 18, 18, mouseX, mouseY)) {
                     this.writeClientAction(2, buffer -> {
                         buffer.writeInt(entry.getIntKey());
@@ -159,12 +177,8 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
-        if (this.isMouseInWidget(mouseX, mouseY)) {
-            final int delta = MathHelper.clamp(wheelDelta, -1, 1) * 10;
-            this.scrollOffset -= delta;
-            this.scrollOffset = Math.max(0, Math.min(this.scrollOffset, this.scrollHeight - this.getSize().getHeight()));
-            this.writeClientAction(1, buffer -> buffer.writeInt(this.scrollOffset));
-        }
+        if (this.isMouseInWidget(mouseX, mouseY))
+            this.setScrollOffset(MathHelper.clamp(wheelDelta, -1, 1) * 10);
         return false;
     }
 
@@ -286,5 +300,42 @@ public class AEItemListWidget extends TJWidget<AEItemListWidget> {
         final Size size = this.getSize();
         final int posY = this.getPosition().getY();
         return mouseX >= this.posX && mouseX <= this.posX + size.getWidth() && mouseY >= posY && mouseY <= posY + size.getHeight();
+    }
+
+    private void setScrollOffset(int delta) {
+        this.scrollOffset -= delta;
+        this.scrollOffset = Math.max(0, Math.min(this.scrollOffset, this.scrollHeight - this.getSize().getHeight()));
+        this.writeClientAction(1, buffer -> buffer.writeInt(this.scrollOffset));
+    }
+
+    @Override
+    public Object getIngredientOverMouse(int mouseX, int mouseY) {
+        if (this.isMouseOverElement(mouseX, mouseY)) {
+            int scrollOffset = 0;
+            int slotColumn = 0;
+            int slotXOffset = 0;
+            for (Int2ObjectMap.Entry<Object> entry : this.elements.int2ObjectEntrySet()) {
+                if (entry.getValue() instanceof ItemStack) {
+                    if (slotColumn > 8) {
+                        slotColumn = 0;
+                        scrollOffset += 18;
+                        slotXOffset = 0;
+                    }
+                    final int x = this.getPosition().getX() + slotXOffset;
+                    final int y = this.getPosition().getY() + scrollOffset - (this.scrollOffset % 18);
+                    if (isMouseOver(x, y, 18, 18, mouseX, mouseY))
+                        return entry.getValue();
+                    slotXOffset += 18;
+                    slotColumn++;
+                } else {
+                    if (entry.getIntKey() > 0)
+                        scrollOffset += 18;
+                    scrollOffset += 18;
+                    slotXOffset = 0;
+                    slotColumn = 0;
+                }
+            }
+        }
+        return null;
     }
 }

@@ -50,7 +50,7 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         .setDynamicLocale(this::getCustomInventoryName)
                         .setCentered(false)
                         .setCanSlide(false))
-                .widget(new AEItemListWidget(7, 34, 166, 162, this.getGridNode() != null ? this.getGridNode().getGrid() : null, TileInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class))
+                .widget(new AEItemListWidget(7, 34, 166, 162, this.getGridNode(), TileInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class))
                 .bindPlayerInventory(player.inventory, 209)
                 .build(holder, player);
     }

@@ -72,8 +72,8 @@ public class ScrollableDisplayWidget extends ScrollableListWidget {
                 widget.drawInForeground(mouseX, mouseY);
             }
         }
-        int scroll = mouseY - this.autoScrollY;
         if (this.autoScroll) {
+            int scroll = mouseY - this.autoScrollY;
             if (scroll > 5 || scroll < -5) {
                 scroll += scroll < 0 ? 5 : -5;
                 this.setScrollOffset(scroll);
