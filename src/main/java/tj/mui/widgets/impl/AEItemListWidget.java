@@ -20,6 +20,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
+import org.apache.logging.log4j.util.TriConsumer;
 import tj.TJ;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.TJWidget;
@@ -37,6 +38,7 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     private final int posX;
     private Function<T, IItemHandler> inventorySupplier;
     private Predicate<T> predicate;
+    private TriConsumer<ItemStack, Integer, Integer> renderCallback;
     private int scrollOffset;
     private int scrollHeight;
     private int autoScrollY;
@@ -57,6 +59,11 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
 
     public AEItemListWidget<T> setPredicate(Predicate<T> predicate) {
         this.predicate = predicate;
+        return this;
+    }
+
+    public AEItemListWidget<T> setRenderCallback(TriConsumer<ItemStack, Integer, Integer> renderCallback) {
+        this.renderCallback = renderCallback;
         return this;
     }
 
@@ -126,7 +133,7 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                     GuiTextures.SLOT.draw(x, y, 18, 18);
                     final ItemStack itemStack = (ItemStack) entry.getValue();
                     if (!itemStack.isEmpty())
-                        drawItemStack(itemStack, x + 1, y + 1, null);
+                        this.renderCallback.accept(itemStack, x, y);
                     if (this.isMouseOverElement(mouseX, mouseY) && isMouseOver(x, y, 18, 18, mouseX, mouseY))
                         drawSelectionOverlay(x + 1, y + 1, 16, 16);
                     slotXOffset += 18;
