@@ -39,6 +39,7 @@ public class TJItems {
     public static IItemDefinition PART_SUPER_ULTIMATE_INTERFACE;
 
     public static IItemDefinition PART_SUPER_INTERFACE_TERMINAL;
+    public static IItemDefinition PART_CELL_TERMINAL;
 
     public static IItemDefinition MATERIAL_ITEM_CELL_65536K;
     public static IItemDefinition MATERIAL_ITEM_CELL_262144K;
@@ -77,6 +78,7 @@ public class TJItems {
         PART_SUPER_ULTIMATE_INTERFACE = registerItem(registry, item -> new ItemDefinition("me.part.super_ultimate_interface", new ItemPartSuperUltimateInterface()));
 
         PART_SUPER_INTERFACE_TERMINAL = registerItem(registry, item -> new ItemDefinition("me.part.super_interface_terminal", new ItemPartSuperInterfaceTerminal()));
+        PART_CELL_TERMINAL = registerItem(registry, item -> new ItemDefinition("me.part.cell_terminal", new ItemPartCellTerminal()));
 
         MATERIAL_ITEM_CELL_65536K = registerItem(registry, item -> new ItemDefinition("me.material.item_cell.65536k", item));
         MATERIAL_ITEM_CELL_262144K = registerItem(registry, item -> new ItemDefinition("me.material.item_cell.262144k", item));
