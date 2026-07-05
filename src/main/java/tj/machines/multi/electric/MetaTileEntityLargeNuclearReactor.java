@@ -231,6 +231,10 @@ public class MetaTileEntityLargeNuclearReactor extends TJMultiRecipeMapMultibloc
         return 0; // don't display parallel overclocking per tier on tooltip
     }
 
+    public int getMaxExtent() {
+        return TJConfig.largeNuclearReactor.maximumSlices;
+    }
+    
     @Override
     public void setJEIPreviewLayer(int layer) {
         this.parallelLayer = MathHelper.clamp(layer, 1, this.getMaxExtent());
