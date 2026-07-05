@@ -15,7 +15,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -54,13 +53,14 @@ public class PartCellTerminal extends PartInterfaceTerminal implements ITileEnti
         return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJItems.PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
-                        .setLocale("item.me.part.super_interface_terminal.name"))
+                        .setLocale("item.me.part.cell_terminal.name"))
                 .widget(new TJLabelWidget(4, 0, 162, 18, null)
                         .setDynamicLocale(this::getCustomInventoryName)
                         .setCentered(false)
                         .setCanSlide(false))
                 .widget(new AEItemListWidget<IChestOrDrive>(7, 34, 166, 162, this.getGridNode(), TileDrive.class)
                         .setInventorySupplier(drive -> ((AEBaseInvTile) drive).getInternalInventory())
+                        .setPredicate(iChestOrDrive -> true)
                         .setRenderCallback(this::renderCallback))
                 .bindPlayerInventory(player.inventory, 209)
                 .build(holder, player);
@@ -69,15 +69,14 @@ public class PartCellTerminal extends PartInterfaceTerminal implements ITileEnti
     private void renderCallback(ItemStack itemStack, int x, int y) {
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(itemStack);
-        final NBTTagList outputList = compound.getTagList("out", 10);
-        final NBTTagCompound outputCompound = outputList.getCompoundTagAt(0);
+        final NBTTagCompound outputCompound = compound.getCompoundTag("#0");
         final String id = outputCompound.getString("id");
         ItemStack output;
         FluidStack fluidOutput;
         long count;
-        if (id.equals("ae2fc:fluid_drop")) {
+        if (id.isEmpty()) {
             output = ItemStack.EMPTY;
-            fluidOutput = new FluidStack(FluidRegistry.getFluid(outputCompound.getCompoundTag("tag").getString("Fluid")), 1);
+            fluidOutput = new FluidStack(FluidRegistry.getFluid(outputCompound.getString("FluidName")), 1);
         } else {
             output = TJItemUtils.getItemStackFromName(id, 1, outputCompound.getShort("Damage"));
             fluidOutput = null;
