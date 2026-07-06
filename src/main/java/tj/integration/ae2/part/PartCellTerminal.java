@@ -72,28 +72,37 @@ public class PartCellTerminal extends PartInterfaceTerminal implements ITileEnti
         final NBTTagCompound outputCompound = compound.getCompoundTag("#0");
         final String id = outputCompound.getString("id");
         ItemStack output;
-        FluidStack fluidOutput;
+        FluidStack fluidOutput = null;
         long count;
         if (id.isEmpty()) {
             output = ItemStack.EMPTY;
-            fluidOutput = new FluidStack(FluidRegistry.getFluid(outputCompound.getString("FluidName")), 1);
-        } else {
-            output = TJItemUtils.getItemStackFromName(id, 1, outputCompound.getShort("Damage"));
-            fluidOutput = null;
-        }
+            if (outputCompound.hasKey("FluidName"))
+                fluidOutput = new FluidStack(FluidRegistry.getFluid(outputCompound.getString("FluidName")), 1);
+        } else output = TJItemUtils.getItemStackFromName(id, 1, outputCompound.getShort("Damage"));
         count = outputCompound.getLong("Cnt");
         if (count < 1)
             count = outputCompound.getInteger("Count");
-
+        if (output.isEmpty() && fluidOutput == null) {
+            final NBTTagCompound partition = compound.getCompoundTag("list").getTagList("Items", 10).getCompoundTagAt(0);
+            final String partitionId = partition.getString("id");
+            if (partitionId.equals("appliedenergistics2:dummy_fluid_item")) {
+                fluidOutput = new FluidStack(FluidRegistry.getFluid(partition.getCompoundTag("tag").getString("FluidName")), 1);
+                count = -1;
+            } else {
+                output = TJItemUtils.getItemStackFromName(partitionId, 1, partition.getShort("Damage"));
+                if (!output.isEmpty())
+                    count = -1;
+            }
+        }
         GlStateManager.disableBlend();
         if (!output.isEmpty()) {
             Widget.drawItemStack(output, x + 1, y + 1, null);
         } else if (fluidOutput != null) {
-            TJGuiUtils.drawFluidForGui(fluidOutput, count, count, x + 1, y + 1, 17, 17);
+            TJGuiUtils.drawFluidForGui(fluidOutput, Math.max(1, count), Math.max(1, count), x + 1, y + 1, 17, 17);
         } else Widget.drawItemStack(itemStack, x + 1, y + 1, null);
         GlStateManager.pushMatrix();
         GlStateManager.scale(0.5, 0.5, 1);
-        final String s = TextFormattingUtil.formatLongToCompactString(count, 4) + (fluidOutput != null ? "L" : "");
+        final String s = count < 0 ? "§eP" : TextFormattingUtil.formatLongToCompactString(count, 4) + (fluidOutput != null ? "L" : "");
         fontRenderer.drawStringWithShadow(s, (x + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + 12) * 2, 0xFFFFFF);
         GlStateManager.popMatrix();
         GlStateManager.enableBlend();
