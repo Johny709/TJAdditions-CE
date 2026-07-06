@@ -7,6 +7,7 @@ import appeng.helpers.ICustomNameObject;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.igredient.IIngredientSlot;
+import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.Position;
 import gregtech.api.util.RenderUtil;
 import gregtech.api.util.Size;
@@ -25,6 +26,7 @@ import tj.TJ;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.TJWidget;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
@@ -39,6 +41,11 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     private Function<T, IItemHandler> inventorySupplier;
     private Predicate<T> predicate;
     private TriConsumer<ItemStack, Integer, Integer> renderCallback;
+    private TextureArea scrollSliderTexture;
+    private TextureArea scrollBarTexture;
+    private Rectangle scrollSliderRec;
+    private Rectangle scrollBarRec;
+    private int scrollBarXOffset;
     private int scrollOffset;
     private int scrollHeight;
     private int autoScrollY;
@@ -50,6 +57,20 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         this.grid = gridNode != null ? gridNode.getGrid() : null;
         this.posX = x;
         this.gridHosts = gridHosts;
+        this.setScrollbar(0, y, 18, height, GuiTextures.SLOT);
+    }
+
+    public AEItemListWidget<T> setScrollbar(int x, int y, int width, int height, TextureArea scrollbarTexture) {
+        this.scrollBarRec = new Rectangle(x, y, width, height);
+        this.scrollBarTexture = scrollbarTexture;
+        this.scrollBarXOffset = x;
+        return this;
+    }
+
+    public AEItemListWidget<T> setScrollSlider(int x, int y, int width, int height, TextureArea scrollSliderTexture) {
+        this.scrollSliderRec = new Rectangle(x, y, width, height);
+        this.scrollSliderTexture = scrollSliderTexture;
+        return this;
     }
 
     public AEItemListWidget<T> setInventorySupplier(Function<T, IItemHandler> inventorySupplier) {
@@ -65,6 +86,15 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     public AEItemListWidget<T> setRenderCallback(TriConsumer<ItemStack, Integer, Integer> renderCallback) {
         this.renderCallback = renderCallback;
         return this;
+    }
+
+    @Override
+    public void setParentPosition(Position parentPosition) {
+        super.setParentPosition(parentPosition);
+        final Size size = this.getSize();
+        final Position pos = this.getPosition();
+        this.scrollBarRec = new Rectangle(this.scrollBarRec.x + pos.getX() + size.getWidth(), this.scrollBarRec.y + pos.getY(), this.scrollBarRec.width, this.scrollBarRec.height);
+        this.scrollSliderRec = new Rectangle(this.scrollBarRec.x + this.scrollSliderRec.x, this.scrollBarRec.y + this.scrollSliderRec.y, this.scrollSliderRec.width, this.scrollSliderRec.height);
     }
 
     @Override
@@ -148,47 +178,55 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                 }
             }
         });
+        if (this.scrollBarTexture != null)
+            this.scrollBarTexture.draw(this.scrollBarRec.x, this.scrollBarRec.y, this.scrollBarRec.width, this.scrollBarRec.height);
+        if (this.scrollSliderTexture == null) return;
+        final int scrollOffset = this.scrollSliderRec.y + Math.round((float) this.scrollOffset / Math.round((float) this.scrollHeight / this.scrollBarRec.height));
+        final int sliderY = Math.max(this.scrollSliderRec.y, scrollOffset);
+        this.scrollSliderTexture.draw(this.scrollSliderRec.x, sliderY, this.scrollSliderRec.width, this.scrollSliderRec.height);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (!this.isMouseOverElement(mouseX, mouseY))
-            return false;
-        if (this.autoScroll) {
-            this.autoScroll = false;
-        } else if (button == 2) {
-            this.autoScrollY = mouseY;
-            this.autoScroll = true;
-        }
-        int scrollOffset = 0;
-        int slotColumn = 0;
-        int slotXOffset = 0;
-        for (Int2ObjectMap.Entry<Object> entry : this.elements.int2ObjectEntrySet()) {
-            if (entry.getValue() instanceof ItemStack) {
-                if (slotColumn > 8) {
-                    slotColumn = 0;
+        if (this.isMouseOverElement(mouseX, mouseY)) {
+            if (this.autoScroll) {
+                this.autoScroll = false;
+            } else if (button == 2) {
+                this.autoScrollY = mouseY;
+                this.autoScroll = true;
+            }
+            int scrollOffset = 0;
+            int slotColumn = 0;
+            int slotXOffset = 0;
+            for (Int2ObjectMap.Entry<Object> entry : this.elements.int2ObjectEntrySet()) {
+                if (entry.getValue() instanceof ItemStack) {
+                    if (slotColumn > 8) {
+                        slotColumn = 0;
+                        scrollOffset += 18;
+                        slotXOffset = 0;
+                    }
+                    final int x = this.getPosition().getX() + slotXOffset;
+                    final int y = this.getPosition().getY() + scrollOffset - (this.scrollOffset % 18);
+                    if (isMouseOver(x, y, 18, 18, mouseX, mouseY)) {
+                        this.writeClientAction(2, buffer -> {
+                            buffer.writeInt(entry.getIntKey());
+                            buffer.writeBoolean(true); // isSlot is true.
+                        });
+                        return true;
+                    }
+                    slotXOffset += 18;
+                    slotColumn++;
+                } else {
+                    if (entry.getIntKey() > 0)
+                        scrollOffset += 18;
                     scrollOffset += 18;
                     slotXOffset = 0;
+                    slotColumn = 0;
                 }
-                final int x = this.getPosition().getX() + slotXOffset;
-                final int y = this.getPosition().getY() + scrollOffset - (this.scrollOffset % 18);
-                if (isMouseOver(x, y, 18, 18, mouseX, mouseY)) {
-                    this.writeClientAction(2, buffer -> {
-                        buffer.writeInt(entry.getIntKey());
-                        buffer.writeBoolean(true); // isSlot is true.
-                    });
-                    return true;
-                }
-                slotXOffset += 18;
-                slotColumn++;
-            } else {
-                if (entry.getIntKey() > 0)
-                    scrollOffset += 18;
-                scrollOffset += 18;
-                slotXOffset = 0;
-                slotColumn = 0;
             }
+        } else if (this.scrollBarRec.contains(mouseX, mouseY)) {
+
         }
         return false;
     }
@@ -315,6 +353,13 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         final Size size = this.getSize();
         final int posY = this.getPosition().getY();
         return mouseX >= this.posX && mouseX <= this.posX + size.getWidth() && mouseY >= posY && mouseY <= posY + size.getHeight();
+    }
+
+    @Override
+    public Rectangle toRectangleBox() {
+        final Size size = this.getSize();
+        final Position pos = this.getPosition();
+        return new Rectangle(pos.getX(), Math.min(pos.getY(), this.scrollBarRec.y), size.getWidth() + this.scrollBarXOffset + this.scrollBarRec.width, Math.max(size.getHeight(), this.scrollBarRec.height));
     }
 
     private void setScrollOffset(int delta) {

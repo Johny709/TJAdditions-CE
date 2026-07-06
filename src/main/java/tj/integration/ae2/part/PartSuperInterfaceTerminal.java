@@ -6,6 +6,7 @@ import appeng.helpers.IInterfaceHost;
 import appeng.parts.reporting.PartInterfaceTerminal;
 import appeng.tile.misc.TileInterface;
 import appeng.tile.networking.TileCableBus;
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.util.TextFormattingUtil;
@@ -67,6 +68,8 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                 .widget(new AEItemListWidget<IInterfaceHost>(7, 34, 166, 162, this.getGridNode(), TileInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class)
                         .setPredicate(interfaceHost -> interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) == YesNo.YES)
                         .setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getPatterns())
+                        .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
+                        .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT)
                         .setRenderCallback(this::renderCallback))
                 .bindPlayerInventory(player.inventory, 209)
                 .build(holder, player);

@@ -5,6 +5,7 @@ import appeng.parts.reporting.PartInterfaceTerminal;
 import appeng.tile.AEBaseInvTile;
 import appeng.tile.networking.TileCableBus;
 import appeng.tile.storage.TileDrive;
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.util.TextFormattingUtil;
@@ -60,6 +61,8 @@ public class PartCellTerminal extends PartInterfaceTerminal implements ITileEnti
                         .setCanSlide(false))
                 .widget(new AEItemListWidget<IChestOrDrive>(7, 34, 166, 162, this.getGridNode(), TileDrive.class)
                         .setInventorySupplier(drive -> ((AEBaseInvTile) drive).getInternalInventory())
+                        .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
+                        .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT)
                         .setPredicate(iChestOrDrive -> true)
                         .setRenderCallback(this::renderCallback))
                 .bindPlayerInventory(player.inventory, 209)
