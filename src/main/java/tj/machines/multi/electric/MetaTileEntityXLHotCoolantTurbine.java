@@ -634,4 +634,11 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     public String getRecipeUid() {
         return Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName();
     }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return this.isValid() && this.workableHandler.isActive() && this.isStructureFormed();
+    }
+
 }

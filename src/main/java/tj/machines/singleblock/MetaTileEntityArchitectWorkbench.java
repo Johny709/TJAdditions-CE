@@ -9,10 +9,12 @@ import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.render.Textures;
+import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -132,5 +134,17 @@ public class MetaTileEntityArchitectWorkbench extends TJTieredWorkableMetaTileEn
     @Override
     public int getParallel() {
         return this.parallel;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return GTSoundEvents.CUT;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public boolean shouldPlaySound() {
+        return workableHandler.isActive() && isValid() && workableHandler.isWorkingEnabled();
     }
 }

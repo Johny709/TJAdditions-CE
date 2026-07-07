@@ -20,10 +20,12 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
@@ -213,12 +215,14 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
     }
 
     @Override
-    public boolean isWorkingEnabled() {
-        return this.workableHandler.isWorkingEnabled();
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return GTSoundEvents.DRILL;
     }
 
     @Override
-    public void setWorkingEnabled(boolean isActivationAllowed) {
-        this.workableHandler.setWorkingEnabled(isActivationAllowed);
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return this.isValid() && workableHandler.isActive() && this.isStructureFormed();
     }
 }

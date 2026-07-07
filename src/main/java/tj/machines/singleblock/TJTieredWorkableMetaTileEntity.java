@@ -8,6 +8,7 @@ import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.metatileentity.MTETrait;
+import gregtech.common.sound.MachineSoundManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -269,5 +270,11 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
     @Override
     public int getTier() {
         return super.getTier();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void updateSound() {
+        MachineSoundManager.update(this);
     }
 }

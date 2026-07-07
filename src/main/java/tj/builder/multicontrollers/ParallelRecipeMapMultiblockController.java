@@ -26,6 +26,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
@@ -586,5 +587,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         if (this.isStructureFormed())
             this.invalidateStructure();
         this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound(){
+        return this.getRecipeMap().getSound();
     }
 }

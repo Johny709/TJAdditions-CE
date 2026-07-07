@@ -23,6 +23,7 @@ import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
+import gregtech.common.sound.GTSoundEvents;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -31,6 +32,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
@@ -231,5 +233,17 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
     @Override
     public int getParallel() {
         return this.parallel;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return GTSoundEvents.ASSEMBLER;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return isValid() && recipeLogic.isActive() && isStructureFormed();
     }
 }
