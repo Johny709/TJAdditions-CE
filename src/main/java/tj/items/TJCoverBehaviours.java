@@ -5,7 +5,6 @@ import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverDefinition;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.items.metaitem.MetaItem;
-import gregtech.api.util.GTLog;
 import gregtech.common.items.behaviors.CoverPlaceBehavior;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -19,7 +18,7 @@ import static tj.items.TJMetaItems.*;
 public class TJCoverBehaviours {
 
     public static void init() {
-        GTLog.logger.info("Registering Covers from TJ...");
+        TJ.logger.info("Registering Covers from TJ...");
 
         registerBehavior(126, new ResourceLocation(TJ.MODID, "creative.fluid.cover"), TJMetaItems.CREATIVE_FLUID_COVER, CreativeFluidCover::new);
         registerBehavior(127, new ResourceLocation(TJ.MODID, "creative.item.cover"), TJMetaItems.CREATIVE_ITEM_COVER, CreativeItemCover::new);

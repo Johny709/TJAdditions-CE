@@ -36,13 +36,8 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.capability.impl.handler.IFarmerHandler;
 import tj.capability.impl.workable.FarmingStationWorkableHandler;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJProgressBarWidget;
-import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
-import tj.gui.widgets.impl.RecipeOutputSlotWidget;
-import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.*;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
@@ -55,7 +50,7 @@ import java.util.List;
 import static gregicadditions.GAMaterials.OrganicFertilizer;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 
 
 public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity implements IFarmerHandler {
@@ -135,7 +130,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                 .setFluidOutputTankSupplier(this::getExportFluids);
         for (int i = 0; i < this.seedInventory.getSlots(); i++) {
             widgetGroup.addWidget(new TJSlotWidget<>(this.seedInventory, i, 18 * (i % 2), 18 * (i / 2))
-                    .setBackgroundTexture(SLOT, SEEDS_OVERLAY));
+                    .setActiveBackgroundTexture(SLOT, SEEDS_OVERLAY));
             widgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 2), 18 * (i / 2), 18, 18, displayWidget::getItemInputAt, null));
         }
         for (int i = 0; i < this.exportItems.getSlots(); i++) {
@@ -155,29 +150,29 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setInverted(true))
                 .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 39, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new TJSlotWidget<>(this.toolInventory, 0, 52, 22)
-                        .setBackgroundTexture(SLOT, HOE_OVERLAY))
+                        .setActiveBackgroundTexture(SLOT, HOE_OVERLAY))
                 .widget(new TJSlotWidget<>(this.toolInventory, 1, 52, 40)
-                        .setBackgroundTexture(SLOT, AXE_OVERLAY))
+                        .setActiveBackgroundTexture(SLOT, AXE_OVERLAY))
                 .widget(new TJSlotWidget<>(this.toolInventory, 2, 52, 58)
-                        .setBackgroundTexture(SLOT, SHEARS_OVERLAY))
+                        .setActiveBackgroundTexture(SLOT, SHEARS_OVERLAY))
                 .widget(new TJSlotWidget<>(this.fertilizerInventory, 0, 52, 78)
-                        .setBackgroundTexture(SLOT, BONE_MEAL_OVERLAY))
+                        .setActiveBackgroundTexture(SLOT, BONE_MEAL_OVERLAY))
                 .widget(new TJSlotWidget<>(this.fertilizerInventory, 1, 34, 78)
-                        .setBackgroundTexture(SLOT, BONE_MEAL_OVERLAY))
+                        .setActiveBackgroundTexture(SLOT, BONE_MEAL_OVERLAY))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new TankWidget(this.waterTank, 105, 78, 18, 18)
                         .setContainerClicking(true, true)
                         .setBackgroundTexture(FLUID_SLOT)
                         .setAlwaysShowFull(true))
-                .widget(new ToggleButtonWidget(151, 78, 18, 18, ITEM_VOID_BUTTON, this.workableHandler::isVoidOutputs, this.workableHandler::setVoidOutputs)
-                        .setTooltipText("machine.universal.toggle.item_voiding"))
-                .widget(new ToggleButtonWidget(-24, 158, 18, 18, POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
-                        .setTooltipText("machine.universal.toggle.run.mode"))
-                .widget(new ToggleButtonWidget(7, 78, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
-                        .setTooltipText("gregtech.gui.item_auto_output.tooltip"))
-                .widget(new ToggleButtonWidget(79, 78, 18, 18, BUTTON_ALLOW_IMPORT_EXPORT, this.workableHandler::isOutputTools, this.workableHandler::setOutputTools)
-                        .setTooltipText("tj.machine.farming_station.tool_output.tooltip"))
+                .widget(new TJToggleButtonWidget(151, 78, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.workableHandler::isVoidOutputs, this.workableHandler::setVoidOutputs)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"))
+                .widget(new TJToggleButtonWidget(-24, 158, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
+                .widget(new TJToggleButtonWidget(7, 78, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
+                        .setToggleTitleTooltipHoverText("gregtech.gui.item_auto_output.tooltip.disabled", "gregtech.gui.item_auto_output.tooltip.enabled"))
+                .widget(new TJToggleButtonWidget(79, 78, 18, 18, BUTTON_ALLOW_IMPORT_EXPORT, this.workableHandler::isOutputTools, this.workableHandler::setOutputTools)
+                        .setToggleTitleTooltipHoverText("tj.machine.farming_station.tool_output.tooltip.disabled", "tj.machine.farming_station.tool_output.tooltip.enabled"))
                 .widget(new ImageWidget(79, 58, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
                 .widget(widgetGroup)

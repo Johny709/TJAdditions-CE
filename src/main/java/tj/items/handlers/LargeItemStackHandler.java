@@ -62,4 +62,13 @@ public class LargeItemStackHandler extends ItemStackHandler {
             return ItemHandlerHelper.copyStackWithSize(existing, toExtract);
         }
     }
+
+    public int getSlotsFilled() {
+        int amount = 0;
+        for (int i = 0; i < this.getSlots(); i++) {
+            if (!this.getStackInSlot(i).isEmpty())
+                amount++;
+        }
+        return amount;
+    }
 }

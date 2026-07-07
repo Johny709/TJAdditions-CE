@@ -18,17 +18,17 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
-import tj.gui.TJGuiTextures;
-import tj.gui.TJGuiUtils;
-import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.impl.SelectionWidgetGroup;
-import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.TJGuiUtils;
+import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.impl.*;
 import tj.items.TJMetaItems;
 import tj.items.handlers.LargeItemStackHandler;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
 import java.util.regex.Pattern;
 
 public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory {
@@ -45,6 +45,15 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
         final ItemStack itemStack = player.getHeldItem(EnumHand.MAIN_HAND);
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
         final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, Integer.MAX_VALUE);
+        final BiConsumer<String, String> setItemCount = (text, id) -> {
+            final int index = Integer.parseInt(id);
+            if (index < 0 || index >= itemFilter.getSlots()) return;
+            final ItemStack stack = itemFilter.getStackInSlot(index);
+            if (stack.isEmpty()) return;
+            stack.setCount((int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+            compound.setTag("slot:" + index, stack.serializeNBT());
+        };
+        final IntFunction<String> getItemCount = index -> String.valueOf(itemFilter.getStackInSlot(index).getCount());
         final Consumer<Widget.ClickData> onIncrement = clickData -> {
             final int speed = compound.getInteger("speed");
             final int value = clickData.isCtrlClick ? 100
@@ -61,6 +70,14 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
         };
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 25));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 25, 54, 54);
+        final ButtonWidget<?> clickButtonDivide = new ButtonWidget<>(-54, -20, 18, 18, "/2", data -> setItemCount.accept(String.valueOf(Long.parseLong(getItemCount.apply(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ButtonWidget<?> clickButtonMultiply = new ButtonWidget<>(90, -20, 18, 18, "*2", data -> setItemCount.accept(String.valueOf(Long.parseLong(getItemCount.apply(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> itemCountTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, setItemCount)
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setUpdateOnTyping(true)
+                .setMaxStringLength(11);
+        itemCountTextField.setTextSupplier(() -> getItemCount.apply((int) itemCountTextField.getTextIdLong()));
+        selectionWidgetGroup.setIndexListener(itemCountTextField::setTextIdLong);
         for (int i = 0; i < itemFilter.getSlots(); i++) {
             final int index = i;
             widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, itemFilter, item -> {
@@ -68,16 +85,9 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
                     compound.setTag("slot:" + index, item.serializeNBT());
                 else compound.removeTag("slot:" + index);
             }).setBackgroundTextures(GuiTextures.SLOT));
-            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(0, -20, 54, 18, true, () -> String.valueOf(itemFilter.getStackInSlot(index).getCount()), (text, id) -> {
-                ItemStack stack = itemFilter.extractItem(index, Integer.MAX_VALUE, true);
-                if (stack.isEmpty()) return;
-                stack = itemFilter.extractItem(index, Integer.MAX_VALUE, false);
-                stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-                compound.setTag("slot:" + index, stack.serializeNBT());
-                itemFilter.insertItem(index, stack, false);
-            }).setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                    .setUpdateOnTyping(true)
-                    .setMaxStringLength(11));
+            selectionWidgetGroup.addSubWidget(i, clickButtonDivide.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            selectionWidgetGroup.addSubWidget(i, clickButtonMultiply.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            selectionWidgetGroup.addSubWidget(i, itemCountTextField);
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
@@ -85,12 +95,12 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
                         .setItemLabel(TJMetaItems.CREATIVE_ITEM_COVER.getStackForm()).setLocale("cover.creative_item.title"))
                 .widget(new ImageWidget(61, 80, 55, 18, GuiTextures.DISPLAY))
                 .widget(new AdvancedTextWidget(63, 85, textList -> textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", compound.getInteger("speed"))), 0xFFFFFF))
-                .widget(new ClickButtonWidget(43, 80, 18, 18, "+", onIncrement))
-                .widget(new ClickButtonWidget(116, 80, 18, 18, "-", onDecrement))
-                .widget(new ToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, b -> compound.setInteger("speed", 1))
-                        .setTooltipText("machine.universal.toggle.reset"))
-                .widget(new ToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.POWER_BUTTON, () -> compound.getBoolean("power"), b -> compound.setBoolean("power", !compound.getBoolean("power")))
-                        .setTooltipText("machine.universal.toggle.run.mode"))
+                .widget(new ButtonWidget<>(43, 80, 18, 18, "+", onIncrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new ButtonWidget<>(116, 80, 18, 18, "-", onDecrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new TJToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, b -> compound.setInteger("speed", 1))
+                        .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
+                .widget(new TJToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> compound.getBoolean("power"), b -> compound.setBoolean("power", !compound.getBoolean("power")))
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 105, itemStack))

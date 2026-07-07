@@ -6,6 +6,7 @@ import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.common.covers.CoverPump;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -20,13 +21,12 @@ import tj.util.EnderWorldData;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER;
 import static gregtech.api.gui.widgets.ProgressWidget.MoveType.VERTICAL;
-import static tj.gui.TJGuiTextures.BAR_HEAT;
-import static tj.gui.TJGuiTextures.BAR_STEEL;
+import static tj.mui.TJGuiTextures.BAR_HEAT;
+import static tj.mui.TJGuiTextures.BAR_STEEL;
 import static tj.textures.TJTextures.PORTAL_OVERLAY;
 
 public class EnderEnergyCover extends AbstractEnderCover<BasicEnergyHandler> {
@@ -65,7 +65,7 @@ public class EnderEnergyCover extends AbstractEnderCover<BasicEnergyHandler> {
     }
 
     @Override
-    protected Map<String, EnderCoverProfile<BasicEnergyHandler>> getPlayerMap() {
+    protected Object2ObjectMap<String, EnderCoverProfile<BasicEnergyHandler>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getEnergyContainerPlayerMap();
     }
 
@@ -116,7 +116,7 @@ public class EnderEnergyCover extends AbstractEnderCover<BasicEnergyHandler> {
     }
 
     @Override
-    protected BasicEnergyHandler createHandler() {
+    public BasicEnergyHandler createHandler() {
         return new BasicEnergyHandler(this.capacity);
     }
 

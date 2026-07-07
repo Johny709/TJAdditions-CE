@@ -4,7 +4,6 @@ import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.items.metaitem.MetaItem;
-import gregtech.api.items.metaitem.stats.IMetaItemStats;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
@@ -20,7 +19,6 @@ import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.workable.XLTurbineWorkableHandler;
 import tj.builder.multicontrollers.TJRotorHolderMultiblockControllerBase;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.GAMetaItems;
 import gregtech.api.GTValues;
 import gregtech.api.capability.impl.FluidTankList;
@@ -46,9 +44,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
-import tj.gui.widgets.AdvancedDisplayWidget;
-import tj.gui.widgets.TJSlotWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.widgets.impl.AdvancedDisplayWidget;
+import tj.mui.widgets.impl.TJSlotWidget;
+import tj.mui.widgets.impl.ScrollableDisplayWidget;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.util.TJFluidUtils;
@@ -60,14 +58,17 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.STEAM;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 
 public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBase implements IProgressBar {
 
     public final MetaTileEntityLargeTurbine.TurbineType turbineType;
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.OUTPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH, GregicAdditionsCapabilities.STEAM};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, IMPORT_ITEMS, OUTPUT_ENERGY, MAINTENANCE_HATCH, STEAM};
     public static final int BASE_PARALLEL = 12;
     private IMultipleTankHandler exportFluidHandler;
     private ItemHandlerList importItemHandler;
@@ -90,41 +91,6 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     }
 
     @Override
-    protected FuelRecipeLogic createWorkable(long maxVoltage) {
-        this.xlTurbineWorkableHandler = new XLTurbineWorkableHandler(this, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getExportFluidHandler);
-        this.fastModeConsumer = this.xlTurbineWorkableHandler::setFastMode;
-        return this.xlTurbineWorkableHandler;
-    }
-
-    @Override
-    protected IItemHandlerModifiable createImportItemHandler() {
-        return new FilteredItemStackHandler(this, 1, 1)
-                .setItemStackPredicate((slot, stack) -> {
-                    Item item = stack.getItem();
-                    if (item instanceof MetaItem<?>) {
-                        MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);
-                        if (metaItem != null) {
-                            List<IMetaItemStats> stats = metaItem.getAllStats();
-                            return !stats.isEmpty() && stats.get(0) instanceof TurbineUpgradeBehaviour;
-                        }
-                    }
-                    return false;
-                }).setOnContentsChangedPre((slot, stack, insert) -> {
-                    if (this.getWorld() != null && !this.getWorld().isRemote) {
-                        this.parallels = BASE_PARALLEL;
-                        Item item = stack.getItem();
-                        if (insert && item instanceof MetaItem<?>)
-                            this.parallels += ((TurbineUpgradeBehaviour) ((MetaItem<?>) item).getItem(stack).getAllStats().get(0)).getExtraParallels();
-                        this.writeCustomData(10, buf -> buf.writeInt(this.parallels));
-                        if (this.isStructureFormed())
-                            this.invalidateStructure();
-                        this.structurePattern = this.createStructurePattern();
-                        this.markDirty();
-                    }
-                });
-    }
-
-    @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         tooltip.add(I18n.format("tj.multiblock.turbine.description"));
@@ -136,6 +102,69 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
             tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.normal", (int) XLTurbineWorkableHandler.getTurbineBonus()));
             tip.add(I18n.format("tj.multiblock.turbine.tooltip.efficiency.fast", 100));
         });
+    }
+
+    @Override
+    protected FuelRecipeLogic createWorkable(long maxVoltage) {
+        this.xlTurbineWorkableHandler = new XLTurbineWorkableHandler(this, this.recipeMap, this::getEnergyContainer, this::getImportFluidHandler, this::getExportFluidHandler);
+        this.fastModeConsumer = this.xlTurbineWorkableHandler::setFastMode;
+        return this.xlTurbineWorkableHandler;
+    }
+
+    @Override
+    protected IItemHandlerModifiable createImportItemHandler() {
+        return new FilteredItemStackHandler(this, 1, 1)
+                .setItemStackPredicate((slot, stack) -> {
+                    final Item item = stack.getItem();
+                    if (item instanceof MetaItem<?>) {
+                        final MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);
+                        if (metaItem != null) {
+                            return !metaItem.getAllStats().isEmpty() && metaItem.getAllStats().get(0) instanceof TurbineUpgradeBehaviour;
+                        }
+                    }
+                    return false;
+                }).setOnContentsChangedPost((slot, stack) -> {
+                    this.parallels = 12;
+                    final Item item = stack.getItem();
+                    if (item instanceof MetaItem<?>)
+                        this.parallels += ((TurbineUpgradeBehaviour) ((MetaItem<?>) item).getItem(stack).getAllStats().get(0)).getExtraParallels();
+                    this.writeCustomData(10, buf -> buf.writeInt(this.parallels));
+                    if (this.isStructureFormed())
+                        this.invalidateStructure();
+                    this.structurePattern = this.createStructurePattern();
+                    this.markDirty();
+                });
+    }
+
+    @Override
+    protected void updateFormedValid() {
+        super.updateFormedValid();
+        if (this.isStructureFormed() && this.getOffsetTimer() % 100 == 0) {
+            for (MetaTileEntityRotorHolder rotorHolder : this.getAbilities(ABILITY_ROTOR_HOLDER)) {
+                if (rotorHolder.hasRotorInInventory()) continue;
+                final ItemStack rotorStack = this.checkAndConsumeItem();
+                if (rotorStack != null) {
+                    rotorHolder.getRotorInventory().setStackInSlot(0, rotorStack);
+                    rotorHolder.markDirty();
+                }
+            }
+        }
+    }
+
+    private ItemStack checkAndConsumeItem() {
+        for (int slotIndex = 0; slotIndex < this.importItemHandler.getSlots(); slotIndex++) {
+            final ItemStack stack = this.importItemHandler.getStackInSlot(slotIndex);
+            final Item item = stack.getItem();
+            if (item instanceof MetaItem<?>) {
+                final MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);
+                if (metaItem != null && !metaItem.getAllStats().isEmpty() && metaItem.getAllStats().get(0) instanceof TurbineRotorBehavior) {
+                    this.importItemHandler.setStackInSlot(slotIndex, ItemStack.EMPTY);
+                    this.markDirty();
+                    return stack;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -184,16 +213,14 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
                 final String shortRotorName = rotorName.length() > 26 ? rotorName.substring(0, 26) + "..." : rotorName;
                 builder.addTextComponentWithHover(new TextComponentString("-")
                         .appendText(" ")
-                        .appendSibling(new TextComponentString(colorText + "[" + rotorIndex + "] " + (shortRotorName.equals("Air") ? TextUtils.translate("tj.multiblock.extreme_turbine.insertrotor") : shortRotorName))), hoverBuilder -> {
-                    hoverBuilder.addTranslationLine("tj.multiblock.extreme_turbine.name", new TextComponentTranslation(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName().equals("Air") ?
-                                    "gregtech.multiblock.extreme_turbine.norotor" : rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName()))
-                            .addTranslationLine("tj.multiblock.parallel.status", new TextComponentTranslation(rotorHolder.isFrontFaceFree() ? "tj.multiblock.extreme_turbine.obstructed.not"
-                                    : "tj.multiblock.extreme_turbine.obstructed"))
-                            .addTranslationLine("tj.multiblock.extreme_turbine.speed", TJValues.thousandFormat.format(rotorHolder.getCurrentRotorSpeed()), TJValues.thousandFormat.format(rotorHolder.getMaxRotorSpeed()))
-                            .addTranslationLine("tj.multiblock.extreme_turbine.efficiency", TJValues.thousandFormat.format(efficiency))
-                            .addTranslationLine("tj.multiblock.extreme_turbine.durability", TJValues.thousandFormat.format(durability))
-                            .addItemStack(rotorHolder.getRotorInventory().getStackInSlot(0));
-                });
+                        .appendSibling(new TextComponentString(colorText + "[" + rotorIndex + "] " + (shortRotorName.equals("Air") ? TextUtils.translate("tj.multiblock.extreme_turbine.insertrotor") : shortRotorName))), hoverBuilder -> hoverBuilder.addTranslationLine("tj.multiblock.extreme_turbine.name", new TextComponentTranslation(rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName().equals("Air") ?
+                                        "gregtech.multiblock.extreme_turbine.norotor" : rotorHolder.getRotorInventory().getStackInSlot(0).getDisplayName()))
+                                .addTranslationLine("tj.multiblock.parallel.status", new TextComponentTranslation(rotorHolder.isFrontFaceFree() ? "tj.multiblock.extreme_turbine.obstructed.not"
+                                        : "tj.multiblock.extreme_turbine.obstructed"))
+                                .addTranslationLine("tj.multiblock.extreme_turbine.speed", TJValues.thousandFormat.format(rotorHolder.getCurrentRotorSpeed()), TJValues.thousandFormat.format(rotorHolder.getMaxRotorSpeed()))
+                                .addTranslationLine("tj.multiblock.extreme_turbine.efficiency", TJValues.thousandFormat.format(efficiency))
+                                .addTranslationLine("tj.multiblock.extreme_turbine.durability", TJValues.thousandFormat.format(durability))
+                                .addItemStack(rotorHolder.getRotorInventory().getStackInSlot(0)));
             }
         }
     }
@@ -216,8 +243,8 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
         boolean hasOutputEnergy = abilities.containsKey(MultiblockAbility.OUTPUT_ENERGY);
-        boolean hasInputFluid = abilities.containsKey(MultiblockAbility.IMPORT_FLUIDS);
-        boolean hasSteamInput = abilities.containsKey(GregicAdditionsCapabilities.STEAM);
+        boolean hasInputFluid = abilities.containsKey(IMPORT_FLUIDS);
+        boolean hasSteamInput = abilities.containsKey(STEAM);
 
         if (this.turbineType != MetaTileEntityLargeTurbine.TurbineType.STEAM && hasSteamInput)
             return false;
@@ -229,12 +256,12 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     protected void formStructure(PatternMatchContext context) {
         super.formStructure(context);
         List<IFluidTank> fluidTanks = new ArrayList<>();
-        fluidTanks.addAll(this.getAbilities(MultiblockAbility.IMPORT_FLUIDS));
-        fluidTanks.addAll(this.getAbilities(GregicAdditionsCapabilities.STEAM));
+        fluidTanks.addAll(this.getAbilities(IMPORT_FLUIDS));
+        fluidTanks.addAll(this.getAbilities(STEAM));
 
         this.importFluidHandler = new FluidTankList(true, fluidTanks);
-        this.exportFluidHandler = new FluidTankList(true, this.getAbilities(MultiblockAbility.EXPORT_FLUIDS));
-        this.importItemHandler = new ItemHandlerList(this.getAbilities(MultiblockAbility.IMPORT_ITEMS));
+        this.exportFluidHandler = new FluidTankList(true, this.getAbilities(EXPORT_FLUIDS));
+        this.importItemHandler = new ItemHandlerList(this.getAbilities(IMPORT_ITEMS));
     }
 
     @Override
@@ -242,42 +269,6 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
         super.invalidateStructure();
         this.exportFluidHandler = new FluidTankList(true);
         this.importItemHandler = new ItemHandlerList(Collections.emptyList());
-    }
-
-    @Override
-    protected void updateFormedValid() {
-        super.updateFormedValid();
-        if (this.isStructureFormed() && this.getOffsetTimer() % 20 == 0) {
-            for (MetaTileEntityRotorHolder rotorHolder : this.getAbilities(ABILITY_ROTOR_HOLDER)) {
-                if (rotorHolder.hasRotorInInventory())
-                    continue;
-                ItemStack rotorStack = this.checkAndConsumeItem();
-                if (rotorStack != null) {
-                    rotorHolder.getRotorInventory().setStackInSlot(0, rotorStack);
-                    rotorHolder.markDirty();
-                }
-            }
-        }
-    }
-
-    private ItemStack checkAndConsumeItem() {
-        int getItemSlots = this.importItemHandler.getSlots();
-        for (int slotIndex = 0; slotIndex < getItemSlots; slotIndex++) {
-            ItemStack stack = this.importItemHandler.getStackInSlot(slotIndex);
-            Item item = stack.getItem();
-            if (item instanceof MetaItem<?>) {
-                MetaItem<?>.MetaValueItem metaItem = ((MetaItem<?>) item).getItem(stack);
-                if (metaItem != null) {
-                    List<IMetaItemStats> stats = metaItem.getAllStats();
-                    if (!stats.isEmpty() && stats.get(0) instanceof TurbineRotorBehavior) {
-                        this.importItemHandler.setStackInSlot(slotIndex, ItemStack.EMPTY);
-                        this.markDirty();
-                        return stack;
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     @Override
@@ -316,7 +307,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
                 .where('S', this.selfPredicate())
                 .where('#', isAirPredicate())
                 .where('C', statePredicate(this.getCasingState()))
-                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('H', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('R', abilityPartPredicate(ABILITY_ROTOR_HOLDER))
                 .build();
     }
@@ -350,7 +341,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         super.addTabs(tabBuilder);
         tabBuilder.addWidget(new TJSlotWidget<>(this.importItems, 0, 175, 191)
-                .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.TURBINE_OVERLAY));
+                .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.TURBINE_OVERLAY));
         tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab -> rotorTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                 .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addRotorDisplayText, 0xFFFFFF)
                         .setClickHandler(this::handleRotorDisplayClick)

@@ -76,7 +76,7 @@ public class MetaTileEntityParallelLargeElectrolyzer extends ParallelRecipeMapMu
                 .where('S', selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(this.getCasingState()))
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('G', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE)))
                 .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())
                 .where('P', LargeSimpleRecipeMapMultiblockController.pumpPredicate())

@@ -19,8 +19,8 @@ import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
-import it.unimi.dsi.fastutil.ints.Int2LongMap;
-import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
@@ -38,7 +38,6 @@ import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IDistillationHandler;
 import tj.capability.impl.workable.MegaRecipeLogic;
 import tj.util.TJItemUtils;
-import tj.util.TJFluidUtils;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -156,8 +155,8 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
 
     public static class MegaDistillationRecipeLogic extends MegaRecipeLogic<IDistillationHandler> {
 
-        private final Int2LongMap fluidOutputAmount = new Int2LongOpenHashMap();
-        private final List<FluidStack> fluidOutputsOrdered = new ArrayList<>();
+        private final Int2ObjectMap<List<FluidStack>> fluidOutputsOrdered = new Int2ObjectLinkedOpenHashMap<>();
+        private int fluidOutputIndex2;
 
         public MegaDistillationRecipeLogic(MetaTileEntity metaTileEntity) {
             super(metaTileEntity);
@@ -168,11 +167,11 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
             for (int i = 0; i < recipe.getFluidOutputs().size(); i++) {
                 FluidStack stack = recipe.getFluidOutputs().get(i);
                 long amount = (long) stack.amount * parallels;
-                this.fluidOutputAmount.put(i, amount);
-                this.fluidOutputsOrdered.add(stack);
+                final List<FluidStack> fluidOutputs = this.fluidOutputsOrdered.computeIfAbsent(i, k -> new ArrayList<>());
                 for (; amount > 0; amount -= Integer.MAX_VALUE) {
                     stack = stack.copy();
                     stack.amount = (int) Math.min(Integer.MAX_VALUE, amount);
+                    fluidOutputs.add(stack);
                     this.fluidOutputs.add(stack);
                 }
             }
@@ -188,54 +187,60 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
                 } else return false;
             }
             for (int i = this.fluidOutputIndex; i < this.fluidOutputsOrdered.size(); i++) {
-                final long amount = this.fluidOutputAmount.get(i);
-                final FluidStack stack = this.fluidOutputsOrdered.get(i);
                 IMultipleTankHandler fluidTank = this.handler.getOutputHatchAt(i);
                 if (fluidTank == null)
                     fluidTank = VOID_TANK;
-                if (this.voidingFluids || TJFluidUtils.fillIntoTanksLong(fluidTank, stack, amount, false) == amount) {
-                    TJFluidUtils.fillIntoTanksLong(fluidTank, stack, amount, true);
-                    this.fluidOutputIndex++;
-                } else return false;
+                final List<FluidStack> fluidOutputs = this.fluidOutputsOrdered.get(i);
+                for (int j = this.fluidOutputIndex2; j < fluidOutputs.size(); j++) {
+                    final FluidStack fluidStack = fluidOutputs.get(j);
+                    if (this.voidingFluids || fluidTank.fill(fluidStack, false) == fluidStack.amount) {
+                        fluidTank.fill(fluidStack, true);
+                        this.fluidOutputIndex2++;
+                    } else return false;
+                }
+                this.fluidOutputIndex2 = 0;
+                this.fluidOutputIndex++;
             }
             this.recipeRecheck = true;
             this.itemOutputIndex = 0;
             this.fluidOutputIndex = 0;
+            this.fluidOutputIndex2 = 0;
             this.itemInputs.clear();
             this.itemOutputs.clear();
             this.fluidInputs.clear();
             this.fluidOutputs.clear();
-            this.fluidOutputsOrdered.clear();
+            for (Int2ObjectMap.Entry<List<FluidStack>> entry : this.fluidOutputsOrdered.int2ObjectEntrySet())
+                entry.getValue().clear();
             return true;
         }
 
         @Override
         public NBTTagCompound serializeNBT() {
             final NBTTagCompound compound = super.serializeNBT();
-            final NBTTagList fluidOutputOrderedList = new NBTTagList(), fluidOutputIndexList = new NBTTagList();
-            for (FluidStack stack : this.fluidOutputsOrdered)
-                fluidOutputOrderedList.appendTag(stack.writeToNBT(new NBTTagCompound()));
-            for (Int2LongMap.Entry entry : this.fluidOutputAmount.int2LongEntrySet()) {
-                final NBTTagCompound subCompound = new NBTTagCompound();
-                subCompound.setInteger("i", entry.getIntKey());
-                subCompound.setLong("amount", entry.getIntKey());
-                fluidOutputIndexList.appendTag(subCompound);
+            final NBTTagList fluidOutputOrderedList = new NBTTagList();
+            for (Int2ObjectMap.Entry<List<FluidStack>> entry : this.fluidOutputsOrdered.int2ObjectEntrySet()) {
+                final NBTTagList fluidOutputList = new NBTTagList();
+                for (FluidStack fluidStack : entry.getValue())
+                    fluidOutputList.appendTag(fluidStack.writeToNBT(new NBTTagCompound()));
+                fluidOutputOrderedList.appendTag(fluidOutputList);
             }
             compound.setTag("fluidOutputsOrdered", fluidOutputOrderedList);
-            compound.setTag("fluidOutputsDT", fluidOutputIndexList);
+            compound.setInteger("fluidOutputIndex2", this.fluidOutputIndex2);
             return compound;
         }
 
         @Override
         public void deserializeNBT(NBTTagCompound compound) {
             super.deserializeNBT(compound);
-            final NBTTagList fluidOutputOrderedList = compound.getTagList("fluidOutputsOrdered", 10), fluidOutputIndexList = compound.getTagList("fluidOutputsDT", 10);
-            for (int i = 0; i < fluidOutputOrderedList.tagCount(); i++)
-                this.fluidOutputsOrdered.add(FluidStack.loadFluidStackFromNBT(fluidOutputOrderedList.getCompoundTagAt(i)));
-            for (int i = 0; i < fluidOutputIndexList.tagCount(); i++) {
-                final NBTTagCompound subCompound = fluidOutputIndexList.getCompoundTagAt(i);
-                this.fluidOutputAmount.put(subCompound.getInteger("i"), subCompound.getLong("amount"));
+            final NBTTagList fluidOutputOrderedList = compound.getTagList("fluidOutputsOrdered", 9);
+            for (int i = 0; i < fluidOutputOrderedList.tagCount(); i++) {
+                final NBTTagList fluidOutputList = (NBTTagList) fluidOutputOrderedList.get(i);
+                final List<FluidStack> fluidOutputs = this.fluidOutputsOrdered.computeIfAbsent(i, k -> new ArrayList<>());
+                for (int j = 0; j < fluidOutputList.tagCount(); j++) {
+                    fluidOutputs.add(FluidStack.loadFluidStackFromNBT(fluidOutputList.getCompoundTagAt(j)));
+                }
             }
+            this.fluidOutputIndex2 = compound.getInteger("fluidOutputIndex2");
         }
     }
 }

@@ -28,10 +28,10 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.items.ItemStackHandler;
-import tj.gui.TJGuiTextures;
-import tj.gui.TJGuiUtils;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.TJGuiUtils;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJSlotWidget;
 import tj.items.TJMetaItems;
 import tj.items.handlers.FilteredItemStackHandler;
 
@@ -146,7 +146,7 @@ public class ToolboxBehaviour implements IItemBehaviour, ItemUIFactory {
         WidgetGroup widgetGroup = new WidgetGroup(new Position(7, 20));
         for (int i = 0; i < toolboxInventory.getSlots(); i++) {
             widgetGroup.addWidget(new TJSlotWidget<>(toolboxInventory, i, 18 * (i % 9), 18 * (i / 9))
-                    .setBackgroundTexture(GuiTextures.SLOT));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT));
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 166)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)

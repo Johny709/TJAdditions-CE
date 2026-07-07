@@ -24,11 +24,9 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.impl.SelectionWidgetGroup;
-import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.impl.*;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
 import tj.util.TJItemUtils;
@@ -67,23 +65,28 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
         return EnumActionResult.SUCCESS;
     }
 
+    private void displayText(List<ITextComponent> textList) {
+        textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", this.speed));
+    }
+
     @Override
     public ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 25));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 25, 54, 54);
+        final ButtonWidget<?> clickButtonDivide = new ButtonWidget<>(-54, -20, 18, 18, "/2", data -> this.setItemCount(String.valueOf(Long.parseLong(this.getItemCount(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final ButtonWidget<?> clickButtonMultiply = new ButtonWidget<>(90, -20, 18, 18, "*2", data -> this.setItemCount(String.valueOf(Long.parseLong(this.getItemCount(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
+        final NewTextFieldWidget<?> itemCountTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, this::setItemCount)
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setUpdateOnTyping(true)
+                .setMaxStringLength(11);
+        itemCountTextField.setTextSupplier(() -> this.getItemCount((int) itemCountTextField.getTextIdLong()));
+        selectionWidgetGroup.setIndexListener(itemCountTextField::setTextIdLong);
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
-            final int index = i;
             widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilter)
                     .setBackgroundTextures(GuiTextures.SLOT));
-            selectionWidgetGroup.addSubWidget(i, new NewTextFieldWidget<>(0, -20, 54, 18, true, () -> String.valueOf(this.itemFilter.getStackInSlot(index).getCount()), (text, id) -> {
-                ItemStack stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, true);
-                if (stack.isEmpty()) return;
-                stack = this.itemFilter.extractItem(index, Integer.MAX_VALUE, false);
-                stack.setCount(Math.max(1, (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-                this.itemFilter.insertItem(index, stack, false);
-            }).setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                    .setUpdateOnTyping(true)
-                    .setMaxStringLength(11));
+            selectionWidgetGroup.addSubWidget(i, clickButtonDivide.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            selectionWidgetGroup.addSubWidget(i, clickButtonMultiply.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+            selectionWidgetGroup.addSubWidget(i, itemCountTextField);
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
@@ -91,12 +94,12 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
                         .setItemLabel(this.getPickItem()).setLocale("cover.creative_item.title"))
                 .widget(new ImageWidget(61, 80, 55, 18, GuiTextures.DISPLAY))
                 .widget(new AdvancedTextWidget(63, 85, this::displayText, 0xFFFFFF))
-                .widget(new ClickButtonWidget(43, 80, 18, 18, "+", this::onIncrement))
-                .widget(new ClickButtonWidget(116, 80, 18, 18, "-", this::onDecrement))
-                .widget(new ToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::onReset)
-                        .setTooltipText("machine.universal.toggle.reset"))
-                .widget(new ToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                        .setTooltipText("machine.universal.toggle.run.mode"))
+                .widget(new ButtonWidget<>(43, 80, 18, 18, "+", this::onIncrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new ButtonWidget<>(116, 80, 18, 18, "-", this::onDecrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new TJToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
+                        .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
+                .widget(new TJToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
@@ -143,6 +146,19 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
             this.speed = data.getInteger("Speed");
     }
 
+    private void setItemCount(String text, String id) {
+        final int index = Integer.parseInt(id);
+        if (index < 0 || index >= this.itemFilter.getSlots()) return;
+        final ItemStack stack = this.itemFilter.getStackInSlot(index);
+        if (stack.isEmpty()) return;
+        stack.setCount((int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+        this.markAsDirty();
+    }
+
+    private String getItemCount(int index) {
+        return String.valueOf(this.itemFilter.getStackInSlot(index).getCount());
+    }
+
     @Override
     public void setWorkingEnabled(boolean isWorking) {
         this.isWorking = isWorking;
@@ -157,10 +173,6 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
     private void onReset(boolean reset) {
         this.speed = 1;
         this.markAsDirty();
-    }
-
-    private void displayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", this.speed));
     }
 
     private void onIncrement(Widget.ClickData clickData) {

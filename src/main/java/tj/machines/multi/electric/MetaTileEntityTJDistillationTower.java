@@ -42,11 +42,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
 public class MetaTileEntityTJDistillationTower extends TJRecipeMapMultiblockController implements IDistillationHandler {
 
-    public static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    public static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private final List<BlockPos> outputHatchPos = new ArrayList<>();
 
     public MetaTileEntityTJDistillationTower(ResourceLocation metaTileEntityId) {
@@ -84,7 +86,7 @@ public class MetaTileEntityTJDistillationTower extends TJRecipeMapMultiblockCont
                 .aisle("ZSZ", "ZZZ", "ZZZ")
                 .where('S', this.selfPredicate())
                 .where('Z', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
-                .where('X', this.countMatch("outputHatchCount", tilePredicate(outputHatchPredicate())).or(statePredicate(this.getCasingState())).or(abilityPartPredicate(GregicAdditionsCapabilities.MAINTENANCE_HATCH, MultiblockAbility.INPUT_ENERGY)))
+                .where('X', this.countMatch("outputHatchCount", tilePredicate(outputHatchPredicate())).or(statePredicate(this.getCasingState())).or(abilityPartPredicate(MAINTENANCE_HATCH, INPUT_ENERGY)))
                 .where('M', abilityPartPredicate(GregicAdditionsCapabilities.MUFFLER_HATCH))
                 .where('#', isAirPredicate())
                 .validateLayer(0, context -> context.getOrDefault("outputHatchCount", 0) == 1)

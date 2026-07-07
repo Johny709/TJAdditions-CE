@@ -7,7 +7,6 @@ import codechicken.lib.vec.Matrix4;
 import com.google.common.collect.Lists;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
@@ -59,10 +58,11 @@ import tj.blocks.TJMetaBlocks;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.PopUpWidgetGroup;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.PopUpWidgetGroup;
 import tj.machines.ExtendedItemFilter;
 import tj.machines.TJMiner;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
@@ -74,15 +74,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static gregicadditions.GAMaterials.Taranium;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static gregtech.api.unification.material.Materials.DrillingFluid;
 import static gregtech.api.unification.material.Materials.Duranium;
-import static tj.gui.TJGuiTextures.ITEM_VOID_BUTTON;
+import static tj.mui.TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON;
 
 
 public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase implements TJMiner {
 
-    protected static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    protected static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {EXPORT_ITEMS, IMPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
 
     public final Type type;
     protected AtomicLong x = new AtomicLong(Long.MAX_VALUE), y = new AtomicLong(Long.MAX_VALUE), z = new AtomicLong(Long.MAX_VALUE);
@@ -144,9 +146,9 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
     }
 
     private void initializeAbilities() {
-        this.importFluidHandler = new FluidTankList(true, getAbilities(MultiblockAbility.IMPORT_FLUIDS));
-        this.outputInventory = new ItemHandlerList(getAbilities(MultiblockAbility.EXPORT_ITEMS));
-        this.energyContainer = new EnergyContainerList(getAbilities(MultiblockAbility.INPUT_ENERGY));
+        this.importFluidHandler = new FluidTankList(true, getAbilities(IMPORT_FLUIDS));
+        this.outputInventory = new ItemHandlerList(getAbilities(EXPORT_ITEMS));
+        this.energyContainer = new EnergyContainerList(getAbilities(INPUT_ENERGY));
     }
 
     private void resetTileAbilities() {
@@ -310,7 +312,7 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
                 .where('L', statePredicate(getCasingState()))
                 .where('C', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
                 .where('P', statePredicate(getCasingState()))
-                .where('Q', statePredicate(getCasingState()).or(abilityPartPredicate(MultiblockAbility.EXPORT_ITEMS)))
+                .where('Q', statePredicate(getCasingState()).or(abilityPartPredicate(EXPORT_ITEMS)))
                 .where('F', statePredicate(getFrameState()))
                 .where('#', blockWorldState -> true)
                 .build();
@@ -327,10 +329,10 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
         //basically check minimal requirements for inputs count
-        int itemOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_ITEMS, Collections.emptyList())
+        int itemOutputsCount = abilities.getOrDefault(EXPORT_ITEMS, Collections.emptyList())
                 .stream().map(it -> (IItemHandler) it).mapToInt(IItemHandler::getSlots).sum();
-        int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
-        return itemOutputsCount >= 1 && fluidInputsCount >= 1 && abilities.containsKey(MultiblockAbility.INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
+        int fluidInputsCount = abilities.getOrDefault(IMPORT_FLUIDS, Collections.emptyList()).size();
+        return itemOutputsCount >= 1 && fluidInputsCount >= 1 && abilities.containsKey(INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
     }
 
     @Override
@@ -345,19 +347,19 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
             this.oreDictFilter.initUI(oreDictPopUp::addWidget);
             this.enableOreDictPopUp = oreDictPopUp::setEnabled;
             this.enableOreDictPopUp.apply(this.oreDict);
-            filterTab.add(new ToggleButtonWidget(175, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
-                    .setTooltipText("machine.universal.toggle.filter"));
+            filterTab.add(new TJToggleButtonWidget(175, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.filter.disabled", "machine.universal.toggle.filter.enabled"));
             filterTab.add(new ImageWidget(175, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
-            filterTab.add(new ToggleButtonWidget(175, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
-                    .setTooltipText("cover.filter.blacklist"));
-            filterTab.add(new ToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, this::isOreDict, this::setOreDict)
-                    .setTooltipText("cover.filter.ore_dictionary.open"));
+            filterTab.add(new TJToggleButtonWidget(175, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
+                    .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled", "cover.filter.blacklist.enabled"));
+            filterTab.add(new TJToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, this::isOreDict, this::setOreDict)
+                    .setToggleTitleTooltipHoverText("cover.filter.ore_dictionary.open.disabled", "cover.filter.ore_dictionary.open.enabled"));
             filterTab.add(slotsPopUp);
             filterTab.add(oreDictPopUp);
         });
         tabBuilder.addTab("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab -> {
-            settingsTab.add(new ToggleButtonWidget(175, 133, 18, 18, ITEM_VOID_BUTTON, () -> this.voidItems, this::setVoidItems)
-                    .setTooltipText("machine.universal.toggle.item_voiding"));
+            settingsTab.add(new TJToggleButtonWidget(175, 133, 18, 18, TOGGLE_ITEM_VOID_BUTTON, () -> this.voidItems, this::setVoidItems)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
             settingsTab.add(new AdvancedTextWidget(10, -2, this::addSettingsDisplayText, 0xFFFFFF)
                     .setClickHandler(this::handleSettingDisplayText)
                     .setMaxWidthLimit(180));
@@ -367,8 +369,8 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.RESET_BUTTON, () -> false, this::setDone)
-                .setTooltipText("machine.universal.toggle.reset"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::setDone)
+                .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"));
     }
 
     private void setDone(boolean reset) {

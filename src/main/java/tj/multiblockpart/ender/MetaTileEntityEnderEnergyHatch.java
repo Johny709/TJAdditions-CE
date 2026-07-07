@@ -8,6 +8,7 @@ import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -32,12 +33,11 @@ import tj.util.EnderWorldData;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static gregtech.api.gui.widgets.ProgressWidget.MoveType.VERTICAL;
-import static tj.gui.TJGuiTextures.BAR_HEAT;
-import static tj.gui.TJGuiTextures.BAR_STEEL;
+import static tj.mui.TJGuiTextures.BAR_HEAT;
+import static tj.mui.TJGuiTextures.BAR_STEEL;
 
 public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyContainer, BasicEnergyHandler> implements IEnergyContainer {
 
@@ -83,7 +83,7 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
     }
 
     @Override
-    protected Map<String, EnderCoverProfile<BasicEnergyHandler>> getPlayerMap() {
+    protected Object2ObjectMap<String, EnderCoverProfile<BasicEnergyHandler>> getPlayerMap() {
         return EnderWorldData.getINSTANCE().getEnergyContainerPlayerMap();
     }
 
@@ -130,7 +130,7 @@ public class MetaTileEntityEnderEnergyHatch extends AbstractEnderHatch<IEnergyCo
     }
 
     @Override
-    protected BasicEnergyHandler createHandler() {
+    public BasicEnergyHandler createHandler() {
         return new BasicEnergyHandler(this.capacity);
     }
 

@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "tj:blocks/ae2/me.crafting_storage.65536k"
+  }
+}

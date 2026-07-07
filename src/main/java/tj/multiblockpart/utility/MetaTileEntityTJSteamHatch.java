@@ -30,8 +30,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.TJLabelWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJLabelWidget;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
@@ -48,8 +48,8 @@ public class MetaTileEntityTJSteamHatch extends GAMetaTileEntityMultiblockPart i
     public MetaTileEntityTJSteamHatch(ResourceLocation metaTileEntityId, int tier, boolean isExport) {
         super(metaTileEntityId, tier);
         this.isExport = isExport;
-        int capacity = (int) (Math.pow(4, tier) * 16000);
-        this.steamTank = new FilteredFluidHandler(Math.min(capacity, Integer.MAX_VALUE)).setFillPredicate(ModHandler::isSteam);
+        final long capacity = (long) (Math.pow(4, tier) * 16000);
+        this.steamTank = new FilteredFluidHandler((int) Math.min(capacity, Integer.MAX_VALUE)).setFillPredicate(ModHandler::isSteam);
         initializeInventory();
     }
 

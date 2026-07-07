@@ -1,6 +1,7 @@
 package tj.capability;
 
 import gregtech.api.recipes.Recipe;
+import tj.capability.impl.handler.IRecipeHandler;
 
 public final class OverclockManager<T> {
 
@@ -80,6 +81,7 @@ public final class OverclockManager<T> {
     /**
      * Can be set in {@link tj.capability.impl.handler.IRecipeHandler#preOverclock(OverclockManager, Recipe) preOverclock}. Has no effect in {@link tj.capability.impl.handler.IRecipeHandler#postOverclock(OverclockManager, Recipe) postOverclock}.
      * Multiplier to calculate chance outputs with the output's chance value. If the roll fails, then the output is voided.
+     * Initial value is set from {@link IRecipeHandler#getChanceMultiplier()}
      * @param chanceMultiplier multiplier amount. e.g. 10000 == 100.00%.
      */
     public void setChanceMultiplier(int chanceMultiplier) {

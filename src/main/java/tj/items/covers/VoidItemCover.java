@@ -10,8 +10,6 @@ import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.ClickButtonWidget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -23,11 +21,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.items.handlers.LargeItemStackHandler;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 import tj.util.map.Strategies;
 
@@ -95,10 +95,10 @@ public class VoidItemCover extends CoverBehavior implements CoverWithUI, ITickab
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setTooltipText("machine.universal.ticks.operation")
                         .setUpdateOnTyping(true))
-                .widget(new ClickButtonWidget(7, 7, 18, 18, "/2", data -> this.setTickTime(String.valueOf((long) this.tickTime / 2), "")))
-                .widget(new ClickButtonWidget(151, 7, 18, 18, "*2", data -> this.setTickTime(String.valueOf((long) this.tickTime * 2), "")))
-                .widget(new ToggleButtonWidget(151, 85, 18, 18, TJGuiTextures.POWER_BUTTON, () -> this.isWorking, this::setWorking)
-                        .setTooltipText("machine.universal.toggle.run.mode"))
+                .widget(new ButtonWidget<>(7, 7, 18, 18, "/2", data -> this.setTickTime(String.valueOf((long) this.tickTime / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new ButtonWidget<>(151, 7, 18, 18, "*2", data -> this.setTickTime(String.valueOf((long) this.tickTime * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new TJToggleButtonWidget(151, 85, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorking)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "macine.universal.toggle.run.mode.enabled"))
                 .widget(widgetGroup)
                 .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
                 .build(this, player);

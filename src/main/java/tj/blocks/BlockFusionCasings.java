@@ -9,6 +9,8 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
+import javax.annotation.Nonnull;
+
 public class BlockFusionCasings extends VariantBlock<BlockFusionCasings.FusionType> {
 
     public BlockFusionCasings() {
@@ -23,7 +25,7 @@ public class BlockFusionCasings extends VariantBlock<BlockFusionCasings.FusionTy
     }
 
     @Override
-    public boolean canCreatureSpawn(IBlockState state, IBlockAccess world, BlockPos pos, EntityLiving.SpawnPlacementType type) {
+    public boolean canCreatureSpawn(@Nonnull IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nonnull EntityLiving.SpawnPlacementType type) {
         return false;
     }
 
@@ -39,6 +41,7 @@ public class BlockFusionCasings extends VariantBlock<BlockFusionCasings.FusionTy
 
         private final String name;
 
+        @Nonnull
         @Override
         public String getName() {
             return this.name;

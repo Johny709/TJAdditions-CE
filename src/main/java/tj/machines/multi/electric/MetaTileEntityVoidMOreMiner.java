@@ -6,7 +6,6 @@ import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
 import gregtech.api.GTValues;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.block.state.IBlockState;
@@ -16,7 +15,6 @@ import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.capability.impl.workable.VoidMOreMinerWorkableHandler;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -40,7 +38,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.gui.TJGuiTextures;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
 import tj.util.TJUtility;
@@ -52,13 +51,14 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.function.UnaryOperator;
 
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static tj.textures.TJTextures.HEAVY_QUARK_DEGENERATE_MATTER;
 import static gregicadditions.GAMaterials.*;
 
 public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase implements IProgressBar {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
-            MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
 
     public static final FluidStack PYROTHEUM = Pyrotheum.getFluid(1);
     public static final FluidStack CRYOTHEUM = Cryotheum.getFluid(1);
@@ -80,8 +80,8 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        final int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
-        final int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
+        final int fluidInputsCount = abilities.getOrDefault(IMPORT_FLUIDS, Collections.emptyList()).size();
+        final int fluidOutputsCount = abilities.getOrDefault(EXPORT_FLUIDS, Collections.emptyList()).size();
 
         return fluidInputsCount >= 1 && fluidOutputsCount >= 1 && abilities.containsKey(MultiblockAbility.INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
     }
@@ -112,8 +112,8 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.FLUID_VOID_BUTTON, this.workableHandler::isVoidingFluids, this.workableHandler::setVoidingFluids)
-                .setTooltipText("machine.universal.toggle.fluid_voiding"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_FLUID_VOID_BUTTON, this.workableHandler::isVoidingFluids, this.workableHandler::setVoidingFluids)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.fluid_voiding.disabled", "machine.universal.toggle.fluid_voiding.enabled"));
     }
 
     @Override

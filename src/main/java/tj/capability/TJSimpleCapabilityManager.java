@@ -13,5 +13,6 @@ public final class TJSimpleCapabilityManager {
         registerCapabilityWithNoDefault(IHeatInfo.class);
         registerCapabilityWithNoDefault(IGeneratorInfo.class);
         registerCapabilityWithNoDefault(IItemFluidHandlerInfo.class);
+        registerCapabilityWithNoDefault(IParallelItemFluidHandlerInfo.class);
     }
 }

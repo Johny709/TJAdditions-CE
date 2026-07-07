@@ -81,7 +81,7 @@ public class MetaTileEntityParallelPlasmaCondenser extends ParallelRecipeMapMult
                 .setAmountAtLeast('L', 12)
                 .where('S', this.selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('T', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('G', statePredicate(MetaBlocks.TURBINE_CASING.getState(BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX)))
                 .where('P', pumpPredicate())

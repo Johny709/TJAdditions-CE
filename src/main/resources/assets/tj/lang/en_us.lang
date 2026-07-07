@@ -66,6 +66,7 @@ tj.machine.parallel_electric_blast_furnace.name=Parallel Electric Blast Furnace 
 tj.machine.parallel_vacuum_freezer.name=Parallel Vacuum Freezer (PVF)
 tj.machine.parallel_cryogenic_freezer.name=Parallel Cryogenic Freezer (PCF)
 tj.machine.parallel_volcanus.name=Parallel Volcanus (PV)
+tj.machine.parallel_large_alloy_smelter.name=Parallel Large Alloy Smelter (PLAS)
 tj.machine.accelerator_anchor_point.name=Accelerator Anchor Point (AAP)
 tj.machine.coal_boiler_bronze.name=Bronze Coal Boiler
 tj.machine.coal_boiler_steel.name=Steel Coal Boiler
@@ -114,6 +115,9 @@ tj.machine.chaos_replicator.name=Chaos Replicator (CR)
 tj.machine.dragon_egg_replicator.name=Dragon Egg Replicator (DER)
 tj.machine.large_powered_spawner.name=Large Powered Spawner (LPS)
 tj.machine.large_vial_processor.name=Large Vial Processor (LVP)
+tj.machine.steam_atmosphere_collector_turbine.name=XL Turbo Atmosphere Collector (Steam)
+tj.machine.gas_atmosphere_collector_turbine.name=XL Turbo Atmosphere Collector (Gas)
+tj.machine.plasma_atmosphere_collector_turbine.name=XL Turbo Atmosphere Collector (Plasma)
 tj.machine.multi_smelter.name=Multi-Smelter (MS)
 tj.machine.steam_oven.name=Steam Oven
 tj.machine.steam_grinder.name=Steam Grinder
@@ -132,6 +136,7 @@ tj.machine.void_large_chunk_miner.name=Void Large Chunk Miner (VLCM)
 tj.machine.large_bio_reactor.name=Large Bio Reactor (LBR)
 tj.machine.large_gas_centrifuge.name=Large Gas Centrifuge (LGC)
 tj.machine.large_nuclear_reactor.name=Large Nuclear Reactor (LNR)
+tj.machine.mega_alloy_blast_smelter.name=Mega Alloy Blast Smelter (MABS)
 
 tj.machine.architect_workbench_lv.name=Basic Architect Workbench
 tj.machine.architect_workbench_mv.name=Advanced Architect Workbench
@@ -617,7 +622,7 @@ tj.multiblock.primitive_water_pump.description=Pumps §b%sL§7 of §bwater§7 ev
 
 tj.multiblock.distillation_tower.layers=Height can be built from §b%s§7 to §b%s§7 blocks.
 
-tj.multiblock.advanced_large_miner.description=More advanced version of §5Chunk Miner§7 with more stability and functions. §aMining level starts right below the miner.
+tj.multiblock.advanced_large_miner.description=More advanced version of §5Chunk Miner§7 with more stability and functions. §aMining level starts right below the miner. §eBlock filter checks on block. Ore dict filter checks on block drops. Both filter effects are combined, so set whitelist and blacklist carefully.
 tj.multiblock.advanced_large_miner.crushed=§dThis Large Chunk Miner outputs crushed ores with much higher yield than macerator. Affected by fortune.
 tj.multiblock.advanced_large_miner.output=§dThe Miner will try to output the items directly at an inventory adjacent to its output side before it tries outputting to its own output inventory.
 tj.multiblock.advanced_large_miner.chunk_index=Chunk Index: §b%s / %s
@@ -710,6 +715,7 @@ tj.multiblock.parallel_electric_blast_furnace.description=Parallel version of §
 tj.multiblock.parallel_vacuum_freezer.description=Parallel version of §5Vacuum Freezer§7 that can parallel machine. §eMust extend after every 4th parallels. §aCapable of on-tier overclocks.
 tj.multiblock.parallel_volcanus.description=Parallel version of §5Volcanus§7 that can parallel machine. §eMust extend after every 4th parallels.§7 Max voltage tier this machine can run at is §bZPM§7 (§a131,072§7)
 tj.multiblock.parallel_cryogenic_freezer.description=Parallel version of §5Cryogenic Freezer§7 that can parallel machine. §eMust extend after every 4th parallels.§7 Max voltage tier this machine can run at is §bZPM§7 (§a131,072§7)
+tj.multiblock.parallel_large_alloy_smelter.description=True Parallel version of §5Large Alloy Smelter.
 tj.multiblock.large_wireless_energy_emitter.description=Link to transfer energy to §6machines§7 and §6energy hatches§7. Gains two additional links per tier. Consumes §310L/t Nitrogen Plasma§7 per link across dimensions.
 tj.multiblock.large_battery_charger.description=§bCharges§7 or §bDischarges§7 energy of lots of items. Consumes §e1A§7 per slot, only consumes §eenergy§7 when needed. §6Players§7 can be linked to this machine to §bcharge§7 their items wireless. Consumes §310L/t Nitrogen Plasma§7 when §6player§7 is in different dimension. Gains an additional link per tier.
 tj.multiblock.void_more_miner.description=Tier and Heats is determined by Component Motor Blocks.
@@ -795,6 +801,7 @@ tile.energy_casing.energy_port_umv.name=Advanced Fusion Energy Port (UMV)
 tile.energy_casing.energy_port_uxv.name=Advanced Fusion Energy Port (UXV)
 tile.energy_casing.energy_port_max.name=Advanced Fusion Energy Port (MAX)
 tile.ability_casing.energy_port.description=Non Tile Entity Substitute For Energy Hatches In Industrial Fusion Reactors. Right-Click with multi-amp input hatch to set amps. Shift-Right-Click to retrieve energy hatch from port.
+tile.active_ability_block.heat_vent.name=Heat Vent
 tile.pipe_casing.stainless_pipe.name=Stainless Pipe Casing
 tile.fusion_casing.fusion_casing_uhv.name=Fusion Casing MK IV
 tile.fusion_casing.fusion_coil_uhv.name=Fusion Coil Block MK IV
@@ -1010,6 +1017,9 @@ void_cover.mode.exact=Exact
 item.unbreakable_hoe.name=Unbreakable Hoe
 item.unbreakable_axe.name=Unbreakable Axe
 item.unbreakable_shears.name=Unbreakable Shears
+item.me.max_capacity_upgrade.name=Max Capacity Upgrade Card
+item.me.max_capacity_upgrade.description=Add to ME parts for maximum capacity as possible.
+item.me.max_capacity_upgrade.count=%s (%,d)
 
 tj.machine.universal.item_amount=§7Amount: §6%s
 tj.machine.universal.fluid_amount=§7Amount: §3%s L
@@ -1113,6 +1123,7 @@ machine.universal.tooltip.voltage_in=Voltage IN: §a%,d §7(%s%s§7)
 machine.universal.false=§cFalse
 machine.universal.true=§9True
 machine.universal.deprecate_to_remove=Waring: Deprecated. This will be removed soon.
+machine.universal.stack_size=Stack Size
 
 string.regex.flag=Flag: %s
 string.regex.pattern.unix_lines=UNIX_LINES
@@ -1162,35 +1173,6 @@ tj.top.parallel_controller.multiblock_recipe=Multiblock Recipe:
 tj.top.inputs=Inputs:
 tj.top.outputs=Outputs:
 
-tile.appliedenergistics2.crafting_storage_65m.name=§165m §fCrafting Storage
-tile.appliedenergistics2.crafting_storage_262m.name=§b262m §fCrafting Storage
-tile.appliedenergistics2.crafting_storage_1048m.name=§51048m §fCrafting Storage
-tile.appliedenergistics2.crafting_storage_digital_singularity.name=§dDigital Singularity Crafting Storage
-tile.appliedenergistics2.super_interface.name=ME Super Interface
-tile.appliedenergistics2.super_fluid_interface.name=ME Super Fluid Interface
-
-item.appliedenergistics2.multi_part.super_interface.name=ME Super Interface
-item.appliedenergistics2.multi_part.super_fluid_interface.name=ME Super Fluid Interface
-
-item.appliedenergistics2.storage_cell_65m.name=§165m §fME Storage Cell
-item.appliedenergistics2.storage_cell_262m.name=§b262m §fME Storage Cell
-item.appliedenergistics2.storage_cell_1048m.name=§51048m §fME Storage Cell
-item.appliedenergistics2.storage_item_digital_singularity.name=§dDigital Singularity
-item.appliedenergistics2.storage_fluid_cell_65m.name=§165m §fME Fluid Storage Cell
-item.appliedenergistics2.storage_fluid_cell_262m.name=§b262m §fME Fluid Storage Cell
-item.appliedenergistics2.storage_fluid_cell_1048m.name=§51048m §fME Fluid Storage Cell
-item.appliedenergistics2.storage_fluid_digital_singularity.name=§dFluid Digital Singularity
-
-item.appliedenergistics2.material.cell_65m_part.name=§165m §fME Storage Component
-item.appliedenergistics2.material.cell_262m_part.name=§b262m §fME Storage Component
-item.appliedenergistics2.material.cell_1048m_part.name=§51048m §fME Storage Component
-item.appliedenergistics2.material.item_cell_digital_singularity.name=§dDigital Singularity Component
-item.appliedenergistics2.material.fluid_cell_65m_part.name=§165m §fME Fluid Storage Component
-item.appliedenergistics2.material.fluid_cell_262m_part.name=§b262m §fME Fluid Storage Component
-item.appliedenergistics2.material.fluid_cell_1048m_part.name=§51048m §fME Fluid Storage Component
-item.appliedenergistics2.material.fluid_cell_digital_singularity.name=§dFluid Digital Singularity Component
-
-
 item.me.material.item_cell.65536k.name=§165536k§f ME Storage Component
 item.me.material.item_cell.262144k.name=§b262144k§f ME Storage Component
 item.me.material.item_cell.1048m.name=§51048m§f ME Storage Component
@@ -1211,3 +1193,29 @@ item.me.fluid_cell.digital_singularity.name=§dFluid Digital Singularity
 item.me.block_container.item_cell.64k.name=§dME Block Container
 item.me.block_container.item_cell.65536k.name=§dME Block Container II
 item.me.block_container.item_cell.singularity.name=§dME Block Container Singularity
+
+item.me.part.super_interface.name=ME Super Interface
+item.me.part.super_fluid_interface.name=ME Super Fluid Interface
+item.me.part.super_dual_interface.name=ME Super Dual Interface
+item.me.part.pattern_interface.name=ME Pattern Interface
+item.me.part.stocking_interface.name=ME Stocking Interface
+item.me.part.stocking_fluid_interface.name=ME Stocking Fluid Interface
+item.me.part.stocking_dual_interface.name=ME Stocking Dual Interface
+item.me.part.super_ultimate_interface.name=ME Super Ultimate Interface
+
+tile.me.super_interface.name=ME Super Interface
+tile.me.super_fluid_interface.name=ME Super Fluid Interface
+tile.me.super_dual_interface.name=ME Super Dual Interface
+tile.me.pattern_interface.name=ME Pattern Interface
+tile.me.stocking_interface.name=ME Stocking Interface
+tile.me.stocking_fluid_interface.name=ME Stocking Fluid Interface
+tile.me.stocking_dual_interface.name=ME Stocking Dual Interface
+tile.me.super_ultimate_interface.name=ME Super Ultimate Interface
+
+tile.me.crafting_storage.65536k.name=§165536k§f Crafting Storage
+tile.me.crafting_storage.262144k.name=§b262144k§f Crafting Storage
+tile.me.crafting_storage.1048m.name=§51048m§f Crafting Storage
+tile.me.crafting_storage.singularity.name=§dDigital Singularity Crafting Storage
+
+tile.me.stocking_interface.auto_pull=Auto-Pull from ME mode will automatically stock the first 36 items in the ME system
+tile.me.stocking_fluid_interface.auto_pull=Auto-Pull from ME mode will automatically stock the first 36 fluids in the ME system

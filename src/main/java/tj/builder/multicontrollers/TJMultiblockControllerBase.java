@@ -56,13 +56,9 @@ import tj.capability.IMachineHandler;
 import tj.capability.IMuffler;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.gui.TJGuiTextures;
-import tj.gui.TJHorizontoalTabListRenderer;
-import tj.gui.widgets.AdvancedDisplayWidget;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJProgressBarWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
-import tj.gui.widgets.impl.AnimatedImageWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.TJHorizontoalTabListRenderer;
+import tj.mui.widgets.impl.*;
 import tj.multiblockpart.TJMultiblockAbility;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -76,9 +72,9 @@ import java.util.stream.Collectors;
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
 import static gregicadditions.capabilities.MultiblockDataCodes.STORE_TAPED;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_ITEMS;
-import static tj.gui.TJGuiTextures.*;
-import static tj.gui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
-import static tj.gui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
+import static tj.mui.TJGuiTextures.*;
+import static tj.mui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
+import static tj.mui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
 public abstract class TJMultiblockControllerBase extends MultiblockControllerBase implements IControllable, IMaintenance, IMuffler, IMachineHandler {
 
@@ -312,10 +308,10 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
                         .setClickHandler(this::handleDisplayClick)
                         .setMaxWidthLimit(180))
                 .setScrollPanelWidth(3));
-        widgetGroup.add(new ToggleButtonWidget(175, 169, 18, 18, POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                .setTooltipText("machine.universal.toggle.run.mode"));
-        widgetGroup.add(new ToggleButtonWidget(175, 133, 18, 18, CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
-                .setTooltipText("machine.universal.toggle.check.mode"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 133, 18, 18, TOGGLE_CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.check.mode.disabled", "machine.universal.toggle.check.mode.enabled"));
     }
 
     protected void addDisplayText(GUIDisplayBuilder builder) {
@@ -544,15 +540,17 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
                 blockWorldState.getMatchContext().getOrPut("coilLevel", coilType.getLevel());
                 blockWorldState.getMatchContext().getOrPut("coilTemperature", coilType.getCoilTemperature());
                 blockWorldState.getMatchContext().getOrPut("coilEnergyDiscount", coilType.getEnergyDiscount());
+                blockWorldState.getMatchContext().getOrCreate("coilPos", HashSet::new).add(blockWorldState.getPos());
                 return true;
             } else if (block instanceof GAHeatingCoil) {
                 final GAHeatingCoil.CoilType coilType = ((GAHeatingCoil) block).getState(state);
                 final String name = blockWorldState.getMatchContext().getOrPut("coilName", coilType.getName());
                 if (!coilType.getName().equals(name) || Arrays.asList(GAConfig.multis.heatingCoils.gregicalityheatingCoilsBlacklist).contains(coilType.getName())) return false;
-                blockWorldState.getMatchContext().getOrPut("coilIndex", coilType.ordinal() + 8);
+                blockWorldState.getMatchContext().getOrPut("coilIndex", coilType.ordinal() + 7);
                 blockWorldState.getMatchContext().getOrPut("coilLevel", coilType.getLevel());
                 blockWorldState.getMatchContext().getOrPut("coilTemperature", coilType.getCoilTemperature());
                 blockWorldState.getMatchContext().getOrPut("coilEnergyDiscount", coilType.getEnergyDiscount());
+                blockWorldState.getMatchContext().getOrCreate("coilPos", HashSet::new).add(blockWorldState.getPos());
                 return true;
             }
             return false;

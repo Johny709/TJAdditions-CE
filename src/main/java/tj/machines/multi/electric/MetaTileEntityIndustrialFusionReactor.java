@@ -47,15 +47,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJConfig;
 import tj.TJValues;
-import tj.blocks.EnergyPortCasings;
+import tj.blocks.BlockEnergyPortCasings;
 import tj.blocks.BlockFusionCasings;
 import tj.blocks.BlockFusionGlass;
 import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
-import tj.gui.widgets.TJCycleButtonWidget;
 import tj.machines.multi.BatchMode;
+import tj.mui.widgets.impl.TJCycleButtonWidget;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.TextUtils;
@@ -71,7 +71,7 @@ import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 
 public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockController implements IHeatInfo, IProgressBar {
 
@@ -140,12 +140,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         }
         overclockManager.setEUt((long) (overclockManager.getEUt() * ocMultiplier));
         overclockManager.setDuration((int) (overclockManager.getDuration() / ocMultiplier));
-        overclockManager.setParallel(this.getParallel() * this.batchMode.getAmount());
-    }
-
-    @Override
-    public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
         overclockManager.setDuration(overclockManager.getDuration() * this.batchMode.getAmount());
+        overclockManager.setParallel(this.getParallel() * this.batchMode.getAmount());
     }
 
     @Override
@@ -184,10 +180,10 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     public static Predicate<BlockWorldState> energyPortPredicate(int tier) {
         return (blockWorldState) -> {
             final IBlockState blockState = blockWorldState.getBlockState();
-            if (blockState.getBlock() instanceof EnergyPortCasings) {
-                final EnergyPortCasings abilityCasings = (EnergyPortCasings) blockState.getBlock();
-                final EnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
-                final List<EnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
+            if (blockState.getBlock() instanceof BlockEnergyPortCasings) {
+                final BlockEnergyPortCasings abilityCasings = (BlockEnergyPortCasings) blockState.getBlock();
+                final BlockEnergyPortCasings.AbilityType tieredCasingType = abilityCasings.getState(blockState);
+                final List<BlockEnergyPortCasings.AbilityType> currentCasing = blockWorldState.getMatchContext().getOrCreate("EnergyPort", ArrayList::new);
                 final Set<BlockPos> activeStates = blockWorldState.getMatchContext().getOrCreate("activeStates", HashSet::new);
                 currentCasing.add(tieredCasingType);
                 activeStates.add(blockWorldState.getPos());
@@ -293,11 +289,11 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new TJCycleButtonWidget(175, 151, 18, 18, BatchMode.class, () -> this.batchMode, this::setBatchMode, BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
-                .setTooltipFormat(this::getTooltipFormat)
-                .setToggle(true)
-                .setButtonTexture(TOGGLE_BUTTON_BACK)
-                .setTooltipHoverString("machine.universal.batch.amount"));
+        widgetGroup.add(new TJCycleButtonWidget<>(175, 151, 18, 18, BatchMode.class, () -> this.batchMode, this::setBatchMode)
+                .setCycleTextures(BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
+                .setHoverTooltipText("machine.universal.batch.amount")
+                .setBackgroundTextures(TOGGLE_BUTTON_BACK)
+                .setTooltipFormat(this::getTooltipFormat));
     }
 
     private void setBatchMode(BatchMode batchMode) {
@@ -393,8 +389,8 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
             final BlockPos pos = buffer.readBlockPos();
             IBlockState state = this.getWorld().getBlockState(pos);
             final Block block = state.getBlock();
-            if (block instanceof EnergyPortCasings) {
-                state = state.withProperty(EnergyPortCasings.ACTIVE, isActive);
+            if (block instanceof BlockEnergyPortCasings) {
+                state = state.withProperty(BlockEnergyPortCasings.ACTIVE, isActive);
                 this.getWorld().setBlockState(pos, state);
             }
         }

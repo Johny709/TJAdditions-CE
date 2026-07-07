@@ -43,10 +43,10 @@ import tj.capability.AbstractWorkableHandler;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 import tj.capability.impl.handler.ICharcoalHandler;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.impl.ButtonPopUpWidget;
-import tj.gui.widgets.impl.TJToggleButtonWidget;
-import tj.gui.widgets.impl.WindowsWidgetGroup;
+import tj.mui.widgets.impl.TJLabelWidget;
+import tj.mui.widgets.impl.ButtonPopUpWidget;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.widgets.impl.WindowsWidgetGroup;
 import tj.util.references.IntegerReference;
 import tj.util.references.ObjectReference;
 
@@ -139,7 +139,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
                 .addPopup(new TJToggleButtonWidget(175, 152, 18, 18)
                         .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
-                        .setTooltipText("tj.multiblock.tab.settings")
+                        .setHoverTooltipText("tj.multiblock.tab.settings")
                         .useToggleTexture(true), widgetGroup1 -> {
                     widgetGroup1.addWidget(new WindowsWidgetGroup(12, 60, 160, 120, GuiTextures.BORDERED_BACKGROUND)
                             .addSubWidget(new TJLabelWidget(0, -1, 160, 18, null)

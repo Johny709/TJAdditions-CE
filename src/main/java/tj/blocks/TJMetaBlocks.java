@@ -15,39 +15,40 @@ import java.util.stream.Collectors;
 
 public class TJMetaBlocks {
 
-    public static final Set<EnergyPortCasings> ENERGY_PORT_CASINGS = new HashSet<>();
-    public static final Set<AdvEnergyPortCasings> ADV_ENERGY_PORT_CASINGS = new HashSet<>();
+    public static final Set<BlockEnergyPortCasings> ENERGY_PORT_CASINGS = new HashSet<>();
+    public static final Set<BlockAdvEnergyPortCasings> ADV_ENERGY_PORT_CASINGS = new HashSet<>();
 
     public static BlockSolidCasings SOLID_CASING;
-    public static EnergyPortCasings ENERGY_PORT_CASING;
-    public static AdvEnergyPortCasings ADV_ENERGY_PORT_CASING;
+    public static BlockEnergyPortCasings ENERGY_PORT_CASING;
+    public static BlockAdvEnergyPortCasings ADV_ENERGY_PORT_CASING;
     public static BlockPipeCasings PIPE_CASING;
     public static BlockFusionCasings FUSION_CASING;
     public static BlockFusionGlass FUSION_GLASS;
-    public static AbilityBlocks ABILITY_BLOCKS;
+    public static BlockAbility ABILITY_BLOCKS;
+    public static BlockActiveAbility ACTIVE_ABILITY_BLOCKS;
 
     public static void init() {
         SOLID_CASING = new BlockSolidCasings();
 
-        ENERGY_PORT_CASINGS.add(ENERGY_PORT_CASING = new EnergyPortCasings(2));
-        ENERGY_PORT_CASINGS.add(new EnergyPortCasings(4));
-        ENERGY_PORT_CASINGS.add(new EnergyPortCasings(16));
-        ENERGY_PORT_CASINGS.add(new EnergyPortCasings(64));
-        ENERGY_PORT_CASINGS.add(new EnergyPortCasings(128));
-        ENERGY_PORT_CASINGS.add(new EnergyPortCasings(256));
+        ENERGY_PORT_CASINGS.add(ENERGY_PORT_CASING = new BlockEnergyPortCasings(2));
+        ENERGY_PORT_CASINGS.add(new BlockEnergyPortCasings(4));
+        ENERGY_PORT_CASINGS.add(new BlockEnergyPortCasings(16));
+        ENERGY_PORT_CASINGS.add(new BlockEnergyPortCasings(64));
+        ENERGY_PORT_CASINGS.add(new BlockEnergyPortCasings(128));
+        ENERGY_PORT_CASINGS.add(new BlockEnergyPortCasings(256));
 
-        ADV_ENERGY_PORT_CASINGS.add(ADV_ENERGY_PORT_CASING = new AdvEnergyPortCasings(2));
-        ADV_ENERGY_PORT_CASINGS.add(new AdvEnergyPortCasings(4));
-        ADV_ENERGY_PORT_CASINGS.add(new AdvEnergyPortCasings(16));
-        ADV_ENERGY_PORT_CASINGS.add(new AdvEnergyPortCasings(64));
-        ADV_ENERGY_PORT_CASINGS.add(new AdvEnergyPortCasings(128));
-        ADV_ENERGY_PORT_CASINGS.add(new AdvEnergyPortCasings(256));
+        ADV_ENERGY_PORT_CASINGS.add(ADV_ENERGY_PORT_CASING = new BlockAdvEnergyPortCasings(2));
+        ADV_ENERGY_PORT_CASINGS.add(new BlockAdvEnergyPortCasings(4));
+        ADV_ENERGY_PORT_CASINGS.add(new BlockAdvEnergyPortCasings(16));
+        ADV_ENERGY_PORT_CASINGS.add(new BlockAdvEnergyPortCasings(64));
+        ADV_ENERGY_PORT_CASINGS.add(new BlockAdvEnergyPortCasings(128));
+        ADV_ENERGY_PORT_CASINGS.add(new BlockAdvEnergyPortCasings(256));
 
         PIPE_CASING = new BlockPipeCasings();
         FUSION_CASING = new BlockFusionCasings();
         FUSION_GLASS = new BlockFusionGlass();
-        ABILITY_BLOCKS = new AbilityBlocks();
-
+        ABILITY_BLOCKS = new BlockAbility();
+        ACTIVE_ABILITY_BLOCKS = new BlockActiveAbility();
     }
 
     @SideOnly(Side.CLIENT)
@@ -57,6 +58,7 @@ public class TJMetaBlocks {
         registerItemModel(FUSION_CASING);
         registerItemModel(FUSION_GLASS);
         registerItemModel(ABILITY_BLOCKS);
+        registerItemModel(ACTIVE_ABILITY_BLOCKS);
         ENERGY_PORT_CASINGS.forEach(TJMetaBlocks::registerItemModel);
         ADV_ENERGY_PORT_CASINGS.forEach(TJMetaBlocks::registerItemModel);
     }

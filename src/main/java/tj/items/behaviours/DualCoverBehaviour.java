@@ -27,14 +27,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import tj.builder.WidgetTabBuilder;
-import tj.gui.TJGuiTextures;
-import tj.gui.TJGuiUtils;
-import tj.gui.widgets.NewTextFieldWidget;
-import tj.gui.widgets.PopUpWidget;
-import tj.gui.widgets.TJLabelWidget;
-import tj.gui.widgets.TJSlotWidget;
-import tj.gui.widgets.impl.TJPhantomFluidSlotWidget;
-import tj.gui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.TJGuiUtils;
+import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.impl.*;
+import tj.mui.widgets.PopUpWidget;
 import tj.items.TJMetaItems;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.handlers.LargeItemStackHandler;
@@ -187,28 +184,28 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
                 .addTab(String.format("metaitem.conveyor.module.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.CONVEYORS[this.tier].getStackForm(), tab -> {
                     tab.add(new LabelWidget(7, 5, "cover.conveyor.title", GAValues.VN[this.tier]));
-                    tab.add(new ClickButtonWidget(7, 20, 23, 20, "-10", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() - (data.isShiftClick ? 100 : 10))));
-                    tab.add(new ClickButtonWidget(146, 20, 23, 20, "+10", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() + (data.isShiftClick ? 100 : 10))));
-                    tab.add(new ClickButtonWidget(30, 20, 20, 20, "-1", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() - (data.isShiftClick ? 5 : 1))));
-                    tab.add(new ClickButtonWidget(126, 20, 20, 20, "+1", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() + (data.isShiftClick ? 5 : 1))));
-                    tab.add(new ClickButtonWidget(50, 20, 38, 20,"/2", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() / 2D)));
-                    tab.add(new ClickButtonWidget(88, 20, 38, 20, "*2", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() * 2)));
+                    tab.add(new ButtonWidget<>(7, 20, 23, 20, "-10", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() - (data.isShiftClick ? 100 : 10))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new ButtonWidget<>(146, 20, 23, 20, "+10", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() + (data.isShiftClick ? 100 : 10))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new ButtonWidget<>(30, 20, 20, 20, "-1", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() - (data.isShiftClick ? 5 : 1))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new ButtonWidget<>(126, 20, 20, 20, "+1", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() + (data.isShiftClick ? 5 : 1))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new ButtonWidget<>(50, 20, 38, 20,"/2", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() / 2D)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new ButtonWidget<>(88, 20, 38, 20, "*2", data -> this.setItemTransferRate(itemTransferRate, compound, itemTransferRate.getValue() * 2)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
                     tab.add(new NewTextFieldWidget<>(7, 40, 162, 18, true, () -> String.valueOf(itemTransferRate.getValue()), setItemTransferRate2)
                             .setTooltipText("tj.machine.universal.item_throughput").setTooltipFormat(() -> new String[]{String.valueOf(itemTransferRate.getValue())})
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setUpdateOnTyping(true));
-                    tab.add(new CycleButtonWidget(7, 65, 78, 20, CoverConveyor.ConveyorMode.class, conveyorMode::getValue, conveyorMode1 -> {
+                    tab.add(new TJCycleButtonWidget<>(7, 65, 78, 20, CoverConveyor.ConveyorMode.class, conveyorMode::getValue, conveyorMode1 -> {
                         conveyorMode.setValue(conveyorMode1);
                         compound.setInteger("conveyorMode", conveyorMode1.ordinal());
-                    }));
+                    }).setCycleTexture(GuiTextures.VANILLA_BUTTON));
                     tab.add(new ImageWidget(-28, 127, 26, 44, GuiTextures.BORDERED_BACKGROUND));
                     tab.add(new TJSlotWidget<>(itemFilterSlot, 0, -24, 131)
-                            .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
+                            .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
                     tab.add(itemFilterPopup);
-                    tab.add(new ToggleButtonWidget(-24, 149, 18, 18, GuiTextures.BUTTON_BLACKLIST, itemBlacklist::isValue, b -> {
+                    tab.add(new TJToggleButtonWidget(-24, 149, 18, 18, GuiTextures.BUTTON_BLACKLIST, itemBlacklist::isValue, b -> {
                         itemBlacklist.setValue(b);
                         compound.setBoolean("itemBlacklist", itemBlacklist.isValue());
-                    }).setTooltipText("cover.filter.blacklist"));
+                    }).setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled", "cover.filter.blacklist.enabled"));
                     final BiConsumer<String, String> setItemTicks = (text, id) -> {
                         itemTicks.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
                         compound.setInteger("itemTicks", itemTicks.getValue());
@@ -217,39 +214,39 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setTooltipText("machine.universal.ticks.operation")
                             .setUpdateOnTyping(true));
-                    tab.add(new ClickButtonWidget(92, 151, 38, 18, "/2", data -> setItemTicks.accept(String.valueOf((long) itemTicks.getValue() / 2), "")));
-                    tab.add(new ClickButtonWidget(130, 151, 38, 18, "*2", data -> setItemTicks.accept(String.valueOf((long) itemTicks.getValue() * 2), "")));
+                    tab.add(new ButtonWidget<>(92, 151, 38, 18, "/2", data -> setItemTicks.accept(String.valueOf((long) itemTicks.getValue() / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new ButtonWidget<>(130, 151, 38, 18, "*2", data -> setItemTicks.accept(String.valueOf((long) itemTicks.getValue() * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
                     tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
-                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, itemWorking::isValue, w -> {
+                    tab.add(new TJToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, itemWorking::isValue, w -> {
                         itemWorking.setValue(w);
                         compound.setBoolean("itemWorking", itemWorking.isValue());
-                    }).setTooltipText("machine.universal.toggle.run.mode"));
+                    }).setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
                 }).addTab(String.format("metaitem.electric.pump.%s.name", GAValues.VN[this.tier].toLowerCase()), TJMetaItems.PUMPS[this.tier].getStackForm(), tab -> {
                     tab.add(new LabelWidget(7, 5, "cover.pump.title", GAValues.VN[this.tier]));
-                    tab.add(new ClickButtonWidget(7, 20, 37, 20, "-100", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() - (data.isShiftClick ? 500 : 100))));
-                    tab.add(new ClickButtonWidget(132, 20, 37, 20, "+100", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() + (data.isShiftClick ? 500 : 100))));
-                    tab.add(new ClickButtonWidget(44, 20, 24, 20, "-10", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() - (data.isShiftClick ? 50 : 10))));
-                    tab.add(new ClickButtonWidget(108, 20, 24, 20, "+10", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() + (data.isShiftClick ? 50 : 10))));
-                    tab.add(new ClickButtonWidget(68, 20, 20, 20, "-1", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() - (data.isShiftClick ? 5 : 1))));
-                    tab.add(new ClickButtonWidget(88, 20, 20, 20, "+1", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() + (data.isShiftClick ? 5 : 1))));
-                    tab.add(new ClickButtonWidget(7, 40, 81, 20, "/2", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() / 2D)));
-                    tab.add(new ClickButtonWidget(88, 40, 81, 20, "*2", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() * 2)));
+                    tab.add(new ButtonWidget<>(7, 20, 37, 20, "-100", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() - (data.isShiftClick ? 500 : 100))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new ButtonWidget<>(132, 20, 37, 20, "+100", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() + (data.isShiftClick ? 500 : 100))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new ButtonWidget<>(44, 20, 24, 20, "-10", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() - (data.isShiftClick ? 50 : 10))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new ButtonWidget<>(108, 20, 24, 20, "+10", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() + (data.isShiftClick ? 50 : 10))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new ButtonWidget<>(68, 20, 20, 20, "-1", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() - (data.isShiftClick ? 5 : 1))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new ButtonWidget<>(88, 20, 20, 20, "+1", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() + (data.isShiftClick ? 5 : 1))).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new ButtonWidget<>(7, 40, 81, 20, "/2", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() / 2D)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new ButtonWidget<>(88, 40, 81, 20, "*2", data -> this.setFluidTransferRate(fluidTransferRate, compound, fluidTransferRate.getValue() * 2)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
                     tab.add(new NewTextFieldWidget<>(7, 60, 162, 18, true, () -> String.valueOf(fluidTransferRate.getValue()), setFluidTransferRate2)
                             .setTooltipText("tj.machine.universal.fluid_throughput").setTooltipFormat(() -> new String[]{String.valueOf(fluidTransferRate.getValue())})
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setUpdateOnTyping(true));
-                    tab.add(new CycleButtonWidget(7, 85, 78, 18, CoverPump.PumpMode.class, pumpMode::getValue, pumpMode1 -> {
+                    tab.add(new TJCycleButtonWidget<>(7, 85, 78, 18, CoverPump.PumpMode.class, pumpMode::getValue, pumpMode1 -> {
                         pumpMode.setValue(pumpMode1);
                         compound.setInteger("pumpMode", pumpMode1.ordinal());
-                    }));
+                    }).setCycleTexture(GuiTextures.VANILLA_BUTTON));
                     tab.add(new ImageWidget(-28, 147, 26, 44, GuiTextures.BORDERED_BACKGROUND));
                     tab.add(new TJSlotWidget<>(fluidFilterSlot, 0, -24, 151)
-                            .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
+                            .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY));
                     tab.add(fluidFilterPopup);
-                    tab.add(new ToggleButtonWidget(-24, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, fluidBlacklist::isValue, b -> {
+                    tab.add(new TJToggleButtonWidget(-24, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, fluidBlacklist::isValue, b -> {
                         fluidBlacklist.setValue(b);
                         compound.setBoolean("fluidBlacklist", fluidBlacklist.isValue());
-                    }).setTooltipText("cover.filter.blacklist"));
+                    }).setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled", "cover.filter.blacklist.enabled"));
                     final BiConsumer<String, String> setFluidTicks = (text, id) -> {
                         fluidTicks.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
                         compound.setInteger("fluidTicks", fluidTicks.getValue());
@@ -258,13 +255,13 @@ public class DualCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                             .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                             .setTooltipText("machine.universal.ticks.operation")
                             .setUpdateOnTyping(true));
-                    tab.add(new ClickButtonWidget(92, 169, 38, 18, "/2", data -> setFluidTicks.accept(String.valueOf((long) fluidTicks.getValue() / 2), "")));
-                    tab.add(new ClickButtonWidget(130, 169, 38, 18, "*2", data -> setFluidTicks.accept(String.valueOf((long) fluidTicks.getValue() * 2), "")));
+                    tab.add(new ButtonWidget<>(92, 169, 38, 18, "/2", data -> setFluidTicks.accept(String.valueOf((long) fluidTicks.getValue() / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    tab.add(new ButtonWidget<>(130, 169, 38, 18, "*2", data -> setFluidTicks.accept(String.valueOf((long) fluidTicks.getValue() * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
                     tab.add(new ImageWidget(-28, 244, 26, 26, GuiTextures.BORDERED_BACKGROUND));
-                    tab.add(new ToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.POWER_BUTTON, fluidWorking::isValue, w -> {
+                    tab.add(new TJToggleButtonWidget(-24, 248, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, fluidWorking::isValue, w -> {
                         fluidWorking.setValue(w);
                         compound.setBoolean("fluidWorking", fluidWorking.isValue());
-                    }).setTooltipText("machine.universal.toggle.run.mode"));
+                    }).setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
                 });
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 272)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)

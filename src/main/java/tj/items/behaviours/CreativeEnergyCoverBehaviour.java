@@ -1,5 +1,6 @@
 package tj.items.behaviours;
 
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.items.gui.ItemUIFactory;
@@ -14,10 +15,14 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
-import tj.gui.TJGuiTextures;
-import tj.gui.TJGuiUtils;
-import tj.gui.widgets.*;
+import tj.mui.TJGuiTextures;
+import tj.mui.TJGuiUtils;
+import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.PopUpWidget;
+import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.TJLabelWidget;
 import tj.items.TJMetaItems;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.util.references.BooleanReference;
 import tj.util.references.IntegerReference;
 import tj.util.references.LongReference;
@@ -27,8 +32,7 @@ import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
-import static tj.gui.TJGuiTextures.*;
-import static tj.gui.TJGuiTextures.MINUS_BUTTON;
+import static tj.mui.TJGuiTextures.*;
 
 public class CreativeEnergyCoverBehaviour implements IItemBehaviour, ItemUIFactory {
 
@@ -85,12 +89,13 @@ public class CreativeEnergyCoverBehaviour implements IItemBehaviour, ItemUIFacto
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setTooltipText("machine.universal.ticks.operation")
                         .setUpdateOnTyping(true))
-                .widget(new ToggleButtonWidget(7, 7, 18, 18, MINUS_BUTTON, () -> false, minus -> setTicks.accept(String.valueOf((long) ticks.getValue() - 1), "")))
-                .widget(new ToggleButtonWidget(151, 7, 18, 18, PLUS_BUTTON, () -> false, plus -> setTicks.accept(String.valueOf((long) ticks.getValue() + 1), "")))
-                .widget(new ToggleButtonWidget(7, 27, 18, 18, POWER_BUTTON, active::isValue, setActive)
-                        .setTooltipText("machine.universal.toggle.run.mode"))
-                .widget(new ToggleButtonWidget(26, 27, 124, 18, simulateVoltage::isValue, setSimulateVoltage))
-                .widget(new CycleButtonWidget(151, 27, 18, 18, draining::isValue, setDraining, "machine.universal.mode.transfer.in", "machine.universal.mode.transfer.out"))
+                .widget(new ButtonWidget<>(7, 7, 18, 18, "-", minus -> setTicks.accept(String.valueOf((long) ticks.getValue() - 1), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new ButtonWidget<>(151, 7, 18, 18, "+", plus -> setTicks.accept(String.valueOf((long) ticks.getValue() + 1), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new TJToggleButtonWidget(7, 27, 18, 18, TOGGLE_POWER_BUTTON, active::isValue, setActive)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
+                .widget(new TJToggleButtonWidget(26, 27, 124, 18, GuiTextures.VANILLA_BUTTON, simulateVoltage::isValue, setSimulateVoltage))
+                .widget(new TJToggleButtonWidget(151, 27, 18, 18, GuiTextures.VANILLA_BUTTON, draining::isValue, setDraining)
+                        .setToggleTitleTooltipHoverText("machine.universal.mode.transfer.in", "machine.universal.mode.transfer.out"))
                 .widget(new PopUpWidget<>()
                         .setClickToDefault(false)
                         .setIndexSupplier(() -> simulateVoltage.isValue() ? 1 : 0)
@@ -100,10 +105,10 @@ public class CreativeEnergyCoverBehaviour implements IItemBehaviour, ItemUIFacto
                                     .setBackgroundText("metaitem.creative_energy_cover.set.energy_rate")
                                     .setTooltipText("metaitem.creative_energy_cover.set.energy_rate")
                                     .setUpdateOnTyping(true));
-                            widgetGroup.addWidget(new ToggleButtonWidget(7, 45, 18, 18, MINUS_BUTTON, () -> false, minus -> setEnergyRate.accept(String.valueOf((double) energyRate.getValue() / 2), "")));
-                            widgetGroup.addWidget(new ToggleButtonWidget(151, 45, 18, 18, PLUS_BUTTON, () -> false, plus -> setEnergyRate.accept(String.valueOf((double) energyRate.getValue() * 2), "")));
-                            widgetGroup.addWidget(new ToggleButtonWidget(151, 63, 18, 18, RESET_BUTTON, () -> false, reset -> setEnergyRate.accept(String.valueOf(Long.MAX_VALUE), ""))
-                                    .setTooltipText("machine.universal.toggle.reset"));
+                            widgetGroup.addWidget(new ButtonWidget<>(7, 45, 18, 18, "-", minus -> setEnergyRate.accept(String.valueOf((double) energyRate.getValue() / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(151, 45, 18, 18, "+", plus -> setEnergyRate.accept(String.valueOf((double) energyRate.getValue() * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new TJToggleButtonWidget(151, 63, 18, 18, TOGGLE_RESET_BUTTON, () -> false, reset -> setEnergyRate.accept(String.valueOf(Long.MAX_VALUE), ""))
+                                    .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"));
                             widgetGroup.addWidget(new LabelWidget(32, 32, "metaitem.creative_energy_cover.simulate_voltage", false));
                             return false;
                         }).addPopup(widgetGroup -> false))
@@ -121,10 +126,10 @@ public class CreativeEnergyCoverBehaviour implements IItemBehaviour, ItemUIFacto
                                     .setBackgroundText("metaitem.creative_energy_cover.set.amps")
                                     .setTooltipText("metaitem.creative_energy_cover.set.amps")
                                     .setUpdateOnTyping(true));
-                            widgetGroup.addWidget(new ToggleButtonWidget(7, 45, 18, 18, MINUS_BUTTON, () -> false, minus -> setVoltage.accept(String.valueOf(voltage.getValue() / 2), "")));
-                            widgetGroup.addWidget(new ToggleButtonWidget(151, 45, 18, 18, PLUS_BUTTON, () -> false, plus -> setVoltage.accept(String.valueOf(voltage.getValue() * 2), "")));
-                            widgetGroup.addWidget(new ToggleButtonWidget(7, 63, 18, 18, MINUS_BUTTON, () -> false, minus -> setAmps.accept(String.valueOf(amps.getValue() / 2), "")));
-                            widgetGroup.addWidget(new ToggleButtonWidget(151, 63, 18, 18, PLUS_BUTTON, () -> false, plus -> setAmps.accept(String.valueOf(amps.getValue() * 2), "")));
+                            widgetGroup.addWidget(new ButtonWidget<>(7, 45, 18, 18, "-", minus -> setVoltage.accept(String.valueOf(voltage.getValue() / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(151, 45, 18, 18, "+", plus -> setVoltage.accept(String.valueOf(voltage.getValue() * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(7, 63, 18, 18, "-", minus -> setAmps.accept(String.valueOf(amps.getValue() / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(151, 63, 18, 18, "+", plus -> setAmps.accept(String.valueOf(amps.getValue() * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
                             widgetGroup.addWidget(new LabelWidget(32, 32, "metaitem.creative_energy_cover.simulate_voltage", true));
                             return false;
                         }).addPopup(widgetGroup -> false))

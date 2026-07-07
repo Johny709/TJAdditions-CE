@@ -3,11 +3,9 @@ package tj.builder.multicontrollers;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
-import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregicadditions.Gregicality;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
@@ -15,6 +13,7 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMap;
+import gregtech.api.recipes.RecipeMaps;
 import gregtech.common.items.MetaItems;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,9 +32,10 @@ import tj.builder.WidgetTabBuilder;
 import tj.capability.OverclockManager;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.AdvancedDisplayWidget;
-import tj.gui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.AdvancedDisplayWidget;
+import tj.mui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
@@ -47,7 +47,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 
 public abstract class TJRecipeMapMultiblockController extends TJMultiblockControllerBase implements IRecipeHandler {
 
@@ -62,7 +62,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
 
     public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, boolean hasMaintenance, boolean hasDistinct) {
         super(metaTileEntityId, hasMaintenance, hasDistinct);
-        this.recipeMap = recipeMap;
+        this.recipeMap = recipeMap != null ? recipeMap : RecipeMaps.FURNACE_RECIPES;
         this.recipeLogic.setActiveConsumer(active -> this.activeDate = active ? Instant.now() : null);
         this.recipeLogic.setProblemConsumer(problem -> this.activeDate = null);
         this.recipeLogic.setWorkingConsumer(working -> {
@@ -109,7 +109,6 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
 
     @Override
     public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        overclockManager.setChanceMultiplier(this.getChanceMultiplier());
         overclockManager.setEUt(overclockManager.getEUt() * this.getEUtMultiplier() / 100);
         overclockManager.setDuration(overclockManager.getDuration() * this.getDurationMultiplier() / 100);
         overclockManager.setParallel(this.getParallel() * this.getTierDifference(overclockManager.getEUt()));
@@ -119,12 +118,12 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         super.addTabs(tabBuilder, player);
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
-            debugTab.add(new ToggleButtonWidget(175, 133, 18, 18, RESET_BUTTON, () -> false, b -> this.recipeLogic.getRecipeLRUCache().clear())
-                    .setTooltipText("tj.multiblock.parallel.recipe.clear"));
-            debugTab.add(new ToggleButtonWidget(175, 151, 18, 18, ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
-                    .setTooltipText("machine.universal.toggle.item_voiding"));
-            debugTab.add(new ToggleButtonWidget(175, 169, 18, 18, FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
-                    .setTooltipText("machine.universal.toggle.fluid_voiding"));
+            debugTab.add(new TJToggleButtonWidget(175, 133, 18, 18, TOGGLE_RESET_BUTTON, () -> false, b -> this.recipeLogic.getRecipeLRUCache().clear())
+                    .setTitleHoverTooltipText("tj.multiblock.parallel.recipe.clear.disabled"));
+            debugTab.add(new TJToggleButtonWidget(175, 151, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
+            debugTab.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.fluid_voiding.disabled", "machine.universal.toggle.fluid_voiding.enabled"));
             debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
                     .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addDebugDisplayText, 0xFFFFFF)
                             .setMaxWidthLimit(180))
@@ -136,8 +135,8 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
         if (!this.hasDistinct()) return;
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.DISTINCT_BUTTON, this.recipeLogic::isDistinct, this.recipeLogic::setDistinct)
-                .setTooltipText("machine.universal.toggle.distinct.mode"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.recipeLogic::isDistinct, this.recipeLogic::setDistinct)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.distinct.mode.disabled", "machine.universal.toggle.distinct.mode.enabled"));
     }
 
     @Override
@@ -246,7 +245,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     }
 
     public int getTierDifference(long recipeEUt) {
-        return this.getTier() - GAUtility.getTierByVoltage(recipeEUt);
+        return this.getTier() - TJUtility.getTierFromVoltage(recipeEUt) + 1;
     }
 
     @Override

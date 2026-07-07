@@ -3,7 +3,7 @@ package tj.machines.singleblock;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.render.SimpleSidedCubeRenderer;
 
-import static tj.gui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.*;
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.api.render.Textures.*;
 

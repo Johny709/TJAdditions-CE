@@ -1,0 +1,11 @@
+{
+  "variants": {
+    "omnidirectional=true": {
+      "model": "tj:me.super_ultimate_interface"
+    },
+    "omnidirectional=false": {
+      "model": "tj:me.super_ultimate_interface_oriented",
+      "x": 90
+    }
+  }
+}

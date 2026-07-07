@@ -14,9 +14,9 @@ import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityIt
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.gui.TJGuiTextures;
-import tj.gui.widgets.impl.SlotScrollableWidgetGroup;
-import tj.gui.widgets.TJLabelWidget;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
+import tj.mui.widgets.impl.TJLabelWidget;
 
 public class MetaTileEntityGAItemBus extends MetaTileEntityItemBus {
 

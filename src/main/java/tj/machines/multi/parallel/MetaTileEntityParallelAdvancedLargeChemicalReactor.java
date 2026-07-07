@@ -10,7 +10,6 @@ import gregtech.api.capability.IEnergyContainer;
 import tj.TJConfig;
 import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.capability.OverclockManager;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.client.ClientHandler;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
@@ -45,9 +44,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
-import static tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate;
-import static tj.machines.multi.parallel.MetaTileEntityParallelLargeChemicalReactor.heatingCoilPredicate2;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.motorPredicate;
 import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.pumpPredicate;
@@ -57,8 +55,7 @@ import static gregtech.api.unification.material.Materials.Steel;
 
 public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends ParallelRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_ITEMS, MultiblockAbility.EXPORT_ITEMS,
-            MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS, MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private final Set<BlockPos> activeStates = new HashSet<>();
 
     public MetaTileEntityParallelAdvancedLargeChemicalReactor(ResourceLocation metaTileEntityId) {
@@ -93,7 +90,6 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
 
     @Override
     public void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
-        super.postOverclock(overclockManager, recipe);
         overclockManager.setEUt(overclockManager.getEUt() * (100 - this.energyBonus) / 100);
     }
 
@@ -125,11 +121,11 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
 
         return factoryPattern.aisle(controller)
                 .where('S', this.selfPredicate())
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('C', statePredicate(this.getCasingState()))
                 .where('P', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.PTFE_PIPE)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Steel).getDefaultState()))
-                .where('c', heatingCoilPredicate().or(heatingCoilPredicate2()))
+                .where('c', coilPredicate())
                 .where('p', pumpPredicate())
                 .where('m', motorPredicate())
                 .where('M', statePredicate(this.getCasingState()).or(abilityPartPredicate(REDSTONE_CONTROLLER)))
@@ -176,8 +172,8 @@ public class MetaTileEntityParallelAdvancedLargeChemicalReactor extends Parallel
                 this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
         } else this.maxVoltage = 8L << tier * 2;
         this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
-        this.energyBonus = context.getOrDefault("coilLevel", 0) * 5;
-        this.activeStates.addAll(context.getOrDefault("activeStates", new HashSet<>()));
+        this.energyBonus = context.getOrDefault("coilIndex", 0) * 5;
+        this.activeStates.addAll(context.getOrDefault("coilPos", new HashSet<>()));
     }
 
     @Override

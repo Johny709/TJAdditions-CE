@@ -8,14 +8,16 @@ import gregtech.api.gui.widgets.AdvancedTextWidget;
 import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.common.items.MetaItems;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fluids.FluidStack;
 import tj.TJValues;
 import tj.capability.IItemFluidHandlerInfo;
-import tj.gui.widgets.AdvancedDisplayWidget;
-import tj.mixin.gregtech.IAbstractRecipeLogicMixin;
+import tj.capability.IParallelItemFluidHandlerInfo;
+import tj.mui.widgets.impl.AdvancedDisplayWidget;
+import tj.mixin.gregtech.IMixinAbstractRecipeLogic;
 import tj.util.TJFluidUtils;
 import tj.util.TJUtility;
 import tj.util.TextUtils;
@@ -394,18 +396,70 @@ public final class GUIDisplayBuilder {
             if (priority != 0)
                 this.addTranslationLine(priority, "machine.universal.consumption");
             else this.addTranslationLine("machine.universal.consumption");
-            if (handlerInfo.getItemInputs() != null)
-                for (ItemStack stack : handlerInfo.getItemInputs()) {
-                    if (priority != 0)
-                        this.addItemStack(stack, priority);
-                    else this.addItemStack(stack);
-                }
-            if (handlerInfo.getFluidInputs() != null)
+            if (handlerInfo.getFluidInputs() != null) {
                 for (FluidStack stack : handlerInfo.getFluidInputs()) {
                     if (priority != 0)
                         this.addFluidStack(stack, priority);
                     else this.addFluidStack(stack);
                 }
+            }
+            if (handlerInfo.getItemInputs() != null) {
+                for (ItemStack stack : handlerInfo.getItemInputs()) {
+                    if (priority != 0)
+                        this.addItemStack(stack, priority);
+                    else this.addItemStack(stack);
+                }
+            }
+        }
+        return this;
+    }
+
+    public GUIDisplayBuilder addRecipeParallelInputLine(IParallelItemFluidHandlerInfo handlerInfo, int priority) {
+        if ((handlerInfo.getAllItemInputs() != null && !handlerInfo.getAllItemInputs().isEmpty()) || (handlerInfo.getAllFluidInputs() != null && !handlerInfo.getAllFluidInputs().isEmpty())) {
+            boolean areInputsEmpty = true;
+            if (handlerInfo.getAllFluidInputs() != null) {
+                for (Int2ObjectMap.Entry<List<FluidStack>> entry : handlerInfo.getAllFluidInputs().int2ObjectEntrySet()) {
+                    if (entry.getValue() == null) continue;
+                    if (!entry.getValue().isEmpty()) {
+                        areInputsEmpty = false;
+                        break;
+                    }
+                }
+            }
+            if (handlerInfo.getAllItemInputs() != null) {
+                for (Int2ObjectMap.Entry<List<ItemStack>> entry : handlerInfo.getAllItemInputs().int2ObjectEntrySet()) {
+                    if (entry.getValue() == null) continue;
+                    if (!entry.getValue().isEmpty()) {
+                        areInputsEmpty = false;
+                        break;
+                    }
+                }
+            }
+            if (!areInputsEmpty) {
+                if (priority != 0)
+                    this.addTranslationLine(priority, "machine.universal.consumption");
+                else this.addTranslationLine("machine.universal.consumption");
+                if (handlerInfo.getAllFluidInputs() != null) {
+                    for (Int2ObjectMap.Entry<List<FluidStack>> entry : handlerInfo.getAllFluidInputs().int2ObjectEntrySet()) {
+                        if (entry.getValue() == null) continue;
+                        for (FluidStack stack : entry.getValue()) {
+                            if (priority != 0)
+                                this.addFluidStack(stack, priority);
+                            else this.addFluidStack(stack);
+                        }
+                    }
+                }
+                if (handlerInfo.getAllItemInputs() != null) {
+                    for (Int2ObjectMap.Entry<List<ItemStack>> entry : handlerInfo.getAllItemInputs().int2ObjectEntrySet()) {
+                        if (entry.getValue() == null) continue;
+                        for (ItemStack stack : entry.getValue()) {
+                            if (priority != 0)
+                                this.addItemStack(stack, priority);
+                            else this.addItemStack(stack);
+                        }
+                    }
+                }
+            }
         }
         return this;
     }
@@ -419,18 +473,70 @@ public final class GUIDisplayBuilder {
             if (priority != 0)
                 this.addTranslationLine(priority, "machine.universal.producing");
             else this.addTranslationLine("machine.universal.producing");
-            if (handlerInfo.getItemOutputs() != null)
-                for (ItemStack stack : handlerInfo.getItemOutputs()) {
-                    if (priority != 0)
-                        this.addItemStack(stack, priority);
-                    else this.addItemStack(stack);
-                }
-            if (handlerInfo.getFluidOutputs() != null)
+            if (handlerInfo.getFluidOutputs() != null) {
                 for (FluidStack stack : handlerInfo.getFluidOutputs()) {
                     if (priority != 0)
                         this.addFluidStack(stack, priority);
                     else this.addFluidStack(stack);
                 }
+            }
+            if (handlerInfo.getItemOutputs() != null) {
+                for (ItemStack stack : handlerInfo.getItemOutputs()) {
+                    if (priority != 0)
+                        this.addItemStack(stack, priority);
+                    else this.addItemStack(stack);
+                }
+            }
+        }
+        return this;
+    }
+
+    public GUIDisplayBuilder addRecipeParallelOutputLine(IParallelItemFluidHandlerInfo handlerInfo, int priority) {
+        if ((handlerInfo.getAllItemOutputs() != null && !handlerInfo.getAllItemOutputs().isEmpty()) || (handlerInfo.getAllFluidOutputs() != null && !handlerInfo.getAllFluidOutputs().isEmpty())) {
+            boolean areOutputsEmpty = true;
+            if (handlerInfo.getAllFluidOutputs() != null) {
+                for (Int2ObjectMap.Entry<List<FluidStack>> entry : handlerInfo.getAllFluidOutputs().int2ObjectEntrySet()) {
+                    if (entry.getValue() == null) continue;
+                    if (!entry.getValue().isEmpty()) {
+                        areOutputsEmpty = false;
+                        break;
+                    }
+                }
+            }
+            if (handlerInfo.getAllItemOutputs() != null) {
+                for (Int2ObjectMap.Entry<List<ItemStack>> entry : handlerInfo.getAllItemOutputs().int2ObjectEntrySet()) {
+                    if (entry.getValue() == null) continue;
+                    if (!entry.getValue().isEmpty()) {
+                        areOutputsEmpty = false;
+                        break;
+                    }
+                }
+            }
+            if (!areOutputsEmpty) {
+                if (priority != 0)
+                    this.addTranslationLine(priority, "machine.universal.producing");
+                else this.addTranslationLine("machine.universal.producing");
+                if (handlerInfo.getAllFluidOutputs() != null) {
+                    for (Int2ObjectMap.Entry<List<FluidStack>> entry : handlerInfo.getAllFluidOutputs().int2ObjectEntrySet()) {
+                        if (entry.getValue() == null) continue;
+                        for (FluidStack stack : entry.getValue()) {
+                            if (priority != 0)
+                                this.addFluidStack(stack, priority);
+                            else this.addFluidStack(stack);
+                        }
+                    }
+                }
+                if (handlerInfo.getAllItemOutputs() != null) {
+                    for (Int2ObjectMap.Entry<List<ItemStack>> entry : handlerInfo.getAllItemOutputs().int2ObjectEntrySet()) {
+                        if (entry.getValue() == null) continue;
+                        for (ItemStack stack : entry.getValue()) {
+                            if (priority != 0)
+                                this.addItemStack(stack, priority);
+                            else this.addItemStack(stack);
+                        }
+                    }
+                }
+            }
         }
         return this;
     }
@@ -445,18 +551,20 @@ public final class GUIDisplayBuilder {
         if (priority != 0)
             this.addTranslationLine(priority, "machine.universal.producing");
         else this.addTranslationLine("machine.universal.producing");
-        if (((IAbstractRecipeLogicMixin) recipeLogic).getItemOutputs() != null)
-            for (ItemStack stack : ((IAbstractRecipeLogicMixin) recipeLogic).getItemOutputs()) {
-                if (priority != 0)
-                    this.addItemStack(stack, priority);
-                else this.addItemStack(stack);
-            }
-        if (((IAbstractRecipeLogicMixin) recipeLogic).getFluidOutputs() != null)
-            for (FluidStack stack : ((IAbstractRecipeLogicMixin) recipeLogic).getFluidOutputs()) {
+        if (((IMixinAbstractRecipeLogic) recipeLogic).getFluidOutputs() != null) {
+            for (FluidStack stack : ((IMixinAbstractRecipeLogic) recipeLogic).getFluidOutputs()) {
                 if (priority != 0)
                     this.addFluidStack(stack, priority);
                 else this.addFluidStack(stack);
             }
+        }
+        if (((IMixinAbstractRecipeLogic) recipeLogic).getItemOutputs() != null) {
+            for (ItemStack stack : ((IMixinAbstractRecipeLogic) recipeLogic).getItemOutputs()) {
+                if (priority != 0)
+                    this.addItemStack(stack, priority);
+                else this.addItemStack(stack);
+            }
+        }
         return this;
     }
 
@@ -518,79 +626,55 @@ public final class GUIDisplayBuilder {
             final ITextComponent wrenchComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.wrench")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
-                this.addTextComponentWithHover(wrenchComponent, priority, builder -> {
-                    builder.addTranslationLine("gtadditions.multiblock.universal.problem.wrench.tooltip")
-                            .addItemStack(MetaItems.WRENCH.getStackForm());
-                });
-            } else this.addTextComponentWithHover(wrenchComponent, builder -> {
-                builder.addTranslationLine("gtadditions.multiblock.universal.problem.wrench.tooltip")
-                        .addItemStack(MetaItems.WRENCH.getStackForm());
-            });
+                this.addTextComponentWithHover(wrenchComponent, priority, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.wrench.tooltip")
+                        .addItemStack(MetaItems.WRENCH.getStackForm()));
+            } else this.addTextComponentWithHover(wrenchComponent, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.wrench.tooltip")
+                    .addItemStack(MetaItems.WRENCH.getStackForm()));
         }
         if (((maintenanceProblems >> 1) & 1) == 0) {
             final ITextComponent screwdriverComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.screwdriver")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
-                this.addTextComponentWithHover(screwdriverComponent, priority, builder -> {
-                    builder.addTranslationLine("gtadditions.multiblock.universal.problem.screwdriver.tooltip")
-                            .addItemStack(MetaItems.SCREWDRIVER.getStackForm());
-                });
-            } else this.addTextComponentWithHover(screwdriverComponent, builder -> {
-                builder.addTranslationLine("gtadditions.multiblock.universal.problem.screwdriver.tooltip")
-                        .addItemStack(MetaItems.SCREWDRIVER.getStackForm());
-            });
+                this.addTextComponentWithHover(screwdriverComponent, priority, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.screwdriver.tooltip")
+                        .addItemStack(MetaItems.SCREWDRIVER.getStackForm()));
+            } else this.addTextComponentWithHover(screwdriverComponent, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.screwdriver.tooltip")
+                    .addItemStack(MetaItems.SCREWDRIVER.getStackForm()));
         }
         if (((maintenanceProblems >> 2) & 1) == 0) {
             final ITextComponent softHammerComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.softhammer")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
-                this.addTextComponentWithHover(softHammerComponent, priority, builder -> {
-                    builder.addTranslationLine("gtadditions.multiblock.universal.problem.softhammer.tooltip")
-                            .addItemStack(MetaItems.SOFT_HAMMER.getStackForm());
-                });
-            } else this.addTextComponentWithHover(softHammerComponent, builder -> {
-                builder.addTranslationLine("gtadditions.multiblock.universal.problem.softhammer.tooltip")
-                        .addItemStack(MetaItems.SOFT_HAMMER.getStackForm());
-            });
+                this.addTextComponentWithHover(softHammerComponent, priority, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.softhammer.tooltip")
+                        .addItemStack(MetaItems.SOFT_HAMMER.getStackForm()));
+            } else this.addTextComponentWithHover(softHammerComponent, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.softhammer.tooltip")
+                    .addItemStack(MetaItems.SOFT_HAMMER.getStackForm()));
         }
         if (((maintenanceProblems >> 3) & 1) == 0) {
             final ITextComponent hardHammerComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.hardhammer")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
-                this.addTextComponentWithHover(hardHammerComponent, priority, builder -> {
-                    builder.addTranslationLine("gtadditions.multiblock.universal.problem.hardhammer.tooltip")
-                            .addItemStack(MetaItems.HARD_HAMMER.getStackForm());
-                });
-            } else this.addTextComponentWithHover(hardHammerComponent, builder -> {
-                builder.addTranslationLine("gtadditions.multiblock.universal.problem.hardhammer.tooltip")
-                        .addItemStack(MetaItems.HARD_HAMMER.getStackForm());
-            });
+                this.addTextComponentWithHover(hardHammerComponent, priority, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.hardhammer.tooltip")
+                        .addItemStack(MetaItems.HARD_HAMMER.getStackForm()));
+            } else this.addTextComponentWithHover(hardHammerComponent, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.hardhammer.tooltip")
+                    .addItemStack(MetaItems.HARD_HAMMER.getStackForm()));
         }
         if (((maintenanceProblems >> 4) & 1) == 0) {
             final ITextComponent wireCutterComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.wirecutter")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
-                this.addTextComponentWithHover(wireCutterComponent, priority, builder -> {
-                    builder.addTranslationLine("gtadditions.multiblock.universal.problem.wirecutter.tooltip")
-                            .addItemStack(MetaItems.WIRE_CUTTER.getStackForm());
-                });
-            } else this.addTextComponentWithHover(wireCutterComponent, builder -> {
-                builder.addTranslationLine("gtadditions.multiblock.universal.problem.wirecutter.tooltip")
-                        .addItemStack(MetaItems.WIRE_CUTTER.getStackForm());
-            });
+                this.addTextComponentWithHover(wireCutterComponent, priority, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.wirecutter.tooltip")
+                        .addItemStack(MetaItems.WIRE_CUTTER.getStackForm()));
+            } else this.addTextComponentWithHover(wireCutterComponent, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.wirecutter.tooltip")
+                    .addItemStack(MetaItems.WIRE_CUTTER.getStackForm()));
         }
         if (((maintenanceProblems >> 5) & 1) == 0) {
             final ITextComponent crowbarComponent = new TextComponentTranslation("gtadditions.multiblock.universal.problem.crowbar")
                     .setStyle(new Style().setColor(TextFormatting.RED));
             if (priority != 0) {
-                this.addTextComponentWithHover(crowbarComponent, priority, builder -> {
-                    builder.addTranslationLine("gtadditions.multiblock.universal.problem.crowbar.tooltip")
-                            .addItemStack(MetaItems.CROWBAR.getStackForm());
-                });
-            } else this.addTextComponentWithHover(crowbarComponent, builder -> {
-                builder.addTranslationLine("gtadditions.multiblock.universal.problem.crowbar.tooltip")
-                        .addItemStack(MetaItems.CROWBAR.getStackForm());
-            });
+                this.addTextComponentWithHover(crowbarComponent, priority, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.crowbar.tooltip")
+                        .addItemStack(MetaItems.CROWBAR.getStackForm()));
+            } else this.addTextComponentWithHover(crowbarComponent, builder -> builder.addTranslationLine("gtadditions.multiblock.universal.problem.crowbar.tooltip")
+                    .addItemStack(MetaItems.CROWBAR.getStackForm()));
         }
         return this;
     }

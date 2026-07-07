@@ -28,10 +28,12 @@ import tj.capability.OverclockManager;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
+
 
 public class MetaTileEntityPrimitiveAlloy extends TJRecipeMapMultiblockController {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = new MultiblockAbility[]{MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_ITEMS, MultiblockAbility.IMPORT_ITEMS};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_ITEMS, IMPORT_ITEMS};
 
     public MetaTileEntityPrimitiveAlloy(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, TJRecipeMaps.PRIMITIVE_ALLOY_RECIPES, false, true);
@@ -62,7 +64,7 @@ public class MetaTileEntityPrimitiveAlloy extends TJRecipeMapMultiblockControlle
                 .aisle("XXX", "X#X", "B#B")
                 .aisle("XXX", "XSX", "BBB")
                 .where('S', selfPredicate())
-                .where('X', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('B', statePredicate(MetaBlocks.MACHINE_CASING.getState(BlockMachineCasing.MachineCasingType.BRONZE_HULL)))
                 .where('#', isAirPredicate())
                 .build();

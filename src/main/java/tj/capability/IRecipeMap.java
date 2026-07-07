@@ -3,12 +3,11 @@ package tj.capability;
 import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.recipes.MatchingMode;
 import gregtech.api.recipes.Recipe;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.gui.widgets.impl.RecipeOutputDisplayWidget;
+import tj.mui.widgets.impl.RecipeOutputDisplayWidget;
 
 import java.util.List;
 import java.util.function.DoubleSupplier;

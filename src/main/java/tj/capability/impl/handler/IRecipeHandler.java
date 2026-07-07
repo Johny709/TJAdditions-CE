@@ -16,4 +16,8 @@ public interface IRecipeHandler extends IMachineHandler {
     default void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {}
 
     default void postOverclock(OverclockManager<?> overclockManager, Recipe recipe) {}
+
+    default int getChanceMultiplier() {
+        return 100;
+    }
 }

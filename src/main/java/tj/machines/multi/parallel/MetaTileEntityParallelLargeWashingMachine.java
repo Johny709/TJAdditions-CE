@@ -81,7 +81,7 @@ public class MetaTileEntityParallelLargeWashingMachine extends ParallelRecipeMap
                 .where('S', this.selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
                 .where('C', statePredicate(this.getCasingState()))
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
                 .where('G', statePredicate(GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS)))
                 .where('m', LargeSimpleRecipeMapMultiblockController.motorPredicate())

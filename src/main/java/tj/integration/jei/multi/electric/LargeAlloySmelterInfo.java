@@ -6,6 +6,8 @@ import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.multiblock.BlockPattern;
+import gregtech.common.blocks.BlockWireCoil;
+import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.client.resources.I18n;
@@ -60,6 +62,7 @@ public class LargeAlloySmelterInfo extends TJMultiblockInfoPage {
         super.generateBlockTooltips();
         this.addBlockTooltip(METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.ZIRCONIUM_CARBIDE), new TextComponentTranslation("gregtech.multiblock.preview.limit", 15)
                 .setStyle(new Style().setColor(TextFormatting.RED)));
+        Arrays.stream(BlockWireCoil.CoilType.values()).forEach(coilType -> this.addBlockTooltip(MetaBlocks.WIRE_COIL.getItemVariant(coilType), COMPONENT_BLOCK_TOOLTIP));
         Arrays.stream(GAHeatingCoil.CoilType.values()).forEach(coilType -> this.addBlockTooltip(GAMetaBlocks.HEATING_COIL.getItemVariant(coilType), COMPONENT_BLOCK_TOOLTIP));
     }
 

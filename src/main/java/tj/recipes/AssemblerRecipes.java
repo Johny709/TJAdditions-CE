@@ -1,10 +1,10 @@
 package tj.recipes;
 
+import appeng.core.Api;
 import gregicadditions.GAEnums;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraftforge.fluids.FluidRegistry;
 import tj.blocks.*;
 import gregicadditions.GAValues;
@@ -21,12 +21,14 @@ import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import tj.util.TJItemUtils;
 
 import java.util.Objects;
 
 import static gregtech.api.unification.material.MarkerMaterials.Tier.*;
 import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
 import static tj.TJValues.CIRCUIT_TIERS;
+import static tj.blocks.block.TJBlocks.*;
 import static tj.items.TJMetaItems.*;
 import static tj.items.TJMetaItems.FLUID_REGULATORS;
 import static tj.items.TJMetaItems.PUMPS;
@@ -75,14 +77,14 @@ public class AssemblerRecipes {
                 .inputs(MetaItems.HIGH_POWER_INTEGRATED_CIRCUIT.getStackForm(2))
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Ultimate)
                 .input(OrePrefix.plate, TungstenSteel, 8)
-                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(EnergyPortCasings.AbilityType.ENERGY_PORT_LUV))
+                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(BlockEnergyPortCasings.AbilityType.ENERGY_PORT_LUV))
                 .EUt(GAValues.VA[6]).duration(200)
                 .buildAndRegister();
         ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(RecipeInit.getEnergyHatch(9, false), UHPIC.getStackForm(8))
                 .input(OrePrefix.circuit, Infinite)
                 .input(OrePrefix.plateDense, Seaborgium, 7)
-                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(AdvEnergyPortCasings.AbilityType.ENERGY_PORT_UHV))
+                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(BlockAdvEnergyPortCasings.AbilityType.ENERGY_PORT_UHV))
                 .EUt(GAValues.VA[9]).duration(200)
                 .buildAndRegister();
         ASSEMBLER_RECIPES.recipeBuilder()
@@ -90,14 +92,14 @@ public class AssemblerRecipes {
                 .inputs(MetaItems.HIGH_POWER_INTEGRATED_CIRCUIT.getStackForm(2))
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Superconductor)
                 .input(OrePrefix.plate, Rutherfordium, 8)
-                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(EnergyPortCasings.AbilityType.ENERGY_PORT_ZPM))
+                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(BlockEnergyPortCasings.AbilityType.ENERGY_PORT_ZPM))
                 .EUt(GAValues.VA[7]).duration(200)
                 .buildAndRegister();
         ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(RecipeInit.getEnergyHatch(10, false), UHPIC.getStackForm(8))
                 .input(OrePrefix.circuit, UEV)
                 .input(OrePrefix.plateDense, Bohrium, 7)
-                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(AdvEnergyPortCasings.AbilityType.ENERGY_PORT_UEV))
+                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(BlockAdvEnergyPortCasings.AbilityType.ENERGY_PORT_UEV))
                 .EUt(GAValues.VA[10]).duration(200)
                 .buildAndRegister();
         ASSEMBLER_RECIPES.recipeBuilder()
@@ -105,14 +107,14 @@ public class AssemblerRecipes {
                 .inputs(GAMetaItems.UHPIC.getStackForm(2))
                 .input(OrePrefix.circuit, MarkerMaterials.Tier.Infinite)
                 .input(OrePrefix.plate, Dubnium, 8)
-                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(EnergyPortCasings.AbilityType.ENERGY_PORT_UV))
+                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(BlockEnergyPortCasings.AbilityType.ENERGY_PORT_UV))
                 .EUt(GAValues.VA[8]).duration(200)
                 .buildAndRegister();
         ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(RecipeInit.getEnergyHatch(11, false), UHPIC.getStackForm(8))
                 .input(OrePrefix.circuit, UIV)
                 .input(OrePrefix.plateDense, Adamantium, 7)
-                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(AdvEnergyPortCasings.AbilityType.ENERGY_PORT_UIV))
+                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(BlockAdvEnergyPortCasings.AbilityType.ENERGY_PORT_UIV))
                 .EUt(GAValues.VA[11]).duration(200)
                 .buildAndRegister();
         ASSEMBLER_RECIPES.recipeBuilder()
@@ -120,14 +122,14 @@ public class AssemblerRecipes {
                 .inputs(GAMetaItems.UHPIC.getStackForm(4))
                 .input(OrePrefix.circuit, UEV)
                 .input(OrePrefix.plate, Seaborgium, 8)
-                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(EnergyPortCasings.AbilityType.ENERGY_PORT_UHV))
+                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(BlockEnergyPortCasings.AbilityType.ENERGY_PORT_UHV))
                 .EUt(GAValues.VA[9]).duration(200)
                 .buildAndRegister();
         ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(RecipeInit.getEnergyHatch(12, false), UHPIC.getStackForm(8))
                 .input(OrePrefix.circuit, UMV)
                 .input(OrePrefix.plateDense, Vibranium, 7)
-                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(AdvEnergyPortCasings.AbilityType.ENERGY_PORT_UMV))
+                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(BlockAdvEnergyPortCasings.AbilityType.ENERGY_PORT_UMV))
                 .EUt(GAValues.VA[12]).duration(200)
                 .buildAndRegister();
         ASSEMBLER_RECIPES.recipeBuilder()
@@ -135,14 +137,14 @@ public class AssemblerRecipes {
                 .inputs(UHPIC.getStackForm(8))
                 .input(OrePrefix.circuit, UIV)
                 .input(OrePrefix.plate, Bohrium, 8)
-                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(EnergyPortCasings.AbilityType.ENERGY_PORT_UEV))
+                .outputs(TJMetaBlocks.ENERGY_PORT_CASING.getItemVariant(BlockEnergyPortCasings.AbilityType.ENERGY_PORT_UEV))
                 .EUt(GAValues.VA[10]).duration(200)
                 .buildAndRegister();
         ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(RecipeInit.getEnergyHatch(13, false), UHPIC.getStackForm(8))
                 .input(OrePrefix.circuit, UXV)
                 .input(OrePrefix.plateDense, HeavyQuarkDegenerateMatter, 8)
-                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(AdvEnergyPortCasings.AbilityType.ENERGY_PORT_UVX))
+                .outputs(TJMetaBlocks.ADV_ENERGY_PORT_CASING.getItemVariant(BlockAdvEnergyPortCasings.AbilityType.ENERGY_PORT_UVX))
                 .EUt(GAValues.VA[13]).duration(200)
                 .buildAndRegister();
         ASSEMBLER_RECIPES.recipeBuilder()
@@ -187,6 +189,56 @@ public class AssemblerRecipes {
                 .input(OrePrefix.plate, MATERIAL_REGISTRY.getObject("chaosalloy"), 6)
                 .input(OrePrefix.frameGt, MATERIAL_REGISTRY.getObject("chaos"))
                 .outputs(TJMetaBlocks.SOLID_CASING.getItemVariant(BlockSolidCasings.SolidCasingType.CHAOS_ALLOY, 3))
+                .EUt(16).duration(50)
+                .buildAndRegister();
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(1440))
+                .inputs(Api.INSTANCE.definitions().blocks().iface().maybeStack(2).orElse(ItemStack.EMPTY), ELECTRIC_PISTON_EV.getStackForm(4), Api.INSTANCE.definitions().blocks().quartzVibrantGlass().maybeStack(8).orElse(ItemStack.EMPTY),
+                        Api.INSTANCE.definitions().materials().annihilationCore().maybeStack(10).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().formationCore().maybeStack(10).orElse(ItemStack.EMPTY))
+                .input(GAEnums.GAOrePrefix.plateDouble, RedSteel, 8)
+                .input(OrePrefix.screw, TungstenSteel, 16)
+                .input(OrePrefix.circuit, Elite, 2)
+                .outputs(SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))
+                .EUt(GAValues.VA[4]).duration(1000)
+                .buildAndRegister();
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .circuitMeta(3)
+                .fluidInputs(SolderingAlloy.getFluid(1440))
+                .inputs(Api.INSTANCE.definitions().blocks().fluidIface().maybeStack(2).orElse(ItemStack.EMPTY), ELECTRIC_PUMP_EV.getStackForm(4), Api.INSTANCE.definitions().blocks().quartzVibrantGlass().maybeStack(8).orElse(ItemStack.EMPTY),
+                        Api.INSTANCE.definitions().materials().annihilationCore().maybeStack(10).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().formationCore().maybeStack(10).orElse(ItemStack.EMPTY))
+                .input(GAEnums.GAOrePrefix.plateDouble, RedSteel, 8)
+                .input(OrePrefix.screw, TungstenCarbide, 16)
+                .input(OrePrefix.circuit, Elite, 2)
+                .outputs(SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))
+                .EUt(GAValues.VA[4]).duration(1000)
+                .buildAndRegister();
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(1440))
+                .inputs(Api.INSTANCE.definitions().blocks().iface().maybeStack(4).orElse(ItemStack.EMPTY), ELECTRIC_PISTON_LUV.getStackForm(4), Api.INSTANCE.definitions().blocks().quartzVibrantGlass().maybeStack(16).orElse(ItemStack.EMPTY),
+                        SENSOR_LUV.getStackForm(1), EMITTER_LUV.getStackForm(1))
+                .input(GAEnums.GAOrePrefix.plateDouble, RhodiumPlatedPalladium, 8)
+                .input(OrePrefix.screw, NaquadahEnriched, 16)
+                .input(OrePrefix.circuit, Ultimate, 2)
+                .outputs(STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))
+                .EUt(GAValues.VA[6]).duration(1000)
+                .buildAndRegister();
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .circuitMeta(3)
+                .fluidInputs(SolderingAlloy.getFluid(1440))
+                .inputs(Api.INSTANCE.definitions().blocks().fluidIface().maybeStack(4).orElse(ItemStack.EMPTY), ELECTRIC_PUMP_LUV.getStackForm(4), Api.INSTANCE.definitions().blocks().quartzVibrantGlass().maybeStack(16).orElse(ItemStack.EMPTY),
+                        SENSOR_LUV.getStackForm(1), EMITTER_LUV.getStackForm(1))
+                .input(GAEnums.GAOrePrefix.plateDouble, RhodiumPlatedPalladium, 8)
+                .input(OrePrefix.screw, NaquadahAlloy, 16)
+                .input(OrePrefix.circuit, Ultimate, 2)
+                .outputs(STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))
+                .EUt(GAValues.VA[6]).duration(1000)
+                .buildAndRegister();
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .input(GAEnums.GAOrePrefix.plateDouble, Molybdenum)
+                .input(OrePrefix.plate, Tantalum, 4)
+                .input(OrePrefix.rotor, Titanium, 2)
+                .input(OrePrefix.stick, Molybdenum)
+                .outputs(TJMetaBlocks.ACTIVE_ABILITY_BLOCKS.getItemVariant(BlockActiveAbility.AbilityType.HEAT_VENT, 2))
                 .EUt(16).duration(50)
                 .buildAndRegister();
         for (int i = 0; i < 15; i++) {
@@ -307,7 +359,7 @@ public class AssemblerRecipes {
                     .input(Items.DIAMOND_HOE)
                     .input(Items.SHEARS)
                     .inputs(ROBOT_ARMS[tier].getStackForm(tier >= GTValues.ZPM ? 4 : tier >= GTValues.EV ? 2 : 1))
-                    .inputs(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 42))
+                    .inputs(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 42))
                     .inputs(tier == 14 ? HULL[9].getStackForm() : tier < 9 ? HULL[tier].getStackForm() : GA_HULLS[tier - 9].getStackForm())
                     .outputs(FARMING_STATION[i].getStackForm())
                     .EUt(GAValues.VA[tier]).duration(400)
@@ -330,7 +382,7 @@ public class AssemblerRecipes {
         for (int i = 0; i < 2; i++) {
             ASSEMBLER_RECIPES.recipeBuilder()
                     .inputs(super_chest[3].getStackForm(64))
-                    .inputs(new ItemStack(Item.getByNameOrId("nae2:material"), 64, 4))
+                    .inputs(TJItemUtils.getItemStackFromName("nae2:material", 64, 4))
                     .inputs(chest[i].getStackForm(27))
                     .input(OrePrefix.circuit, UIV, 4)
                     .inputs(CONVEYOR_MODULE_UEV.getStackForm(4))
@@ -344,21 +396,21 @@ public class AssemblerRecipes {
         for (int i = 0; i < 2; i++) {
             ASSEMBLER_RECIPES.recipeBuilder()
                     .fluidInputs(i == 0 ? Tin.getFluid(144) : SolderingAlloy.getFluid(72))
-                    .inputs(new ItemStack(Item.getByNameOrId("trashcans:item_trash_can")))
+                    .inputs(TJItemUtils.getItemStackFromName("trashcans:item_trash_can"))
                     .input(OrePrefix.plate, Iron)
                     .outputs(VOID_ITEM_COVER.getStackForm())
                     .EUt(16).duration(400)
                     .buildAndRegister();
             ASSEMBLER_RECIPES.recipeBuilder()
                     .fluidInputs(i == 0 ? Tin.getFluid(144) : SolderingAlloy.getFluid(72))
-                    .inputs(new ItemStack(Item.getByNameOrId("trashcans:liquid_trash_can")))
+                    .inputs(TJItemUtils.getItemStackFromName("trashcans:liquid_trash_can"))
                     .input(OrePrefix.plate, Iron)
                     .outputs(VOID_FLUID_COVER.getStackForm())
                     .EUt(16).duration(400)
                     .buildAndRegister();
             ASSEMBLER_RECIPES.recipeBuilder()
                     .fluidInputs(i == 0 ? Tin.getFluid(144) : SolderingAlloy.getFluid(72))
-                    .inputs(new ItemStack(Item.getByNameOrId("trashcans:energy_trash_can")))
+                    .inputs(TJItemUtils.getItemStackFromName("trashcans:energy_trash_can"))
                     .input(OrePrefix.plate, Iron)
                     .outputs(VOID_ENERGY_COVER.getStackForm())
                     .EUt(16).duration(400)

@@ -8,13 +8,15 @@ import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.util.ResourceLocation;
 import tj.TJRecipeMaps;
 
+import java.util.Optional;
+
 import static tj.machines.TJMetaTileEntities.MEGA_COKE_OVEN;
 import static gregtech.api.recipes.RecipeMaps.ASSEMBLER_RECIPES;
 
 public class LateRecipes {
 
     public static void init() {
-        MetaTileEntity cokeOven = GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(new ResourceLocation("multiblocktweaker", "coke_oven_2"));
+        MetaTileEntity cokeOven = Optional.ofNullable(GregTechAPI.META_TILE_ENTITY_REGISTRY.getObject(new ResourceLocation("multiblocktweaker", "coke_oven_2"))).orElseThrow(() -> new NullPointerException("MTE coke oven not found"));
         ASSEMBLER_RECIPES.recipeBuilder()
                 .inputs(cokeOven.getStackForm(64))
                 .inputs(cokeOven.getStackForm(64))

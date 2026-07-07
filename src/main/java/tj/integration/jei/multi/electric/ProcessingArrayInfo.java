@@ -1,5 +1,8 @@
 package tj.integration.jei.multi.electric;
 
+import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.GAMultiblockCasing;
+import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.machines.GATileEntities;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
@@ -16,6 +19,7 @@ import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.multi.electric.MetaTileEntityProcessingArray;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
@@ -61,6 +65,8 @@ public class ProcessingArrayInfo extends TJMultiblockInfoPage {
         super.generateBlockTooltips();
         this.addBlockTooltip(this.getController().getCasingItem(), new TextComponentTranslation("gregtech.multiblock.preview.limit", 5)
                 .setStyle(new Style().setColor(TextFormatting.RED)));
+        Arrays.stream(GAMultiblockCasing.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.MUTLIBLOCK_CASING.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
+        Arrays.stream(GAMultiblockCasing2.CasingType.values()).forEach(casingType -> this.addBlockTooltip(GAMetaBlocks.MUTLIBLOCK_CASING2.getItemVariant(casingType), COMPONENT_BLOCK_TOOLTIP));
     }
 
     @Override

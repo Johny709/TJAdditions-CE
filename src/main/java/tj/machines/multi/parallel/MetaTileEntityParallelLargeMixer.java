@@ -78,7 +78,7 @@ public class MetaTileEntityParallelLargeMixer extends ParallelRecipeMapMultibloc
                 .setAmountAtLeast('L', 20)
                 .where('S', this.selfPredicate())
                 .where('L', statePredicate(this.getCasingState()))
-                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
                 .where('G', statePredicate(GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.TUNGSTENSTEEL_GEARBOX_CASING)))
                 .where('F', statePredicate(MetaBlocks.FRAMES.get(Staballoy).getDefaultState()))
                 .where('M', motorPredicate())

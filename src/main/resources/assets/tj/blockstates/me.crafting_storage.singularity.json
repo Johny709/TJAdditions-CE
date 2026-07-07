@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "normal": {
+      "model": "tj:me.crafting_storage.singularity"
+    }
+  }
+}

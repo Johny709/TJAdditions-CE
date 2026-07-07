@@ -5,12 +5,10 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
 import gregicadditions.Gregicality;
-import gregicadditions.capabilities.GregicAdditionsCapabilities;
 import gregicadditions.item.components.MotorCasing;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ToggleButtonWidget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
@@ -41,7 +39,8 @@ import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
-import tj.gui.TJGuiTextures;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
 import tj.util.TJUtility;
@@ -54,14 +53,15 @@ import java.util.Queue;
 import java.util.function.UnaryOperator;
 
 import static gregicadditions.GAMaterials.*;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 import static net.minecraft.util.text.TextFormatting.RED;
 import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.DRILLING_MUD;
 
 
 public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase implements IProgressBar {
 
-    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {MultiblockAbility.IMPORT_FLUIDS, MultiblockAbility.EXPORT_FLUIDS,
-            MultiblockAbility.INPUT_ENERGY, GregicAdditionsCapabilities.MAINTENANCE_HATCH};
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private final InfiniteFluidDrillWorkableHandler workableHandler = new InfiniteFluidDrillWorkableHandler(this);
     private long maxVoltage;
     private int tier;
@@ -91,10 +91,10 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
 
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
-        final int fluidInputsCount = abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size();
-        final int fluidOutputsCount = abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size();
+        final int fluidInputsCount = abilities.getOrDefault(IMPORT_FLUIDS, Collections.emptyList()).size();
+        final int fluidOutputsCount = abilities.getOrDefault(EXPORT_FLUIDS, Collections.emptyList()).size();
 
-        return fluidInputsCount >= 1 && fluidOutputsCount >= 1 && abilities.containsKey(MultiblockAbility.INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
+        return fluidInputsCount >= 1 && fluidOutputsCount >= 1 && abilities.containsKey(INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
     }
 
     @Override
@@ -111,8 +111,8 @@ public class MetaTileEntityInfiniteFluidDrill extends TJMultiblockControllerBase
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new ToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.FLUID_VOID_BUTTON, this.workableHandler::isVoidingFluids, this.workableHandler::setVoidingFluids)
-                .setTooltipText("machine.universal.toggle.fluid_voiding"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_FLUID_VOID_BUTTON, this.workableHandler::isVoidingFluids, this.workableHandler::setVoidingFluids)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.fluid_voiding.disabled", "machine.universal.toggle.fluid_voiding.enabled"));
     }
 
     @Override
