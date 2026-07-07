@@ -134,7 +134,7 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
             int scroll = mouseY - this.autoScrollY;
             if (scroll > 5 || scroll < -5) {
                 scroll -= scroll < 0 ? 5 : -5;
-                this.setScrollOffset(scroll);
+                this.addScrollOffset(scroll);
                 if (scroll > 0)
                     TJGuiTextures.AUTOSCROLL_DOWN.draw(mouseX - 8, mouseY - 8, 16, 16);
                 else TJGuiTextures.AUTOSCROLL_UP.draw(mouseX - 8, mouseY - 8, 16, 16);
@@ -226,7 +226,20 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                 }
             }
         } else if (this.scrollBarRec.contains(mouseX, mouseY)) {
+            this.scrollOffset = Math.max(0, Math.min((mouseY - this.scrollBarRec.y) * Math.round((float) this.scrollHeight / this.scrollBarRec.height), this.scrollHeight - this.getSize().getHeight()));
+            this.writeClientAction(1, buffer -> buffer.writeInt(this.scrollOffset));
+        }
+        return false;
+    }
 
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
+        if (button == 0 || button == 1) {
+            if (this.scrollBarRec.contains(mouseX, mouseY)) {
+                this.scrollOffset = Math.max(0, Math.min((mouseY - this.scrollBarRec.y) * Math.round((float) this.scrollHeight / this.scrollBarRec.height), this.scrollHeight - this.getSize().getHeight()));
+                this.writeClientAction(1, buffer -> buffer.writeInt(this.scrollOffset));
+            }
         }
         return false;
     }
@@ -235,7 +248,7 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     @SideOnly(Side.CLIENT)
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
         if (this.isMouseInWidget(mouseX, mouseY))
-            this.setScrollOffset(MathHelper.clamp(wheelDelta, -1, 1) * 10);
+            this.addScrollOffset(MathHelper.clamp(wheelDelta, -1, 1) * -10);
         return false;
     }
 
@@ -362,8 +375,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         return new Rectangle(pos.getX(), Math.min(pos.getY(), this.scrollBarRec.y), size.getWidth() + this.scrollBarXOffset + this.scrollBarRec.width, Math.max(size.getHeight(), this.scrollBarRec.height));
     }
 
-    private void setScrollOffset(int delta) {
-        this.scrollOffset -= delta;
+    private void addScrollOffset(int delta) {
+        this.scrollOffset += delta;
         this.scrollOffset = Math.max(0, Math.min(this.scrollOffset, this.scrollHeight - this.getSize().getHeight()));
         this.writeClientAction(1, buffer -> buffer.writeInt(this.scrollOffset));
     }
