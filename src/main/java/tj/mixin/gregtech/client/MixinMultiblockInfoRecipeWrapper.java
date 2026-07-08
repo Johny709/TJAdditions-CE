@@ -24,10 +24,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tj.TJValues;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.capability.IJEIExtentSync;
-import tj.capability.IParallelController;
-import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
 
 import java.util.*;
 
@@ -70,7 +67,7 @@ public abstract class MixinMultiblockInfoRecipeWrapper {
     private boolean hasVoltagePages;
 
     @Unique
-    private int tj_voltageIndex = 0;
+    private int voltageIndex = 0;
 
     @Shadow
     @Final
@@ -90,17 +87,20 @@ public abstract class MixinMultiblockInfoRecipeWrapper {
     private WorldSceneRenderer renderer;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void injectMultiblockInfoRecipeWrapper_Init(MultiblockInfoPage infoPage, CallbackInfo ci) {
+    private void init(MultiblockInfoPage infoPage, CallbackInfo ci) {
         if (infoPage.getController() instanceof IJEIExtentSync) {
             this.multiLayer = true;
         }
+        this.voltageIndex = infoPage.getController().getMinTier();
     }
 
     @Inject(method = "setRecipeLayout", at = @At("TAIL"))
-    private void injectSetRecipeLayout(RecipeLayout layout, IGuiHelper guiHelper, CallbackInfo ci) {
+    private void setRecipeLayout(RecipeLayout layout, IGuiHelper guiHelper, CallbackInfo ci) {
         if (!this.multiLayer) {
             return;
         }
+
+        this.voltageIndex = infoPage.getController().getMinTier();
 
         IDrawable border = layout.getRecipeCategory().getBackground();
 
@@ -108,7 +108,7 @@ public abstract class MixinMultiblockInfoRecipeWrapper {
             this.buttonVoltage = new GuiButton(0,
                     border.getWidth() - ((2 * ICON_SIZE) + RIGHT_PADDING + 1), 110,
                     ICON_SIZE + 21, ICON_SIZE,
-                    TJValues.VCC[tj_voltageIndex] + GAValues.VN[tj_voltageIndex]);
+                    TJValues.VCC[voltageIndex] + GAValues.VN[voltageIndex]);
             this.buttons.put(this.buttonVoltage, () -> this.switchVoltage(Mouse.isButtonDown(0) ? 1 : Mouse.isButtonDown(1) ? -1 : 0));
         }
 
@@ -119,8 +119,6 @@ public abstract class MixinMultiblockInfoRecipeWrapper {
 
         this.buttons.put(this.buttonPreviousPattern, () -> this.switchExtent(-1));
         this.buttons.put(this.buttonNextPattern, () -> this.switchExtent(1));
-
-
     }
 
     @Unique
@@ -139,10 +137,11 @@ public abstract class MixinMultiblockInfoRecipeWrapper {
 
     @Unique
     private void switchVoltage(int amount) {
+        int minIndex = infoPage.getController().getMinTier();
         int maxIndex = 14;
-        int newIndex = Math.max(0, Math.min(maxIndex, this.tj_voltageIndex + amount));
-        if (newIndex == this.tj_voltageIndex) return;
-        this.tj_voltageIndex = newIndex;
+        int newIndex = Math.max(minIndex, Math.min(maxIndex, this.voltageIndex + amount));
+        if (newIndex == this.voltageIndex) return;
+        this.voltageIndex = newIndex;
         this.buttonVoltage.displayString = TJValues.VCC[newIndex] + GAValues.VN[newIndex];
 
         for (StructureChannels ch : StructureChannels.values()) {
@@ -154,7 +153,7 @@ public abstract class MixinMultiblockInfoRecipeWrapper {
 
 
     @Inject(method = "triggerStructureCheck", at = @At("HEAD"))
-    private void injectSyncExtentBeforeCheck(WorldSceneRenderer.TrackedDummyWorld world, CallbackInfo ci) {
+    private void syncExtentBeforeCheck(WorldSceneRenderer.TrackedDummyWorld world, CallbackInfo ci) {
         if (!this.multiLayer || this.controllerPos == null) return;
         TileEntity te = world.getTileEntity(this.controllerPos);
         if (te instanceof MetaTileEntityHolder) {
@@ -166,7 +165,7 @@ public abstract class MixinMultiblockInfoRecipeWrapper {
     }
 
     @Inject(method = "switchChannel", at = @At("TAIL"))
-    private void injectSwitchChannel(int amount, CallbackInfo ci) {
+    private void switchChannel(int amount, CallbackInfo ci) {
         if (this.multiLayer && this.buttonVoltage != null) {
             this.buttonVoltage.displayString = TJValues.VCC[this.currentChannelIndex] + GAValues.VN[this.currentChannelIndex];
         }

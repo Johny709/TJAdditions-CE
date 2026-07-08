@@ -69,7 +69,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     }
 
     public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, boolean hasMaintenance, boolean hasDistinct, int minExtent, int maxExtent) {
-        this(metaTileEntityId,recipeMap,hasMaintenance,hasDistinct,minExtent,maxExtent, GTValues.VoltageTier.ULV.tier());
+        this(metaTileEntityId,recipeMap,hasMaintenance,hasDistinct,minExtent,maxExtent, 0);
     }
 
 
