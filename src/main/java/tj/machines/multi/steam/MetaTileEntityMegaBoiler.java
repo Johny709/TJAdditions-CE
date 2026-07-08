@@ -338,7 +338,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
 
     @Override
     public boolean isActive() {
-        return this.boilerRecipeLogic.isActive();
+        return super.isActive() && this.boilerRecipeLogic.isActive();
     }
 
     @Override

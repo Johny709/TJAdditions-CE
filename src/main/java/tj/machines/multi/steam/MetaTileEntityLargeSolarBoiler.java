@@ -341,7 +341,6 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
         this.writeCustomData(1, buffer -> this.writeActiveBlockPacket(buffer, isActive));
     }
 
-
     protected void setActive(boolean active) {
         this.isActive = active;
         if (!this.getWorld().isRemote) {

@@ -489,6 +489,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     @Override
+    public boolean isActive() {
+        return super.isActive() && this.recipeLogic.isActive();
+    }
+
+    @Override
     public String getRecipeUid() {
         return Gregicality.MODID + ":" + this.getRecipeMap().getUnlocalizedName();
     }

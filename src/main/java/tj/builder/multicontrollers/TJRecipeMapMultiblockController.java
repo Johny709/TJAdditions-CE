@@ -258,6 +258,11 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     }
 
     @Override
+    public boolean isActive() {
+        return super.isActive() && this.recipeLogic.isActive();
+    }
+
+    @Override
     public RecipeMap<?> getRecipeMap() {
         return this.recipeMap;
     }
