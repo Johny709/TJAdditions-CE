@@ -23,8 +23,8 @@ public class SteamGrinderInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
-        return Collections.singletonList(TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
+        return TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("CCC", "CCC", "CCC")
                 .aisle("CCC", "C#C", "CCC")
                 .aisle("CHC", "ISO", "CCC")
@@ -32,7 +32,7 @@ public class SteamGrinderInfo extends TJMultiblockInfoPage {
                 .where('I', GATileEntities.STEAM_INPUT_BUS, EnumFacing.WEST)
                 .where('O', GATileEntities.STEAM_OUTPUT_BUS, EnumFacing.WEST)
                 .where('H', GATileEntities.STEAM_HATCH, EnumFacing.WEST)
-                .build());
+                .build();
     }
 
     @Override

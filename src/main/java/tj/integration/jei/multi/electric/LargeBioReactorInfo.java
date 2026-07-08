@@ -11,6 +11,7 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.util.EnumFacing;
 import tj.TJConfig;
 import tj.integration.jei.TJMultiblockInfoPage;
@@ -31,9 +32,8 @@ public class LargeBioReactorInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
-        final List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
+        return TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~c~c~~~~~~", "~~~~~CcEcC~~~~~", "~~~~~~c~c~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~")
                 .aisle("~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~GCG~~~~~~", "~~~~~CcCcC~~~~~", "~~~CC#####CC~~~", "~~~~~CcCcC~~~~~", "~~~~~~GCG~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~")
                 .aisle("~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~", "~~~~~GGCGG~~~~~", "~~~~~GGCGG~~~~~", "~~~~GG###GG~~~~", "~~~CC#c#c#CC~~~", "~~C###c#c###C~~", "~~~CC#c#c#CC~~~", "~~~~GG###GG~~~~", "~~~~~GGCGG~~~~~", "~~~~~GGCGG~~~~~", "~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~")
@@ -52,22 +52,18 @@ public class LargeBioReactorInfo extends TJMultiblockInfoPage {
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', GAMetaBlocks.MUTLIBLOCK_CASING2.getState(GAMultiblockCasing2.CasingType.BIO_REACTOR))
                 .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS))
-                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.UP);
-        final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
-        for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
-            shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
-                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.UP)
-                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[tier], EnumFacing.UP)
-                    .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.UP)
-                    .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.UP)
-                    .where('P', GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                    .where('F', GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.values()[Math.max(0, tier -1)]))
-                    .where('e', GAMetaBlocks.EMITTER_CASING.getState(EmitterCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                    .where('s', GAMetaBlocks.SENSOR_CASING.getState(SensorCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                    .where('c', this.getCoils(tier))
-                    .build());
-        }
-        return shapeInfos;
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.UP)
+                .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.EAST)
+                .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.UP)
+                .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.UP)
+                .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.UP)
+                .where('o', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.UP)
+                .where('P', PlaceholderType.PUMP, GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[0]))
+                .where('F', PlaceholderType.FIELD_GEN, GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.values()[0]))
+                .where('e', PlaceholderType.EMITTER,GAMetaBlocks.EMITTER_CASING.getState(EmitterCasing.CasingType.values()[0]))
+                .where('s', PlaceholderType.SENSOR, GAMetaBlocks.SENSOR_CASING.getState(SensorCasing.CasingType.values()[0]))
+                .where('c', PlaceholderType.COIL)
+                .build();
     }
 
     @Override

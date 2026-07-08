@@ -34,6 +34,7 @@ import tj.TJConfig;
 import tj.TJValues;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiRecipeMapMultiblockController;
+import tj.capability.IJEIExtentSync;
 import tj.capability.OverclockManager;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
@@ -49,14 +50,14 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.machines.multi.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
 
-public class MetaTileEntityLargeNuclearReactor extends TJMultiRecipeMapMultiblockController {
+public class MetaTileEntityLargeNuclearReactor extends TJMultiRecipeMapMultiblockController implements IJEIExtentSync {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
 
     private int parallelLayer = 1;
 
     public MetaTileEntityLargeNuclearReactor(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, GARecipeMaps.NUCLEAR_REACTOR_RECIPES, GARecipeMaps.NUCLEAR_BREEDER_RECIPES);
+        super(metaTileEntityId, 1, TJConfig.largeNuclearReactor.maximumSlices, GARecipeMaps.NUCLEAR_REACTOR_RECIPES, GARecipeMaps.NUCLEAR_BREEDER_RECIPES);
     }
 
     @Override
@@ -228,5 +229,16 @@ public class MetaTileEntityLargeNuclearReactor extends TJMultiRecipeMapMultibloc
     @Override
     public int getParallel() {
         return 0; // don't display parallel overclocking per tier on tooltip
+    }
+
+    @Override
+    public void setJEIPreviewLayer(int layer) {
+        this.parallelLayer = MathHelper.clamp(layer, getMinExtent(), this.getMaxExtent());
+        this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    public int getJEIPreviewLayer() {
+        return this.parallelLayer;
     }
 }

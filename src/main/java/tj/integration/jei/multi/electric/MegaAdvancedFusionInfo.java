@@ -32,7 +32,7 @@ public class MegaAdvancedFusionInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
         final List<String[]> pattern = new ArrayList<>();
         final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
         pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~", "~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~", "~~~~~~~~~cccc~~~~~~~~~~~~~~~~~~~~~cccc~~~~~~~~~", "~~~~~~~~~~cc~~~~~~~~~~~~~~~~~~~~~~~cc~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~cc~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~cc~~~~~~", "~~~~~cccc~~~~~~~~~~CCCCCCCCC~~~~~~~~~~cccc~~~~~", "~~~~~~cc~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~cc~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~cc~~~~~~~~~~~~~~~~~~~~~~~cc~~~~~~~~~~", "~~~~~~~~~cccc~~~~~~~~~~~~~~~~~~~~~cccc~~~~~~~~~", "~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~", "~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~ccc~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~c~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
@@ -54,23 +54,24 @@ public class MegaAdvancedFusionInfo extends TJMultiblockInfoPage {
         }
         Collections.reverse(pattern);
         pattern.forEach(builder::aisle);
-        builder.where('S', this.getController(), EnumFacing.WEST)
+
+        GADivertorCasing.CasingType type = GADivertorCasing.CasingType.values()[Math.min(4,extent)];
+
+        return builder.where('S', this.getController(), EnumFacing.WEST)
                 .where('C', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.ADV_FUSION_CASING))
                 .where('B', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_BLANKET))
                 .where('e', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_BLANKET))
                 .where('T', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_BLANKET))
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('I', TJMetaTileEntities.QUADRUPLE_QUADRUPLE_INPUT_HATCH, EnumFacing.WEST)
-                .where('O', TJMetaTileEntities.QUADRUPLE_QUADRUPLE_OUTPUT_HATCH, EnumFacing.WEST);
-        return Arrays.stream(GADivertorCasing.CasingType.values())
-                .map(casingType -> builder.where('s', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.values()[casingType.ordinal() + 4]))
-                        .where('c', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.values()[casingType.ordinal() + 4]))
-                        .where('V', GAMetaBlocks.VACUUM_CASING.getState(GAVacuumCasing.CasingType.values()[casingType.ordinal()]))
-                        .where('R', GAMetaBlocks.CRYOSTAT_CASING.getState(GACryostatCasing.CasingType.values()[casingType.ordinal()]))
-                        .where('D', GAMetaBlocks.DIVERTOR_CASING.getState(casingType))
-                        .where('H', this.getEnergyHatch(casingType.ordinal() + GAValues.UHV, false), EnumFacing.DOWN)
-                        .build())
-                .collect(Collectors.toList());
+                .where('O', TJMetaTileEntities.QUADRUPLE_QUADRUPLE_OUTPUT_HATCH, EnumFacing.WEST)
+                .where('s', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.values()[type.ordinal() + 4]))
+                .where('c', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.values()[type.ordinal() + 4]))
+                .where('V', GAMetaBlocks.VACUUM_CASING.getState(GAVacuumCasing.CasingType.values()[type.ordinal()]))
+                .where('R', GAMetaBlocks.CRYOSTAT_CASING.getState(GACryostatCasing.CasingType.values()[type.ordinal()]))
+                .where('D', GAMetaBlocks.DIVERTOR_CASING.getState(type))
+                .where('H', this.getEnergyHatch(type.ordinal() + GAValues.UHV, false), EnumFacing.DOWN)
+                .build();
     }
 
     @Override

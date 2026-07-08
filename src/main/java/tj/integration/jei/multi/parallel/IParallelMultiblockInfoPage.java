@@ -1,10 +1,8 @@
 package tj.integration.jei.multi.parallel;
 
-import tj.integration.jei.TJMultiblockShapeInfo;
-
-import java.util.List;
+import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 
 public interface IParallelMultiblockInfoPage {
 
-    List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes);
+    MultiblockShapeInfo getMatchingShapes(int extent);
 }

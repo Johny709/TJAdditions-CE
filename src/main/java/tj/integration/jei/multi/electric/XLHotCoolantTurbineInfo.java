@@ -8,6 +8,8 @@ import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.unification.material.Materials;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import gregtech.common.metatileentities.MetaTileEntities;
+import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -38,7 +40,7 @@ public class XLHotCoolantTurbineInfo extends TJMultiblockInfoPage implements IPa
     }
 
     @Override
-    public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
         final MetaTileEntityHolder holderNorth = new MetaTileEntityHolder();
         final MetaTileEntityHolder holderSouth = new MetaTileEntityHolder();
         holderNorth.setMetaTileEntity(GATileEntities.ROTOR_HOLDER[2]);
@@ -48,38 +50,32 @@ public class XLHotCoolantTurbineInfo extends TJMultiblockInfoPage implements IPa
         TurbineRotorBehavior.getInstanceFor(rotorStack).setPartMaterial(rotorStack, Materials.Darmstadtium);
         ((MetaTileEntityRotorHolderForNuclearCoolant) holderNorth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
         ((MetaTileEntityRotorHolderForNuclearCoolant) holderSouth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
-        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        for (int shapeInfo = 0; shapeInfo < 7; shapeInfo++) {
-            TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
-                    .aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCECCC", "CCCCCCC", "CCCCCCC", "CCCCCCC")
-                    .aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC")
-                    .aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC");
-            for (int j = 0; j <= shapeInfo; j++) {
-                builder.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC");
-                builder.aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC");
-                builder.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC");
-            }
-            builder.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC")
-                    .aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC")
-                    .aisle("CCCCCCC", "CCCCCCC", "CCCOCCC", "CCISJCC", "CCCMCCC", "CCCCCCC", "CCCCCCC");
-            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
-            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
-                infos[tier] = builder.where('S', this.turbine, EnumFacing.WEST)
-                        .where('C', this.turbine.turbineType.casingState)
-                        .where('R', holderNorth.getMetaTileEntity(), EnumFacing.NORTH)
-                        .where('T', holderSouth.getMetaTileEntity(), EnumFacing.SOUTH)
-                        .where('E', this.getEnergyHatch(tier, true), EnumFacing.EAST)
-                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
-                        .where('J', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)
-                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.WEST)
-                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                        .where(!this.turbine.turbineType.hasOutputHatch ? 'O' : '#', !this.turbine.turbineType.hasOutputHatch ? this.turbine.turbineType.casingState : Blocks.AIR.getDefaultState())
-                        .build();
-            }
-            shapeInfos.add(infos);
+
+        TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+                .aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCECCC", "CCCCCCC", "CCCCCCC", "CCCCCCC")
+                .aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC")
+                .aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC");
+        for (int j = 0; j <= extent; j++) {
+            builder.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC");
+            builder.aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC");
+            builder.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC");
         }
-        return shapeInfos;
+        return builder.aisle("CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC", "CCCCCCC")
+            .aisle("CCCCCCC", "R#####T", "CCCCCCC", "CCCCCCC", "CCCCCCC", "R#####T", "CCCCCCC")
+            .aisle("CCCCCCC", "CCCCCCC", "CCCOCCC", "CCISJCC", "CCCMCCC", "CCCCCCC", "CCCCCCC")
+            .where('S', this.turbine, EnumFacing.WEST)
+            .where('C', this.turbine.turbineType.casingState)
+            .where('R', holderNorth.getMetaTileEntity(), EnumFacing.NORTH)
+            .where('T', holderSouth.getMetaTileEntity(), EnumFacing.SOUTH)
+            .where('E', PlaceholderType.ENERGY_OUTPUT_HATCH, this.getEnergyHatch(0, true), EnumFacing.EAST)
+            .where('I', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+            .where('J', MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
+            .where('O', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
+            .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+            .where(!this.turbine.turbineType.hasOutputHatch ? 'O' : '#', !this.turbine.turbineType.hasOutputHatch ? this.turbine.turbineType.casingState : Blocks.AIR.getDefaultState())
+            .build();
+
+
     }
 
     @Override

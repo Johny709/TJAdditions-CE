@@ -10,6 +10,7 @@ import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
@@ -33,8 +34,8 @@ public class IndustrialSteamEngineInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
-        final TJMultiblockShapeInfo.Builder shapeInfo = TJMultiblockShapeInfo.builder()
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
+      return TJMultiblockShapeInfo.builder()
                 .aisle("~~C~", "~CCC", "~~C~")
                 .aisle("mCCC", "SFRE", "ICCO")
                 .aisle("CCCC", "CCCC", "CCCC")
@@ -42,13 +43,11 @@ public class IndustrialSteamEngineInfo extends TJMultiblockInfoPage {
                 .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.TUMBAGA))
                 .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.MV], EnumFacing.WEST)
-                .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MV], EnumFacing.EAST);
-        return Arrays.stream(MotorCasing.CasingType.values())
-                .map(casingType -> shapeInfo.where('R', GAMetaBlocks.MOTOR_CASING.getState(casingType))
-                        .where('F', this.getVoltageCasing(casingType.getTier()))
-                        .where('E', this.getEnergyHatch(casingType.getTier(), true), EnumFacing.EAST)
-                        .build())
-                .collect(Collectors.toList());
+                .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MV], EnumFacing.EAST)
+                .where('R', PlaceholderType.MOTOR, GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[0]))
+                .where('F', PlaceholderType.FRAMEWORK)
+                .where('E', PlaceholderType.ENERGY_OUTPUT_HATCH, this.getEnergyHatch(0, true), EnumFacing.EAST)
+                .build();
     }
 
     @Override

@@ -60,7 +60,7 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
     private boolean otherMode;
 
     public MetaTileEntityPrimitiveWaterPump(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, false);
+        super(metaTileEntityId, false,0,3,0);
         this.maintenance_problems = 0b111111;
     }
 

@@ -8,6 +8,8 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
+import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
@@ -34,40 +36,31 @@ public class ParallelLargeWashingMachineInfo extends TJMultiblockInfoPage implem
     }
 
     @Override
-    public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        final int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
-        for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT);
-            builder.aisle("CCCCC", "CmEmC", "CCCCC", "~CCC~");
-            for (int layer = 0; layer < shapeInfo; layer++) {
-                if (layer != 0) {
-                    builder.aisle("CCCCC", "CP#PC", "C###C", "~CCC~");
-                }
-                builder.aisle("CCCCC", "CP#PC", "C###C", "CGCGC");
-                builder.aisle("CCCCC", "CP#PC", "C###C", "CGCGC");
-                builder.aisle("CCCCC", "CP#PC", "C###C", "CGCGC");
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
+
+        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT);
+        builder.aisle("CCCCC", "CmEmC", "CCCCC", "~CCC~");
+        for (int layer = 0; layer < extent; layer++) {
+            if (layer != 0) {
+                builder.aisle("CCCCC", "CP#PC", "C###C", "~CCC~");
             }
-            builder.aisle("CICOC", "CmSmC", "CiMoC", "~CCC~");
-            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
-            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
-                infos[tier] = builder.where('S', getController(), EnumFacing.WEST)
-                        .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.GRISIUM))
-                        .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS))
-                        .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
-                        .where('m', GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)
-                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[tier], EnumFacing.WEST)
-                        .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
-                        .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.WEST)
-                        .where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
-                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                        .build();
-            }
-            shapeInfos.add(infos);
+            builder.aisle("CCCCC", "CP#PC", "C###C", "CGCGC");
+            builder.aisle("CCCCC", "CP#PC", "C###C", "CGCGC");
+            builder.aisle("CCCCC", "CP#PC", "C###C", "CGCGC");
         }
-        return shapeInfos;
+        return builder.aisle("CICOC", "CmSmC", "CiMoC", "~CCC~").where('S', getController(), EnumFacing.WEST)
+                    .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.GRISIUM))
+                    .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS))
+                    .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
+                    .where('m', PlaceholderType.MOTOR , GAMetaBlocks.MOTOR_CASING.getState(MotorCasing.CasingType.values()[0]))
+                    .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
+                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
+                    .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+                    .where('o', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
+                    .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.EAST)
+                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                    .build();
+
     }
 
     @Override

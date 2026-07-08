@@ -73,7 +73,7 @@ import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.mui.TJGuiTextures.*;
 
-public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockController implements IHeatInfo, IProgressBar {
+public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblockController implements IHeatInfo, IProgressBar, IJEIExtentSync {
 
     private final Set<BlockPos> activeStates = new HashSet<>();
     private final long energyToStart;
@@ -86,7 +86,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     private IEnergyContainer energyContainer;
 
     public MetaTileEntityIndustrialFusionReactor(ResourceLocation metaTileEntityId, int tier) {
-        super(metaTileEntityId, RecipeMaps.FUSION_RECIPES, false, false);
+        super(metaTileEntityId, RecipeMaps.FUSION_RECIPES, false, false, 0, TJConfig.industrialFusionReactor.maximumSlices);
         this.recipeLogic.setAllowOverclocking(false);
         this.recipeLogic.setActiveConsumer(this::replaceEnergyPortsAsActive);
         this.fusionTier = tier;
@@ -493,5 +493,16 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         if (this.isStructureFormed())
             this.invalidateStructure();
         this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    public void setJEIPreviewLayer(int layer) {
+        this.parallelLayer = MathHelper.clamp(layer, this.getMinExtent(), this.getMaxExtent());
+        this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    public int getJEIPreviewLayer() {
+        return this.parallelLayer;
     }
 }

@@ -9,6 +9,8 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
+import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -35,52 +37,42 @@ public class ParallelLargeAssemblerInfo extends TJMultiblockInfoPage implements 
     }
 
     @Override
-    public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        final int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
-        for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            final TJMultiblockShapeInfo.Builder builder = new TJMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
 
-            final StringBuilder aisleC = new StringBuilder(), aisleG = new StringBuilder(), aisleP = new StringBuilder(),
-                    aisleA = new StringBuilder(), aislec = new StringBuilder(), aisleR = new StringBuilder();
-            for (int layer = 1; layer < shapeInfo; layer++) {
-                aisleC.append("CCC");
-                aisleG.append("GGG");
-                aisleP.append("PPP");
-                aisleA.append("###");
-                aislec.append("ccc");
-                aisleR.append("RRR");
-            }
-            aisleC.append("C");
-            aisleG.append("C");
-            aisleP.append("C");
-            aisleA.append("C");
-            aislec.append("C");
-            aisleR.append("C");
-            builder.aisle("I~CGGG" + aisleG, "CCCGGG" + aisleG, "CCCGGG" + aisleG, "CCCCCC" + aisleC)
-                    .aisle("iMCGGG" + aisleG, "CPC###" + aisleA, "CPPPPP" + aisleP, "CCCCCC" + aisleC)
-                    .aisle("OSCRRR" + aisleR, "CACccc" + aislec, "CACPPP" + aisleP, "CECCCC" + aisleC)
-                    .aisle("CCCCCC" + aisleC, "CCCCCC" + aisleC, "CCCCCC" + aisleC, "CCCCCC" + aisleC);
-            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
-            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
-                infos[tier] = builder.where('S', this.getController(), WEST)
-                        .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.LARGE_ASSEMBLER))
-                        .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
-                        .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS))
-                        .where('A', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING))
-                        .where('c', GAMetaBlocks.CONVEYOR_CASING.getState(ConveyorCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                        .where('R', GAMetaBlocks.ROBOT_ARM_CASING.getState(RobotArmCasing.CasingType.values()[Math.max(0, tier - 1)]))
-                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                        .where('E', this.getEnergyHatch(tier, false), EAST)
-                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[tier], WEST)
-                        .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[tier], WEST)
-                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[tier], WEST)
-                        .build();
-            }
-            shapeInfos.add(infos);
+        final TJMultiblockShapeInfo.Builder builder = new TJMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
+        final StringBuilder aisleC = new StringBuilder(), aisleG = new StringBuilder(), aisleP = new StringBuilder(),
+                aisleA = new StringBuilder(), aislec = new StringBuilder(), aisleR = new StringBuilder();
+        for (int layer = 1; layer < extent; layer++) {
+            aisleC.append("CCC");
+            aisleG.append("GGG");
+            aisleP.append("PPP");
+            aisleA.append("###");
+            aislec.append("ccc");
+            aisleR.append("RRR");
         }
-        return shapeInfos;
+        aisleC.append("C");
+        aisleG.append("C");
+        aisleP.append("C");
+        aisleA.append("C");
+        aislec.append("C");
+        aisleR.append("C");
+        return builder.aisle("I~CGGG" + aisleG, "CCCGGG" + aisleG, "CCCGGG" + aisleG, "CCCCCC" + aisleC)
+                .aisle("iMCGGG" + aisleG, "CPC###" + aisleA, "CPPPPP" + aisleP, "CCCCCC" + aisleC)
+                .aisle("OSCRRR" + aisleR, "CACccc" + aislec, "CACPPP" + aisleP, "CECCCC" + aisleC)
+                .aisle("CCCCCC" + aisleC, "CCCCCC" + aisleC, "CCCCCC" + aisleC, "CCCCCC" + aisleC).where('S', this.getController(), WEST)
+                    .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.LARGE_ASSEMBLER))
+                    .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
+                    .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS))
+                    .where('A', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.ASSEMBLY_LINE_CASING))
+                    .where('c', PlaceholderType.CONVEYOR, GAMetaBlocks.CONVEYOR_CASING.getState(ConveyorCasing.CasingType.values()[0]))
+                    .where('R', PlaceholderType.ROBOT_ARM, GAMetaBlocks.ROBOT_ARM_CASING.getState(RobotArmCasing.CasingType.values()[0]))
+                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
+                    .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EAST)
+                    .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
+                    .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
+                    .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
+                    .build();
+
     }
 
     @Override

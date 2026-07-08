@@ -18,7 +18,7 @@ public final class TJBlockInfo extends BlockInfo {
     }
 
     public TJBlockInfo(IBlockState[] states, TileEntity[] tileEntities) {
-        super(Blocks.AIR.getDefaultState(), tileEntities[0]);
+        super(Blocks.AIR.getDefaultState(),tileEntities[0], null);
         this.states = states;
         this.tileEntities = tileEntities;
     }

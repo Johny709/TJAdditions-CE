@@ -14,12 +14,14 @@ import tj.blocks.TJMetaBlocks;
 import tj.blocks.block.TJBlocks;
 import tj.capability.TJSimpleCapabilityManager;
 import tj.gui.GuiHandler;
+import tj.integration.jei.TJPlaceholderRegistry;
 import tj.mui.uifactory.PlayerUIFactory;
 import tj.mui.uifactory.TileEntityUIFactory;
 import tj.integration.theoneprobe.TheOneProbeCompatibility;
 import tj.items.TJCoverBehaviours;
 import tj.items.item.TJItems;
 import tj.machines.TJMetaTileEntities;
+import tj.network.TJNetworkHandler;
 
 
 @Mod(modid = TJ.MODID, name = TJ.NAME, version = TJ.VERSION)
@@ -39,12 +41,14 @@ public class TJ {
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        TJNetworkHandler.preInit();
         proxy.onPreLoad();
         PlayerUIFactory.INSTANCE.init();
         TileEntityUIFactory.INSTANCE.init();
         TJMetaBlocks.init();
         TJMetaTileEntities.init();
         TJSimpleCapabilityManager.init();
+        TJPlaceholderRegistry.init();
         logger = event.getModLog();
     }
 
