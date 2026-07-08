@@ -324,14 +324,14 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
     }
 
     private void readActiveBlockPacket(PacketBuffer buffer) {
-        final boolean isActive = buffer.readBoolean();
+        this.isActive = buffer.readBoolean();
         final int size = buffer.readInt();
         for (int i = 0; i < size; i++) {
             final BlockPos pos = buffer.readBlockPos();
             IBlockState state = this.getWorld().getBlockState(pos);
             final Block block = state.getBlock();
             if (block instanceof BlockFireboxCasing) {
-                state = state.withProperty(BlockFireboxCasing.ACTIVE, isActive);
+                state = state.withProperty(BlockFireboxCasing.ACTIVE, this.isActive);
                 this.getWorld().setBlockState(pos, state);
             }
         }
