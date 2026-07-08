@@ -9,6 +9,7 @@ import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.multiblock.BlockPattern;
 import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
@@ -155,7 +156,7 @@ public class MetaTileEntitySteamGrinder extends TJRecipeMapMultiblockController 
 
         @Override
         protected boolean startRecipe() {
-            boolean canStart = super.startRecipe();
+            final boolean canStart = super.startRecipe();
             if (canStart)
                 this.steam = Materials.Steam.getFluid((int) (this.energyPerTick * 2));
             return canStart;
@@ -169,8 +170,10 @@ public class MetaTileEntitySteamGrinder extends TJRecipeMapMultiblockController 
                 this.progress--;
         }
 
-        public FluidStack getSteam() {
-            return this.steam;
+        @Override
+        protected void addChancedOutputs(int parallels, Recipe recipe) {
+            if (recipe.getOutputs().isEmpty())
+                super.addChancedOutputs(parallels, recipe);
         }
 
         @Override
@@ -187,5 +190,10 @@ public class MetaTileEntitySteamGrinder extends TJRecipeMapMultiblockController 
             if (compound.hasKey("fluidStack"))
                 this.steam = FluidStack.loadFluidStackFromNBT(compound.getCompoundTag("fluidStack"));
         }
+
+        public FluidStack getSteam() {
+            return this.steam;
+        }
+
     }
 }
