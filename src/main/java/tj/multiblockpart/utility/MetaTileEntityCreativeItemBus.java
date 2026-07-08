@@ -5,6 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
+import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.WidgetGroup;
@@ -17,31 +18,35 @@ import gregtech.api.util.Position;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.ButtonWidget;
-import tj.mui.widgets.impl.NewTextFieldWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.SelectionWidgetGroup;
-import tj.mui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.mui.widgets.impl.*;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
 public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IItemHandlerModifiable> {
 
+    private final ItemStackHandler circuitInventory = new ItemStackHandler(1);
+    private final IItemHandlerModifiable combinedInventory;
+
     public MetaTileEntityCreativeItemBus(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GAValues.MAX);
+        this.combinedInventory = new ItemHandlerList(Arrays.asList(this.circuitInventory, this.importItems));
     }
 
     @Override
@@ -96,6 +101,7 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 184)
                 .widget(new TJLabelWidget(7, -19, 180, 19, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
+                .widget(new GhostCircuitWidget(this.circuitInventory, 151, 78))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
                 .bindPlayerInventory(player.inventory, 100)
@@ -130,7 +136,20 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
 
     @Override
     public void registerAbilities(List<IItemHandlerModifiable> list) {
-        list.add(this.getImportItems());
+        list.add(this.combinedInventory);
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setTag("ghostCircuit", this.circuitInventory.serializeNBT());
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.circuitInventory.deserializeNBT(data.getCompoundTag("ghostCircuit"));
     }
 
     private void setItemCount(String text, String id) {
