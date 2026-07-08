@@ -21,6 +21,7 @@ import tj.integration.theoneprobe.TheOneProbeCompatibility;
 import tj.items.TJCoverBehaviours;
 import tj.items.item.TJItems;
 import tj.machines.TJMetaTileEntities;
+import tj.network.TJNetworkHandler;
 
 
 @Mod(modid = TJ.MODID, name = TJ.NAME, version = TJ.VERSION)
@@ -40,6 +41,7 @@ public class TJ {
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        TJNetworkHandler.preInit();
         proxy.onPreLoad();
         PlayerUIFactory.INSTANCE.init();
         TileEntityUIFactory.INSTANCE.init();

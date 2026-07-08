@@ -112,7 +112,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     protected Instant placedDown = Instant.now();
 
     public MetaTileEntityXLHotCoolantTurbine(ResourceLocation metaTileEntityId, MetaTileEntityHotCoolantTurbine.TurbineType turbineType) {
-        super(metaTileEntityId, turbineType);
+        super(metaTileEntityId, turbineType,0,7);
         this.turbineType = turbineType;
         this.reinitializeStructurePattern();
     }
@@ -645,19 +645,13 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
 
     @Override
     public void setJEIPreviewLayer(int layer) {
-        this.parallels = MathHelper.clamp(layer, 1, this.getMaxExtent());
+        this.parallels = MathHelper.clamp(layer, this.getMinExtent(), this.getMaxExtent());
         this.structurePattern = this.createStructurePattern();
     }
 
-
     @Override
-    public int getMinExtent() {
-        return 0;
+    public int getJEIPreviewLayer() {
+        return this.parallels;
     }
 
-
-    @Override
-    public int getMaxExtent() {
-        return 7; // TODO: if you can find a better way to get the max extent then replace this. :p
-    }
 }

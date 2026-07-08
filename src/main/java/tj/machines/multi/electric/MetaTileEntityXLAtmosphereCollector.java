@@ -53,7 +53,7 @@ public class MetaTileEntityXLAtmosphereCollector extends MetaTileEntityLargeAtmo
     private int parallels = 12;
 
     public MetaTileEntityXLAtmosphereCollector(ResourceLocation metaTileEntityId, MetaTileEntityLargeTurbine.TurbineType turbineType) {
-        super(metaTileEntityId, turbineType);
+        super(metaTileEntityId, turbineType, 0,7);
     }
 
     @Override
@@ -302,17 +302,12 @@ public class MetaTileEntityXLAtmosphereCollector extends MetaTileEntityLargeAtmo
 
     @Override
     public void setJEIPreviewLayer(int layer) {
-        this.parallels = MathHelper.clamp(layer, 1, this.getMaxExtent());
+        this.parallels = MathHelper.clamp(layer, this.getMinExtent(), this.getMaxExtent());
         this.structurePattern = this.createStructurePattern();
     }
 
     @Override
-    public int getMinExtent() {
-        return 0;
-    }
-
-    @Override
-    public int getMaxExtent() {
-        return 7; // TODO: if you can find a better way to get the max extent then replace this. :p
+    public int getJEIPreviewLayer() {
+        return this.parallels;
     }
 }

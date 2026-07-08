@@ -196,4 +196,9 @@ public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockC
     public int getParallel() {
         return this.parallel;
     }
+
+    @Override
+    public int getJEIPreviewLayer() {
+        return this.parallelLayer;
+    }
 }

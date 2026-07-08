@@ -93,9 +93,11 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
         final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
             final String entityP = layer == 0 ? "XXXXX" : "XXPXX";
-            final String entityS = layer >= this.parallelLayer - 4 ? "~XSX~" : "~XXX~";
-            factoryPattern.aisle("~XXX~", "XXXXX", entityP, "XXXXX", "~XXX~");
-            factoryPattern.aisle(entityS, "X#P#X", "XPPPX", "X#P#X", "~XXX~");
+            if (layer % getExtentStep() == 0) {
+                final String entityS = layer >= this.parallelLayer - 4 ? "~XSX~" : "~XXX~";
+                factoryPattern.aisle("~XXX~", "XXXXX", entityP, "XXXXX", "~XXX~");
+                factoryPattern.aisle(entityS, "X#P#X", "XPPPX", "X#P#X", "~XXX~");
+            }
         }
         return factoryPattern.aisle("~XXX~", "XXXXX", "XXXXX", "XXXXX", "~XXX~")
                 .setAmountAtLeast('L', 16)
@@ -185,5 +187,10 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     @Override
     public FluidStack getFluidStack() {
         return this.cryotheum;
+    }
+
+    @Override
+    protected int getExtentStep() {
+        return 4;
     }
 }

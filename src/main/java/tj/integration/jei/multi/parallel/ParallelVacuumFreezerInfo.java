@@ -38,10 +38,9 @@ public class ParallelVacuumFreezerInfo extends TJMultiblockInfoPage implements I
 
         final TJMultiblockShapeInfo.Builder builder = new TJMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
         for (int layer = 0; layer < extent; layer++) {
-            String entityP = layer == 0 ? "CCCCC" : "CCPCC";
             String entityS = layer == extent - 1 ? "~ISO~" : "~CCC~";
             String energyH = layer == extent - 1 ? "~CEM~" : "~CCC~";
-            builder.aisle("~CCC~", "CCCCC", entityP, "CCCCC", "~CCC~");
+            builder.aisle("~CCC~", "CCCCC", "CCCCC", "CCCCC", "~CCC~");
             builder.aisle(entityS, "C#P#C", "CPPPC", "C#P#C", energyH);
         }
         return builder.aisle("~iCo~", "CCCCC", "CCCCC", "CCCCC", "~CCC~").where('S', this.getController(), WEST)

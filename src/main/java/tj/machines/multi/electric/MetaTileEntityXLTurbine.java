@@ -82,7 +82,7 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
     private BooleanConsumer fastModeConsumer;
 
     public MetaTileEntityXLTurbine(ResourceLocation metaTileEntityId, MetaTileEntityLargeTurbine.TurbineType turbineType) {
-        super(metaTileEntityId, turbineType.recipeMap, GTValues.V[4]);
+        super(metaTileEntityId, turbineType.recipeMap, GTValues.V[4],0,7);
         this.turbineType = turbineType;
         this.reinitializeStructurePattern();
     }
@@ -459,16 +459,8 @@ public class MetaTileEntityXLTurbine extends TJRotorHolderMultiblockControllerBa
         this.structurePattern = this.createStructurePattern();
     }
 
-
     @Override
-    public int getMinExtent() {
-        return 0;
+    public int getJEIPreviewLayer() {
+        return this.parallels;
     }
-
-
-    @Override
-    public int getMaxExtent() {
-        return 7; // TODO: if you can find a better way to get the max extent then replace this. :p
-    }
-
 }

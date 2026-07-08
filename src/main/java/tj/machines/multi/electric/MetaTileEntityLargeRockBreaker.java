@@ -57,7 +57,7 @@ public class MetaTileEntityLargeRockBreaker extends TJRecipeMapMultiblockControl
     private int slices;
 
     public MetaTileEntityLargeRockBreaker(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, TJRecipeMaps.ROCK_BREAKER_RECIPES);
+        super(metaTileEntityId, TJRecipeMaps.ROCK_BREAKER_RECIPES,1,TJConfig.largeRockBreaker.maximumSlices);
     }
 
     @Override
@@ -184,14 +184,14 @@ public class MetaTileEntityLargeRockBreaker extends TJRecipeMapMultiblockControl
     }
 
     @Override
-    public int getMaxExtent() {
-        return TJConfig.largeRockBreaker.maximumSlices;
+    public void setJEIPreviewLayer(int layer) {
+        this.slices = MathHelper.clamp(layer, this.getMinExtent(), this.getMaxExtent());
+        this.structurePattern = this.createStructurePattern();
     }
 
     @Override
-    public void setJEIPreviewLayer(int layer) {
-        this.slices = MathHelper.clamp(layer, 0, this.getMaxExtent());
-        this.structurePattern = this.createStructurePattern();
+    public int getJEIPreviewLayer() {
+        return this.slices;
     }
 
 }

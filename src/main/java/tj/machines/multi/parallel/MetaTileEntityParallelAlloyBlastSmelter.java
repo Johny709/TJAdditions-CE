@@ -118,11 +118,12 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
     protected BlockPattern createStructurePattern() {
         final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            final String mufflerMM = layer == 0 ? "XXXMXXX" : "XXXPXXX";
-            factoryPattern.aisle("~XXXXX~", "XXXXXXX", "XXXXXXX", mufflerMM, "XXXXXXX", "XXXXXXX", "~XXXXX~");
-            factoryPattern.aisle("~AAAAA~", "AcccccA", "Ac#c#cA", "AccPccA", "Ac#c#cA", "AcccccA", "~AAAAA~");
-            factoryPattern.aisle("~AAAAA~", "AcccccA", "Ac#c#cA", "AccPccA", "Ac#c#cA", "AcccccA", "~AAAAA~");
-
+            if (layer % getExtentStep() == 0) {
+                final String mufflerMM = layer == 0 ? "XXXMXXX" : "XXXPXXX";
+                factoryPattern.aisle("~XXXXX~", "XXXXXXX", "XXXXXXX", mufflerMM, "XXXXXXX", "XXXXXXX", "~XXXXX~");
+                factoryPattern.aisle("~AAAAA~", "AcccccA", "Ac#c#cA", "AccPccA", "Ac#c#cA", "AcccccA", "~AAAAA~");
+                factoryPattern.aisle("~AAAAA~", "AcccccA", "Ac#c#cA", "AccPccA", "Ac#c#cA", "AcccccA", "~AAAAA~");
+            }
         }
         return factoryPattern.aisle("~XXSXX~", "XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX", "XXXXXXX", "~XXXXX~")
                 .setAmountAtLeast('L', 22)
@@ -245,5 +246,11 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelAlloyBlastSmelter.maximumParallel;
+    }
+
+
+    @Override
+    protected int getExtentStep() {
+        return 4;
     }
 }

@@ -47,7 +47,7 @@ public class LargeDecayChamberInfo extends TJMultiblockInfoPage {
                     .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
                     .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
                     .where('o', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
-                    .where('F', GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.values()[0]))
+                    .where('F', PlaceholderType.FIELD_GEN ,GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.values()[0]))
                     .where('R', PlaceholderType.NUCLEAR_CASING,GAMetaBlocks.NUCLEAR_CASING.getState(NuclearCasing.CasingType.values()[0]))
                     .build();
     }

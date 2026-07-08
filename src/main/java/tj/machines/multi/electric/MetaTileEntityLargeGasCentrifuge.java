@@ -57,7 +57,7 @@ public class MetaTileEntityLargeGasCentrifuge extends TJRecipeMapMultiblockContr
     private int parallelLayer = 1;
 
     public MetaTileEntityLargeGasCentrifuge(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, GARecipeMaps.GAS_CENTRIFUGE_RECIPES);
+        super(metaTileEntityId, GARecipeMaps.GAS_CENTRIFUGE_RECIPES,1,TJConfig.largeGasCentrifuge.maximumSlices);
     }
 
     @Override
@@ -245,7 +245,12 @@ public class MetaTileEntityLargeGasCentrifuge extends TJRecipeMapMultiblockContr
 
     @Override
     public void setJEIPreviewLayer(int layer) {
-        this.parallelLayer = MathHelper.clamp(layer, 1, this.getMaxExtent());
+        this.parallelLayer = MathHelper.clamp(layer, this.getMinExtent(), this.getMaxExtent());
         this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    public int getJEIPreviewLayer() {
+        return this.parallelLayer;
     }
 }

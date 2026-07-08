@@ -78,7 +78,7 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
     private int parallelLayer = 4;
 
     public MetaTileEntityLargeAssemblyLine(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, true, false, GARecipeMaps.ASSEMBLY_LINE_RECIPES);
+        super(metaTileEntityId, true, false, 4,TJConfig.parallelCircuitAssemblyLine.maximumSlices, GARecipeMaps.ASSEMBLY_LINE_RECIPES);
     }
 
     @Override
@@ -374,22 +374,14 @@ public class MetaTileEntityLargeAssemblyLine extends TJMultiRecipeMapMultiblockC
         }
     }
 
-
-    @Override
-    public int getMaxExtent() {
-        return TJConfig.parallelCircuitAssemblyLine.maximumSlices;
-    }
-
-    @Override
-    public int getMinExtent() {
-        return 4;
-    }
-
-
-
     @Override
     public void setJEIPreviewLayer(int layer) {
-        this.parallelLayer = MathHelper.clamp(layer, 1, this.getMaxExtent());
+        this.parallelLayer = MathHelper.clamp(layer, getMinExtent(), this.getMaxExtent());
         this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    public int getJEIPreviewLayer() {
+        return this.parallelLayer;
     }
 }

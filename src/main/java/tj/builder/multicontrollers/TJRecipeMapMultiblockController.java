@@ -5,6 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
 import gregicadditions.Gregicality;
+import gregtech.api.GTValues;
 import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -59,8 +60,21 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
         this(metaTileEntityId, recipeMap, true, true);
     }
 
+    public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, int minExtent, int maxExtent) {
+        this(metaTileEntityId, recipeMap, true, true, minExtent, maxExtent);
+    }
+
     public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, boolean hasMaintenance, boolean hasDistinct) {
-        super(metaTileEntityId, hasMaintenance, hasDistinct);
+        this(metaTileEntityId,recipeMap, hasMaintenance,hasDistinct,1,1);
+    }
+
+    public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, boolean hasMaintenance, boolean hasDistinct, int minExtent, int maxExtent) {
+        this(metaTileEntityId,recipeMap,hasMaintenance,hasDistinct,minExtent,maxExtent, GTValues.VoltageTier.ULV.tier());
+    }
+
+
+    public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, boolean hasMaintenance, boolean hasDistinct, int minExtent, int maxExtent, int minTier) {
+        super(metaTileEntityId, hasMaintenance, hasDistinct, minExtent, maxExtent, minTier);
         this.recipeMap = recipeMap != null ? recipeMap : RecipeMaps.FURNACE_RECIPES;
         this.recipeLogic.setActiveConsumer(active -> this.activeDate = active ? Instant.now() : null);
         this.recipeLogic.setProblemConsumer(problem -> this.activeDate = null);

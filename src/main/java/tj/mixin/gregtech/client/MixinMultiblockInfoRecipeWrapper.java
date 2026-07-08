@@ -24,7 +24,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tj.TJValues;
+import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
 import tj.capability.IJEIExtentSync;
+import tj.capability.IParallelController;
 import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
 
 import java.util.*;
@@ -89,10 +91,7 @@ public abstract class MixinMultiblockInfoRecipeWrapper {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void injectMultiblockInfoRecipeWrapper_Init(MultiblockInfoPage infoPage, CallbackInfo ci) {
-        if (infoPage instanceof IParallelMultiblockInfoPage) {
-            this.multiLayer = true;
-        }
-        if (infoPage.getController().getMaxExtent() > 1) {
+        if (infoPage.getController() instanceof IJEIExtentSync) {
             this.multiLayer = true;
         }
     }
@@ -113,13 +112,15 @@ public abstract class MixinMultiblockInfoRecipeWrapper {
             this.buttons.put(this.buttonVoltage, () -> this.switchVoltage(Mouse.isButtonDown(0) ? 1 : Mouse.isButtonDown(1) ? -1 : 0));
         }
 
+        this.buttonPreviousPattern.visible = true;
+        this.buttonPreviousPattern.enabled = false;
+        this.buttonNextPattern.visible = true;
+        this.buttonNextPattern.enabled = true;
+
         this.buttons.put(this.buttonPreviousPattern, () -> this.switchExtent(-1));
         this.buttons.put(this.buttonNextPattern, () -> this.switchExtent(1));
 
-        this.buttonPreviousPattern.visible = true;
-        this.buttonPreviousPattern.enabled = true;
-        this.buttonNextPattern.visible = true;
-        this.buttonNextPattern.enabled = true;
+
     }
 
     @Unique
@@ -170,5 +171,8 @@ public abstract class MixinMultiblockInfoRecipeWrapper {
             this.buttonVoltage.displayString = TJValues.VCC[this.currentChannelIndex] + GAValues.VN[this.currentChannelIndex];
         }
     }
+
+
+
 
 }

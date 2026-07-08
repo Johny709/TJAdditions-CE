@@ -194,4 +194,9 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
     public int getParallel() {
         return this.parallel;
     }
+
+    @Override
+    public int getJEIPreviewLayer() {
+        return this.parallelLayer;
+    }
 }

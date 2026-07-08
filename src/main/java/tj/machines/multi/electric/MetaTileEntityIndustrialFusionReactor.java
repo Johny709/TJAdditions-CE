@@ -86,7 +86,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     private IEnergyContainer energyContainer;
 
     public MetaTileEntityIndustrialFusionReactor(ResourceLocation metaTileEntityId, int tier) {
-        super(metaTileEntityId, RecipeMaps.FUSION_RECIPES, false, false);
+        super(metaTileEntityId, RecipeMaps.FUSION_RECIPES, false, false, 0, TJConfig.industrialFusionReactor.maximumSlices);
         this.recipeLogic.setAllowOverclocking(false);
         this.recipeLogic.setActiveConsumer(this::replaceEnergyPortsAsActive);
         this.fusionTier = tier;
@@ -496,20 +496,13 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
     }
 
     @Override
-    public int getMaxExtent() {
-        return TJConfig.industrialFusionReactor.maximumSlices;
-    }
-
-    @Override
-    public int getMinExtent() {
-        return 0;
-    }
-
-
-
-    @Override
     public void setJEIPreviewLayer(int layer) {
-        this.parallelLayer = MathHelper.clamp(layer, 1, this.getMaxExtent());
+        this.parallelLayer = MathHelper.clamp(layer, this.getMinExtent(), this.getMaxExtent());
         this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    public int getJEIPreviewLayer() {
+        return this.parallelLayer;
     }
 }

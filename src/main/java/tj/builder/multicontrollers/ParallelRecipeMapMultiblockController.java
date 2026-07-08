@@ -107,6 +107,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
         return new ParallelRecipeLogic<>(this);
     }
 
+    protected int getExtentStep() {
+        return 1;
+    }
+
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
         return !abilities.getOrDefault(MultiblockAbility.INPUT_ENERGY, Collections.emptyList()).isEmpty() &&
@@ -587,13 +591,20 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     @Override
     public int getMaxExtent() {
-        return getMaxParallel();
+        return (this.getMaxParallel() + getExtentStep() - 1) / getExtentStep();
+
     }
 
     @Override
-    public void setJEIPreviewLayer(int layer) {
-        this.parallelLayer = MathHelper.clamp(layer, 1, this.getMaxParallel());
+    public void setJEIPreviewLayer(int extent) {
+        //int rawLayer = Math.min(extent * getExtentStep(), this.getMaxParallel());
+        int rawLayer = Math.min(1 + (extent - 1) * getExtentStep(), getMaxParallel());
+        this.parallelLayer = MathHelper.clamp(rawLayer, 1, this.getMaxParallel());
         this.structurePattern = this.createStructurePattern();
     }
 
+    @Override
+    public int getJEIPreviewLayer() {
+        return (parallelLayer + getExtentStep() - 1) / getExtentStep();
+    }
 }

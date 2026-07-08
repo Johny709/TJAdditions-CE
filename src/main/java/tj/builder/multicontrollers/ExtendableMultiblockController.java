@@ -102,10 +102,14 @@ public abstract class ExtendableMultiblockController extends TJMultiblockControl
         this.structurePattern = this.createStructurePattern();
     }
 
-
     @Override
     public void setJEIPreviewLayer(int layer) {
-        this.parallelLayer = MathHelper.clamp(layer, 1, this.getMaxExtent());
+        this.parallelLayer = MathHelper.clamp(layer, this.getMinExtent(), this.getMaxExtent());
         this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    public int getJEIPreviewLayer() {
+        return this.parallelLayer;
     }
 }

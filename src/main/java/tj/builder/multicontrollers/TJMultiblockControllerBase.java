@@ -114,25 +114,35 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
     protected Instant placedDown = Instant.now();
     protected Instant activeDate;
 
+
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId) {
-        this(metaTileEntityId, true, true,1,1,0);
+        this(metaTileEntityId, true, true,1,1);
     }
 
-    public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, int minExtent, int maxExtent, int minTier) {
-        this(metaTileEntityId, true, true, minExtent, maxExtent, minTier);
+    public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, int minExtent, int maxExtent) {
+        this(metaTileEntityId, true, true,minExtent,maxExtent,0);
     }
 
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance) {
         this(metaTileEntityId, hasMaintenance, true,1,1,0);
     }
 
+    public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance, boolean hasDistinct) {
+        this(metaTileEntityId, hasMaintenance, hasDistinct,1,1,0);
+    }
+
+    public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, int minExtent, int maxExtent, int minTier) {
+        this(metaTileEntityId, true, true, minExtent, maxExtent, minTier);
+    }
+
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance, int minExtent, int maxExtent, int minTier) {
         this(metaTileEntityId, hasMaintenance, true, minExtent, maxExtent, minTier);
     }
 
-    public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance, boolean hasDistinct) {
-        this(metaTileEntityId, hasMaintenance, hasDistinct,1,1,0);
+    public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance, boolean hasDistinct, int minExtent, int maxExtent) {
+        this(metaTileEntityId, hasMaintenance, hasDistinct,minExtent,maxExtent,0);
     }
+
 
 
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance, boolean hasDistinct, int minExtent, int maxExtent, int minTier) {

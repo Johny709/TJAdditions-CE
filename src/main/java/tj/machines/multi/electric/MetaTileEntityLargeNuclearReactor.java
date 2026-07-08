@@ -57,7 +57,7 @@ public class MetaTileEntityLargeNuclearReactor extends TJMultiRecipeMapMultibloc
     private int parallelLayer = 1;
 
     public MetaTileEntityLargeNuclearReactor(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, GARecipeMaps.NUCLEAR_REACTOR_RECIPES, GARecipeMaps.NUCLEAR_BREEDER_RECIPES);
+        super(metaTileEntityId, 1, TJConfig.largeNuclearReactor.maximumSlices, GARecipeMaps.NUCLEAR_REACTOR_RECIPES, GARecipeMaps.NUCLEAR_BREEDER_RECIPES);
     }
 
     @Override
@@ -231,13 +231,14 @@ public class MetaTileEntityLargeNuclearReactor extends TJMultiRecipeMapMultibloc
         return 0; // don't display parallel overclocking per tier on tooltip
     }
 
-    public int getMaxExtent() {
-        return TJConfig.largeNuclearReactor.maximumSlices;
-    }
-    
     @Override
     public void setJEIPreviewLayer(int layer) {
-        this.parallelLayer = MathHelper.clamp(layer, 1, this.getMaxExtent());
+        this.parallelLayer = MathHelper.clamp(layer, getMinExtent(), this.getMaxExtent());
         this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    public int getJEIPreviewLayer() {
+        return this.parallelLayer;
     }
 }
