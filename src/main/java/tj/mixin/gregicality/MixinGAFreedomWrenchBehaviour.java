@@ -24,7 +24,7 @@ import java.util.List;
 public abstract class MixinGAFreedomWrenchBehaviour {
 
     @Inject(method = "build", at = @At("HEAD"))
-    private void tj_syncParallelLayer(MultiblockControllerBase controller, World world, CallbackInfo ci) {
+    private void syncParallelLayer(MultiblockControllerBase controller, World world, CallbackInfo ci) {
         if (!(controller instanceof IJEIExtentSync)) {
             return;
         }
@@ -54,3 +54,4 @@ public abstract class MixinGAFreedomWrenchBehaviour {
         }
     }
 }
+

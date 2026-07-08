@@ -68,7 +68,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     private long maxHeat;
 
     public MetaTileEntityMegaFusion(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, RecipeMaps.FUSION_RECIPES, true, false,1,1, GTValues.VoltageTier.UHV.tier());
+        super(metaTileEntityId, RecipeMaps.FUSION_RECIPES, true, false,1,1);
         this.recipeLogic.setAllowOverclocking(false);
         this.energyContainer = new EnergyContainerHandler(this, Integer.MAX_VALUE, 0, 0 ,0, 0) {
             @Override
