@@ -26,6 +26,7 @@ public class TJBlocks {
     public static BlockDefinition STOCKING_INTERFACE;
     public static BlockDefinition STOCKING_FLUID_INTERFACE;
     public static BlockDefinition STOCKING_DUAL_INTERFACE;
+    public static BlockDefinition SUPER_ULTIMATE_INTERFACE;
 
     public static BlockDefinition CRAFTING_STORAGE_65536K;
     public static BlockDefinition CRAFTING_STORAGE_262144K;
@@ -40,6 +41,7 @@ public class TJBlocks {
         STOCKING_INTERFACE = registerBlock(registry, "me.stocking_interface", new BlockStockingInterface(), AEBaseItemBlock::new);
         STOCKING_FLUID_INTERFACE = registerBlock(registry, "me.stocking_fluid_interface", new BlockStockingFluidInterface(), AEBaseItemBlock::new);
         STOCKING_DUAL_INTERFACE = registerBlock(registry, "me.stocking_dual_interface", new BlockStockingDualInterface(), AEBaseItemBlock::new);
+        SUPER_ULTIMATE_INTERFACE = registerBlock(registry, "me.super_ultimate_interface", new BlockSuperUltimateInterface(), AEBaseItemBlock::new);
 
         CRAFTING_STORAGE_65536K = registerBlock(registry, "me.crafting_storage.65536k", new BlockTJCraftingUnit(BlockTJCraftingUnit.TJCraftingUnitType.STORAGE_65536k));
         CRAFTING_STORAGE_262144K = registerBlock(registry, "me.crafting_storage.262144k", new BlockTJCraftingUnit(BlockTJCraftingUnit.TJCraftingUnitType.STORAGE_262144k));
@@ -53,6 +55,7 @@ public class TJBlocks {
         GameRegistry.registerTileEntity(TileStockingInterface.class, new ResourceLocation(TJ.MODID, "me.stocking_interface"));
         GameRegistry.registerTileEntity(TileStockingFluidInterface.class, new ResourceLocation(TJ.MODID, "me.stocking_fluid_interface"));
         GameRegistry.registerTileEntity(TileStockingDualInterface.class, new ResourceLocation(TJ.MODID, "me.stocking_dual_interface"));
+        GameRegistry.registerTileEntity(TileSuperUltimateInterface.class, new ResourceLocation(TJ.MODID, "me.super_ultimate_interface"));
         GameRegistry.registerTileEntity(TileTJCraftingStorageTile.class, new ResourceLocation(TJ.MODID, "me.crafting_storage"));
     }
 

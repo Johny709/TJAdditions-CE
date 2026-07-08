@@ -75,7 +75,8 @@ public class BlockStockingDualInterface extends BlockInterface {
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
                 .addTab("tile.me.stocking_interface.name", TJItems.PART_STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> createInterfaceTab(widgets, superDualInterface, buttonPopUpWidget, buttonPopUpTickWidget))
                 .addTab("tile.me.stocking_fluid_interface.name", TJItems.PART_STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> createFluidInterfaceTab(widgets, superDualInterface, buttonPopUpWidget, buttonPopUpTickWidget));
-        return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 211, 292)
+        return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
+                .image(179, 0, 32, 194, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(superDualInterface.getItemStackRepresentation()).setLocale(superDualInterface.getItemStackRepresentation().getDisplayName()))
                 .widget(new TJLabelWidget(4, 0, 162, 18, null)

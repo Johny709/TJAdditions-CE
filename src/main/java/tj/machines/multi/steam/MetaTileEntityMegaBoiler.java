@@ -8,8 +8,10 @@ import gregtech.api.GTValues;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.multiblock.BlockWorldState;
+import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.block.Block;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.SoundEvent;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.capability.impl.handler.IBoilerHandler;
@@ -375,5 +377,17 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
     @Override
     public int getMaxTemperature() {
         return this.boilerType.maxTemperature;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return this.isValid() && boilerRecipeLogic.isActive() && this.isStructureFormed();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return GTSoundEvents.FIRE;
     }
 }

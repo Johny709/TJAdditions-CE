@@ -5,7 +5,6 @@ import gregtech.api.gui.resources.TextureArea;
 
 public class TJGuiTextures {
 
-    public static final TextureArea BORDERED_BACKGROUND_RIGHT = TextureArea.fullImage("textures/gui/base/bordered_background_right_tab.png");
     public static final TextureArea DARKENED_SLOT = TextureArea.fullImage("textures/gui/base/darkened_slot.png");
     public static final TextureArea MULTIBLOCK_DISPLAY_BASE = AdoptableTextureArea.fullImage("textures/gui/base/multiblock_display_base.png", 18, 18, 2, 2);
     public static final TextureArea TJ_LOGO_ANIMATED = TextureArea.fullImage("textures/tj_logo_animated.png");
@@ -22,7 +21,6 @@ public class TJGuiTextures {
     public static final TextureArea FLUID_BAR = AdoptableTextureArea.fullImage("textures/gui/bar/fluid_bar.png", 10, 10, 1, 1);
     public static final TextureArea SELECTION_BOX = AdoptableTextureArea.fullImage("textures/gui/base/select_box.png", 18, 18, 1, 1);
     public static final TextureArea SELECTION_BOX_2 = AdoptableTextureArea.fullImage("textures/gui/base/select_box2.png", 18, 18, 1, 1);
-    public static final TextureArea SELECTION_BOX_3 = AdoptableTextureArea.fullImage("textures/gui/base/select_box3.png", 18, 18, 1, 1);
 
     public static final TextureArea AUTOSCROLL = TextureArea.fullImage("textures/gui/base/auto_scroll.png");
     public static final TextureArea AUTOSCROLL_UP = TextureArea.fullImage("textures/gui/base/auto_scroll_up.png");
@@ -41,8 +39,6 @@ public class TJGuiTextures {
     public static final TextureArea TOGGLE_RESET_BUTTON = TextureArea.fullImage("textures/gui/widget/reset_button_toggle.png");
     public static final TextureArea TOGGLE_UP_BUTTON = TextureArea.fullImage("textures/gui/widget/up_button_toggle.png");
     public static final TextureArea TOGGLE_DOWN_BUTTON = TextureArea.fullImage("textures/gui/widget/down_button_toggle.png");
-    public static final TextureArea TOGGLE_PLUS_BUTTON = TextureArea.fullImage("textures/gui/widget/plus_button_toggle.png");
-    public static final TextureArea TOGGLE_MINUS_BUTTON = TextureArea.fullImage("textures/gui/widget/minus_button_toggle.png");
     public static final TextureArea TOGGLE_ITEM_VOID_BUTTON = TextureArea.fullImage("textures/gui/widget/item_void_button_toggle.png");
     public static final TextureArea TOGGLE_FLUID_VOID_BUTTON = TextureArea.fullImage("textures/gui/widget/fluid_void_button_toggle.png");
     public static final TextureArea TOGGLE_CLEAR_GRID_BUTTON = TextureArea.fullImage("textures/gui/widget/button_clear_grid_toggle.png");
@@ -86,8 +82,6 @@ public class TJGuiTextures {
     public static final TextureArea BUTTON_BATCH_SIXTY_FOUR = TextureArea.fullImage("textures/button/batch_64.png");
     public static final TextureArea BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX = TextureArea.fullImage("textures/button/batch_256.png");
 
-    public static final TextureArea MULTIBLOCK_BOTTOM_TABS = TextureArea.fullImage("textures/gui/tab/multiblock_tabs_bottom.png");
-
     public static final TextureArea AXE_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/axe_overlay.png");
     public static final TextureArea HOE_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/hoe_overlay.png");
     public static final TextureArea SHEARS_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/shears_overlay.png");
@@ -96,8 +90,6 @@ public class TJGuiTextures {
     public static final TextureArea LIST_OVERLAY = TextureArea.fullImage("textures/gui/widget/list_overlay.png");
 
     public static final TextureArea SUPER_INTERFACE = TextureArea.fullImage("textures/gui/super_interface.png");
-    public static final TextureArea SUPER_FLUID_INTERFACE = TextureArea.fullImage("textures/gui/super_fluid_interface.png");
-    public static final TextureArea PATTERN_INTERFACE = TextureArea.fullImage("textures/gui/pattern_interface.png");
     public static final TextureArea INTERFACE_SETTINGS_EDGE_RIGHT = TextureArea.fullImage("textures/gui/widget/interface_settings_base_edge_right.png");
     public static final TextureArea INTERFACE_SETTINGS_LEFT = TextureArea.fullImage("textures/gui/widget/interface_settings_base_left.png");
     public static final TextureArea UPGRADE_OVERLAY = TextureArea.fullImage("textures/gui/widget/me.upgrade_overlay.png");

@@ -68,6 +68,15 @@ public class SelectionWidgetGroup extends WidgetGroup {
         this.addWidget(widget);
     }
 
+    /**
+     *
+     * @param index choose widget list id for this box to belong to.
+     * @param widget Uses the widget's cords and size for box.
+     */
+    public void addSelectionBox(int index, Widget widget) {
+        this.selectionBoxes.put(widget, index);
+    }
+
     @Override
     public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
         return this.widgetMap.getOrDefault(this.activeIndex, Collections.emptyList()).stream()
