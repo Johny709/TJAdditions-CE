@@ -171,7 +171,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
                     withHoverTextTranslate(heatEffText, "gregtech.multiblock.large_boiler.heat_efficiency.tooltip");
                     text.addTextComponent(heatEffText);
                     if (this.calcification > 0)
-                        text.addTextComponent(new TextComponentString(I18n.translateToLocalFormatted("tj.multiblock.large_solar_boiler.calcification", (this.calcification == 240000 ? Color.RED : Color.DARK_AQUA) + TJValues.thousandTwoPlaceFormat.format(this.getCalcificationPercent() * 100))));
+                        text.addTranslationLine("tj.multiblock.large_solar_boiler.calcification", (this.calcification == 500000 ? Color.RED : Color.DARK_AQUA) + TJValues.thousandTwoPlaceFormat.format(this.getCalcificationPercent() * 100));
                     if (!this.canBurn())
                         text.addTextComponent(new TextComponentTranslation("tj.multiblock.large_solar_boiler.obstructed").setStyle(new Style().setColor(TextFormatting.RED)));
                     if (!this.areSolarCollectorsValid())
@@ -423,7 +423,7 @@ public class MetaTileEntityLargeSolarBoiler extends TJMultiblockControllerBase i
     }
 
     public float getCalcificationPercent() {
-        return this.calcification / (240000 * 1.00F);
+        return this.calcification / (500000 * 1.00F);
     }
 
     public float getTempPercent() {
