@@ -29,6 +29,7 @@ import tj.util.predicates.IntBiPredicate;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -189,7 +190,7 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
             this.scrollBarTexture.draw(this.scrollBarRec.x, this.scrollBarRec.y, this.scrollBarRec.width, this.scrollBarRec.height);
         if (this.scrollSliderTexture == null) return;
         final int scrollOffset = this.scrollSliderRec.y + Math.round((float) this.scrollOffset / Math.round((float) this.scrollHeight / this.scrollBarRec.height));
-        final int sliderY = Math.max(this.scrollSliderRec.y, scrollOffset);
+        final int sliderY = Math.max(this.scrollBarRec.y, Math.min(this.scrollBarRec.y + this.scrollBarRec.height - this.scrollSliderRec.height, scrollOffset));
         this.scrollSliderTexture.draw(this.scrollSliderRec.x, sliderY, this.scrollSliderRec.width, this.scrollSliderRec.height);
     }
 
@@ -297,14 +298,17 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         ItemStack playerStack = this.gui.entityPlayer.inventory.getItemStack();
         int index = 0;
         int scrollHeight = 0;
+        final int scrollOffset = this.scrollOffset + this.getSize().getHeight() + 18;
         grid:
         for (Class<? extends IGridHost> gridHost : this.gridHosts) {
-            for (IGridNode gridNode : this.grid.getMachines(gridHost)) {
+            final Iterator<IGridNode> gridNodes = this.grid.getMachines(gridHost).iterator();
+            while (gridNodes.hasNext()) { // Increase scrollHeight if there are more elements remaining.
+                final IGridNode gridNode = gridNodes.next();
                 if (!gridNode.isActive()) continue;
                 final T machine = (T) gridNode.getMachine();
                 if (!this.predicate.test(machine)) continue;
                 final IItemHandler inventory = this.inventorySupplier.apply(machine);
-                if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
+                if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset)
                     index++;
                 scrollHeight += 18;
                 for (int j = 0, slotColumn = 0; j < inventory.getSlots(); j++) {
@@ -319,12 +323,13 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                         } else inventory.insertItem(j, output, false);
                         break grid;
                     }
-                    if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18 && this.slotPredicate.test(j, machine)) {
+                    if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && this.slotPredicate.test(j, machine)) {
                         slotColumn++;
                         index++;
                     }
                 }
-                scrollHeight += 18;
+                if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && gridNodes.hasNext())
+                    scrollHeight += 18;
             }
         }
         final ItemStack finalPlayerStack = playerStack;
@@ -338,13 +343,16 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         this.elements.clear();
         int index = 0;
         int scrollHeight = 0;
+        final int scrollOffset = this.scrollOffset + this.getSize().getHeight() + 18;
         for (Class<? extends IGridHost> gridHost : this.gridHosts) {
-            for (IGridNode gridNode : this.grid.getMachines(gridHost)) {
+            final Iterator<IGridNode> gridNodes = this.grid.getMachines(gridHost).iterator();
+            while (gridNodes.hasNext()) { // Increase scrollHeight if there are more elements remaining.
+                final IGridNode gridNode = gridNodes.next();
                 if (!gridNode.isActive()) continue;
                 final T machine = (T) gridNode.getMachine();
                 if (!this.predicate.test(machine)) continue;
                 final IItemHandler inventory = this.inventorySupplier.apply(machine);
-                if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
+                if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset)
                     this.elements.put(index++, ((ICustomNameObject) gridNode.getMachine()).getCustomInventoryName());
                 scrollHeight += 18;
                 for (int i = 0, slotColumn = 0; i < inventory.getSlots(); i++) {
@@ -352,12 +360,13 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                         scrollHeight += 18;
                         slotColumn = 0;
                     }
-                    if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18 && this.slotPredicate.test(i, machine)) {
+                    if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && this.slotPredicate.test(i, machine)) {
                         this.elements.put(index++, inventory.getStackInSlot(i));
                         slotColumn++;
                     }
                 }
-                scrollHeight += 18;
+                if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && gridNodes.hasNext())
+                    scrollHeight += 18;
             }
         }
         if (this.scrollHeight != scrollHeight) {

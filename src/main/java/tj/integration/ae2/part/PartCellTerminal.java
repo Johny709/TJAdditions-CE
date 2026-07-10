@@ -8,6 +8,7 @@ import appeng.tile.storage.TileDrive;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.util.TextFormattingUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -59,7 +60,8 @@ public class PartCellTerminal extends PartInterfaceTerminal implements ITileEnti
                         .setDynamicLocale(this::getCustomInventoryName)
                         .setCentered(false)
                         .setCanSlide(false))
-                .widget(new AEItemListWidget<IChestOrDrive>(7, 34, 166, 162, this.getGridNode(), TileDrive.class)
+                .widget(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT))
+                .widget(new AEItemListWidget<IChestOrDrive>(7, 34, 162, 162, this.getGridNode(), TileDrive.class)
                         .setInventorySupplier(drive -> ((AEBaseInvTile) drive).getInternalInventory())
                         .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                         .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT)

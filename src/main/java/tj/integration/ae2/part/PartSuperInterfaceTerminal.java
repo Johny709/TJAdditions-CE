@@ -10,6 +10,7 @@ import appeng.tile.networking.TileCableBus;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
+import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.util.TextFormattingUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -66,7 +67,8 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         .setDynamicLocale(this::getCustomInventoryName)
                         .setCentered(false)
                         .setCanSlide(false))
-                .widget(new AEItemListWidget<IInterfaceHost>(7, 34, 166, 162, this.getGridNode(), TileInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class)
+                .widget(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT))
+                .widget(new AEItemListWidget<IInterfaceHost>(7, 34, 162, 162, this.getGridNode(), TileInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class)
                         .setSlotPredicate((slot, interfaceHost) -> slot / 9 <= interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION))
                         .setPredicate(interfaceHost -> interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) == YesNo.YES)
                         .setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getPatterns())
