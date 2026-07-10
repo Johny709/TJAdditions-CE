@@ -189,7 +189,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         if (this.scrollBarTexture != null)
             this.scrollBarTexture.draw(this.scrollBarRec.x, this.scrollBarRec.y, this.scrollBarRec.width, this.scrollBarRec.height);
         if (this.scrollSliderTexture == null) return;
-        final int scrollOffset = this.scrollSliderRec.y + Math.round((float) this.scrollOffset / Math.round((float) this.scrollHeight / this.scrollBarRec.height));
+        final double heightDiff = (double) this.scrollBarRec.height / this.scrollHeight;
+        final int scrollOffset = this.scrollSliderRec.y + (int) Math.round(this.scrollOffset * heightDiff);
         final int sliderY = Math.max(this.scrollBarRec.y, Math.min(this.scrollBarRec.y + this.scrollBarRec.height - this.scrollSliderRec.height, scrollOffset));
         this.scrollSliderTexture.draw(this.scrollSliderRec.x, sliderY, this.scrollSliderRec.width, this.scrollSliderRec.height);
     }
@@ -234,7 +235,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                 }
             }
         } else if (this.scrollBarRec.contains(mouseX, mouseY)) {
-            this.scrollOffset = Math.max(0, Math.min((mouseY - this.scrollBarRec.y) * Math.round((float) this.scrollHeight / this.scrollBarRec.height), this.scrollHeight - this.getSize().getHeight()));
+            final double heightDiff = (double) this.scrollBarRec.height / this.scrollHeight;
+            this.scrollOffset = (int) Math.max(0, (mouseY - this.scrollBarRec.y) / heightDiff);
             this.writeClientAction(1, buffer -> buffer.writeInt(this.scrollOffset));
         }
         return false;
@@ -245,7 +247,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
         if (button == 0 || button == 1) {
             if (this.scrollBarRec.contains(mouseX, mouseY)) {
-                this.scrollOffset = Math.max(0, Math.min((mouseY - this.scrollBarRec.y) * Math.round((float) this.scrollHeight / this.scrollBarRec.height), this.scrollHeight - this.getSize().getHeight()));
+                final double heightDiff = (double) this.scrollBarRec.height / this.scrollHeight;
+                this.scrollOffset = (int) Math.max(0, (mouseY - this.scrollBarRec.y) / heightDiff);
                 this.writeClientAction(1, buffer -> buffer.writeInt(this.scrollOffset));
             }
         }
@@ -311,7 +314,7 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                 if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset)
                     index++;
                 scrollHeight += 18;
-                for (int j = 0, slotColumn = 0; j < inventory.getSlots(); j++) {
+                for (int j = 0, slotColumn = 0; j < inventory.getSlots(); j++, slotColumn++) {
                     if (slotColumn > 8) {
                         scrollHeight += 18;
                         slotColumn = 0;
@@ -323,12 +326,10 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                         } else inventory.insertItem(j, output, false);
                         break grid;
                     }
-                    if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && this.slotPredicate.test(j, machine)) {
-                        slotColumn++;
+                    if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && this.slotPredicate.test(j, machine))
                         index++;
-                    }
                 }
-                if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && gridNodes.hasNext())
+                if (gridNodes.hasNext())
                     scrollHeight += 18;
             }
         }
@@ -355,17 +356,15 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                 if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset)
                     this.elements.put(index++, ((ICustomNameObject) gridNode.getMachine()).getCustomInventoryName());
                 scrollHeight += 18;
-                for (int i = 0, slotColumn = 0; i < inventory.getSlots(); i++) {
+                for (int i = 0, slotColumn = 0; i < inventory.getSlots(); i++, slotColumn++) {
                     if (slotColumn > 8) {
                         scrollHeight += 18;
                         slotColumn = 0;
                     }
-                    if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && this.slotPredicate.test(i, machine)) {
+                    if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && this.slotPredicate.test(i, machine))
                         this.elements.put(index++, inventory.getStackInSlot(i));
-                        slotColumn++;
-                    }
                 }
-                if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && gridNodes.hasNext())
+                if (gridNodes.hasNext())
                     scrollHeight += 18;
             }
         }
@@ -401,7 +400,7 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
 
     private void addScrollOffset(int delta) {
         this.scrollOffset += delta;
-        this.scrollOffset = Math.max(0, Math.min(this.scrollOffset, this.scrollHeight - this.getSize().getHeight()));
+        this.scrollOffset = Math.max(0, Math.min(this.scrollOffset, this.scrollHeight));
         this.writeClientAction(1, buffer -> buffer.writeInt(this.scrollOffset));
     }
 
