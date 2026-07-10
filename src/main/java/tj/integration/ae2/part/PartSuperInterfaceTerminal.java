@@ -1,6 +1,7 @@
 package tj.integration.ae2.part;
 
 import appeng.api.config.Settings;
+import appeng.api.config.Upgrades;
 import appeng.api.config.YesNo;
 import appeng.helpers.IInterfaceHost;
 import appeng.parts.reporting.PartInterfaceTerminal;
@@ -57,7 +58,7 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
 
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 310)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJItems.PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
                         .setLocale("item.me.part.super_interface_terminal.name"))
@@ -66,6 +67,7 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         .setCentered(false)
                         .setCanSlide(false))
                 .widget(new AEItemListWidget<IInterfaceHost>(7, 34, 166, 162, this.getGridNode(), TileInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class)
+                        .setSlotPredicate((slot, interfaceHost) -> slot / 9 <= interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION))
                         .setPredicate(interfaceHost -> interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) == YesNo.YES)
                         .setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getPatterns())
                         .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)

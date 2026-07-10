@@ -25,6 +25,7 @@ import org.apache.logging.log4j.util.TriConsumer;
 import tj.TJ;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.TJWidget;
+import tj.util.predicates.IntBiPredicate;
 
 import java.awt.*;
 import java.io.IOException;
@@ -38,9 +39,10 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     private final Class<? extends IGridHost>[] gridHosts;
     private final IGrid grid;
     private final int posX;
-    private Function<T, IItemHandler> inventorySupplier;
-    private Predicate<T> predicate;
     private TriConsumer<ItemStack, Integer, Integer> renderCallback;
+    private Function<T, IItemHandler> inventorySupplier;
+    private IntBiPredicate<T> slotPredicate;
+    private Predicate<T> predicate;
     private TextureArea scrollSliderTexture;
     private TextureArea scrollBarTexture;
     private Rectangle scrollSliderRec;
@@ -75,6 +77,11 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
 
     public AEItemListWidget<T> setInventorySupplier(Function<T, IItemHandler> inventorySupplier) {
         this.inventorySupplier = inventorySupplier;
+        return this;
+    }
+
+    public AEItemListWidget<T> setSlotPredicate(IntBiPredicate<T> slotPredicate) {
+        this.slotPredicate = slotPredicate;
         return this;
     }
 
@@ -293,12 +300,14 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         grid:
         for (Class<? extends IGridHost> gridHost : this.gridHosts) {
             for (IGridNode gridNode : this.grid.getMachines(gridHost)) {
-                if (!gridNode.isActive() || !this.predicate.test((T) gridNode.getMachine())) continue;
-                final IItemHandler inventory = this.inventorySupplier.apply((T) gridNode.getMachine());
+                if (!gridNode.isActive()) continue;
+                final T machine = (T) gridNode.getMachine();
+                if (!this.predicate.test(machine)) continue;
+                final IItemHandler inventory = this.inventorySupplier.apply(machine);
                 if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
                     index++;
                 scrollHeight += 18;
-                for (int j = 0, slotColumn = 0; j < inventory.getSlots(); j++, slotColumn++) {
+                for (int j = 0, slotColumn = 0; j < inventory.getSlots(); j++) {
                     if (slotColumn > 8) {
                         scrollHeight += 18;
                         slotColumn = 0;
@@ -310,8 +319,10 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                         } else inventory.insertItem(j, output, false);
                         break grid;
                     }
-                    if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
+                    if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18 && this.slotPredicate.test(j, machine)) {
+                        slotColumn++;
                         index++;
+                    }
                 }
                 scrollHeight += 18;
             }
@@ -329,18 +340,22 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         int scrollHeight = 0;
         for (Class<? extends IGridHost> gridHost : this.gridHosts) {
             for (IGridNode gridNode : this.grid.getMachines(gridHost)) {
-                if (!gridNode.isActive() || !this.predicate.test((T) gridNode.getMachine())) continue;
-                final IItemHandler inventory = this.inventorySupplier.apply((T) gridNode.getMachine());
+                if (!gridNode.isActive()) continue;
+                final T machine = (T) gridNode.getMachine();
+                if (!this.predicate.test(machine)) continue;
+                final IItemHandler inventory = this.inventorySupplier.apply(machine);
                 if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
                     this.elements.put(index++, ((ICustomNameObject) gridNode.getMachine()).getCustomInventoryName());
                 scrollHeight += 18;
-                for (int i = 0, slotColumn = 0; i < inventory.getSlots(); i++, slotColumn++) {
+                for (int i = 0, slotColumn = 0; i < inventory.getSlots(); i++) {
                     if (slotColumn > 8) {
                         scrollHeight += 18;
                         slotColumn = 0;
                     }
-                    if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18)
+                    if (scrollHeight >= this.scrollOffset && scrollHeight <= this.scrollOffset + this.getSize().getHeight() + 18 && this.slotPredicate.test(i, machine)) {
                         this.elements.put(index++, inventory.getStackInSlot(i));
+                        slotColumn++;
+                    }
                 }
                 scrollHeight += 18;
             }

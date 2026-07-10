@@ -63,6 +63,7 @@ public class PartCellTerminal extends PartInterfaceTerminal implements ITileEnti
                         .setInventorySupplier(drive -> ((AEBaseInvTile) drive).getInternalInventory())
                         .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                         .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT)
+                        .setSlotPredicate((s, iChestOrDrive) -> true)
                         .setPredicate(iChestOrDrive -> true)
                         .setRenderCallback(this::renderCallback))
                 .bindPlayerInventory(player.inventory, 209)
