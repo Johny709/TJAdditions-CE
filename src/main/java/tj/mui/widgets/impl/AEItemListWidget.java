@@ -3,7 +3,10 @@ package tj.mui.widgets.impl;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
+import appeng.client.render.BlockPosHighlighter;
+import appeng.core.localization.PlayerMessages;
 import appeng.helpers.ICustomNameObject;
+import appeng.util.BlockPosUtils;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.igredient.IIngredientSlot;
@@ -13,9 +16,12 @@ import gregtech.api.util.RenderUtil;
 import gregtech.api.util.Size;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
@@ -29,6 +35,7 @@ import tj.util.predicates.IntBiPredicate;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -109,6 +116,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         if (!this.isMouseOverElement(mouseX, mouseY)) return;
+        final Position pos = this.getPosition();
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         int scrollOffset = 0;
         int slotColumn = 0;
         int slotXOffset = 0;
@@ -119,8 +128,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                     scrollOffset += 18;
                     slotXOffset = 0;
                 }
-                final int x = this.getPosition().getX() + slotXOffset;
-                final int y = this.getPosition().getY() + scrollOffset - (this.scrollOffset % 18);
+                final int x = pos.getX() + slotXOffset;
+                final int y = pos.getY() + scrollOffset - (this.scrollOffset % 18);
                 final ItemStack itemStack = (ItemStack) entry.getValue();
                 if (!itemStack.isEmpty() && isMouseOver(x, y, 18, 18, mouseX, mouseY)) {
                     final List<String> tooltip = getItemToolTip(itemStack);
@@ -133,6 +142,9 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
             } else {
                 if (entry.getIntKey() > 0)
                     scrollOffset += 18;
+                final int len = fontRenderer.getStringWidth(entry.getValue().toString()) + 8;
+                if (isMouseOver(pos.getX(), pos.getY() + 3 + scrollOffset - (this.scrollOffset % 18), len, 16, mouseX, mouseY))
+                    this.drawHoveringText(ItemStack.EMPTY, Collections.singletonList(I18n.format("gui.tooltips.appliedenergistics2.HighlightInterface")), -1, mouseX, mouseY);
                 scrollOffset += 18;
                 slotXOffset = 0;
                 slotColumn = 0;
@@ -155,6 +167,7 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         final Size size = this.getSize();
         final Position pos = this.getPosition();
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         RenderUtil.useScissor(pos.getX(), pos.getY(), size.getWidth(), size.getHeight(), () -> {
             int scrollOffset = 0;
             int slotColumn = 0;
@@ -179,7 +192,12 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                 } else {
                     if (entry.getIntKey() > 0)
                         scrollOffset += 18;
-                    this.drawStringSized((String) entry.getValue(), pos.getX(), pos.getY() + 4 + scrollOffset - (this.scrollOffset % 18), 0xAAAAAA, true, 1, false);
+                    final int y = pos.getY() + scrollOffset - (this.scrollOffset % 18) + 1;
+                    final int len = fontRenderer.getStringWidth(entry.getValue().toString()) + 8;
+                    GuiTextures.BORDERED_BACKGROUND.draw(pos.getX(), y, len, 16);
+                    this.drawStringSized(entry.getValue().toString(), pos.getX() + 4, y + 4, 0xAAAAAA, true, 1, false);
+                    if (this.isMouseOverElement(mouseX, mouseY) && isMouseOver(pos.getX(), y, len, 16, mouseX, mouseY))
+                        drawSelectionOverlay(pos.getX(), y, len, 16);
                     scrollOffset += 18;
                     slotXOffset = 0;
                     slotColumn = 0;
@@ -199,6 +217,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
         if (this.isMouseOverElement(mouseX, mouseY)) {
+            final Position pos = this.getPosition();
+            final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
             if (this.autoScroll) {
                 this.autoScroll = false;
             } else if (button == 2) {
@@ -215,8 +235,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                         scrollOffset += 18;
                         slotXOffset = 0;
                     }
-                    final int x = this.getPosition().getX() + slotXOffset;
-                    final int y = this.getPosition().getY() + scrollOffset - (this.scrollOffset % 18);
+                    final int x = pos.getX() + slotXOffset;
+                    final int y = pos.getY() + scrollOffset - (this.scrollOffset % 18);
                     if (isMouseOver(x, y, 18, 18, mouseX, mouseY)) {
                         this.writeClientAction(2, buffer -> {
                             buffer.writeInt(entry.getIntKey());
@@ -229,6 +249,15 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                 } else {
                     if (entry.getIntKey() > 0)
                         scrollOffset += 18;
+                    final int len = fontRenderer.getStringWidth(entry.getValue().toString()) + 8;
+                    if (isMouseOver(pos.getX(), pos.getY() + 4 + scrollOffset - (this.scrollOffset % 18), len, 16, mouseX, mouseY)) {
+                        this.playButtonClickSound();
+                        this.writeClientAction(2, buffer -> {
+                            buffer.writeInt(entry.getIntKey());
+                            buffer.writeBoolean(false); // isSlot is false.
+                        });
+                        return true;
+                    }
                     scrollOffset += 18;
                     slotXOffset = 0;
                     slotColumn = 0;
@@ -259,7 +288,7 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     @SideOnly(Side.CLIENT)
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
         if (this.isMouseInWidget(mouseX, mouseY))
-            this.addScrollOffset(MathHelper.clamp(wheelDelta, -1, 1) * -10);
+            this.addScrollOffset(MathHelper.clamp(wheelDelta, -1, 1) * -18);
         return false;
     }
 
@@ -281,6 +310,11 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                 }
             } else if (id == 3) {
                 this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
+            } else if (id == 4) {
+                final BlockPos pos = buffer.readBlockPos();
+                BlockPosHighlighter.hilightBlock(pos, System.currentTimeMillis() + 500 * BlockPosUtils.getDistance(pos, this.gui.entityPlayer.getPosition()), this.gui.entityPlayer.dimension);
+                this.gui.entityPlayer.sendStatusMessage(PlayerMessages.InterfaceHighlighted.get(pos.getX(), pos.getY(), pos.getZ()), false);
+                this.gui.entityPlayer.closeScreen();
             }
         } catch (IOException e) {
             TJ.logger.info(e.getMessage());
@@ -293,11 +327,11 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         if (id == 1) {
             this.scrollOffset = buffer.readInt();
         } else if (id == 2) {
-            this.onAction(buffer.readInt(), buffer.readBoolean());
+            this.actionPerformed(buffer.readInt(), buffer.readBoolean());
         }
     }
 
-    private void onAction(int i, boolean isSlot) {
+    private void actionPerformed(int i, boolean isSlot) {
         ItemStack playerStack = this.gui.entityPlayer.inventory.getItemStack();
         int index = 0;
         int scrollHeight = 0;
@@ -311,15 +345,20 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                 final T machine = (T) gridNode.getMachine();
                 if (!this.predicate.test(machine)) continue;
                 final IItemHandler inventory = this.inventorySupplier.apply(machine);
-                if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset)
+                if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset) {
+                    if (!isSlot && i == index) {
+                        this.writeUpdateInfo(4, buffer -> buffer.writeBlockPos(gridNode.getGridBlock().getLocation().getPos()));
+                        break grid;
+                    }
                     index++;
+                }
                 scrollHeight += 18;
                 for (int j = 0, slotColumn = 0; j < inventory.getSlots(); j++, slotColumn++) {
                     if (slotColumn > 8) {
                         scrollHeight += 18;
                         slotColumn = 0;
                     }
-                    if (i == index) {
+                    if (isSlot && i == index) {
                         final ItemStack output = inventory.extractItem(j, Integer.MAX_VALUE, false);
                         if (inventory.insertItem(j, playerStack, false).isEmpty()) {
                             playerStack = output;
