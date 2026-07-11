@@ -6,10 +6,13 @@ import appeng.api.config.YesNo;
 import appeng.core.Api;
 import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IInterfaceHost;
+import appeng.parts.misc.PartInterface;
 import appeng.parts.reporting.PartInterfaceTerminal;
 import appeng.tile.misc.TileInterface;
 import appeng.tile.networking.TileCableBus;
 import baubles.api.BaublesApi;
+import com.glodblock.github.common.part.PartDualInterface;
+import com.glodblock.github.common.tile.TileDualInterface;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
@@ -102,7 +105,8 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
         final NewTextFieldWidget<?> inputsTextField = new NewTextFieldWidget<>(7, 16, 90, 12, true, searchInputs::getValue, (s, id) -> searchInputs.setValue(s));
         final NewTextFieldWidget<?> outputsTextField = new NewTextFieldWidget<>(7, 30, 90, 12, true, searchOutputs::getValue, (s, id) -> searchOutputs.setValue(s));
         final NewTextFieldWidget<?> interfaceTextField = new NewTextFieldWidget<>(7, 44, 90, 12, true, searchInterface::getValue, (s, id) -> searchInterface.setValue(s));
-        final AEItemListWidget<IInterfaceHost> aeItemListWidget = new AEItemListWidget<>(7, 60, 162, 162, this.getGridNode(), TileInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class);
+        final AEItemListWidget<IInterfaceHost> aeItemListWidget = new AEItemListWidget<>(7, 60, 162, 162, this.getGridNode(), TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class,
+                PartInterface.class, PartDualInterface.class, PartSuperInterface.class, PartSuperDualInterface.class, PartPatternInterface.class, PartSuperUltimateInterface.class);
         final ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 316);
         return this.createPatternMultiToolGUI(builder, patternMultiTool, multiUpgradeSlots, multiPatternSlots, invTag, aeItemListWidget)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)

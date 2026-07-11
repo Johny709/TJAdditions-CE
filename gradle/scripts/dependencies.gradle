@@ -79,6 +79,7 @@ dependencies {
     implementation("curse.maven:random-complement-1198138:8025976")
     api("curse.maven:chisel-235279:2915375")
     implementation(rfg.deobf(project.files("libs/ae2-uel-v0.56.7-5-g26bb598-dev.jar")))
+    implementation(rfg.deobf(project.files("libs/ae2fc-2.7.10-unofficial.jar")))
     implementation(rfg.deobf(project.files("libs/gregtech_tj_fork-1.18.1B-dev.jar")))
     implementation(rfg.deobf(project.files("libs/gregicality_tj_fork-0.26.1B-dev.jar")))
 }
