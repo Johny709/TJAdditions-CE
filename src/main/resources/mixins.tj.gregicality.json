@@ -6,15 +6,6 @@
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ae2.MixinDisassembleRecipe",
-    "ae2.MixinDualityFluidInterface",
-    "ae2.MixinDualityInterface",
-    "ae2.IMixinMultiCraftingTracker",
-    "ae2.MixinTileCableBus",
-    "gregic_probe.MixinElectricContainerInfoProvider",
-    "gregic_probe.MixinRecipeFluidOutputInfoProvider",
-    "gregic_probe.MixinRecipeInfoProvider",
-    "gregic_probe.MixinWorkableInfoProvider",
     "gregicality.MixinGAFueledMultiblockController",
     "gregicality.MixinGAMetaTileEntityLargeTurbine",
     "gregicality.MixinGAMultiblockWithDisplayBase",
@@ -59,35 +50,8 @@
     "gregicality.MixinTileEntityChemicalPlant",
     "gregicality.MixinTileEntityFusionReactor",
     "gregicality.MixinTileEntityLargeChemicalReactor",
-    "gregicality.MixinTileEntityLargeThermalCentrifuge",
-    "gregtech.MixinFuelableInfoProvider",
-    "gregtech.MixinFueledMultiblockController",
-    "gregtech.IMixinAbstractRecipeLogic",
-    "gregtech.IMixinAbstractWidgetGroup",
-    "gregtech.IMixinFueledMultiblockController",
-    "gregtech.IMixinMetaTileEntityEnergyHatch",
-    "gregtech.IMixinRecipeMapMultiblockController",
-    "gregtech.MixinMetaTileEntityDieselEngine",
-    "gregtech.MixinMetaTileEntityLargeBoiler",
-    "gregtech.MixinMetaTileEntityLargeTurbine",
-    "gregtech.MixinMultiblockWithDisplayBase",
-    "gregtech.MixinRecipeLRUCache",
-    "gregtech.MixinRecipeMap",
-    "gregtech.MixinRecipeMapMultiblockController",
-    "gregtech.MixinRecipe",
-    "gregtech.MixinRotorHolderMultiblockController",
-    "gregtech.MixinSimpleMachineMetaTileEntity",
-    "gregtech.MixinSteamMetaTileEntity",
-    "gregtech.MixinTieredMetaTileEntity",
-    "gregtech.MixinTransformerInfoProvider",
-    "gregtech.MixinWorkableTieredMetaTileEntity"
+    "gregicality.MixinTileEntityLargeThermalCentrifuge"
   ],
   "server": [],
-  "client": [
-    "gregtech.client.IMixinMultiblockInfoRecipeWrapper",
-    "gregtech.client.MixinModularUIGuiHandler",
-    "gregtech.client.MixinModularUIGui",
-    "gregtech.client.MixinMultiblockInfoRecipeWrapper",
-    "jei.MixinInputHandler"
-  ]
+  "client": []
 }

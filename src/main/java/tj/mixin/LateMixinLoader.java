@@ -14,6 +14,12 @@ public class LateMixinLoader implements ILateMixinLoader {
 
     @Override
     public List<String> getMixinConfigs() {
-        return ImmutableList.of("mixins.tj.json");
+        final ImmutableList.Builder<String> configs = ImmutableList.builder();
+        configs.add("mixins.tj.gregtech.json", "mixins.tj.gregicality.json", "mixins.tj.jei.json");
+        if (GTValues.isModLoaded(GTValues.MODID_AE2))
+            configs.add("mixins.tj.ae2.json");
+        if (GTValues.isModLoaded("gregicprobe"))
+            configs.add("mixins.tj.gregic_probe.json");
+        return configs.build();
     }
 }

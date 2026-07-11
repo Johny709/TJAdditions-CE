@@ -1,0 +1,39 @@
+{
+  "package": "tj.mixin",
+  "required": true,
+  "refmap": "mixins.tj.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "gregtech.MixinFuelableInfoProvider",
+    "gregtech.MixinFueledMultiblockController",
+    "gregtech.IMixinAbstractRecipeLogic",
+    "gregtech.IMixinAbstractWidgetGroup",
+    "gregtech.IMixinFueledMultiblockController",
+    "gregtech.IMixinMetaTileEntityEnergyHatch",
+    "gregtech.IMixinRecipeMapMultiblockController",
+    "gregtech.MixinMetaTileEntityDieselEngine",
+    "gregtech.MixinMetaTileEntityLargeBoiler",
+    "gregtech.MixinMetaTileEntityLargeTurbine",
+    "gregtech.MixinMultiblockWithDisplayBase",
+    "gregtech.MixinRecipeLRUCache",
+    "gregtech.MixinRecipeMap",
+    "gregtech.MixinRecipeMapMultiblockController",
+    "gregtech.MixinRecipe",
+    "gregtech.MixinRotorHolderMultiblockController",
+    "gregtech.MixinSimpleMachineMetaTileEntity",
+    "gregtech.MixinSteamMetaTileEntity",
+    "gregtech.MixinTieredMetaTileEntity",
+    "gregtech.MixinTransformerInfoProvider",
+    "gregtech.MixinWorkableTieredMetaTileEntity"
+  ],
+  "server": [],
+  "client": [
+    "gregtech.client.IMixinMultiblockInfoRecipeWrapper",
+    "gregtech.client.MixinModularUIGuiHandler",
+    "gregtech.client.MixinModularUIGui",
+    "gregtech.client.MixinMultiblockInfoRecipeWrapper",
+    "jei.MixinInputHandler"
+  ]
+}

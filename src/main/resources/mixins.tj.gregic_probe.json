@@ -1,0 +1,16 @@
+{
+  "package": "tj.mixin",
+  "required": true,
+  "refmap": "mixins.tj.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "gregic_probe.MixinElectricContainerInfoProvider",
+    "gregic_probe.MixinRecipeFluidOutputInfoProvider",
+    "gregic_probe.MixinRecipeInfoProvider",
+    "gregic_probe.MixinWorkableInfoProvider"
+  ],
+  "server": [],
+  "client": []
+}

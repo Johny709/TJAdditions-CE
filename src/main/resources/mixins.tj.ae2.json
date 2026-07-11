@@ -1,0 +1,17 @@
+{
+  "package": "tj.mixin",
+  "required": true,
+  "refmap": "mixins.tj.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ae2.MixinDisassembleRecipe",
+    "ae2.MixinDualityFluidInterface",
+    "ae2.MixinDualityInterface",
+    "ae2.IMixinMultiCraftingTracker",
+    "ae2.MixinTileCableBus"
+  ],
+  "server": [],
+  "client": []
+}
