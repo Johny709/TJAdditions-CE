@@ -16,7 +16,7 @@ plugins {
     id 'org.jetbrains.changelog' version '2.2.1'
 }
 
-apply from: 'gradle/scripts/helpers.gradle'
+apply from: 'helpers.gradle'
 
 // Early Assertions
 assertProperty 'mod_version'
@@ -146,7 +146,7 @@ dependencies {
     }
 }
 
-apply from: 'gradle/scripts/dependencies.gradle'
+apply from: 'dependencies.gradle'
 
 // Adds Access Transformer files to tasks
 if (propertyBool('use_access_transformer')) {
@@ -341,7 +341,7 @@ tasks.named('prepareObfModsFolder').configure {
 tasks.register('prioritizeCoremods') {
     dependsOn 'prepareObfModsFolder'
     doLast {
-        fileTree('run/obfuscated').forEach {
+        fileTree('run/oated').forEach {
             if (it.isFile() && it.name =~ '(mixinbooter|configanytime)(-)([0-9])+\\.+([0-9])+(.jar)') {
                 it.renameTo(new File(it.parentFile, "!${it.name}"))
             }
@@ -355,5 +355,5 @@ idea.project.settings {
     }
 }
 
-apply from: 'gradle/scripts/publishing.gradle'
-apply from: 'gradle/scripts/extra.gradle'
+apply from: 'publishing.gradle'
+apply from: 'extra.gradle'
