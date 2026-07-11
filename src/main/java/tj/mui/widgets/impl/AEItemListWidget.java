@@ -28,9 +28,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import org.apache.logging.log4j.util.TriConsumer;
+import org.lwjgl.input.Keyboard;
 import tj.TJ;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.TJWidget;
+import tj.util.TJItemUtils;
 import tj.util.predicates.IntBiPredicate;
 
 import java.awt.*;
@@ -38,6 +40,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -47,6 +50,7 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     private final Class<? extends IGridHost>[] gridHosts;
     private final IGrid grid;
     private final int posX;
+    private BiFunction<ItemStack, Boolean, ItemStack> itemStackTransfer;
     private TriConsumer<ItemStack, Integer, Integer> renderCallback;
     private Function<T, IItemHandler> inventorySupplier;
     private IntBiPredicate<T> slotPredicate;
@@ -103,6 +107,11 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         return this;
     }
 
+    public AEItemListWidget<T> setItemStackTransfer(BiFunction<ItemStack, Boolean, ItemStack> itemStackTransfer) {
+        this.itemStackTransfer = itemStackTransfer;
+        return this;
+    }
+
     @Override
     public void setParentPosition(Position parentPosition) {
         super.setParentPosition(parentPosition);
@@ -143,7 +152,7 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                 if (entry.getIntKey() > 0)
                     scrollOffset += 18;
                 final int len = fontRenderer.getStringWidth(entry.getValue().toString()) + 8;
-                if (isMouseOver(pos.getX(), pos.getY() + 3 + scrollOffset - (this.scrollOffset % 18), len, 16, mouseX, mouseY))
+                if (isMouseOver(pos.getX(), pos.getY() + 1 + scrollOffset - (this.scrollOffset % 18), len, 16, mouseX, mouseY))
                     this.drawHoveringText(ItemStack.EMPTY, Collections.singletonList(I18n.format("gui.tooltips.appliedenergistics2.HighlightInterface")), -1, mouseX, mouseY);
                 scrollOffset += 18;
                 slotXOffset = 0;
@@ -238,7 +247,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                     final int x = pos.getX() + slotXOffset;
                     final int y = pos.getY() + scrollOffset - (this.scrollOffset % 18);
                     if (isMouseOver(x, y, 18, 18, mouseX, mouseY)) {
-                        this.writeClientAction(2, buffer -> {
+                        final boolean shiftClick = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+                        this.writeClientAction(shiftClick ? 3 : 2, buffer -> {
                             buffer.writeInt(entry.getIntKey());
                             buffer.writeBoolean(true); // isSlot is true.
                         });
@@ -274,12 +284,10 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
-        if (button == 0 || button == 1) {
-            if (this.scrollBarRec.contains(mouseX, mouseY)) {
-                final double heightDiff = (double) this.scrollBarRec.height / this.scrollHeight;
-                this.scrollOffset = (int) Math.max(0, (mouseY - this.scrollBarRec.y) / heightDiff);
-                this.writeClientAction(1, buffer -> buffer.writeInt(this.scrollOffset));
-            }
+        if ((button == 0 || button == 1) && this.scrollBarRec.contains(mouseX, mouseY)) {
+            final double heightDiff = (double) this.scrollBarRec.height / this.scrollHeight;
+            this.scrollOffset = (int) Math.max(0, (mouseY - this.scrollBarRec.y) / heightDiff);
+            this.writeClientAction(1, buffer -> buffer.writeInt(this.scrollOffset));
         }
         return false;
     }
@@ -327,11 +335,49 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         if (id == 1) {
             this.scrollOffset = buffer.readInt();
         } else if (id == 2) {
-            this.actionPerformed(buffer.readInt(), buffer.readBoolean());
+            this.actionPerformed(buffer.readInt(), buffer.readBoolean(), null);
+        } else if (id == 3) {
+            this.actionPerformed(buffer.readInt(), buffer.readBoolean(), this.itemStackTransfer);
         }
     }
 
-    private void actionPerformed(int i, boolean isSlot) {
+    public ItemStack insertItem(ItemStack stack) {
+        final int scrollOffset = this.scrollOffset + this.getSize().getHeight() + 18;
+        int scrollHeight = 0;
+        for (Class<? extends IGridHost> gridHost : this.gridHosts) {
+            final Iterator<IGridNode> gridNodes = this.grid.getMachines(gridHost).iterator();
+            while (gridNodes.hasNext()) { // Increase scrollHeight if there are more elements remaining.
+                final IGridNode gridNode = gridNodes.next();
+                if (!gridNode.isActive()) continue;
+                final T machine = (T) gridNode.getMachine();
+                if (!this.predicate.test(machine)) continue;
+                final IItemHandler inventory = this.inventorySupplier.apply(machine);
+                scrollHeight += 18;
+                for (int j = 0, slotColumn = 0; j < inventory.getSlots(); j++, slotColumn++) {
+                    if (slotColumn > 8) {
+                        scrollHeight += 18;
+                        slotColumn = 0;
+                    }
+                    if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && this.slotPredicate.test(j, machine)) {
+                        stack = inventory.insertItem(j, stack, false);
+                        if (stack.isEmpty())
+                            return stack;
+                    }
+                }
+                if (gridNodes.hasNext())
+                    scrollHeight += 18;
+            }
+        }
+        return stack;
+    }
+
+    /**
+     *
+     * @param i Element index.
+     * @param isSlot Is element a slot.
+     * @param itemStackTransfer Inserts item into element slot from player cursor if null. Inserts into external inventory and then player inventory if provided itemStackTransfer function.
+     */
+    private void actionPerformed(int i, boolean isSlot, BiFunction<ItemStack, Boolean, ItemStack> itemStackTransfer) {
         ItemStack playerStack = this.gui.entityPlayer.inventory.getItemStack();
         int index = 0;
         int scrollHeight = 0;
@@ -359,10 +405,14 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                         slotColumn = 0;
                     }
                     if (isSlot && i == index) {
-                        final ItemStack output = inventory.extractItem(j, Integer.MAX_VALUE, false);
-                        if (inventory.insertItem(j, playerStack, false).isEmpty()) {
-                            playerStack = output;
-                        } else inventory.insertItem(j, output, false);
+                        if (itemStackTransfer == null) {
+                            final ItemStack output = inventory.extractItem(j, Integer.MAX_VALUE, false);
+                            if (inventory.insertItem(j, playerStack, false).isEmpty()) {
+                                playerStack = output;
+                            } else inventory.insertItem(j, output, false);
+                        } else if (inventory.insertItem(j, itemStackTransfer.apply(inventory.extractItem(j, Integer.MAX_VALUE, true), true), true).isEmpty()) {
+                            inventory.insertItem(j, itemStackTransfer.apply(inventory.extractItem(j, Integer.MAX_VALUE, false), false), false);
+                        } else inventory.insertItem(j, TJItemUtils.insertInMainInventory(this.gui.entityPlayer.inventory, inventory.extractItem(j, Integer.MAX_VALUE, false)), false);
                         break grid;
                     }
                     if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && this.slotPredicate.test(j, machine))
@@ -372,6 +422,7 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                     scrollHeight += 18;
             }
         }
+        if (itemStackTransfer != null) return;
         final ItemStack finalPlayerStack = playerStack;
         this.gui.entityPlayer.inventory.setItemStack(finalPlayerStack);
         this.writeUpdateInfo(3, buffer -> buffer.writeItemStack(finalPlayerStack));

@@ -64,6 +64,7 @@ public class PartCellTerminal extends PartInterfaceTerminal implements ITileEnti
                 .widget(new AEItemListWidget<IChestOrDrive>(7, 34, 162, 162, this.getGridNode(), TileDrive.class)
                         .setInventorySupplier(drive -> ((AEBaseInvTile) drive).getInternalInventory())
                         .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
+                        .setItemStackTransfer((itemStack, aBoolean) -> itemStack)
                         .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT)
                         .setSlotPredicate((s, iChestOrDrive) -> true)
                         .setPredicate(iChestOrDrive -> true)
