@@ -8,6 +8,7 @@ import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IInterfaceHost;
 import appeng.parts.misc.PartInterface;
 import appeng.parts.reporting.PartInterfaceTerminal;
+import appeng.tile.crafting.TileMolecularAssembler;
 import appeng.tile.misc.TileInterface;
 import appeng.tile.networking.TileCableBus;
 import baubles.api.BaublesApi;
@@ -29,8 +30,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -52,12 +56,15 @@ import tj.util.TJItemUtils;
 import tj.util.references.BooleanReference;
 import tj.util.references.ObjectReference;
 
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.function.LongUnaryOperator;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements ITileEntityUI {
+
+    private final BlockPos.MutableBlockPos molecularAssemblerPos = new BlockPos.MutableBlockPos();
 
     public PartSuperInterfaceTerminal(ItemStack is) {
         super(is);
@@ -80,6 +87,7 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
         final BooleanReference showInterfaces = new BooleanReference();
+        final BooleanReference showCraftingInterfaces = new BooleanReference();
         final ObjectReference<String> searchInputs = new ObjectReference<>("");
         final ObjectReference<String> searchOutputs = new ObjectReference<>("");
         final ObjectReference<String> searchInterface = new ObjectReference<>("");
@@ -115,9 +123,12 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         .setDynamicLocale(this::getCustomInventoryName)
                         .setCentered(false)
                         .setCanSlide(false))
-                .widget(new TJToggleButtonWidget(-18, 62, 16, 16, TJGuiTextures.TOGGLE_SHOW_INTERFACES, showInterfaces::isValue, showInterfaces::setValue)
-                        .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces")
-                        .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOnDesc", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOffDesc"))
+                .widget(new TJToggleButtonWidget(-18, 8, 16, 16, TJGuiTextures.TOGGLE_SHOW_INTERFACES, showInterfaces::isValue, showInterfaces::setValue)
+                        .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOnDesc", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOffDesc")
+                        .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces"))
+                .widget(new TJToggleButtonWidget(-18, 26, 16, 16, TJGuiTextures.TOGGLE_CRAFTING_INTERFACES, showCraftingInterfaces::isValue, showCraftingInterfaces::setValue)
+                        .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleMolecularAssemblersOffDesc", "gui.tooltips.appliedenergistics2.ToggleMolecularAssemblersOnDesc")
+                        .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleMolecularAssemblers", "gui.tooltips.appliedenergistics2.ToggleMolecularAssemblers"))
                 .widget(new ImageWidget(6, 59, 164, 164, TJGuiTextures.BLANK_SLOT))
                 .widget(new NewTextFieldWidget<>(7, 16, 90, 12, true, searchInputs::getValue, (s, id) -> searchInputs.setValue(s))
                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
@@ -140,9 +151,11 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         .setPredicate(interfaceHost -> {
                             if (interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) != YesNo.YES)
                                 return false;
-                            if (showInterfaces.isValue())
+                            if (showInterfaces.isValue()) {
                                 return !TJItemUtils.areSlotsFull(interfaceHost.getInterfaceDuality().getPatterns(), 0, Math.min(interfaceHost.getInterfaceDuality().getPatterns().getSlots(), interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) * 9));
-                            if (!searchInputs.getValue().isEmpty()) {
+                            } else if (showCraftingInterfaces.isValue()) {
+                                return this.checkAroundForMolecularAssemblers(interfaceHost);
+                            } else if (!searchInputs.getValue().isEmpty()) {
                                 return this.isItemPresent(interfaceHost.getInterfaceDuality().getPatterns(), searchInputs.getValue(), false);
                             } else if (!searchOutputs.getValue().isEmpty()) {
                                 return this.isItemPresent(interfaceHost.getInterfaceDuality().getPatterns(), searchOutputs.getValue(), true);
@@ -160,6 +173,18 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         }
                     }
                 }).build(holder, player);
+    }
+
+    private boolean checkAroundForMolecularAssemblers(IInterfaceHost host) {
+        final TileEntity tileEntity = host.getTile();
+        final BlockPos pos = host.getTile().getPos();
+        final EnumSet<EnumFacing> facings = host.getTargets();
+        for (EnumFacing facing : facings) {
+            this.molecularAssemblerPos.setPos(pos.getX(), pos.getY(), pos.getZ());
+            if (tileEntity.getWorld().getTileEntity(this.molecularAssemblerPos.move(facing, 1)) instanceof TileMolecularAssembler)
+                return true;
+        }
+        return false;
     }
 
     private boolean isItemPresent(IItemHandler itemHandler, String name, boolean output) {
