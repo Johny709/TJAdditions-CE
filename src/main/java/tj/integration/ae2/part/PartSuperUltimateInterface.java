@@ -59,6 +59,8 @@ public class PartSuperUltimateInterface extends PartInterface implements ITileEn
     public PartSuperUltimateInterface(ItemStack is) {
         super(is);
         ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 160, 72, 1152), "duality");
+        this.getInterfaceDuality().getConfigManager().registerSetting(Settings.PLACE_BLOCK, YesNo.NO);
+        this.getDualityFluidInterface().getConfigManager().registerSetting(Settings.PLACE_BLOCK, YesNo.NO);
     }
 
     @Override
@@ -236,8 +238,14 @@ public class PartSuperUltimateInterface extends PartInterface implements ITileEn
     }
 
     @Override
-    public void setAutoPull(boolean autoPull) {
-        this.getInterfaceDuality().getConfigManager().putSetting(Settings.BLOCK, autoPull ? YesNo.YES : YesNo.NO);
+    public void setItemAutoPull(boolean autoPull) {
+        this.getInterfaceDuality().getConfigManager().putSetting(Settings.PLACE_BLOCK, autoPull ? YesNo.YES : YesNo.NO);
+        this.getTile().markDirty();
+    }
+
+    @Override
+    public void setFluidAutoPull(boolean autoPull) {
+        this.getDualityFluidInterface().getConfigManager().putSetting(Settings.PLACE_BLOCK, autoPull ? YesNo.YES : YesNo.NO);
         this.getTile().markDirty();
     }
 }

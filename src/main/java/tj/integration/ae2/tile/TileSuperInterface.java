@@ -115,9 +115,4 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI, 
         this.getInterfaceDuality().setPriority((int) Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
         this.markDirty();
     }
-
-    @Override
-    public void setAutoPull(boolean autoPull) {
-        // No such feature
-    }
 }

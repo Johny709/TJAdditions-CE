@@ -47,9 +47,4 @@ public class TileSuperFluidInterface extends TileFluidInterface implements ITile
         this.getDualityFluidInterface().setPriority((int) Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
         this.markDirty();
     }
-
-    @Override
-    public void setAutoPull(boolean autoPull) {
-        // No such features
-    }
 }

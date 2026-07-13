@@ -200,8 +200,14 @@ public class PartStockingDualInterface extends PartInterface implements ITileEnt
     }
 
     @Override
-    public void setAutoPull(boolean blockingMode) {
+    public void setItemAutoPull(boolean blockingMode) {
         this.getInterfaceDuality().getConfigManager().putSetting(Settings.BLOCK, blockingMode ? YesNo.YES : YesNo.NO);
+        this.getTile().markDirty();
+    }
+
+    @Override
+    public void setFluidAutoPull(boolean autoPull) {
+        this.getDualityFluidInterface().getConfigManager().putSetting(Settings.BLOCK, autoPull ? YesNo.YES : YesNo.NO);
         this.getTile().markDirty();
     }
 

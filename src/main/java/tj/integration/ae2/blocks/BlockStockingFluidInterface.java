@@ -88,7 +88,7 @@ public class BlockStockingFluidInterface extends BlockFluidInterface {
                         .setCanSlide(false))
                 .widget(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredFluids"))
                 .widget(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"))
-                .widget(new TJToggleButtonWidget(-18, 35, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, superFluidInterface::setAutoPull)
+                .widget(new TJToggleButtonWidget(-18, 35, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, superFluidInterface::setFluidAutoPull)
                         .setToggleTooltipHoverText("tile.me.stocking_fluid_interface.auto_pull", "tile.me.stocking_fluid_interface.auto_pull")
                         .setToggleTexture(TJGuiTextures.TOGGLE_AUTO_PULL)
                         .useToggleTexture(true))

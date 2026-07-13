@@ -9,13 +9,11 @@ public interface ISuperFluidInterface extends ICustomNameObject, IPriorityHost, 
 
     void setPriority(String priority, String id);
 
-    void setAutoPull(boolean autoPull);
+    default void setFluidAutoPull(boolean autoPull) {}
 
     default int getTickTime() {
         return 1;
     }
 
-    default void setTickTime(String tickTime, String id) {
-
-    }
+    default void setTickTime(String tickTime, String id) {}
 }

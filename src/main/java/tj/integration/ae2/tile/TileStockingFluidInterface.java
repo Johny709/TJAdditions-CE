@@ -108,7 +108,7 @@ public class TileStockingFluidInterface extends TileFluidInterface implements IT
     }
 
     @Override
-    public void setAutoPull(boolean blockingMode) {
+    public void setFluidAutoPull(boolean blockingMode) {
         this.getDualityFluidInterface().getConfigManager().putSetting(Settings.BLOCK, blockingMode ? YesNo.YES : YesNo.NO);
         this.markDirty();
     }

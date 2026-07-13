@@ -139,7 +139,7 @@ public class PartStockingInterface extends PartInterface implements ITileEntityU
     }
 
     @Override
-    public void setAutoPull(boolean blockingMode) {
+    public void setItemAutoPull(boolean blockingMode) {
         this.getInterfaceDuality().getConfigManager().putSetting(Settings.BLOCK, blockingMode ? YesNo.YES : YesNo.NO);
         this.getTile().markDirty();
     }

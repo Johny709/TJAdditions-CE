@@ -171,8 +171,14 @@ public class TileStockingDualInterface extends TileInterface implements ITileEnt
     }
 
     @Override
-    public void setAutoPull(boolean autoPull) {
+    public void setItemAutoPull(boolean autoPull) {
         this.getInterfaceDuality().getConfigManager().putSetting(Settings.BLOCK, autoPull ? YesNo.YES : YesNo.NO);
+        this.markDirty();
+    }
+
+    @Override
+    public void setFluidAutoPull(boolean autoPull) {
+        this.getDualityFluidInterface().getConfigManager().putSetting(Settings.BLOCK, autoPull ? YesNo.YES : YesNo.NO);
         this.markDirty();
     }
 

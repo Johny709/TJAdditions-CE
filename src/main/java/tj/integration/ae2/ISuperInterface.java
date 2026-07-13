@@ -28,7 +28,7 @@ public interface ISuperInterface extends ICustomNameObject, IPriorityHost, IInte
 
     void setPriority(String priority, String id);
 
-    void setAutoPull(boolean autoPull);
+    default void setItemAutoPull(boolean autoPull) {}
 
     default int getTickTime() {
         return 1;
