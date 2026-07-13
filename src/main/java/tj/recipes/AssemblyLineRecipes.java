@@ -1294,7 +1294,7 @@ public class AssemblyLineRecipes {
                 .inputs(PATTERN_INTERFACE.maybeStack(4).orElse(ItemStack.EMPTY), STOCKING_INTERFACE.maybeStack(4).orElse(ItemStack.EMPTY), STOCKING_FLUID_INTERFACE.maybeStack(4).orElse(ItemStack.EMPTY), STOCKING_DUAL_INTERFACE.maybeStack(4).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().formationCore().maybeStack(64).orElse(ItemStack.EMPTY))
                 .inputs(SUPER_INTERFACE.maybeStack(4).orElse(ItemStack.EMPTY), SUPER_FLUID_INTERFACE.maybeStack(4).orElse(ItemStack.EMPTY), SUPER_DUAL_INTERFACE.maybeStack(4).orElse(ItemStack.EMPTY), TJItemUtils.getItemStackFromName("ae2fc:dual_interface", 4), Api.INSTANCE.definitions().materials().annihilationCore().maybeStack(64).orElse(ItemStack.EMPTY))
                 .inputs(Api.INSTANCE.definitions().blocks().quartzVibrantGlass().maybeStack(64).orElse(ItemStack.EMPTY), ELECTRIC_PISTON_UMV.getStackForm(4), EMITTER_UMV.getStackForm(4), SENSOR_UMV.getStackForm(4), FIELD_GENERATOR_UMV.getStackForm(4))
-                .input(OrePrefix.circuit, UXV, 8)
+                .input(OrePrefix.circuit, UMV, 8)
                 .outputs(SUPER_ULTIMATE_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))
                 .EUt(GAValues.VA[13]).duration(1000)
                 .buildAndRegister();

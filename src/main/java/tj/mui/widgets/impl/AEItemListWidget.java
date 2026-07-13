@@ -407,8 +407,10 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                     if (isSlot && i == index) {
                         if (itemStackTransfer == null) {
                             final ItemStack output = inventory.extractItem(j, Integer.MAX_VALUE, false);
-                            if (inventory.insertItem(j, playerStack, false).isEmpty()) {
-                                playerStack = output;
+                            if (output.isEmpty() || inventory.insertItem(j, playerStack, true).isEmpty()) {
+                                playerStack = inventory.insertItem(j, playerStack, false);
+                                if (playerStack.isEmpty())
+                                    playerStack = output;
                             } else inventory.insertItem(j, output, false);
                         } else if (inventory.insertItem(j, itemStackTransfer.apply(inventory.extractItem(j, Integer.MAX_VALUE, true), true), true).isEmpty()) {
                             inventory.insertItem(j, itemStackTransfer.apply(inventory.extractItem(j, Integer.MAX_VALUE, false), false), false);
