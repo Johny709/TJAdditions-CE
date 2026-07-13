@@ -354,8 +354,14 @@ public class RecipeInit {
         ModHandler.addShapelessRecipe("tj_stocking_dual_interface", STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), PART_STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
         ModHandler.addShapelessRecipe("tj_stocking_dual_interface_part", PART_STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
         ModHandler.addShapelessRecipe("tj_stocking_dual_interface_2", STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_super_ultimate_interface", SUPER_ULTIMATE_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), PART_SUPER_ULTIMATE_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_super_ultimate_interface_part", PART_SUPER_ULTIMATE_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), SUPER_ULTIMATE_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
         ModHandler.addShapelessRecipe("tj_max_capacity_upgrade", new ItemStack(MAX_CAPACITY_UPGRADE), Api.INSTANCE.definitions().materials().advCard().maybeStack(1).orElse(ItemStack.EMPTY), INFINITY_CHEST.getStackForm());
         ModHandler.addShapelessRecipe("tj_max_capacity_upgrade_2", new ItemStack(MAX_CAPACITY_UPGRADE), Api.INSTANCE.definitions().materials().advCard().maybeStack(1).orElse(ItemStack.EMPTY), INFINITY_CRATE.getStackForm());
+        ModHandler.addShapelessRecipe("tj_interface_terminal", PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().parts().interfaceTerminal().maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_interface_terminal_2", Api.INSTANCE.definitions().parts().interfaceTerminal().maybeStack(1).orElse(ItemStack.EMPTY), PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_cell_terminal", PART_CELL_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), TJItemUtils.getItemStackFromName("cellterminal:cell_terminal"));
+        ModHandler.addShapelessRecipe("tj_cell_terminal_2", TJItemUtils.getItemStackFromName("cellterminal:cell_terminal"), PART_CELL_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY));
         for (int i = 0; i < 2; i++) {
             ModHandler.addShapedRecipe("charcoal_pit." + i, i == 0 ? CHARCOAL_PIT.getStackForm() : CHARCOAL_PIT_ADVANCED.getStackForm(), "PRP", "PHP", "FFF",
                     'H', i == 0 ? MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.BRONZE_BRICKS_HULL) : MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.STEEL_BRICKS_HULL),

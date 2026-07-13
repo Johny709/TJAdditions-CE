@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;
-import static tj.blocks.block.TJBlocks.PATTERN_INTERFACE;
+import static tj.blocks.block.TJBlocks.*;
 import static tj.items.TJMetaItems.*;
 import static tj.items.TJMetaItems.FLUID_REGULATORS;
 import static tj.items.TJMetaItems.PUMPS;
@@ -1288,6 +1288,15 @@ public class AssemblyLineRecipes {
                 .input(OrePrefix.circuit, UEV)
                 .outputs(XL_ATMOSPHERE_COLLECTORS[2].getStackForm())
                 .EUt(GAValues.VA[10]).duration(2400)
+                .buildAndRegister();
+        ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                .fluidInputs(SolderingAlloy.getFluid(55296), Lubricant.getFluid(64000), FullerenePolymerMatrix.getFluid(9216), Periodicium.getFluid(18432))
+                .inputs(PATTERN_INTERFACE.maybeStack(4).orElse(ItemStack.EMPTY), STOCKING_INTERFACE.maybeStack(4).orElse(ItemStack.EMPTY), STOCKING_FLUID_INTERFACE.maybeStack(4).orElse(ItemStack.EMPTY), STOCKING_DUAL_INTERFACE.maybeStack(4).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().materials().formationCore().maybeStack(64).orElse(ItemStack.EMPTY))
+                .inputs(SUPER_INTERFACE.maybeStack(4).orElse(ItemStack.EMPTY), SUPER_FLUID_INTERFACE.maybeStack(4).orElse(ItemStack.EMPTY), SUPER_DUAL_INTERFACE.maybeStack(4).orElse(ItemStack.EMPTY), TJItemUtils.getItemStackFromName("ae2fc:dual_interface", 4), Api.INSTANCE.definitions().materials().annihilationCore().maybeStack(64).orElse(ItemStack.EMPTY))
+                .inputs(Api.INSTANCE.definitions().blocks().quartzVibrantGlass().maybeStack(64).orElse(ItemStack.EMPTY), ELECTRIC_PISTON_UMV.getStackForm(4), EMITTER_UMV.getStackForm(4), SENSOR_UMV.getStackForm(4), FIELD_GENERATOR_UMV.getStackForm(4))
+                .input(OrePrefix.circuit, UXV, 8)
+                .outputs(SUPER_ULTIMATE_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))
+                .EUt(GAValues.VA[13]).duration(1000)
                 .buildAndRegister();
     }
 }
