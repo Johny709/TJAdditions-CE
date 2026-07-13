@@ -151,14 +151,14 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         .setPredicate(interfaceHost -> {
                             if (interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) != YesNo.YES)
                                 return false;
-                            if (showInterfaces.isValue()) {
-                                return !TJItemUtils.areSlotsFull(interfaceHost.getInterfaceDuality().getPatterns(), 0, Math.min(interfaceHost.getInterfaceDuality().getPatterns().getSlots(), interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) * 9));
-                            } else if (showCraftingInterfaces.isValue()) {
-                                return this.checkAroundForMolecularAssemblers(interfaceHost);
-                            } else if (!searchInputs.getValue().isEmpty()) {
-                                return this.isItemPresent(interfaceHost.getInterfaceDuality().getPatterns(), searchInputs.getValue(), false);
-                            } else if (!searchOutputs.getValue().isEmpty()) {
-                                return this.isItemPresent(interfaceHost.getInterfaceDuality().getPatterns(), searchOutputs.getValue(), true);
+                            if (showInterfaces.isValue() && TJItemUtils.areSlotsFull(interfaceHost.getInterfaceDuality().getPatterns(), 0, Math.min(interfaceHost.getInterfaceDuality().getPatterns().getSlots(), interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) * 9))) {
+                                return false;
+                            } else if (showCraftingInterfaces.isValue() && !this.checkAroundForMolecularAssemblers(interfaceHost)) {
+                                return false;
+                            } else if (!searchInputs.getValue().isEmpty() && this.isItemNotPresent(interfaceHost.getInterfaceDuality().getPatterns(), searchInputs.getValue(), false)) {
+                                return false;
+                            } else if (!searchOutputs.getValue().isEmpty() && this.isItemNotPresent(interfaceHost.getInterfaceDuality().getPatterns(), searchOutputs.getValue(), true)) {
+                                return false;
                             } else return searchInterface.getValue().isEmpty() || ((ICustomNameObject) interfaceHost).getCustomInventoryName().contains(searchInterface.getValue());
                         }))
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 233, patternMultiTool))
@@ -187,7 +187,7 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
         return false;
     }
 
-    private boolean isItemPresent(IItemHandler itemHandler, String name, boolean output) {
+    private boolean isItemNotPresent(IItemHandler itemHandler, String name, boolean output) {
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             final ItemStack itemStack = itemHandler.getStackInSlot(i);
             if (itemStack.isEmpty()) continue;
@@ -205,10 +205,10 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                     fluid = null;
                 }
                 if (stack.getDisplayName().contains(name) || fluid != null && fluid.getLocalizedName().contains(name))
-                    return true;
+                    return false;
             }
         }
-        return false;
+        return true;
     }
 
     private void renderCallback(ItemStack itemStack, int x, int y) {
