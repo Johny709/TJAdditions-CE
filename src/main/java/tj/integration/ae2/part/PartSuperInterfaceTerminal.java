@@ -49,6 +49,7 @@ import tj.mui.uifactory.TileEntityHolder;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.*;
 import tj.util.TJItemUtils;
+import tj.util.references.BooleanReference;
 import tj.util.references.ObjectReference;
 
 import java.util.Optional;
@@ -78,6 +79,7 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
 
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
+        final BooleanReference showInterfaces = new BooleanReference();
         final ObjectReference<String> searchInputs = new ObjectReference<>("");
         final ObjectReference<String> searchOutputs = new ObjectReference<>("");
         final ObjectReference<String> searchInterface = new ObjectReference<>("");
@@ -102,12 +104,9 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
         final FilteredItemStackHandler multiUpgradeSlots = new FilteredItemStackHandler(null, 3, 1)
                 .setItemStackPredicate((slot, itemStack) -> itemStack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)));
         multiUpgradeSlots.setOnContentsChangedPost((slot, itemStack) -> writePatternMultiToolToNBT(multiUpgradeSlots, upgradeTag));
-        final NewTextFieldWidget<?> inputsTextField = new NewTextFieldWidget<>(7, 16, 90, 12, true, searchInputs::getValue, (s, id) -> searchInputs.setValue(s));
-        final NewTextFieldWidget<?> outputsTextField = new NewTextFieldWidget<>(7, 30, 90, 12, true, searchOutputs::getValue, (s, id) -> searchOutputs.setValue(s));
-        final NewTextFieldWidget<?> interfaceTextField = new NewTextFieldWidget<>(7, 44, 90, 12, true, searchInterface::getValue, (s, id) -> searchInterface.setValue(s));
+        final ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 316);
         final AEItemListWidget<IInterfaceHost> aeItemListWidget = new AEItemListWidget<>(7, 60, 162, 162, this.getGridNode(), TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class,
                 PartInterface.class, PartDualInterface.class, PartSuperInterface.class, PartSuperDualInterface.class, PartPatternInterface.class, PartSuperUltimateInterface.class);
-        final ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 316);
         return this.createPatternMultiToolGUI(builder, patternMultiTool, multiUpgradeSlots, multiPatternSlots, invTag, aeItemListWidget)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJItems.PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
@@ -116,14 +115,20 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         .setDynamicLocale(this::getCustomInventoryName)
                         .setCentered(false)
                         .setCanSlide(false))
+                .widget(new TJToggleButtonWidget(-18, 62, 16, 16, TJGuiTextures.TOGGLE_SHOW_INTERFACES, showInterfaces::isValue, showInterfaces::setValue)
+                        .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces")
+                        .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOnDesc", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOffDesc"))
                 .widget(new ImageWidget(6, 59, 164, 164, TJGuiTextures.BLANK_SLOT))
-                .widget(inputsTextField.setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                .widget(new NewTextFieldWidget<>(7, 16, 90, 12, true, searchInputs::getValue, (s, id) -> searchInputs.setValue(s))
+                        .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                         .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                         .setUpdateOnTyping(true))
-                .widget(outputsTextField.setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                .widget(new NewTextFieldWidget<>(7, 30, 90, 12, true, searchOutputs::getValue, (s, id) -> searchOutputs.setValue(s))
+                        .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                         .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldOutputs")
                         .setUpdateOnTyping(true))
-                .widget(interfaceTextField.setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                .widget(new NewTextFieldWidget<>(7, 44, 90, 12, true, searchInterface::getValue, (s, id) -> searchInterface.setValue(s))
+                        .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                         .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldNames")
                         .setUpdateOnTyping(true))
                 .widget(aeItemListWidget.setSlotPredicate((slot, interfaceHost) -> slot / 9 <= interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION))
@@ -135,6 +140,8 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         .setPredicate(interfaceHost -> {
                             if (interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) != YesNo.YES)
                                 return false;
+                            if (showInterfaces.isValue())
+                                return !TJItemUtils.areSlotsFull(interfaceHost.getInterfaceDuality().getPatterns(), 0, Math.min(interfaceHost.getInterfaceDuality().getPatterns().getSlots(), interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) * 9));
                             if (!searchInputs.getValue().isEmpty()) {
                                 return this.isItemPresent(interfaceHost.getInterfaceDuality().getPatterns(), searchInputs.getValue(), false);
                             } else if (!searchOutputs.getValue().isEmpty()) {

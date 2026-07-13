@@ -50,6 +50,7 @@ public class TJGuiTextures {
     public static final TextureArea TOGGLE_SPLITTING_ITEMS_FLUIDS = TextureArea.fullImage("textures/gui/widget/splitting_items_fluids_toggle.png");
     public static final TextureArea CYCLE_BLOCKING_MODE_EX = TextureArea.fullImage("textures/gui/widget/blocking_mode_ex_cycle.png");
     public static final TextureArea TOGGLE_AUTO_PULL = TextureArea.fullImage("textures/gui/widget/auto_pull_toggle.png");
+    public static final TextureArea TOGGLE_SHOW_INTERFACES = TextureArea.fullImage("textures/gui/widget/show_interfaces_toggle.png");
     public static final TextureArea CYCLE_LOCK_CRAFTING = TextureArea.fullImage("textures/gui/widget/lock_crafting_cycle.png");
     public static final TextureArea AE2_MULTIPLY2_BUTTON = TextureArea.fullImage("textures/gui/widget/ae2_multiply2_button.png");
     public static final TextureArea AE2_DIVIDE2_BUTTON = TextureArea.fullImage("textures/gui/widget/ae2_divide2_button.png");

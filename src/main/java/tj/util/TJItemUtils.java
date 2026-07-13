@@ -346,6 +346,20 @@ public final class TJItemUtils {
     }
 
     /**
+     * @param itemHandler check are there any items in this item handler.
+     * @param begin start slot index.
+     * @param end end up to slot index.
+     * @return false if there is an empty item in one of the slots.
+     */
+    public static boolean areSlotsFull(IItemHandler itemHandler, int begin, int end) {
+        for (int i = begin; i < end; i++) {
+            if (itemHandler.getStackInSlot(i).isEmpty())
+                return false;
+        }
+        return true;
+    }
+
+    /**
      * Gets the {@link NBTTagCompound} from {@link ItemStack}. If the itemStack has null compound, then a new one is created and returned.
      */
     public static NBTTagCompound getCompoundFromStack(ItemStack stack) {
