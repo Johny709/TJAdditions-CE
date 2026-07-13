@@ -86,6 +86,7 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
 
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
+        final BooleanReference validPatterns = new BooleanReference();
         final BooleanReference showInterfaces = new BooleanReference();
         final BooleanReference showCraftingInterfaces = new BooleanReference();
         final ObjectReference<String> searchInputs = new ObjectReference<>("");
@@ -123,10 +124,13 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         .setDynamicLocale(this::getCustomInventoryName)
                         .setCentered(false)
                         .setCanSlide(false))
-                .widget(new TJToggleButtonWidget(-18, 8, 16, 16, TJGuiTextures.TOGGLE_SHOW_INTERFACES, showInterfaces::isValue, showInterfaces::setValue)
+                .widget(new TJToggleButtonWidget(-18, 8, 16, 16, TJGuiTextures.TOGGLE_INTERFACE_TERMINAL, validPatterns::isValue, validPatterns::setValue)
+                        .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterfaceOffDesc", "gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterfaceOnDesc")
+                        .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterface", "gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterface"))
+                .widget(new TJToggleButtonWidget(-18, 28, 16, 16, TJGuiTextures.TOGGLE_SHOW_INTERFACES, showInterfaces::isValue, showInterfaces::setValue)
                         .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOnDesc", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOffDesc")
                         .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces"))
-                .widget(new TJToggleButtonWidget(-18, 26, 16, 16, TJGuiTextures.TOGGLE_CRAFTING_INTERFACES, showCraftingInterfaces::isValue, showCraftingInterfaces::setValue)
+                .widget(new TJToggleButtonWidget(-18, 48, 16, 16, TJGuiTextures.TOGGLE_CRAFTING_INTERFACES, showCraftingInterfaces::isValue, showCraftingInterfaces::setValue)
                         .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleMolecularAssemblersOffDesc", "gui.tooltips.appliedenergistics2.ToggleMolecularAssemblersOnDesc")
                         .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleMolecularAssemblers", "gui.tooltips.appliedenergistics2.ToggleMolecularAssemblers"))
                 .widget(new ImageWidget(6, 59, 164, 164, TJGuiTextures.BLANK_SLOT))
@@ -151,7 +155,9 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         .setPredicate(interfaceHost -> {
                             if (interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) != YesNo.YES)
                                 return false;
-                            if (showInterfaces.isValue() && TJItemUtils.areSlotsFull(interfaceHost.getInterfaceDuality().getPatterns(), 0, Math.min(interfaceHost.getInterfaceDuality().getPatterns().getSlots(), interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) * 9))) {
+                            if (validPatterns.isValue() && this.isPatternValid(interfaceHost.getInterfaceDuality().getPatterns())) {
+                                return false;
+                            } else if (showInterfaces.isValue() && TJItemUtils.areSlotsFull(interfaceHost.getInterfaceDuality().getPatterns(), 0, Math.min(interfaceHost.getInterfaceDuality().getPatterns().getSlots(), interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) * 9))) {
                                 return false;
                             } else if (showCraftingInterfaces.isValue() && !this.checkAroundForMolecularAssemblers(interfaceHost)) {
                                 return false;
@@ -173,6 +179,38 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         }
                     }
                 }).build(holder, player);
+    }
+
+    private boolean isPatternValid(IItemHandler itemHandler) {
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            final ItemStack itemStack = itemHandler.getStackInSlot(i);
+            if (itemStack.isEmpty()) continue;
+            final NBTTagList inputList = TJItemUtils.getCompoundFromStack(itemStack).getTagList("in", 10);
+            if (inputList.isEmpty())
+                return false;
+            final NBTTagList outputList = TJItemUtils.getCompoundFromStack(itemStack).getTagList("out", 10);
+            if (outputList.isEmpty())
+                return false;
+            for (int j = 0; j < inputList.tagCount(); j++) {
+                final NBTTagCompound tagCompound = inputList.getCompoundTagAt(j);
+                final String id = tagCompound.getString("id");
+                if (id.equals("ae2fc:fluid_drop")) {
+                    if (FluidRegistry.getFluid(tagCompound.getCompoundTag("tag").getString("Fluid")) == null)
+                        return false;
+                } else if (TJItemUtils.getItemStackFromName(id, 1, tagCompound.getShort("Damage")).isEmpty())
+                    return false;
+            }
+            for (int j = 0; j < outputList.tagCount(); j++) {
+                final NBTTagCompound tagCompound = outputList.getCompoundTagAt(j);
+                final String id = tagCompound.getString("id");
+                if (id.equals("ae2fc:fluid_drop")) {
+                    if (FluidRegistry.getFluid(tagCompound.getCompoundTag("tag").getString("Fluid")) == null)
+                        return false;
+                } else if (TJItemUtils.getItemStackFromName(id, 1, tagCompound.getShort("Damage")).isEmpty())
+                    return false;
+            }
+        }
+        return true;
     }
 
     private boolean checkAroundForMolecularAssemblers(IInterfaceHost host) {
