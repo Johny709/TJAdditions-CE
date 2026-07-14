@@ -50,10 +50,23 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
         holder.openUI((EntityPlayerMP) player);
     }
 
+    @Override
+    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
+        return BlockStockingInterface.createInterfaceGUI(holder, player, this);
+    }
+
     @Nonnull
     @Override
-    public TickingRequest getTickingRequest(IGridNode node) {
-        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), this.getInterfaceDuality().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO, false);
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setInteger("tickTime", this.tickTime);
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.tickTime = Math.max(1, data.getInteger("tickTime"));
     }
 
     @Nonnull
@@ -84,21 +97,8 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
 
     @Nonnull
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound data) {
-        super.writeToNBT(data);
-        data.setInteger("tickTime", this.tickTime);
-        return data;
-    }
-
-    @Override
-    public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
-        this.tickTime = Math.max(1, data.getInteger("tickTime"));
-    }
-
-    @Override
-    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        return BlockStockingInterface.createInterfaceGUI(holder, player, this);
+    public TickingRequest getTickingRequest(IGridNode node) {
+        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping && this.getInterfaceDuality().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO, false);
     }
 
     @Override

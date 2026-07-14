@@ -52,10 +52,9 @@ public class TileStockingFluidInterface extends TileFluidInterface implements IT
         holder.openUI((EntityPlayerMP) player);
     }
 
-    @Nonnull
     @Override
-    public TickingRequest getTickingRequest(IGridNode node) {
-        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), this.getDualityFluidInterface().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO, false);
+    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
+        return BlockStockingFluidInterface.createFluidInterfaceGUI(holder, player, this);
     }
 
     @Nonnull
@@ -97,9 +96,10 @@ public class TileStockingFluidInterface extends TileFluidInterface implements IT
         return TickRateModulation.values()[Math.max(tickRateModulation.ordinal(), this.tickTime > ticksSinceLastCall ? TickRateModulation.SLOWER.ordinal() : this.tickTime < ticksSinceLastCall ? TickRateModulation.FASTER.ordinal() : TickRateModulation.SAME.ordinal())];
     }
 
+    @Nonnull
     @Override
-    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        return BlockStockingFluidInterface.createFluidInterfaceGUI(holder, player, this);
+    public TickingRequest getTickingRequest(IGridNode node) {
+        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping && this.getDualityFluidInterface().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO, false);
     }
 
     @Override

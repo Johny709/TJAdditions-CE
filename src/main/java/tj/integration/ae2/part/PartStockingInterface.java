@@ -61,21 +61,29 @@ public class PartStockingInterface extends PartInterface implements ITileEntityU
     @Override
     public boolean onPartActivate(EntityPlayer player, EnumHand hand, Vec3d pos) {
         final TileCableBus tileCableBus = (TileCableBus) this.getTile();
-        if (tileCableBus != null) {
-            if (!player.getEntityWorld().isRemote) {
-                TileEntityHolder holder = new TileEntityHolder(tileCableBus);
-                holder.setFacing(this.getSide().getFacing());
-                holder.openUI((EntityPlayerMP) player);
-            }
-            return true;
+        if (tileCableBus != null && !player.getEntityWorld().isRemote) {
+            TileEntityHolder holder = new TileEntityHolder(tileCableBus);
+            holder.setFacing(this.getSide().getFacing());
+            holder.openUI((EntityPlayerMP) player);
         }
         return true;
     }
 
-    @Nonnull
     @Override
-    public TickingRequest getTickingRequest(IGridNode node) {
-        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), this.getInterfaceDuality().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO, false);
+    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
+        return BlockStockingInterface.createInterfaceGUI(holder, player, this);
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setInteger("tickTime", this.tickTime);
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.tickTime = Math.max(1, data.getInteger("tickTime"));
     }
 
     @Nonnull
@@ -104,21 +112,10 @@ public class PartStockingInterface extends PartInterface implements ITileEntityU
         return TickRateModulation.values()[Math.max(tickRateModulation.ordinal(), this.tickTime > ticksSinceLastCall ? TickRateModulation.SLOWER.ordinal() : this.tickTime < ticksSinceLastCall ? TickRateModulation.FASTER.ordinal() : TickRateModulation.SAME.ordinal())];
     }
 
+    @Nonnull
     @Override
-    public void writeToNBT(NBTTagCompound data) {
-        super.writeToNBT(data);
-        data.setInteger("tickTime", this.tickTime);
-    }
-
-    @Override
-    public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
-        this.tickTime = Math.max(1, data.getInteger("tickTime"));
-    }
-
-    @Override
-    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        return BlockStockingInterface.createInterfaceGUI(holder, player, this);
+    public TickingRequest getTickingRequest(IGridNode node) {
+        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping && this.getInterfaceDuality().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO, false);
     }
 
     @Override

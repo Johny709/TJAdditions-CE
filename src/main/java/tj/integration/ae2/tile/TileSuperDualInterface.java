@@ -56,6 +56,11 @@ public class TileSuperDualInterface extends TileInterface implements ITileEntity
     }
 
     @Override
+    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
+        return BlockSuperDualInterface.createDualInterfaceGUI(holder, player, this);
+    }
+
+    @Override
     public void gridChanged() {
         super.gridChanged();
         this.dualityFluid.gridChanged();
@@ -63,14 +68,14 @@ public class TileSuperDualInterface extends TileInterface implements ITileEntity
 
     @Nonnull
     @Override
-    public TickingRequest getTickingRequest(IGridNode node) {
-        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping && this.dualityFluid.getTickingRequest(node).isSleeping, true);
+    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
+        return TickRateModulation.values()[Math.max(this.dualityFluid.tickingRequest(node, ticksSinceLastCall).ordinal(), super.tickingRequest(node, ticksSinceLastCall).ordinal())];
     }
 
     @Nonnull
     @Override
-    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        return TickRateModulation.values()[Math.max(this.dualityFluid.tickingRequest(node, ticksSinceLastCall).ordinal(), super.tickingRequest(node, ticksSinceLastCall).ordinal())];
+    public TickingRequest getTickingRequest(IGridNode node) {
+        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping && this.dualityFluid.getTickingRequest(node).isSleeping, true);
     }
 
     @Nonnull
@@ -87,11 +92,6 @@ public class TileSuperDualInterface extends TileInterface implements ITileEntity
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.dualityFluid.readFromNBT(data.getCompoundTag("dualityFluid"));
-    }
-
-    @Override
-    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        return BlockSuperDualInterface.createDualInterfaceGUI(holder, player, this);
     }
 
     @Override

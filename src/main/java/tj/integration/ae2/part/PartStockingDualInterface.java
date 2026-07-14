@@ -69,15 +69,17 @@ public class PartStockingDualInterface extends PartInterface implements ITileEnt
     @Override
     public boolean onPartActivate(EntityPlayer player, EnumHand hand, Vec3d pos) {
         final TileCableBus tileCableBus = (TileCableBus) this.getTile();
-        if (tileCableBus != null) {
-            if (!player.getEntityWorld().isRemote) {
-                TileEntityHolder holder = new TileEntityHolder(tileCableBus);
-                holder.setFacing(this.getSide().getFacing());
-                holder.openUI((EntityPlayerMP) player);
-            }
-            return true;
+        if (tileCableBus != null && !player.getEntityWorld().isRemote) {
+            TileEntityHolder holder = new TileEntityHolder(tileCableBus);
+            holder.setFacing(this.getSide().getFacing());
+            holder.openUI((EntityPlayerMP) player);
         }
         return true;
+    }
+
+    @Override
+    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
+        return BlockStockingDualInterface.createDualInterfaceGUI(holder, player, this);
     }
 
     @Override
@@ -86,10 +88,20 @@ public class PartStockingDualInterface extends PartInterface implements ITileEnt
         this.dualityFluid.gridChanged();
     }
 
-    @Nonnull
     @Override
-    public TickingRequest getTickingRequest(IGridNode node) {
-        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), this.getInterfaceDuality().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO && this.getDualityFluidInterface().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO, false);
+    public void writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        final NBTTagCompound compound = new NBTTagCompound();
+        this.dualityFluid.writeToNBT(compound);
+        data.setTag("dualityFluid", compound);
+        data.setInteger("tickTime", this.tickTime);
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.dualityFluid.readFromNBT(data.getCompoundTag("dualityFluid"));
+        this.tickTime = Math.max(1, data.getInteger("tickTime"));
     }
 
     @Nonnull
@@ -134,25 +146,10 @@ public class PartStockingDualInterface extends PartInterface implements ITileEnt
         return TickRateModulation.values()[Math.max(tickRateModulation.ordinal(), this.tickTime > ticksSinceLastCall ? TickRateModulation.SLOWER.ordinal() : this.tickTime < ticksSinceLastCall ? TickRateModulation.FASTER.ordinal() : TickRateModulation.SAME.ordinal())];
     }
 
+    @Nonnull
     @Override
-    public void writeToNBT(NBTTagCompound data) {
-        super.writeToNBT(data);
-        final NBTTagCompound compound = new NBTTagCompound();
-        this.dualityFluid.writeToNBT(compound);
-        data.setTag("dualityFluid", compound);
-        data.setInteger("tickTime", this.tickTime);
-    }
-
-    @Override
-    public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
-        this.dualityFluid.readFromNBT(data.getCompoundTag("dualityFluid"));
-        this.tickTime = Math.max(1, data.getInteger("tickTime"));
-    }
-
-    @Override
-    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        return BlockStockingDualInterface.createDualInterfaceGUI(holder, player, this);
+    public TickingRequest getTickingRequest(IGridNode node) {
+        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping && this.dualityFluid.getTickingRequest(node).isSleeping && this.getInterfaceDuality().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO && this.getDualityFluidInterface().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO, false);
     }
 
     @Override

@@ -1,14 +1,22 @@
 package tj.integration.ae2.tile;
 
+import appeng.api.AEApi;
 import appeng.api.config.*;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
+import appeng.api.storage.channels.IFluidStorageChannel;
+import appeng.api.storage.channels.IItemStorageChannel;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IItemList;
 import appeng.core.settings.TickRates;
 import appeng.fluids.helper.DualityFluidInterface;
+import appeng.fluids.util.AEFluidStack;
 import appeng.helpers.DualityInterface;
+import appeng.me.GridAccessException;
 import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.tile.misc.TileInterface;
+import appeng.util.item.AEItemStack;
 import com.circulation.random_complement.client.RCSettings;
 import com.circulation.random_complement.client.buttonsetting.IntelligentBlocking;
 import com.circulation.random_complement.common.interfaces.RCIConfigurableObject;
@@ -22,6 +30,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import tj.blocks.block.TJBlocks;
@@ -58,21 +67,14 @@ public class TileSuperUltimateInterface extends TileInterface implements ITileEn
     }
 
     @Override
+    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
+        return BlockSuperUltimateInterface.createDualInterfaceGUI(holder, player, this);
+    }
+
+    @Override
     public void gridChanged() {
         super.gridChanged();
         this.dualityFluid.gridChanged();
-    }
-
-    @Nonnull
-    @Override
-    public TickingRequest getTickingRequest(IGridNode node) {
-        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping && this.dualityFluid.getTickingRequest(node).isSleeping, true);
-    }
-
-    @Nonnull
-    @Override
-    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        return TickRateModulation.values()[Math.max(this.dualityFluid.tickingRequest(node, ticksSinceLastCall).ordinal(), super.tickingRequest(node, ticksSinceLastCall).ordinal())];
     }
 
     @Nonnull
@@ -82,6 +84,8 @@ public class TileSuperUltimateInterface extends TileInterface implements ITileEn
         final NBTTagCompound compound = new NBTTagCompound();
         this.dualityFluid.writeToNBT(compound);
         data.setTag("dualityFluid", compound);
+        data.setInteger("stockingItem", this.getInterfaceDuality().getConfigManager().getSetting(Settings.PLACE_BLOCK).ordinal());
+        data.setInteger("stockingFluid", this.getDualityFluidInterface().getConfigManager().getSetting(Settings.PLACE_BLOCK).ordinal());
         return data;
     }
 
@@ -89,11 +93,56 @@ public class TileSuperUltimateInterface extends TileInterface implements ITileEn
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.dualityFluid.readFromNBT(data.getCompoundTag("dualityFluid"));
+        this.getInterfaceDuality().getConfigManager().putSetting(Settings.PLACE_BLOCK, YesNo.values()[data.getInteger("stockingItem")]);
+        this.getDualityFluidInterface().getConfigManager().putSetting(Settings.PLACE_BLOCK, YesNo.values()[data.getInteger("stockingFluid")]);
     }
 
+    @Nonnull
     @Override
-    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        return BlockSuperUltimateInterface.createDualInterfaceGUI(holder, player, this);
+    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
+        if (!this.getProxy().isActive())
+            return TickRateModulation.SLEEP;
+        final TickRateModulation tickRateModulation = TickRateModulation.values()[Math.max(super.tickingRequest(node, ticksSinceLastCall).ordinal(), this.dualityFluid.tickingRequest(node, ticksSinceLastCall).ordinal())];
+        if (this.getInterfaceDuality().getConfigManager().getSetting(Settings.PLACE_BLOCK) == YesNo.YES) {
+            try {
+                int index = 0;
+                final int stackSize = (int) Math.min(Integer.MAX_VALUE, 1024L << this.getInterfaceDuality().getInstalledUpgrades(Upgrades.CAPACITY) * 2);
+                final IItemList<?> iItemList = this.getProxy().getStorage().getInventory(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class)).getStorageList();
+                for (IAEStack<?> items : iItemList) {
+                    if (index < this.getInterfaceDuality().getConfig().getSlots()) {
+                        if (!items.isItem()) continue;
+                        final AEItemStack aeItemStack = (AEItemStack) items;
+                        final ItemStack itemStack = aeItemStack.createItemStack();
+                        if (itemStack.isEmpty()) continue;
+                        itemStack.setCount(Math.min(itemStack.getCount(), stackSize));
+                        ((AppEngInternalAEInventory) this.getInterfaceDuality().getConfig()).setStackInSlot(index++, itemStack);
+                    } else break;
+                }
+            } catch (GridAccessException ignored) {}
+        }
+        if (this.getDualityFluidInterface().getConfigManager().getSetting(Settings.PLACE_BLOCK) == YesNo.YES) {
+            try {
+                int index = 0;
+                final int stackSize = (int) Math.min(Integer.MAX_VALUE, 64000L << this.getDualityFluidInterface().getInstalledUpgrades(Upgrades.CAPACITY) * 2);
+                final IItemList<?> iItemList = this.getProxy().getStorage().getInventory(AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class)).getStorageList();
+                for (IAEStack<?> fluids : iItemList) {
+                    if (index < this.getDualityFluidInterface().getConfig().getSlots()) {
+                        if (fluids.isItem()) continue;
+                        final AEFluidStack aeFluidStack = (AEFluidStack) fluids;
+                        final FluidStack fluidStack = aeFluidStack.getFluidStack();
+                        fluidStack.amount = Math.min(fluidStack.amount, stackSize);
+                        this.getDualityFluidInterface().getConfig().setFluidInSlot(index++, AEFluidStack.fromFluidStack(fluidStack));
+                    } else break;
+                }
+            } catch (GridAccessException ignored) {}
+        }
+        return TickRateModulation.values()[Math.max(tickRateModulation.ordinal(), this.tickTime > ticksSinceLastCall ? TickRateModulation.SLOWER.ordinal() : this.tickTime < ticksSinceLastCall ? TickRateModulation.FASTER.ordinal() : TickRateModulation.SAME.ordinal())];
+    }
+
+    @Nonnull
+    @Override
+    public TickingRequest getTickingRequest(IGridNode node) {
+        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping && this.dualityFluid.getTickingRequest(node).isSleeping && super.getTickingRequest(node).isSleeping && this.dualityFluid.getTickingRequest(node).isSleeping && this.getInterfaceDuality().getConfigManager().getSetting(Settings.PLACE_BLOCK) == YesNo.NO && this.getDualityFluidInterface().getConfigManager().getSetting(Settings.PLACE_BLOCK) == YesNo.NO, true);
     }
 
     @Override

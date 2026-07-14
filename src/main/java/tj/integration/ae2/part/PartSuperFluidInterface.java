@@ -45,15 +45,17 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
     @Override
     public boolean onPartActivate(EntityPlayer player, EnumHand hand, Vec3d pos) {
         final TileCableBus tileCableBus = (TileCableBus) this.getTile();
-        if (tileCableBus != null) {
-            if (!player.getEntityWorld().isRemote) {
-                TileEntityHolder holder = new TileEntityHolder(tileCableBus);
-                holder.setFacing(this.getSide().getFacing());
-                holder.openUI((EntityPlayerMP) player);
-            }
-            return true;
+        if (tileCableBus != null && !player.getEntityWorld().isRemote) {
+            TileEntityHolder holder = new TileEntityHolder(tileCableBus);
+            holder.setFacing(this.getSide().getFacing());
+            holder.openUI((EntityPlayerMP) player);
         }
         return true;
+    }
+
+    @Override
+    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
+        return BlockSuperFluidInterface.createFluidInterfaceGUI(holder, player, this);
     }
 
     @Override
@@ -71,11 +73,6 @@ public class PartSuperFluidInterface extends PartFluidInterface implements ITile
         } else {
             return MODELS_OFF;
         }
-    }
-
-    @Override
-    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        return BlockSuperFluidInterface.createFluidInterfaceGUI(holder, player, this);
     }
 
     @Override

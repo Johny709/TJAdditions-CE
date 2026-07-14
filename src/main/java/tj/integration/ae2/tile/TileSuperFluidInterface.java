@@ -33,13 +33,13 @@ public class TileSuperFluidInterface extends TileFluidInterface implements ITile
     }
 
     @Override
-    public ItemStack getItemStackRepresentation() {
-        return TJBlocks.SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY);
+    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
+        return BlockSuperFluidInterface.createFluidInterfaceGUI(holder, player, this);
     }
 
     @Override
-    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        return BlockSuperFluidInterface.createFluidInterfaceGUI(holder, player, this);
+    public ItemStack getItemStackRepresentation() {
+        return TJBlocks.SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY);
     }
 
     @Override

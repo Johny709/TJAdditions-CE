@@ -63,33 +63,23 @@ public class PartSuperDualInterface extends PartInterface implements ITileEntity
     @Override
     public boolean onPartActivate(EntityPlayer player, EnumHand hand, Vec3d pos) {
         final TileCableBus tileCableBus = (TileCableBus) this.getTile();
-        if (tileCableBus != null) {
-            if (!player.getEntityWorld().isRemote) {
-                TileEntityHolder holder = new TileEntityHolder(tileCableBus);
-                holder.setFacing(this.getSide().getFacing());
-                holder.openUI((EntityPlayerMP) player);
-            }
-            return true;
+        if (tileCableBus != null && !player.getEntityWorld().isRemote) {
+            TileEntityHolder holder = new TileEntityHolder(tileCableBus);
+            holder.setFacing(this.getSide().getFacing());
+            holder.openUI((EntityPlayerMP) player);
         }
         return true;
+    }
+
+    @Override
+    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
+        return BlockSuperDualInterface.createDualInterfaceGUI(holder, player, this);
     }
 
     @Override
     public void gridChanged() {
         super.gridChanged();
         this.dualityFluid.gridChanged();
-    }
-
-    @Nonnull
-    @Override
-    public TickingRequest getTickingRequest(IGridNode node) {
-        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping && this.dualityFluid.getTickingRequest(node).isSleeping, true);
-    }
-
-    @Nonnull
-    @Override
-    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        return TickRateModulation.values()[Math.max(super.tickingRequest(node, ticksSinceLastCall).ordinal(), this.dualityFluid.tickingRequest(node, ticksSinceLastCall).ordinal())];
     }
 
     @Override
@@ -106,9 +96,16 @@ public class PartSuperDualInterface extends PartInterface implements ITileEntity
         this.dualityFluid.readFromNBT(data.getCompoundTag("dualityFluid"));
     }
 
+    @Nonnull
     @Override
-    public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        return BlockSuperDualInterface.createDualInterfaceGUI(holder, player, this);
+    public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
+        return TickRateModulation.values()[Math.max(super.tickingRequest(node, ticksSinceLastCall).ordinal(), this.dualityFluid.tickingRequest(node, ticksSinceLastCall).ordinal())];
+    }
+
+    @Nonnull
+    @Override
+    public TickingRequest getTickingRequest(IGridNode node) {
+        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping && this.dualityFluid.getTickingRequest(node).isSleeping, true);
     }
 
     @Override
