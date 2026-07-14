@@ -30,6 +30,8 @@ public interface ISuperInterface extends ICustomNameObject, IPriorityHost, IInte
 
     default void setItemAutoPull(boolean autoPull) {}
 
+    default void setItemAutoPush(boolean autoPush) {}
+
     default int getTickTime() {
         return 1;
     }

@@ -20,7 +20,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import tj.blocks.block.TJBlocks;
 import tj.integration.ae2.ISuperInterface;
 import tj.integration.ae2.blocks.BlockStockingInterface;
@@ -28,16 +31,19 @@ import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.mui.uifactory.ITileEntityUI;
 import tj.mui.uifactory.TileEntityHolder;
 import tj.mui.widgets.impl.*;
+import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
 
 
 public class TileStockingInterface extends TileInterface implements ITileEntityUI, ISuperInterface {
 
+    private final BlockPos.MutableBlockPos interfacePos = new BlockPos.MutableBlockPos();
     private int tickTime = 100;
 
     public TileStockingInterface() {
         ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 36, 9), "duality");
+        this.getInterfaceDuality().getConfigManager().registerSetting(Settings.STICKY_MODE, YesNo.NO);
     }
 
     public void openUI(EntityPlayer player, TileEntity tileEntity) {
@@ -60,6 +66,7 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         data.setInteger("tickTime", this.tickTime);
+        data.setInteger("autoOutputItem", this.getInterfaceDuality().getConfigManager().getSetting(Settings.STICKY_MODE).ordinal());
         return data;
     }
 
@@ -67,6 +74,7 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.tickTime = Math.max(1, data.getInteger("tickTime"));
+        this.getInterfaceDuality().getConfigManager().putSetting(Settings.STICKY_MODE, YesNo.values()[data.getInteger("autoOutputItem")]);
     }
 
     @Nonnull
@@ -92,6 +100,29 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
                 }
             } catch (GridAccessException ignored) {}
         }
+        if (this.getInterfaceDuality().getConfigManager().getSetting(Settings.STICKY_MODE) == YesNo.YES) {
+            final BlockPos pos = this.getTile().getPos();
+            for (EnumFacing facing : this.getTargets()) {
+                this.interfacePos.setPos(pos.getX(), pos.getY(), pos.getZ());
+                final TileEntity tileEntity = this.getTile().getWorld().getTileEntity(this.interfacePos.move(facing));
+                if (tileEntity != null) {
+                    final IItemHandler itemHandler = this.getInterfaceDuality().getStorage();
+                    final IItemHandler destItemHandler = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite());
+                    if (destItemHandler != null) {
+                        for (int i = 0; i < itemHandler.getSlots(); i++) {
+                            final ItemStack stack = itemHandler.getStackInSlot(i);
+                            if (!stack.isEmpty()) {
+                                final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                                final int extract = stack.getCount() - inserted;
+                                if (extract < 1) continue;
+                                final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
+                                TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return TickRateModulation.values()[Math.max(tickRateModulation.ordinal(), this.tickTime > ticksSinceLastCall ? TickRateModulation.SLOWER.ordinal() : this.tickTime < ticksSinceLastCall ? TickRateModulation.FASTER.ordinal() : TickRateModulation.SAME.ordinal())];
     }
 
@@ -110,6 +141,12 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
     public void setItemAutoPull(boolean blockingMode) {
         this.getInterfaceDuality().getConfigManager().putSetting(Settings.BLOCK, blockingMode ? YesNo.YES : YesNo.NO);
         this.markDirty();
+    }
+
+    @Override
+    public void setItemAutoPush(boolean autoPush) {
+        this.getInterfaceDuality().getConfigManager().putSetting(Settings.STICKY_MODE, autoPush ? YesNo.YES : YesNo.NO);
+        this.getTile().markDirty();
     }
 
     @Override

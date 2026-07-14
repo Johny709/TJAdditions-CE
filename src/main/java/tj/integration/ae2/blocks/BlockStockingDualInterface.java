@@ -175,11 +175,12 @@ public class BlockStockingDualInterface extends BlockInterface {
                     .setInactiveBackgroundTexture(GuiTextures.SLOT)
                     .setActiveBackgroundTexture(GuiTextures.SLOT));
         }
-        tab.add(new TJToggleButtonWidget(-18, 58, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, superDualInterface::setItemAutoPull)
-                .setToggleTooltipHoverText("tile.me.stocking_interface.auto_pull", "tile.me.stocking_interface.auto_pull")
-                .setToggleTexture(TJGuiTextures.TOGGLE_AUTO_PULL)
-                .useToggleTexture(true));
         tab.add(selectionWidgetGroup);
+        tab.add(new TJToggleButtonWidget(-18, 8, 16, 16, TJGuiTextures.TOGGLE_AUTO_PULL, () -> duality.getConfigManager().getSetting(Settings.PLACE_BLOCK).ordinal() == 0, superDualInterface::setItemAutoPull)
+                .setToggleTooltipHoverText("tile.me.stocking_interface.auto_pull", "tile.me.stocking_interface.auto_pull"));
+        tab.add(new TJToggleButtonWidget(-18, 26, 16, 16, TJGuiTextures.TOGGLE_BLOCKING_MODE, () -> duality.getConfigManager().getSetting(Settings.STICKY_MODE).ordinal() == 0, superDualInterface::setItemAutoPush)
+                .setToggleTooltipHoverText("tile.me.stocking_interface.auto_push", "tile.me.stocking_interface.auto_push")
+                .setInvertTexture(true));
     }
 
     private static void createFluidInterfaceTab(List<Widget> tab, ISuperDualInterface superDualInterface, ButtonPopUpWidget<?> buttonPopUpWidget, ButtonPopUpWidget<?> buttonPopUpTickWidget) {
@@ -202,9 +203,10 @@ public class BlockStockingDualInterface extends BlockInterface {
         }
         tab.add(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredFluids"));
         tab.add(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"));
-        tab.add(new TJToggleButtonWidget(-18, 58, 16, 16, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, superDualInterface::setFluidAutoPull)
-                .setToggleTooltipHoverText("tile.me.stocking_fluid_interface.auto_pull", "tile.me.stocking_fluid_interface.auto_pull")
-                .setToggleTexture(TJGuiTextures.TOGGLE_AUTO_PULL)
-                .useToggleTexture(true));
+        tab.add(new TJToggleButtonWidget(-18, 8, 16, 16, TJGuiTextures.TOGGLE_AUTO_PULL, () -> duality.getConfigManager().getSetting(Settings.PLACE_BLOCK).ordinal() == 0, superDualInterface::setFluidAutoPull)
+                .setToggleTooltipHoverText("tile.me.stocking_fluid_interface.auto_pull", "tile.me.stocking_fluid_interface.auto_pull"));
+        tab.add(new TJToggleButtonWidget(-18, 26, 16, 16, TJGuiTextures.TOGGLE_BLOCKING_MODE, () -> duality.getConfigManager().getSetting(Settings.STICKY_MODE).ordinal() == 0, superDualInterface::setFluidAutoPush)
+                .setToggleTooltipHoverText("tile.me.stocking_fluid_interface.auto_push", "tile.me.stocking_fluid_interface.auto_push")
+                .setInvertTexture(true));
     }
 }

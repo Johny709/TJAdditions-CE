@@ -11,6 +11,8 @@ public interface ISuperFluidInterface extends ICustomNameObject, IPriorityHost, 
 
     default void setFluidAutoPull(boolean autoPull) {}
 
+    default void setFluidAutoPush(boolean autoPush) {}
+
     default int getTickTime() {
         return 1;
     }

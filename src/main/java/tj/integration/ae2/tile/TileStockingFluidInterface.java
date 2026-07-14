@@ -21,7 +21,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import tj.blocks.block.TJBlocks;
 import tj.integration.ae2.ISuperFluidInterface;
@@ -36,10 +40,12 @@ import javax.annotation.Nonnull;
 
 public class TileStockingFluidInterface extends TileFluidInterface implements ITileEntityUI, ISuperFluidInterface {
 
+    private final BlockPos.MutableBlockPos interfacePos = new BlockPos.MutableBlockPos();
     private int tickTime = 100;
 
     public TileStockingFluidInterface() {
         ObfuscationReflectionHelper.setPrivateValue(TileFluidInterface.class, this, new DualitySuperFluidInterface(this.getProxy(), this, 36), "duality");
+        this.getDualityFluidInterface().getConfigManager().registerSetting(Settings.STICKY_MODE, YesNo.NO);
     }
 
     public void openUI(EntityPlayer player, TileEntity tileEntity) {
@@ -62,6 +68,7 @@ public class TileStockingFluidInterface extends TileFluidInterface implements IT
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         data.setInteger("tickTime", this.tickTime);
+        data.setInteger("autoOutputFluid", this.getDualityFluidInterface().getConfigManager().getSetting(Settings.STICKY_MODE).ordinal());
         return data;
     }
 
@@ -69,6 +76,7 @@ public class TileStockingFluidInterface extends TileFluidInterface implements IT
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.tickTime = data.getInteger("tickTime");
+        this.getDualityFluidInterface().getConfigManager().putSetting(Settings.STICKY_MODE, YesNo.values()[data.getInteger("autoOutputFluid")]);
     }
 
     @Nonnull
@@ -93,6 +101,28 @@ public class TileStockingFluidInterface extends TileFluidInterface implements IT
                 }
             } catch (GridAccessException ignored) {}
         }
+        if (this.getDualityFluidInterface().getConfigManager().getSetting(Settings.STICKY_MODE) == YesNo.YES) {
+            final BlockPos pos = this.getTile().getPos();
+            for (EnumFacing facing : this.getTargets()) {
+                this.interfacePos.setPos(pos.getX(), pos.getY(), pos.getZ());
+                final TileEntity tileEntity = this.getTile().getWorld().getTileEntity(this.interfacePos.move(facing));
+                if (tileEntity != null) {
+                    final IFluidHandler fluidHandler = this.getDualityFluidInterface().getTanks();
+                    final IFluidHandler destFluidHandler = tileEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite());
+                    if (destFluidHandler != null) {
+                        for (IFluidTankProperties tank : fluidHandler.getTankProperties()) {
+                            FluidStack fluidStack = tank.getContents();
+                            if (fluidStack != null) {
+                                fluidStack = fluidHandler.drain(fluidStack, false);
+                                if (fluidStack == null) continue;
+                                fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                                fluidHandler.drain(fluidStack, true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return TickRateModulation.values()[Math.max(tickRateModulation.ordinal(), this.tickTime > ticksSinceLastCall ? TickRateModulation.SLOWER.ordinal() : this.tickTime < ticksSinceLastCall ? TickRateModulation.FASTER.ordinal() : TickRateModulation.SAME.ordinal())];
     }
 
@@ -110,6 +140,12 @@ public class TileStockingFluidInterface extends TileFluidInterface implements IT
     @Override
     public void setFluidAutoPull(boolean blockingMode) {
         this.getDualityFluidInterface().getConfigManager().putSetting(Settings.BLOCK, blockingMode ? YesNo.YES : YesNo.NO);
+        this.markDirty();
+    }
+
+    @Override
+    public void setFluidAutoPush(boolean autoPush) {
+        this.getDualityFluidInterface().getConfigManager().putSetting(Settings.STICKY_MODE, autoPush ? YesNo.YES : YesNo.NO);
         this.markDirty();
     }
 

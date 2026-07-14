@@ -25,13 +25,20 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import tj.TJ;
 import tj.integration.ae2.ISuperDualInterface;
 import tj.integration.ae2.blocks.BlockStockingDualInterface;
@@ -40,6 +47,7 @@ import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.items.item.TJItems;
 import tj.mui.uifactory.ITileEntityUI;
 import tj.mui.uifactory.TileEntityHolder;
+import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -59,11 +67,14 @@ public class PartStockingDualInterface extends PartInterface implements ITileEnt
     public static final PartModel MODELS_HAS_CHANNEL = new PartModel(MODEL_BASE, new ResourceLocation(TJ.MODID, "part/me.part.stocking_dual_interface_has_channel"));
 
     private final DualitySuperFluidInterface dualityFluid = new DualitySuperFluidInterface(this.getProxy(), this, 36);
+    private final BlockPos.MutableBlockPos interfacePos = new BlockPos.MutableBlockPos();
     private int tickTime = 100;
 
     public PartStockingDualInterface(ItemStack is) {
         super(is);
         ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 36, 9), "duality");
+        this.getInterfaceDuality().getConfigManager().registerSetting(Settings.STICKY_MODE, YesNo.NO);
+        this.getDualityFluidInterface().getConfigManager().registerSetting(Settings.STICKY_MODE, YesNo.NO);
     }
 
     @Override
@@ -95,6 +106,8 @@ public class PartStockingDualInterface extends PartInterface implements ITileEnt
         this.dualityFluid.writeToNBT(compound);
         data.setTag("dualityFluid", compound);
         data.setInteger("tickTime", this.tickTime);
+        data.setInteger("autoOutputItem", this.getInterfaceDuality().getConfigManager().getSetting(Settings.STICKY_MODE).ordinal());
+        data.setInteger("autoOutputFluid", this.getDualityFluidInterface().getConfigManager().getSetting(Settings.STICKY_MODE).ordinal());
     }
 
     @Override
@@ -102,6 +115,8 @@ public class PartStockingDualInterface extends PartInterface implements ITileEnt
         super.readFromNBT(data);
         this.dualityFluid.readFromNBT(data.getCompoundTag("dualityFluid"));
         this.tickTime = Math.max(1, data.getInteger("tickTime"));
+        this.getInterfaceDuality().getConfigManager().putSetting(Settings.STICKY_MODE, YesNo.values()[data.getInteger("autoOutputItem")]);
+        this.getDualityFluidInterface().getConfigManager().putSetting(Settings.STICKY_MODE, YesNo.values()[data.getInteger("autoOutputFluid")]);
     }
 
     @Nonnull
@@ -127,6 +142,29 @@ public class PartStockingDualInterface extends PartInterface implements ITileEnt
                 }
             } catch (GridAccessException ignored) {}
         }
+        if (this.getInterfaceDuality().getConfigManager().getSetting(Settings.STICKY_MODE) == YesNo.YES) {
+            final BlockPos pos = this.getTile().getPos();
+            for (EnumFacing facing : this.getTargets()) {
+                this.interfacePos.setPos(pos.getX(), pos.getY(), pos.getZ());
+                final TileEntity tileEntity = this.getTile().getWorld().getTileEntity(this.interfacePos.move(facing));
+                if (tileEntity != null) {
+                    final IItemHandler itemHandler = this.getInterfaceDuality().getStorage();
+                    final IItemHandler destItemHandler = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, facing.getOpposite());
+                    if (destItemHandler != null) {
+                        for (int i = 0; i < itemHandler.getSlots(); i++) {
+                            final ItemStack stack = itemHandler.getStackInSlot(i);
+                            if (!stack.isEmpty()) {
+                                final int inserted = TJItemUtils.insertIntoItemHandler(destItemHandler, stack, true).getCount();
+                                final int extract = stack.getCount() - inserted;
+                                if (extract < 1) continue;
+                                final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
+                                TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                            }
+                        }
+                    }
+                }
+            }
+        }
         if (this.getDualityFluidInterface().getConfigManager().getSetting(Settings.BLOCK) == YesNo.YES) {
             try {
                 int index = 0;
@@ -142,6 +180,28 @@ public class PartStockingDualInterface extends PartInterface implements ITileEnt
                     } else break;
                 }
             } catch (GridAccessException ignored) {}
+        }
+        if (this.getDualityFluidInterface().getConfigManager().getSetting(Settings.STICKY_MODE) == YesNo.YES) {
+            final BlockPos pos = this.getTile().getPos();
+            for (EnumFacing facing : this.getTargets()) {
+                this.interfacePos.setPos(pos.getX(), pos.getY(), pos.getZ());
+                final TileEntity tileEntity = this.getTile().getWorld().getTileEntity(this.interfacePos.move(facing));
+                if (tileEntity != null) {
+                    final IFluidHandler fluidHandler = this.getDualityFluidInterface().getTanks();
+                    final IFluidHandler destFluidHandler = tileEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite());
+                    if (destFluidHandler != null) {
+                        for (IFluidTankProperties tank : fluidHandler.getTankProperties()) {
+                            FluidStack fluidStack = tank.getContents();
+                            if (fluidStack != null) {
+                                fluidStack = fluidHandler.drain(fluidStack, false);
+                                if (fluidStack == null) continue;
+                                fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                                fluidHandler.drain(fluidStack, true);
+                            }
+                        }
+                    }
+                }
+            }
         }
         return TickRateModulation.values()[Math.max(tickRateModulation.ordinal(), this.tickTime > ticksSinceLastCall ? TickRateModulation.SLOWER.ordinal() : this.tickTime < ticksSinceLastCall ? TickRateModulation.FASTER.ordinal() : TickRateModulation.SAME.ordinal())];
     }
@@ -205,6 +265,18 @@ public class PartStockingDualInterface extends PartInterface implements ITileEnt
     @Override
     public void setFluidAutoPull(boolean autoPull) {
         this.getDualityFluidInterface().getConfigManager().putSetting(Settings.BLOCK, autoPull ? YesNo.YES : YesNo.NO);
+        this.getTile().markDirty();
+    }
+
+    @Override
+    public void setItemAutoPush(boolean autoPush) {
+        this.getInterfaceDuality().getConfigManager().putSetting(Settings.STICKY_MODE, autoPush ? YesNo.YES : YesNo.NO);
+        this.getTile().markDirty();
+    }
+
+    @Override
+    public void setFluidAutoPush(boolean autoPush) {
+        this.getDualityFluidInterface().getConfigManager().putSetting(Settings.STICKY_MODE, autoPush ? YesNo.YES : YesNo.NO);
         this.getTile().markDirty();
     }
 

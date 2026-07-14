@@ -23,10 +23,16 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import tj.TJ;
 import tj.integration.ae2.ISuperFluidInterface;
@@ -52,11 +58,13 @@ public class PartStockingFluidInterface extends PartFluidInterface implements IT
     @PartModels
     public static final PartModel MODELS_HAS_CHANNEL = new PartModel(MODEL_BASE, new ResourceLocation(TJ.MODID, "part/me.part.stocking_fluid_interface_has_channel"));
 
+    private final BlockPos.MutableBlockPos interfacePos = new BlockPos.MutableBlockPos();
     private int tickTime = 100;
 
     public PartStockingFluidInterface(ItemStack is) {
         super(is);
         ObfuscationReflectionHelper.setPrivateValue(PartFluidInterface.class, this, new DualitySuperFluidInterface(this.getProxy(), this, 36), "duality");
+        this.getDualityFluidInterface().getConfigManager().registerSetting(Settings.STICKY_MODE, YesNo.NO);
     }
 
     @Override
@@ -79,12 +87,14 @@ public class PartStockingFluidInterface extends PartFluidInterface implements IT
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         data.setInteger("tickTime", this.tickTime);
+        data.setInteger("autoOutputFluid", this.getDualityFluidInterface().getConfigManager().getSetting(Settings.STICKY_MODE).ordinal());
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.tickTime = data.getInteger("tickTime");
+        this.getDualityFluidInterface().getConfigManager().putSetting(Settings.STICKY_MODE, YesNo.values()[data.getInteger("autoOutputFluid")]);
     }
 
     @Nonnull
@@ -108,6 +118,28 @@ public class PartStockingFluidInterface extends PartFluidInterface implements IT
                     } else break;
                 }
             } catch (GridAccessException ignored) {}
+        }
+        if (this.getDualityFluidInterface().getConfigManager().getSetting(Settings.STICKY_MODE) == YesNo.YES) {
+            final BlockPos pos = this.getTile().getPos();
+            for (EnumFacing facing : this.getTargets()) {
+                this.interfacePos.setPos(pos.getX(), pos.getY(), pos.getZ());
+                final TileEntity tileEntity = this.getTile().getWorld().getTileEntity(this.interfacePos.move(facing));
+                if (tileEntity != null) {
+                    final IFluidHandler fluidHandler = this.getDualityFluidInterface().getTanks();
+                    final IFluidHandler destFluidHandler = tileEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite());
+                    if (destFluidHandler != null) {
+                        for (IFluidTankProperties tank : fluidHandler.getTankProperties()) {
+                            FluidStack fluidStack = tank.getContents();
+                            if (fluidStack != null) {
+                                fluidStack = fluidHandler.drain(fluidStack, false);
+                                if (fluidStack == null) continue;
+                                fluidStack.amount = destFluidHandler.fill(fluidStack, true);
+                                fluidHandler.drain(fluidStack, true);
+                            }
+                        }
+                    }
+                }
+            }
         }
         return TickRateModulation.values()[Math.max(tickRateModulation.ordinal(), this.tickTime > ticksSinceLastCall ? TickRateModulation.SLOWER.ordinal() : this.tickTime < ticksSinceLastCall ? TickRateModulation.FASTER.ordinal() : TickRateModulation.SAME.ordinal())];
     }
@@ -138,6 +170,12 @@ public class PartStockingFluidInterface extends PartFluidInterface implements IT
     @Override
     public void setFluidAutoPull(boolean blockingMode) {
         this.getDualityFluidInterface().getConfigManager().putSetting(Settings.BLOCK, blockingMode ? YesNo.YES : YesNo.NO);
+        this.getTile().markDirty();
+    }
+
+    @Override
+    public void setFluidAutoPush(boolean autoPush) {
+        this.getDualityFluidInterface().getConfigManager().putSetting(Settings.STICKY_MODE, autoPush ? YesNo.YES : YesNo.NO);
         this.getTile().markDirty();
     }
 
