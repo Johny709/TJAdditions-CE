@@ -117,7 +117,7 @@ public class BlockStockingInterface extends BlockInterface {
                 .widget(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"))
                 .widget(new TJToggleButtonWidget(-18, 35, 16, 16, TJGuiTextures.TOGGLE_AUTO_PULL, () -> duality.getConfigManager().getSetting(Settings.BLOCK).ordinal() == 0, superInterface::setItemAutoPull)
                         .setToggleTooltipHoverText("tile.me.stocking_interface.auto_pull", "tile.me.stocking_interface.auto_pull"))
-                .widget(new TJToggleButtonWidget(-18, 26, 16, 16, TJGuiTextures.TOGGLE_BLOCKING_MODE, () -> duality.getConfigManager().getSetting(Settings.STICKY_MODE).ordinal() == 0, superInterface::setItemAutoPush)
+                .widget(new TJToggleButtonWidget(-18, 53, 16, 16, TJGuiTextures.TOGGLE_BLOCKING_MODE, () -> duality.getConfigManager().getSetting(Settings.STICKY_MODE).ordinal() == 0, superInterface::setItemAutoPush)
                         .setToggleTooltipHoverText("tile.me.stocking_interface.auto_push", "tile.me.stocking_interface.auto_push")
                         .setInvertTexture(true))
                 .widget(selectionWidgetGroup)
