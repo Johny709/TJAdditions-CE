@@ -30,7 +30,7 @@ public class TJ {
 
     public static final String MODID = "tj";
     public static final String NAME = "TJ";
-    public static final String VERSION = "2.6.0";
+    public static final String VERSION = "2.7.0";
 
     @SidedProxy(modId = MODID, clientSide = "tj.ClientProxy", serverSide = "tj.CommonProxy")
     public static CommonProxy proxy;
