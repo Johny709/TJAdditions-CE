@@ -24,13 +24,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.spongepowered.include.com.google.common.collect.ImmutableMap;
+import tj.TJ;
 import tj.mui.widgets.TJWidget;
 
 import javax.vecmath.Vector3f;
 
 public class WorldSceneRenderWidget extends TJWidget<WorldSceneRenderWidget> {
 
-    private final WorldSceneRenderer worldSceneRenderer;
+    private WorldSceneRenderer worldSceneRenderer;
     private ItemStack tooltipBlockStack = ItemStack.EMPTY;
     private TextureArea backgroundTexture;
     private boolean isCameraFree = true;
@@ -47,10 +48,10 @@ public class WorldSceneRenderWidget extends TJWidget<WorldSceneRenderWidget> {
         super(new Position(x, y), new Size(width, height));
         final BlockPos pos = metaTileEntity.getPos();
         final MetaTileEntityHolder tileEntity = new MetaTileEntityHolder();
-        final MetaTileEntity metaTileEntity1 = tileEntity.setMetaTileEntity(metaTileEntity);
+        final MetaTileEntity mte = tileEntity.setMetaTileEntity(metaTileEntity);
+        mte.setFrontFacing(metaTileEntity.getFrontFacing());
         this.worldSceneRenderer = new WorldSceneRenderer(ImmutableMap.of(new BlockPos(0, 0, 0), new BlockInfo(metaTileEntity.getWorld().getBlockState(pos), tileEntity)));
         this.worldSceneRenderer.setRenderCallback(this::preRenderScene);
-        metaTileEntity1.setFrontFacing(EnumFacing.WEST);
     }
 
     public WorldSceneRenderWidget setBackgroundTexture(TextureArea backgroundTexture) {

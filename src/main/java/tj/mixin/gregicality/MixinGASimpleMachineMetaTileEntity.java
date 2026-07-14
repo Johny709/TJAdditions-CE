@@ -23,7 +23,6 @@ import tj.capability.IRecipeMap;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.*;
 import tj.mixin.gregtech.IMixinAbstractRecipeLogic;
-import tj.util.TJItemUtils;
 
 @Mixin(value = GASimpleMachineMetaTileEntity.class, remap = false)
 public abstract class MixinGASimpleMachineMetaTileEntity extends MixinGAWorkableTieredMetaTileEntity {
@@ -78,18 +77,7 @@ public abstract class MixinGASimpleMachineMetaTileEntity extends MixinGAWorkable
                         .setToggleTitleTooltipHoverText("gregtech.gui.overclock.disabled", "gregtech.gui.overclock.enabled"))
                 .widget(new GhostCircuitWidget(this.ghostCircuitInventory, 133, 62))
                 .bindPlayerInventory(player.inventory)
-                .widget(displayWidget)
-                .widget(new ButtonPopUpWidget<>()
-                        .addPopup(widgetGroup -> true)
-                        .addPopup(new TJToggleButtonWidget(-24, 112, 18, 18)
-                                .setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11))
-                                .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
-                                .useToggleTexture(true), widgetGroup -> {
-                            final GASimpleMachineMetaTileEntity simpleMachineMetaTile = (GASimpleMachineMetaTileEntity) (Object) this;
-                            widgetGroup.addWidget(new WorldSceneRenderWidget(4, 4, 168, 76, simpleMachineMetaTile)
-                                    .setBackgroundTexture(TJGuiTextures.MULTIBLOCK_DISPLAY_BASE));
-                            return false;
-                        }));
+                .widget(displayWidget);
 
         leftButtonStartX = 7;
         if (this.workable.recipeMap instanceof SimpleMachineMetaTileEntity.RecipeMapWithConfigButton) {

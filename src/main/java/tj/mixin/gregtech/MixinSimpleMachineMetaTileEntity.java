@@ -20,7 +20,6 @@ import tj.TJConfig;
 import tj.capability.IRecipeMap;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.*;
-import tj.util.TJItemUtils;
 
 @Mixin(value = SimpleMachineMetaTileEntity.class, remap = false)
 public abstract class MixinSimpleMachineMetaTileEntity extends MixinWorkableTieredMetaTileEntity {
@@ -76,18 +75,7 @@ public abstract class MixinSimpleMachineMetaTileEntity extends MixinWorkableTier
                         .setButtonTexture(GuiTextures.BUTTON_OVERCLOCK))
                 .widget(new GhostCircuitWidget(this.ghostCircuitInventory, 151, 62))
                 .bindPlayerInventory(player.inventory)
-                .widget(displayWidget)
-                .widget(new ButtonPopUpWidget<>()
-                        .addPopup(widgetGroup -> true)
-                        .addPopup(new TJToggleButtonWidget(-24, 112, 18, 18)
-                                .setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11))
-                                .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
-                                .useToggleTexture(true), widgetGroup -> {
-                            final SimpleMachineMetaTileEntity simpleMachineMetaTile = (SimpleMachineMetaTileEntity) (Object) this;
-                            widgetGroup.addWidget(new WorldSceneRenderWidget(4, 4, 168, 76, simpleMachineMetaTile)
-                                    .setBackgroundTexture(TJGuiTextures.MULTIBLOCK_DISPLAY_BASE));
-                            return false;
-                        }));
+                .widget(displayWidget);
 
         leftButtonStartX = 7;
         if (this.workable.recipeMap instanceof SimpleMachineMetaTileEntity.RecipeMapWithConfigButton) {
