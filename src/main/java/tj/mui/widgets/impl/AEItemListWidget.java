@@ -18,6 +18,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -178,6 +179,9 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         final Position pos = this.getPosition();
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         RenderUtil.useScissor(pos.getX(), pos.getY(), size.getWidth(), size.getHeight(), () -> {
+            GlStateManager.popMatrix();
+            GlStateManager.enableBlend();
+            GlStateManager.color(1.0f, 1.0f, 1.0f);
             int scrollOffset = 0;
             int slotColumn = 0;
             int slotXOffset = 0;
@@ -249,8 +253,9 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                     if (isMouseOver(x, y, 18, 18, mouseX, mouseY)) {
                         final boolean shiftClick = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
                         this.writeClientAction(shiftClick ? 3 : 2, buffer -> {
-                            buffer.writeInt(entry.getIntKey());
                             buffer.writeBoolean(true); // isSlot is true.
+                            buffer.writeInt(entry.getIntKey());
+                            buffer.writeInt(button);
                         });
                         return true;
                     }
@@ -263,8 +268,9 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                     if (isMouseOver(pos.getX(), pos.getY() + 4 + scrollOffset - (this.scrollOffset % 18), len, 16, mouseX, mouseY)) {
                         this.playButtonClickSound();
                         this.writeClientAction(2, buffer -> {
-                            buffer.writeInt(entry.getIntKey());
                             buffer.writeBoolean(false); // isSlot is false.
+                            buffer.writeInt(entry.getIntKey());
+                            buffer.writeInt(button);
                         });
                         return true;
                     }
@@ -335,9 +341,11 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         if (id == 1) {
             this.scrollOffset = buffer.readInt();
         } else if (id == 2) {
-            this.actionPerformed(buffer.readInt(), buffer.readBoolean(), null);
+            final ElementData data = new ElementData(buffer.readBoolean(), buffer.readInt(), buffer.readInt());
+            this.actionPerformed(data, null);
         } else if (id == 3) {
-            this.actionPerformed(buffer.readInt(), buffer.readBoolean(), this.itemStackTransfer);
+            final ElementData data = new ElementData(buffer.readBoolean(), buffer.readInt(), buffer.readInt());
+            this.actionPerformed(data, this.itemStackTransfer);
         }
     }
 
@@ -372,12 +380,10 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     }
 
     /**
-     *
-     * @param i Element index.
-     * @param isSlot Is element a slot.
+     * @param data contains element data. Is element a slot, button pressed, and element index.
      * @param itemStackTransfer Inserts item into element slot from player cursor if null. Inserts into external inventory and then player inventory if provided itemStackTransfer function.
      */
-    private void actionPerformed(int i, boolean isSlot, BiFunction<ItemStack, Boolean, ItemStack> itemStackTransfer) {
+    private void actionPerformed(ElementData data, BiFunction<ItemStack, Boolean, ItemStack> itemStackTransfer) {
         ItemStack playerStack = this.gui.entityPlayer.inventory.getItemStack();
         int index = 0;
         int scrollHeight = 0;
@@ -392,7 +398,7 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                 if (!this.predicate.test(machine)) continue;
                 final IItemHandler inventory = this.inventorySupplier.apply(machine);
                 if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset) {
-                    if (!isSlot && i == index) {
+                    if (!data.isSlot && data.index == index) {
                         this.writeUpdateInfo(4, buffer -> buffer.writeBlockPos(gridNode.getGridBlock().getLocation().getPos()));
                         break grid;
                     }
@@ -404,17 +410,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                         scrollHeight += 18;
                         slotColumn = 0;
                     }
-                    if (isSlot && i == index) {
-                        if (itemStackTransfer == null) {
-                            final ItemStack output = inventory.extractItem(j, Integer.MAX_VALUE, false);
-                            if (output.isEmpty() || inventory.insertItem(j, playerStack, true).isEmpty()) {
-                                playerStack = inventory.insertItem(j, playerStack, false);
-                                if (playerStack.isEmpty())
-                                    playerStack = output;
-                            } else inventory.insertItem(j, output, false);
-                        } else if (inventory.insertItem(j, itemStackTransfer.apply(inventory.extractItem(j, Integer.MAX_VALUE, true), true), true).isEmpty()) {
-                            inventory.insertItem(j, itemStackTransfer.apply(inventory.extractItem(j, Integer.MAX_VALUE, false), false), false);
-                        } else inventory.insertItem(j, TJItemUtils.insertInMainInventory(this.gui.entityPlayer.inventory, inventory.extractItem(j, Integer.MAX_VALUE, false)), false);
+                    if (data.isSlot && data.index == index) {
+                        playerStack = this.slotAction(inventory, j, playerStack, data, itemStackTransfer);
                         break grid;
                     }
                     if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && this.slotPredicate.test(j, machine))
@@ -428,6 +425,20 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         final ItemStack finalPlayerStack = playerStack;
         this.gui.entityPlayer.inventory.setItemStack(finalPlayerStack);
         this.writeUpdateInfo(3, buffer -> buffer.writeItemStack(finalPlayerStack));
+    }
+
+    protected ItemStack slotAction(IItemHandler itemHandler, int slotIndex, ItemStack playerStack, ElementData data, BiFunction<ItemStack, Boolean, ItemStack> itemStackTransfer) {
+        if (itemStackTransfer == null) {
+            final ItemStack output = itemHandler.extractItem(slotIndex, Integer.MAX_VALUE, false);
+            if (output.isEmpty() || itemHandler.insertItem(slotIndex, playerStack, true).isEmpty()) {
+                playerStack = itemHandler.insertItem(slotIndex, playerStack, false);
+                if (playerStack.isEmpty())
+                    playerStack = output;
+            } else itemHandler.insertItem(slotIndex, output, false);
+        } else if (itemHandler.insertItem(slotIndex, itemStackTransfer.apply(itemHandler.extractItem(slotIndex, Integer.MAX_VALUE, true), true), true).isEmpty()) {
+            itemHandler.insertItem(slotIndex, itemStackTransfer.apply(itemHandler.extractItem(slotIndex, Integer.MAX_VALUE, false), false), false);
+        } else itemHandler.insertItem(slotIndex, TJItemUtils.insertInMainInventory(this.gui.entityPlayer.inventory, itemHandler.extractItem(slotIndex, Integer.MAX_VALUE, false)), false);
+        return playerStack;
     }
 
     @Override
@@ -525,5 +536,18 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
             }
         }
         return null;
+    }
+
+    public static class ElementData {
+
+        final boolean isSlot;
+        final int index;
+        final int button;
+
+        ElementData(boolean isSlot, int index, int button) {
+            this.isSlot = isSlot;
+            this.index = index;
+            this.button = button;
+        }
     }
 }

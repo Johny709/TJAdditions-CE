@@ -20,6 +20,7 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import gregtech.api.util.TextFormattingUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -40,10 +41,8 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.integration.ae2.tile.TilePatternInterface;
-import tj.integration.ae2.tile.TileSuperDualInterface;
-import tj.integration.ae2.tile.TileSuperInterface;
-import tj.integration.ae2.tile.TileSuperUltimateInterface;
+import tj.builder.WidgetTabBuilder;
+import tj.integration.ae2.tile.*;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.item.TJItems;
 import tj.mui.TJGuiTextures;
@@ -57,10 +56,15 @@ import tj.util.references.BooleanReference;
 import tj.util.references.ObjectReference;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.LongUnaryOperator;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+
+import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLocation.LEFT;
+import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
+
 
 public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements ITileEntityUI {
 
@@ -83,12 +87,6 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
 
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        final BooleanReference validPatterns = new BooleanReference();
-        final BooleanReference showInterfaces = new BooleanReference();
-        final BooleanReference showCraftingInterfaces = new BooleanReference();
-        final ObjectReference<String> searchInputs = new ObjectReference<>("");
-        final ObjectReference<String> searchOutputs = new ObjectReference<>("");
-        final ObjectReference<String> searchInterface = new ObjectReference<>("");
         final ItemStack patternMultiTool = Optional.of(player.inventory.mainInventory)
                 .map(inventory -> {
                     for (ItemStack stack : inventory)
@@ -111,9 +109,13 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                 .setItemStackPredicate((slot, itemStack) -> itemStack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)));
         multiUpgradeSlots.setOnContentsChangedPost((slot, itemStack) -> writePatternMultiToolToNBT(multiUpgradeSlots, upgradeTag));
         final ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 316);
-        final AEItemListWidget<IInterfaceHost> aeItemListWidget = new AEItemListWidget<>(7, 60, 162, 162, this.getGridNode(), TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class,
+        final AEItemListWidget<IInterfaceHost> aeItemListPattern = new AEItemListWidget<>(7, 60, 162, 162, this.getGridNode(), TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class,
                 PartInterface.class, PartDualInterface.class, PartSuperInterface.class, PartSuperDualInterface.class, PartPatternInterface.class, PartSuperUltimateInterface.class);
-        return this.createPatternMultiToolGUI(builder, patternMultiTool, multiUpgradeSlots, multiPatternSlots, invTag, aeItemListWidget)
+        final AEGhostItemListWidget<IInterfaceHost> aeItemListConfig = new AEGhostItemListWidget<>(7, 60, 162, 162, this.getGridNode(), TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TileStockingInterface.class,
+                TileStockingDualInterface.class, TileSuperUltimateInterface.class);
+        final AEItemListWidget<IInterfaceHost> aeItemListStorage = new AEItemListWidget<>(7, 60, 162, 162, this.getGridNode(), TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TileStockingInterface.class,
+                TileStockingDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class);
+        return this.createPatternMultiToolGUI(builder, patternMultiTool, multiUpgradeSlots, multiPatternSlots, invTag, aeItemListPattern)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJItems.PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
                         .setLocale("item.me.part.super_interface_terminal.name"))
@@ -121,49 +123,12 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         .setDynamicLocale(this::getCustomInventoryName)
                         .setCentered(false)
                         .setCanSlide(false))
-                .widget(new TJToggleButtonWidget(-18, 8, 16, 16, TJGuiTextures.TOGGLE_INTERFACE_TERMINAL, validPatterns::isValue, validPatterns::setValue)
-                        .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterfaceOffDesc", "gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterfaceOnDesc")
-                        .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterface", "gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterface"))
-                .widget(new TJToggleButtonWidget(-18, 28, 16, 16, TJGuiTextures.TOGGLE_SHOW_INTERFACES, showInterfaces::isValue, showInterfaces::setValue)
-                        .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOnDesc", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOffDesc")
-                        .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces"))
-                .widget(new TJToggleButtonWidget(-18, 48, 16, 16, TJGuiTextures.TOGGLE_CRAFTING_INTERFACES, showCraftingInterfaces::isValue, showCraftingInterfaces::setValue)
-                        .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleMolecularAssemblersOffDesc", "gui.tooltips.appliedenergistics2.ToggleMolecularAssemblersOnDesc")
-                        .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleMolecularAssemblers", "gui.tooltips.appliedenergistics2.ToggleMolecularAssemblers"))
                 .widget(new ImageWidget(6, 59, 164, 164, TJGuiTextures.BLANK_SLOT))
-                .widget(new NewTextFieldWidget<>(7, 16, 90, 12, true, searchInputs::getValue, (s, id) -> searchInputs.setValue(s))
-                        .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                        .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
-                        .setUpdateOnTyping(true))
-                .widget(new NewTextFieldWidget<>(7, 30, 90, 12, true, searchOutputs::getValue, (s, id) -> searchOutputs.setValue(s))
-                        .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                        .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldOutputs")
-                        .setUpdateOnTyping(true))
-                .widget(new NewTextFieldWidget<>(7, 44, 90, 12, true, searchInterface::getValue, (s, id) -> searchInterface.setValue(s))
-                        .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                        .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldNames")
-                        .setUpdateOnTyping(true))
-                .widget(aeItemListWidget.setSlotPredicate((slot, interfaceHost) -> slot / 9 <= interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION))
-                        .setItemStackTransfer((itemStack, simulate) -> TJItemUtils.insertIntoItemHandler(multiPatternSlots, itemStack, simulate))
-                        .setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getPatterns())
-                        .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
-                        .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT)
-                        .setRenderCallback(this::renderCallback)
-                        .setPredicate(interfaceHost -> {
-                            if (interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) != YesNo.YES)
-                                return false;
-                            if (validPatterns.isValue() && this.isPatternValid(interfaceHost.getInterfaceDuality().getPatterns())) {
-                                return false;
-                            } else if (showInterfaces.isValue() && TJItemUtils.areSlotsFull(interfaceHost.getInterfaceDuality().getPatterns(), 0, Math.min(interfaceHost.getInterfaceDuality().getPatterns().getSlots(), interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) * 9))) {
-                                return false;
-                            } else if (showCraftingInterfaces.isValue() && !this.checkAroundForMolecularAssemblers(interfaceHost)) {
-                                return false;
-                            } else if (!searchInputs.getValue().isEmpty() && this.isItemNotPresent(interfaceHost.getInterfaceDuality().getPatterns(), searchInputs.getValue(), false)) {
-                                return false;
-                            } else if (!searchOutputs.getValue().isEmpty() && this.isItemNotPresent(interfaceHost.getInterfaceDuality().getPatterns(), searchOutputs.getValue(), true)) {
-                                return false;
-                            } else return searchInterface.getValue().isEmpty() || ((ICustomNameObject) interfaceHost).getCustomInventoryName().contains(searchInterface.getValue());
-                        }))
+                .widget(new WidgetTabBuilder()
+                        .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
+                        .addTab("gui.appliedenergistics2.Patterns", Api.INSTANCE.definitions().materials().blankPattern().maybeStack(1).orElse(ItemStack.EMPTY), tab -> this.createPatternTab(tab, aeItemListPattern, multiPatternSlots))
+                        .addTab("tj.multiblock.tab.config", Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY), tab -> this.createConfigTab(tab, aeItemListConfig))
+                        .addTab("tj.multiblock.tab.storage", TJItemUtils.getItemStackFromName("minecraft:chest"), tab -> this.createStorageTab(tab, aeItemListStorage)).build())
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 233, patternMultiTool))
                 .bindOpenListener(() -> {
                     if (!patternMultiTool.isEmpty()) {
@@ -176,6 +141,77 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         }
                     }
                 }).build(holder, player);
+    }
+
+    private void createPatternTab(List<Widget> tab, AEItemListWidget<IInterfaceHost> aeItemListWidget, FilteredItemStackHandler multiPatternSlots) {
+        final BooleanReference validPatterns = new BooleanReference();
+        final BooleanReference showInterfaces = new BooleanReference();
+        final BooleanReference showCraftingInterfaces = new BooleanReference();
+        final ObjectReference<String> searchInputs = new ObjectReference<>("");
+        final ObjectReference<String> searchOutputs = new ObjectReference<>("");
+        final ObjectReference<String> searchInterface = new ObjectReference<>("");
+        tab.add(new TJToggleButtonWidget(-18, 88, 16, 16, TJGuiTextures.TOGGLE_INTERFACE_TERMINAL, validPatterns::isValue, validPatterns::setValue)
+                .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterfaceOffDesc", "gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterfaceOnDesc")
+                .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterface", "gui.tooltips.appliedenergistics2.ToggleShowOnlyInvalidInterface"));
+        tab.add(new TJToggleButtonWidget(-18, 108, 16, 16, TJGuiTextures.TOGGLE_SHOW_INTERFACES, showInterfaces::isValue, showInterfaces::setValue)
+                .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOnDesc", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOffDesc")
+                .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces"));
+        tab.add(new TJToggleButtonWidget(-18, 128, 16, 16, TJGuiTextures.TOGGLE_CRAFTING_INTERFACES, showCraftingInterfaces::isValue, showCraftingInterfaces::setValue)
+                .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleMolecularAssemblersOffDesc", "gui.tooltips.appliedenergistics2.ToggleMolecularAssemblersOnDesc")
+                .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleMolecularAssemblers", "gui.tooltips.appliedenergistics2.ToggleMolecularAssemblers"));
+        tab.add(new NewTextFieldWidget<>(7, 16, 90, 12, true, searchInputs::getValue, (s, id) -> searchInputs.setValue(s))
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
+                .setUpdateOnTyping(true));
+        tab.add(new NewTextFieldWidget<>(7, 30, 90, 12, true, searchOutputs::getValue, (s, id) -> searchOutputs.setValue(s))
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldOutputs")
+                .setUpdateOnTyping(true));
+        tab.add(new NewTextFieldWidget<>(7, 44, 90, 12, true, searchInterface::getValue, (s, id) -> searchInterface.setValue(s))
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldNames")
+                .setUpdateOnTyping(true));
+        tab.add(aeItemListWidget.setSlotPredicate((slot, interfaceHost) -> slot / 9 <= interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION))
+                .setItemStackTransfer((itemStack, simulate) -> TJItemUtils.insertIntoItemHandler(multiPatternSlots, itemStack, simulate))
+                .setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getPatterns())
+                .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
+                .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT)
+                .setRenderCallback(this::renderCallback)
+                .setPredicate(interfaceHost -> {
+                    if (interfaceHost.getInterfaceDuality().getConfigManager().getSetting(Settings.INTERFACE_TERMINAL) != YesNo.YES)
+                        return false;
+                    if (validPatterns.isValue() && this.isPatternValid(interfaceHost.getInterfaceDuality().getPatterns())) {
+                        return false;
+                    } else if (showInterfaces.isValue() && TJItemUtils.areSlotsFull(interfaceHost.getInterfaceDuality().getPatterns(), 0, Math.min(interfaceHost.getInterfaceDuality().getPatterns().getSlots(), interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) * 9))) {
+                        return false;
+                    } else if (showCraftingInterfaces.isValue() && !this.checkAroundForMolecularAssemblers(interfaceHost)) {
+                        return false;
+                    } else if (!searchInputs.getValue().isEmpty() && this.isItemNotPresent(interfaceHost.getInterfaceDuality().getPatterns(), searchInputs.getValue(), false)) {
+                        return false;
+                    } else if (!searchOutputs.getValue().isEmpty() && this.isItemNotPresent(interfaceHost.getInterfaceDuality().getPatterns(), searchOutputs.getValue(), true)) {
+                        return false;
+                    } else return searchInterface.getValue().isEmpty() || ((ICustomNameObject) interfaceHost).getCustomInventoryName().contains(searchInterface.getValue());
+                }));
+    }
+
+    private void createConfigTab(List<Widget> tab, AEGhostItemListWidget<IInterfaceHost> aeGhostItemListWidget) {
+        tab.add(aeGhostItemListWidget.setItemStackTransfer((itemStack, simulate) -> itemStack)
+                .setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getConfig())
+                .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
+                .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT)
+                .setSlotPredicate((slot, interfaceHost) -> true)
+                .setPredicate(interfaceHost -> true)
+                .setRenderCallback(this::renderCallback));
+    }
+
+    private void createStorageTab(List<Widget> tab, AEItemListWidget<IInterfaceHost> aeItemListWidget) {
+        tab.add(aeItemListWidget.setItemStackTransfer((itemStack, simulate) -> itemStack)
+                .setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getStorage())
+                .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
+                .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT)
+                .setSlotPredicate((slot, interfaceHost) -> true)
+                .setPredicate(interfaceHost -> true)
+                .setRenderCallback(this::renderCallback));
     }
 
     private boolean isPatternValid(IItemHandler itemHandler) {

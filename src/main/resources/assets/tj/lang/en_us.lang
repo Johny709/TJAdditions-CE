@@ -747,6 +747,8 @@ tj.multiblock.tab.queue=Queue
 tj.multiblock.tab.channels=Channels
 tj.multiblock.tab.frequencies=Frequencies
 tj.multiblock.tab.players=Players
+tj.multiblock.tab.config=Config
+tj.multiblock.tab.storage=Storage
 
 tj.multiblock.structure_formed=Structure Formed.
 tj.multiblock.not_enough_fluid=§cWARNING: not enough fluid %s. Required: %sL
