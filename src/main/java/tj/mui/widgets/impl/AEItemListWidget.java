@@ -65,6 +65,7 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     private int scrollHeight;
     private int autoScrollY;
     private boolean autoScroll;
+    private boolean initialized;
 
     @SafeVarargs
     public AEItemListWidget(int x, int y, int width, int height, IGridNode gridNode, Class<? extends IGridHost>... gridHosts) {
@@ -111,15 +112,6 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     public AEItemListWidget<T> setItemStackTransfer(BiFunction<ItemStack, Boolean, ItemStack> itemStackTransfer) {
         this.itemStackTransfer = itemStackTransfer;
         return this;
-    }
-
-    @Override
-    public void setParentPosition(Position parentPosition) {
-        super.setParentPosition(parentPosition);
-        final Size size = this.getSize();
-        final Position pos = this.getPosition();
-        this.scrollBarRec = new Rectangle(this.scrollBarRec.x + pos.getX() + size.getWidth(), this.scrollBarRec.y + pos.getY(), this.scrollBarRec.width, this.scrollBarRec.height);
-        this.scrollSliderRec = new Rectangle(this.scrollBarRec.x + this.scrollSliderRec.x, this.scrollBarRec.y + this.scrollSliderRec.y, this.scrollSliderRec.width, this.scrollSliderRec.height);
     }
 
     @Override
@@ -178,6 +170,11 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         final Size size = this.getSize();
         final Position pos = this.getPosition();
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        if (!this.initialized) {
+            this.initialized = true;
+            this.scrollBarRec = new Rectangle(this.scrollBarRec.x + pos.getX() + size.getWidth(), this.scrollBarRec.y + pos.getY(), this.scrollBarRec.width, this.scrollBarRec.height);
+            this.scrollSliderRec = new Rectangle(this.scrollBarRec.x + this.scrollSliderRec.x, this.scrollBarRec.y + this.scrollSliderRec.y, this.scrollSliderRec.width, this.scrollSliderRec.height);
+        }
         RenderUtil.useScissor(pos.getX(), pos.getY(), size.getWidth(), size.getHeight(), () -> {
             GlStateManager.popMatrix();
             GlStateManager.enableBlend();
