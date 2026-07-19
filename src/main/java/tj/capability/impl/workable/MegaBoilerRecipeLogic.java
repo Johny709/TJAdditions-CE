@@ -44,6 +44,7 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
     private final List<ItemStack> itemOutput = new ArrayList<>();
     private final Set<FluidStack> lastSearchedFluid = new HashSet<>();
 
+    private FluidStack lastBurnFluid;
     private boolean hasNoWater;
     private int currentTemperature;
     private int waterConsumption;
@@ -138,6 +139,7 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
         }
         final FuelRecipe dieselRecipe = RecipeMaps.DIESEL_GENERATOR_FUELS.findRecipe(GTValues.V[9], fuelStack);
         if (dieselRecipe != null) {
+            this.lastBurnFluid = fuelStack;
             fuelStack.amount = (int) Math.ceil(dieselRecipe.getRecipeFluid().amount * CONSUMPTION_MULTIPLIER * this.handler.getParallel() * this.handler.getFuelConsumptionMultiplier() * getThrottleMultiplier());
             if (fuelStack.isFluidStackIdentical(this.handler.getImportFluidTank().drain(fuelStack, false))) {
                 this.fluidInput.add(this.handler.getImportFluidTank().drain(fuelStack, true));
@@ -151,6 +153,7 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
         }
         final FuelRecipe denseFuelRecipe = RecipeMaps.SEMI_FLUID_GENERATOR_FUELS.findRecipe(GTValues.V[9], fuelStack);
         if (denseFuelRecipe != null) {
+            this.lastBurnFluid = fuelStack;
             fuelStack.amount = (int) Math.ceil(denseFuelRecipe.getRecipeFluid().amount * CONSUMPTION_MULTIPLIER * this.handler.getParallel() * this.handler.getFuelConsumptionMultiplier() * getThrottleMultiplier());
             if (fuelStack.isFluidStackIdentical(this.handler.getImportFluidTank().drain(fuelStack, false))) {
                 this.fluidInput.add(this.handler.getImportFluidTank().drain(fuelStack, true));
@@ -207,7 +210,7 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
         final double ashBurnTime = COAL_BURNTIME / this.handler.getParallel();
         if (burnTime >= ashBurnTime) {
             final int amount = (int) ((burnTime / ashBurnTime) * Math.max(0.4, Math.random()));
-            this.itemOutput.add(new ItemStack(Item.getByNameOrId("gregtech:meta_item_1"), amount, 2110)); // dark ashes
+            this.itemOutput.add(TJItemUtils.getItemStackFromName("gregtech:meta_item_1", amount, 2110)); // dark ashes
         }
         return burnTime;
     }
@@ -346,6 +349,10 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
 
     public int getThrottlePercentage() {
         return this.throttlePercentage;
+    }
+
+    public FluidStack getLastBurnFluid() {
+        return this.lastBurnFluid;
     }
 
     @Override
