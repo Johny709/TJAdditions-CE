@@ -111,10 +111,10 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
         final ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 316);
         final AEItemListWidget<IInterfaceHost> aeItemListPattern = new AEItemListWidget<>(7, 60, 162, 162, this.getGridNode(), TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class,
                 PartInterface.class, PartDualInterface.class, PartSuperInterface.class, PartSuperDualInterface.class, PartPatternInterface.class, PartSuperUltimateInterface.class);
-        final AEGhostItemListWidget<IInterfaceHost> aeItemListConfig = new AEGhostItemListWidget<>(7, 36, 162, 186, this.getGridNode(), TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TileStockingInterface.class,
-                TileStockingDualInterface.class, TileSuperUltimateInterface.class);
-        final AEItemListWidget<IInterfaceHost> aeItemListStorage = new AEItemListWidget<>(7, 36, 162, 186, this.getGridNode(), TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TileStockingInterface.class,
-                TileStockingDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class);
+        final AEGhostItemListWidget<IInterfaceHost> aeItemListConfig = new AEGhostItemListWidget<>(7, 36, 162, 186, this.getGridNode(), TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TileStockingInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
+                PartInterface.class, PartDualInterface.class, PartSuperInterface.class, PartSuperDualInterface.class, PartStockingInterface.class, PartStockingDualInterface.class, PartSuperUltimateInterface.class);
+        final AEItemListWidget<IInterfaceHost> aeItemListStorage = new AEItemListWidget<>(7, 36, 162, 186, this.getGridNode(), TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TileStockingInterface.class, TileStockingDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class,
+                PartInterface.class, PartDualInterface.class, PartSuperInterface.class, PartSuperDualInterface.class, PartStockingInterface.class, PartStockingDualInterface.class, PartPatternInterface.class, PartSuperUltimateInterface.class);
         return this.createPatternMultiToolGUI(builder, patternMultiTool, multiUpgradeSlots, multiPatternSlots, invTag, aeItemListPattern)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJItems.PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
