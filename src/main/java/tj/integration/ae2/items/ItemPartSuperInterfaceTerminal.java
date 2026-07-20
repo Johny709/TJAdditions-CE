@@ -18,9 +18,7 @@ import javax.annotation.Nullable;
 
 public class ItemPartSuperInterfaceTerminal extends Item implements IPartItem<IPart> {
 
-    public ItemPartSuperInterfaceTerminal() {
-
-    }
+    public ItemPartSuperInterfaceTerminal() {}
 
     @Nullable
     @Override

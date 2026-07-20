@@ -15,6 +15,7 @@ import baubles.api.BaublesApi;
 import com.glodblock.github.common.part.PartDualInterface;
 import com.glodblock.github.common.tile.TileDualInterface;
 import gregtech.api.gui.GuiTextures;
+import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ImageWidget;
@@ -39,6 +40,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.WidgetTabBuilder;
@@ -170,7 +173,16 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldNames")
                 .setUpdateOnTyping(true));
-        tab.add(new ImageWidget(6, 59, 164, 164, TJGuiTextures.BLANK_SLOT));
+        tab.add(new ImageWidget(6, 59, 164, 164, TJGuiTextures.BLANK_SLOT) {
+            @Override
+            @SideOnly(Side.CLIENT)
+            public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+                GlStateManager.popMatrix();
+                GlStateManager.enableBlend();
+                GlStateManager.color(1.0f, 1.0f, 1.0f);
+                super.drawInBackground(mouseX, mouseY, context);
+            }
+        });
         tab.add(aeItemListWidget.setSlotPredicate((slot, interfaceHost) -> slot / 9 <= interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION))
                 .setItemStackTransfer((itemStack, simulate) -> TJItemUtils.insertIntoItemHandler(multiPatternSlots, itemStack, simulate))
                 .setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getPatterns())
@@ -204,7 +216,16 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                 .setUpdateOnTyping(true));
-        tab.add(new ImageWidget(6, 35, 164, 188, TJGuiTextures.BLANK_SLOT));
+        tab.add(new ImageWidget(6, 35, 164, 188, TJGuiTextures.BLANK_SLOT) {
+            @Override
+            @SideOnly(Side.CLIENT)
+            public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+                GlStateManager.popMatrix();
+                GlStateManager.enableBlend();
+                GlStateManager.color(1.0f, 1.0f, 1.0f);
+                super.drawInBackground(mouseX, mouseY, context);
+            }
+        });
         tab.add(aeGhostItemListWidget.setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getConfig())
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setItemStackTransfer((itemStack, simulate) -> itemStack)
@@ -230,7 +251,16 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                 .setUpdateOnTyping(true));
-        tab.add(new ImageWidget(6, 35, 164, 188, TJGuiTextures.BLANK_SLOT));
+        tab.add(new ImageWidget(6, 35, 164, 188, TJGuiTextures.BLANK_SLOT) {
+            @Override
+            @SideOnly(Side.CLIENT)
+            public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+                GlStateManager.popMatrix();
+                GlStateManager.enableBlend();
+                GlStateManager.color(1.0f, 1.0f, 1.0f);
+                super.drawInBackground(mouseX, mouseY, context);
+            }
+        });
         tab.add(aeItemListWidget.setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getStorage())
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setItemStackTransfer((itemStack, simulate) -> itemStack)
