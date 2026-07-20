@@ -360,6 +360,21 @@ public final class TJItemUtils {
     }
 
     /**
+     *
+     * @param itemHandler container inventory.
+     * @param name name of item to check.
+     */
+    public static boolean isItemPresent(IItemHandler itemHandler, String name) {
+        for (int i = 0; i < itemHandler.getSlots(); i++) {
+            final ItemStack stack = itemHandler.getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+            if (stack.getDisplayName().contains(name))
+                return true;
+        }
+        return false;
+    }
+
+    /**
      * Gets the {@link NBTTagCompound} from {@link ItemStack}. If the itemStack has null compound, then a new one is created and returned.
      */
     public static NBTTagCompound getCompoundFromStack(ItemStack stack) {

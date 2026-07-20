@@ -237,7 +237,7 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         return false;
                     if (showInterfaces.isValue() && TJItemUtils.areSlotsFull(interfaceHost.getInterfaceDuality().getConfig(), 0, interfaceHost.getInterfaceDuality().getConfig().getSlots())) {
                         return false;
-                    } else return searchName.getValue().isEmpty() || this.isItemPresent(interfaceHost.getInterfaceDuality().getConfig(), searchName.getValue());
+                    } else return searchName.getValue().isEmpty() || TJItemUtils.isItemPresent(interfaceHost.getInterfaceDuality().getConfig(), searchName.getValue());
                 }));
     }
 
@@ -272,7 +272,7 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
                         return false;
                     if (showInterfaces.isValue() && TJItemUtils.areSlotsFull(interfaceHost.getInterfaceDuality().getStorage(), 0, interfaceHost.getInterfaceDuality().getStorage().getSlots())) {
                         return false;
-                    } else return searchName.getValue().isEmpty() || this.isItemPresent(interfaceHost.getInterfaceDuality().getStorage(), searchName.getValue());
+                    } else return searchName.getValue().isEmpty() || TJItemUtils.isItemPresent(interfaceHost.getInterfaceDuality().getStorage(), searchName.getValue());
                 }));
     }
 
@@ -342,16 +342,6 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
             }
         }
         return true;
-    }
-
-    private boolean isItemPresent(IItemHandler itemHandler, String name) {
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            final ItemStack stack = itemHandler.getStackInSlot(i);
-            if (stack.isEmpty()) continue;
-            if (stack.getDisplayName().contains(name))
-                return true;
-        }
-        return false;
     }
 
     private void renderCallback(ItemStack itemStack, int x, int y) {
