@@ -2,7 +2,9 @@ package tj.capability;
 
 public interface IRecipeInfo {
 
-    boolean hasProblem();
+    boolean isHasProblems();
 
     long getEnergyPerTick();
+
+    String getHasProblemReason();
 }

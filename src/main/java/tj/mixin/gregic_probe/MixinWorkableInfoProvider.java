@@ -44,7 +44,7 @@ public abstract class MixinWorkableInfoProvider {
         }
         if (!capability.isWorkingEnabled()) {
             ci.cancel();
-        } else if (capability instanceof IRecipeInfo && ((IRecipeInfo) capability).hasProblem()) {
+        } else if (capability instanceof IRecipeInfo && ((IRecipeInfo) capability).isHasProblems()) {
             probeInfo.text(TextStyleClass.INFOIMP + "{*machine.universal.has_problems*}");
         } else if (capability instanceof IWorkable && capability.isActive()) {
             probeInfo.text(TextStyleClass.INFOIMP + "{*machine.universal.running*}");

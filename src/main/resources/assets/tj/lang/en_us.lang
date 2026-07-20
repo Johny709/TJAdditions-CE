@@ -1121,6 +1121,7 @@ machine.universal.work_paused=§eWork Paused.
 machine.universal.has_problems=§6Has Problems.
 machine.universal.idling=§7Idling.
 machine.universal.running=§aRunning.
+machine.universal.has_problems_reason.1=§6Not Enough Output Space.
 machine.universal.tooltip.voltage_in=Voltage IN: §a%,d §7(%s%s§7)
 machine.universal.false=§cFalse
 machine.universal.true=§9True

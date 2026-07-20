@@ -228,7 +228,7 @@ public class MetaTileEntityMegaBoiler extends TJMultiblockControllerBase impleme
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.boilerRecipeLogic.isActive(), this.boilerRecipeLogic.hasProblem(), this.boilerRecipeLogic.isWorkingEnabled());
+        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.boilerRecipeLogic.isActive(), this.boilerRecipeLogic.isHasProblems(), this.boilerRecipeLogic.isWorkingEnabled());
     }
 
     @Override

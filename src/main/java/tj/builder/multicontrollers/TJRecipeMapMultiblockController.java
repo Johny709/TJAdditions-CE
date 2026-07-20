@@ -146,7 +146,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
                 .addVoltageTierLine(this.tier)
                 .addEnergyInputLine(this.inputEnergyContainer, this.recipeLogic.getEnergyPerTick())
                 .addParallelLine(this.recipeLogic.getParallelsPerformed(), this.recipeLogic.getParallel())
-                .addIsWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress(), this.recipeLogic.hasProblem(), 998)
+                .addIsWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress(), this.recipeLogic.isHasProblems(), this.recipeLogic.getHasProblemReason(), 998)
                 .addRecipeInputLine(this.recipeLogic, 999)
                 .addRecipeOutputLine(this.recipeLogic, 1000);
         if (this.hasDistinct())
@@ -218,7 +218,7 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
             TJTextures.TJ_LOGO.renderSided(this.getFrontFacing().getOpposite(), renderState, translation, pipeline);
         }
         if (this.getFrontalOverlay() != null)
-            this.getFrontalOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive(), this.recipeLogic.hasProblem(), this.recipeLogic.isWorkingEnabled());
+            this.getFrontalOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive(), this.recipeLogic.isHasProblems(), this.recipeLogic.isWorkingEnabled());
     }
 
     public TJOrientedOverlayRenderer getFrontalOverlay() {

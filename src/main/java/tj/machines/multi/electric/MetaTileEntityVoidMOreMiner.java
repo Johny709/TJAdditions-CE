@@ -125,7 +125,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
                 .addFluidInputLine(this.importFluidTank, DRILLING_MUD, (long) this.workableHandler.getCurrentDrillingFluid(), 20)
                 .addFluidInputLine(this.importFluidTank, PYROTHEUM, (long) this.workableHandler.getCurrentDrillingFluid(), 20)
                 .addFluidInputLine(this.importFluidTank, CRYOTHEUM, (long) this.workableHandler.getCurrentDrillingFluid(), 20)
-                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.hasProblem())
+                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.isHasProblems())
                 .customLine(text -> {
                     if (this.workableHandler.isOverheat())
                         text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.universal.overheat").setStyle(new Style().setColor(TextFormatting.RED)));
@@ -188,7 +188,7 @@ public class MetaTileEntityVoidMOreMiner extends TJMultiblockControllerBase impl
     @Override
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
+        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workableHandler.isActive(), this.workableHandler.isHasProblems(), this.workableHandler.isWorkingEnabled());
     }
 
     @Override

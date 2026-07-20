@@ -297,10 +297,10 @@ public class MetaTileEntityIndustrialSteamEngine extends TJMultiblockControllerB
             if (this.voidEnergy || this.handler.getOutputEnergyContainer().getEnergyCanBeInserted() >= this.energyPerTick) {
                 this.handler.getOutputEnergyContainer().addEnergy(this.energyPerTick);
                 if (this.hasProblem)
-                    this.setProblem(false);
+                    this.setProblem(false, "");
                 this.progress++;
             } else if (!this.hasProblem)
-                this.setProblem(true);
+                this.setProblem(true, this.getHasProblemReason(0));
         }
 
         @Override

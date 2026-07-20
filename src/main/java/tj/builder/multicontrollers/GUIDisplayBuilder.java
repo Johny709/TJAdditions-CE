@@ -22,6 +22,7 @@ import tj.util.TJFluidUtils;
 import tj.util.TJUtility;
 import tj.util.TextUtils;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -348,6 +349,10 @@ public final class GUIDisplayBuilder {
     }
 
     public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, boolean hasProblems, int priority) {
+        return this.addIsWorkingLine(isWorkingEnabled, isActive, progress, maxProgress, hasProblems, "", priority);
+    }
+
+    public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, boolean hasProblems, @Nonnull String hasProblemsReason, int priority) {
         if (isActive) {
             progress--;
             final int finalProgress = progress;
@@ -364,9 +369,15 @@ public final class GUIDisplayBuilder {
                 : hasProblems ? "machine.universal.has_problems"
                 : !isActive ? "machine.universal.idling"
                 : "machine.universal.running";
-        if (priority != 0)
+        if (priority != 0) {
             this.addTranslationLine(priority, isWorkingText);
-        else this.addTranslationLine(isWorkingText);
+            if (hasProblems && !hasProblemsReason.isEmpty())
+                this.addTranslationLine(priority, hasProblemsReason);
+        } else {
+            this.addTranslationLine(isWorkingText);
+            if (hasProblems && !hasProblemsReason.isEmpty())
+                this.addTranslationLine(hasProblemsReason);
+        }
         return this;
     }
 

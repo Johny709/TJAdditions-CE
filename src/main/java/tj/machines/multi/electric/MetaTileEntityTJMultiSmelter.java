@@ -112,7 +112,7 @@ public class MetaTileEntityTJMultiSmelter extends TJMultiblockControllerBase imp
                 .addParallelLine(this.workableHandler.getParallelsPerformed(), this.getParallel())
                 .addTranslationLine("gregtech.multiblock.multi_furnace.heating_coil_level", this.coilLevel)
                 .addTranslationLine("gregtech.multiblock.multi_furnace.heating_coil_discount", this.coilEnergyDiscount)
-                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.hasProblem(), 998)
+                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.isHasProblems(), 998)
                 .addRecipeInputLine(this.workableHandler, 999)
                 .addRecipeOutputLine(this.workableHandler, 1000);
         if (this.hasDistinct())
@@ -162,7 +162,7 @@ public class MetaTileEntityTJMultiSmelter extends TJMultiblockControllerBase imp
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive(), this.workableHandler.hasProblem(), this.workableHandler.isWorkingEnabled());
+        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive(), this.workableHandler.isHasProblems(), this.workableHandler.isWorkingEnabled());
         TJTextures.TJ_LOGO.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
         TJTextures.TJ_LOGO.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
     }

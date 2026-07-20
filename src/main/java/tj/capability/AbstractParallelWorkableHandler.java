@@ -403,7 +403,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
     }
 
     @Override
-    public boolean hasProblem() {
+    public boolean isHasProblems() {
         for (int i = 0; i < this.size; i++)
             if (this.hasProblems(i))
                 return true;
@@ -452,5 +452,10 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
         for (int i = 0; i < this.size; i++)
             eut += this.energyPerTick[i];
         return eut;
+    }
+
+    @Override
+    public String getHasProblemReason() {
+        return "";
     }
 }
