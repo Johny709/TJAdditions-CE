@@ -10,7 +10,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
-import tj.TJConfig;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -90,7 +89,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
                     this.setProblem(false, "");
             } else {
                 this.progress = 1;
-                this.maxProgress = TJConfig.machines.recipeCooldown;
+                this.maxProgress = ConfigHolder.recipeCooldown;
                 this.energyPerTick = 0;
                 if (!this.hasProblem)
                     this.setProblem(true, this.getHasProblemReason(0));

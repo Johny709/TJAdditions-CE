@@ -6,7 +6,6 @@ import gregtech.common.ConfigHolder;
 import net.minecraft.nbt.*;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.capabilities.Capability;
-import tj.TJConfig;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Arrays;
@@ -112,7 +111,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
                     this.setProblem(false, i);
             } else {
                 this.progress[i] = 1;
-                this.maxProgress[i] = TJConfig.machines.recipeCooldown;
+                this.maxProgress[i] = ConfigHolder.recipeCooldown;
                 this.energyPerTick[i] = 0;
                 if (!this.hasProblem[i])
                     this.setProblem(true, i);

@@ -22,7 +22,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.TJConfig;
 import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
 import tj.capability.IMultipleWorkable;
 import tj.capability.IRecipeMap;
@@ -261,7 +260,7 @@ public abstract class ParallelAbstractRecipeLogic extends MTETrait implements IM
             if (++this.progressTime[i] > this.maxProgressTime[i]) {
                 if (!this.completeRecipe(i)) {
                     this.progressTime[i] = 1;
-                    this.setMaxProgress(TJConfig.machines.recipeCooldown, i);
+                    this.setMaxProgress(ConfigHolder.recipeCooldown, i);
                     this.recipeEUt[i] = 0;
                     this.hasProblems[i] = true;
                 } else this.hasProblems[i] = false;

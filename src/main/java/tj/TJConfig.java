@@ -15,11 +15,6 @@ public class TJConfig {
         @Config.RequiresMcRestart
         public int recipeCacheCapacity = 10;
 
-        @Config.Name("Recipe has problems cooldown")
-        @Config.Comment("Set tick duration of cooldown timer")
-        @Config.RequiresMcRestart
-        public int recipeCooldown = 200;
-
         @Config.Name("Override TheOneProbe Info Providers")
         @Config.Comment("Set to replace TheOneProbe display of machines with TJ Additions' TheOneProbe edits and implementation")
         @Config.RequiresMcRestart
