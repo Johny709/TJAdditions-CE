@@ -29,6 +29,8 @@ public class TJItems {
     public static Item UNBREAKABLE_SHEARS;
     public static Item MAX_CAPACITY_UPGRADE;
 
+    public static IItemDefinition WIRELESS_SUPER_INTERFACE_TERMINAL;
+
     public static IItemDefinition PART_SUPER_INTERFACE;
     public static IItemDefinition PART_SUPER_FLUID_INTERFACE;
     public static IItemDefinition PART_SUPER_DUAL_INTERFACE;
@@ -68,6 +70,8 @@ public class TJItems {
         UNBREAKABLE_HOE = registerItem(registry, "unbreakable_hoe", new ItemUnbreakableHoe(Item.ToolMaterial.DIAMOND));
         UNBREAKABLE_SHEARS = registerItem(registry, "unbreakable_shears", new ItemUnbreakableShears());
         MAX_CAPACITY_UPGRADE = registerItem(registry, "me.max_capacity_upgrade", new ItemMaxCapacityUpgrade());
+
+        WIRELESS_SUPER_INTERFACE_TERMINAL = registerItem(registry, item -> new ItemDefinition("me.item.wireless_super_interface_terminal", new ItemWirelessSuperInterfaceTerminal()));
 
         PART_SUPER_INTERFACE = registerItem(registry, item -> new ItemDefinition("me.part.super_interface", new ItemPartSuperInterface()));
         PART_SUPER_FLUID_INTERFACE = registerItem(registry, item -> new ItemDefinition("me.part.super_fluid_interface", new ItemPartSuperFluidInterface()));
