@@ -8,7 +8,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
-import tj.integration.ae2.items.ItemPartSuperFluidInterfaceTerminal;
+import tj.integration.ae2.items.ItemWirelessSuperFluidInterfaceTerminal;
 import tj.mui.uifactory.ITileEntityUI;
 import tj.mui.uifactory.TileEntityHolder;
 
@@ -31,6 +31,6 @@ public class PartSuperFluidInterfaceTerminal extends PartInterfaceTerminal imple
 
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        return ItemPartSuperFluidInterfaceTerminal.createSuperFluidInterfaceTerminalGUI(holder, player, this.getGridNode());
+        return ItemWirelessSuperFluidInterfaceTerminal.createSuperFluidInterfaceTerminalGUI(holder, player, this.getGridNode());
     }
 }

@@ -11,6 +11,7 @@ import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.gui.resources.TextureArea;
+import gregtech.api.unification.material.Materials;
 import gregtech.api.util.FluidTooltipUtil;
 import gregtech.api.util.Position;
 import gregtech.api.util.RenderUtil;
@@ -48,6 +49,7 @@ import java.util.function.Predicate;
 
 public class AEFluidListWidget<T> extends TJWidget<AEFluidListWidget<T>> implements IIngredientSlot {
 
+    private static final FluidStack EMPTY_FLUID = Materials.Air.getFluid(0);
     private final Int2ObjectMap<Object> elements = new Int2ObjectLinkedOpenHashMap<>();
     private final Class<? extends IGridHost>[] gridHosts;
     private final IGrid grid;
@@ -419,7 +421,7 @@ public class AEFluidListWidget<T> extends TJWidget<AEFluidListWidget<T>> impleme
                         slotColumn = 0;
                     }
                     if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && this.slotPredicate.test(i, machine))
-                        this.elements.put(index++, tankProperties[i]);
+                        this.elements.put(index++, tankProperties[i].getContents());
                 }
                 if (gridNodes.hasNext())
                     scrollHeight += 18;
@@ -437,7 +439,9 @@ public class AEFluidListWidget<T> extends TJWidget<AEFluidListWidget<T>> impleme
                 buffer.writeBoolean(isName);
                 if (isName) {
                     buffer.writeString((String) entry.getValue());
-                } else buffer.writeCompoundTag(((FluidStack) entry.getValue()).writeToNBT(new NBTTagCompound()));
+                } else if (entry.getValue() != null) {
+                    buffer.writeCompoundTag(((FluidStack) entry.getValue()).writeToNBT(new NBTTagCompound()));
+                } else buffer.writeCompoundTag(EMPTY_FLUID.writeToNBT(new NBTTagCompound()));
             }
         });
     }
