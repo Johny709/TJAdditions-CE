@@ -1200,6 +1200,7 @@ item.me.wireless_super_interface_terminal.name=Wireless Super Interface Terminal
 item.me.wireless_cell_terminal.name=Wireless Cell Terminal
 item.me.wireless_storage_bus_terminal.name=Wireless Storage Bus Terminal
 item.me.wireless_super_fluid_interface_terminal.name=Wireless Super Fluid Interface Terminal
+item.me.wireless_fluid_storage_bus_terminal.name=Wireless Fluid Storage Bus Terminal
 
 item.me.part.super_interface.name=ME Super Interface
 item.me.part.super_fluid_interface.name=ME Super Fluid Interface
