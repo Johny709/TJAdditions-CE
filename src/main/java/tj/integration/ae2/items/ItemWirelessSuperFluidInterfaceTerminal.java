@@ -39,6 +39,7 @@ import tj.items.item.TJItems;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
 import tj.mui.widgets.impl.AEFluidListWidget;
+import tj.mui.widgets.impl.AEGhostFluidListWidget;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.util.TJItemUtils;
 
@@ -108,7 +109,7 @@ public class ItemWirelessSuperFluidInterfaceTerminal extends ToolWirelessTermina
 
     private static void createConfigTab(List<Widget> tab, IGridNode gridNode) {
         tab.add(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT));
-        tab.add(new AEFluidListWidget<IFluidInterfaceHost>(7, 34, 162, 162, gridNode, TileFluidInterface.class, TileDualInterface.class, TileSuperFluidInterface.class, TileSuperDualInterface.class, TileStockingFluidInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
+        tab.add(new AEGhostFluidListWidget<IFluidInterfaceHost>(7, 34, 162, 162, gridNode, TileFluidInterface.class, TileDualInterface.class, TileSuperFluidInterface.class, TileSuperDualInterface.class, TileStockingFluidInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
                 PartFluidInterface.class, PartDualInterface.class, PartSuperFluidInterface.class, PartSuperDualInterface.class, PartStockingFluidInterface.class, PartStockingDualInterface.class, PartSuperUltimateInterface.class)
                 .setFluidTankSupplier(iFluidInterfaceHost -> iFluidInterfaceHost.getDualityFluidInterface().getConfig())
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)

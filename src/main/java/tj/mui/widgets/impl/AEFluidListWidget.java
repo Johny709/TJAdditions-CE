@@ -566,12 +566,12 @@ public class AEFluidListWidget<T> extends TJWidget<AEFluidListWidget<T>> impleme
         return null;
     }
 
-    private long getFluidAmount(int slotIndex, AEFluidInventory fluidInventory) {
+    protected long getFluidAmount(int slotIndex, AEFluidInventory fluidInventory) {
         final IAEFluidStack iaeFluidStack = fluidInventory.getFluidInSlot(slotIndex);
         return iaeFluidStack != null ? iaeFluidStack.getStackSize() : 0;
     }
 
-    private FluidStack getFluidStack(int slotIndex, AEFluidInventory fluidInventory) {
+    protected FluidStack getFluidStack(int slotIndex, AEFluidInventory fluidInventory) {
         final IAEFluidStack iaeFluidStack = fluidInventory.getFluidInSlot(slotIndex);
         return iaeFluidStack != null ? iaeFluidStack.getFluidStack() : null;
     }
