@@ -1214,6 +1214,7 @@ item.me.part.super_interface_terminal.name=ME Super Interface Terminal
 item.me.part.cell_terminal.name=ME Cell Terminal
 item.me.part.storage_bus_terminal.name=ME Storage Bus Terminal
 item.me.part.super_fluid_interface_terminal.name=ME Super Fluid Interface Terminal
+item.me.part.fluid_storage_bus_terminal.name=ME Fluid Storage Bus Terminal
 
 tile.me.super_interface.name=ME Super Interface
 tile.me.super_fluid_interface.name=ME Super Fluid Interface

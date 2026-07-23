@@ -57,7 +57,6 @@ public class ItemWirelessStorageBusTerminal extends ToolWirelessTerminal impleme
 
     private static final BlockPos.MutableBlockPos storageBusPos = new BlockPos.MutableBlockPos();
 
-
     @Override
     public boolean canHandle(ItemStack is) {
         return TJItems.WIRELESS_CELL_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY).isItemEqual(is);
