@@ -5,6 +5,10 @@ import appeng.api.networking.IGridNode;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.fluids.util.AEFluidInventory;
 import appeng.fluids.util.AEFluidStack;
+import gregtech.api.gui.igredient.IGhostIngredientTarget;
+import gregtech.common.ConfigHolder;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidStack;
@@ -14,7 +18,12 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
-public class AEGhostFluidListWidget<T> extends AEFluidListWidget<T> {
+import javax.annotation.Nonnull;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class AEGhostFluidListWidget<T> extends AEFluidListWidget<T> implements IGhostIngredientTarget {
 
     @SafeVarargs
     public AEGhostFluidListWidget(int x, int y, int width, int height, IGridNode gridNode, Class<? extends IGridHost>... gridHosts) {
@@ -52,5 +61,53 @@ public class AEGhostFluidListWidget<T> extends AEFluidListWidget<T> {
             fluidTank.setFluidInSlot(slotIndex, null);
         }
         return playerStack;
+    }
+
+    @Override
+    public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object o) {
+        final List<IGhostIngredientHandler.Target<?>> targetList = new ArrayList<>();
+        int scrollOffset = 0;
+        int slotColumn = 0;
+        int slotXOffset = 0;
+        for (Int2ObjectMap.Entry<Object> entry : this.elements.int2ObjectEntrySet()) {
+            if (entry.getValue() instanceof FluidStack) {
+                if (slotColumn > 8) {
+                    slotColumn = 0;
+                    scrollOffset += 18;
+                    slotXOffset = 0;
+                }
+                final int x = this.getPosition().getX() + slotXOffset;
+                final int y = this.getPosition().getY() + scrollOffset - (this.scrollOffset % 18);
+                targetList.add(new IGhostIngredientHandler.Target<Object>() {
+
+                    @Nonnull
+                    @Override
+                    public Rectangle getArea() {
+                        return new Rectangle(x, y, 18, 18);
+                    }
+
+                    @Override
+                    public void accept(@Nonnull Object o) {
+                        if (o instanceof FluidStack) {
+                            writeClientAction(2, buffer -> {
+                                buffer.writeBoolean(true); // isSlot is true.
+                                buffer.writeBoolean(ConfigHolder.newTankFilling);
+                                buffer.writeInt(entry.getIntKey());
+                                buffer.writeInt(0);
+                            });
+                        }
+                    }
+                });
+                slotXOffset += 18;
+                slotColumn++;
+            } else {
+                if (entry.getIntKey() > 0)
+                    scrollOffset += 18;
+                scrollOffset += 18;
+                slotXOffset = 0;
+                slotColumn = 0;
+            }
+        }
+        return targetList;
     }
 }

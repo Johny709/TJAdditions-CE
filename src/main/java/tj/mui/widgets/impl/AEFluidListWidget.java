@@ -60,25 +60,25 @@ import java.util.function.Predicate;
 
 public class AEFluidListWidget<T> extends TJWidget<AEFluidListWidget<T>> implements IIngredientSlot {
 
-    private static final FluidStack EMPTY_FLUID = Materials.Air.getFluid(0);
-    private final Int2ObjectMap<Object> elements = new Int2ObjectLinkedOpenHashMap<>();
-    private final Class<? extends IGridHost>[] gridHosts;
-    private final IGrid grid;
-    private final int posX;
-    private TriConsumer<FluidStack, Integer, Integer> renderCallback;
-    private Function<T, IFluidHandler> fluidTankSupplier;
-    private IntBiPredicate<T> slotPredicate;
-    private Predicate<T> predicate;
-    private TextureArea scrollSliderTexture;
-    private TextureArea scrollBarTexture;
-    private Rectangle scrollSliderRec;
-    private Rectangle scrollBarRec;
-    private int scrollBarXOffset;
-    private int scrollOffset;
-    private int scrollHeight;
-    private int autoScrollY;
-    private boolean autoScroll;
-    private boolean initialized;
+    protected static final FluidStack EMPTY_FLUID = Materials.Air.getFluid(0);
+    protected final Int2ObjectMap<Object> elements = new Int2ObjectLinkedOpenHashMap<>();
+    protected final Class<? extends IGridHost>[] gridHosts;
+    protected final IGrid grid;
+    protected final int posX;
+    protected TriConsumer<FluidStack, Integer, Integer> renderCallback;
+    protected Function<T, IFluidHandler> fluidTankSupplier;
+    protected IntBiPredicate<T> slotPredicate;
+    protected Predicate<T> predicate;
+    protected TextureArea scrollSliderTexture;
+    protected TextureArea scrollBarTexture;
+    protected Rectangle scrollSliderRec;
+    protected Rectangle scrollBarRec;
+    protected int scrollBarXOffset;
+    protected int scrollOffset;
+    protected int scrollHeight;
+    protected int autoScrollY;
+    protected boolean autoScroll;
+    protected boolean initialized;
 
     @SafeVarargs
     public AEFluidListWidget(int x, int y, int width, int height, IGridNode gridNode, Class<? extends IGridHost>... gridHosts) {
@@ -542,7 +542,7 @@ public class AEFluidListWidget<T> extends TJWidget<AEFluidListWidget<T>> impleme
             int slotColumn = 0;
             int slotXOffset = 0;
             for (Int2ObjectMap.Entry<Object> entry : this.elements.int2ObjectEntrySet()) {
-                if (entry.getValue() instanceof ItemStack) {
+                if (entry.getValue() instanceof FluidStack) {
                     if (slotColumn > 8) {
                         slotColumn = 0;
                         scrollOffset += 18;

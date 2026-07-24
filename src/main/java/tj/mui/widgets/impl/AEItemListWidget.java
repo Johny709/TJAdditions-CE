@@ -47,25 +47,25 @@ import java.util.function.Predicate;
 
 public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implements IIngredientSlot {
 
-    private final Int2ObjectMap<Object> elements = new Int2ObjectLinkedOpenHashMap<>();
-    private final Class<? extends IGridHost>[] gridHosts;
-    private final IGrid grid;
-    private final int posX;
-    private BiFunction<ItemStack, Boolean, ItemStack> itemStackTransfer;
-    private TriConsumer<ItemStack, Integer, Integer> renderCallback;
-    private Function<T, IItemHandler> inventorySupplier;
-    private IntBiPredicate<T> slotPredicate;
-    private Predicate<T> predicate;
-    private TextureArea scrollSliderTexture;
-    private TextureArea scrollBarTexture;
-    private Rectangle scrollSliderRec;
-    private Rectangle scrollBarRec;
-    private int scrollBarXOffset;
-    private int scrollOffset;
-    private int scrollHeight;
-    private int autoScrollY;
-    private boolean autoScroll;
-    private boolean initialized;
+    protected final Int2ObjectMap<Object> elements = new Int2ObjectLinkedOpenHashMap<>();
+    protected final Class<? extends IGridHost>[] gridHosts;
+    protected final IGrid grid;
+    protected final int posX;
+    protected BiFunction<ItemStack, Boolean, ItemStack> itemStackTransfer;
+    protected TriConsumer<ItemStack, Integer, Integer> renderCallback;
+    protected Function<T, IItemHandler> inventorySupplier;
+    protected IntBiPredicate<T> slotPredicate;
+    protected Predicate<T> predicate;
+    protected TextureArea scrollSliderTexture;
+    protected TextureArea scrollBarTexture;
+    protected Rectangle scrollSliderRec;
+    protected Rectangle scrollBarRec;
+    protected int scrollBarXOffset;
+    protected int scrollOffset;
+    protected int scrollHeight;
+    protected int autoScrollY;
+    protected boolean autoScroll;
+    protected boolean initialized;
 
     @SafeVarargs
     public AEItemListWidget(int x, int y, int width, int height, IGridNode gridNode, Class<? extends IGridHost>... gridHosts) {
