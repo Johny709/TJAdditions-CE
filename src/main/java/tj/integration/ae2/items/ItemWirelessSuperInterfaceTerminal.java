@@ -45,6 +45,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.builder.WidgetTabBuilder;
+import tj.integration.ae2.ISuperInterfaceTerminal;
 import tj.integration.ae2.part.*;
 import tj.integration.ae2.tile.*;
 import tj.items.handlers.FilteredItemStackHandler;
@@ -52,6 +53,7 @@ import tj.items.item.TJItems;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
 import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.PopUpWidget;
 import tj.mui.widgets.impl.*;
 import tj.util.TJItemUtils;
 import tj.util.references.BooleanReference;
@@ -68,7 +70,7 @@ import java.util.regex.Pattern;
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLocation.LEFT;
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
 
-public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal implements ItemUIFactory {
+public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal implements ItemUIFactory, ISuperInterfaceTerminal {
 
     private static final BlockPos.MutableBlockPos molecularAssemblerPos = new BlockPos.MutableBlockPos();
 
@@ -110,10 +112,24 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
                 gridNode = ((IActionHost) securityStation).getActionableNode();
             }
         }
-        return ItemWirelessSuperInterfaceTerminal.createWirelessSuperInterfaceGUI(holder, player, gridNode);
+        return ItemWirelessSuperInterfaceTerminal.createWirelessSuperInterfaceGUI(holder, player, gridNode, this);
     }
 
-    public static ModularUI createWirelessSuperInterfaceGUI(IUIHolder holder, EntityPlayer player, IGridNode gridNode) {
+    @Override
+    public void setItemStackSize(AEGhostItemListWidget<?> ghostItemListWidget, LongUnaryOperator unaryOperator) {
+        final ItemStack itemStack = ghostItemListWidget.getItemAt(ghostItemListWidget.getSelectedIndex());
+        if (itemStack.isEmpty()) return;
+        final ItemStack newStack = itemStack.copy();
+        newStack.setCount((int) Math.max(1, Math.min(Integer.MAX_VALUE, unaryOperator.applyAsLong(itemStack.getCount()))));
+        ghostItemListWidget.setItemAt(ghostItemListWidget.getSelectedIndex(), newStack);
+    }
+
+    @Override
+    public int getItemStackSize(AEGhostItemListWidget<?> ghostItemListWidget) {
+        return ghostItemListWidget.getItemAt(ghostItemListWidget.getSelectedIndex()).getCount();
+    }
+
+    public static ModularUI createWirelessSuperInterfaceGUI(IUIHolder holder, EntityPlayer player, IGridNode gridNode, ISuperInterfaceTerminal superInterfaceTerminal) {
         final ItemStack patternMultiTool = Optional.of(player.inventory.mainInventory)
                 .map(inventory -> {
                     for (ItemStack stack : inventory)
@@ -138,10 +154,6 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
         final ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 316);
         final AEItemListWidget<IInterfaceHost> aeItemListPattern = new AEItemListWidget<>(7, 60, 162, 162, gridNode, TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class,
                 PartInterface.class, PartDualInterface.class, PartSuperInterface.class, PartSuperDualInterface.class, PartPatternInterface.class, PartSuperUltimateInterface.class);
-        final AEGhostItemListWidget<IInterfaceHost> aeItemListConfig = new AEGhostItemListWidget<>(7, 36, 162, 186, gridNode, TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TileStockingInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
-                PartInterface.class, PartDualInterface.class, PartSuperInterface.class, PartSuperDualInterface.class, PartStockingInterface.class, PartStockingDualInterface.class, PartSuperUltimateInterface.class);
-        final AEItemListWidget<IInterfaceHost> aeItemListStorage = new AEItemListWidget<>(7, 36, 162, 186, gridNode, TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TileStockingInterface.class, TileStockingDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class,
-                PartInterface.class, PartDualInterface.class, PartSuperInterface.class, PartSuperDualInterface.class, PartStockingInterface.class, PartStockingDualInterface.class, PartPatternInterface.class, PartSuperUltimateInterface.class);
         return createPatternMultiToolGUI(builder, patternMultiTool, multiUpgradeSlots, multiPatternSlots, invTag, aeItemListPattern)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJItems.PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
@@ -149,8 +161,8 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
                 .widget(new WidgetTabBuilder()
                         .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
                         .addTab("gui.appliedenergistics2.Patterns", Api.INSTANCE.definitions().materials().blankPattern().maybeStack(1).orElse(ItemStack.EMPTY), tab -> createPatternTab(tab, aeItemListPattern, multiPatternSlots))
-                        .addTab("tj.multiblock.tab.config", Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY), tab -> createConfigTab(tab, aeItemListConfig))
-                        .addTab("tj.multiblock.tab.storage", TJItemUtils.getItemStackFromName("minecraft:chest"), tab -> createStorageTab(tab, aeItemListStorage)).build())
+                        .addTab("tj.multiblock.tab.config", Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY), tab -> createConfigTab(tab, gridNode, superInterfaceTerminal))
+                        .addTab("tj.multiblock.tab.storage", TJItemUtils.getItemStackFromName("minecraft:chest"), tab -> createStorageTab(tab, gridNode)).build())
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 233, patternMultiTool))
                 .bindOpenListener(() -> {
                     if (!patternMultiTool.isEmpty()) {
@@ -164,7 +176,6 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
                     }
                 }).build(holder, player);
     }
-
 
     private static void createPatternTab(List<Widget> tab, AEItemListWidget<IInterfaceHost> aeItemListWidget, FilteredItemStackHandler multiPatternSlots) {
         final BooleanReference validPatterns = new BooleanReference();
@@ -227,9 +238,11 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
                 }));
     }
 
-    private static void createConfigTab(List<Widget> tab, AEGhostItemListWidget<IInterfaceHost> aeGhostItemListWidget) {
+    private static void createConfigTab(List<Widget> tab, IGridNode gridNode, ISuperInterfaceTerminal superInterfaceTerminal) {
         final BooleanReference showInterfaces = new BooleanReference();
         final ObjectReference<String> searchName = new ObjectReference<>("");
+        final AEGhostItemListWidget<IInterfaceHost> aeItemListConfig = new AEGhostItemListWidget<>(7, 36, 162, 186, gridNode, TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TileStockingInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
+                PartInterface.class, PartDualInterface.class, PartSuperInterface.class, PartSuperDualInterface.class, PartStockingInterface.class, PartStockingDualInterface.class, PartSuperUltimateInterface.class);
         tab.add(new TJToggleButtonWidget(-18, 88, 16, 16, TJGuiTextures.TOGGLE_SHOW_INTERFACES, showInterfaces::isValue, showInterfaces::setValue)
                 .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOnDesc", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOffDesc")
                 .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces"));
@@ -247,7 +260,7 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
                 super.drawInBackground(mouseX, mouseY, context);
             }
         });
-        tab.add(aeGhostItemListWidget.setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getConfig())
+        tab.add(aeItemListConfig.setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getConfig())
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setItemStackTransfer((itemStack, simulate) -> itemStack)
                 .setScrollbar(10, 0, 12, 186, GuiTextures.SLOT)
@@ -260,11 +273,37 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
                         return false;
                     } else return searchName.getValue().isEmpty() || TJItemUtils.isItemPresent(interfaceHost.getInterfaceDuality().getConfig(), searchName.getValue());
                 }));
+        tab.add(new PopUpWidget<>().setClickToDefault(false)
+                .setIndexSupplier(() -> aeItemListConfig.getSelectedIndex() >= 0 ? 1 : 0)
+                .addPopup(widgetGroup -> true)
+                .addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(new ImageWidget(-167, 221, 162, 100, GuiTextures.BORDERED_BACKGROUND));
+                    widgetGroup.addWidget(new LabelWidget(-160, 226, "machine.universal.stack_size"));
+                    widgetGroup.addWidget(new NewTextFieldWidget<>(-160, 267, 148, 18, true, () -> String.valueOf(superInterfaceTerminal.getItemStackSize(aeItemListConfig)), (text, id) -> {
+                        final ItemStack itemStack = aeItemListConfig.getItemAt(aeItemListConfig.getSelectedIndex());
+                        if (itemStack.isEmpty()) return;
+                        final ItemStack newStack = itemStack.copy();
+                        newStack.setCount((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+                        aeItemListConfig.setItemAt(aeItemListConfig.getSelectedIndex(), newStack);
+                    }).setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setUpdateOnTyping(true));
+                    widgetGroup.addWidget(new ButtonWidget<>(-159, 241, 25, 20, "+1", data -> superInterfaceTerminal.setItemStackSize(aeItemListConfig, amount -> amount + 1)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    widgetGroup.addWidget(new ButtonWidget<>(-129, 241, 30, 20, "+10", data -> superInterfaceTerminal.setItemStackSize(aeItemListConfig, amount -> amount + 10)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    widgetGroup.addWidget(new ButtonWidget<>(-94, 241, 35, 20, "+100", data -> superInterfaceTerminal.setItemStackSize(aeItemListConfig, amount -> amount + 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    widgetGroup.addWidget(new ButtonWidget<>(-54, 241, 40, 20, "+1000", data -> superInterfaceTerminal.setItemStackSize(aeItemListConfig, amount -> amount + 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    widgetGroup.addWidget(new ButtonWidget<>(-159, 291, 25, 20, "-1", data -> superInterfaceTerminal.setItemStackSize(aeItemListConfig, amount -> amount - 1)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    widgetGroup.addWidget(new ButtonWidget<>(-129, 291, 30, 20, "-10", data -> superInterfaceTerminal.setItemStackSize(aeItemListConfig, amount -> amount - 10)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    widgetGroup.addWidget(new ButtonWidget<>(-94, 291, 35, 20, "-100", data -> superInterfaceTerminal.setItemStackSize(aeItemListConfig, amount -> amount - 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    widgetGroup.addWidget(new ButtonWidget<>(-54, 291, 40, 20, "-1000", data -> superInterfaceTerminal.setItemStackSize(aeItemListConfig, amount -> amount - 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    return false;
+                }));
     }
 
-    private static void createStorageTab(List<Widget> tab, AEItemListWidget<IInterfaceHost> aeItemListWidget) {
+    private static void createStorageTab(List<Widget> tab, IGridNode gridNode) {
         final BooleanReference showInterfaces = new BooleanReference();
         final ObjectReference<String> searchName = new ObjectReference<>("");
+        final AEItemListWidget<IInterfaceHost> aeItemListStorage = new AEItemListWidget<>(7, 36, 162, 186, gridNode, TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TileStockingInterface.class, TileStockingDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class,
+                PartInterface.class, PartDualInterface.class, PartSuperInterface.class, PartSuperDualInterface.class, PartStockingInterface.class, PartStockingDualInterface.class, PartPatternInterface.class, PartSuperUltimateInterface.class);
         tab.add(new TJToggleButtonWidget(-18, 88, 16, 16, TJGuiTextures.TOGGLE_SHOW_INTERFACES, showInterfaces::isValue, showInterfaces::setValue)
                 .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOnDesc", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOffDesc")
                 .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces"));
@@ -282,7 +321,7 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
                 super.drawInBackground(mouseX, mouseY, context);
             }
         });
-        tab.add(aeItemListWidget.setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getStorage())
+        tab.add(aeItemListStorage.setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getStorage())
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setItemStackTransfer((itemStack, simulate) -> itemStack)
                 .setScrollbar(10, 0, 12, 186, GuiTextures.SLOT)

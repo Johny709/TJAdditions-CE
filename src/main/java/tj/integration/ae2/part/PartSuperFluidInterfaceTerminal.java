@@ -8,11 +8,16 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.fluids.FluidStack;
+import tj.integration.ae2.ISuperFluidInterfaceTerminal;
 import tj.integration.ae2.items.ItemWirelessSuperFluidInterfaceTerminal;
 import tj.mui.uifactory.ITileEntityUI;
 import tj.mui.uifactory.TileEntityHolder;
+import tj.mui.widgets.impl.AEGhostFluidListWidget;
 
-public class PartSuperFluidInterfaceTerminal extends PartInterfaceTerminal implements ITileEntityUI {
+import java.util.function.LongUnaryOperator;
+
+public class PartSuperFluidInterfaceTerminal extends PartInterfaceTerminal implements ITileEntityUI, ISuperFluidInterfaceTerminal {
 
     public PartSuperFluidInterfaceTerminal(ItemStack is) {
         super(is);
@@ -31,6 +36,21 @@ public class PartSuperFluidInterfaceTerminal extends PartInterfaceTerminal imple
 
     @Override
     public ModularUI createUI(TileEntityHolder holder, EntityPlayer player) {
-        return ItemWirelessSuperFluidInterfaceTerminal.createSuperFluidInterfaceTerminalGUI(holder, player, this.getGridNode());
+        return ItemWirelessSuperFluidInterfaceTerminal.createSuperFluidInterfaceTerminalGUI(holder, player, this.getGridNode(), this);
+    }
+
+    @Override
+    public void setFluidStackSize(AEGhostFluidListWidget<?> ghostFluidListWidget, LongUnaryOperator unaryOperator) {
+        final FluidStack fluidStack = ghostFluidListWidget.getFluidAt(ghostFluidListWidget.getSelectedIndex());
+        if (fluidStack == null) return;
+        final FluidStack newStack = fluidStack.copy();
+        newStack.amount = (int) Math.max(1, Math.min(Integer.MAX_VALUE, unaryOperator.applyAsLong(fluidStack.amount)));
+        ghostFluidListWidget.setFluidAt(ghostFluidListWidget.getSelectedIndex(), newStack);
+    }
+
+    @Override
+    public int getFluidStackSize(AEGhostFluidListWidget<?> ghostFluidListWidget) {
+        final FluidStack fluidStack = ghostFluidListWidget.getFluidAt(ghostFluidListWidget.getSelectedIndex());
+        return fluidStack != null ? fluidStack.amount : 0;
     }
 }

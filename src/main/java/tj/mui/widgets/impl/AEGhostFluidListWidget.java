@@ -18,7 +18,10 @@ import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJ;
+import tj.mui.TJGuiTextures;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -28,9 +31,19 @@ import java.util.List;
 
 public class AEGhostFluidListWidget<T> extends AEFluidListWidget<T> implements IGhostIngredientTarget {
 
+    private int selectedIndex = -1;
+
     @SafeVarargs
     public AEGhostFluidListWidget(int x, int y, int width, int height, IGridNode gridNode, Class<? extends IGridHost>... gridHosts) {
         super(x, y, width, height, gridNode, gridHosts);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    protected void drawSlot(int index, int x, int y, int mouseX, int mouseY, FluidStack fluidStack) {
+        super.drawSlot(index, x, y, mouseX, mouseY, fluidStack);
+        if (index == this.selectedIndex)
+            TJGuiTextures.SELECTION_BOX.draw(x, y, 18, 18);
     }
 
     @Override
@@ -39,6 +52,10 @@ public class AEGhostFluidListWidget<T> extends AEFluidListWidget<T> implements I
         final int tankCapacity = fluidTank.getTankProperties()[0].getCapacity();
         final int size = data.shiftClick ? playerStack.getCount() : 1;
         IAEFluidStack iaeFluidStack;
+        if (playerStack.isEmpty()) {
+            this.selectedIndex = data.index;
+            this.writeUpdateInfo(5, buffer -> buffer.writeInt(this.selectedIndex));
+        }
         if (data.button == 0) { // Left-click
             final IFluidHandlerItem fluidHandlerItem = playerStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
             if (fluidHandlerItem == null)
@@ -64,6 +81,33 @@ public class AEGhostFluidListWidget<T> extends AEFluidListWidget<T> implements I
             fluidTank.setFluidInSlot(slotIndex, null);
         }
         return playerStack;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void readUpdateInfo(int id, PacketBuffer buffer) {
+        super.readUpdateInfo(id, buffer);
+        if (id == 5)
+            this.selectedIndex = buffer.readInt();
+    }
+
+    @Override
+    public void handleClientAction(int id, PacketBuffer buffer) {
+        super.handleClientAction(id, buffer);
+        if (id == 1) {
+            this.selectedIndex = -1;
+            this.writeUpdateInfo(5, buffer1 -> buffer1.writeInt(this.selectedIndex));
+        } else if (id == 3) {
+            try {
+                this.setFluidAt(buffer.readInt(), FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag()));
+            } catch (IOException e) {
+                TJ.logger.info(e.getMessage());
+            }
+        }
+    }
+
+    public int getSelectedIndex() {
+        return this.selectedIndex;
     }
 
     @Override
@@ -110,17 +154,5 @@ public class AEGhostFluidListWidget<T> extends AEFluidListWidget<T> implements I
             }
         }
         return targetList;
-    }
-
-    @Override
-    public void handleClientAction(int id, PacketBuffer buffer) {
-        super.handleClientAction(id, buffer);
-        if (id == 3) {
-            try {
-                this.setFluidAt(buffer.readInt(), FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag()));
-            } catch (IOException e) {
-                TJ.logger.info(e.getMessage());
-            }
-        }
     }
 }

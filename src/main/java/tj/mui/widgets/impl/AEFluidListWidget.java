@@ -206,12 +206,8 @@ public class AEFluidListWidget<T> extends TJWidget<AEFluidListWidget<T>> impleme
                     }
                     final int x = pos.getX() + slotXOffset;
                     final int y = pos.getY() + scrollOffset - (this.scrollOffset % 18);
-                    GuiTextures.SLOT.draw(x, y, 18, 18);
                     final FluidStack fluidStack = (FluidStack) entry.getValue();
-                    if (fluidStack != null)
-                        this.renderCallback.accept(fluidStack, x, y);
-                    if (this.isMouseOverElement(mouseX, mouseY) && isMouseOver(x, y, 18, 18, mouseX, mouseY))
-                        drawSelectionOverlay(x + 1, y + 1, 16, 16);
+                    this.drawSlot(entry.getIntKey(), x, y, mouseX, mouseY, fluidStack);
                     slotXOffset += 18;
                     slotColumn++;
                 } else {
@@ -236,6 +232,15 @@ public class AEFluidListWidget<T> extends TJWidget<AEFluidListWidget<T>> impleme
         final int scrollOffset = this.scrollSliderRec.y + (int) Math.round(this.scrollOffset * heightDiff);
         final int sliderY = Math.max(this.scrollBarRec.y, Math.min(this.scrollBarRec.y + this.scrollBarRec.height - this.scrollSliderRec.height, scrollOffset));
         this.scrollSliderTexture.draw(this.scrollSliderRec.x, sliderY, this.scrollSliderRec.width, this.scrollSliderRec.height);
+    }
+
+    @SideOnly(Side.CLIENT)
+    protected void drawSlot(int index, int x, int y, int mouseX, int mouseY, FluidStack fluidStack) {
+        GuiTextures.SLOT.draw(x, y, 18, 18);
+        if (fluidStack != null)
+            this.renderCallback.accept(fluidStack, x, y);
+        if (this.isMouseOverElement(mouseX, mouseY) && isMouseOver(x, y, 18, 18, mouseX, mouseY))
+            drawSelectionOverlay(x + 1, y + 1, 16, 16);
     }
 
     @Override
