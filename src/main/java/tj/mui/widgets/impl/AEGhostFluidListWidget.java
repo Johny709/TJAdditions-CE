@@ -6,10 +6,11 @@ import appeng.api.storage.data.IAEFluidStack;
 import appeng.fluids.util.AEFluidInventory;
 import appeng.fluids.util.AEFluidStack;
 import gregtech.api.gui.igredient.IGhostIngredientTarget;
-import gregtech.common.ConfigHolder;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
@@ -17,9 +18,11 @@ import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import tj.TJ;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,11 +92,9 @@ public class AEGhostFluidListWidget<T> extends AEFluidListWidget<T> implements I
                     @Override
                     public void accept(@Nonnull Object o) {
                         if (o instanceof FluidStack) {
-                            writeClientAction(2, buffer -> {
-                                buffer.writeBoolean(true); // isSlot is true.
-                                buffer.writeBoolean(ConfigHolder.newTankFilling);
+                            writeClientAction(3, buffer -> {
                                 buffer.writeInt(entry.getIntKey());
-                                buffer.writeInt(0);
+                                buffer.writeCompoundTag((((FluidStack) o).writeToNBT(new NBTTagCompound())));
                             });
                         }
                     }
@@ -109,5 +110,17 @@ public class AEGhostFluidListWidget<T> extends AEFluidListWidget<T> implements I
             }
         }
         return targetList;
+    }
+
+    @Override
+    public void handleClientAction(int id, PacketBuffer buffer) {
+        super.handleClientAction(id, buffer);
+        if (id == 3) {
+            try {
+                this.setFluidAt(buffer.readInt(), FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag()));
+            } catch (IOException e) {
+                TJ.logger.info(e.getMessage());
+            }
+        }
     }
 }

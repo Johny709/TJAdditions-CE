@@ -6,11 +6,14 @@ import gregtech.api.gui.igredient.IGhostIngredientTarget;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.TJ;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -26,8 +29,9 @@ public class AEGhostItemListWidget<T> extends AEItemListWidget<T> implements IGh
     protected ItemStack slotAction(IItemHandler itemHandler, int slotIndex, ItemStack playerStack, ElementData data, BiFunction<ItemStack, Boolean, ItemStack> itemStackTransfer) {
         if (data.button == 1) {
             itemHandler.extractItem(slotIndex, Integer.MAX_VALUE, false);
-        } else if (itemHandler instanceof IItemHandlerModifiable)
+        } else if (itemHandler instanceof IItemHandlerModifiable) {
             ((IItemHandlerModifiable) itemHandler).setStackInSlot(slotIndex, playerStack.copy());
+        } else itemHandler.insertItem(slotIndex, playerStack.copy(), false);
         return playerStack;
     }
 
@@ -57,10 +61,9 @@ public class AEGhostItemListWidget<T> extends AEItemListWidget<T> implements IGh
                     @Override
                     public void accept(@Nonnull Object o) {
                         if (o instanceof ItemStack) {
-                            writeClientAction(2, buffer -> {
-                                buffer.writeBoolean(true); // isSlot is true.
+                            writeClientAction(4, buffer -> {
                                 buffer.writeInt(entry.getIntKey());
-                                buffer.writeInt(0);
+                                buffer.writeItemStack((ItemStack) o);
                             });
                         }
                     }
@@ -76,5 +79,17 @@ public class AEGhostItemListWidget<T> extends AEItemListWidget<T> implements IGh
             }
         }
         return targetList;
+    }
+
+    @Override
+    public void handleClientAction(int id, PacketBuffer buffer) {
+        super.handleClientAction(id, buffer);
+        if (id == 4) {
+            try {
+                this.setItemAt(buffer.readInt(), buffer.readItemStack());
+            } catch (IOException e) {
+                TJ.logger.info(e.getMessage());
+            }
+        }
     }
 }

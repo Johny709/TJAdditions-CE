@@ -36,6 +36,7 @@ import tj.mui.widgets.TJWidget;
 import tj.util.TJItemUtils;
 import tj.util.predicates.IntBiPredicate;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Collections;
@@ -339,10 +340,10 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
             this.scrollOffset = buffer.readInt();
         } else if (id == 2) {
             final ElementData data = new ElementData(buffer.readBoolean(), buffer.readInt(), buffer.readInt());
-            this.actionPerformed(data, null);
+            this.actionPerformed(data, this.gui.entityPlayer.inventory.getItemStack(), null);
         } else if (id == 3) {
             final ElementData data = new ElementData(buffer.readBoolean(), buffer.readInt(), buffer.readInt());
-            this.actionPerformed(data, this.itemStackTransfer);
+            this.actionPerformed(data, this.gui.entityPlayer.inventory.getItemStack(), this.itemStackTransfer);
         }
     }
 
@@ -378,10 +379,10 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
 
     /**
      * @param data contains element data. Is element a slot, button pressed, and element index.
+     * @param playerStack item held by player cursor.
      * @param itemStackTransfer Inserts item into element slot from player cursor if null. Inserts into external inventory and then player inventory if provided itemStackTransfer function.
      */
-    private void actionPerformed(ElementData data, BiFunction<ItemStack, Boolean, ItemStack> itemStackTransfer) {
-        ItemStack playerStack = this.gui.entityPlayer.inventory.getItemStack();
+    protected void actionPerformed(ElementData data, ItemStack playerStack, BiFunction<ItemStack, Boolean, ItemStack> itemStackTransfer) {
         int index = 0;
         int scrollHeight = 0;
         final int scrollOffset = this.scrollOffset + this.getSize().getHeight() + 18;
@@ -502,6 +503,56 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         this.scrollOffset += delta;
         this.scrollOffset = Math.max(0, Math.min(this.scrollOffset, this.scrollHeight));
         this.writeClientAction(1, buffer -> buffer.writeInt(this.scrollOffset));
+    }
+
+    public void setItemAt(int slotIndex, @Nonnull ItemStack itemStack) {
+        this.modifyItemAt(slotIndex, itemStack, true);
+    }
+
+    @Nonnull
+    public ItemStack getItemAt(int slotIndex) {
+        return this.modifyItemAt(slotIndex, ItemStack.EMPTY, false);
+    }
+
+    @Nonnull
+    private ItemStack modifyItemAt(int slotIndex, @Nonnull ItemStack itemStack, boolean insert) {
+        int index = 0;
+        int scrollHeight = 0;
+        final int scrollOffset = this.scrollOffset + this.getSize().getHeight() + 18;
+        grid:
+        for (Class<? extends IGridHost> gridHost : this.gridHosts) {
+            final Iterator<IGridNode> gridNodes = this.grid.getMachines(gridHost).iterator();
+            while (gridNodes.hasNext()) { // Increase scrollHeight if there are more elements remaining.
+                final IGridNode gridNode = gridNodes.next();
+                if (!gridNode.isActive()) continue;
+                final T machine = (T) gridNode.getMachine();
+                if (!this.predicate.test(machine)) continue;
+                final IItemHandler inventory = this.inventorySupplier.apply(machine);
+                if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset) {
+                    if (slotIndex == index)
+                        return itemStack;
+                    index++;
+                }
+                scrollHeight += 18;
+                for (int j = 0, slotColumn = 0; j < inventory.getSlots(); j++, slotColumn++) {
+                    if (slotColumn > 8) {
+                        scrollHeight += 18;
+                        slotColumn = 0;
+                    }
+                    if (slotIndex == index) {
+                        if (insert) {
+                            itemStack = inventory.insertItem(j, itemStack, false);
+                        } else itemStack = inventory.extractItem(j, Integer.MAX_VALUE, false);
+                        break grid;
+                    }
+                    if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && this.slotPredicate.test(j, machine))
+                        index++;
+                }
+                if (gridNodes.hasNext())
+                    scrollHeight += 18;
+            }
+        }
+        return itemStack;
     }
 
     @Override

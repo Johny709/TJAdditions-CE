@@ -8,6 +8,7 @@ import appeng.client.render.BlockPosHighlighter;
 import appeng.core.localization.PlayerMessages;
 import appeng.fluids.util.AEFluidInventory;
 import appeng.fluids.util.AEFluidStack;
+import appeng.fluids.util.IAEFluidTank;
 import appeng.helpers.ICustomNameObject;
 import appeng.util.BlockPosUtils;
 import gregtech.api.gui.GuiTextures;
@@ -49,6 +50,7 @@ import tj.mui.widgets.TJWidget;
 import tj.util.TJItemUtils;
 import tj.util.predicates.IntBiPredicate;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -357,15 +359,15 @@ public class AEFluidListWidget<T> extends TJWidget<AEFluidListWidget<T>> impleme
             this.scrollOffset = buffer.readInt();
         } else if (id == 2) {
             final ElementData data = new ElementData(buffer.readBoolean(), buffer.readBoolean(), buffer.readBoolean(), buffer.readInt(), buffer.readInt());
-            this.actionPerformed(data);
+            this.actionPerformed(data, this.gui.entityPlayer.inventory.getItemStack());
         }
     }
 
     /**
      * @param data contains element data. Is element a slot, button pressed, and element index.
+     * @param playerStack item held by player cursor.
      */
-    private void actionPerformed(ElementData data) {
-        ItemStack playerStack = this.gui.entityPlayer.inventory.getItemStack();
+    protected void actionPerformed(ElementData data, ItemStack playerStack) {
         int index = 0;
         int scrollHeight = 0;
         final int scrollOffset = this.scrollOffset + this.getSize().getHeight() + 18;
@@ -533,6 +535,58 @@ public class AEFluidListWidget<T> extends TJWidget<AEFluidListWidget<T>> impleme
         this.scrollOffset += delta;
         this.scrollOffset = Math.max(0, Math.min(this.scrollOffset, this.scrollHeight));
         this.writeClientAction(1, buffer -> buffer.writeInt(this.scrollOffset));
+    }
+
+    public void setFluidAt(int slotIndex, FluidStack fluidStack) {
+        this.modifyFluidAt(slotIndex, fluidStack, false);
+    }
+
+    @Nullable
+    public FluidStack getFluidAt(int slotIndex) {
+        return this.modifyFluidAt(slotIndex, null, true);
+    }
+
+    @Nullable
+    private FluidStack modifyFluidAt(int slotIndex, FluidStack fluidStack, boolean doDrain) {
+        int index = 0;
+        int scrollHeight = 0;
+        final int scrollOffset = this.scrollOffset + this.getSize().getHeight() + 18;
+        grid:
+        for (Class<? extends IGridHost> gridHost : this.gridHosts) {
+            final Iterator<IGridNode> gridNodes = this.grid.getMachines(gridHost).iterator();
+            while (gridNodes.hasNext()) { // Increase scrollHeight if there are more elements remaining.
+                final IGridNode gridNode = gridNodes.next();
+                if (!gridNode.isActive()) continue;
+                final T machine = (T) gridNode.getMachine();
+                if (!this.predicate.test(machine)) continue;
+                final IFluidHandler fluidHandler = this.fluidTankSupplier.apply(machine);
+                if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset) {
+                    if (slotIndex == index)
+                        return fluidStack;
+                    index++;
+                }
+                scrollHeight += 18;
+                final IFluidTankProperties[] tankProperties = fluidHandler.getTankProperties();
+                for (int j = 0, slotColumn = 0; j < tankProperties.length; j++, slotColumn++) {
+                    if (slotColumn > 8) {
+                        scrollHeight += 18;
+                        slotColumn = 0;
+                    }
+                    if (slotIndex == index) {
+                        if (doDrain) {
+                            fluidStack = tankProperties[j].getContents();
+                        } else if (fluidHandler instanceof IAEFluidTank)
+                            ((IAEFluidTank) fluidHandler).setFluidInSlot(j, AEFluidStack.fromFluidStack(fluidStack));
+                        break grid;
+                    }
+                    if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && this.slotPredicate.test(j, machine))
+                        index++;
+                }
+                if (gridNodes.hasNext())
+                    scrollHeight += 18;
+            }
+        }
+        return fluidStack;
     }
 
     @Override
