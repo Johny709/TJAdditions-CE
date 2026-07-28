@@ -177,8 +177,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
             this.scrollSliderRec = new Rectangle(this.scrollBarRec.x + this.scrollSliderRec.x, this.scrollBarRec.y + this.scrollSliderRec.y, this.scrollSliderRec.width, this.scrollSliderRec.height);
         }
         RenderUtil.useScissor(pos.getX(), pos.getY(), size.getWidth(), size.getHeight(), () -> {
-            GlStateManager.enableBlend();
             GlStateManager.color(1.0f, 1.0f, 1.0f);
+            GlStateManager.disableBlend();
             int scrollOffset = 0;
             int slotColumn = 0;
             int slotXOffset = 0;
@@ -210,6 +210,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                 }
             }
         });
+        GlStateManager.color(1.0f, 1.0f, 1.0f);
+        GlStateManager.enableBlend();
         if (this.scrollBarTexture != null)
             this.scrollBarTexture.draw(this.scrollBarRec.x, this.scrollBarRec.y, this.scrollBarRec.width, this.scrollBarRec.height);
         if (this.scrollSliderTexture == null) return;

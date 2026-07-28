@@ -9,10 +9,7 @@ import appeng.core.localization.PlayerMessages;
 import appeng.items.tools.powered.ToolWirelessTerminal;
 import appeng.tile.AEBaseInvTile;
 import appeng.tile.storage.TileDrive;
-import gregtech.api.gui.GuiTextures;
-import gregtech.api.gui.IUIHolder;
-import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.Widget;
+import gregtech.api.gui.*;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.items.gui.ItemUIFactory;
@@ -30,6 +27,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.items.item.TJItems;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
@@ -87,7 +86,15 @@ public class ItemWirelessCellTerminal extends ToolWirelessTerminal implements It
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJItems.PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
                         .setLocale("item.me.part.cell_terminal.name"))
-                .widget(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT))
+                .widget(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT) {
+                    @Override
+                    @SideOnly(Side.CLIENT)
+                    public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+                        GlStateManager.enableBlend();
+                        GlStateManager.color(1.0f, 1.0f, 1.0f);
+                        super.drawInBackground(mouseX, mouseY, context);
+                    }
+                })
                 .widget(new AEItemListWidget<IChestOrDrive>(7, 34, 162, 162, gridNode, TileDrive.class)
                         .setInventorySupplier(drive -> ((AEBaseInvTile) drive).getInternalInventory())
                         .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)

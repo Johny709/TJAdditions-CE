@@ -12,10 +12,7 @@ import appeng.fluids.tile.TileFluidInterface;
 import appeng.items.tools.powered.ToolWirelessTerminal;
 import com.glodblock.github.common.part.PartDualInterface;
 import com.glodblock.github.common.tile.TileDualInterface;
-import gregtech.api.gui.GuiTextures;
-import gregtech.api.gui.IUIHolder;
-import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.Widget;
+import gregtech.api.gui.*;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
@@ -32,6 +29,8 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.builder.WidgetTabBuilder;
 import tj.integration.ae2.ISuperFluidInterfaceTerminal;
 import tj.integration.ae2.part.*;
@@ -129,7 +128,15 @@ public class ItemWirelessSuperFluidInterfaceTerminal extends ToolWirelessTermina
     }
 
     private static void createConfigTab(List<Widget> tab, IGridNode gridNode, ISuperFluidInterfaceTerminal superFluidInterfaceTerminal) {
-        tab.add(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT));
+        tab.add(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT) {
+            @Override
+            @SideOnly(Side.CLIENT)
+            public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+                GlStateManager.enableBlend();
+                GlStateManager.color(1.0f, 1.0f, 1.0f);
+                super.drawInBackground(mouseX, mouseY, context);
+            }
+        });
         final AEGhostFluidListWidget<IFluidInterfaceHost> ghostFluidListWidget = new AEGhostFluidListWidget<>(7, 34, 162, 162, gridNode, TileFluidInterface.class, TileDualInterface.class, TileSuperFluidInterface.class, TileSuperDualInterface.class, TileStockingFluidInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
                 PartFluidInterface.class, PartDualInterface.class, PartSuperFluidInterface.class, PartSuperDualInterface.class, PartStockingFluidInterface.class, PartStockingDualInterface.class, PartSuperUltimateInterface.class);
         tab.add(ghostFluidListWidget.setFluidTankSupplier(iFluidInterfaceHost -> iFluidInterfaceHost.getDualityFluidInterface().getConfig())
@@ -165,7 +172,15 @@ public class ItemWirelessSuperFluidInterfaceTerminal extends ToolWirelessTermina
     }
 
     private static void createStorageTab(List<Widget> tab, IGridNode gridNode) {
-        tab.add(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT));
+        tab.add(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT) {
+            @Override
+            @SideOnly(Side.CLIENT)
+            public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+                GlStateManager.enableBlend();
+                GlStateManager.color(1.0f, 1.0f, 1.0f);
+                super.drawInBackground(mouseX, mouseY, context);
+            }
+        });
         tab.add(new AEFluidListWidget<IFluidInterfaceHost>(7, 34, 162, 162, gridNode, TileFluidInterface.class, TileDualInterface.class, TileSuperFluidInterface.class, TileSuperDualInterface.class, TileStockingFluidInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
                 PartFluidInterface.class, PartDualInterface.class, PartSuperFluidInterface.class, PartSuperDualInterface.class, PartStockingFluidInterface.class, PartStockingDualInterface.class, PartSuperUltimateInterface.class)
                 .setFluidTankSupplier(iFluidInterfaceHost -> iFluidInterfaceHost.getDualityFluidInterface().getTanks())
