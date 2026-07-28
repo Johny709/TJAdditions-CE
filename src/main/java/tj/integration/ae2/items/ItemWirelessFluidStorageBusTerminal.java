@@ -34,21 +34,25 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
+import tj.integration.ae2.ISuperFluidInterfaceTerminal;
 import tj.items.item.TJItems;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
+import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.PopUpWidget;
 import tj.mui.widgets.impl.*;
 import tj.util.TJItemUtils;
 import tj.util.references.ObjectReference;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.function.LongUnaryOperator;
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLocation.LEFT;
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
 
-public class ItemWirelessFluidStorageBusTerminal extends ToolWirelessTerminal implements ItemUIFactory {
+public class ItemWirelessFluidStorageBusTerminal extends ToolWirelessTerminal implements ItemUIFactory, ISuperFluidInterfaceTerminal {
 
     private static final BlockPos.MutableBlockPos storageBusPos = new BlockPos.MutableBlockPos();
 
@@ -90,10 +94,25 @@ public class ItemWirelessFluidStorageBusTerminal extends ToolWirelessTerminal im
                 gridNode = ((IActionHost) securityStation).getActionableNode();
             }
         }
-        return ItemWirelessFluidStorageBusTerminal.createFluidStorageBusTerminalGUI(holder, player, gridNode);
+        return ItemWirelessFluidStorageBusTerminal.createFluidStorageBusTerminalGUI(holder, player, gridNode, this);
     }
 
-    public static ModularUI createFluidStorageBusTerminalGUI(IUIHolder holder, EntityPlayer player, IGridNode gridNode) {
+    @Override
+    public void setFluidStackSize(AEGhostFluidListWidget<?> ghostFluidListWidget, LongUnaryOperator unaryOperator) {
+        final FluidStack fluidStack = ghostFluidListWidget.getFluidAt(ghostFluidListWidget.getSelectedIndex());
+        if (fluidStack == null) return;
+        final FluidStack newStack = fluidStack.copy();
+        newStack.amount = (int) Math.max(1, Math.min(Integer.MAX_VALUE, unaryOperator.applyAsLong(fluidStack.amount)));
+        ghostFluidListWidget.setFluidAt(ghostFluidListWidget.getSelectedIndex(), newStack);
+    }
+
+    @Override
+    public int getFluidStackSize(AEGhostFluidListWidget<?> ghostFluidListWidget) {
+        final FluidStack fluidStack = ghostFluidListWidget.getFluidAt(ghostFluidListWidget.getSelectedIndex());
+        return fluidStack != null ? fluidStack.amount : 0;
+    }
+
+    public static ModularUI createFluidStorageBusTerminalGUI(IUIHolder holder, EntityPlayer player, IGridNode gridNode, ISuperFluidInterfaceTerminal superInterfaceTerminal) {
         return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJItems.PART_STORAGE_BUS_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
@@ -101,15 +120,16 @@ public class ItemWirelessFluidStorageBusTerminal extends ToolWirelessTerminal im
                 .widget(new ImageWidget(-22, 0, 4, 55, GuiTextures.BORDERED_BACKGROUND)) // to move JEI GUI out of the way for tabs
                 .widget(new WidgetTabBuilder()
                         .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
-                        .addTab("tj.multiblock.tab.config", Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY), tab -> createConfigTab(tab, gridNode))
+                        .addTab("tj.multiblock.tab.config", Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY), tab -> createConfigTab(tab, gridNode, superInterfaceTerminal))
                         .addTab("tj.multiblock.tab.storage", TJItemUtils.getItemStackFromName("minecraft:chest"), tab -> createStorageTab(tab, gridNode))
                         .build())
                 .bindPlayerInventory(player.inventory, 209)
                 .build(holder, player);
     }
 
-    private static void createConfigTab(List<Widget> tab, IGridNode gridNode) {
+    private static void createConfigTab(List<Widget> tab, IGridNode gridNode, ISuperFluidInterfaceTerminal superFluidInterfaceTerminal) {
         final ObjectReference<String> searchName = new ObjectReference<>("");
+        final AEGhostFluidListWidget<PartFluidStorageBus> ghostFluidListWidget = new AEGhostFluidListWidget<>(7, 34, 162, 162, gridNode, PartFluidStorageBus.class);
         tab.add(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT) {
             @Override
             @SideOnly(Side.CLIENT)
@@ -124,13 +144,36 @@ public class ItemWirelessFluidStorageBusTerminal extends ToolWirelessTerminal im
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                 .setUpdateOnTyping(true));
-        tab.add(new AEGhostFluidListWidget<PartFluidStorageBus>(7, 34, 162, 162, gridNode, PartFluidStorageBus.class)
-                .setSlotPredicate((slot, storageBus) -> slot / 9 <= (storageBus.getInstalledUpgrades(Upgrades.CAPACITY) + 1))
+        tab.add(ghostFluidListWidget.setSlotPredicate((slot, storageBus) -> slot / 9 <= (storageBus.getInstalledUpgrades(Upgrades.CAPACITY) + 1))
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setRenderCallback(ItemWirelessFluidStorageBusTerminal::renderCallback)
                 .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT)
                 .setFluidTankSupplier(PartFluidStorageBus::getConfig)
                 .setPredicate(storageBus -> true));
+        tab.add(new PopUpWidget<>().setClickToDefault(false)
+                .setIndexSupplier(() -> ghostFluidListWidget.getSelectedIndex() >= 0 ? 1 : 0)
+                .addPopup(widgetGroup -> true)
+                .addPopup(widgetGroup -> {
+                    widgetGroup.addWidget(new ImageWidget(-167, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
+                    widgetGroup.addWidget(new LabelWidget(-160, 112, "machine.universal.stack_size"));
+                    widgetGroup.addWidget(new NewTextFieldWidget<>(-160, 153, 148, 18, true, () -> String.valueOf(superFluidInterfaceTerminal.getFluidStackSize(ghostFluidListWidget)), (text, id) -> {
+                        final FluidStack fluidStack = ghostFluidListWidget.getFluidAt(ghostFluidListWidget.getSelectedIndex());
+                        if (fluidStack == null) return;
+                        final FluidStack newStack = fluidStack.copy();
+                        newStack.amount = (int) Math.max(0, Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+                        ghostFluidListWidget.setFluidAt(ghostFluidListWidget.getSelectedIndex(), newStack);
+                    }).setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                            .setUpdateOnTyping(true));
+                    widgetGroup.addWidget(new ButtonWidget<>(-159, 127, 25, 20, "+1", data -> superFluidInterfaceTerminal.setFluidStackSize(ghostFluidListWidget, amount -> amount + 1)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    widgetGroup.addWidget(new ButtonWidget<>(-129, 127, 30, 20, "+10", data -> superFluidInterfaceTerminal.setFluidStackSize(ghostFluidListWidget, amount -> amount + 10)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    widgetGroup.addWidget(new ButtonWidget<>(-94, 127, 35, 20, "+100", data -> superFluidInterfaceTerminal.setFluidStackSize(ghostFluidListWidget, amount -> amount + 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    widgetGroup.addWidget(new ButtonWidget<>(-54, 127, 40, 20, "+1000", data -> superFluidInterfaceTerminal.setFluidStackSize(ghostFluidListWidget, amount -> amount + 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    widgetGroup.addWidget(new ButtonWidget<>(-159, 177, 25, 20, "-1", data -> superFluidInterfaceTerminal.setFluidStackSize(ghostFluidListWidget, amount -> amount - 1)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    widgetGroup.addWidget(new ButtonWidget<>(-129, 177, 30, 20, "-10", data -> superFluidInterfaceTerminal.setFluidStackSize(ghostFluidListWidget, amount -> amount - 10)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    widgetGroup.addWidget(new ButtonWidget<>(-94, 177, 35, 20, "-100", data -> superFluidInterfaceTerminal.setFluidStackSize(ghostFluidListWidget, amount -> amount - 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    widgetGroup.addWidget(new ButtonWidget<>(-54, 177, 40, 20, "-1000", data -> superFluidInterfaceTerminal.setFluidStackSize(ghostFluidListWidget, amount -> amount - 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                    return false;
+                }));
     }
 
     private static void createStorageTab(List<Widget> tab, IGridNode gridNode) {
