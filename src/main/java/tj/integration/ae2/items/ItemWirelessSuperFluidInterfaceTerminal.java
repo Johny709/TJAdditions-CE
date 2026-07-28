@@ -140,7 +140,7 @@ public class ItemWirelessSuperFluidInterfaceTerminal extends ToolWirelessTermina
                 .setPredicate(iFluidInterfaceHost -> true));
         tab.add(new PopUpWidget<>().setClickToDefault(false)
                 .setIndexSupplier(() -> ghostFluidListWidget.getSelectedIndex() >= 0 ? 1 : 0)
-                .addPopup(widgetGroup -> true)
+                .addPopup(widgetGroup -> false)
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(new ImageWidget(-167, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
                     widgetGroup.addWidget(new LabelWidget(-160, 112, "machine.universal.stack_size"));

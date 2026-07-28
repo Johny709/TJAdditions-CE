@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
 
-public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
+public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup implements IWidgetGroup {
 
     protected static final Pair<Boolean, WidgetGroup> DUMMY_WIDGET_GROUP = Pair.of(false, new WidgetGroup());
     protected final Int2ObjectMap<Pair<Boolean, WidgetGroup>> widgetMap = new Int2ObjectOpenHashMap<>();
@@ -216,6 +216,27 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup {
             this.selectedIndex = buffer.readInt();
             this.updateWidgets(lastIndex, this.selectedIndex);
         }
+    }
+
+    @Override
+    public Rectangle toRectangleBox() {
+        final Rectangle rectangle = super.toRectangleBox();
+        final Pair<Boolean, WidgetGroup> widgetGroup = this.widgetMap.get(this.selectedIndex);
+        System.out.println(widgetGroup.getKey());
+        if (!widgetGroup.getKey())
+            return rectangle;
+        int x = rectangle.x;
+        int y = rectangle.y;
+        int width = rectangle.width;
+        int height = rectangle.height;
+        for (Widget widget : widgetGroup.getValue().getContainedWidgets(true)) {
+            final Rectangle rec = widget.toRectangleBox();
+            x = Math.min(x, rec.x);
+            y = Math.min(y, rec.y);
+            width = Math.max(width, rec.width);
+            height = Math.max(height, rec.height);
+        }
+        return new Rectangle(x, y, width, height);
     }
 
     protected void setPopupIndex(String index) {

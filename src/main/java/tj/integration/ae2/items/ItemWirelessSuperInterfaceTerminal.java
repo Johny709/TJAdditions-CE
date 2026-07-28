@@ -275,7 +275,7 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
                 }));
         tab.add(new PopUpWidget<>().setClickToDefault(false)
                 .setIndexSupplier(() -> aeItemListConfig.getSelectedIndex() >= 0 ? 1 : 0)
-                .addPopup(widgetGroup -> true)
+                .addPopup(widgetGroup -> false)
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(new ImageWidget(-167, 221, 162, 100, GuiTextures.BORDERED_BACKGROUND));
                     widgetGroup.addWidget(new LabelWidget(-160, 226, "machine.universal.stack_size"));

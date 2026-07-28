@@ -8,11 +8,12 @@ import gregtech.api.util.Position;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.mui.widgets.IWidgetGroup;
 
 import java.util.function.BooleanSupplier;
 
 @Deprecated
-public class PopUpWidgetGroup extends AbstractWidgetGroup {
+public class PopUpWidgetGroup extends AbstractWidgetGroup implements IWidgetGroup {
 
     private final int width;
     private final int height;

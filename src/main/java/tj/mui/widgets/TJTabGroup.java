@@ -13,8 +13,8 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import tj.mui.widgets.impl.PopUpWidgetGroup;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -46,8 +46,7 @@ public class TJTabGroup extends AbstractWidgetGroup {
         if (includeHidden) {
             for (AbstractWidgetGroup widget : this.tabWidgets.values()) {
                 containedWidgets.add(widget);
-                if (widget instanceof PopUpWidgetGroup)
-                    continue;
+                if (widget instanceof IWidgetGroup) continue;
                 if (widget instanceof AbstractWidgetGroup)
                     containedWidgets.addAll(widget.getContainedWidgets(true));
             }
@@ -171,6 +170,23 @@ public class TJTabGroup extends AbstractWidgetGroup {
         final int maxX = tabSizes[0] + tabSizes[2];
         final int maxY = tabSizes[1] + tabSizes[3];
         return mouseX >= minX && mouseY >= minY && mouseX < maxX && mouseY < maxY;
+    }
+
+    @Override
+    public Rectangle toRectangleBox() {
+        final Rectangle rectangle = super.toRectangleBox();
+        int x = rectangle.x;
+        int y = rectangle.y;
+        int width = rectangle.width;
+        int height = rectangle.height;
+        for (Widget widget : this.tabWidgets.get(this.selectedTabIndex).getContainedWidgets(true)) {
+            final Rectangle rec = widget.toRectangleBox();
+            x = Math.min(x, rec.x);
+            y = Math.min(y, rec.y);
+            width = Math.max(width, rec.width);
+            height = Math.max(height, rec.height);
+        }
+        return new Rectangle(x, y, width, height);
     }
 
     @Override
