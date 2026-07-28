@@ -51,6 +51,6 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
 
     @Override
     public int getItemStackSize(AEGhostItemListWidget<?> ghostItemListWidget) {
-        return ghostItemListWidget.getItemAt(ghostItemListWidget.getSelectedIndex()).getCount();
+        return ghostItemListWidget.getItemAt(ghostItemListWidget.getSelectedIndex(), false).getCount();
     }
 }

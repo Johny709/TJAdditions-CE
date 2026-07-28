@@ -510,16 +510,29 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
     }
 
     public void setItemAt(int slotIndex, @Nonnull ItemStack itemStack) {
-        this.modifyItemAt(slotIndex, itemStack, true);
+        this.modifyItemAt(slotIndex, itemStack, true, false);
     }
 
+    /**
+     * Extracts item from slot. Use {@link #getItemAt(int, boolean)} for option to simulate extraction.
+     * @param slotIndex item slot to extract from.
+     */
     @Nonnull
     public ItemStack getItemAt(int slotIndex) {
-        return this.modifyItemAt(slotIndex, ItemStack.EMPTY, false);
+        return this.modifyItemAt(slotIndex, ItemStack.EMPTY, false, false);
+    }
+
+    /**
+     * @param slotIndex item slot to extract from.
+     * @param extract false - simulate extraction.
+     */
+    @Nonnull
+    public ItemStack getItemAt(int slotIndex, boolean extract) {
+        return this.modifyItemAt(slotIndex, ItemStack.EMPTY, false, !extract);
     }
 
     @Nonnull
-    private ItemStack modifyItemAt(int slotIndex, @Nonnull ItemStack itemStack, boolean insert) {
+    private ItemStack modifyItemAt(int slotIndex, @Nonnull ItemStack itemStack, boolean insert, boolean simulate) {
         int index = 0;
         int scrollHeight = 0;
         final int scrollOffset = this.scrollOffset + this.getSize().getHeight() + 18;
@@ -545,8 +558,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
                     }
                     if (slotIndex == index) {
                         if (insert) {
-                            itemStack = inventory.insertItem(j, itemStack, false);
-                        } else itemStack = inventory.extractItem(j, Integer.MAX_VALUE, false);
+                            itemStack = inventory.insertItem(j, itemStack, simulate);
+                        } else itemStack = inventory.extractItem(j, Integer.MAX_VALUE, simulate);
                         break grid;
                     }
                     if (scrollHeight >= this.scrollOffset && scrollHeight <= scrollOffset && this.slotPredicate.test(j, machine))

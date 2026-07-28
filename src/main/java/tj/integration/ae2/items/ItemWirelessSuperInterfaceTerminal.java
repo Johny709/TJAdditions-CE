@@ -126,7 +126,7 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
 
     @Override
     public int getItemStackSize(AEGhostItemListWidget<?> ghostItemListWidget) {
-        return ghostItemListWidget.getItemAt(ghostItemListWidget.getSelectedIndex()).getCount();
+        return ghostItemListWidget.getItemAt(ghostItemListWidget.getSelectedIndex(), false).getCount();
     }
 
     public static ModularUI createWirelessSuperInterfaceGUI(IUIHolder holder, EntityPlayer player, IGridNode gridNode, ISuperInterfaceTerminal superInterfaceTerminal) {

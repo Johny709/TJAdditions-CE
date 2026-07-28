@@ -43,13 +43,13 @@ public class AEGhostItemListWidget<T> extends AEItemListWidget<T> implements IGh
         if (playerStack.isEmpty()) {
             this.selectedIndex = data.index;
             this.writeUpdateInfo(5, buffer -> buffer.writeInt(this.selectedIndex));
+            return playerStack;
         }
         if (data.button == 1) {
             itemHandler.extractItem(slotIndex, Integer.MAX_VALUE, false);
-        } else if (itemHandler instanceof IItemHandlerModifiable && !playerStack.isEmpty()) {
+        } else if (itemHandler instanceof IItemHandlerModifiable) {
             ((IItemHandlerModifiable) itemHandler).setStackInSlot(slotIndex, playerStack.copy());
-        } else if (!playerStack.isEmpty())
-            itemHandler.insertItem(slotIndex, playerStack.copy(), false);
+        } else itemHandler.insertItem(slotIndex, playerStack.copy(), false);
         return playerStack;
     }
 
@@ -69,7 +69,10 @@ public class AEGhostItemListWidget<T> extends AEItemListWidget<T> implements IGh
             this.writeUpdateInfo(5, buffer1 -> buffer1.writeInt(this.selectedIndex));
         } else if (id == 4) {
             try {
-                this.setItemAt(buffer.readInt(), buffer.readItemStack());
+                final int index = buffer.readInt();
+                final ItemStack itemStack = buffer.readItemStack();
+                if (!itemStack.isEmpty())
+                    this.setItemAt(index, itemStack);
             } catch (IOException e) {
                 TJ.logger.info(e.getMessage());
             }
