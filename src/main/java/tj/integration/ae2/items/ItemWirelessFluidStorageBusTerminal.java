@@ -134,7 +134,6 @@ public class ItemWirelessFluidStorageBusTerminal extends ToolWirelessTerminal im
             @Override
             @SideOnly(Side.CLIENT)
             public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-                GlStateManager.popMatrix();
                 GlStateManager.enableBlend();
                 GlStateManager.color(1.0f, 1.0f, 1.0f);
                 super.drawInBackground(mouseX, mouseY, context);
@@ -186,7 +185,6 @@ public class ItemWirelessFluidStorageBusTerminal extends ToolWirelessTerminal im
             @Override
             @SideOnly(Side.CLIENT)
             public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-                GlStateManager.popMatrix();
                 GlStateManager.enableBlend();
                 GlStateManager.color(1.0f, 1.0f, 1.0f);
                 super.drawInBackground(mouseX, mouseY, context);

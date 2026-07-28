@@ -177,7 +177,6 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
             this.scrollSliderRec = new Rectangle(this.scrollBarRec.x + this.scrollSliderRec.x, this.scrollBarRec.y + this.scrollSliderRec.y, this.scrollSliderRec.width, this.scrollSliderRec.height);
         }
         RenderUtil.useScissor(pos.getX(), pos.getY(), size.getWidth(), size.getHeight(), () -> {
-            GlStateManager.popMatrix();
             GlStateManager.enableBlend();
             GlStateManager.color(1.0f, 1.0f, 1.0f);
             int scrollOffset = 0;

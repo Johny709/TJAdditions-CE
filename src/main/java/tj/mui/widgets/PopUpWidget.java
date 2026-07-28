@@ -5,7 +5,6 @@ import gregtech.api.gui.Widget;
 import gregtech.api.gui.resources.AdoptableTextureArea;
 import gregtech.api.gui.widgets.AbstractWidgetGroup;
 import gregtech.api.gui.widgets.WidgetGroup;
-import gregtech.api.util.GTLog;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -222,7 +221,6 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup i
     public Rectangle toRectangleBox() {
         final Rectangle rectangle = super.toRectangleBox();
         final Pair<Boolean, WidgetGroup> widgetGroup = this.widgetMap.get(this.selectedIndex);
-        System.out.println(widgetGroup.getKey());
         if (!widgetGroup.getKey())
             return rectangle;
         int x = rectangle.x;
