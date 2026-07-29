@@ -151,8 +151,8 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
         final FilteredItemStackHandler multiUpgradeSlots = new FilteredItemStackHandler(null, 3, 1)
                 .setItemStackPredicate((slot, itemStack) -> itemStack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)));
         multiUpgradeSlots.setOnContentsChangedPost((slot, itemStack) -> writePatternMultiToolToNBT(multiUpgradeSlots, upgradeTag));
-        final ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 316);
-        final AEItemListWidget<IInterfaceHost> aeItemListPattern = new AEItemListWidget<>(7, 60, 162, 162, gridNode, TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class,
+        final ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 300);
+        final AEItemListWidget<IInterfaceHost> aeItemListPattern = new AEItemListWidget<>(7, 50, 162, 162, gridNode, TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class,
                 PartInterface.class, PartDualInterface.class, PartSuperInterface.class, PartSuperDualInterface.class, PartPatternInterface.class, PartSuperUltimateInterface.class);
         return createPatternMultiToolGUI(builder, patternMultiTool, multiUpgradeSlots, multiPatternSlots, invTag, aeItemListPattern)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
@@ -163,7 +163,7 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
                         .addTab("gui.appliedenergistics2.Patterns", Api.INSTANCE.definitions().materials().blankPattern().maybeStack(1).orElse(ItemStack.EMPTY), tab -> createPatternTab(tab, aeItemListPattern, multiPatternSlots))
                         .addTab("tj.multiblock.tab.config", Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY), tab -> createConfigTab(tab, gridNode, superInterfaceTerminal))
                         .addTab("tj.multiblock.tab.storage", TJItemUtils.getItemStackFromName("minecraft:chest"), tab -> createStorageTab(tab, gridNode)).build())
-                .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 233, patternMultiTool))
+                .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 217, patternMultiTool))
                 .bindOpenListener(() -> {
                     if (!patternMultiTool.isEmpty()) {
                         readPatternMultiToolNBT(multiPatternSlots, invTag.getTagList("Items", 10));
@@ -193,19 +193,19 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
         tab.add(new TJToggleButtonWidget(-18, 128, 16, 16, TJGuiTextures.TOGGLE_CRAFTING_INTERFACES, showCraftingInterfaces::isValue, showCraftingInterfaces::setValue)
                 .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleMolecularAssemblersOffDesc", "gui.tooltips.appliedenergistics2.ToggleMolecularAssemblersOnDesc")
                 .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleMolecularAssemblers", "gui.tooltips.appliedenergistics2.ToggleMolecularAssemblers"));
-        tab.add(new NewTextFieldWidget<>(7, 16, 90, 12, true, searchInputs::getValue, (s, id) -> searchInputs.setValue(s))
+        tab.add(new NewTextFieldWidget<>(7, 6, 90, 12, true, searchInputs::getValue, (s, id) -> searchInputs.setValue(s))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                 .setUpdateOnTyping(true));
-        tab.add(new NewTextFieldWidget<>(7, 30, 90, 12, true, searchOutputs::getValue, (s, id) -> searchOutputs.setValue(s))
+        tab.add(new NewTextFieldWidget<>(7, 20, 90, 12, true, searchOutputs::getValue, (s, id) -> searchOutputs.setValue(s))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldOutputs")
                 .setUpdateOnTyping(true));
-        tab.add(new NewTextFieldWidget<>(7, 44, 90, 12, true, searchInterface::getValue, (s, id) -> searchInterface.setValue(s))
+        tab.add(new NewTextFieldWidget<>(7, 34, 90, 12, true, searchInterface::getValue, (s, id) -> searchInterface.setValue(s))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldNames")
                 .setUpdateOnTyping(true));
-        tab.add(new ImageWidget(6, 59, 164, 164, TJGuiTextures.BLANK_SLOT) {
+        tab.add(new ImageWidget(6, 49, 164, 164, TJGuiTextures.BLANK_SLOT) {
             @Override
             @SideOnly(Side.CLIENT)
             public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
@@ -240,16 +240,16 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
     private static void createConfigTab(List<Widget> tab, IGridNode gridNode, ISuperInterfaceTerminal superInterfaceTerminal) {
         final BooleanReference showInterfaces = new BooleanReference();
         final ObjectReference<String> searchName = new ObjectReference<>("");
-        final AEGhostItemListWidget<IInterfaceHost> aeItemListConfig = new AEGhostItemListWidget<>(7, 36, 162, 186, gridNode, TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TileStockingInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
+        final AEGhostItemListWidget<IInterfaceHost> aeItemListConfig = new AEGhostItemListWidget<>(7, 22, 162, 190, gridNode, TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TileStockingInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
                 PartInterface.class, PartDualInterface.class, PartSuperInterface.class, PartSuperDualInterface.class, PartStockingInterface.class, PartStockingDualInterface.class, PartSuperUltimateInterface.class);
         tab.add(new TJToggleButtonWidget(-18, 88, 16, 16, TJGuiTextures.TOGGLE_SHOW_INTERFACES, showInterfaces::isValue, showInterfaces::setValue)
                 .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOnDesc", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOffDesc")
                 .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces"));
-        tab.add(new NewTextFieldWidget<>(7, 16, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
+        tab.add(new NewTextFieldWidget<>(7, 6, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                 .setUpdateOnTyping(true));
-        tab.add(new ImageWidget(6, 35, 164, 188, TJGuiTextures.BLANK_SLOT) {
+        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT) {
             @Override
             @SideOnly(Side.CLIENT)
             public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
@@ -300,16 +300,16 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
     private static void createStorageTab(List<Widget> tab, IGridNode gridNode) {
         final BooleanReference showInterfaces = new BooleanReference();
         final ObjectReference<String> searchName = new ObjectReference<>("");
-        final AEItemListWidget<IInterfaceHost> aeItemListStorage = new AEItemListWidget<>(7, 36, 162, 186, gridNode, TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TileStockingInterface.class, TileStockingDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class,
+        final AEItemListWidget<IInterfaceHost> aeItemListStorage = new AEItemListWidget<>(7, 22, 162, 190, gridNode, TileInterface.class, TileDualInterface.class, TileSuperInterface.class, TileSuperDualInterface.class, TileStockingInterface.class, TileStockingDualInterface.class, TilePatternInterface.class, TileSuperUltimateInterface.class,
                 PartInterface.class, PartDualInterface.class, PartSuperInterface.class, PartSuperDualInterface.class, PartStockingInterface.class, PartStockingDualInterface.class, PartPatternInterface.class, PartSuperUltimateInterface.class);
         tab.add(new TJToggleButtonWidget(-18, 88, 16, 16, TJGuiTextures.TOGGLE_SHOW_INTERFACES, showInterfaces::isValue, showInterfaces::setValue)
                 .setToggleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOnDesc", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfacesOffDesc")
                 .setToggleTitleTooltipHoverText("gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces", "gui.tooltips.appliedenergistics2.ToggleShowFullInterfaces"));
-        tab.add(new NewTextFieldWidget<>(7, 16, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
+        tab.add(new NewTextFieldWidget<>(7, 6, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                 .setUpdateOnTyping(true));
-        tab.add(new ImageWidget(6, 35, 164, 188, TJGuiTextures.BLANK_SLOT) {
+        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT) {
             @Override
             @SideOnly(Side.CLIENT)
             public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {

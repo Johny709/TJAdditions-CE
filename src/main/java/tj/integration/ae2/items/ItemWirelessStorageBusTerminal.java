@@ -117,7 +117,7 @@ public class ItemWirelessStorageBusTerminal extends ToolWirelessTerminal impleme
     }
 
     public static ModularUI createWirelessStorageBusTerminalGUI(IUIHolder holder, EntityPlayer player, IGridNode gridNode, ISuperInterfaceTerminal superInterfaceTerminal) {
-        return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 300)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJItems.PART_STORAGE_BUS_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
                         .setLocale("item.me.part.storage_bus_terminal.name"))
@@ -127,14 +127,14 @@ public class ItemWirelessStorageBusTerminal extends ToolWirelessTerminal impleme
                         .addTab("tj.multiblock.tab.config", Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY), tab -> createConfigTab(tab, gridNode, superInterfaceTerminal))
                         .addTab("tj.multiblock.tab.storage", TJItemUtils.getItemStackFromName("minecraft:chest"), tab -> createStorageTab(tab, gridNode))
                         .build())
-                .bindPlayerInventory(player.inventory, 209)
+                .bindPlayerInventory(player.inventory, 217)
                 .build(holder, player);
     }
 
     private static void createConfigTab(List<Widget> tab, IGridNode gridNode, ISuperInterfaceTerminal superInterfaceTerminal) {
         final ObjectReference<String> searchName = new ObjectReference<>("");
-        final AEGhostItemListWidget<PartStorageBus> aeItemListConfig = new AEGhostItemListWidget<>(7, 34, 162, 162, gridNode, PartStorageBus.class);
-        tab.add(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT) {
+        final AEGhostItemListWidget<PartStorageBus> aeItemListConfig = new AEGhostItemListWidget<>(7, 22, 162, 190, gridNode, PartStorageBus.class);
+        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT) {
             @Override
             @SideOnly(Side.CLIENT)
             public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
@@ -143,7 +143,7 @@ public class ItemWirelessStorageBusTerminal extends ToolWirelessTerminal impleme
                 super.drawInBackground(mouseX, mouseY, context);
             }
         });
-        tab.add(new NewTextFieldWidget<>(7, 16, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
+        tab.add(new NewTextFieldWidget<>(7, 6, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                 .setUpdateOnTyping(true));
@@ -153,7 +153,7 @@ public class ItemWirelessStorageBusTerminal extends ToolWirelessTerminal impleme
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setItemStackTransfer((itemStack, aBoolean) -> itemStack)
                 .setRenderCallback(ItemWirelessStorageBusTerminal::renderCallback)
-                .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT));
+                .setScrollbar(10, 0, 12, 190, GuiTextures.SLOT));
         tab.add(new PopUpWidget<>().setClickToDefault(false)
                 .setIndexSupplier(() -> aeItemListConfig.getSelectedIndex() >= 0 ? 1 : 0)
                 .addPopup(widgetGroup -> true)
@@ -182,11 +182,11 @@ public class ItemWirelessStorageBusTerminal extends ToolWirelessTerminal impleme
 
     private static void createStorageTab(List<Widget> tab, IGridNode gridNode) {
         final ObjectReference<String> searchName = new ObjectReference<>("");
-        tab.add(new NewTextFieldWidget<>(7, 16, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
+        tab.add(new NewTextFieldWidget<>(7, 6, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                 .setUpdateOnTyping(true));
-        tab.add(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT) {
+        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT) {
             @Override
             @SideOnly(Side.CLIENT)
             public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
@@ -195,12 +195,12 @@ public class ItemWirelessStorageBusTerminal extends ToolWirelessTerminal impleme
                 super.drawInBackground(mouseX, mouseY, context);
             }
         });
-        tab.add(new AEItemListWidget<PartStorageBus>(7, 34, 162, 162, gridNode, PartStorageBus.class)
+        tab.add(new AEItemListWidget<PartStorageBus>(7, 22, 162, 190, gridNode, PartStorageBus.class)
                 .setPredicate(storageBus -> searchName.getValue().isEmpty() || TJItemUtils.isItemPresent(getInventory(storageBus), searchName.getValue()))
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setItemStackTransfer((itemStack, aBoolean) -> itemStack)
                 .setInventorySupplier(ItemWirelessStorageBusTerminal::getInventory)
-                .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT)
+                .setScrollbar(10, 0, 12, 190, GuiTextures.SLOT)
                 .setRenderCallback(ItemWirelessStorageBusTerminal::renderCallback)
                 .setSlotPredicate((s, storageBus) -> true));
     }

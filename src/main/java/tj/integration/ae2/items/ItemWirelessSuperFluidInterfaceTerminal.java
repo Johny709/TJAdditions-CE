@@ -45,6 +45,7 @@ import tj.mui.widgets.impl.AEGhostFluidListWidget;
 import tj.mui.widgets.impl.NewTextFieldWidget;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.util.TJItemUtils;
+import tj.util.references.ObjectReference;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -113,7 +114,7 @@ public class ItemWirelessSuperFluidInterfaceTerminal extends ToolWirelessTermina
     }
 
     public static ModularUI createSuperFluidInterfaceTerminalGUI(IUIHolder holder, EntityPlayer player, IGridNode gridNode, ISuperFluidInterfaceTerminal superFluidInterfaceTerminal) {
-        return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 300)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJItems.PART_SUPER_FLUID_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
                         .setLocale("item.me.part.super_fluid_interface_terminal.name"))
@@ -123,12 +124,15 @@ public class ItemWirelessSuperFluidInterfaceTerminal extends ToolWirelessTermina
                         .addTab("tj.multiblock.tab.config", Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY), tab -> createConfigTab(tab, gridNode, superFluidInterfaceTerminal))
                         .addTab("tj.multiblock.tab.storage", TJItemUtils.getItemStackFromName("minecraft:chest"), tab -> createStorageTab(tab, gridNode))
                         .build())
-                .bindPlayerInventory(player.inventory, 209)
+                .bindPlayerInventory(player.inventory, 217)
                 .build(holder, player);
     }
 
     private static void createConfigTab(List<Widget> tab, IGridNode gridNode, ISuperFluidInterfaceTerminal superFluidInterfaceTerminal) {
-        tab.add(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT) {
+        final ObjectReference<String> searchName = new ObjectReference<>("");
+        final AEGhostFluidListWidget<IFluidInterfaceHost> ghostFluidListWidget = new AEGhostFluidListWidget<>(7, 22, 162, 190, gridNode, TileFluidInterface.class, TileDualInterface.class, TileSuperFluidInterface.class, TileSuperDualInterface.class, TileStockingFluidInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
+                PartFluidInterface.class, PartDualInterface.class, PartSuperFluidInterface.class, PartSuperDualInterface.class, PartStockingFluidInterface.class, PartStockingDualInterface.class, PartSuperUltimateInterface.class);
+        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT) {
             @Override
             @SideOnly(Side.CLIENT)
             public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
@@ -137,13 +141,15 @@ public class ItemWirelessSuperFluidInterfaceTerminal extends ToolWirelessTermina
                 super.drawInBackground(mouseX, mouseY, context);
             }
         });
-        final AEGhostFluidListWidget<IFluidInterfaceHost> ghostFluidListWidget = new AEGhostFluidListWidget<>(7, 34, 162, 162, gridNode, TileFluidInterface.class, TileDualInterface.class, TileSuperFluidInterface.class, TileSuperDualInterface.class, TileStockingFluidInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
-                PartFluidInterface.class, PartDualInterface.class, PartSuperFluidInterface.class, PartSuperDualInterface.class, PartStockingFluidInterface.class, PartStockingDualInterface.class, PartSuperUltimateInterface.class);
+        tab.add(new NewTextFieldWidget<>(7, 6, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
+                .setUpdateOnTyping(true));
         tab.add(ghostFluidListWidget.setFluidTankSupplier(iFluidInterfaceHost -> iFluidInterfaceHost.getDualityFluidInterface().getConfig())
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setRenderCallback(ItemWirelessSuperFluidInterfaceTerminal::renderCallback)
                 .setSlotPredicate((s, iFluidInterfaceHost) -> true)
-                .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT)
+                .setScrollbar(10, 0, 12, 190, GuiTextures.SLOT)
                 .setPredicate(iFluidInterfaceHost -> true));
         tab.add(new PopUpWidget<>().setClickToDefault(false)
                 .setIndexSupplier(() -> ghostFluidListWidget.getSelectedIndex() >= 0 ? 1 : 0)
@@ -172,7 +178,8 @@ public class ItemWirelessSuperFluidInterfaceTerminal extends ToolWirelessTermina
     }
 
     private static void createStorageTab(List<Widget> tab, IGridNode gridNode) {
-        tab.add(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT) {
+        final ObjectReference<String> searchName = new ObjectReference<>("");
+        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT) {
             @Override
             @SideOnly(Side.CLIENT)
             public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
@@ -181,13 +188,17 @@ public class ItemWirelessSuperFluidInterfaceTerminal extends ToolWirelessTermina
                 super.drawInBackground(mouseX, mouseY, context);
             }
         });
-        tab.add(new AEFluidListWidget<IFluidInterfaceHost>(7, 34, 162, 162, gridNode, TileFluidInterface.class, TileDualInterface.class, TileSuperFluidInterface.class, TileSuperDualInterface.class, TileStockingFluidInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
+        tab.add(new NewTextFieldWidget<>(7, 6, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
+                .setUpdateOnTyping(true));
+        tab.add(new AEFluidListWidget<IFluidInterfaceHost>(7, 22, 162, 190, gridNode, TileFluidInterface.class, TileDualInterface.class, TileSuperFluidInterface.class, TileSuperDualInterface.class, TileStockingFluidInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
                 PartFluidInterface.class, PartDualInterface.class, PartSuperFluidInterface.class, PartSuperDualInterface.class, PartStockingFluidInterface.class, PartStockingDualInterface.class, PartSuperUltimateInterface.class)
                 .setFluidTankSupplier(iFluidInterfaceHost -> iFluidInterfaceHost.getDualityFluidInterface().getTanks())
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setRenderCallback(ItemWirelessSuperFluidInterfaceTerminal::renderCallback)
                 .setSlotPredicate((s, iFluidInterfaceHost) -> true)
-                .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT)
+                .setScrollbar(10, 0, 12, 190, GuiTextures.SLOT)
                 .setPredicate(iFluidInterfaceHost -> true));
     }
 

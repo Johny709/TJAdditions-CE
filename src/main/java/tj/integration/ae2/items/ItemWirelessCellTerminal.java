@@ -33,10 +33,13 @@ import tj.items.item.TJItems;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
 import tj.mui.widgets.impl.AEItemListWidget;
+import tj.mui.widgets.impl.NewTextFieldWidget;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.util.TJItemUtils;
+import tj.util.references.ObjectReference;
 
 import javax.annotation.Nonnull;
+import java.util.regex.Pattern;
 
 public class ItemWirelessCellTerminal extends ToolWirelessTerminal implements ItemUIFactory {
 
@@ -82,11 +85,16 @@ public class ItemWirelessCellTerminal extends ToolWirelessTerminal implements It
     }
 
     public static ModularUI createWirelessCellTerminal(IUIHolder holder, EntityPlayer player, IGridNode gridNode) {
-        return ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
+        final ObjectReference<String> searchName = new ObjectReference<>("");
+        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 300)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJItems.PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
                         .setLocale("item.me.part.cell_terminal.name"))
-                .widget(new ImageWidget(6, 33, 164, 164, TJGuiTextures.BLANK_SLOT) {
+                .widget(new NewTextFieldWidget<>(7, 6, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
+                        .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                        .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
+                        .setUpdateOnTyping(true))
+                .widget(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT) {
                     @Override
                     @SideOnly(Side.CLIENT)
                     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
@@ -95,15 +103,15 @@ public class ItemWirelessCellTerminal extends ToolWirelessTerminal implements It
                         super.drawInBackground(mouseX, mouseY, context);
                     }
                 })
-                .widget(new AEItemListWidget<IChestOrDrive>(7, 34, 162, 162, gridNode, TileDrive.class)
+                .widget(new AEItemListWidget<IChestOrDrive>(7, 22, 162, 190, gridNode, TileDrive.class)
                         .setInventorySupplier(drive -> ((AEBaseInvTile) drive).getInternalInventory())
                         .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                         .setItemStackTransfer((itemStack, aBoolean) -> itemStack)
-                        .setScrollbar(10, 0, 12, 162, GuiTextures.SLOT)
+                        .setScrollbar(10, 0, 12, 190, GuiTextures.SLOT)
                         .setSlotPredicate((s, iChestOrDrive) -> true)
                         .setPredicate(iChestOrDrive -> true)
                         .setRenderCallback(ItemWirelessCellTerminal::renderCallback))
-                .bindPlayerInventory(player.inventory, 209)
+                .bindPlayerInventory(player.inventory, 217)
                 .build(holder, player);
     }
 
