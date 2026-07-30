@@ -41,6 +41,7 @@ import tj.mui.TJGuiUtils;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.PopUpWidget;
 import tj.mui.widgets.impl.*;
+import tj.util.TJFluidUtils;
 import tj.util.TJItemUtils;
 import tj.util.references.ObjectReference;
 
@@ -143,12 +144,12 @@ public class ItemWirelessFluidStorageBusTerminal extends ToolWirelessTerminal im
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                 .setUpdateOnTyping(true));
-        tab.add(ghostFluidListWidget.setSlotPredicate((slot, storageBus) -> slot / 9 <= (storageBus.getInstalledUpgrades(Upgrades.CAPACITY) + 1))
+        tab.add(ghostFluidListWidget.setPredicate(storageBus -> searchName.getValue().isEmpty() || TJFluidUtils.isFluidPresent(storageBus.getConfig(), searchName.getValue()))
+                .setSlotPredicate((slot, storageBus) -> slot / 9 <= (storageBus.getInstalledUpgrades(Upgrades.CAPACITY) + 1))
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setRenderCallback(ItemWirelessFluidStorageBusTerminal::renderCallback)
                 .setScrollbar(10, 0, 12, 190, GuiTextures.SLOT)
-                .setFluidTankSupplier(PartFluidStorageBus::getConfig)
-                .setPredicate(storageBus -> true));
+                .setFluidTankSupplier(PartFluidStorageBus::getConfig));
         tab.add(new PopUpWidget<>().setClickToDefault(false)
                 .setIndexSupplier(() -> ghostFluidListWidget.getSelectedIndex() >= 0 ? 1 : 0)
                 .addPopup(widgetGroup -> true)
@@ -191,6 +192,7 @@ public class ItemWirelessFluidStorageBusTerminal extends ToolWirelessTerminal im
             }
         });
         tab.add(new AEFluidListWidget<PartFluidStorageBus>(7, 22, 162, 190, gridNode, PartFluidStorageBus.class)
+                .setPredicate(storageBus -> searchName.getValue().isEmpty() || TJFluidUtils.isFluidPresent(getFluidInventory(storageBus), searchName.getValue()))
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setFluidTankSupplier(ItemWirelessFluidStorageBusTerminal::getFluidInventory)
                 .setRenderCallback(ItemWirelessFluidStorageBusTerminal::renderCallback)

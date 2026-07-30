@@ -63,7 +63,7 @@ public class ItemWirelessStorageBusTerminal extends ToolWirelessTerminal impleme
 
     @Override
     public boolean canHandle(ItemStack is) {
-        return TJItems.WIRELESS_CELL_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY).isItemEqual(is);
+        return TJItems.WIRELESS_STORAGE_BUS_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY).isItemEqual(is);
     }
 
     @Nonnull

@@ -44,6 +44,7 @@ import tj.mui.widgets.impl.AEFluidListWidget;
 import tj.mui.widgets.impl.AEGhostFluidListWidget;
 import tj.mui.widgets.impl.NewTextFieldWidget;
 import tj.mui.widgets.impl.TJLabelWidget;
+import tj.util.TJFluidUtils;
 import tj.util.TJItemUtils;
 import tj.util.references.ObjectReference;
 
@@ -145,12 +146,12 @@ public class ItemWirelessSuperFluidInterfaceTerminal extends ToolWirelessTermina
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                 .setUpdateOnTyping(true));
-        tab.add(ghostFluidListWidget.setFluidTankSupplier(iFluidInterfaceHost -> iFluidInterfaceHost.getDualityFluidInterface().getConfig())
+        tab.add(ghostFluidListWidget.setPredicate(iFluidInterfaceHost -> searchName.getValue().isEmpty() || TJFluidUtils.isFluidPresent(iFluidInterfaceHost.getDualityFluidInterface().getConfig(), searchName.getValue()))
+                .setFluidTankSupplier(iFluidInterfaceHost -> iFluidInterfaceHost.getDualityFluidInterface().getConfig())
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setRenderCallback(ItemWirelessSuperFluidInterfaceTerminal::renderCallback)
                 .setSlotPredicate((s, iFluidInterfaceHost) -> true)
-                .setScrollbar(10, 0, 12, 190, GuiTextures.SLOT)
-                .setPredicate(iFluidInterfaceHost -> true));
+                .setScrollbar(10, 0, 12, 190, GuiTextures.SLOT));
         tab.add(new PopUpWidget<>().setClickToDefault(false)
                 .setIndexSupplier(() -> ghostFluidListWidget.getSelectedIndex() >= 0 ? 1 : 0)
                 .addPopup(widgetGroup -> false)
@@ -194,12 +195,12 @@ public class ItemWirelessSuperFluidInterfaceTerminal extends ToolWirelessTermina
                 .setUpdateOnTyping(true));
         tab.add(new AEFluidListWidget<IFluidInterfaceHost>(7, 22, 162, 190, gridNode, TileFluidInterface.class, TileDualInterface.class, TileSuperFluidInterface.class, TileSuperDualInterface.class, TileStockingFluidInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
                 PartFluidInterface.class, PartDualInterface.class, PartSuperFluidInterface.class, PartSuperDualInterface.class, PartStockingFluidInterface.class, PartStockingDualInterface.class, PartSuperUltimateInterface.class)
+                .setPredicate(iFluidInterfaceHost -> searchName.getValue().isEmpty() || TJFluidUtils.isFluidPresent(iFluidInterfaceHost.getDualityFluidInterface().getTanks(), searchName.getValue()))
                 .setFluidTankSupplier(iFluidInterfaceHost -> iFluidInterfaceHost.getDualityFluidInterface().getTanks())
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setRenderCallback(ItemWirelessSuperFluidInterfaceTerminal::renderCallback)
                 .setSlotPredicate((s, iFluidInterfaceHost) -> true)
-                .setScrollbar(10, 0, 12, 190, GuiTextures.SLOT)
-                .setPredicate(iFluidInterfaceHost -> true));
+                .setScrollbar(10, 0, 12, 190, GuiTextures.SLOT));
     }
 
     private static void renderCallback(FluidStack fluidStack, int x, int y) {

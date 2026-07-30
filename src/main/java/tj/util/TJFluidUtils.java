@@ -5,6 +5,8 @@ import gregtech.api.capability.impl.FluidTankList;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 
 import java.util.function.BiConsumer;
 
@@ -210,6 +212,17 @@ public final class TJFluidUtils {
         for (int i = 0; i < tanks.getTanks(); i++) {
             final IFluidTank tank = tanks.getTankAt(i);
             if (tank.getFluid() != null && tank.getFluid().isFluidEqual(fluidStack))
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean isFluidPresent(IFluidHandler fluidHandler, String name) {
+        final IFluidTankProperties[] tankProperties = fluidHandler.getTankProperties();
+        for (IFluidTankProperties tankProperty : tankProperties) {
+            final FluidStack fluidStack = tankProperty.getContents();
+            if (fluidStack == null) continue;
+            if (fluidStack.getLocalizedName().contains(name))
                 return true;
         }
         return false;
