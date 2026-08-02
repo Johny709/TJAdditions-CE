@@ -113,7 +113,7 @@ public class ItemWirelessStorageBusTerminal extends ToolWirelessTerminal impleme
 
     @Override
     public int getItemStackSize(AEGhostItemListWidget<?> ghostItemListWidget) {
-        return ghostItemListWidget.getItemAt(ghostItemListWidget.getSelectedIndex(), false).getCount();
+        return ghostItemListWidget.getItemAt(ghostItemListWidget.getSelectedIndex(), true).getCount();
     }
 
     public static ModularUI createWirelessStorageBusTerminalGUI(IUIHolder holder, EntityPlayer player, IGridNode gridNode, ISuperInterfaceTerminal superInterfaceTerminal) {

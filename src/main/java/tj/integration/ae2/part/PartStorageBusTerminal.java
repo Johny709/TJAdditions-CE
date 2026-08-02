@@ -7,7 +7,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import tj.integration.ae2.ISuperInterfaceTerminal;
 import tj.integration.ae2.items.ItemWirelessStorageBusTerminal;
@@ -51,6 +50,6 @@ public class PartStorageBusTerminal extends PartInterfaceTerminal implements ITi
 
     @Override
     public int getItemStackSize(AEGhostItemListWidget<?> ghostItemListWidget) {
-        return ghostItemListWidget.getItemAt(ghostItemListWidget.getSelectedIndex(), false).getCount();
+        return ghostItemListWidget.getItemAt(ghostItemListWidget.getSelectedIndex(), true).getCount();
     }
 }

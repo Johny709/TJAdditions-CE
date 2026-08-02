@@ -46,9 +46,10 @@ public class AEGhostItemListWidget<T> extends AEItemListWidget<T> implements IGh
         }
         if (data.button == 1) {
             itemHandler.extractItem(slotIndex, Integer.MAX_VALUE, false);
-        } else if (itemHandler instanceof IItemHandlerModifiable) {
+        } else if (itemHandler instanceof IItemHandlerModifiable && !playerStack.isEmpty()) {
             ((IItemHandlerModifiable) itemHandler).setStackInSlot(slotIndex, playerStack.copy());
-        } else itemHandler.insertItem(slotIndex, playerStack.copy(), false);
+        } else if (!playerStack.isEmpty())
+            itemHandler.insertItem(slotIndex, playerStack.copy(), false);
         return playerStack;
     }
 

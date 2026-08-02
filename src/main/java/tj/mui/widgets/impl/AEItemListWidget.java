@@ -526,11 +526,10 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
 
     /**
      * @param slotIndex item slot to extract from.
-     * @param extract false - simulate extraction.
      */
     @Nonnull
-    public ItemStack getItemAt(int slotIndex, boolean extract) {
-        return this.modifyItemAt(slotIndex, ItemStack.EMPTY, false, !extract);
+    public ItemStack getItemAt(int slotIndex, boolean simulate) {
+        return this.modifyItemAt(slotIndex, ItemStack.EMPTY, false, simulate);
     }
 
     @Nonnull
