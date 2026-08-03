@@ -28,8 +28,6 @@ import gregtech.loaders.recipe.CraftingComponent;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraftforge.oredict.OreDictionary;
 import tj.blocks.*;
 import tj.machines.TJMetaTileEntities;
 import tj.recipes.ct.*;
@@ -362,7 +360,10 @@ public class RecipeInit {
         ModHandler.addShapelessRecipe("tj_max_capacity_upgrade_2", new ItemStack(MAX_CAPACITY_UPGRADE), Api.INSTANCE.definitions().materials().advCard().maybeStack(1).orElse(ItemStack.EMPTY), INFINITY_CRATE.getStackForm());
         ModHandler.addShapelessRecipe("tj_cell_terminal", PART_CELL_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), TJItemUtils.getItemStackFromName("cellterminal:cell_terminal"));
         ModHandler.addShapelessRecipe("tj_cell_terminal_2", TJItemUtils.getItemStackFromName("cellterminal:cell_terminal"), PART_CELL_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY));
-        ModHandler.addShapelessRecipe("tj_interface_terminal", PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), "itemIlluminatedPanel", Api.INSTANCE.definitions().materials().engProcessor().maybeStack(1).orElse(ItemStack.EMPTY), SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_super_interface_terminal", PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), "itemIlluminatedPanel", Api.INSTANCE.definitions().materials().engProcessor().maybeStack(1).orElse(ItemStack.EMPTY), SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_storage_bus_terminal", PART_STORAGE_BUS_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), "itemIlluminatedPanel", Api.INSTANCE.definitions().materials().engProcessor().maybeStack(1).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().parts().storageBus().maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_super_fluid_interface_terminal", PART_SUPER_FLUID_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), "itemIlluminatedPanel", Api.INSTANCE.definitions().materials().engProcessor().maybeStack(1).orElse(ItemStack.EMPTY), SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapelessRecipe("tj_fluid_storage_bus_terminal", PART_FLUID_STORAGE_BUS_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), "itemIlluminatedPanel", Api.INSTANCE.definitions().materials().engProcessor().maybeStack(1).orElse(ItemStack.EMPTY), Api.INSTANCE.definitions().parts().fluidStorageBus().maybeStack(1).orElse(ItemStack.EMPTY));
         ModHandler.addShapedRecipe("tj_super_interface_terminal", WIRELESS_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), " R ", " I ", " C ",
                 'R', Api.INSTANCE.definitions().materials().wirelessReceiver().maybeStack(1).orElse(ItemStack.EMPTY),
                 'I', PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY),
