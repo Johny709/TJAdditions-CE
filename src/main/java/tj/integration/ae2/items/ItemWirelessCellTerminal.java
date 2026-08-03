@@ -88,7 +88,7 @@ public class ItemWirelessCellTerminal extends ToolWirelessTerminal implements It
         final ObjectReference<String> searchName = new ObjectReference<>("");
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 300)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setItemLabel(TJItems.PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
+                        .setItemLabel(TJItems.PART_CELL_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
                         .setLocale("item.me.part.cell_terminal.name"))
                 .widget(new NewTextFieldWidget<>(7, 6, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())

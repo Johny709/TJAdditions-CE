@@ -81,7 +81,7 @@ public class TJItems {
         WIRELESS_CELL_TERMINAL = registerItem(registry, item -> new ItemDefinition("me.wireless_cell_terminal", new ItemWirelessCellTerminal()));
         WIRELESS_STORAGE_BUS_TERMINAL = registerItem(registry, item -> new ItemDefinition("me.wireless_storage_bus_terminal", new ItemWirelessStorageBusTerminal()));
         WIRELESS_SUPER_FLUID_INTERFACE_TERMINAL = registerItem(registry, item -> new ItemDefinition("me.wireless_super_fluid_interface_terminal", new ItemWirelessSuperFluidInterfaceTerminal()));
-        WIRELESS_STORAGE_BUS_TERMINAL = registerItem(registry, item -> new ItemDefinition("me.wireless_fluid_storage_bus_terminal", new ItemWirelessFluidStorageBusTerminal()));
+        WIRELESS_FLUID_STORAGE_BUS_TERMINAL = registerItem(registry, item -> new ItemDefinition("me.wireless_fluid_storage_bus_terminal", new ItemWirelessFluidStorageBusTerminal()));
 
         PART_SUPER_INTERFACE = registerItem(registry, item -> new ItemDefinition("me.part.super_interface", new ItemPartSuperInterface()));
         PART_SUPER_FLUID_INTERFACE = registerItem(registry, item -> new ItemDefinition("me.part.super_fluid_interface", new ItemPartSuperFluidInterface()));

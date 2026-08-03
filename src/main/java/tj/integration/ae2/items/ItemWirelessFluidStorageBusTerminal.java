@@ -116,7 +116,7 @@ public class ItemWirelessFluidStorageBusTerminal extends ToolWirelessTerminal im
     public static ModularUI createFluidStorageBusTerminalGUI(IUIHolder holder, EntityPlayer player, IGridNode gridNode, ISuperFluidInterfaceTerminal superInterfaceTerminal) {
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 300)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setItemLabel(TJItems.PART_STORAGE_BUS_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
+                        .setItemLabel(TJItems.PART_FLUID_STORAGE_BUS_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY))
                         .setLocale("item.me.part.fluid_storage_bus_terminal.name"))
                 .widget(new ImageWidget(-22, 0, 4, 55, GuiTextures.BORDERED_BACKGROUND)) // to move JEI GUI out of the way for tabs
                 .widget(new WidgetTabBuilder()

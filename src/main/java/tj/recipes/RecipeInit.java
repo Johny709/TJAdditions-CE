@@ -362,6 +362,26 @@ public class RecipeInit {
         ModHandler.addShapelessRecipe("tj_interface_terminal_2", Api.INSTANCE.definitions().parts().interfaceTerminal().maybeStack(1).orElse(ItemStack.EMPTY), PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY));
         ModHandler.addShapelessRecipe("tj_cell_terminal", PART_CELL_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), TJItemUtils.getItemStackFromName("cellterminal:cell_terminal"));
         ModHandler.addShapelessRecipe("tj_cell_terminal_2", TJItemUtils.getItemStackFromName("cellterminal:cell_terminal"), PART_CELL_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapedRecipe("tj_super_interface_terminal", WIRELESS_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), " R ", " I ", " C ",
+                'R', Api.INSTANCE.definitions().materials().wirelessReceiver().maybeStack(1).orElse(ItemStack.EMPTY),
+                'I', PART_SUPER_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY),
+                'C', aeBlocks.energyCellDense().maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapedRecipe("tj_cell_terminal", WIRELESS_CELL_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), " R ", " I ", " C ",
+                'R', Api.INSTANCE.definitions().materials().wirelessReceiver().maybeStack(1).orElse(ItemStack.EMPTY),
+                'C', aeBlocks.energyCellDense().maybeStack(1).orElse(ItemStack.EMPTY),
+                'I', PART_CELL_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapedRecipe("tj_storage_bus_terminal", WIRELESS_STORAGE_BUS_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), " R ", " I ", " C ",
+                'R', Api.INSTANCE.definitions().materials().wirelessReceiver().maybeStack(1).orElse(ItemStack.EMPTY),
+                'C', aeBlocks.energyCellDense().maybeStack(1).orElse(ItemStack.EMPTY),
+                'I', PART_STORAGE_BUS_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapedRecipe("tj_super_fluid_interface_terminal", WIRELESS_SUPER_FLUID_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), " R ", " I ", " C ",
+                'R', Api.INSTANCE.definitions().materials().wirelessReceiver().maybeStack(1).orElse(ItemStack.EMPTY),
+                'I', PART_SUPER_FLUID_INTERFACE_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY),
+                'C', aeBlocks.energyCellDense().maybeStack(1).orElse(ItemStack.EMPTY));
+        ModHandler.addShapedRecipe("tj_fluid_storage_bus_terminal", WIRELESS_FLUID_STORAGE_BUS_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY), " R ", " I ", " C ",
+                'R', Api.INSTANCE.definitions().materials().wirelessReceiver().maybeStack(1).orElse(ItemStack.EMPTY),
+                'I', PART_FLUID_STORAGE_BUS_TERMINAL.maybeStack(1).orElse(ItemStack.EMPTY),
+                'C', aeBlocks.energyCellDense().maybeStack(1).orElse(ItemStack.EMPTY));
         for (int i = 0; i < 2; i++) {
             ModHandler.addShapedRecipe("charcoal_pit." + i, i == 0 ? CHARCOAL_PIT.getStackForm() : CHARCOAL_PIT_ADVANCED.getStackForm(), "PRP", "PHP", "FFF",
                     'H', i == 0 ? MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.BRONZE_BRICKS_HULL) : MetaBlocks.MACHINE_CASING.getItemVariant(BlockMachineCasing.MachineCasingType.STEEL_BRICKS_HULL),
