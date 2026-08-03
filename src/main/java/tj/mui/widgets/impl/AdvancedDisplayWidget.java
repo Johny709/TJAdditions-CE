@@ -34,6 +34,7 @@ import tj.util.TextUtils;
 import tj.util.consumers.QuadConsumer;
 
 import javax.annotation.Nonnull;
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,22 +50,21 @@ import java.util.stream.Stream;
  */
 public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
 
-    protected int maxWidthLimit;
-
-    @SideOnly(Side.CLIENT)
-    private WrapScreen wrapScreen;
-
     private final List<QuadConsumer<String, String, ClickData, EntityPlayer>> clickHandlers = new ArrayList<>();
     private final Consumer<GUIDisplayBuilder> textSupplier;
     private final int color;
 
     private List<TextComponentWrapper<?>> displayText = new ArrayList<>();
     private List<TextComponentWrapper<?>> hoverDisplayText;
+    private BiConsumer<String, ClickData> clickHandler;
+    private String textId;
+    private int maxWidthLimit;
     private int lastHoverX;
     private int lastHoverY;
     private int tick;
-    private BiConsumer<String, ClickData> clickHandler;
-    private String textId;
+
+    @SideOnly(Side.CLIENT)
+    private WrapScreen wrapScreen;
 
     public AdvancedDisplayWidget(int x, int y, Consumer<GUIDisplayBuilder> textSupplier, int color) {
         super(new Position(x, y), Size.ZERO);
@@ -95,17 +95,6 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     public AdvancedDisplayWidget setTextId(String textId) {
         this.textId = textId;
         return this;
-    }
-
-    public String getTextId() {
-        return this.textId;
-    }
-
-    @SideOnly(Side.CLIENT)
-    private WrapScreen getWrapScreen() {
-        if (wrapScreen == null)
-            wrapScreen = new WrapScreen();
-        return wrapScreen;
     }
 
     @SideOnly(Side.CLIENT)
@@ -437,6 +426,22 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
             TextComponentWrapper<?> subComponent = (TextComponentWrapper<?>) component.getValue();
             this.getWrapScreen().handleComponentHover((ITextComponent) subComponent.getValue(), mouseX, mouseY);
         }
+    }
+
+    @Override
+    public Rectangle toRectangleBox() {
+        return new Rectangle(this.getPosition().getX(), this.getPosition().getY(), this.maxWidthLimit, this.getSize().getHeight());
+    }
+
+    public String getTextId() {
+        return this.textId;
+    }
+
+    @SideOnly(Side.CLIENT)
+    private WrapScreen getWrapScreen() {
+        if (this.wrapScreen == null)
+            this.wrapScreen = new WrapScreen();
+        return this.wrapScreen;
     }
 
     @SideOnly(Side.CLIENT)
