@@ -1,13 +1,18 @@
 package tj.integration.ae2.part;
 
-import appeng.parts.reporting.PartInterfaceTerminal;
+import appeng.api.parts.IPartModel;
+import appeng.items.parts.PartModels;
+import appeng.parts.PartModel;
+import appeng.parts.reporting.AbstractPartDisplay;
 import appeng.tile.networking.TileCableBus;
 import gregtech.api.gui.ModularUI;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
+import tj.TJ;
 import tj.integration.ae2.ISuperInterfaceTerminal;
 import tj.integration.ae2.items.ItemWirelessSuperInterfaceTerminal;
 import tj.integration.ae2.tile.*;
@@ -15,10 +20,21 @@ import tj.mui.uifactory.ITileEntityUI;
 import tj.mui.uifactory.TileEntityHolder;
 import tj.mui.widgets.impl.AEGhostItemListWidget;
 
+import javax.annotation.Nonnull;
 import java.util.function.LongUnaryOperator;
 
 
-public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements ITileEntityUI, ISuperInterfaceTerminal {
+public class PartSuperInterfaceTerminal extends AbstractPartDisplay implements ITileEntityUI, ISuperInterfaceTerminal {
+
+    @PartModels
+    public static final ResourceLocation MODEL_OFF = new ResourceLocation(TJ.MODID, "part/me.part.super_interface_terminal_off");
+
+    @PartModels
+    public static final ResourceLocation MODEL_ON = new ResourceLocation(TJ.MODID, "part/me.part.super_interface_terminal_on");
+
+    public static final IPartModel MODELS_OFF = new PartModel(MODEL_BASE, MODEL_OFF, MODEL_STATUS_OFF);
+    public static final IPartModel MODELS_ON = new PartModel(MODEL_BASE, MODEL_ON, MODEL_STATUS_ON);
+    public static final IPartModel MODELS_HAS_CHANNEL = new PartModel(MODEL_BASE, MODEL_ON, MODEL_STATUS_HAS_CHANNEL);
 
     public PartSuperInterfaceTerminal(ItemStack is) {
         super(is);
@@ -52,5 +68,11 @@ public class PartSuperInterfaceTerminal extends PartInterfaceTerminal implements
     @Override
     public int getItemStackSize(AEGhostItemListWidget<?> ghostItemListWidget) {
         return ghostItemListWidget.getItemAt(ghostItemListWidget.getSelectedIndex(), true).getCount();
+    }
+
+    @Nonnull
+    @Override
+    public IPartModel getStaticModels() {
+        return this.selectModel(MODELS_OFF, MODELS_ON, MODELS_HAS_CHANNEL);
     }
 }
