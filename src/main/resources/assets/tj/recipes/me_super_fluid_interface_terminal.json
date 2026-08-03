@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "type": "forge:ore_dict",
+      "ore": "itemIlluminatedPanel"
+    },
+    {
+      "item": "appliedenergistics2:material",
+      "data": 24
+    },
+    [
+      {
+        "item": "tj:me.super_fluid_interface"
+      },
+      {
+        "item": "tj:me.part.super_fluid_interface"
+      }
+    ]
+  ],
+  "result": {
+    "item": "tj:me.part.super_fluid_interface_terminal"
+  }
+}
