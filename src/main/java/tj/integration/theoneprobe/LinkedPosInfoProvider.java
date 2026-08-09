@@ -55,8 +55,8 @@ public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
                     int x = gregEntity != null ? gregEntity.getPos().getX() : entity.getPos().getX();
                     int y = gregEntity != null ? gregEntity.getPos().getY() : entity.getPos().getY();
                     int z = gregEntity != null ? gregEntity.getPos().getZ() : entity.getPos().getZ();
-                    posInfo.text(TextStyleClass.INFO + TextUtils.translate("machine.universal.linked.dimension", worldType.getName(), TJValues.thousandFormat.format(worldID)));
-                    posInfo.text(TextStyleClass.INFO + TextUtils.translate("machine.universal.linked.pos", TJValues.thousandFormat.format(x), TJValues.thousandFormat.format(y), TJValues.thousandFormat.format(z)));
+                    posInfo.text(TextStyleClass.INFO + String.format("{*machine.universal.linked.dimension[*%s;%s*]*}", worldType.getName(), TJValues.thousandFormat.format(worldID)));
+                    posInfo.text(TextStyleClass.INFO + String.format("{*machine.universal.linked.pos[*%s;%s;%s*]*}", TJValues.thousandFormat.format(x), TJValues.thousandFormat.format(y), TJValues.thousandFormat.format(z)));
                 }
             }
         }

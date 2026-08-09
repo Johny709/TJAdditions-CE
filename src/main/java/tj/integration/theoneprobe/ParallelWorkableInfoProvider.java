@@ -44,10 +44,10 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
 
                 final IProbeInfo nameInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                 nameInfo.text(TextStyleClass.INFO + "§b[" + (i + 1) + "]§r ");
-                nameInfo.text(TextStyleClass.INFO + TextUtils.translate("tj.multiblock.parallel.status", (!isWorking ? "§e{*gregtech.multiblock.work_paused*}§r"
-                        : hasProblems ? "§6{*machine.universal.has_problems*}§r"
-                        : isActive ? "§a{*gregtech.multiblock.running*}§r"
-                        : "§7{*gregtech.multiblock.idling*}")));
+                nameInfo.text(TextStyleClass.INFO + String.format("{*tj.multiblock.parallel.status[*%s*]*}", !isWorking ? "{*gregtech.multiblock.work_paused*}"
+                        : hasProblems ? "{*machine.universal.has_problems*}"
+                        : isActive ? "{*gregtech.multiblock.running*}"
+                        : "{*gregtech.multiblock.idling*}"));
 
                 final String displayProgress = String.format("%ss / %ss | ", TJValues.thousandTwoPlaceFormat.format(currentProgress / 20), TJValues.thousandTwoPlaceFormat.format(maxProgress / 20));
                 final IProbeInfo progressInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
@@ -61,7 +61,8 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
                         .filledColor(0xFF000099)
                         .alternateFilledColor(0xFF000077));
                 final IProbeInfo EUtInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                EUtInfo.text(TextStyleClass.INFO + TextUtils.translate("tj.multiblock.eu", TJValues.thousandFormat.format(EUt), tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier]));
+                EUtInfo.text(TextStyleClass.INFO + String.format("{*tj.multiblock.eu[*%s;%s*]*}", TJValues.thousandFormat.format(EUt),
+                        tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier]));
             }
         }
     }

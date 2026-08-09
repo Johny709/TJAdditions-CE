@@ -33,7 +33,7 @@ public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IPara
         final RecipeMap<?> multiblockRecipe = capability.getMultiblockRecipe();
 
         final IProbeInfo controllerInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-        controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.maxeut*}§e " + TJValues.thousandFormat.format(maxEUt) + " §7(" + GAValues.VN[TJUtility.getTierByVoltage(maxEUt)] + "§7)");
+        controllerInfo.text(TextStyleClass.INFO + String.format("{*tj.multiblock.max_voltage[*%s;%s*]*}", TJValues.thousandFormat.format(maxEUt), GAValues.VN[TJUtility.getTierFromVoltage(maxEUt)]));
         if (energyStored > 0 && energyCapacity > 0) {
             final int energyPercent = (int) Math.floor(energyStored / (energyCapacity * 1.0) * 100);
             final String displayEnergy = String.format("%s/%s EU ", TJValues.thousandFormat.format(energyStored), TJValues.thousandFormat.format(energyCapacity));
@@ -48,10 +48,10 @@ public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IPara
         }
         if (energyBonus > 0)
             controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.energy_bonus*}§b " + (100 - energyBonus) + "%");
-        controllerInfo.text(TextStyleClass.INFO + "{*machine.universal.tooltip.voltage_tier*} " + "§7(§a" + GAValues.VN[GAUtility.getTierByVoltage(voltageTier)] + "§7)");
-        controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.energy_consumption*}§e " + TJValues.thousandFormat.format(totalEnergy) + " §7EU/t");
+        controllerInfo.text(TextStyleClass.INFO + String.format("{*machine.universal.tooltip.voltage_tier[*%s*]*}", GAValues.VN[TJUtility.getTierFromVoltage(voltageTier)]));
+        controllerInfo.text(TextStyleClass.INFO + String.format("{*tj.multiblock.parallel.sum[*%s*]*}", TJValues.thousandFormat.format(totalEnergy)));
         if (multiblockRecipe != null)
-            controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.multiblock_recipe*}§6 " + "{*recipemap." + multiblockRecipe.getUnlocalizedName() + ".name*}");
+            controllerInfo.text(TextStyleClass.INFO + String.format("{*tj.multiblock.universal.tooltip.1[*%s*]*}", "{*recipemap." + multiblockRecipe.getUnlocalizedName() + ".name*}"));
     }
 
     @Override

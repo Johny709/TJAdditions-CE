@@ -1028,7 +1028,7 @@ tj.machine.universal.fluid_amount=§7Amount: §3%s L
 tj.machine.universal.item_throughput=§7Item Throughput: §6%s
 tj.machine.universal.fluid_throughput=§7Fluid Throughput: §3%s L
 
-machine.universal.tooltip.voltage_tier=Voltage Tier:
+machine.universal.tooltip.voltage_tier=Voltage Tier: §7(%s§7)
 machine.universal.toggle.run.mode.disabled=§c[OFF]
 machine.universal.toggle.run.mode.enabled=§a[ON]
 machine.universal.toggle.increment.disabled=Increment
@@ -1168,11 +1168,8 @@ machine.steam_boiler.tooltip.cooldown=Cooldown rate §3%d
 
 tj.top.progress.heat=Heat:
 
-tj.top.parallel_controller.maxeut=Max EU/t:
 tj.top.parallel_controller.energy_stored=Energy Stored:
 tj.top.parallel_controller.energy_bonus=Current Energy Usage:
-tj.top.parallel_controller.energy_consumption=Energy Consumption:
-tj.top.parallel_controller.multiblock_recipe=Multiblock Recipe:
 tj.top.inputs=Inputs:
 tj.top.outputs=Outputs:
 

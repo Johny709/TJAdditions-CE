@@ -18,6 +18,11 @@ public abstract class MixinTools {
             final int endFormat = s.indexOf("*]");
             final String middle = s.substring(0, startFormat);
             final String[] format = s.substring(startFormat + 2, endFormat).split(";");
+            for (int i = 0; i < format.length; i++) {
+                if (format[i].contains("{*") && format[i].contains("*}")) {
+                    format[i] = I18n.format(format[i].substring(2, format[i].length() - 2));
+                }
+            }
             return I18n.format(middle, format);
         } else return original.call(s);
     }

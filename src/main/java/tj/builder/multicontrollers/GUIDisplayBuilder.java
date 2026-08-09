@@ -217,10 +217,8 @@ public final class GUIDisplayBuilder {
         if (tier > 0) {
             final String text = tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier] + "§r";
             if (priority != 0) {
-                this.addTextComponent(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
-                        .appendText(" §7(").appendSibling(new TextComponentString(text)).appendText("§7)"), priority);
-            } else this.addTextComponent(new TextComponentTranslation("machine.universal.tooltip.voltage_tier")
-                    .appendText(" §7(").appendSibling(new TextComponentString(text)).appendText("§7)"));
+                this.addTextComponent(new TextComponentTranslation("machine.universal.tooltip.voltage_tier", text), priority);
+            } else this.addTextComponent(new TextComponentTranslation("machine.universal.tooltip.voltage_tier", text));
         }
         return this;
     }
