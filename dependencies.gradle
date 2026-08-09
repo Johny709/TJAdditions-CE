@@ -73,7 +73,7 @@ dependencies {
     implementation("curse.maven:codechickenlib-242818:2779848")
     implementation("curse.maven:CTM-267602:2915363")
     implementation("curse.maven:forestry-59751:6104316")
-    implementation("curse.maven:theoneprobe-245211:2667280")
+    implementation("curse.maven:theoneprobe-885670:7718301")
     implementation("curse.maven:gregicprobe-592190:3686839")
     implementation("curse.maven:baubles-227083:2518667")
     implementation("curse.maven:random-complement-1198138:8025976")
