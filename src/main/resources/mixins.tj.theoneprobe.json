@@ -1,0 +1,13 @@
+{
+  "package": "tj.mixin",
+  "required": true,
+  "refmap": "mixins.tj.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [],
+  "server": [],
+  "client": [
+    "theoneprobe.MixinTools"
+  ]
+}

@@ -20,6 +20,8 @@ public class LateMixinLoader implements ILateMixinLoader {
             configs.add("mixins.tj.ae2.json");
         if (GTValues.isModLoaded("gregicprobe"))
             configs.add("mixins.tj.gregic_probe.json");
+        if (GTValues.isModLoaded("theoneprobe"))
+            configs.add("mixins.tj.theoneprobe.json");
         return configs.build();
     }
 }
