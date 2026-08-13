@@ -307,20 +307,26 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
             this.writeUpdateInfo(3, buffer1 -> buffer1.writeItemStack(finalStack));
         } else if (id == 5) {
             try {
-                final ItemStack heldStack = buffer.readItemStack();
+                ItemStack heldStack = buffer.readItemStack();
                 final int size = buffer.readInt();
                 int remainder = heldStack.getCount() % size;
                 int amountPerSlot = (heldStack.getCount() - remainder) / size;
+                ItemStack stack = heldStack;
                 for (int i = 0; i < size; i++) {
                     final int index = buffer.readInt();
-                    ItemStack stack = buffer.readItemStack();
+                    stack = buffer.readItemStack();
                     stack.setCount(amountPerSlot);
-                    stack = this.itemHandler.insertItem(index, stack, false);
+                    if (size == 1) {
+                        stack = TJItemUtils.insertOrSwap(this.itemHandler, index, stack);
+                    } else stack = this.itemHandler.insertItem(index, stack, false);
                     remainder += stack.getCount();
                 }
                 heldStack.setCount(remainder);
-                this.gui.entityPlayer.inventory.setItemStack(heldStack);
-                this.writeUpdateInfo(3, buffer1 -> buffer1.writeItemStack(heldStack));
+                if (size == 1)
+                    heldStack = stack;
+                ItemStack finalHeldStack = heldStack;
+                this.gui.entityPlayer.inventory.setItemStack(finalHeldStack);
+                this.writeUpdateInfo(3, buffer1 -> buffer1.writeItemStack(finalHeldStack));
             } catch (IOException e) {
                 TJ.logger.info(e.getMessage());
             }

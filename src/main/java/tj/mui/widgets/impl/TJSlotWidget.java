@@ -289,7 +289,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
                         } else return;
                     } else if (this.widgetGroup == null && (this.putItemsPredicate == null || this.putItemsPredicate.test(handStack))) {
                         // if this slot was not added to a slot group then let this slot handle the stack insertion
-                        newStack = this.insert(handStack, false);
+                        newStack = TJItemUtils.insertOrSwap(this.itemHandler, this.slotIndex, handStack);
                     } else return;
                 } else if (button == 1) {
                     if (handStack.isEmpty()) {
