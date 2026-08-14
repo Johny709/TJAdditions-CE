@@ -9,6 +9,7 @@ import org.apache.logging.log4j.util.TriConsumer;
 import tj.TJ;
 
 import java.io.IOException;
+import java.util.List;
 
 
 public class SlotDisplayWidget extends TJSlotWidget<SlotDisplayWidget> {
@@ -25,6 +26,10 @@ public class SlotDisplayWidget extends TJSlotWidget<SlotDisplayWidget> {
         this.onPressed = onPressed;
         return this;
     }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    protected void addToHoverTooltip(List<String> tooltips) {}
 
     @Override
     @SideOnly(Side.CLIENT)

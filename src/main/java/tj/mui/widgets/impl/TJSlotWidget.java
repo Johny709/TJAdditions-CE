@@ -29,6 +29,7 @@ import tj.mui.widgets.ISlotGroup;
 import tj.mui.widgets.ISlotHandler;
 import tj.mui.widgets.TJWidget;
 import tj.util.TJItemUtils;
+import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -119,11 +120,27 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     public void drawInForeground(int mouseX, int mouseY) {
         if (!this.isActive) return;
         if (!this.itemStack.isEmpty() && this.isMouseOverElement(mouseX, mouseY) && this.getItemHandler() != null) {
-            final List<String> tooltip = getItemToolTip(this.itemStack);
+            final List<String> tooltips = getItemToolTip(this.itemStack);
             final String itemStoredText = I18n.format("gregtech.item_list.item_stored", this.itemCount);
-            tooltip.add(TextFormatting.GRAY + itemStoredText);
-            this.drawHoveringText(this.itemStack, tooltip, -1, mouseX, mouseY);
+            tooltips.add(TextFormatting.GRAY + itemStoredText);
+            TooltipHelper.shiftText(tooltips, this::addToHoverTooltip);
+            this.drawHoveringText(this.itemStack, tooltips, -1, mouseX, mouseY);
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    protected void addToHoverTooltip(List<String> tooltips) {
+        tooltips.add(I18n.format("tj.machine.universal.slot.description"));
+        tooltips.add(""); // add empty line
+        tooltips.add(I18n.format("tj.machine.universal.slot.left_click"));
+        tooltips.add(""); // add empty line
+        tooltips.add(I18n.format("tj.machine.universal.slot.left_click_empty"));
+        tooltips.add(""); // add empty line
+        tooltips.add(I18n.format("tj.machine.universal.slot.shift_left_click"));
+        tooltips.add(""); // add empty line
+        tooltips.add(I18n.format("tj.machine.universal.slot.right_click"));
+        tooltips.add(""); // add empty line
+        tooltips.add(I18n.format("tj.machine.universal.slot.middle_click"));
     }
 
     @Override

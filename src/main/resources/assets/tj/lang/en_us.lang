@@ -1027,6 +1027,12 @@ tj.machine.universal.item_amount=§7Amount: §6%s
 tj.machine.universal.fluid_amount=§7Amount: §3%s L
 tj.machine.universal.item_throughput=§7Item Throughput: §6%s
 tj.machine.universal.fluid_throughput=§7Fluid Throughput: §3%s L
+tj.machine.universal.slot.description=§bThis is a TJ slot with it's own capabilities
+tj.machine.universal.slot.left_click=§fLeft-Click§7 with §6item§7 in hand to place in §fslot.§7 If §6item§7 is already occupied in §fslot,§7 it'll be swapped out.
+tj.machine.universal.slot.left_click_empty=§fLeft-Click§7 to extract §6item§7 from §fslot§7 if hand is empty. Extracts up to §664§7 at a time. §fCtrl-Left-Click§7 to extract full amount.
+tj.machine.universal.slot.shift_left_click=§fShift-Left-Click§7 to do automatic item transfer. Transfers up to §664§7 at a time. §fShift-Ctrl-Left-Click§7 to transfer full amount.
+tj.machine.universal.slot.right_click=§fRight-Click§7 on §fslot§7 with §6item§7 to extract half the amount.
+tj.machine.universal.slot.middle_click=§fMiddle-Click§7 on §fslot§7 with §6item§7 to copy. Only works in §dCreative Mode.
 
 machine.universal.tooltip.voltage_tier=Voltage Tier: §7(%s§7)
 machine.universal.toggle.run.mode.disabled=§c[OFF]
