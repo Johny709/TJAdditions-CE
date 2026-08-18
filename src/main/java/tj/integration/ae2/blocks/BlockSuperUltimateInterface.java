@@ -17,6 +17,8 @@ import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import gregtech.api.util.function.BooleanConsumer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -31,6 +33,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.blocks.block.TJBlocks;
@@ -61,8 +65,29 @@ import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStart
 
 public class BlockSuperUltimateInterface extends BlockInterface {
 
+    public static final DualitySuperInterface DUALITY_INSTANCE;
+    public static final DualitySuperFluidInterface FLUID_DUALITY_INSTANCE;
+
+    static {
+        final TileSuperUltimateInterface dualInterface = new TileSuperUltimateInterface();
+        DUALITY_INSTANCE = (DualitySuperInterface) dualInterface.getInterfaceDuality();
+        FLUID_DUALITY_INSTANCE = (DualitySuperFluidInterface) dualInterface.getDualityFluidInterface();
+    }
+
     public BlockSuperUltimateInterface() {
         this.setTileEntity(TileSuperUltimateInterface.class);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack is, World world, List<String> lines, ITooltipFlag advancedItemTooltips) {
+        if (DUALITY_INSTANCE != null && FLUID_DUALITY_INSTANCE != null) {
+            lines.add(I18n.format("tile.me.super_interface.pattern_slots", DUALITY_INSTANCE.getPatterns().getSlots()));
+            lines.add(I18n.format("tile.me.super_interface.storage_slots", DUALITY_INSTANCE.getStorage().getSlots()));
+            lines.add(I18n.format("tile.me.super_interface.upgrade_slots", DUALITY_INSTANCE.getInventoryByName("upgrades").getSlots()));
+            lines.add(I18n.format("tile.me.super_fluid_interface.fluid_tanks", FLUID_DUALITY_INSTANCE.getTanks().getSlots()));
+            lines.add(I18n.format("tile.me.super_fluid_interface.upgrade_slots", FLUID_DUALITY_INSTANCE.getInventoryByName("upgrades").getSlots()));
+        }
     }
 
     @Override
