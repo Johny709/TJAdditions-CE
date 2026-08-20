@@ -171,7 +171,8 @@ public class BlockSuperInterface extends BlockInterface {
                 .widget(selectionWidgetGroup), patternMultiTool, multiUpgradeSlots, duality.getPatterns(), multiPatternSlots, invTag);
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
-                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
+                    .setSlotEnabled(true));
         }
         for (int i = 0; i < duality.getStorage().getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))
@@ -297,12 +298,14 @@ public class BlockSuperInterface extends BlockInterface {
                         .setActiveSupplier(() -> index / 9 <= multiUpgradeSlots.getSlotsFilled())
                         .setSlotLocationInfo(true, false)
                         .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
-                        .setWidgetGroup(multiPatternSlotGroup));
+                        .setWidgetGroup(multiPatternSlotGroup)
+                        .setSlotEnabled(true));
             }
             builder.widget(multiPatternSlotGroup);
             for (int i = 0; i < multiUpgradeSlots.getSlots(); i++) {
                 builder.widget(new TJSlotWidget<>(multiUpgradeSlots, i, -46, 14 + (i * 18))
-                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
+                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
+                        .setSlotEnabled(true));
             }
         }
     }

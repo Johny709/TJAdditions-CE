@@ -91,7 +91,8 @@ public class BlockSuperFluidInterface extends BlockFluidInterface {
         }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
-                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
+                    .setSlotEnabled(true));
         }
         return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(superFluidInterface.getItemStackRepresentation()).setLocale(superFluidInterface.getItemStackRepresentation().getDisplayName()))

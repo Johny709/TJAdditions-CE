@@ -240,7 +240,8 @@ public class BlockSuperDualInterface extends BlockInterface {
         createPatternMultiToolGUI(tab, patternMultiTool, multiUpgradeSlots, duality.getPatterns(), multiPatternSlots, invTag);
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             tab.add(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
-                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
+                    .setSlotEnabled(true));
         }
         for (int i = 0; i < duality.getStorage().getSlots(); i++) {
             tab.add(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))
@@ -309,7 +310,8 @@ public class BlockSuperDualInterface extends BlockInterface {
         }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             tab.add(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
-                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
+                    .setSlotEnabled(true));
         }
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
             tab.add(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
@@ -351,12 +353,14 @@ public class BlockSuperDualInterface extends BlockInterface {
                         .setActiveSupplier(() -> index / 9 <= multiUpgradeSlots.getSlotsFilled())
                         .setSlotLocationInfo(true, false)
                         .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
-                        .setWidgetGroup(multiPatternSlotGroup));
+                        .setWidgetGroup(multiPatternSlotGroup)
+                        .setSlotEnabled(true));
             }
             tab.add(multiPatternSlotGroup);
             for (int i = 0; i < multiUpgradeSlots.getSlots(); i++) {
                 tab.add(new TJSlotWidget<>(multiUpgradeSlots, i, -46, 14 + (i * 18))
-                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
+                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
+                        .setSlotEnabled(true));
             }
         }
     }
