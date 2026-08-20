@@ -52,12 +52,12 @@ import java.util.List;
 
 public class TileSuperUltimateInterface extends TileInterface implements ITileEntityUI, ISuperDualInterface {
 
-    private final DualitySuperFluidInterface dualityFluid = new DualitySuperFluidInterface(this.getProxy(), this, 72);
+    private final DualitySuperFluidInterface dualityFluid = new DualitySuperFluidInterface(this.getProxy(), this, 144);
     private final BlockPos.MutableBlockPos interfacePos = new BlockPos.MutableBlockPos();
     private int tickTime = 100;
 
     public TileSuperUltimateInterface() {
-        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 160, 72, 1152), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 160, 144, 1152), "duality");
         this.getInterfaceDuality().getConfigManager().registerSetting(Settings.PLACE_BLOCK, YesNo.NO);
         this.getInterfaceDuality().getConfigManager().registerSetting(Settings.STICKY_MODE, YesNo.NO);
         this.getDualityFluidInterface().getConfigManager().registerSetting(Settings.PLACE_BLOCK, YesNo.NO);

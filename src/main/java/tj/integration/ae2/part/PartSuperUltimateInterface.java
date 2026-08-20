@@ -70,13 +70,13 @@ public class PartSuperUltimateInterface extends PartInterface implements ITileEn
     @PartModels
     public static final PartModel MODELS_HAS_CHANNEL = new PartModel(MODEL_BASE, new ResourceLocation(TJ.MODID, "part/me.part.super_ultimate_interface_has_channel"));
 
-    private final DualitySuperFluidInterface dualityFluid = new DualitySuperFluidInterface(this.getProxy(), this, 72);
+    private final DualitySuperFluidInterface dualityFluid = new DualitySuperFluidInterface(this.getProxy(), this, 144);
     private final BlockPos.MutableBlockPos interfacePos = new BlockPos.MutableBlockPos();
     private int tickTime = 100;
 
     public PartSuperUltimateInterface(ItemStack is) {
         super(is);
-        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 160, 72, 1152), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 160, 144, 1152), "duality");
         this.getInterfaceDuality().getConfigManager().registerSetting(Settings.PLACE_BLOCK, YesNo.NO);
         this.getInterfaceDuality().getConfigManager().registerSetting(Settings.STICKY_MODE, YesNo.NO);
         this.getDualityFluidInterface().getConfigManager().registerSetting(Settings.PLACE_BLOCK, YesNo.NO);
