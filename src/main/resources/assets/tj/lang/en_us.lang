@@ -1220,6 +1220,7 @@ item.me.part.storage_bus_terminal.name=ME Storage Bus Terminal
 item.me.part.super_fluid_interface_terminal.name=ME Super Fluid Interface Terminal
 item.me.part.fluid_storage_bus_terminal.name=ME Fluid Storage Bus Terminal
 
+tile.me.dual_interface_v2.name=ME Dual Interface V2
 tile.me.super_interface.name=ME Super Interface
 tile.me.super_fluid_interface.name=ME Super Fluid Interface
 tile.me.super_dual_interface.name=ME Super Dual Interface

@@ -19,6 +19,7 @@ public class TJBlocks {
 
     public static final Object2ObjectMap<ResourceLocation, BlockDefinition> TJ_BLOCK_DEFINITION_REGISTRY = new Object2ObjectOpenHashMap<>();
 
+    public static BlockDefinition DUAL_INTERFACE_V2;
     public static BlockDefinition SUPER_INTERFACE;
     public static BlockDefinition SUPER_FLUID_INTERFACE;
     public static BlockDefinition SUPER_DUAL_INTERFACE;
@@ -34,6 +35,7 @@ public class TJBlocks {
     public static BlockDefinition CRAFTING_STORAGE_SINGULARITY;
 
     public static void init(IForgeRegistry<Block> registry) {
+        DUAL_INTERFACE_V2 = registerBlock(registry, "me.dual_interface_v2", new BlockDualInterfaceV2(), AEBaseItemBlock::new);
         SUPER_INTERFACE = registerBlock(registry, "me.super_interface", new BlockSuperInterface(), AEBaseItemBlock::new);
         SUPER_FLUID_INTERFACE = registerBlock(registry, "me.super_fluid_interface", new BlockSuperFluidInterface(), AEBaseItemBlock::new);
         SUPER_DUAL_INTERFACE = registerBlock(registry, "me.super_dual_interface", new BlockSuperDualInterface(), AEBaseItemBlock::new);
@@ -48,6 +50,7 @@ public class TJBlocks {
         CRAFTING_STORAGE_1048M = registerBlock(registry, "me.crafting_storage.1048m", new BlockTJCraftingUnit(BlockTJCraftingUnit.TJCraftingUnitType.STORAGE_1048M));
         CRAFTING_STORAGE_SINGULARITY = registerBlock(registry, "me.crafting_storage.singularity", new BlockTJCraftingUnit(BlockTJCraftingUnit.TJCraftingUnitType.STORAGE_SINGULARITY));
 
+        GameRegistry.registerTileEntity(TileDualInterfaceV2.class, new ResourceLocation(TJ.MODID, "me.dual_interface_v2"));
         GameRegistry.registerTileEntity(TileSuperInterface.class, new ResourceLocation(TJ.MODID, "me.super_interface"));
         GameRegistry.registerTileEntity(TileSuperFluidInterface.class, new ResourceLocation(TJ.MODID, "me.super_fluid_interface"));
         GameRegistry.registerTileEntity(TileSuperDualInterface.class, new ResourceLocation(TJ.MODID, "me.super_dual_interface"));

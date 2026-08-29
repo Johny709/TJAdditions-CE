@@ -64,6 +64,7 @@ public class ClientProxy extends CommonProxy {
             final IBakedModel model = modelRegistry.getObject(modelResourceLocation);
             if (model == missingModel) continue; // Don't customize the missing model. This causes Forge to swallow exceptions
             switch (modelResourceLocation.getPath()) {
+                case "me.dual_interface_v2":
                 case "me.super_interface":
                 case "me.super_dual_interface":
                 case "me.pattern_interface":
