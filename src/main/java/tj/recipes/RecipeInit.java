@@ -28,7 +28,16 @@ import gregtech.loaders.recipe.CraftingComponent;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.registries.IForgeRegistry;
+import tj.TJ;
 import tj.blocks.*;
+import tj.blocks.block.TJBlocks;
+import tj.items.item.TJItems;
 import tj.machines.TJMetaTileEntities;
 import tj.recipes.ct.*;
 import tj.util.TJItemUtils;
@@ -50,20 +59,121 @@ import static tj.items.item.TJItems.*;
 import static tj.machines.TJMetaTileEntities.*;
 import static tj.materials.TJMaterials.MATERIAL_TIER;
 
-public class RecipeInit {
+public final class RecipeInit {
 
     public static MetaTileEntityAirCollector[] AIR_COLLECTORS = {MetaTileEntities.AIR_COLLECTOR[3], AIR_COLLECTOR[4], AIR_COLLECTOR[5]};
 
     public static void init() {
-
         craftingRecipes();
         GreenhouseRecipes.init();
         AssemblerRecipes.init();
         AssemblyLineRecipes.init();
         RockBreakerRecipes.init();
         CokeOvenRecipes.init();
-
     }
+
+    public static void register(IForgeRegistry<IRecipe> recipes) {
+        // ME super interface
+        recipes.register(new ShapelessRecipes(resource("me.super_interface.block").toString(),
+                TJBlocks.SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJItems.PART_SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.super_interface.block")));
+        recipes.register(new ShapelessRecipes(resource("me.super_interface.part").toString(),
+                TJItems.PART_SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJBlocks.SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.super_interface.part")));
+        // ME super fluid interface
+        recipes.register(new ShapelessRecipes(resource("me.super_fluid_interface.block").toString(),
+                TJBlocks.SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJItems.PART_SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.super_fluid_interface.block")));
+        recipes.register(new ShapelessRecipes(resource("me.super_fluid_interface.part").toString(),
+                TJItems.PART_SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJBlocks.SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.super_fluid_interface.part")));
+        // ME super dual interface
+        recipes.register(new ShapelessRecipes(resource("me.super_dual_interface.block").toString(),
+                TJBlocks.SUPER_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJItems.PART_SUPER_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.super_dual_interface.block")));
+        recipes.register(new ShapelessRecipes(resource("me.super_dual_interface.part").toString(),
+                TJItems.PART_SUPER_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJBlocks.SUPER_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.super_dual_interface.part")));
+        recipes.register(new ShapelessRecipes(resource("me.super_dual_interface").toString(),
+                TJBlocks.SUPER_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJBlocks.SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                                TJItems.PART_SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY)),
+                        Ingredient.fromStacks(TJBlocks.SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                                TJItems.PART_SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.super_dual_interface")));
+        // ME stocking interface
+        recipes.register(new ShapelessRecipes(resource("me.stocking_inteface.block").toString(),
+                TJBlocks.STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJItems.PART_STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.stocking_interface.block")));
+        recipes.register(new ShapelessRecipes(resource("me.stocking_interface.part").toString(),
+                TJItems.PART_STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJBlocks.STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.stocking_interface.part")));
+        // ME stocking fluid interface
+        recipes.register(new ShapelessRecipes(resource("me.stocking_fluid_interface.block").toString(),
+                TJBlocks.STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJItems.PART_STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.stocking_fluid_interface.block")));
+        recipes.register(new ShapelessRecipes(resource("me.stocking_fluid_interface.part").toString(),
+                TJItems.PART_STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJBlocks.STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.stocking_fluid_interface.part")));
+        // ME stocking dual interface
+        recipes.register(new ShapelessRecipes(resource("me.stocking_dual_interface.block").toString(),
+                TJBlocks.STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJItems.PART_STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.stocking_dual_interface.block")));
+        recipes.register(new ShapelessRecipes(resource("me.stocking_dual_interface.part").toString(),
+                TJItems.PART_STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJBlocks.STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.stocking_dual_interface.part")));
+        recipes.register(new ShapelessRecipes(resource("me.stocking_dual_inteface").toString(),
+                TJBlocks.STOCKING_DUAL_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJBlocks.STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                                TJItems.PART_STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY)),
+                        Ingredient.fromStacks(TJBlocks.STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                                TJItems.PART_STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.stocking_dual_interface")));
+        // ME pattern interface
+        recipes.register(new ShapelessRecipes(resource("me.pattern_interface.block").toString(),
+                TJBlocks.PATTERN_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJItems.PART_PATTERN_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.pattern_interface.block")));
+        recipes.register(new ShapelessRecipes(resource("me.pattern_interface.part").toString(),
+                TJItems.PART_PATTERN_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJBlocks.PATTERN_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.pattern_interface.part")));
+        // ME super ultimate interface
+        recipes.register(new ShapelessRecipes(resource("me.super_ultimate_interface.block").toString(),
+                TJBlocks.SUPER_ULTIMATE_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJItems.PART_SUPER_ULTIMATE_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.super_ultimate_interface.block")));
+        recipes.register(new ShapelessRecipes(resource("me.super_ultimate_interface.part").toString(),
+                TJItems.PART_SUPER_ULTIMATE_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJBlocks.SUPER_ULTIMATE_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName("me.super_ultimate_interface.part"));
+        // ME dual interface v2
+        recipes.register(new ShapelessRecipes(resource("me.dual_interface_v2.block").toString(),
+                TJBlocks.DUAL_INTERFACE_V2.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJItems.PART_DUAL_INTERFACE_V2.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.dual_interface_v2.block")));
+        recipes.register(new ShapelessRecipes(resource("me.dual_interface_v2.part").toString(),
+                TJItems.PART_DUAL_INTERFACE_V2.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJBlocks.DUAL_INTERFACE_V2.maybeStack(1).orElse(ItemStack.EMPTY))))
+                .setRegistryName(resource("me.dual_interface_v2.part")));
+        recipes.register(new ShapelessRecipes(resource("me.dual_interface_v2").toString(),
+                TJBlocks.DUAL_INTERFACE_V2.maybeStack(1).orElse(ItemStack.EMPTY),
+                NonNullList.from(Ingredient.EMPTY, Ingredient.fromStacks(TJItemUtils.getItemStackFromName("ae2fc:dual_interface"))))
+                .setRegistryName(resource("me.dual_interface_v2")));
+    }
+
     private static void craftingRecipes() {
         final ApiBlocks aeBlocks = Api.INSTANCE.definitions().blocks();
         final ItemStack[] aeCellParts = {MATERIAL_ITEM_CELL_65536K.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_262144K.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_1048M.maybeStack(1).orElse(null), MATERIAL_ITEM_CELL_DIGITAL_SINGULARITY.maybeStack(1).orElse(null),
@@ -576,5 +686,9 @@ public class RecipeInit {
             case 14: return isOutput ? MetaTileEntities.ENERGY_OUTPUT_HATCH[9].getStackForm() : MetaTileEntities.ENERGY_INPUT_HATCH[9].getStackForm();
             default: return isOutput ? MetaTileEntities.ENERGY_OUTPUT_HATCH[0].getStackForm() : MetaTileEntities.ENERGY_INPUT_HATCH[0].getStackForm();
         }
+    }
+
+    static ResourceLocation resource(String path) {
+        return new ResourceLocation(TJ.MODID, path);
     }
 }

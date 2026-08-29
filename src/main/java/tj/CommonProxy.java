@@ -70,6 +70,7 @@ public class CommonProxy {
     @SubscribeEvent
     public static void registerRecipes(RegistryEvent.Register<IRecipe> event) {
         RecipeInit.init();
+        RecipeInit.register(event.getRegistry());
     }
 
     @SubscribeEvent
