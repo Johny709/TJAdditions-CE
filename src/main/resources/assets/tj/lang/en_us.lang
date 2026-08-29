@@ -1205,6 +1205,7 @@ item.me.wireless_storage_bus_terminal.name=Wireless Storage Bus Terminal
 item.me.wireless_super_fluid_interface_terminal.name=Wireless Super Fluid Interface Terminal
 item.me.wireless_fluid_storage_bus_terminal.name=Wireless Fluid Storage Bus Terminal
 
+item.me.part.dual_interface_v2.name=ME Dual Interface V2
 item.me.part.super_interface.name=ME Super Interface
 item.me.part.super_fluid_interface.name=ME Super Fluid Interface
 item.me.part.super_dual_interface.name=ME Super Dual Interface
@@ -1229,6 +1230,12 @@ tile.me.stocking_interface.name=ME Stocking Interface
 tile.me.stocking_fluid_interface.name=ME Stocking Fluid Interface
 tile.me.stocking_dual_interface.name=ME Stocking Dual Interface
 tile.me.super_ultimate_interface.name=ME Super Ultimate Interface
+
+tile.me.super_interface.pattern_slots=Pattern Slots: §a%,d
+tile.me.super_interface.storage_slots=Storage Slots: §6%,d
+tile.me.super_interface.upgrade_slots=Upgrade Slots: §e%,d
+tile.me.super_fluid_interface.fluid_tanks=Fluid Tanks: §b%,d
+tile.me.super_fluid_interface.upgrade_slots=Fluid Upgrade Slots: §e%,d
 
 tile.me.crafting_storage.65536k.name=§165536k§f Crafting Storage
 tile.me.crafting_storage.262144k.name=§b262144k§f Crafting Storage
