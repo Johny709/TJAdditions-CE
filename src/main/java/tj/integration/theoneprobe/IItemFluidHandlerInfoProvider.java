@@ -1,10 +1,8 @@
 package tj.integration.theoneprobe;
 
-import gregtech.api.util.TextFormattingUtil;
 import gregtech.integration.theoneprobe.provider.CapabilityInfoProvider;
 import mcjty.theoneprobe.api.ElementAlignment;
 import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.TextStyleClass;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -13,6 +11,7 @@ import net.minecraftforge.fluids.FluidStack;
 import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 import tj.integration.theoneprobe.impl.ElementFluidStack;
+import tj.integration.theoneprobe.impl.ElementTJText;
 
 import java.util.List;
 
@@ -31,7 +30,7 @@ public class IItemFluidHandlerInfoProvider extends CapabilityInfoProvider<IItemF
         final List<FluidStack> fluidOutputs = capability.getFluidOutputs();
         if (fluidInputs != null && !fluidInputs.isEmpty() || itemInputs != null && !itemInputs.isEmpty()) {
             final IProbeInfo inputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-            inputInfo.text(TextStyleClass.INFO + "{*tj.top.inputs*} ");
+            inputInfo.element(new ElementTJText("{*tj.top.inputs*}"));
             if (fluidInputs != null && !fluidInputs.isEmpty()) {
                 for (FluidStack fluid : fluidInputs) {
                     if (fluid == null) continue;
@@ -47,7 +46,7 @@ public class IItemFluidHandlerInfoProvider extends CapabilityInfoProvider<IItemF
         }
         if (fluidOutputs != null && !fluidOutputs.isEmpty() || itemOutputs != null && !itemOutputs.isEmpty()) {
             final IProbeInfo outputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-            outputInfo.text(TextStyleClass.INFO + "{*tj.top.outputs*} ");
+            outputInfo.element(new ElementTJText("{*tj.top.outputs*}"));
             if (fluidOutputs != null && !fluidOutputs.isEmpty()) {
                 for (FluidStack fluid : fluidOutputs) {
                     if (fluid == null) continue;

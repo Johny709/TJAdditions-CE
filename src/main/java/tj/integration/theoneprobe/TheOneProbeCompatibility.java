@@ -3,13 +3,16 @@ package tj.integration.theoneprobe;
 import mcjty.theoneprobe.TheOneProbe;
 import mcjty.theoneprobe.api.ITheOneProbe;
 import tj.integration.theoneprobe.impl.ElementFluidStack;
+import tj.integration.theoneprobe.impl.ElementTJText;
 
 public class TheOneProbeCompatibility {
 
     public static int ELEMENT_FLUIDSTACK;
+    public static int ELEMENT_TJ_TEXT;
 
     public static void registerElements() {
         ELEMENT_FLUIDSTACK = TheOneProbe.theOneProbeImp.registerElementFactory(ElementFluidStack::new);
+        ELEMENT_TJ_TEXT = TheOneProbe.theOneProbeImp.registerElementFactory(ElementTJText::new);
     }
 
     public static void registerCompatibility() {

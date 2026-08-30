@@ -14,7 +14,8 @@ import net.minecraftforge.common.capabilities.Capability;
 import tj.TJValues;
 import tj.capability.LinkEntity;
 import tj.capability.TJCapabilities;
-import tj.util.TextUtils;
+import tj.integration.theoneprobe.impl.ElementTJText;
+
 
 public class LinkEntityInfoProvider extends CapabilityInfoProvider<LinkEntity> {
 
@@ -25,29 +26,29 @@ public class LinkEntityInfoProvider extends CapabilityInfoProvider<LinkEntity> {
 
     @Override
     protected void addProbeInfo(LinkEntity capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
-        int pageIndex = capability.getPageIndex();
-        int pageSize = capability.getPageSize();
-        int size = capability.getPosSize();
+        final int pageIndex = capability.getPageIndex();
+        final int pageSize = capability.getPageSize();
+        final int size = capability.getPosSize();
 
-        IProbeInfo pageInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+        final IProbeInfo pageInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
         pageInfo.text(TextStyleClass.INFO + "§b(" +(pageIndex + 1) + "/" + size + ")");
 
         for (int i = pageIndex; i < pageIndex + pageSize && i < size; i++) {
-            WorldServer world = capability.isInterDimensional() ? DimensionManager.getWorld(capability.getDimension(i)) : (WorldServer) capability.world();
-            DimensionType worldType = world.provider.getDimensionType();
-            int worldID = world.provider.getDimension();
-            Entity entity = capability.getEntity(i);
+            final WorldServer world = capability.isInterDimensional() ? DimensionManager.getWorld(capability.getDimension(i)) : (WorldServer) capability.world();
+            final DimensionType worldType = world.provider.getDimensionType();
+            final int worldID = world.provider.getDimension();
+            final Entity entity = capability.getEntity(i);
             if (entity != null) {
 
-                IProbeInfo nameInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+                final IProbeInfo nameInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                 nameInfo.text(TextStyleClass.INFO + "§b[" + (i + 1) + "]§r ");
 
-                IProbeInfo entityInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+                final IProbeInfo entityInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                 entityInfo.text(TextStyleClass.INFO + (entity.hasCustomName() ? entity.getCustomNameTag() : entity.getName()));
 
-                IProbeInfo posInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                posInfo.text(TextStyleClass.INFO + String.format("{*machine.universal.linked.dimension[*%s;%s*]*}", worldType.getName(), TJValues.thousandFormat.format(worldID)));
-                posInfo.text(TextStyleClass.INFO + String.format("{*machine.universal.linked.pos[*%s;%s;%s*]*}", TJValues.thousandFormat.format(entity.posX), TJValues.thousandFormat.format(entity.posY), TJValues.thousandFormat.format(entity.posZ)));
+                final IProbeInfo posInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+                posInfo.element(new ElementTJText(TextStyleClass.INFO + String.format("{*machine.universal.linked.dimension[*%s;%s*]*}", worldType.getName(), TJValues.thousandFormat.format(worldID))));
+                posInfo.element(new ElementTJText(TextStyleClass.INFO + String.format("{*machine.universal.linked.pos[*%s;%s;%s*]*}", TJValues.thousandFormat.format(entity.posX), TJValues.thousandFormat.format(entity.posY), TJValues.thousandFormat.format(entity.posZ))));
             }
         }
     }

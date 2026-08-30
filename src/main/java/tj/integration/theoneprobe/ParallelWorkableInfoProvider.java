@@ -11,8 +11,8 @@ import net.minecraftforge.common.capabilities.Capability;
 import tj.TJValues;
 import tj.capability.IMultipleWorkable;
 import tj.capability.TJCapabilities;
+import tj.integration.theoneprobe.impl.ElementTJText;
 import tj.util.TJUtility;
-import tj.util.TextUtils;
 
 
 public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultipleWorkable> {
@@ -44,14 +44,14 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
 
                 final IProbeInfo nameInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                 nameInfo.text(TextStyleClass.INFO + "§b[" + (i + 1) + "]§r ");
-                nameInfo.text(TextStyleClass.INFO + String.format("{*tj.multiblock.parallel.status[*%s*]*}", !isWorking ? "{*gregtech.multiblock.work_paused*}"
+                nameInfo.element(new ElementTJText(String.format("{*tj.multiblock.parallel.status[*%s*]*}", !isWorking ? "{*gregtech.multiblock.work_paused*}"
                         : hasProblems ? "{*machine.universal.has_problems*}"
                         : isActive ? "{*gregtech.multiblock.running*}"
-                        : "{*gregtech.multiblock.idling*}"));
+                        : "{*gregtech.multiblock.idling*}")));
 
                 final String displayProgress = String.format("%ss / %ss | ", TJValues.thousandTwoPlaceFormat.format(currentProgress / 20), TJValues.thousandTwoPlaceFormat.format(maxProgress / 20));
                 final IProbeInfo progressInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                progressInfo.text(TextStyleClass.INFO + "{*gregtech.top.progress*} ");
+                progressInfo.element(new ElementTJText("{*gregtech.top.progress*}"));
                 progressInfo.progress(progressScaled, 100, probeInfo.defaultProgressStyle()
                         .width((int) (displayProgress.length() * 6.2))
                         .prefix(displayProgress)
@@ -61,8 +61,8 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
                         .filledColor(0xFF000099)
                         .alternateFilledColor(0xFF000077));
                 final IProbeInfo EUtInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                EUtInfo.text(TextStyleClass.INFO + String.format("{*tj.multiblock.eu[*%s;%s*]*}", TJValues.thousandFormat.format(EUt),
-                        tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier]));
+                EUtInfo.element(new ElementTJText(String.format("{*tj.multiblock.eu[*%s;%s*]*}", TJValues.thousandFormat.format(EUt),
+                        tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier])));
             }
         }
     }

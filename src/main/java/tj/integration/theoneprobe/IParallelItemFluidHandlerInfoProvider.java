@@ -4,7 +4,6 @@ import gregtech.integration.theoneprobe.provider.CapabilityInfoProvider;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import mcjty.theoneprobe.api.ElementAlignment;
 import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.TextStyleClass;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -13,6 +12,7 @@ import net.minecraftforge.fluids.FluidStack;
 import tj.capability.IParallelItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 import tj.integration.theoneprobe.impl.ElementFluidStack;
+import tj.integration.theoneprobe.impl.ElementTJText;
 
 import java.util.List;
 
@@ -51,7 +51,7 @@ public class IParallelItemFluidHandlerInfoProvider extends CapabilityInfoProvide
             }
             if (!areInputsEmpty) {
                 final IProbeInfo inputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                inputInfo.text(TextStyleClass.INFO + "{*tj.top.inputs*} ");
+                inputInfo.element(new ElementTJText("{*tj.top.inputs*}"));
                 if (fluidInputs != null && !fluidInputs.isEmpty()) {
                     for (Int2ObjectMap.Entry<List<FluidStack>> entry : fluidInputs.int2ObjectEntrySet()) {
                         if (entry.getValue() == null) continue;
@@ -94,7 +94,7 @@ public class IParallelItemFluidHandlerInfoProvider extends CapabilityInfoProvide
             }
             if (!areOutputsEmpty) {
                 final IProbeInfo outputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                outputInfo.text(TextStyleClass.INFO + "{*tj.top.outputs*} ");
+                outputInfo.element(new ElementTJText("{*tj.top.outputs*}"));
                 if (fluidOutputs != null && !fluidOutputs.isEmpty()) {
                     for (Int2ObjectMap.Entry<List<FluidStack>> entry : fluidOutputs.int2ObjectEntrySet()) {
                         if (entry.getValue() == null) continue;

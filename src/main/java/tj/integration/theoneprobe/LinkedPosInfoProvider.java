@@ -17,7 +17,8 @@ import net.minecraftforge.common.capabilities.Capability;
 import tj.TJValues;
 import tj.capability.LinkPos;
 import tj.capability.TJCapabilities;
-import tj.util.TextUtils;
+import tj.integration.theoneprobe.impl.ElementTJText;
+
 
 public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
 
@@ -28,35 +29,35 @@ public class LinkedPosInfoProvider extends CapabilityInfoProvider<LinkPos> {
 
     @Override
     protected void addProbeInfo(LinkPos capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing enumFacing) {
-        int pageIndex = capability.getPageIndex();
-        int pageSize = capability.getPageSize();
-        int size = capability.getPosSize();
+        final int pageIndex = capability.getPageIndex();
+        final int pageSize = capability.getPageSize();
+        final int size = capability.getPosSize();
 
-        IProbeInfo pageInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+        final IProbeInfo pageInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
         pageInfo.text(TextStyleClass.INFO + "§b(" +(pageIndex + 1) + "/" + size + ")");
 
         for (int i = pageIndex; i < pageIndex + pageSize && i < size; i++) {
-            WorldServer world = capability.isInterDimensional() ? DimensionManager.getWorld(capability.getDimension(i)) : (WorldServer) capability.world();
-            DimensionType worldType = world.provider.getDimensionType();
-            int worldID = world.provider.getDimension();
-            BlockPos pos = capability.getPos(i);
+            final WorldServer world = capability.isInterDimensional() ? DimensionManager.getWorld(capability.getDimension(i)) : (WorldServer) capability.world();
+            final DimensionType worldType = world.provider.getDimensionType();
+            final int worldID = world.provider.getDimension();
+            final BlockPos pos = capability.getPos(i);
             if (pos != null) {
-                TileEntity entity = world.getTileEntity(pos);
-                MetaTileEntity gregEntity = BlockMachine.getMetaTileEntity(world, pos);
+                final TileEntity entity = world.getTileEntity(pos);
+                final MetaTileEntity gregEntity = BlockMachine.getMetaTileEntity(world, pos);
 
-                IProbeInfo nameInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+                final IProbeInfo nameInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                 nameInfo.text(TextStyleClass.INFO + "§b[" + (i + 1) + "]§r ");
 
                 if (entity != null || gregEntity != null) {
                     nameInfo.item(gregEntity != null ? gregEntity.getStackForm() : new ItemStack(entity.getBlockType()));
                     nameInfo.text(TextStyleClass.INFO + (gregEntity != null ? " {*" + gregEntity.getMetaFullName() + "*}" : "{*" + entity.getBlockType().getTranslationKey() + ".name*}"));
 
-                    IProbeInfo posInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                    int x = gregEntity != null ? gregEntity.getPos().getX() : entity.getPos().getX();
-                    int y = gregEntity != null ? gregEntity.getPos().getY() : entity.getPos().getY();
-                    int z = gregEntity != null ? gregEntity.getPos().getZ() : entity.getPos().getZ();
-                    posInfo.text(TextStyleClass.INFO + String.format("{*machine.universal.linked.dimension[*%s;%s*]*}", worldType.getName(), TJValues.thousandFormat.format(worldID)));
-                    posInfo.text(TextStyleClass.INFO + String.format("{*machine.universal.linked.pos[*%s;%s;%s*]*}", TJValues.thousandFormat.format(x), TJValues.thousandFormat.format(y), TJValues.thousandFormat.format(z)));
+                    final IProbeInfo posInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+                    final int x = gregEntity != null ? gregEntity.getPos().getX() : entity.getPos().getX();
+                    final int y = gregEntity != null ? gregEntity.getPos().getY() : entity.getPos().getY();
+                    final int z = gregEntity != null ? gregEntity.getPos().getZ() : entity.getPos().getZ();
+                    posInfo.element(new ElementTJText(String.format("{*machine.universal.linked.dimension[*%s;%s*]*}", worldType.getName(), TJValues.thousandFormat.format(worldID))));
+                    posInfo.element(new ElementTJText(String.format("{*machine.universal.linked.pos[*%s;%s;%s*]*}", TJValues.thousandFormat.format(x), TJValues.thousandFormat.format(y), TJValues.thousandFormat.format(z))));
                 }
             }
         }

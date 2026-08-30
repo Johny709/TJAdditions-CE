@@ -10,6 +10,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import tj.TJValues;
 import tj.capability.IHeatInfo;
 import tj.capability.TJCapabilities;
+import tj.integration.theoneprobe.impl.ElementTJText;
 
 
 public class IHeatInfoProvider extends CapabilityInfoProvider<IHeatInfo> {
@@ -27,7 +28,7 @@ public class IHeatInfoProvider extends CapabilityInfoProvider<IHeatInfo> {
         String displayHeat = String.format("%s/%s °C | ", TJValues.thousandFormat.format(heat), TJValues.thousandFormat.format(maxHeat));
 
         IProbeInfo pageInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-        pageInfo.text(TextStyleClass.INFO + "{*tj.top.progress.heat*} ");
+        pageInfo.element(new ElementTJText("{*tj.top.progress.heat*}"));
         pageInfo.progress(progressScaled, 100, probeInfo.defaultProgressStyle()
                 .width((int) (displayHeat.length() * 6.2))
                 .prefix(displayHeat)
