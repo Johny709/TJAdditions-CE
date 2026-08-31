@@ -23,7 +23,7 @@ public class TheOneProbeCompatibility {
         probe.registerProvider(new LinkEntityInfoProvider());
         probe.registerProvider(new IHeatInfoProvider());
         probe.registerProvider(new IGeneratorInfoProvider());
-        probe.registerProvider(new IItemFluidHandlerInfoProvider());
+        probe.registerProvider(new IRecipeInfoProvider());
         probe.registerProvider(new IParallelItemFluidHandlerInfoProvider());
         probe.registerProvider(new StructureInfoProvider());
     }

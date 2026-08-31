@@ -31,15 +31,12 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.AbstractWorkableHandler;
-import tj.capability.IItemFluidHandlerInfo;
-import tj.capability.TJCapabilities;
 import tj.capability.impl.handler.ICharcoalHandler;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.mui.widgets.impl.ButtonPopUpWidget;
@@ -48,6 +45,7 @@ import tj.mui.widgets.impl.WindowsWidgetGroup;
 import tj.util.references.IntegerReference;
 import tj.util.references.ObjectReference;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
@@ -316,7 +314,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
         return this.charcoalPos;
     }
 
-    private static class CharcoalPitWorkableHandler extends AbstractWorkableHandler<ICharcoalHandler> implements IItemFluidHandlerInfo {
+    private static class CharcoalPitWorkableHandler extends AbstractWorkableHandler<ICharcoalHandler> {
 
         private final List<ItemStack> itemInputs = new ArrayList<>();
         private final List<ItemStack> itemOutputs = new ArrayList<>();
@@ -370,18 +368,13 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
             return true;
         }
 
-        @Override
-        public <T> T getCapability(Capability<T> capability) {
-            if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
-                return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
-            return super.getCapability(capability);
-        }
-
+        @Nonnull
         @Override
         public List<ItemStack> getItemInputs() {
             return this.itemInputs;
         }
 
+        @Nonnull
         @Override
         public List<ItemStack> getItemOutputs() {
             return this.itemOutputs;

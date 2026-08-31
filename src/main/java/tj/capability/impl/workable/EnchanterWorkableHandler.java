@@ -5,21 +5,19 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.IMachineHandler;
-import tj.capability.TJCapabilities;
 import tj.capability.AbstractWorkableHandler;
 import tj.util.TJItemUtils;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IItemFluidHandlerInfo {
+public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHandler> {
 
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
@@ -247,23 +245,19 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
             this.fluidInputs.add(FluidStack.loadFluidStackFromNBT(fluidInputs.getCompoundTagAt(i)));
     }
 
-    @Override
-    public <T> T getCapability(Capability<T> capability) {
-        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
-            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
-        return super.getCapability(capability);
-    }
-
+    @Nonnull
     @Override
     public List<ItemStack> getItemInputs() {
         return this.itemInputs;
     }
 
+    @Nonnull
     @Override
     public List<ItemStack> getItemOutputs() {
         return this.itemOutputs;
     }
 
+    @Nonnull
     @Override
     public List<FluidStack> getFluidInputs() {
         return this.fluidInputs;

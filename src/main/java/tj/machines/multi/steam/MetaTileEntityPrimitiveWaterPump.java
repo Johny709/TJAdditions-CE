@@ -28,7 +28,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -38,11 +37,10 @@ import tj.blocks.TJMetaBlocks;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.AbstractWorkableHandler;
-import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.IMachineHandler;
-import tj.capability.TJCapabilities;
 import tj.textures.TJTextures;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
@@ -197,7 +195,7 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
         this.structurePattern = this.createStructurePattern();
     }
 
-    private static class PrimitivePumpWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IItemFluidHandlerInfo {
+    private static class PrimitivePumpWorkableHandler extends AbstractWorkableHandler<IMachineHandler> {
 
         private final List<FluidStack> fluidOutputs = new ArrayList<>();
         private long lastAmount;
@@ -236,13 +234,7 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
             return true;
         }
 
-        @Override
-        public <T> T getCapability(Capability<T> capability) {
-            if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
-                return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
-            return super.getCapability(capability);
-        }
-
+        @Nonnull
         @Override
         public List<FluidStack> getFluidOutputs() {
             return this.fluidOutputs;

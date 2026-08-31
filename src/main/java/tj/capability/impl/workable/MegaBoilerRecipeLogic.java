@@ -10,7 +10,6 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.ModHandler;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.recipes.FuelRecipe;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityFurnace;
@@ -21,19 +20,19 @@ import net.minecraftforge.fluids.IFluidTank;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.capability.IGeneratorInfo;
 import tj.capability.IHeatInfo;
-import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.impl.handler.IBoilerHandler;
 import tj.util.TJItemUtils;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_FUELABLE;
 import static gregtech.api.unification.material.Materials.*;
 import static tj.capability.TJCapabilities.*;
-import static tj.capability.TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING;
 
-public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandler> implements IFuelable, IHeatInfo, IGeneratorInfo, IItemFluidHandlerInfo {
+
+public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandler> implements IFuelable, IHeatInfo, IGeneratorInfo {
 
     private static final int CONSUMPTION_MULTIPLIER = 100;
     private static final int BOILING_TEMPERATURE = 100;
@@ -261,8 +260,6 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
             return CAPABILITY_HEAT.cast(this);
         if (capability == CAPABILITY_GENERATOR)
             return CAPABILITY_GENERATOR.cast(this);
-        if (capability == CAPABILITY_ITEM_FLUID_HANDLING)
-            return CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
         return super.getCapability(capability);
     }
 
@@ -365,21 +362,25 @@ public class MegaBoilerRecipeLogic extends AbstractWorkableHandler<IBoilerHandle
         return this.handler.getMaxTemperature();
     }
 
+    @Nonnull
     @Override
     public List<ItemStack> getItemInputs() {
         return this.itemInput;
     }
 
+    @Nonnull
     @Override
     public List<ItemStack> getItemOutputs() {
         return this.itemOutput;
     }
 
+    @Nonnull
     @Override
     public List<FluidStack> getFluidInputs() {
         return this.fluidInput;
     }
 
+    @Nonnull
     @Override
     public List<FluidStack> getFluidOutputs() {
         return this.fluidOutput;

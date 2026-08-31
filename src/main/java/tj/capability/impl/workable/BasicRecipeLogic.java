@@ -6,7 +6,6 @@ import gregtech.api.recipes.Recipe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.items.IItemHandler;
@@ -19,13 +18,14 @@ import tj.util.TJUtility;
 import tj.util.wrappers.GTFluidStackWrapper;
 import tj.util.wrappers.GTIngredientWrapper;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static net.minecraft.item.ItemStack.areItemStacksEqual;
 
-public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkableHandler<R> implements IItemFluidHandlerInfo {
+public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkableHandler<R> {
 
     protected final ParallelRecipeLRUCache recipeLRUCache = new ParallelRecipeLRUCache(10);
     protected final OverclockManager<?> overclockManager = new OverclockManager<>();
@@ -374,13 +374,6 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         this.voidingFluids = compound.getBoolean("voidingFluids");
     }
 
-    @Override
-    public <T> T getCapability(Capability<T> capability) {
-        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
-            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
-        return super.getCapability(capability);
-    }
-
     public ParallelRecipeLRUCache getRecipeLRUCache() {
         return this.recipeLRUCache;
     }
@@ -393,21 +386,25 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         return this.overclockManager.getParallelsPerformed();
     }
 
+    @Nonnull
     @Override
     public List<ItemStack> getItemInputs() {
         return this.itemInputs;
     }
 
+    @Nonnull
     @Override
     public List<ItemStack> getItemOutputs() {
         return this.itemOutputs;
     }
 
+    @Nonnull
     @Override
     public List<FluidStack> getFluidInputs() {
         return this.fluidInputs;
     }
 
+    @Nonnull
     @Override
     public List<FluidStack> getFluidOutputs() {
         return this.fluidOutputs;

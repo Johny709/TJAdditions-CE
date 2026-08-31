@@ -22,7 +22,7 @@ import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
-public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<R>> extends FuelRecipeLogic implements IWorkable {
+public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<R>> extends FuelRecipeLogic implements IWorkable, IRecipeInfo {
 
     protected Supplier<IItemHandlerModifiable> importItemsSupplier;
     protected Supplier<IItemHandlerModifiable> exportItemsSupplier;
@@ -353,6 +353,7 @@ public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<
         this.metaTileEntity.markDirty();
     }
 
+    @Override
     public long getEnergyPerTick() {
         return this.energyPerTick;
     }
@@ -362,8 +363,14 @@ public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<
         return this.isActive;
     }
 
-    public boolean hasProblem() {
-        return this.hasProblem;
+    @Override
+    public boolean isHasProblems() {
+        return hasProblem;
+    }
+
+    @Override
+    public String getHasProblemReason() {
+        return "";
     }
 
     @Override

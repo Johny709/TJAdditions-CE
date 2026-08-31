@@ -22,23 +22,21 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.IShearable;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.IForgeRegistryEntry;
-import tj.capability.IItemFluidHandlerInfo;
-import tj.capability.TJCapabilities;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.impl.handler.IFarmerHandler;
 import tj.util.TJItemUtils;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarmerHandler> implements IItemFluidHandlerInfo {
+public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarmerHandler> {
 
     private static ItemStack RUBBER_REFERENCE;
     private final List<ItemStack> itemInputs = new ArrayList<>();
@@ -127,11 +125,13 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
         return true;
     }
 
+    @Nonnull
     @Override
     public List<ItemStack> getItemInputs() {
         return this.itemInputs;
     }
 
+    @Nonnull
     @Override
     public List<ItemStack> getItemOutputs() {
         return this.itemOutputs;
@@ -166,13 +166,6 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
         this.outputIndex = data.getInteger("outputIndex");
         this.outputTools = data.getBoolean("outputTools");
         this.voidOutputs = data.getBoolean("voidOutputs");
-    }
-
-    @Override
-    public <T> T getCapability(Capability<T> capability) {
-        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
-            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
-        return super.getCapability(capability);
     }
 
     public void setOutputTools(boolean outputTools) {

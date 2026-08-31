@@ -4,22 +4,20 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import team.chisel.api.carving.CarvingUtils;
 import team.chisel.api.carving.ICarvingGroup;
 import team.chisel.api.carving.ICarvingVariation;
-import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.IMachineHandler;
-import tj.capability.TJCapabilities;
 import tj.capability.AbstractWorkableHandler;
 import tj.util.TJItemUtils;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IItemFluidHandlerInfo {
+public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMachineHandler> {
 
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
@@ -146,18 +144,13 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
             this.itemOutputs.add(new ItemStack(itemOutputList.getCompoundTagAt(i)));
     }
 
-    @Override
-    public <T> T getCapability(Capability<T> capability) {
-        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
-            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
-        return super.getCapability(capability);
-    }
-
+    @Nonnull
     @Override
     public List<ItemStack> getItemInputs() {
         return this.itemInputs;
     }
 
+    @Nonnull
     @Override
     public List<ItemStack> getItemOutputs() {
         return this.itemOutputs;

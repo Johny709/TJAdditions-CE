@@ -5,18 +5,16 @@ import gregtech.api.recipes.ModHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.capability.AbstractWorkableHandler;
-import tj.capability.IItemFluidHandlerInfo;
-import tj.capability.TJCapabilities;
 import tj.capability.impl.handler.ICoilHandler;
 import tj.util.TJItemUtils;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MultiSmelterWorkableHandler extends AbstractWorkableHandler<ICoilHandler> implements IItemFluidHandlerInfo {
+public class MultiSmelterWorkableHandler extends AbstractWorkableHandler<ICoilHandler> {
 
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
@@ -110,16 +108,13 @@ public class MultiSmelterWorkableHandler extends AbstractWorkableHandler<ICoilHa
         return (int) Math.max(1, 256 * (this.parallelsPerformed / (this.handler.getParallel() * 1.0)));
     }
 
-    @Override
-    public <T> T getCapability(Capability<T> capability) {
-        return capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING ? TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this) : super.getCapability(capability);
-    }
-
+    @Nonnull
     @Override
     public List<ItemStack> getItemInputs() {
         return this.itemInputs;
     }
 
+    @Nonnull
     @Override
     public List<ItemStack> getItemOutputs() {
         return this.itemOutputs;

@@ -42,13 +42,6 @@ public abstract class MixinWorkableInfoProvider {
                     .filledColor(GregicProbeConfig.filledColorProgress)
                     .alternateFilledColor(GregicProbeConfig.alternateFilledColorProgress));
         }
-        if (!capability.isWorkingEnabled()) {
-            ci.cancel();
-        } else if (capability instanceof IRecipeInfo && ((IRecipeInfo) capability).isHasProblems()) {
-            probeInfo.text(TextStyleClass.INFOIMP + "{*machine.universal.has_problems*}");
-        } else if (capability instanceof IWorkable && capability.isActive()) {
-            probeInfo.text(TextStyleClass.INFOIMP + "{*machine.universal.running*}");
-        }
         ci.cancel();
     }
 }

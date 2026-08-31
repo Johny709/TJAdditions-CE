@@ -24,23 +24,21 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import tj.capability.AbstractWorkableHandler;
-import tj.capability.IItemFluidHandlerInfo;
-import tj.capability.TJCapabilities;
 import tj.capability.impl.handler.IMinerHandler;
 import tj.util.TJItemUtils;
 import tj.util.pair.IntPair;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler> implements IItemFluidHandlerInfo {
+public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler> {
 
     protected final Object2ObjectMap<Item, IntPair<ItemStack>> itemType = new Object2ObjectOpenHashMap<>();
     protected final Object2ObjectMap<Block, ItemStack> blockFilterType = new Object2ObjectOpenHashMap<>();
@@ -295,13 +293,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         this.oreDictFilter.readFromNBT(compound);
     }
 
-    @Override
-    public <T> T getCapability(Capability<T> capability) {
-        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
-            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
-        return super.getCapability(capability);
-    }
-
+    @Nonnull
     @Override
     public List<ItemStack> getItemOutputs() {
         return this.itemOutputs;

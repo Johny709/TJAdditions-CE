@@ -12,7 +12,7 @@ public final class TJSimpleCapabilityManager {
         registerCapabilityWithNoDefault(LinkEntity.class);
         registerCapabilityWithNoDefault(IHeatInfo.class);
         registerCapabilityWithNoDefault(IGeneratorInfo.class);
-        registerCapabilityWithNoDefault(IItemFluidHandlerInfo.class);
+        registerCapabilityWithNoDefault(IRecipeInfo.class);
         registerCapabilityWithNoDefault(IParallelItemFluidHandlerInfo.class);
     }
 }

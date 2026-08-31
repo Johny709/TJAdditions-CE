@@ -22,7 +22,7 @@ import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
-public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLogic<R>> extends HotCoolantRecipeLogic implements IWorkable {
+public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLogic<R>> extends HotCoolantRecipeLogic implements IWorkable, IRecipeInfo {
 
     protected Supplier<IItemHandlerModifiable> importItemsSupplier;
     protected Supplier<IItemHandlerModifiable> exportItemsSupplier;
@@ -303,6 +303,8 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
     public <T> T getCapability(Capability<T> capability) {
         if (capability == GregtechTileCapabilities.CAPABILITY_CONTROLLABLE)
             return GregtechTileCapabilities.CAPABILITY_CONTROLLABLE.cast(this);
+        if (capability == TJCapabilities.CAPABILITY_RECIPE_INFO)
+            return TJCapabilities.CAPABILITY_RECIPE_INFO.cast(this);
         return capability == GregtechTileCapabilities.CAPABILITY_WORKABLE ? GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this) : null;
     }
 
@@ -353,6 +355,7 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
         this.metaTileEntity.markDirty();
     }
 
+    @Override
     public long getEnergyPerTick() {
         return this.energyPerTick;
     }
@@ -362,8 +365,14 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
         return this.isActive;
     }
 
-    public boolean hasProblem() {
-        return this.hasProblem;
+    @Override
+    public boolean isHasProblems() {
+        return false;
+    }
+
+    @Override
+    public String getHasProblemReason() {
+        return "";
     }
 
     @Override

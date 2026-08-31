@@ -6,15 +6,13 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
-import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.IMachineHandler;
-import tj.capability.TJCapabilities;
 import tj.capability.AbstractWorkableHandler;
 import tj.util.TJFluidUtils;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +21,7 @@ import static gregicadditions.GAMaterials.UsedDrillingMud;
 import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.DRILLING_MUD;
 
 
-public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IItemFluidHandlerInfo {
+public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<IMachineHandler> {
 
     private final List<FluidStack> fluidInputsList = new ArrayList<>();
     private final List<FluidStack> fluidOutputsList = new ArrayList<>();
@@ -106,13 +104,6 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
             this.fluidOutputsList.add(FluidStack.loadFluidStackFromNBT(fluidOutputsList.getCompoundTagAt(i)));
     }
 
-    @Override
-    public <T> T getCapability(Capability<T> capability) {
-        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
-            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
-        return super.getCapability(capability);
-    }
-
     public Fluid getVeinFluid() {
         return this.veinFluid;
     }
@@ -130,11 +121,13 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
         this.metaTileEntity.markDirty();
     }
 
+    @Nonnull
     @Override
     public List<FluidStack> getFluidInputs() {
         return this.fluidInputsList;
     }
 
+    @Nonnull
     @Override
     public List<FluidStack> getFluidOutputs() {
         return this.fluidOutputsList;

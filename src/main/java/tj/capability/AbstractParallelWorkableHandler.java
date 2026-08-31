@@ -457,4 +457,22 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
     public String getHasProblemReason() {
         return "";
     }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean b) {}
+
+    @Override
+    public int getProgress() {
+        return 0;
+    }
+
+    @Override
+    public int getMaxProgress() {
+        return 0;
+    }
 }

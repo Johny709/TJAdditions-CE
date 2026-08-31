@@ -12,6 +12,7 @@ import tj.capability.*;
 import tj.util.TJItemUtils;
 import tj.util.TJFluidUtils;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +24,7 @@ import static gregicadditions.GAMaterials.UsedDrillingMud;
 import static gregicadditions.recipes.categories.handlers.VoidMinerHandler.ORES_3;
 import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.*;
 
-public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IHeatInfo, IItemFluidHandlerInfo {
+public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IHeatInfo {
 
     private static final int CONSUME_START = 100;
 
@@ -193,8 +194,6 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
     public <T> T getCapability(Capability<T> capability) {
         if (capability == TJCapabilities.CAPABILITY_HEAT)
             return TJCapabilities.CAPABILITY_HEAT.cast(this);
-        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
-            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
         return super.getCapability(capability);
     }
 
@@ -225,16 +224,19 @@ public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachi
         return this.maxTemperature;
     }
 
+    @Nonnull
     @Override
     public List<ItemStack> getItemOutputs() {
         return this.oreOutputs;
     }
 
+    @Nonnull
     @Override
     public List<FluidStack> getFluidInputs() {
         return this.fluidInputsList;
     }
 
+    @Nonnull
     @Override
     public List<FluidStack> getFluidOutputs() {
         return this.fluidOutputsList;

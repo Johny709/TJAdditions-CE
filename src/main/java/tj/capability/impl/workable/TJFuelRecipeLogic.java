@@ -16,13 +16,13 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.capability.AbstractFuelRecipeLogic;
 import tj.capability.IGeneratorInfo;
-import tj.capability.IItemFluidHandlerInfo;
 import tj.capability.TJCapabilities;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Supplier;
 
-public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic> implements IGeneratorInfo, IFuelable, IItemFluidHandlerInfo {
+public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic> implements IGeneratorInfo, IFuelable {
 
     protected final Set<FluidStack> lastSearchedFluid = new HashSet<>();
     protected final Set<FluidStack> blacklistFluid = new HashSet<>();
@@ -192,8 +192,6 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
             return TJCapabilities.CAPABILITY_GENERATOR.cast(this);
         if (capability == GregtechCapabilities.CAPABILITY_FUELABLE)
             return GregtechCapabilities.CAPABILITY_FUELABLE.cast(this);
-        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
-            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
         return super.getCapability(capability);
     }
 
@@ -225,11 +223,13 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
         return this.energyContainer.get() != null ? this.energyContainer.get().getEnergyCapacity() : 0;
     }
 
+    @Nonnull
     @Override
     public List<FluidStack> getFluidInputs() {
         return this.fluidInputs;
     }
 
+    @Nonnull
     @Override
     public List<FluidStack> getFluidOutputs() {
         return this.fluidOutputs;

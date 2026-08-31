@@ -5,12 +5,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.capability.IItemFluidHandlerInfo;
-import tj.capability.IMachineHandler;
-import tj.capability.TJCapabilities;
-import tj.capability.AbstractWorkableHandler;
+import tj.capability.*;
 import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
@@ -18,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IItemFluidHandlerInfo {
+public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<IMachineHandler> {
 
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
@@ -145,18 +141,13 @@ public class ArchitectWorkbenchWorkableHandler extends AbstractWorkableHandler<I
             this.itemOutputs.add(new ItemStack(itemOutputsList.getCompoundTagAt(i)));
     }
 
-    @Override
-    public <T> T getCapability(Capability<T> capability) {
-        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
-            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
-        return super.getCapability(capability);
-    }
-
+    @Nonnull
     @Override
     public List<ItemStack> getItemInputs() {
         return this.itemInputs;
     }
 
+    @Nonnull
     @Override
     public List<ItemStack> getItemOutputs() {
         return this.itemOutputs;

@@ -68,6 +68,8 @@ dependencies {
     // implementation ('com.google.code.gson:gson:2.8.6') {
     //     transitive = false
     // }
+    // e.g. curse.maven:modname-projectId:fileId
+
     implementation("curse.maven:had-enough-items-557549:5906628")
     implementation("curse.maven:crafttweaker-239197:5486112")
     implementation("curse.maven:codechickenlib-242818:2779848")
@@ -82,4 +84,5 @@ dependencies {
     implementation(rfg.deobf(project.files("libs/ae2fc-2.7.10-unofficial.jar")))
     implementation(rfg.deobf(project.files("libs/gregtech_tj_fork-1.18.1B-dev.jar")))
     implementation(rfg.deobf(project.files("libs/gregicality_tj_fork-0.26.1B-dev.jar")))
+    compileOnly(rfg.deobf("curse.maven:hwyla-253449:2568751"))
 }

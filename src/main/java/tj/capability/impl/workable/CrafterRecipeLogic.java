@@ -9,7 +9,6 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import org.apache.commons.lang3.tuple.Triple;
@@ -18,13 +17,14 @@ import tj.capability.impl.handler.IRecipeMapProvider;
 import tj.multiblockpart.TJMultiblockAbility;
 import tj.util.TJItemUtils;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 
-public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler> implements IItemFluidHandlerInfo {
+public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler> {
 
     private final CraftingRecipeLRUCache previousRecipe = new CraftingRecipeLRUCache(10);
     private final List<Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>>> recipeMapList = new ArrayList<>();
@@ -175,11 +175,13 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
         return true;
     }
 
+    @Nonnull
     @Override
     public List<ItemStack> getItemInputs() {
         return this.itemInputs;
     }
 
+    @Nonnull
     @Override
     public List<ItemStack> getItemOutputs() {
         return this.itemOutputs;
@@ -210,13 +212,6 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
             this.itemOutputs.add(new ItemStack(outputList.getCompoundTagAt(i)));
         this.voidOutputs = data.getBoolean("voidOutputs");
         this.outputIndex = data.getInteger("outputIndex");
-    }
-
-    @Override
-    public <T> T getCapability(Capability<T> capability) {
-        if (capability == TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING)
-            return TJCapabilities.CAPABILITY_ITEM_FLUID_HANDLING.cast(this);
-        return super.getCapability(capability);
     }
 
     public void setVoidOutputs(boolean voidOutputs) {
