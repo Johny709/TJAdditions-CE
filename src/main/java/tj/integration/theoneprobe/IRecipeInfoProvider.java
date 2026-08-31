@@ -11,6 +11,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import tj.TJValues;
 import tj.capability.IRecipeInfo;
+import tj.capability.TJCapabilities;
 import tj.integration.theoneprobe.impl.ElementFluidStack;
 import tj.integration.theoneprobe.impl.ElementTJText;
 import tj.util.TJUtility;
@@ -21,7 +22,7 @@ public class IRecipeInfoProvider extends CapabilityInfoProvider<IRecipeInfo> {
 
     @Override
     protected Capability<IRecipeInfo> getCapability() {
-        return null;
+        return TJCapabilities.CAPABILITY_RECIPE_INFO;
     }
 
     @Override
