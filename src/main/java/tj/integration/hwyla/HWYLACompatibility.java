@@ -1,0 +1,15 @@
+package tj.integration.hwyla;
+
+import mcp.mobius.waila.api.IWailaPlugin;
+import mcp.mobius.waila.api.IWailaRegistrar;
+import mcp.mobius.waila.api.WailaPlugin;
+import tj.integration.hwyla.providers.RecipeInfoDataProvider;
+
+@WailaPlugin
+public final class HWYLACompatibility implements IWailaPlugin {
+
+    @Override
+    public void register(IWailaRegistrar iWailaRegistrar) {
+        RecipeInfoDataProvider.INSTANCE.register(iWailaRegistrar);
+    }
+}

@@ -5,7 +5,7 @@ import mcjty.theoneprobe.api.ITheOneProbe;
 import tj.integration.theoneprobe.impl.ElementFluidStack;
 import tj.integration.theoneprobe.impl.ElementTJText;
 
-public class TheOneProbeCompatibility {
+public final class TheOneProbeCompatibility {
 
     public static int ELEMENT_FLUIDSTACK;
     public static int ELEMENT_TJ_TEXT;

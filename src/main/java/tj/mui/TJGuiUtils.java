@@ -3,10 +3,10 @@ package tj.mui;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.widgets.SlotWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.util.TextFormattingUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -18,6 +18,8 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nullable;
 
 import static gregtech.api.gui.resources.RenderUtil.setGlColorFromInt;
 
@@ -139,5 +141,45 @@ public final class TJGuiUtils {
         bufferbuilder.pos(x + width, y, 0.0D).tex(imageU + drawnWidth, imageV).endVertex();
         bufferbuilder.pos(x, y, 0.0D).tex(imageU, imageV).endVertex();
         tessellator.draw();
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void drawItemStack(ItemStack itemStack, int x, int y) {
+        drawItemStack(itemStack, x, y, null);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void drawItemStack(ItemStack itemStack, int x, int y, @Nullable String altTxt) {
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(0.0F, 0.0F, 32.0F);
+        GlStateManager.color(1F, 1F, 1F, 1F);
+        GlStateManager.enableRescaleNormal();
+        GlStateManager.enableLighting();
+        RenderHelper.enableGUIStandardItemLighting();
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
+        Minecraft mc = Minecraft.getMinecraft();
+        RenderItem itemRender = mc.getRenderItem();
+        itemRender.renderItemAndEffectIntoGUI(itemStack, x, y);
+        itemRender.renderItemOverlayIntoGUI(mc.fontRenderer, itemStack, x, y, altTxt);
+        GlStateManager.disableRescaleNormal();
+        GlStateManager.disableLighting();
+        GlStateManager.color(1F, 1F, 1F, 1F);
+        GlStateManager.popMatrix();
+        GlStateManager.enableBlend();
+        GlStateManager.disableDepth();
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void drawFluidStack(int x, int y, FluidStack fluidStack) {
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        GlStateManager.disableBlend();
+        TJGuiUtils.drawFluidForGui(fluidStack, fluidStack.amount, fluidStack.amount, x + 1, y + 1, 18 - 1, 18 - 2);
+        GlStateManager.pushMatrix();
+        GlStateManager.scale(0.5, 0.5, 1);
+        final String s = TextFormattingUtil.formatLongToCompactString(fluidStack.amount, 4) + "L";
+        fontRenderer.drawStringWithShadow(s, (x + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + 18 - 6) * 2, 0xFFFFFF);
+        GlStateManager.popMatrix();
+        GlStateManager.enableBlend();
+        GlStateManager.color(1.0f, 1.0f, 1.0f);
     }
 }
