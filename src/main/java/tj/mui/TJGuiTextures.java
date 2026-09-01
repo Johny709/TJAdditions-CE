@@ -28,6 +28,7 @@ public class TJGuiTextures {
 
     public static final TextureArea BAR_RED = AdoptableTextureArea.fullImage("textures/gui/bar/bar_red.png");
     public static final TextureArea BAR_YELLOW = AdoptableTextureArea.fullImage("textures/gui/bar/bar_yellow.png");
+    public static final TextureArea BAR_GREEN = AdoptableTextureArea.fullImage("textures/gui/bar/bar_green.png");
 
     public static final TextureArea OUTPUT_BUTTON = TextureArea.fullImage("textures/gui/widget/button_output.png");
     public static final TextureArea TOGGLE_POWER_BUTTON = TextureArea.fullImage("textures/gui/widget/power_button_toggle.png");
