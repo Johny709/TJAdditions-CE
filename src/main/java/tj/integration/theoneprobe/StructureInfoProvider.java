@@ -31,7 +31,7 @@ public class StructureInfoProvider implements IProbeInfoProvider {
 
                         structureInfo.element(new ElementTJText(!hasProblems ? "§a" + "{*gtadditions.multiblock.universal.no_problems*}" : "§c" + "{*gtadditions.multiblock.universal.has_problems*}"));
 
-                        if (((amountOfProblems) & 1) == 0 ) // Wrench
+                        if (((amountOfProblems) & 1) == 0) // Wrench
                             structureInfo.element(new ElementTJText("§c" + "{*gtadditions.multiblock.universal.problem.wrench*}"));
                         if (((amountOfProblems >> 1) & 1) == 0) // Screwdriver
                             structureInfo.element(new ElementTJText("§c" + "{*gtadditions.multiblock.universal.problem.screwdriver*}"));
