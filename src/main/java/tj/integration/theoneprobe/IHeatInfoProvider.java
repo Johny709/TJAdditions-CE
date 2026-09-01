@@ -3,7 +3,6 @@ package tj.integration.theoneprobe;
 import gregtech.integration.theoneprobe.provider.CapabilityInfoProvider;
 import mcjty.theoneprobe.api.ElementAlignment;
 import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.TextStyleClass;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
