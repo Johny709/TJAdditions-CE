@@ -78,7 +78,7 @@ public class RemoteMultiblockControllerBehaviour implements IItemBehaviour {
 
         lines.add(net.minecraft.client.resources.I18n.format("metaitem.remote_multiblock_controller.description"));
         lines.add(net.minecraft.client.resources.I18n.format("metaitem.remote_multiblock_controller.machine", name));
-        lines.add(net.minecraft.client.resources.I18n.format("machine.universal.linked.dimension", worldName, TJValues.thousandFormat.format(worldID)));
+        lines.add(net.minecraft.client.resources.I18n.format("tj.machine.universal.linked.dimension", worldName, TJValues.thousandFormat.format(worldID)));
         lines.add(net.minecraft.client.resources.I18n.format("metaitem.linking.device.x", TJValues.thousandFormat.format(x)));
         lines.add(net.minecraft.client.resources.I18n.format("metaitem.linking.device.y", TJValues.thousandFormat.format(y)));
         lines.add(net.minecraft.client.resources.I18n.format("metaitem.linking.device.z", TJValues.thousandFormat.format(z)));

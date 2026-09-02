@@ -47,7 +47,8 @@ public class ParallelControllerInfoDataProvider implements IWailaDataProvider {
         compound.setLong("energyTotal", controller.getTotalEnergyConsumption());
         compound.setLong("voltageTier", controller.getVoltageTier());
         compound.setInteger("bonusEU", controller.getEUBonus());
-        compound.setString("recipeMap", controller.getMultiblockRecipe().getUnlocalizedName());
+        if (controller.getMultiblockRecipe() != null)
+            compound.setString("recipeMap", controller.getMultiblockRecipe().getUnlocalizedName());
         tag.setTag("tj.parallel_controller", compound);
         return tag;
     }
@@ -85,7 +86,7 @@ public class ParallelControllerInfoDataProvider implements IWailaDataProvider {
                     I18n.format("recipemap." + compound.getString("recipeMap") + ".name")));
         if (energyCapacity > 0) {
             tooltip.add(SpecialChars.getRenderString("tj.progressinfo", I18n.format("tj.top.parallel_controller.energy_stored"),
-                    String.valueOf(energyStored), String.valueOf(energyCapacity), " EU", " EU", "YELLOW"));
+                    String.valueOf(energyStored), String.valueOf(energyCapacity), " EU", " EU", "YELLOW", ",###"));
         }
         return tooltip;
     }

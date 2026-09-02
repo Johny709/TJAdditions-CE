@@ -1052,6 +1052,8 @@ tj.machine.universal.production.sec=Producing: §7(§b%s§7) %s%s/s
 tj.machine.universal.production.secs=Producing: §b%s §7(§b%s§7) §7every §b%s §7seconds
 tj.machine.universal.production.tick=Producing: §7(§b%s§7) §b%s%s/t
 tj.machine.universal.production.ticks=Producing: §b%s §7(§b%s§7) §7every §b%s §7ticks
+tj.machine.universal.linked.dimension=Dimension: §6%s§7 (§6%s§7)
+tj.machine.universal.linked.pos=Position: §7{§rX: §b%s§r Y: §b%s§r Z: §b%s§7}
 
 machine.universal.tooltip.voltage_tier=Voltage Tier: §7(%s§7)
 machine.universal.toggle.run.mode.disabled=§c[OFF]
@@ -1093,8 +1095,6 @@ machine.universal.toggle.current.frequency=Current Frequency
 machine.universal.linked.entity.null=Not linked
 machine.universal.linked.entity.empty=Null
 machine.universal.linked.entity.radius=Radius: §e%sf§rx§e%s§r
-machine.universal.linked.dimension=Dimension: §6%s§7 (§6%s§7)
-machine.universal.linked.pos=Position: §7{§rX: §b%s§r Y: §b%s§r Z: §b%s§7}
 machine.universal.linked.add=[Add]
 machine.universal.linked.remove=[Remove]
 machine.universal.linked.select=[Select]

@@ -309,7 +309,7 @@ public class MetaTileEntityLargeWorldAccelerator extends TJMultiblockControllerB
                                                 TJValues.thousandFormat.format(isMetaTileEntity && metaTileEntity instanceof MetaTileEntityAcceleratorAnchorPoint ? this.tier : 0),
                                                 TJValues.thousandFormat.format(isMetaTileEntity && metaTileEntity instanceof MetaTileEntityAcceleratorAnchorPoint ? this.tier : 0)))
                                         .appendText("\n")
-                                        .appendSibling(new TextComponentTranslation("machine.universal.linked.pos", TJValues.thousandFormat.format(pos.getX()), TJValues.thousandFormat.format(pos.getY()), TJValues.thousandFormat.format(pos.getZ()))))))
+                                        .appendSibling(new TextComponentTranslation("tj.machine.universal.linked.pos", TJValues.thousandFormat.format(pos.getX()), TJValues.thousandFormat.format(pos.getY()), TJValues.thousandFormat.format(pos.getZ()))))))
                                 .appendText("\n")
                                 .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + i)))
                         .appendText(" ")

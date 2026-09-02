@@ -225,7 +225,7 @@ public class LinkingDeviceBehavior implements IItemBehaviour, ItemUIFactory {
         String name = nbt.hasKey("Name") ? nbt.getString("Name") : "Null";
         lines.add(I18n.format("metaitem.linking.device.description"));
         lines.add(I18n.format("metaitem.linking.device.name", I18n.format(name)));
-        lines.add(I18n.format("machine.universal.linked.dimension", dimensionName, TJValues.thousandFormat.format(dimensionID)));
+        lines.add(I18n.format("tj.machine.universal.linked.dimension", dimensionName, TJValues.thousandFormat.format(dimensionID)));
         lines.add(I18n.format("metaitem.linking.device.x", TJValues.thousandFormat.format(x)));
         lines.add(I18n.format("metaitem.linking.device.y", TJValues.thousandFormat.format(y)));
         lines.add(I18n.format("metaitem.linking.device.z", TJValues.thousandFormat.format(z)));

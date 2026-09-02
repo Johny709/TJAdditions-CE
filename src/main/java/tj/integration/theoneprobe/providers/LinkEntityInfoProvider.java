@@ -47,8 +47,8 @@ public class LinkEntityInfoProvider extends CapabilityInfoProvider<LinkEntity> {
                 entityInfo.text(TextStyleClass.INFO + (entity.hasCustomName() ? entity.getCustomNameTag() : entity.getName()));
 
                 final IProbeInfo posInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                posInfo.element(new ElementTJText(TextStyleClass.INFO + String.format("{*machine.universal.linked.dimension[*%s;%s*]*}", worldType.getName(), TJValues.thousandFormat.format(worldID))));
-                posInfo.element(new ElementTJText(TextStyleClass.INFO + String.format("{*machine.universal.linked.pos[*%s;%s;%s*]*}", TJValues.thousandFormat.format(entity.posX), TJValues.thousandFormat.format(entity.posY), TJValues.thousandFormat.format(entity.posZ))));
+                posInfo.element(new ElementTJText(TextStyleClass.INFO + String.format("{*tj.machine.universal.linked.dimension[*%s;%s*]*}", worldType.getName(), TJValues.thousandFormat.format(worldID))));
+                posInfo.element(new ElementTJText(TextStyleClass.INFO + String.format("{*tj.machine.universal.linked.pos[*%s;%s;%s*]*}", TJValues.thousandFormat.format(entity.posX), TJValues.thousandFormat.format(entity.posY), TJValues.thousandFormat.format(entity.posZ))));
             }
         }
     }

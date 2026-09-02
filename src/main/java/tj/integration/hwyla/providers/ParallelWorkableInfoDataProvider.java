@@ -70,7 +70,7 @@ public class ParallelWorkableInfoDataProvider implements IWailaDataProvider {
         if (workable == null)
             return tooltip;
         final NBTTagList workableList = accessor.getNBTData().getTagList("tj.parallel_workable.list", 10);
-        tooltip.add("§b(" + 0 + "/" + workableList.tagCount() + ")");
+        tooltip.add("§b(" + 1 + "/" + workableList.tagCount() + ")");
         for (int i = 0; i < workableList.tagCount(); i++) {
             final NBTTagCompound compound = workableList.getCompoundTagAt(i);
             final double maxProgress = (double) compound.getInteger("maxProgress") / 20;

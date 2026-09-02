@@ -389,9 +389,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
                         .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), rename));
 
                 ITextComponent blockPos = new TextComponentString(key + "\n")
-                        .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", worldName, TJValues.thousandFormat.format(worldID)))
+                        .appendSibling(new TextComponentTranslation("tj.machine.universal.linked.dimension", worldName, TJValues.thousandFormat.format(worldID)))
                         .appendText("\n")
-                        .appendSibling(new TextComponentTranslation("machine.universal.linked.pos", TJValues.thousandFormat.format(pos.getX()), TJValues.thousandFormat.format(pos.getY()), TJValues.thousandFormat.format(pos.getZ())));
+                        .appendSibling(new TextComponentTranslation("tj.machine.universal.linked.pos", TJValues.thousandFormat.format(pos.getX()), TJValues.thousandFormat.format(pos.getY()), TJValues.thousandFormat.format(pos.getZ())));
 
                 keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
                 builder.addTextComponent(keyPos);
@@ -418,9 +418,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
                 ITextComponent keyPos = new TextComponentString(": [§a" + (++results) + "§r] " + key);
 
                 ITextComponent blockPos = new TextComponentString(results + ": " + key + "\n")
-                        .appendSibling(new TextComponentTranslation("machine.universal.linked.dimension", worldName, TJValues.thousandFormat.format(worldID)))
+                        .appendSibling(new TextComponentTranslation("tj.machine.universal.linked.dimension", worldName, TJValues.thousandFormat.format(worldID)))
                         .appendText("\n")
-                        .appendSibling(new TextComponentTranslation("machine.universal.linked.pos", TJValues.thousandFormat.format(pos.getX()), TJValues.thousandFormat.format(pos.getY()), TJValues.thousandFormat.format(pos.getZ())));
+                        .appendSibling(new TextComponentTranslation("tj.machine.universal.linked.pos", TJValues.thousandFormat.format(pos.getX()), TJValues.thousandFormat.format(pos.getY()), TJValues.thousandFormat.format(pos.getZ())));
 
                 keyPos.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, blockPos));
                 builder.addTextComponent(keyPos);
