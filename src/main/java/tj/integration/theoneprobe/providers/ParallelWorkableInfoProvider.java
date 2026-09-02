@@ -1,4 +1,4 @@
-package tj.integration.theoneprobe;
+package tj.integration.theoneprobe.providers;
 
 import gregicadditions.GAValues;
 import gregtech.integration.theoneprobe.provider.CapabilityInfoProvider;

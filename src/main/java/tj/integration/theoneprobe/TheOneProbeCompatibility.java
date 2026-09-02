@@ -6,6 +6,7 @@ import tj.integration.theoneprobe.impl.ElementFluidList;
 import tj.integration.theoneprobe.impl.ElementFluidStack;
 import tj.integration.theoneprobe.impl.ElementItemList;
 import tj.integration.theoneprobe.impl.ElementTJText;
+import tj.integration.theoneprobe.providers.*;
 
 public final class TheOneProbeCompatibility {
 

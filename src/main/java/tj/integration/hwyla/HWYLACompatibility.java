@@ -16,6 +16,7 @@ public final class HWYLACompatibility implements IWailaPlugin {
         FuelableInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         EnergyInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         HeatInfoDataProvider.INSTANCE.register(iWailaRegistrar);
+        GeneratorInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         ProgressInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         RecipeInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         StructureInfoDataProvider.INSTANCE.register(iWailaRegistrar);

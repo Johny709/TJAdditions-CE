@@ -1,4 +1,4 @@
-package tj.integration.theoneprobe;
+package tj.integration.theoneprobe.providers;
 
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.integration.theoneprobe.provider.CapabilityInfoProvider;

@@ -1,4 +1,4 @@
-package tj.integration.theoneprobe;
+package tj.integration.theoneprobe.providers;
 
 import gregtech.api.block.machines.BlockMachine;
 import gregtech.api.metatileentity.MetaTileEntity;

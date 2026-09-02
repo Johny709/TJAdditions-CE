@@ -1,4 +1,4 @@
-package tj.integration.theoneprobe;
+package tj.integration.theoneprobe.providers;
 
 import gregtech.integration.theoneprobe.provider.CapabilityInfoProvider;
 import mcjty.theoneprobe.api.ElementAlignment;
@@ -32,24 +32,22 @@ public class IGeneratorInfoProvider extends CapabilityInfoProvider<IGeneratorInf
     private void pageInfo(String[] info, long amount, IProbeInfo probeInfo) {
         if (amount < 1 || info == null)
             return;
-        StringBuilder prefixBuilder = new StringBuilder(), suffixBuilder = new StringBuilder();
+        final StringBuilder prefixBuilder = new StringBuilder(), suffixBuilder = new StringBuilder();
         boolean suffix = false;
         for (String text : info) {
-            if (text == null)
-                continue;
+            if (text == null) continue;
             if (text.equals("suffix")) {
                 suffix = true;
                 continue;
             }
 
-            String textInfo = text.startsWith("§") ? text
+            final String textInfo = text.startsWith("§") ? text
                     : text.startsWith(" ") ? " "
                     : "{*" + text + "*}";
 
-            if (!suffix)
+            if (!suffix) {
                 prefixBuilder.append(textInfo);
-            else
-                suffixBuilder.append(textInfo);
+            } else suffixBuilder.append(textInfo);
         }
         probeInfo.text(TextStyleClass.INFO + prefixBuilder.toString() + String.format("%,d", amount) + suffixBuilder);
     }

@@ -1,4 +1,4 @@
-package tj.integration.theoneprobe;
+package tj.integration.theoneprobe.providers;
 
 import gregtech.integration.theoneprobe.provider.CapabilityInfoProvider;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
