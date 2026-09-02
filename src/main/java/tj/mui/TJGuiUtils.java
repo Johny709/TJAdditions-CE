@@ -1,6 +1,7 @@
 package tj.mui;
 
 import gregtech.api.gui.GuiTextures;
+import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.SlotWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.TextFormattingUtil;
@@ -144,12 +145,13 @@ public final class TJGuiUtils {
     }
 
     @SideOnly(Side.CLIENT)
-    public static void drawItemStack(ItemStack itemStack, int x, int y) {
-        drawItemStack(itemStack, x, y, null);
+    public static void drawItemStack(int x, int y, ItemStack itemStack, long amount) {
+        drawItemStack(x, y, itemStack, amount, null);
     }
 
     @SideOnly(Side.CLIENT)
-    public static void drawItemStack(ItemStack itemStack, int x, int y, @Nullable String altTxt) {
+    public static void drawItemStack(int x, int y, ItemStack itemStack, long amount, @Nullable String altTxt) {
+        itemStack.setCount(1);
         GlStateManager.pushMatrix();
         GlStateManager.translate(0.0F, 0.0F, 32.0F);
         GlStateManager.color(1F, 1F, 1F, 1F);
@@ -164,20 +166,24 @@ public final class TJGuiUtils {
         GlStateManager.disableRescaleNormal();
         GlStateManager.disableLighting();
         GlStateManager.color(1F, 1F, 1F, 1F);
+        GlStateManager.scale(0.5, 0.5, 1);
+        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+        final String s = TextFormattingUtil.formatLongToCompactString(amount, 4);
+        fontRenderer.drawStringWithShadow(s, (x + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + 12) * 2, 0xFFFFFF);
         GlStateManager.popMatrix();
         GlStateManager.enableBlend();
         GlStateManager.disableDepth();
     }
 
     @SideOnly(Side.CLIENT)
-    public static void drawFluidStack(int x, int y, FluidStack fluidStack) {
+    public static void drawFluidStack(int x, int y, FluidStack fluidStack, long amount) {
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         GlStateManager.disableBlend();
-        TJGuiUtils.drawFluidForGui(fluidStack, fluidStack.amount, fluidStack.amount, x + 1, y + 1, 18 - 1, 18 - 2);
+        TJGuiUtils.drawFluidForGui(fluidStack, amount, amount, x + 1, y + 1, 18 - 1, 18 - 2);
         GlStateManager.pushMatrix();
         GlStateManager.scale(0.5, 0.5, 1);
-        final String s = TextFormattingUtil.formatLongToCompactString(fluidStack.amount, 4) + "L";
-        fontRenderer.drawStringWithShadow(s, (x + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + 18 - 6) * 2, 0xFFFFFF);
+        final String s = TextFormattingUtil.formatLongToCompactString(amount, 4) + "L";
+        fontRenderer.drawStringWithShadow(s, (x + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + 12) * 2, 0xFFFFFF);
         GlStateManager.popMatrix();
         GlStateManager.enableBlend();
         GlStateManager.color(1.0f, 1.0f, 1.0f);

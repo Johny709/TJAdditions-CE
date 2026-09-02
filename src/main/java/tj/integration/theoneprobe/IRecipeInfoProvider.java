@@ -12,7 +12,8 @@ import net.minecraftforge.fluids.FluidStack;
 import tj.TJValues;
 import tj.capability.IRecipeInfo;
 import tj.capability.TJCapabilities;
-import tj.integration.theoneprobe.impl.ElementFluidStack;
+import tj.integration.theoneprobe.impl.ElementFluidList;
+import tj.integration.theoneprobe.impl.ElementItemList;
 import tj.integration.theoneprobe.impl.ElementTJText;
 import tj.util.TJUtility;
 
@@ -44,36 +45,22 @@ public class IRecipeInfoProvider extends CapabilityInfoProvider<IRecipeInfo> {
             probeInfo.element(new ElementTJText("{*machine.universal.running*}"));
         }
         if (!fluidInputs.isEmpty() || !itemInputs.isEmpty()) {
+            probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT))
+                    .element(new ElementTJText("{*tj.top.inputs*}"));
             final IProbeInfo inputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-            inputInfo.element(new ElementTJText("{*tj.top.inputs*}"));
-            if (!fluidInputs.isEmpty()) {
-                for (FluidStack fluid : fluidInputs) {
-                    if (fluid == null) continue;
-                    inputInfo.element(new ElementFluidStack(fluid));
-                }
-            }
-            if (!itemInputs.isEmpty()) {
-                for (ItemStack item : itemInputs) {
-                    if (item.isEmpty()) continue;
-                    inputInfo.item(item);
-                }
-            }
+            if (!itemInputs.isEmpty())
+                inputInfo.element(new ElementItemList(itemInputs));
+            if (!fluidInputs.isEmpty())
+                inputInfo.element(new ElementFluidList(fluidInputs));
         }
         if (!fluidOutputs.isEmpty() || !itemOutputs.isEmpty()) {
+            probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT))
+                    .element(new ElementTJText("{*tj.top.outputs*}"));
             final IProbeInfo outputInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-            outputInfo.element(new ElementTJText("{*tj.top.outputs*}"));
-            if (!fluidOutputs.isEmpty()) {
-                for (FluidStack fluid : fluidOutputs) {
-                    if (fluid == null) continue;
-                    outputInfo.element(new ElementFluidStack(fluid));
-                }
-            }
-            if (!itemOutputs.isEmpty()) {
-                for (ItemStack item : itemOutputs) {
-                    if (item.isEmpty()) continue;
-                    outputInfo.item(item);
-                }
-            }
+            if (!itemOutputs.isEmpty())
+                outputInfo.element(new ElementItemList(itemOutputs));
+            if (!fluidOutputs.isEmpty())
+                outputInfo.element(new ElementFluidList(fluidOutputs));
         }
     }
 
