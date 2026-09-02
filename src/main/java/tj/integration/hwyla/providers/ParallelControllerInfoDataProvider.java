@@ -85,7 +85,7 @@ public class ParallelControllerInfoDataProvider implements IWailaDataProvider {
                     I18n.format("recipemap." + compound.getString("recipeMap") + ".name")));
         if (energyCapacity > 0) {
             tooltip.add(SpecialChars.getRenderString("tj.progressinfo", I18n.format("tj.top.parallel_controller.energy_stored"),
-                    String.valueOf(energyStored), String.valueOf(energyCapacity), "", " EU", "YELLOW"));
+                    String.valueOf(energyStored), String.valueOf(energyCapacity), " EU", " EU", "YELLOW"));
         }
         return tooltip;
     }
