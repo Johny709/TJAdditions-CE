@@ -77,6 +77,7 @@ public class ProgressInfoRenderer implements IWailaTooltipRenderer {
         switch (color) {
             case "YELLOW": return TJGuiTextures.BAR_YELLOW;
             case "GREEN": return TJGuiTextures.BAR_GREEN;
+            case "ORANGE": return TJGuiTextures.BAR_ORANGE;
             default: return TJGuiTextures.BAR_RED;
         }
     }

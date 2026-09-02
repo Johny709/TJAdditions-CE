@@ -5,7 +5,6 @@ import gregtech.api.recipes.RecipeMap;
 import gregtech.integration.theoneprobe.provider.CapabilityInfoProvider;
 import mcjty.theoneprobe.api.ElementAlignment;
 import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.TextStyleClass;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
@@ -27,16 +26,22 @@ public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IPara
         final long energyStored = capability.getEnergyStored();
         final long energyCapacity = capability.getEnergyCapacity();
         final long maxEUt = capability.getMaxEUt();
-        final int energyBonus = capability.getEUBonus();
         final long totalEnergy = capability.getTotalEnergyConsumption();
         final long voltageTier = capability.getVoltageTier();
+        final int energyBonus = capability.getEUBonus();
         final int tier = TJUtility.getTierFromVoltage(voltageTier);
         final int euTier = TJUtility.getTierFromVoltage(maxEUt);
         final RecipeMap<?> multiblockRecipe = capability.getMultiblockRecipe();
 
         final IProbeInfo controllerInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
         controllerInfo.element(new ElementTJText(String.format("{*tj.multiblock.max_voltage[*%s;%s*]*}", TJValues.thousandFormat.format(maxEUt), TJValues.VCC[euTier] + GAValues.VN[euTier])));
-        if (energyStored > 0 && energyCapacity > 0) {
+        if (energyBonus > 0)
+            controllerInfo.element(new ElementTJText(String.format("{*tj.multiblock.parallel_controller.energy_bonus[*%s*]*}", 100 - energyBonus)));
+        controllerInfo.element(new ElementTJText(String.format("{*machine.universal.tooltip.voltage_tier[*%s*]*}", TJValues.VCC[tier] + GAValues.VN[tier])));
+        controllerInfo.element(new ElementTJText(String.format("{*tj.multiblock.parallel.sum[*%s*]*}", TJValues.thousandFormat.format(totalEnergy))));
+        if (multiblockRecipe != null)
+            controllerInfo.element(new ElementTJText(String.format("{*tj.multiblock.universal.tooltip.1[*%s*]*}", "{*recipemap." + multiblockRecipe.getUnlocalizedName() + ".name*}")));
+        if (energyCapacity > 0) {
             final int energyPercent = (int) Math.floor(energyStored / (energyCapacity * 1.0) * 100);
             final String displayEnergy = String.format("%s/%s EU ", TJValues.thousandFormat.format(energyStored), TJValues.thousandFormat.format(energyCapacity));
             final IProbeInfo energyStoredInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
@@ -48,12 +53,6 @@ public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IPara
                     .filledColor(0xFFF8EB34)
                     .width((int) (displayEnergy.length() * 6.2)));
         }
-        if (energyBonus > 0)
-            controllerInfo.text(TextStyleClass.INFO + "{*tj.top.parallel_controller.energy_bonus*}§b " + (100 - energyBonus) + "%");
-        controllerInfo.element(new ElementTJText(String.format("{*machine.universal.tooltip.voltage_tier[*%s*]*}", TJValues.VCC[tier] + GAValues.VN[tier])));
-        controllerInfo.element(new ElementTJText(String.format("{*tj.multiblock.parallel.sum[*%s*]*}", TJValues.thousandFormat.format(totalEnergy))));
-        if (multiblockRecipe != null)
-            controllerInfo.element(new ElementTJText(String.format("{*tj.multiblock.universal.tooltip.1[*%s*]*}", "{*recipemap." + multiblockRecipe.getUnlocalizedName() + ".name*}")));
     }
 
     @Override

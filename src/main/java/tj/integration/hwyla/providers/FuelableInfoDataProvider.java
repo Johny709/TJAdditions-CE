@@ -95,11 +95,10 @@ public class FuelableInfoDataProvider implements IWailaDataProvider {
                 tooltip.add(I18n.format("gregtech.top.fuel_burn") + " " + TJValues.thousandTwoPlaceFormat.format(burnTimePrecise) +
                         " " + I18n.format("gregtech.top.fuel_time"));
             tooltip.add(SpecialChars.getRenderString("tj.progressinfo", "", String.valueOf(fuelRemaining),
-                    String.valueOf(fuelCapacity), "", "", "YELLOW", ",###"));
+                    String.valueOf(fuelCapacity), "", "", "ORANGE", ",###"));
         }
         if (tagList.isEmpty())
             tooltip.add(I18n.format("gregtech.top.fuel_none"));
-
         return tooltip;
     }
 }
