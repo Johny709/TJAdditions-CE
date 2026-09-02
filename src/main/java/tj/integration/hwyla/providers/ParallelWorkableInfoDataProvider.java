@@ -66,7 +66,7 @@ public class ParallelWorkableInfoDataProvider implements IWailaDataProvider {
         final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) accessor.getTileEntity()).getMetaTileEntity();
         if (metaTileEntity == null)
             return tooltip;
-        final IMultipleWorkable workable = metaTileEntity.getCapability(TJCapabilities.CAPABILITY_MULTIPLE_WORKABLE, accessor.getSide());
+        final IMultipleWorkable workable = metaTileEntity.getCapability(TJCapabilities.CAPABILITY_MULTIPLE_WORKABLE, null);
         if (workable == null)
             return tooltip;
         final NBTTagList workableList = accessor.getNBTData().getTagList("tj.parallel_workable.list", 10);

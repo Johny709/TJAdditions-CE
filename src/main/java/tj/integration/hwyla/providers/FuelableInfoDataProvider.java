@@ -74,7 +74,7 @@ public class FuelableInfoDataProvider implements IWailaDataProvider {
         final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) accessor.getTileEntity()).getMetaTileEntity();
         if (metaTileEntity == null)
             return tooltip;
-        final IFuelable fuelable = metaTileEntity.getCapability(GregtechCapabilities.CAPABILITY_FUELABLE, accessor.getSide());
+        final IFuelable fuelable = metaTileEntity.getCapability(GregtechCapabilities.CAPABILITY_FUELABLE, null);
         if (fuelable == null)
             return tooltip;
         final NBTTagList tagList = accessor.getNBTData().getTagList("tj.fuelable.list", 10);

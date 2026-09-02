@@ -54,7 +54,7 @@ public class EnergyInfoDataProvider implements IWailaDataProvider {
         final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) accessor.getTileEntity()).getMetaTileEntity();
         if (metaTileEntity == null)
             return tooltip;
-        final IEnergyContainer energyContainer = metaTileEntity.getCapability(GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER, accessor.getSide());
+        final IEnergyContainer energyContainer = metaTileEntity.getCapability(GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER, null);
         if (energyContainer == null)
             return tooltip;
         final NBTTagCompound compound = accessor.getNBTData().getCompoundTag("tj.energyinfo");

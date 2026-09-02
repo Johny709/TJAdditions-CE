@@ -54,7 +54,7 @@ public class HeatInfoDataProvider implements IWailaDataProvider {
         final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) accessor.getTileEntity()).getMetaTileEntity();
         if (metaTileEntity == null)
             return tooltip;
-        final IHeatInfo heatInfo = metaTileEntity.getCapability(TJCapabilities.CAPABILITY_HEAT, accessor.getSide());
+        final IHeatInfo heatInfo = metaTileEntity.getCapability(TJCapabilities.CAPABILITY_HEAT, null);
         if (heatInfo == null)
             return tooltip;
         final NBTTagCompound compound = accessor.getNBTData().getCompoundTag("tj.heatinfo");

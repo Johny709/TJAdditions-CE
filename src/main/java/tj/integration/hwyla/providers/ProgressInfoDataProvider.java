@@ -54,7 +54,7 @@ public class ProgressInfoDataProvider implements IWailaDataProvider {
         final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) accessor.getTileEntity()).getMetaTileEntity();
         if (metaTileEntity == null)
             return tooltip;
-        final IWorkable workable = metaTileEntity.getCapability(GregtechTileCapabilities.CAPABILITY_WORKABLE, accessor.getSide());
+        final IWorkable workable = metaTileEntity.getCapability(GregtechTileCapabilities.CAPABILITY_WORKABLE, null);
         if (workable == null)
             return tooltip;
         final NBTTagCompound compound = accessor.getNBTData().getCompoundTag("tj.progressinfo");

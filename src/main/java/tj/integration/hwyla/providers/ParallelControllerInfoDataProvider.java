@@ -62,7 +62,7 @@ public class ParallelControllerInfoDataProvider implements IWailaDataProvider {
         final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) accessor.getTileEntity()).getMetaTileEntity();
         if (metaTileEntity == null)
             return tooltip;
-        final IParallelController controller = metaTileEntity.getCapability(TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER, accessor.getSide());
+        final IParallelController controller = metaTileEntity.getCapability(TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER, null);
         if (controller == null)
             return tooltip;
         final NBTTagCompound compound = accessor.getNBTData().getCompoundTag("tj.parallel_controller");

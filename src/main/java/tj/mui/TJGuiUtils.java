@@ -167,9 +167,11 @@ public final class TJGuiUtils {
         GlStateManager.disableLighting();
         GlStateManager.color(1F, 1F, 1F, 1F);
         GlStateManager.scale(0.5, 0.5, 1);
-        final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        final String s = TextFormattingUtil.formatLongToCompactString(amount, 4);
-        fontRenderer.drawStringWithShadow(s, (x + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + 12) * 2, 0xFFFFFF);
+        if (amount > 1) {
+            final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+            final String s = TextFormattingUtil.formatLongToCompactString(amount, 4);
+            fontRenderer.drawStringWithShadow(s, (x + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + 12) * 2, 0xFFFFFF);
+        }
         GlStateManager.popMatrix();
         GlStateManager.enableBlend();
         GlStateManager.disableDepth();
