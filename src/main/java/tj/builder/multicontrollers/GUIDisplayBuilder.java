@@ -293,14 +293,16 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addFluidInputLine(IMultipleTankHandler tanks, FluidStack fluidStack, long amount, int ticks, int priority) {
         if (fluidStack == null)
             return this;
+        long currentAmount = 0;
         amount = amount > 0 ? amount : fluidStack.amount;
         final String fluidName = fluidStack.getLocalizedName();
-        final boolean hasEnoughFluid = amount < 1 || TJFluidUtils.drainFromTanksLong(tanks, fluidStack, amount, false) == amount;
+        final boolean hasEnoughFluid = amount < 1 || (currentAmount = TJFluidUtils.drainFromTanksLong(tanks, fluidStack, amount, false)) == amount;
         final ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentTranslation("tj.multiblock.not_enough_fluid", fluidName, TJValues.thousandFormat.format(amount))
                 : ticks == 1 ? new TextComponentTranslation("machine.universal.fluid.input.tick", fluidName, TJValues.thousandFormat.format(amount))
                 : ticks % 20 != 0 ? new TextComponentTranslation("machine.universal.fluid.input.ticks", TJValues.thousandFormat.format(amount), fluidName, TJValues.thousandFormat.format(ticks))
                 : ticks == 20 ? new TextComponentTranslation("machine.universal.fluid.input.sec", fluidName, TJValues.thousandFormat.format(amount))
                 : new TextComponentTranslation("machine.universal.fluid.input.secs", TJValues.thousandFormat.format(amount), fluidName, TJValues.thousandFormat.format(ticks / 20));
+        fluidInputText.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.machine.universal.fluid_current_amount", "§b" + TJValues.thousandFormat.format(currentAmount)))));
         if (priority != 0)
             return this.addTextComponent(fluidInputText, priority);
         else return this.addTextComponent(fluidInputText);
@@ -321,14 +323,16 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addFluidOutputLine(IMultipleTankHandler tanks, FluidStack fluidStack, long amount, int ticks, int priority) {
         if (fluidStack == null)
             return this;
+        long currentAmount = 0;
         amount = amount > 0 ? amount : fluidStack.amount;
         final String fluidName = fluidStack.getLocalizedName();
-        final boolean hasEnoughFluid = amount < 1 || tanks == VOID_TANK || TJFluidUtils.fillIntoTanksLong(tanks, fluidStack, amount, false) == amount;
+        final boolean hasEnoughFluid = amount < 1 || tanks == VOID_TANK || (currentAmount = TJFluidUtils.fillIntoTanksLong(tanks, fluidStack, amount, false)) == amount;
         final ITextComponent fluidInputText = !hasEnoughFluid ? new TextComponentTranslation("tj.multiblock.not_enough_fluid.space", fluidName, TJValues.thousandFormat.format(amount))
                 : ticks == 1 ? new TextComponentTranslation("machine.universal.fluid.output.tick", fluidName, TJValues.thousandFormat.format(amount))
                 : ticks % 20 != 0 ? new TextComponentTranslation("machine.universal.fluid.output.ticks", TJValues.thousandFormat.format(amount), fluidName, TJValues.thousandFormat.format(ticks))
                 : ticks == 20 ? new TextComponentTranslation("machine.universal.fluid.output.sec", fluidName, TJValues.thousandFormat.format(amount))
                 : new TextComponentTranslation("machine.universal.fluid.output.secs", fluidName, TJValues.thousandFormat.format(amount));
+        fluidInputText.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.machine.universal.fluid_current_amount", "§b" + TJValues.thousandFormat.format(currentAmount)))));
         if (priority != 0)
             return this.addTextComponent(fluidInputText, priority);
         else return this.addTextComponent(fluidInputText);

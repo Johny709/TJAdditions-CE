@@ -1024,6 +1024,7 @@ item.me.max_capacity_upgrade.name=Max Capacity Upgrade Card
 item.me.max_capacity_upgrade.description=Add to ME parts for maximum capacity as possible.
 item.me.max_capacity_upgrade.count=%s (%,d)
 
+tj.machine.universal.fluid_current_amount=§7Current Fluid Amount: §b%s L
 tj.machine.universal.item_amount=§7Amount: §6%s
 tj.machine.universal.fluid_amount=§7Amount: §3%s L
 tj.machine.universal.item_throughput=§7Item Throughput: §6%s
