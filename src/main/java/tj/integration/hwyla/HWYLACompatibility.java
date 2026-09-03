@@ -18,6 +18,7 @@ public final class HWYLACompatibility implements IWailaPlugin {
         ParallelWorkableInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         ParallelItemFluidHandlerInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         LinkedPosInfoDataProvider.INSTANCE.register(iWailaRegistrar);
+        LinkedEntityInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         GeneratorInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         RecipeInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         StructureInfoDataProvider.INSTANCE.register(iWailaRegistrar);

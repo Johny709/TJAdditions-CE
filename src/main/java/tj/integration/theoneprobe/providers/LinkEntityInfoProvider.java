@@ -34,7 +34,8 @@ public class LinkEntityInfoProvider extends CapabilityInfoProvider<LinkEntity> {
         pageInfo.text(TextStyleClass.INFO + "§b(" +(pageIndex + 1) + "/" + size + ")");
 
         for (int i = pageIndex; i < pageIndex + pageSize && i < size; i++) {
-            final WorldServer world = capability.isInterDimensional() ? DimensionManager.getWorld(capability.getDimension(i)) : (WorldServer) capability.world();
+            final WorldServer world = capability.isInterDimensional() ? DimensionManager.getWorld(capability.getDimension(i)) :
+                    (WorldServer) capability.world();
             final DimensionType worldType = world.provider.getDimensionType();
             final int worldID = world.provider.getDimension();
             final Entity entity = capability.getEntity(i);
@@ -47,8 +48,10 @@ public class LinkEntityInfoProvider extends CapabilityInfoProvider<LinkEntity> {
                 entityInfo.text(TextStyleClass.INFO + (entity.hasCustomName() ? entity.getCustomNameTag() : entity.getName()));
 
                 final IProbeInfo posInfo = probeInfo.vertical(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                posInfo.element(new ElementTJText(TextStyleClass.INFO + String.format("{*tj.machine.universal.linked.dimension[*%s;%s*]*}", worldType.getName(), TJValues.thousandFormat.format(worldID))));
-                posInfo.element(new ElementTJText(TextStyleClass.INFO + String.format("{*tj.machine.universal.linked.pos[*%s;%s;%s*]*}", TJValues.thousandFormat.format(entity.posX), TJValues.thousandFormat.format(entity.posY), TJValues.thousandFormat.format(entity.posZ))));
+                posInfo.element(new ElementTJText(TextStyleClass.INFO + String.format("{*tj.machine.universal.linked.dimension[*%s;%s*]*}",
+                        worldType.getName(), TJValues.thousandFormat.format(worldID))));
+                posInfo.element(new ElementTJText(TextStyleClass.INFO + String.format("{*tj.machine.universal.linked.pos[*%s;%s;%s*]*}",
+                        TJValues.thousandFormat.format(entity.posX), TJValues.thousandFormat.format(entity.posY), TJValues.thousandFormat.format(entity.posZ))));
             }
         }
     }
