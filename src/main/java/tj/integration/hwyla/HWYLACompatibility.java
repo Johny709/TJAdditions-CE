@@ -21,6 +21,7 @@ public final class HWYLACompatibility implements IWailaPlugin {
         LinkedEntityInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         GeneratorInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         RecipeInfoDataProvider.INSTANCE.register(iWailaRegistrar);
+        WorkableInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         StructureInfoDataProvider.INSTANCE.register(iWailaRegistrar);
     }
 }
