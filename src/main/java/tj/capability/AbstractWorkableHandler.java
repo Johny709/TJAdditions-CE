@@ -1,7 +1,6 @@
 package tj.capability;
 
 import gregtech.api.capability.GregtechTileCapabilities;
-import gregtech.api.capability.IWorkable;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.util.function.BooleanConsumer;
@@ -15,7 +14,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 
-public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends MTETrait implements IWorkable, IRecipeInfo {
+public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends MTETrait implements IRecipeInfo {
 
     protected final H handler;
     protected BooleanConsumer activeConsumer;

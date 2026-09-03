@@ -54,7 +54,7 @@ public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<I
                 this.fluidInputsList.add(DrillingMud.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
             for (amount = this.drillingMudAmount; amount > 0; amount -= Integer.MAX_VALUE)
                 this.fluidOutputsList.add(UsedDrillingMud.getFluid((int) Math.min(Integer.MAX_VALUE, amount)));
-            amount = this.outputFluidAmount /= (long) (1.00 + 0.05 * this.handler.getMaintenanceProblems());
+            amount = this.outputFluidAmount / (long) (1.00 + 0.05 * this.handler.getMaintenanceProblems());
             for (; amount > 0; amount -= Integer.MAX_VALUE)
                 this.fluidOutputsList.add(new FluidStack(this.veinFluid, (int) Math.min(Integer.MAX_VALUE, amount)));
             this.energyPerTick = this.handler.getMaxVoltage();
