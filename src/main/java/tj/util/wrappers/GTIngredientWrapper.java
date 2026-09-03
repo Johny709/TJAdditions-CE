@@ -18,10 +18,6 @@ public final class GTIngredientWrapper {
         this.count = (int) Math.min(Integer.MAX_VALUE, this.countLong);
     }
 
-    public Ingredient getIngredient() {
-        return this.ingredient;
-    }
-
     public void increment(long count) {
         this.countLong += count;
         this.count = (int) Math.min(Integer.MAX_VALUE, this.countLong);
@@ -30,6 +26,10 @@ public final class GTIngredientWrapper {
     public void setCount(long count) {
         this.countLong = count;
         this.count = (int) Math.min(Integer.MAX_VALUE, this.countLong);
+    }
+
+    public Ingredient getIngredient() {
+        return this.ingredient;
     }
 
     public long getCountLong() {

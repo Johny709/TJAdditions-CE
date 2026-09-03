@@ -32,6 +32,8 @@ import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
 import tj.util.TextUtils;
 import tj.util.consumers.QuadConsumer;
+import tj.util.wrappers.GTFluidStackWrapper;
+import tj.util.wrappers.GTItemStackWrapper;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -154,12 +156,12 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
     private void writeToBuffer(List<TextComponentWrapper<?>> displayText, PacketBuffer buffer) {
         buffer.writeInt(displayText.size());
         for (TextComponentWrapper<?> textComponentWrapper : displayText) {
-            if (textComponentWrapper.getValue() instanceof ItemStack) {
+            if (textComponentWrapper.getValue() instanceof GTItemStackWrapper) {
                 buffer.writeByte(1);
-                buffer.writeItemStack((ItemStack) textComponentWrapper.getValue());
-            } else if (textComponentWrapper.getValue() instanceof FluidStack) {
+                ((GTItemStackWrapper) textComponentWrapper.getValue()).writeToBuffer(buffer);
+            } else if (textComponentWrapper.getValue() instanceof GTFluidStackWrapper) {
                 buffer.writeByte(2);
-                buffer.writeCompoundTag(((FluidStack) textComponentWrapper.getValue()).writeToNBT(new NBTTagCompound()));
+                ((GTFluidStackWrapper) textComponentWrapper.getValue()).writeToBuffer(buffer);
             } else if (textComponentWrapper.getValue() instanceof CountableIngredient) {
                 final CountableIngredient ingredient = (CountableIngredient) textComponentWrapper.getValue();
                 buffer.writeByte(3);
@@ -185,18 +187,10 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
             TextComponentWrapper<?> componentWrapper = null;
             switch (buffer.readByte()) {
                 case 1:
-                    try {
-                        displayText.add(componentWrapper = new TextComponentWrapper<>(buffer.readItemStack()).setPriority(buffer.readInt()));
-                    } catch (IOException e) {
-                        TJ.logger.info(e.getMessage());
-                    }
+                    displayText.add(componentWrapper = new TextComponentWrapper<>(GTItemStackWrapper.readFromBuffer(buffer)).setPriority(buffer.readInt()));
                     break;
                 case 2:
-                    try {
-                        displayText.add(componentWrapper = new TextComponentWrapper<>(FluidStack.loadFluidStackFromNBT(buffer.readCompoundTag())).setPriority(buffer.readInt()));
-                    } catch (IOException e) {
-                        TJ.logger.info(e.getMessage());
-                    }
+                    displayText.add(componentWrapper = new TextComponentWrapper<>(GTFluidStackWrapper.readFromBuffer(buffer)).setPriority(buffer.readInt()));
                     break;
                 case 3:
                     final int count1 = buffer.readInt();
@@ -377,24 +371,17 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                         heightApplied += 18;
                 } else widthApplied += 18;
                 stackApplied = true;
-                if (component.getValue() instanceof ItemStack) {
+                if (component.getValue() instanceof GTItemStackWrapper) {
                     GuiTextures.SLOT.draw(x + widthApplied, y + heightApplied, 18, 18);
-                    Widget.drawItemStack((ItemStack) component.getValue(), x + widthApplied + 1, y + heightApplied + 1, null);
+                    final GTItemStackWrapper itemStackWrapper = (GTItemStackWrapper) component.getValue();
+                    TJGuiUtils.drawItemStack(x + widthApplied + 1, y + heightApplied + 1, itemStackWrapper.getItemStack(), itemStackWrapper.getCountLong());
                 } else if (component.getValue() instanceof List<?>) {
                     GuiTextures.SLOT.draw(x + widthApplied, y + heightApplied, 18, 18);
                     Widget.drawItemStack(this.getItemStackOreDict((List<ItemStack>) component.getValue()), x + widthApplied + 1, y + heightApplied + 1, null);
                 } else {
-                    final FluidStack fluidStack = (FluidStack) component.getValue();
+                    final GTFluidStackWrapper fluidStackWrapper = (GTFluidStackWrapper) component.getValue();
                     GuiTextures.FLUID_SLOT.draw(x + widthApplied, y + heightApplied, 18, 18);
-                    GlStateManager.disableBlend();
-                    TJGuiUtils.drawFluidForGui(fluidStack, Math.max(1, fluidStack.amount), Math.max(1, fluidStack.amount), x + widthApplied + 1, y + heightApplied + 1, 17, 17);
-                    GlStateManager.pushMatrix();
-                    GlStateManager.scale(0.5, 0.5, 1);
-                    final String s = TextFormattingUtil.formatLongToCompactString(fluidStack.amount, 4) + "L";
-                    fontRenderer.drawStringWithShadow(s, (x + widthApplied + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + heightApplied + 14) * 2, 0xFFFFFF);
-                    GlStateManager.popMatrix();
-                    GlStateManager.enableBlend();
-                    GlStateManager.color(1.0f, 1.0f, 1.0f);
+                    TJGuiUtils.drawFluidStack(x + widthApplied, y + heightApplied, fluidStackWrapper.getFluidStack(), fluidStackWrapper.getCountLong());
                 }
             }
         }
@@ -485,8 +472,10 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                 stackApplied = true;
                 widthApplied += 18;
                 if (mouseX >= x + lastWidth && mouseX <= x + widthApplied && mouseY >= y + lastHeight && mouseY <= y + heightApplied) {
-                    if (component.getValue() instanceof ItemStack || component.getValue() instanceof List<?>) {
-                        final ItemStack itemStack = component.getValue() instanceof ItemStack ? (ItemStack) component.getValue() : this.getItemStackOreDict((List<ItemStack>) component.getValue());
+                    if (component.getValue() instanceof GTItemStackWrapper || component.getValue() instanceof List<?>) {
+                        final ItemStack itemStack = component.getValue() instanceof GTItemStackWrapper ? ((GTItemStackWrapper) component.getValue()).getItemStack() :
+                                this.getItemStackOreDict((List<ItemStack>) component.getValue());
+                        final long count = component.getValue() instanceof GTItemStackWrapper ? ((GTItemStackWrapper) component.getValue()).getCountLong() : itemStack.getCount();
                         final List<String> tooltip = getItemToolTip(itemStack);
                         String name = itemStack.getDisplayName();
                         final ITextComponent hoverComponent = new TextComponentString("");
@@ -498,19 +487,19 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                         return new TextComponentWrapper<>(new TextComponentWrapper<>(new TextComponentString("")
                                 .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(name)
                                         .appendSibling(hoverComponent)
-                                        .appendText("\n" + I18n.format("tj.machine.universal.item_amount", TJValues.thousandFormat.format(itemStack.getCount())))))))
+                                        .appendText("\n" + I18n.format("tj.machine.universal.item_amount", TJValues.thousandFormat.format(count)))))))
                                 .setAdvancedHoverComponent(Collections.singletonList(new TextComponentWrapper<>(itemStack))))
                                 .setAdvancedHoverComponent(component.getAdvancedHoverComponent());
                     } else {
-                        final FluidStack fluidStack = (FluidStack) component.getValue();
+                        final GTFluidStackWrapper fluidStackWrapper = (GTFluidStackWrapper) component.getValue();
                         // Add chemical formula tooltip
-                        String formula = FluidTooltipUtil.getFluidTooltip(fluidStack);
+                        String formula = FluidTooltipUtil.getFluidTooltip(fluidStackWrapper.getFluidStack());
                         formula = formula == null || formula.isEmpty() ? "" : "\n" + formula;
                         return new TextComponentWrapper<>(new TextComponentWrapper<>(new TextComponentString("")
-                                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(fluidStack.getLocalizedName())
+                                .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(fluidStackWrapper.getFluidStack().getLocalizedName())
                                         .appendText(ChatFormatting.GRAY + formula)
-                                        .appendText("\n" + I18n.format("tj.machine.universal.fluid_amount", TJValues.thousandFormat.format(fluidStack.amount)))))))
-                                .setAdvancedHoverComponent(Collections.singletonList(new TextComponentWrapper<>(fluidStack))))
+                                        .appendText("\n" + I18n.format("tj.machine.universal.fluid_amount", TJValues.thousandFormat.format(fluidStackWrapper.getCountLong())))))))
+                                .setAdvancedHoverComponent(Collections.singletonList(new TextComponentWrapper<>(fluidStackWrapper.getFluidStack()))))
                                 .setAdvancedHoverComponent(component.getAdvancedHoverComponent());
                     }
                 }
@@ -571,12 +560,12 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
             this.value = value;
         }
 
-        public TextComponentWrapper<?> setPriority(int priority) {
+        public TextComponentWrapper<T> setPriority(int priority) {
             this.priority = priority;
             return this;
         }
 
-        public TextComponentWrapper<?> setAdvancedHoverComponent(List<TextComponentWrapper<?>> advancedHoverComponent) {
+        public TextComponentWrapper<T> setAdvancedHoverComponent(List<TextComponentWrapper<?>> advancedHoverComponent) {
             this.advancedHoverComponent = advancedHoverComponent;
             return this;
         }
@@ -595,13 +584,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
 
         @Override
         public boolean equals(Object obj) {
-            if (this.getValue() instanceof ItemStack && obj instanceof ItemStack)
-                return ItemStack.areItemStacksEqual((ItemStack) this.getValue(), (ItemStack) obj);
-            else if (this.getValue() instanceof FluidStack && obj instanceof FluidStack)
-                return ((FluidStack) this.getValue()).isFluidStackIdentical((FluidStack) obj);
-            else if (this.getValue() instanceof TextComponentBase && obj instanceof TextComponentBase)
-                return this.getValue().equals(obj);
-            return super.equals(obj);
+            return super.equals(obj) || this.getValue().equals(obj);
         }
     }
 }
