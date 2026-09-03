@@ -61,7 +61,7 @@ public class ParallelItemFluidHandlerInfoDataProvider implements IWailaDataProvi
         compound.setTag("itemOutputs", itemOutputs);
         compound.setTag("fluidInputs", fluidInputs);
         compound.setTag("fluidOutputs", fluidOutputs);
-        tag.setTag("tj.item_fluid_handler", compound);
+        tag.setTag("tj.recipeinfo", compound);
         return tag;
     }
 
@@ -78,7 +78,7 @@ public class ParallelItemFluidHandlerInfoDataProvider implements IWailaDataProvi
         final IParallelItemFluidHandlerInfo itemFluidHandlerInfo = metaTileEntity.getCapability(TJCapabilities.CAPABILITY_PARALLEL_ITEM_FLUID_HANDLING, null);
         if (itemFluidHandlerInfo == null)
             return tooltip;
-        final NBTTagCompound compound = accessor.getNBTData().getCompoundTag("tj.item_fluid_handler");
+        final NBTTagCompound compound = accessor.getNBTData().getCompoundTag("tj.recipeinfo");
         final NBTTagList itemInputs = compound.getTagList("itemInputs", 10);
         final NBTTagList itemOutputs = compound.getTagList("itemOutputs", 10);
         final NBTTagList fluidInputs = compound.getTagList("fluidInputs", 10);
