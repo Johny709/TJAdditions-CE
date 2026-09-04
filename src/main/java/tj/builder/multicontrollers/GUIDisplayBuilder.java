@@ -76,7 +76,7 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addItemStack(ItemStack itemStack, int priority) {
         this.itemMap.computeIfAbsent(priority, key -> new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY))
                 .computeIfAbsent(itemStack, key -> {
-                    final GTItemStackWrapper itemStackWrapper = new GTItemStackWrapper(key);
+                    final GTItemStackWrapper itemStackWrapper = new GTItemStackWrapper(key, 0);
                     this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(itemStackWrapper)
                             .setPriority(priority));
                     return itemStackWrapper;
@@ -91,7 +91,7 @@ public final class GUIDisplayBuilder {
         uiBuilder.accept(builder);
         this.itemMap.computeIfAbsent(priority, key -> new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY))
                 .computeIfAbsent(itemStack, key -> {
-                    final GTItemStackWrapper itemStackWrapper = new GTItemStackWrapper(key);
+                    final GTItemStackWrapper itemStackWrapper = new GTItemStackWrapper(key, 0);
                     this.textComponentWrappers.add(new AdvancedDisplayWidget.TextComponentWrapper<>(itemStackWrapper)
                             .setAdvancedHoverComponent(builder.getTextComponentWrappers())
                             .setPriority(priority));
@@ -442,10 +442,10 @@ public final class GUIDisplayBuilder {
             if (priority != 0)
                 this.addTranslationLine(priority, "machine.universal.consumption");
             else this.addTranslationLine("machine.universal.consumption");
-            for (FluidStack stack : handlerInfo.getFluidInputs())
-                this.addFluidStack(stack, priority);
             for (ItemStack stack : handlerInfo.getItemInputs())
                 this.addItemStack(stack, priority);
+            for (FluidStack stack : handlerInfo.getFluidInputs())
+                this.addFluidStack(stack, priority);
         }
         return this;
     }
@@ -453,16 +453,14 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addRecipeParallelInputLine(IParallelItemFluidHandlerInfo handlerInfo, int priority) {
         if (!handlerInfo.getAllItemInputs().isEmpty() || !handlerInfo.getAllFluidInputs().isEmpty()) {
             boolean areInputsEmpty = true;
-            if (handlerInfo.getAllFluidInputs() != null) {
-                for (Int2ObjectMap.Entry<List<FluidStack>> entry : handlerInfo.getAllFluidInputs().int2ObjectEntrySet()) {
-                    if (entry.getValue() == null) continue;
-                    if (!entry.getValue().isEmpty()) {
-                        areInputsEmpty = false;
-                        break;
-                    }
+            for (Int2ObjectMap.Entry<List<ItemStack>> entry : handlerInfo.getAllItemInputs().int2ObjectEntrySet()) {
+                if (entry.getValue() == null) continue;
+                if (!entry.getValue().isEmpty()) {
+                    areInputsEmpty = false;
+                    break;
                 }
             }
-            for (Int2ObjectMap.Entry<List<ItemStack>> entry : handlerInfo.getAllItemInputs().int2ObjectEntrySet()) {
+            for (Int2ObjectMap.Entry<List<FluidStack>> entry : handlerInfo.getAllFluidInputs().int2ObjectEntrySet()) {
                 if (entry.getValue() == null) continue;
                 if (!entry.getValue().isEmpty()) {
                     areInputsEmpty = false;
@@ -473,18 +471,16 @@ public final class GUIDisplayBuilder {
                 if (priority != 0)
                     this.addTranslationLine(priority, "machine.universal.consumption");
                 else this.addTranslationLine("machine.universal.consumption");
-                if (handlerInfo.getAllFluidInputs() != null) {
-                    for (Int2ObjectMap.Entry<List<FluidStack>> entry : handlerInfo.getAllFluidInputs().int2ObjectEntrySet()) {
-                        if (entry.getValue() == null) continue;
-                        for (FluidStack stack : entry.getValue()) {
-                            this.addFluidStack(stack, priority);
-                        }
-                    }
-                }
                 for (Int2ObjectMap.Entry<List<ItemStack>> entry : handlerInfo.getAllItemInputs().int2ObjectEntrySet()) {
                     if (entry.getValue() == null) continue;
                     for (ItemStack stack : entry.getValue()) {
                         this.addItemStack(stack, priority);
+                    }
+                }
+                for (Int2ObjectMap.Entry<List<FluidStack>> entry : handlerInfo.getAllFluidInputs().int2ObjectEntrySet()) {
+                    if (entry.getValue() == null) continue;
+                    for (FluidStack stack : entry.getValue()) {
+                        this.addFluidStack(stack, priority);
                     }
                 }
             }
@@ -501,10 +497,10 @@ public final class GUIDisplayBuilder {
             if (priority != 0)
                 this.addTranslationLine(priority, "machine.universal.producing");
             else this.addTranslationLine("machine.universal.producing");
-            for (FluidStack stack : handlerInfo.getFluidOutputs())
-                this.addFluidStack(stack, priority);
             for (ItemStack stack : handlerInfo.getItemOutputs())
                 this.addItemStack(stack, priority);
+            for (FluidStack stack : handlerInfo.getFluidOutputs())
+                this.addFluidStack(stack, priority);
         }
         return this;
     }
@@ -512,16 +508,14 @@ public final class GUIDisplayBuilder {
     public GUIDisplayBuilder addRecipeParallelOutputLine(IParallelItemFluidHandlerInfo handlerInfo, int priority) {
         if (!handlerInfo.getAllItemOutputs().isEmpty() || !handlerInfo.getAllFluidOutputs().isEmpty()) {
             boolean areOutputsEmpty = true;
-            if (handlerInfo.getAllFluidOutputs() != null) {
-                for (Int2ObjectMap.Entry<List<FluidStack>> entry : handlerInfo.getAllFluidOutputs().int2ObjectEntrySet()) {
-                    if (entry.getValue() == null) continue;
-                    if (!entry.getValue().isEmpty()) {
-                        areOutputsEmpty = false;
-                        break;
-                    }
+            for (Int2ObjectMap.Entry<List<ItemStack>> entry : handlerInfo.getAllItemOutputs().int2ObjectEntrySet()) {
+                if (entry.getValue() == null) continue;
+                if (!entry.getValue().isEmpty()) {
+                    areOutputsEmpty = false;
+                    break;
                 }
             }
-            for (Int2ObjectMap.Entry<List<ItemStack>> entry : handlerInfo.getAllItemOutputs().int2ObjectEntrySet()) {
+            for (Int2ObjectMap.Entry<List<FluidStack>> entry : handlerInfo.getAllFluidOutputs().int2ObjectEntrySet()) {
                 if (entry.getValue() == null) continue;
                 if (!entry.getValue().isEmpty()) {
                     areOutputsEmpty = false;
@@ -532,18 +526,16 @@ public final class GUIDisplayBuilder {
                 if (priority != 0)
                     this.addTranslationLine(priority, "machine.universal.producing");
                 else this.addTranslationLine("machine.universal.producing");
-                if (handlerInfo.getAllFluidOutputs() != null) {
-                    for (Int2ObjectMap.Entry<List<FluidStack>> entry : handlerInfo.getAllFluidOutputs().int2ObjectEntrySet()) {
-                        if (entry.getValue() == null) continue;
-                        for (FluidStack stack : entry.getValue()) {
-                            this.addFluidStack(stack, priority);
-                        }
-                    }
-                }
                 for (Int2ObjectMap.Entry<List<ItemStack>> entry : handlerInfo.getAllItemOutputs().int2ObjectEntrySet()) {
                     if (entry.getValue() == null) continue;
                     for (ItemStack stack : entry.getValue()) {
                         this.addItemStack(stack, priority);
+                    }
+                }
+                for (Int2ObjectMap.Entry<List<FluidStack>> entry : handlerInfo.getAllFluidOutputs().int2ObjectEntrySet()) {
+                    if (entry.getValue() == null) continue;
+                    for (FluidStack stack : entry.getValue()) {
+                        this.addFluidStack(stack, priority);
                     }
                 }
             }
