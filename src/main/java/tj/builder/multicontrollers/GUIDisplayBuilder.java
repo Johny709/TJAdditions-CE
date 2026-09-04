@@ -9,6 +9,7 @@ import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.common.items.MetaItems;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -30,7 +31,6 @@ import tj.util.wrappers.GTItemStackWrapper;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -39,8 +39,8 @@ import static tj.util.TJFluidUtils.VOID_TANK;
 
 public final class GUIDisplayBuilder {
 
-    private final IdentityHashMap<Integer, Object2ObjectMap<ItemStack, GTItemStackWrapper>> itemMap = new IdentityHashMap<>();
-    private final IdentityHashMap<Integer, Object2ObjectMap<FluidStack, GTFluidStackWrapper>> fluidMap = new IdentityHashMap<>();
+    private final Int2ObjectMap<Object2ObjectMap<ItemStack, GTItemStackWrapper>> itemMap = new Int2ObjectOpenHashMap<>();
+    private final Int2ObjectMap<Object2ObjectMap<FluidStack, GTFluidStackWrapper>> fluidMap = new Int2ObjectOpenHashMap<>();
     private final List<AdvancedDisplayWidget.TextComponentWrapper<?>> textComponentWrappers = new ArrayList<>();
     private final boolean nested;
     private int count;
