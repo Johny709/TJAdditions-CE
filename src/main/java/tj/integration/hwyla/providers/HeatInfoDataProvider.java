@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import tj.capability.IHeatInfo;
 import tj.capability.TJCapabilities;
+import tj.util.Color;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -61,7 +62,7 @@ public class HeatInfoDataProvider implements IWailaDataProvider {
         final long maxHeat = compound.getLong("maxHeat");
         final long heat = Math.min(maxHeat, compound.getLong("heat"));
         tooltip.add(SpecialChars.getRenderString("tj.progressinfo", I18n.format("tj.top.progress.heat"),
-                String.valueOf(heat), String.valueOf(maxHeat), "°C", "°C", "RED", ",###"));
+                String.valueOf(heat), String.valueOf(maxHeat), "°C", "°C", Color.RED.toString(), ",###"));
         return tooltip;
     }
 }

@@ -16,6 +16,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import tj.TJValues;
+import tj.util.Color;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
@@ -95,7 +96,7 @@ public class FuelableInfoDataProvider implements IWailaDataProvider {
                 tooltip.add(I18n.format("gregtech.top.fuel_burn") + " " + TJValues.thousandTwoPlaceFormat.format(burnTimePrecise) +
                         " " + I18n.format("gregtech.top.fuel_time"));
             tooltip.add(SpecialChars.getRenderString("tj.progressinfo", "", String.valueOf(fuelRemaining),
-                    String.valueOf(fuelCapacity), "", "", "ORANGE", ",###"));
+                    String.valueOf(fuelCapacity), "", "", Color.GOLD.toString(), ",###"));
         }
         if (tagList.isEmpty())
             tooltip.add(I18n.format("gregtech.top.fuel_none"));

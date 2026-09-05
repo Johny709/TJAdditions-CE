@@ -12,6 +12,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import tj.util.Color;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -61,7 +62,7 @@ public class ProgressInfoDataProvider implements IWailaDataProvider {
         final double maxProgress = (double) compound.getInteger("maxProgress") / 20;
         final double progress = Math.min(maxProgress, (double) compound.getInteger("progress") / 20);
         tooltip.add(SpecialChars.getRenderString("tj.progressinfo", I18n.format("gregtech.top.progress"),
-                String.valueOf(progress), String.valueOf(maxProgress), "s", "s", "GREEN", ",##0.00"));
+                String.valueOf(progress), String.valueOf(maxProgress), "s", "s", Color.GREEN.toString(), ",##0.00"));
         return tooltip;
     }
 }

@@ -11,7 +11,9 @@ import net.minecraftforge.common.capabilities.Capability;
 import tj.TJValues;
 import tj.capability.IParallelController;
 import tj.capability.TJCapabilities;
+import tj.integration.theoneprobe.impl.ElementProgressBar;
 import tj.integration.theoneprobe.impl.ElementTJText;
+import tj.util.Color;
 import tj.util.TJUtility;
 
 public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IParallelController> {
@@ -42,16 +44,9 @@ public class ParallelControllerInfoProvider extends CapabilityInfoProvider<IPara
         if (multiblockRecipe != null)
             controllerInfo.element(new ElementTJText(String.format("{*tj.multiblock.universal.tooltip.1[*%s*]*}", "{*recipemap." + multiblockRecipe.getUnlocalizedName() + ".name*}")));
         if (energyCapacity > 0) {
-            final int energyPercent = (int) Math.floor(energyStored / (energyCapacity * 1.0) * 100);
-            final String displayEnergy = String.format("%s/%s EU ", TJValues.thousandFormat.format(energyStored), TJValues.thousandFormat.format(energyCapacity));
             final IProbeInfo energyStoredInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-            energyStoredInfo.element(new ElementTJText("{*tj.top.parallel_controller.energy_stored*}"));
-            energyStoredInfo.progress(energyPercent, 100, probeInfo.defaultProgressStyle()
-                    .prefix(displayEnergy)
-                    .suffix("%")
-                    .alternateFilledColor(0xFFF8EB34)
-                    .filledColor(0xFFF8EB34)
-                    .width((int) (displayEnergy.length() * 6.2)));
+            energyStoredInfo.element(new ElementProgressBar("{*tj.top.parallel_controller.energy_stored*}", String.valueOf(energyStored),
+                    String.valueOf(energyCapacity), " EU", " EU", Color.YELLOW.toString(), ",###"));
         }
     }
 

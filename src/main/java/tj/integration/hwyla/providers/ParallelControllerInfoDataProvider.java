@@ -14,6 +14,7 @@ import net.minecraft.world.World;
 import tj.TJValues;
 import tj.capability.IParallelController;
 import tj.capability.TJCapabilities;
+import tj.util.Color;
 import tj.util.TJUtility;
 
 import javax.annotation.Nonnull;
@@ -86,7 +87,7 @@ public class ParallelControllerInfoDataProvider implements IWailaDataProvider {
                     I18n.format("recipemap." + compound.getString("recipeMap") + ".name")));
         if (energyCapacity > 0) {
             tooltip.add(SpecialChars.getRenderString("tj.progressinfo", I18n.format("tj.top.parallel_controller.energy_stored"),
-                    String.valueOf(energyStored), String.valueOf(energyCapacity), " EU", " EU", "YELLOW", ",###"));
+                    String.valueOf(energyStored), String.valueOf(energyCapacity), " EU", " EU", Color.YELLOW.toString(), ",###"));
         }
         return tooltip;
     }

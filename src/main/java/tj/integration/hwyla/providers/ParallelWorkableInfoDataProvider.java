@@ -15,6 +15,7 @@ import net.minecraft.world.World;
 import tj.TJValues;
 import tj.capability.IMultipleWorkable;
 import tj.capability.TJCapabilities;
+import tj.util.Color;
 import tj.util.TJUtility;
 
 import javax.annotation.Nonnull;
@@ -86,7 +87,7 @@ public class ParallelWorkableInfoDataProvider implements IWailaDataProvider {
                     active ? "gregtech.multiblock.running" :
                     "gregtech.multiblock.idling")));
             tooltip.add(SpecialChars.getRenderString("tj.progressinfo", I18n.format("gregtech.top.progress"),
-                    String.valueOf(progress), String.valueOf(maxProgress), "s", "s", "GREEN", ",##0.00"));
+                    String.valueOf(progress), String.valueOf(maxProgress), "s", "s", Color.GREEN.toString(), ",##0.00"));
             tooltip.add(I18n.format("tj.multiblock.eu", TJValues.thousandFormat.format(eut),
                     tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier]));
         }

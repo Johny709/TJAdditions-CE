@@ -11,7 +11,9 @@ import net.minecraftforge.common.capabilities.Capability;
 import tj.TJValues;
 import tj.capability.IMultipleWorkable;
 import tj.capability.TJCapabilities;
+import tj.integration.theoneprobe.impl.ElementProgressBar;
 import tj.integration.theoneprobe.impl.ElementTJText;
+import tj.util.Color;
 import tj.util.TJUtility;
 
 
@@ -33,11 +35,10 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
 
         for (int i = pageIndex; i < pageIndex + pageSize; i++) {
             if (i < size) {
-                final float currentProgress = capability.getProgress(i);
-                final float maxProgress = capability.getMaxProgress(i);
+                final String progress = String.valueOf(capability.getProgress(i));
+                final String maxProgress = String.valueOf(capability.getMaxProgress(i));
                 final long EUt = capability.getRecipeEUt(i);
                 final int tier = TJUtility.getTierFromVoltage(EUt);
-                final int progressScaled = maxProgress == 0 ? 0 : (int) Math.floor(currentProgress / (maxProgress * 1.0) * 100);
                 final boolean isWorking = capability.isWorkingEnabled(i);
                 final boolean isActive = capability.isInstanceActive(i);
                 final boolean hasProblems = capability.hasProblems(i);
@@ -49,17 +50,8 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
                         : isActive ? "{*gregtech.multiblock.running*}"
                         : "{*gregtech.multiblock.idling*}")));
 
-                final String displayProgress = String.format("%ss / %ss | ", TJValues.thousandTwoPlaceFormat.format(currentProgress / 20), TJValues.thousandTwoPlaceFormat.format(maxProgress / 20));
                 final IProbeInfo progressInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                progressInfo.element(new ElementTJText("{*gregtech.top.progress*}"));
-                progressInfo.progress(progressScaled, 100, probeInfo.defaultProgressStyle()
-                        .width((int) (displayProgress.length() * 6.2))
-                        .prefix(displayProgress)
-                        .suffix("%")
-                        .borderColor(0x00000000)
-                        .backgroundColor(0x00000000)
-                        .filledColor(0xFF000099)
-                        .alternateFilledColor(0xFF000077));
+                progressInfo.element(new ElementProgressBar("{*gregtech.top.progress*}", progress, maxProgress, "s", "s", Color.GREEN.toString(), ",###"));
                 final IProbeInfo EUtInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
                 EUtInfo.element(new ElementTJText(String.format("{*tj.multiblock.eu[*%s;%s*]*}", TJValues.thousandFormat.format(EUt),
                         tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier])));

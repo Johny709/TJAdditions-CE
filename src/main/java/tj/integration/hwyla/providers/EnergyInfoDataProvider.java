@@ -12,6 +12,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import tj.util.Color;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -61,7 +62,7 @@ public class EnergyInfoDataProvider implements IWailaDataProvider {
         final long energyCapacity = compound.getLong("energyCapacity");
         final long energyStored = Math.min(energyCapacity, compound.getLong("energyStored"));
         tooltip.add(SpecialChars.getRenderString("tj.progressinfo", I18n.format("gregtech.top.energy_stored"),
-                String.valueOf(energyStored), String.valueOf(energyCapacity), " EU", " EU", "YELLOW", ",###"));
+                String.valueOf(energyStored), String.valueOf(energyCapacity), " EU", " EU", Color.YELLOW.toString(), ",###"));
         return tooltip;
     }
 }

@@ -2,8 +2,9 @@ package tj.mui;
 
 import gregtech.api.gui.resources.AdoptableTextureArea;
 import gregtech.api.gui.resources.TextureArea;
+import tj.util.Color;
 
-public class TJGuiTextures {
+public final class TJGuiTextures {
 
     public static final TextureArea DARKENED_SLOT = TextureArea.fullImage("textures/gui/base/darkened_slot.png");
     public static final TextureArea MULTIBLOCK_DISPLAY_BASE = AdoptableTextureArea.fullImage("textures/gui/base/multiblock_display_base.png", 18, 18, 2, 2);
@@ -98,4 +99,15 @@ public class TJGuiTextures {
     public static final TextureArea INTERFACE_SETTINGS_LEFT = TextureArea.fullImage("textures/gui/widget/interface_settings_base_left.png");
     public static final TextureArea UPGRADE_OVERLAY = TextureArea.fullImage("textures/gui/widget/me.upgrade_overlay.png");
     public static final TextureArea PATTERN_OVERLAY = TextureArea.fullImage("textures/gui/widget/me.pattern_overlay.png");
+
+    private TJGuiTextures() {}
+
+    public static TextureArea getBarByColor(String color) {
+        switch (color) {
+            case "§e": return TJGuiTextures.BAR_YELLOW;
+            case "§a": return TJGuiTextures.BAR_GREEN;
+            case "§6": return TJGuiTextures.BAR_ORANGE;
+            default: return TJGuiTextures.BAR_RED;
+        }
+    }
 }
