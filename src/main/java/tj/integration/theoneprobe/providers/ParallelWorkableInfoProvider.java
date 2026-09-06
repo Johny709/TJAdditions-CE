@@ -34,28 +34,28 @@ public class ParallelWorkableInfoProvider extends CapabilityInfoProvider<IMultip
         pageInfo.text(TextStyleClass.INFO + "§b(" + (pageIndex + 1) + "/" + size + ")");
 
         for (int i = pageIndex; i < pageIndex + pageSize; i++) {
-            if (i < size) {
-                final String progress = String.valueOf(capability.getProgress(i));
-                final String maxProgress = String.valueOf(capability.getMaxProgress(i));
-                final long EUt = capability.getRecipeEUt(i);
-                final int tier = TJUtility.getTierFromVoltage(EUt);
-                final boolean isWorking = capability.isWorkingEnabled(i);
-                final boolean isActive = capability.isInstanceActive(i);
-                final boolean hasProblems = capability.hasProblems(i);
+            if (!(i < size)) break;
+            final double maxProgress = (double) capability.getMaxProgress(i) / 20;
+            final double progress = Math.min(maxProgress, (double) capability.getProgress(i) / 20);
+            final long EUt = capability.getRecipeEUt(i);
+            final int tier = TJUtility.getTierFromVoltage(EUt);
+            final boolean isWorking = capability.isWorkingEnabled(i);
+            final boolean isActive = capability.isInstanceActive(i);
+            final boolean hasProblems = capability.hasProblems(i);
 
-                final IProbeInfo nameInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                nameInfo.text(TextStyleClass.INFO + "§b[" + (i + 1) + "]§r ");
-                nameInfo.element(new ElementTJText(String.format("{*tj.multiblock.parallel.status[*%s*]*}", !isWorking ? "{*gregtech.multiblock.work_paused*}"
-                        : hasProblems ? "{*machine.universal.has_problems*}"
-                        : isActive ? "{*gregtech.multiblock.running*}"
-                        : "{*gregtech.multiblock.idling*}")));
+            final IProbeInfo nameInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+            nameInfo.text(TextStyleClass.INFO + "§b[" + (i + 1) + "]§r ");
+            nameInfo.element(new ElementTJText(String.format("{*tj.multiblock.parallel.status[*%s*]*}", !isWorking ? "{*gregtech.multiblock.work_paused*}"
+                    : hasProblems ? "{*machine.universal.has_problems*}"
+                    : isActive ? "{*gregtech.multiblock.running*}"
+                    : "{*gregtech.multiblock.idling*}")));
 
-                final IProbeInfo progressInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                progressInfo.element(new ElementProgressBar("{*gregtech.top.progress*}", progress, maxProgress, "s", "s", Color.GREEN.toString(), ",###"));
-                final IProbeInfo EUtInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
-                EUtInfo.element(new ElementTJText(String.format("{*tj.multiblock.eu[*%s;%s*]*}", TJValues.thousandFormat.format(EUt),
-                        tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier])));
-            }
+            final IProbeInfo progressInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+            progressInfo.element(new ElementProgressBar("{*gregtech.top.progress*}", String.valueOf(progress), String.valueOf(maxProgress),
+                    "s", "s", Color.GREEN.toString(), ",##0.00"));
+            final IProbeInfo EUtInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
+            EUtInfo.element(new ElementTJText(String.format("{*tj.multiblock.eu[*%s;%s*]*}", TJValues.thousandFormat.format(EUt),
+                    tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier])));
         }
     }
 

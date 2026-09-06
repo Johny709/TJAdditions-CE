@@ -22,12 +22,12 @@ public abstract class MixinWorkableInfoProvider {
             at = @At("HEAD"), cancellable = true)
     private void injectAddProbeInfo(IWorkable capability, IProbeInfo probeInfo, TileEntity tileEntity, EnumFacing sideHit, CallbackInfo ci) {
         if (!TJConfig.machines.theOneProbeInfoProviderOverrides) return;
-        final double progress = capability.getProgress();
-        final double maxProgress = capability.getMaxProgress();
+        final double maxProgress = (double) capability.getMaxProgress() / 20;
+        final double progress = Math.min(maxProgress, (double) capability.getProgress() / 20);
         if (maxProgress > 0) {
             IProbeInfo progressInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
             progressInfo.element(new ElementProgressBar("{*gregtech.top.progress*}", String.valueOf(progress), String.valueOf(maxProgress),
-                    "s", "s", Color.GREEN.toString(), ",###"));
+                    "s", "s", Color.GREEN.toString(), ",##0.00"));
         }
         ci.cancel();
     }

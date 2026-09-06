@@ -22,15 +22,16 @@ public final class TheOneProbeCompatibility {
     }
 
     public static void registerCompatibility() {
-        ITheOneProbe probe = TheOneProbe.theOneProbeImp;
+        final ITheOneProbe probe = TheOneProbe.theOneProbeImp;
         probe.registerProvider(new ParallelControllerInfoProvider());
         probe.registerProvider(new ParallelWorkableInfoProvider());
         probe.registerProvider(new LinkedPosInfoProvider());
         probe.registerProvider(new LinkEntityInfoProvider());
-        probe.registerProvider(new IHeatInfoProvider());
-        probe.registerProvider(new IGeneratorInfoProvider());
-        probe.registerProvider(new IRecipeInfoProvider());
-        probe.registerProvider(new IParallelItemFluidHandlerInfoProvider());
+        probe.registerProvider(new HeatInfoProvider());
+        probe.registerProvider(new GeneratorInfoProvider());
+        probe.registerProvider(new RecipeInfoProvider());
+        probe.registerProvider(new ParallelItemFluidHandlerInfoProvider());
         probe.registerProvider(new StructureInfoProvider());
+        probe.registerProvider(new CoverWorkableInfoProvider());
     }
 }

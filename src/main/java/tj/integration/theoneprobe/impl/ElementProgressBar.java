@@ -5,7 +5,6 @@ import mcjty.theoneprobe.api.IElement;
 import mcjty.theoneprobe.network.NetworkTools;
 import tj.integration.theoneprobe.TheOneProbeCompatibility;
 import tj.mui.TJGuiUtils;
-import tj.util.Color;
 
 import java.awt.*;
 
@@ -41,7 +40,7 @@ public class ElementProgressBar implements IElement {
 
     @Override
     public int getHeight() {
-        return this.size.height;
+        return this.size.height + 4;
     }
 
     @Override

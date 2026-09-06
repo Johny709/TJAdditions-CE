@@ -17,7 +17,7 @@ import tj.integration.theoneprobe.impl.ElementTJText;
 
 import java.util.List;
 
-public class IParallelItemFluidHandlerInfoProvider extends CapabilityInfoProvider<IParallelItemFluidHandlerInfo> {
+public class ParallelItemFluidHandlerInfoProvider extends CapabilityInfoProvider<IParallelItemFluidHandlerInfo> {
 
     @Override
     protected Capability<IParallelItemFluidHandlerInfo> getCapability() {

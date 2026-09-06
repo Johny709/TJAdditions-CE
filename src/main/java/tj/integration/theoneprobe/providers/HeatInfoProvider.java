@@ -12,7 +12,7 @@ import tj.integration.theoneprobe.impl.ElementProgressBar;
 import tj.util.Color;
 
 
-public class IHeatInfoProvider extends CapabilityInfoProvider<IHeatInfo> {
+public class HeatInfoProvider extends CapabilityInfoProvider<IHeatInfo> {
 
     @Override
     protected Capability<IHeatInfo> getCapability() {

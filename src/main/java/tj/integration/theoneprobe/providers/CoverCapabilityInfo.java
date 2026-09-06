@@ -16,17 +16,15 @@ public abstract class CoverCapabilityInfo<T> extends CapabilityInfoProvider<T> {
 
     @Override
     public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
-        if (blockState.getBlock().hasTileEntity(blockState)) {
-            EnumFacing sideHit = data.getSideHit();
-            TileEntity tileEntity = world.getTileEntity(data.getPos());
-            if (tileEntity == null) return;
-            Capability<T> capability = getCapability();
-            if (!(tileEntity instanceof MetaTileEntityHolder)) return;
-            MetaTileEntityHolder holder = (MetaTileEntityHolder) tileEntity;
-            T resultCapability = holder.getMetaTileEntity().getCoverCapability(capability, sideHit);
-            if (resultCapability != null && allowDisplaying(resultCapability)) {
-                addProbeInfo(resultCapability, probeInfo, tileEntity, sideHit);
-            }
+        if (!blockState.getBlock().hasTileEntity(blockState)) return;
+        final EnumFacing sideHit = data.getSideHit();
+        final TileEntity tileEntity = world.getTileEntity(data.getPos());
+        if (!(tileEntity instanceof MetaTileEntityHolder)) return;
+        final Capability<T> capability = getCapability();
+        final MetaTileEntityHolder holder = (MetaTileEntityHolder) tileEntity;
+        final T resultCapability = holder.getMetaTileEntity().getCoverCapability(capability, sideHit);
+        if (resultCapability != null && allowDisplaying(resultCapability)) {
+            this.addProbeInfo(resultCapability, probeInfo, tileEntity, sideHit);
         }
     }
 }

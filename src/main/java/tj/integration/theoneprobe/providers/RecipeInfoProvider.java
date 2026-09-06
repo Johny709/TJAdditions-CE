@@ -19,7 +19,7 @@ import tj.util.TJUtility;
 
 import java.util.List;
 
-public class IRecipeInfoProvider extends CapabilityInfoProvider<IRecipeInfo> {
+public class RecipeInfoProvider extends CapabilityInfoProvider<IRecipeInfo> {
 
     @Override
     protected Capability<IRecipeInfo> getCapability() {

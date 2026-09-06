@@ -10,7 +10,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import tj.capability.IGeneratorInfo;
 import tj.capability.TJCapabilities;
 
-public class IGeneratorInfoProvider extends CapabilityInfoProvider<IGeneratorInfo> {
+public class GeneratorInfoProvider extends CapabilityInfoProvider<IGeneratorInfo> {
 
     @Override
     protected Capability<IGeneratorInfo> getCapability() {

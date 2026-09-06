@@ -5,6 +5,8 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.capability.GregtechTileCapabilities;
+import gregtech.api.capability.IWorkable;
 import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
@@ -20,6 +22,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -37,7 +40,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITickable {
+public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITickable, IWorkable {
 
     protected Object2ObjectMap<FluidStack, FluidStack> fluidType = new Object2ObjectOpenHashMap<>();
     protected final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
@@ -146,6 +149,13 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
         }
     }
 
+    @Override
+    public <T> T getCapability(Capability<T> capability, T defaultValue) {
+        if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
+            return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
+        return super.getCapability(capability, defaultValue);
+    }
+
     public void setWorking(boolean isWorking) {
         this.isWorking = isWorking;
         this.markAsDirty();
@@ -155,4 +165,27 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
         this.tickTime = (int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
         this.markAsDirty();
     }
+
+    @Override
+    public int getProgress() {
+        return (int) this.coverHolder.getOffsetTimer() % this.tickTime;
+    }
+
+    @Override
+    public int getMaxProgress() {
+        return this.tickTime;
+    }
+
+    @Override
+    public boolean isActive() {
+        return this.isWorking;
+    }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return this.isWorking;
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean b) {}
 }

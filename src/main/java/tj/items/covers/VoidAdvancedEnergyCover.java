@@ -4,6 +4,8 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.capability.GregtechTileCapabilities;
+import gregtech.api.capability.IWorkable;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -12,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.capabilities.Capability;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.NewTextFieldWidget;
@@ -23,7 +26,7 @@ import tj.textures.TJTextures;
 import java.util.regex.Pattern;
 
 
-public class VoidAdvancedEnergyCover extends VoidEnergyCover {
+public class VoidAdvancedEnergyCover extends VoidEnergyCover implements IWorkable {
 
     private VoidMode voidMode = VoidMode.NORMAL;
     private boolean isWorking;
@@ -113,6 +116,13 @@ public class VoidAdvancedEnergyCover extends VoidEnergyCover {
         this.isWorking = tagCompound.getBoolean("isWorking");
     }
 
+    @Override
+    public <T> T getCapability(Capability<T> capability, T defaultValue) {
+        if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
+            return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
+        return super.getCapability(capability, defaultValue);
+    }
+
     public void setWorking(boolean isWorking) {
         this.isWorking = isWorking;
         this.markAsDirty();
@@ -132,4 +142,27 @@ public class VoidAdvancedEnergyCover extends VoidEnergyCover {
         this.voidMode = voidMode;
         this.markAsDirty();
     }
+
+    @Override
+    public int getProgress() {
+        return (int) this.coverHolder.getOffsetTimer() % this.ticks;
+    }
+
+    @Override
+    public int getMaxProgress() {
+        return this.ticks;
+    }
+
+    @Override
+    public boolean isActive() {
+        return this.isWorking;
+    }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return this.isWorking;
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean b) {}
 }
