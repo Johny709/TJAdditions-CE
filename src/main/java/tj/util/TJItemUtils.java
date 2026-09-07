@@ -388,7 +388,7 @@ public final class TJItemUtils {
         if (itemHandler == null)
             return itemStack;
         final ItemStack slotStack = itemHandler.getStackInSlot(slot);
-        if (slotStack.isItemEqual(itemStack) && ItemStack.areItemStackTagsEqual(slotStack, itemStack)) {
+        if (slotStack.isEmpty() || (slotStack.isItemEqual(itemStack) && ItemStack.areItemStackTagsEqual(slotStack, itemStack))) {
             return itemHandler.insertItem(slot, itemStack, false);
         } else return swapItemAt(itemHandler, slot, itemStack);
     }
@@ -406,7 +406,8 @@ public final class TJItemUtils {
         if (itemHandler == null)
             return itemStack;
         final ItemStack output = itemHandler.extractItem(slot, Integer.MAX_VALUE, false);
-        if (itemHandler.getStackInSlot(slot).isEmpty() && (itemStack = itemHandler.insertItem(slot, itemStack, false)).isEmpty()) {
+        if (itemHandler.getStackInSlot(slot).isEmpty() && itemHandler.insertItem(slot, itemStack, true).isEmpty()) {
+            itemHandler.insertItem(slot, itemStack, false);
             return output;
         } else if (itemHandler instanceof IItemHandlerModifiable) {
             ((IItemHandlerModifiable) itemHandler).setStackInSlot(slot, output);

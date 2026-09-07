@@ -192,7 +192,7 @@ public class BlockStockingDualInterface extends BlockInterface {
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             tab.add(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                    .setSlotEnabled(true));
+                    .setSlotProtection(true));
         }
         for (int i = 0; i < duality.getStorage().getSlots(); i++) {
             tab.add(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))
@@ -219,7 +219,7 @@ public class BlockStockingDualInterface extends BlockInterface {
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             tab.add(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                    .setSlotEnabled(true));
+                    .setSlotProtection(true));
         }
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
             tab.add(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)), 18, 18)

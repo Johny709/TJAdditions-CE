@@ -116,7 +116,7 @@ public class BlockStockingInterface extends BlockInterface {
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                    .setSlotEnabled(true));
+                    .setSlotProtection(true));
         }
         for (int i = 0; i < duality.getStorage().getSlots(); i++) {
             builder.widget(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))

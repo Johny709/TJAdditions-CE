@@ -227,7 +227,7 @@ public class BlockSuperUltimateInterface extends BlockInterface {
             upgradeScrollableSlotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 0, 18 * i)
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
                     .setWidgetGroup(upgradeScrollableSlotGroup)
-                    .setSlotEnabled(true));
+                    .setSlotProtection(true));
         }
         tab.add(upgradeScrollableSlotGroup);
         tab.add(patternScrollableSlotGroup);
@@ -331,7 +331,7 @@ public class BlockSuperUltimateInterface extends BlockInterface {
             upgradeScrollableSlotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 0, 18 * i)
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
                     .setWidgetGroup(upgradeScrollableSlotGroup)
-                    .setSlotEnabled(true));
+                    .setSlotProtection(true));
         }
         for (int i = 0; i < duality.getStorage().getSlots(); i++) {
             storageScrollableSlotGroup.addWidget(new TJSlotWidget<>(duality.getStorage(), i, 18 * (i % 9), 18 + 36 * (i / 9))
@@ -365,7 +365,7 @@ public class BlockSuperUltimateInterface extends BlockInterface {
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             tab.add(new TJSlotWidget<>(upgradeHandler, i, 216, 7 + (18 * i))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                    .setSlotEnabled(true));
+                    .setSlotProtection(true));
         }
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
             storageScrollableSlotGroup.addWidget(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 18 * (i % 9), 18 + 36 * (i / 9), 18, 18)
@@ -414,13 +414,13 @@ public class BlockSuperUltimateInterface extends BlockInterface {
                         .setSlotLocationInfo(true, false)
                         .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
                         .setWidgetGroup(multiPatternSlotGroup)
-                        .setSlotEnabled(true));
+                        .setSlotProtection(true));
             }
             builder.widget(multiPatternSlotGroup);
             for (int i = 0; i < multiUpgradeSlots.getSlots(); i++) {
                 builder.widget(new TJSlotWidget<>(multiUpgradeSlots, i, -46, 14 + (i * 18))
                         .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                        .setSlotEnabled(true));
+                        .setSlotProtection(true));
             }
         }
         return builder;

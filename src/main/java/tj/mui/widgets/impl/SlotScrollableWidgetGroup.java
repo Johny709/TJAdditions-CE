@@ -321,10 +321,10 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
                     } else stack = this.itemHandler.insertItem(index, stack, false);
                     remainder += stack.getCount();
                 }
-                heldStack.setCount(remainder);
-                if (size == 1)
+                if (size == 1) {
                     heldStack = stack;
-                ItemStack finalHeldStack = heldStack;
+                } else heldStack.setCount(remainder);
+                final ItemStack finalHeldStack = heldStack;
                 this.gui.entityPlayer.inventory.setItemStack(finalHeldStack);
                 this.writeUpdateInfo(3, buffer1 -> buffer1.writeItemStack(finalHeldStack));
             } catch (IOException e) {
