@@ -44,7 +44,7 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
 
     public PartPatternInterface(ItemStack is) {
         super(is);
-        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 40, 36, 288), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 4, 36, 288), "duality");
     }
 
     @Override

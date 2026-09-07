@@ -34,6 +34,10 @@ public class DualitySuperInterface extends DualityInterface {
     private final IDualitySuperInterface superDuality = (IDualitySuperInterface) this;
 
     public DualitySuperInterface(AENetworkProxy networkProxy, IInterfaceHost ih, int upgradeSlots, int storageSlots, int patterns) {
+        this(networkProxy, ih, upgradeSlots, 1, storageSlots, patterns);
+    }
+
+    public DualitySuperInterface(AENetworkProxy networkProxy, IInterfaceHost ih, int upgradeSlots, int upgradesPerSlot, int storageSlots, int patterns) {
         super(networkProxy, ih);
         // dummy config for Send Real Fluid, Field: (boolean) fluidPacket
         this.getConfigManager().registerSetting(Settings.OPERATION_MODE, OperationMode.FILL);
@@ -42,12 +46,15 @@ public class DualitySuperInterface extends DualityInterface {
         // dummy config for Block All, Field: (int) blockModeEx
         this.getConfigManager().registerSetting(Settings.CONDENSER_OUTPUT, CondenserOutput.TRASH);
 
-        final AppEngInternalInventory patternInventory = new AppEngInternalInventory(this, patterns, 1);
-        patternInventory.setFilter(new DualityPatternFilter());
+        final AppEngInternalInventory patternInventory = new AppEngInternalInventory(this, patterns, 1, new DualityPatternFilter());
+        final DualityUpgradeInventory upgradeInventory = new DualityUpgradeInventory(this, upgradeSlots);
+        for (int i = 0; i < upgradeInventory.getSlots(); i++) {
+            upgradeInventory.setMaxStackSize(i, upgradesPerSlot);
+        }
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new IAEItemStack[storageSlots], "requireWork");
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, patternInventory, "patterns");
         ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new AppEngInternalAEInventory(this, storageSlots, 1024), "config");
-        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new DualityUpgradeInventory(this, upgradeSlots), "upgrades");
+        ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, upgradeInventory, "upgrades");
         try {
             final Field mySource = ObfuscationReflectionHelper.findField(DualityInterface.class, "mySource");
             ObfuscationReflectionHelper.setPrivateValue(DualityInterface.class, this, new TJAppEngNetworkInventory(() -> {
@@ -119,11 +126,11 @@ public class DualitySuperInterface extends DualityInterface {
             for (int i = 0; i < this.getSlots(); i++) {
                 final ItemStack stack = this.getStackInSlot(i);
                 if (stack.isItemEqual(capacity)) {
-                    this.installedCapacity++;
+                    this.installedCapacity += stack.getCount();
                 } else if (stack.isItemEqual(pattern)) {
-                    this.installedPatterns++;
+                    this.installedPatterns += stack.getCount();
                 } else if (stack.isItemEqual(crafting)) {
-                    this.installedCraftingCard++;
+                    this.installedCraftingCard += stack.getCount();
                 } else if (stack.isItemEqual(maxCapacity)) {
                     this.installedCapacity = 16;
                 }

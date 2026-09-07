@@ -15,6 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.integration.ae2.part.PartPatternInterface;
 
 import javax.annotation.Nonnull;
@@ -31,9 +32,11 @@ public class ItemPartPatternInterface extends Item implements IPartItem<IPart> {
     @SideOnly(Side.CLIENT)
     public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, @Nonnull List<String> tooltip, @Nonnull ITooltipFlag flagIn) {
         if (DUALITY_INSTANCE != null) {
+            final DualitySuperInterface.DualityUpgradeInventory upgradeInventory = (DualitySuperInterface.DualityUpgradeInventory) DUALITY_INSTANCE.getInventoryByName("upgrades");
             tooltip.add(I18n.format("tile.me.super_interface.pattern_slots", DUALITY_INSTANCE.getPatterns().getSlots()));
             tooltip.add(I18n.format("tile.me.super_interface.storage_slots", DUALITY_INSTANCE.getStorage().getSlots()));
-            tooltip.add(I18n.format("tile.me.super_interface.upgrade_slots", DUALITY_INSTANCE.getInventoryByName("upgrades").getSlots()));
+            tooltip.add(I18n.format("tile.me.super_interface.upgrade_slots", upgradeInventory.getSlots()));
+            tooltip.add(I18n.format("tile.me.super_interface.upgrades_per_slot", upgradeInventory.getSlotLimit(0)));
         }
     }
 

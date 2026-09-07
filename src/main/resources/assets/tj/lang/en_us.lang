@@ -1244,6 +1244,7 @@ tile.me.super_ultimate_interface.name=ME Super Ultimate Interface
 tile.me.super_interface.pattern_slots=Pattern Slots: §a%,d
 tile.me.super_interface.storage_slots=Storage Slots: §6%,d
 tile.me.super_interface.upgrade_slots=Upgrade Slots: §e%,d
+tile.me.super_interface.upgrades_per_slot=Upgrades Per Slot: §e%,d
 tile.me.super_fluid_interface.fluid_tanks=Fluid Tanks: §b%,d
 tile.me.super_fluid_interface.upgrade_slots=Fluid Upgrade Slots: §e%,d
 

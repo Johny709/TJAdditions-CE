@@ -24,7 +24,7 @@ import tj.mui.uifactory.TileEntityHolder;
 public class TilePatternInterface extends TileInterface implements ITileEntityUI, ISuperInterface {
 
     public TilePatternInterface() {
-        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 40, 36, 288), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 4, 36, 288), "duality");
     }
 
     public void openUI(EntityPlayer player, TileEntity tileEntity) {

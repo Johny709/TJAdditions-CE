@@ -82,9 +82,11 @@ public class BlockSuperUltimateInterface extends BlockInterface {
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack is, World world, List<String> lines, ITooltipFlag advancedItemTooltips) {
         if (DUALITY_INSTANCE != null && FLUID_DUALITY_INSTANCE != null) {
+            final DualitySuperInterface.DualityUpgradeInventory upgradeInventory = (DualitySuperInterface.DualityUpgradeInventory) DUALITY_INSTANCE.getInventoryByName("upgrades");
             lines.add(I18n.format("tile.me.super_interface.pattern_slots", DUALITY_INSTANCE.getPatterns().getSlots()));
             lines.add(I18n.format("tile.me.super_interface.storage_slots", DUALITY_INSTANCE.getStorage().getSlots()));
-            lines.add(I18n.format("tile.me.super_interface.upgrade_slots", DUALITY_INSTANCE.getInventoryByName("upgrades").getSlots()));
+            lines.add(I18n.format("tile.me.super_interface.upgrade_slots", upgradeInventory.getSlots()));
+            lines.add(I18n.format("tile.me.super_interface.upgrades_per_slot", upgradeInventory.getSlotLimit(0)));
             lines.add(I18n.format("tile.me.super_fluid_interface.fluid_tanks", FLUID_DUALITY_INSTANCE.getTanks().getSlots()));
             lines.add(I18n.format("tile.me.super_fluid_interface.upgrade_slots", FLUID_DUALITY_INSTANCE.getInventoryByName("upgrades").getSlots()));
         }
@@ -141,7 +143,8 @@ public class BlockSuperUltimateInterface extends BlockInterface {
                 .addTab("tile.me.stocking_interface.name", TJBlocks.STOCKING_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> createInterfaceTab(widgets, superDualInterface, buttonPopUpWidget, buttonPopUpTickWidget))
                 .addTab("tile.me.stocking_fluid_interface.name", TJBlocks.STOCKING_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> createFluidInterfaceTab(widgets, superDualInterface, buttonPopUpWidget, buttonPopUpTickWidget));
         return createPatternMultiToolGUI(ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292), patternMultiTool, multiUpgradeSlots, duality.getPatterns(), multiPatternSlots, invTag)
-                .image(209, 0, 86, 194, GuiTextures.BORDERED_BACKGROUND).widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+                .image(209, 0, 32, 194, GuiTextures.BORDERED_BACKGROUND)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(superDualInterface.getItemStackRepresentation()).setLocale(superDualInterface.getItemStackRepresentation().getDisplayName()))
                 .widget(new TJLabelWidget(4, 0, 162, 18, null)
                         .setDynamicLocale(superDualInterface::getCustomInventoryName)
@@ -217,11 +220,11 @@ public class BlockSuperUltimateInterface extends BlockInterface {
                     .setWidgetGroup(patternScrollableSlotGroup)
                     .setActiveInit(false));
         }
-        final SlotScrollableWidgetGroup upgradeScrollableSlotGroup = new SlotScrollableWidgetGroup(216, 7, 76, 180, 4)
+        final SlotScrollableWidgetGroup upgradeScrollableSlotGroup = new SlotScrollableWidgetGroup(216, 7, 22, 180, 1)
                 .setItemHandler(upgradeHandler)
                 .setScrollWidth(4);
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
-            upgradeScrollableSlotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 18 * (i % 4), 18 * (i / 4))
+            upgradeScrollableSlotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 0, 18 * i)
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
                     .setWidgetGroup(upgradeScrollableSlotGroup)
                     .setSlotEnabled(true));
@@ -321,11 +324,11 @@ public class BlockSuperUltimateInterface extends BlockInterface {
             selectionWidgetGroup.addSubWidget(i, stackSizeTextField);
             selectionWidgetGroup.addSelectionBox(i, phantomItemSlotWidget);
         }
-        final SlotScrollableWidgetGroup upgradeScrollableSlotGroup = new SlotScrollableWidgetGroup(216, 7, 76, 180, 4)
+        final SlotScrollableWidgetGroup upgradeScrollableSlotGroup = new SlotScrollableWidgetGroup(216, 7, 22, 180, 1)
                 .setItemHandler(upgradeHandler)
                 .setScrollWidth(4);
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
-            upgradeScrollableSlotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 18 * (i % 4), 18 * (i / 4))
+            upgradeScrollableSlotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 0, 18 * i)
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
                     .setWidgetGroup(upgradeScrollableSlotGroup)
                     .setSlotEnabled(true));
@@ -416,7 +419,8 @@ public class BlockSuperUltimateInterface extends BlockInterface {
             builder.widget(multiPatternSlotGroup);
             for (int i = 0; i < multiUpgradeSlots.getSlots(); i++) {
                 builder.widget(new TJSlotWidget<>(multiUpgradeSlots, i, -46, 14 + (i * 18))
-                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
+                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
+                        .setSlotEnabled(true));
             }
         }
         return builder;

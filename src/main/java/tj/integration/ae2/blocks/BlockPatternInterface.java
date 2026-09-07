@@ -64,9 +64,11 @@ public class BlockPatternInterface extends BlockInterface {
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack is, World world, List<String> lines, ITooltipFlag advancedItemTooltips) {
         if (DUALITY_INSTANCE != null) {
+            final DualitySuperInterface.DualityUpgradeInventory upgradeInventory = (DualitySuperInterface.DualityUpgradeInventory) DUALITY_INSTANCE.getInventoryByName("upgrades");
             lines.add(I18n.format("tile.me.super_interface.pattern_slots", DUALITY_INSTANCE.getPatterns().getSlots()));
             lines.add(I18n.format("tile.me.super_interface.storage_slots", DUALITY_INSTANCE.getStorage().getSlots()));
-            lines.add(I18n.format("tile.me.super_interface.upgrade_slots", DUALITY_INSTANCE.getInventoryByName("upgrades").getSlots()));
+            lines.add(I18n.format("tile.me.super_interface.upgrade_slots", upgradeInventory.getSlots()));
+            lines.add(I18n.format("tile.me.super_interface.upgrades_per_slot", upgradeInventory.getSlotLimit(0)));
         }
     }
 
@@ -119,11 +121,11 @@ public class BlockPatternInterface extends BlockInterface {
                 .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(multiPatternSlots, itemStack, false))
                 .setItemHandler(duality.getPatterns())
                 .setScrollWidth(4);
-        final SlotScrollableWidgetGroup upgradeScrollableSlotGroup = new SlotScrollableWidgetGroup(186, 7, 40, 180, 2)
+        final SlotScrollableWidgetGroup upgradeScrollableSlotGroup = new SlotScrollableWidgetGroup(186, 7, 22, 180, 1)
                 .setScrollWidth(4);
         final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
-            upgradeScrollableSlotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 18 * (i % 2), 18 * (i / 2))
+            upgradeScrollableSlotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 0, 18 * i)
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
                     .setSlotEnabled(true));
         }
@@ -137,7 +139,7 @@ public class BlockPatternInterface extends BlockInterface {
                     .setActiveInit(false));
         }
         final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
-                .image(179, 0, 50, 194, GuiTextures.BORDERED_BACKGROUND);
+                .image(179, 0, 32, 194, GuiTextures.BORDERED_BACKGROUND);
         createPatternMultiToolGUI(builder.widget(new LabelWidget(7, 23, "gui.appliedenergistics2.StoredItems"))
                 .widget(new LabelWidget(7, 113, "gui.appliedenergistics2.Patterns"))
                 .widget(patternScrollableSlotGroup)
