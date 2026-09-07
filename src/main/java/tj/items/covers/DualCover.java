@@ -30,6 +30,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -38,6 +39,8 @@ import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import tj.builder.WidgetTabBuilder;
+import tj.capability.IMultipleWorkable;
+import tj.capability.TJCapabilities;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.*;
@@ -58,7 +61,7 @@ import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLoc
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
 import static gregtech.common.items.MetaItems.*;
 
-public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
+public class DualCover extends CoverBehavior implements CoverWithUI, ITickable, IMultipleWorkable {
 
     protected final IItemHandler itemHandler = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
     protected final IFluidHandler fluidHandler = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
@@ -452,6 +455,13 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
         }
     }
 
+    @Override
+    public <T> T getCapability(Capability<T> capability, T defaultValue) {
+        if (capability == TJCapabilities.CAPABILITY_MULTIPLE_WORKABLE)
+            return TJCapabilities.CAPABILITY_MULTIPLE_WORKABLE.cast(this);
+        return super.getCapability(capability, defaultValue);
+    }
+
     public void setItemTicks(String text, String id) {
         this.itemTicks = (int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
         this.markAsDirty();
@@ -510,6 +520,54 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable {
     public void setFluidBlacklist(boolean fluidBlacklist) {
         this.isFluidBlacklist = fluidBlacklist;
         this.markAsDirty();
+    }
+
+    @Override
+    public long getRecipeEUt(int i) {
+        return 0;
+    }
+
+    @Override
+    public int getParallel(int i) {
+        return 0;
+    }
+
+    @Override
+    public int getProgress(int i) {
+        return (int) this.coverHolder.getOffsetTimer() % (i == 0 ? this.itemTicks : this.fluidTicks);
+    }
+
+    @Override
+    public int getMaxProgress(int i) {
+        return i == 0 ? this.itemTicks : this.fluidTicks;
+    }
+
+    @Override
+    public boolean isInstanceActive(int i) {
+        return i == 0 ? this.isConveyorWorking : this.isPumpWorking;
+    }
+
+    @Override
+    public boolean hasProblems(int i) {
+        return false;
+    }
+
+    @Override
+    public int getSize() {
+        return 2;
+    }
+
+    @Override
+    public boolean isWorkingEnabled(int i) {
+        return i == 0 ? this.isConveyorWorking : this.isPumpWorking;
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean isActivationAllowed, int i) {}
+
+    @Override
+    public int getPageSize() {
+        return this.getSize();
     }
 
     public enum FilterType {

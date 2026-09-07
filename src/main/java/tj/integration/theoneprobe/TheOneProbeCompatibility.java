@@ -33,5 +33,6 @@ public final class TheOneProbeCompatibility {
         probe.registerProvider(new ParallelItemFluidHandlerInfoProvider());
         probe.registerProvider(new StructureInfoProvider());
         probe.registerProvider(new CoverWorkableInfoProvider());
+        probe.registerProvider(new CoverParallelWorkableInfoProvider());
     }
 }
