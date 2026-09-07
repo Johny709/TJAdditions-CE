@@ -227,7 +227,8 @@ public final class TJGuiUtils {
                                String progressSuffixStr,
                                String maxProgressSuffixStr,
                                String color,
-                               String decimalFormat) {
+                               String decimalFormat,
+                               int nameColor) {
         final int offsetX = Minecraft.getMinecraft().fontRenderer.getStringWidth(name + " ");
         final double progress = Double.parseDouble(progressStr);
         final double maxProgress = Double.parseDouble(maxProgressStr);
@@ -249,7 +250,7 @@ public final class TJGuiUtils {
         GuiTextures.DISPLAY.draw(x + offsetX, y, totalLength, 12);
         TJGuiTextures.getBarByColor(color).draw(x + offsetX + 1, y + 1, barWidth - 1, 10);
         GlStateManager.enableBlend();
-        Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, x, y + 2, 0xAAAAAA);
+        Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, x, y + 2, nameColor);
         Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(progressFormat.format(progress), x + offsetX + 3, y + 2, 0xFFFFFF);
         Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(progressSuffixStr, x + offsetX + 3 + progressWidth, y + 2, 0xFFFFFF);
         Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(" / ", x + offsetX + 3 + progressWidth + progressSuffixWidth, y + 2, 0xFFFFFF);

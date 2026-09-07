@@ -19,9 +19,9 @@ import tj.util.Color;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class CoverProgressInfoDataProvider extends CoverCapabilityInfoDataProvider<IWorkable> {
+public class CoverWorkableInfoDataProvider extends CoverCapabilityInfoDataProvider<IWorkable> {
 
-    public static final CoverProgressInfoDataProvider INSTANCE = new CoverProgressInfoDataProvider();
+    public static final CoverWorkableInfoDataProvider INSTANCE = new CoverWorkableInfoDataProvider();
 
     public void register(IWailaRegistrar registrar) {
         registrar.registerNBTProvider(this, TileEntity.class);
@@ -36,7 +36,7 @@ public class CoverProgressInfoDataProvider extends CoverCapabilityInfoDataProvid
 
     @Override
     public String getConfigName() {
-        return "tj.cover.progressinfo";
+        return "tj.cover.workableinfo";
     }
 
     @Nonnull
@@ -45,18 +45,28 @@ public class CoverProgressInfoDataProvider extends CoverCapabilityInfoDataProvid
         final NBTTagCompound compound = new NBTTagCompound();
         compound.setInteger("progress", workable.getProgress());
         compound.setInteger("maxProgress", workable.getMaxProgress());
-        tag.setTag("tj.progressinfo", compound);
+        compound.setBoolean("working", workable.isWorkingEnabled());
+        compound.setBoolean("active", workable.isActive());
+        tag.setTag("tj.workableinfo", compound);
         return tag;
     }
 
     @Nonnull
     @Override
     public List<String> getWailaBody(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config, IWorkable capability) {
-        final NBTTagCompound compound = accessor.getNBTData().getCompoundTag(getCapabilitySideTag(accessor.getSide())).getCompoundTag("tj.progressinfo");
+        final NBTTagCompound compound = accessor.getNBTData().getCompoundTag(getCapabilitySideTag(accessor.getSide())).getCompoundTag("tj.workableinfo");
         final double maxProgress = (double) compound.getInteger("maxProgress") / 20;
         final double progress = Math.min(maxProgress, (double) compound.getInteger("progress") / 20);
+        final boolean isWorking = compound.getBoolean("working");
+        final boolean isActive = compound.getBoolean("active");
+
         tooltip.add(SpecialChars.getRenderString("tj.progressinfo", I18n.format("gregtech.top.progress"),
                 String.valueOf(progress), String.valueOf(maxProgress), "s", "s", Color.GREEN.toString(), ",##0.00"));
+        if (!isWorking) {
+            tooltip.add(I18n.format("gregtech.multiblock.work_paused"));
+        } else if (isActive) {
+            tooltip.add(I18n.format("gregtech.multiblock.running"));
+        }
         return tooltip;
     }
 }

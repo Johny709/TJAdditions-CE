@@ -30,7 +30,7 @@ public class ElementProgressBar implements IElement {
 
     @Override
     public void render(int x, int y) {
-        TJGuiUtils.drawBar(x, y, this.args[0], this.args[1], this.args[2], this.args[3], this.args[4], this.args[5], this.args[6]);
+        TJGuiUtils.drawBar(x, y, this.args[0], this.args[1], this.args[2], this.args[3], this.args[4], this.args[5], this.args[6], 0xFFFFFF);
     }
 
     @Override
