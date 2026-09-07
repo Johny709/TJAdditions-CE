@@ -459,7 +459,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable, 
     public <T> T getCapability(Capability<T> capability, T defaultValue) {
         if (capability == TJCapabilities.CAPABILITY_MULTIPLE_WORKABLE)
             return TJCapabilities.CAPABILITY_MULTIPLE_WORKABLE.cast(this);
-        return super.getCapability(capability, defaultValue);
+        return null;
     }
 
     public void setItemTicks(String text, String id) {

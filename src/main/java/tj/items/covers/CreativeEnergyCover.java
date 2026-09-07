@@ -6,7 +6,9 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.capability.GregtechCapabilities;
+import gregtech.api.capability.GregtechTileCapabilities;
 import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.capability.IWorkable;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
@@ -18,6 +20,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
+import net.minecraftforge.common.capabilities.Capability;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.PopUpWidget;
@@ -32,7 +35,7 @@ import java.util.regex.Pattern;
 import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
 import static tj.mui.TJGuiTextures.*;
 
-public class CreativeEnergyCover extends CoverBehavior implements ITickable, CoverWithUI {
+public class CreativeEnergyCover extends CoverBehavior implements ITickable, CoverWithUI, IWorkable {
 
     private final IEnergyContainer energyContainer;
     private boolean simulateVoltage;
@@ -214,4 +217,34 @@ public class CreativeEnergyCover extends CoverBehavior implements ITickable, Cov
         if (data.hasKey("isActive"))
             this.isActive = data.getBoolean("isActive");
     }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, T defaultValue) {
+        if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
+            return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
+        return null;
+    }
+
+    @Override
+    public int getProgress() {
+        return (int) this.coverHolder.getOffsetTimer() % this.ticks;
+    }
+
+    @Override
+    public int getMaxProgress() {
+        return this.ticks;
+    }
+
+    @Override
+    public boolean isActive() {
+        return this.isActive;
+    }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return this.isActive;
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean b) {}
 }

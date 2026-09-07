@@ -1,5 +1,6 @@
 package tj.integration.hwyla.providers;
 
+import gregtech.api.cover.CoverBehavior;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import mcp.mobius.waila.api.IWailaConfigHandler;
@@ -61,6 +62,8 @@ public abstract class CoverCapabilityInfoDataProvider<T> implements IWailaDataPr
             return tooltip;
         final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) accessor.getTileEntity()).getMetaTileEntity();
         if (metaTileEntity == null)
+            return tooltip;
+        if (metaTileEntity.getCoverAtSide(accessor.getSide()) == null)
             return tooltip;
         final T coverCapability = metaTileEntity.getCoverCapability(this.getCapability(), accessor.getSide());
         if (coverCapability != null) {

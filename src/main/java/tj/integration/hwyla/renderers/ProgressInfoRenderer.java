@@ -3,7 +3,6 @@ package tj.integration.hwyla.renderers;
 import mcp.mobius.waila.api.IWailaCommonAccessor;
 import mcp.mobius.waila.api.IWailaTooltipRenderer;
 import tj.mui.TJGuiUtils;
-import tj.util.Color;
 
 import javax.annotation.Nonnull;
 import java.awt.*;

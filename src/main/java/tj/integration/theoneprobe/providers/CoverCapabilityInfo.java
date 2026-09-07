@@ -1,5 +1,6 @@
 package tj.integration.theoneprobe.providers;
 
+import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.integration.theoneprobe.provider.CapabilityInfoProvider;
 import mcjty.theoneprobe.api.IProbeHitData;
@@ -20,9 +21,9 @@ public abstract class CoverCapabilityInfo<T> extends CapabilityInfoProvider<T> {
         final EnumFacing sideHit = data.getSideHit();
         final TileEntity tileEntity = world.getTileEntity(data.getPos());
         if (!(tileEntity instanceof MetaTileEntityHolder)) return;
-        final Capability<T> capability = getCapability();
-        final MetaTileEntityHolder holder = (MetaTileEntityHolder) tileEntity;
-        final T resultCapability = holder.getMetaTileEntity().getCoverCapability(capability, sideHit);
+        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) tileEntity).getMetaTileEntity();
+        if (metaTileEntity == null || metaTileEntity.getCoverAtSide(sideHit) == null) return;
+        final T resultCapability = metaTileEntity.getCoverCapability(this.getCapability(), sideHit);
         if (resultCapability != null && allowDisplaying(resultCapability)) {
             this.addProbeInfo(resultCapability, probeInfo, tileEntity, sideHit);
         }

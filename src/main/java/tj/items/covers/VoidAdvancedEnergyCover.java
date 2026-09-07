@@ -120,7 +120,7 @@ public class VoidAdvancedEnergyCover extends VoidEnergyCover implements IWorkabl
     public <T> T getCapability(Capability<T> capability, T defaultValue) {
         if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
             return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
-        return super.getCapability(capability, defaultValue);
+        return null;
     }
 
     public void setWorking(boolean isWorking) {

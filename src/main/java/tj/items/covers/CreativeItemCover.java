@@ -5,7 +5,8 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Matrix4;
-import gregtech.api.capability.IControllable;
+import gregtech.api.capability.GregtechTileCapabilities;
+import gregtech.api.capability.IWorkable;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
@@ -22,6 +23,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import tj.mui.TJGuiTextures;
@@ -35,7 +37,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 
-public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITickable, IControllable {
+public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITickable, IWorkable {
 
     private final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, Integer.MAX_VALUE);
     private final IItemHandler itemHandler;
@@ -146,6 +148,13 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
             this.speed = data.getInteger("Speed");
     }
 
+    @Override
+    public <T> T getCapability(Capability<T> capability, T defaultValue) {
+        if (capability == GregtechTileCapabilities.CAPABILITY_WORKABLE)
+            return GregtechTileCapabilities.CAPABILITY_WORKABLE.cast(this);
+        return null;
+    }
+
     private void setItemCount(String text, String id) {
         final int index = Integer.parseInt(id);
         if (index < 0 || index >= this.itemFilter.getSlots()) return;
@@ -157,17 +166,6 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
 
     private String getItemCount(int index) {
         return String.valueOf(this.itemFilter.getStackInSlot(index).getCount());
-    }
-
-    @Override
-    public void setWorkingEnabled(boolean isWorking) {
-        this.isWorking = isWorking;
-        this.markAsDirty();
-    }
-
-    @Override
-    public boolean isWorkingEnabled() {
-        return this.isWorking;
     }
 
     private void onReset(boolean reset) {
@@ -190,4 +188,27 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
         this.speed = MathHelper.clamp(this.speed -value, 1, Integer.MAX_VALUE);
         this.markAsDirty();
     }
+
+    @Override
+    public int getProgress() {
+        return (int) this.coverHolder.getOffsetTimer() % this.speed;
+    }
+
+    @Override
+    public int getMaxProgress() {
+        return this.speed;
+    }
+
+    @Override
+    public boolean isActive() {
+        return this.isWorking;
+    }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return this.isWorking;
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean b) {}
 }
