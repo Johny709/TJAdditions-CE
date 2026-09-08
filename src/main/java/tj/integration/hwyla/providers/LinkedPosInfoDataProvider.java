@@ -15,6 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.capabilities.Capability;
 import tj.TJValues;
 import tj.capability.LinkPos;
 import tj.capability.TJCapabilities;
@@ -22,61 +23,31 @@ import tj.capability.TJCapabilities;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class LinkedPosInfoDataProvider implements IWailaDataProvider {
+public class LinkedPosInfoDataProvider extends CapabilityInfoDataProvider<LinkPos> {
 
     public static final LinkedPosInfoDataProvider INSTANCE = new LinkedPosInfoDataProvider();
 
+    @Override
     public void register(IWailaRegistrar registrar) {
+        super.register(registrar);
         registrar.registerNBTProvider(this, TileEntity.class);
         registrar.registerBodyProvider(this, TileEntity.class);
-        registrar.addConfig("TJ", "tj.linked_pos");
+    }
+
+    @Override
+    public Capability<LinkPos> getCapability() {
+        return TJCapabilities.CAPABILITY_LINK_POS;
+    }
+
+    @Override
+    public String getConfigName() {
+        return "tj.linked_pos";
     }
 
     @Nonnull
     @Override
-    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos) {
-        if (!(te instanceof MetaTileEntityHolder))
-            return tag;
-        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) te).getMetaTileEntity();
-        if (metaTileEntity == null)
-            return tag;
-        final LinkPos linkPos = metaTileEntity.getCapability(TJCapabilities.CAPABILITY_LINK_POS, null);
-        if (linkPos == null)
-            return tag;
-        final NBTTagCompound compound = new NBTTagCompound();
-        final NBTTagList linkPosList = new NBTTagList();
-        for (int i = 0; i < linkPos.getPosSize(); i++) {
-            final NBTTagCompound posCompound = new NBTTagCompound();
-            final WorldServer worldServer = linkPos.isInterDimensional() ? DimensionManager.getWorld(linkPos.getDimension(i)) : (WorldServer) linkPos.world();
-            final BlockPos blockPos = linkPos.getPos(i);
-            posCompound.setInteger("worldId", worldServer.provider.getDimension());
-            if (blockPos != null) {
-                posCompound.setInteger("x", blockPos.getX());
-                posCompound.setInteger("y", blockPos.getY());
-                posCompound.setInteger("z", blockPos.getZ());
-            }
-            linkPosList.appendTag(posCompound);
-        }
-        compound.setTag("linkPosList", linkPosList);
-        compound.setBoolean("interdimensional", linkPos.isInterDimensional());
-        tag.setTag("tj.linked_pos", compound);
-        return tag;
-    }
-
-    @Nonnull
-    @Override
-    public List<String> getWailaBody(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
-        if (!config.getConfig("tj.linked_pos"))
-            return tooltip;
-        if (!(accessor.getTileEntity() instanceof MetaTileEntityHolder))
-            return tooltip;
-        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) accessor.getTileEntity()).getMetaTileEntity();
-        if (metaTileEntity == null)
-            return tooltip;
-        final LinkPos linkPos = metaTileEntity.getCapability(TJCapabilities.CAPABILITY_LINK_POS, null);
-        if (linkPos == null)
-            return tooltip;
-        final NBTTagCompound compound = accessor.getNBTData().getCompoundTag("tj.linked_pos");
+    public List<String> getWailaBody(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config, LinkPos linkPos) {
+        final NBTTagCompound compound = accessor.getNBTData().getCompoundTag(this.getConfigName());
         final NBTTagList linkPosList = compound.getTagList("linkPosList", 10);
         final boolean interdimensional = compound.getBoolean("interdimensional");
         tooltip.add("§b(" + 1 + "/" + linkPosList.tagCount() + ")");
@@ -102,5 +73,28 @@ public class LinkedPosInfoDataProvider implements IWailaDataProvider {
             tooltip.add(I18n.format("tj.machine.universal.linked.pos", pos.getX(), pos.getY(), pos.getZ()));
         }
         return tooltip;
+    }
+
+    @Nonnull
+    @Override
+    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos, LinkPos linkPos) {
+        final NBTTagCompound compound = new NBTTagCompound();
+        final NBTTagList linkPosList = new NBTTagList();
+        for (int i = 0; i < linkPos.getPosSize(); i++) {
+            final NBTTagCompound posCompound = new NBTTagCompound();
+            final WorldServer worldServer = linkPos.isInterDimensional() ? DimensionManager.getWorld(linkPos.getDimension(i)) : (WorldServer) linkPos.world();
+            final BlockPos blockPos = linkPos.getPos(i);
+            posCompound.setInteger("worldId", worldServer.provider.getDimension());
+            if (blockPos != null) {
+                posCompound.setInteger("x", blockPos.getX());
+                posCompound.setInteger("y", blockPos.getY());
+                posCompound.setInteger("z", blockPos.getZ());
+            }
+            linkPosList.appendTag(posCompound);
+        }
+        compound.setTag("linkPosList", linkPosList);
+        compound.setBoolean("interdimensional", linkPos.isInterDimensional());
+        tag.setTag(this.getConfigName(), compound);
+        return tag;
     }
 }

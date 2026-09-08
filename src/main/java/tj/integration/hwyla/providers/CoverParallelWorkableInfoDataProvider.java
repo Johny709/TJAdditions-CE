@@ -24,10 +24,11 @@ public class CoverParallelWorkableInfoDataProvider extends CoverCapabilityInfoDa
 
     public static final CoverParallelWorkableInfoDataProvider INSTANCE = new CoverParallelWorkableInfoDataProvider();
 
+    @Override
     public void register(IWailaRegistrar registrar) {
+        super.register(registrar);
         registrar.registerNBTProvider(this, TileEntity.class);
         registrar.registerBodyProvider(this, TileEntity.class);
-        registrar.addConfig("TJ", this.getConfigName());
     }
 
     @Override
@@ -42,26 +43,9 @@ public class CoverParallelWorkableInfoDataProvider extends CoverCapabilityInfoDa
 
     @Nonnull
     @Override
-    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos, IMultipleWorkable multipleWorkable) {
-        final NBTTagList workableList = new NBTTagList();
-        for (int i = 0; i < multipleWorkable.getSize(); i++) {
-            final NBTTagCompound compound = new NBTTagCompound();
-            compound.setInteger("progress", multipleWorkable.getProgress(i));
-            compound.setInteger("maxProgress", multipleWorkable.getMaxProgress(i));
-            compound.setBoolean("working", multipleWorkable.isWorkingEnabled(i));
-            compound.setBoolean("active", multipleWorkable.isInstanceActive(i));
-            compound.setBoolean("problem", multipleWorkable.hasProblems(i));
-            workableList.appendTag(compound);
-        }
-        tag.setTag("tj.parallel_workable.list", workableList);
-        return tag;
-    }
-
-    @Nonnull
-    @Override
     public List<String> getWailaBody(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config, IMultipleWorkable capability) {
         final NBTTagList workableList = accessor.getNBTData().getCompoundTag(getCapabilitySideTag(accessor.getSide()))
-                .getTagList("tj.parallel_workable.list", 10);
+                .getTagList(this.getConfigName(), 10);
         tooltip.add("§b(" + 1 + "/" + workableList.tagCount() + ")");
         for (int i = 0; i < workableList.tagCount(); i++) {
             final NBTTagCompound compound = workableList.getCompoundTagAt(i);
@@ -79,5 +63,22 @@ public class CoverParallelWorkableInfoDataProvider extends CoverCapabilityInfoDa
                     String.valueOf(progress), String.valueOf(maxProgress), "s", "s", Color.GREEN.toString(), ",##0.00"));
         }
         return tooltip;
+    }
+
+    @Nonnull
+    @Override
+    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos, IMultipleWorkable multipleWorkable) {
+        final NBTTagList workableList = new NBTTagList();
+        for (int i = 0; i < multipleWorkable.getSize(); i++) {
+            final NBTTagCompound compound = new NBTTagCompound();
+            compound.setInteger("progress", multipleWorkable.getProgress(i));
+            compound.setInteger("maxProgress", multipleWorkable.getMaxProgress(i));
+            compound.setBoolean("working", multipleWorkable.isWorkingEnabled(i));
+            compound.setBoolean("active", multipleWorkable.isInstanceActive(i));
+            compound.setBoolean("problem", multipleWorkable.hasProblems(i));
+            workableList.appendTag(compound);
+        }
+        tag.setTag(this.getConfigName(), workableList);
+        return tag;
     }
 }

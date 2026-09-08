@@ -23,10 +23,11 @@ public class CoverWorkableInfoDataProvider extends CoverCapabilityInfoDataProvid
 
     public static final CoverWorkableInfoDataProvider INSTANCE = new CoverWorkableInfoDataProvider();
 
+    @Override
     public void register(IWailaRegistrar registrar) {
+        super.register(registrar);
         registrar.registerNBTProvider(this, TileEntity.class);
         registrar.registerBodyProvider(this, TileEntity.class);
-        registrar.addConfig("TJ", this.getConfigName());
     }
 
     @Override
@@ -41,20 +42,8 @@ public class CoverWorkableInfoDataProvider extends CoverCapabilityInfoDataProvid
 
     @Nonnull
     @Override
-    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos, IWorkable workable) {
-        final NBTTagCompound compound = new NBTTagCompound();
-        compound.setInteger("progress", workable.getProgress());
-        compound.setInteger("maxProgress", workable.getMaxProgress());
-        compound.setBoolean("working", workable.isWorkingEnabled());
-        compound.setBoolean("active", workable.isActive());
-        tag.setTag("tj.workableinfo", compound);
-        return tag;
-    }
-
-    @Nonnull
-    @Override
     public List<String> getWailaBody(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config, IWorkable capability) {
-        final NBTTagCompound compound = accessor.getNBTData().getCompoundTag(getCapabilitySideTag(accessor.getSide())).getCompoundTag("tj.workableinfo");
+        final NBTTagCompound compound = accessor.getNBTData().getCompoundTag(getCapabilitySideTag(accessor.getSide())).getCompoundTag(this.getConfigName());
         final double maxProgress = (double) compound.getInteger("maxProgress") / 20;
         final double progress = Math.min(maxProgress, (double) compound.getInteger("progress") / 20);
         final boolean isWorking = compound.getBoolean("working");
@@ -68,5 +57,17 @@ public class CoverWorkableInfoDataProvider extends CoverCapabilityInfoDataProvid
             tooltip.add(I18n.format("gregtech.multiblock.running"));
         }
         return tooltip;
+    }
+
+    @Nonnull
+    @Override
+    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos, IWorkable workable) {
+        final NBTTagCompound compound = new NBTTagCompound();
+        compound.setInteger("progress", workable.getProgress());
+        compound.setInteger("maxProgress", workable.getMaxProgress());
+        compound.setBoolean("working", workable.isWorkingEnabled());
+        compound.setBoolean("active", workable.isActive());
+        tag.setTag(this.getConfigName(), compound);
+        return tag;
     }
 }

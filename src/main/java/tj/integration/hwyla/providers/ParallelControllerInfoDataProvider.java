@@ -1,8 +1,6 @@
 package tj.integration.hwyla.providers;
 
 import gregicadditions.GAValues;
-import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.MetaTileEntityHolder;
 import mcp.mobius.waila.api.*;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -11,6 +9,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import tj.TJValues;
 import tj.capability.IParallelController;
 import tj.capability.TJCapabilities;
@@ -20,54 +19,31 @@ import tj.util.TJUtility;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class ParallelControllerInfoDataProvider implements IWailaDataProvider {
+public class ParallelControllerInfoDataProvider extends CapabilityInfoDataProvider<IParallelController> {
 
     public static final ParallelControllerInfoDataProvider INSTANCE = new ParallelControllerInfoDataProvider();
 
+    @Override
     public void register(IWailaRegistrar registrar) {
+        super.register(registrar);
         registrar.registerNBTProvider(this, TileEntity.class);
         registrar.registerBodyProvider(this, TileEntity.class);
-        registrar.addConfig("TJ", "tj.parallel_controller");
+    }
+
+    @Override
+    public Capability<IParallelController> getCapability() {
+        return TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER;
+    }
+
+    @Override
+    public String getConfigName() {
+        return "tj.parallel_controller";
     }
 
     @Nonnull
     @Override
-    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos) {
-        if (!(te instanceof MetaTileEntityHolder))
-            return tag;
-        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) te).getMetaTileEntity();
-        if (metaTileEntity == null)
-            return tag;
-        final IParallelController controller = metaTileEntity.getCapability(TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER, null);
-        if (controller == null)
-            return tag;
-        final NBTTagCompound compound = new NBTTagCompound();
-        compound.setLong("energyStored", controller.getEnergyStored());
-        compound.setLong("energyCapacity", controller.getEnergyCapacity());
-        compound.setLong("maxEU", controller.getMaxEUt());
-        compound.setLong("energyTotal", controller.getTotalEnergyConsumption());
-        compound.setLong("voltageTier", controller.getVoltageTier());
-        compound.setInteger("bonusEU", controller.getEUBonus());
-        if (controller.getMultiblockRecipe() != null)
-            compound.setString("recipeMap", controller.getMultiblockRecipe().getUnlocalizedName());
-        tag.setTag("tj.parallel_controller", compound);
-        return tag;
-    }
-
-    @Nonnull
-    @Override
-    public List<String> getWailaBody(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
-        if (!config.getConfig("tj.parallel_controller"))
-            return tooltip;
-        if (!(accessor.getTileEntity() instanceof MetaTileEntityHolder))
-            return tooltip;
-        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) accessor.getTileEntity()).getMetaTileEntity();
-        if (metaTileEntity == null)
-            return tooltip;
-        final IParallelController controller = metaTileEntity.getCapability(TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER, null);
-        if (controller == null)
-            return tooltip;
-        final NBTTagCompound compound = accessor.getNBTData().getCompoundTag("tj.parallel_controller");
+    public List<String> getWailaBody(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config, IParallelController controller) {
+        final NBTTagCompound compound = accessor.getNBTData().getCompoundTag(this.getConfigName());
         final long energyCapacity = compound.getLong("energyCapacity");
         final long energyStored = Math.min(energyCapacity, compound.getLong("energyStored"));
         final long maxEUt = compound.getLong("maxEU");
@@ -90,5 +66,21 @@ public class ParallelControllerInfoDataProvider implements IWailaDataProvider {
                     String.valueOf(energyStored), String.valueOf(energyCapacity), " EU", " EU", Color.YELLOW.toString(), ",###"));
         }
         return tooltip;
+    }
+
+    @Nonnull
+    @Override
+    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos, IParallelController controller) {
+        final NBTTagCompound compound = new NBTTagCompound();
+        compound.setLong("energyStored", controller.getEnergyStored());
+        compound.setLong("energyCapacity", controller.getEnergyCapacity());
+        compound.setLong("maxEU", controller.getMaxEUt());
+        compound.setLong("energyTotal", controller.getTotalEnergyConsumption());
+        compound.setLong("voltageTier", controller.getVoltageTier());
+        compound.setInteger("bonusEU", controller.getEUBonus());
+        if (controller.getMultiblockRecipe() != null)
+            compound.setString("recipeMap", controller.getMultiblockRecipe().getUnlocalizedName());
+        tag.setTag(this.getConfigName(), compound);
+        return tag;
     }
 }

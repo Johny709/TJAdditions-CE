@@ -1,8 +1,6 @@
 package tj.integration.hwyla.providers;
 
 import gregicadditions.GAValues;
-import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.MetaTileEntityHolder;
 import mcp.mobius.waila.api.*;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -12,6 +10,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import tj.TJValues;
 import tj.capability.IMultipleWorkable;
 import tj.capability.TJCapabilities;
@@ -21,56 +20,31 @@ import tj.util.TJUtility;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class ParallelWorkableInfoDataProvider implements IWailaDataProvider {
+public class ParallelWorkableInfoDataProvider extends CapabilityInfoDataProvider<IMultipleWorkable> {
 
     public static final ParallelWorkableInfoDataProvider INSTANCE = new ParallelWorkableInfoDataProvider();
 
+    @Override
     public void register(IWailaRegistrar registrar) {
+        super.register(registrar);
         registrar.registerNBTProvider(this, TileEntity.class);
         registrar.registerBodyProvider(this, TileEntity.class);
-        registrar.addConfig("TJ", "tj.parallel_workable");
+    }
+
+    @Override
+    public Capability<IMultipleWorkable> getCapability() {
+        return TJCapabilities.CAPABILITY_MULTIPLE_WORKABLE;
+    }
+
+    @Override
+    public String getConfigName() {
+        return "tj.parallel_workable";
     }
 
     @Nonnull
     @Override
-    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos) {
-        if (!(te instanceof MetaTileEntityHolder))
-            return tag;
-        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) te).getMetaTileEntity();
-        if (metaTileEntity == null)
-            return tag;
-        final IMultipleWorkable workable = metaTileEntity.getCapability(TJCapabilities.CAPABILITY_MULTIPLE_WORKABLE, null);
-        if (workable == null)
-            return tag;
-        final NBTTagList workableList = new NBTTagList();
-        for (int i = 0; i < workable.getSize(); i++) {
-            final NBTTagCompound compound = new NBTTagCompound();
-            compound.setInteger("progress", workable.getProgress(i));
-            compound.setInteger("maxProgress", workable.getMaxProgress(i));
-            compound.setLong("eut", workable.getRecipeEUt(i));
-            compound.setBoolean("working", workable.isWorkingEnabled(i));
-            compound.setBoolean("active", workable.isInstanceActive(i));
-            compound.setBoolean("problem", workable.hasProblems(i));
-            workableList.appendTag(compound);
-        }
-        tag.setTag("tj.parallel_workable.list", workableList);
-        return tag;
-    }
-
-    @Nonnull
-    @Override
-    public List<String> getWailaBody(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
-        if (!config.getConfig("tj.parallel_workable"))
-            return tooltip;
-        if (!(accessor.getTileEntity() instanceof MetaTileEntityHolder))
-            return tooltip;
-        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) accessor.getTileEntity()).getMetaTileEntity();
-        if (metaTileEntity == null)
-            return tooltip;
-        final IMultipleWorkable workable = metaTileEntity.getCapability(TJCapabilities.CAPABILITY_MULTIPLE_WORKABLE, null);
-        if (workable == null)
-            return tooltip;
-        final NBTTagList workableList = accessor.getNBTData().getTagList("tj.parallel_workable.list", 10);
+    public List<String> getWailaBody(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config, IMultipleWorkable workable) {
+        final NBTTagList workableList = accessor.getNBTData().getTagList(this.getConfigName(), 10);
         tooltip.add("§b(" + 1 + "/" + workableList.tagCount() + ")");
         for (int i = 0; i < workableList.tagCount(); i++) {
             final NBTTagCompound compound = workableList.getCompoundTagAt(i);
@@ -92,5 +66,23 @@ public class ParallelWorkableInfoDataProvider implements IWailaDataProvider {
                     tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier]));
         }
         return tooltip;
+    }
+
+    @Nonnull
+    @Override
+    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos, IMultipleWorkable workable) {
+        final NBTTagList workableList = new NBTTagList();
+        for (int i = 0; i < workable.getSize(); i++) {
+            final NBTTagCompound compound = new NBTTagCompound();
+            compound.setInteger("progress", workable.getProgress(i));
+            compound.setInteger("maxProgress", workable.getMaxProgress(i));
+            compound.setLong("eut", workable.getRecipeEUt(i));
+            compound.setBoolean("working", workable.isWorkingEnabled(i));
+            compound.setBoolean("active", workable.isInstanceActive(i));
+            compound.setBoolean("problem", workable.hasProblems(i));
+            workableList.appendTag(compound);
+        }
+        tag.setTag(this.getConfigName(), workableList);
+        return tag;
     }
 }

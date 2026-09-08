@@ -6,6 +6,7 @@ import gregtech.api.metatileentity.MetaTileEntityHolder;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaDataProvider;
+import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -21,13 +22,17 @@ import java.util.List;
 
 public abstract class CoverCapabilityInfoDataProvider<T> implements IWailaDataProvider {
 
+    public void register(IWailaRegistrar registrar) {
+        registrar.addConfig("TJ", this.getConfigName());
+    }
+
     public abstract Capability<T> getCapability();
 
     public abstract String getConfigName();
 
     @Nonnull
-    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos, T capability) {
-        return tag;
+    public List<String> getWailaHead(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config, T capability) {
+        return tooltip;
     }
 
     @Nonnull
@@ -36,21 +41,34 @@ public abstract class CoverCapabilityInfoDataProvider<T> implements IWailaDataPr
     }
 
     @Nonnull
-    @Override
-    public final NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos) {
-        if (!(te instanceof MetaTileEntityHolder))
-            return tag;
-        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) te).getMetaTileEntity();
-        if (metaTileEntity == null)
-            return tag;
-        for (EnumFacing facing : EnumFacing.VALUES) {
-            final T coverCapability = metaTileEntity.getCoverCapability(this.getCapability(), facing);
-            if (coverCapability == null) continue;
-            NBTTagCompound compound = new NBTTagCompound();
-            compound = this.getNBTData(player, te, compound, world, pos, coverCapability);
-            tag.setTag(getCapabilitySideTag(facing), compound);
-        }
+    public List<String> getWailaTail(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config, T capability) {
+        return tooltip;
+    }
+
+    @Nonnull
+    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos, T capability) {
         return tag;
+    }
+
+    @Nonnull
+    @Override
+    public final List<String> getWailaHead(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
+        if (!config.getConfig(this.getConfigName()))
+            return tooltip;
+        if (!(accessor.getTileEntity() instanceof MetaTileEntityHolder))
+            return tooltip;
+        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) accessor.getTileEntity()).getMetaTileEntity();
+        if (metaTileEntity == null)
+            return tooltip;
+        if (metaTileEntity.getCoverAtSide(accessor.getSide()) == null)
+            return tooltip;
+        final T coverCapability = metaTileEntity.getCoverCapability(this.getCapability(), accessor.getSide());
+        if (coverCapability != null) {
+            List<String> tooltips = new ArrayList<>();
+            tooltips = this.getWailaHead(itemStack, tooltips, accessor, config, coverCapability);
+            tooltip.addAll(tooltips);
+        }
+        return tooltip;
     }
 
     @Nonnull
@@ -72,6 +90,45 @@ public abstract class CoverCapabilityInfoDataProvider<T> implements IWailaDataPr
             tooltip.addAll(tooltips);
         }
         return tooltip;
+    }
+
+    @Nonnull
+    @Override
+    public List<String> getWailaTail(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
+        if (!config.getConfig(this.getConfigName()))
+            return tooltip;
+        if (!(accessor.getTileEntity() instanceof MetaTileEntityHolder))
+            return tooltip;
+        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) accessor.getTileEntity()).getMetaTileEntity();
+        if (metaTileEntity == null)
+            return tooltip;
+        if (metaTileEntity.getCoverAtSide(accessor.getSide()) == null)
+            return tooltip;
+        final T coverCapability = metaTileEntity.getCoverCapability(this.getCapability(), accessor.getSide());
+        if (coverCapability != null) {
+            List<String> tooltips = new ArrayList<>();
+            tooltips = this.getWailaTail(itemStack, tooltips, accessor, config, coverCapability);
+            tooltip.addAll(tooltips);
+        }
+        return tooltip;
+    }
+
+    @Nonnull
+    @Override
+    public final NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos) {
+        if (!(te instanceof MetaTileEntityHolder))
+            return tag;
+        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) te).getMetaTileEntity();
+        if (metaTileEntity == null)
+            return tag;
+        for (EnumFacing facing : EnumFacing.VALUES) {
+            final T coverCapability = metaTileEntity.getCoverCapability(this.getCapability(), facing);
+            if (coverCapability == null) continue;
+            NBTTagCompound compound = new NBTTagCompound();
+            compound = this.getNBTData(player, te, compound, world, pos, coverCapability);
+            tag.setTag(getCapabilitySideTag(facing), compound);
+        }
+        return tag;
     }
 
     public static String getCapabilitySideTag(EnumFacing side) {

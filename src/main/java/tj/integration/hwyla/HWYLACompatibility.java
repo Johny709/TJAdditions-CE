@@ -13,7 +13,7 @@ public final class HWYLACompatibility implements IWailaPlugin {
         FuelableInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         EnergyInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         HeatInfoDataProvider.INSTANCE.register(iWailaRegistrar);
-        ProgressInfoDataProvider.INSTANCE.register(iWailaRegistrar);
+        WorkableInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         ParallelControllerInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         ParallelWorkableInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         ParallelItemFluidHandlerInfoDataProvider.INSTANCE.register(iWailaRegistrar);
@@ -21,7 +21,6 @@ public final class HWYLACompatibility implements IWailaPlugin {
         LinkedEntityInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         GeneratorInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         RecipeInfoDataProvider.INSTANCE.register(iWailaRegistrar);
-        WorkableInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         StructureInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         CoverWorkableInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         CoverParallelWorkableInfoDataProvider.INSTANCE.register(iWailaRegistrar);

@@ -4,8 +4,6 @@ import gregtech.api.capability.GregtechCapabilities;
 import gregtech.api.capability.IFuelInfo;
 import gregtech.api.capability.IFuelable;
 import gregtech.api.capability.impl.ItemFuelInfo;
-import gregtech.api.metatileentity.MetaTileEntity;
-import gregtech.api.metatileentity.MetaTileEntityHolder;
 import mcp.mobius.waila.api.*;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -15,6 +13,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import tj.TJValues;
 import tj.util.Color;
 
@@ -22,27 +21,58 @@ import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.List;
 
-public class FuelableInfoDataProvider implements IWailaDataProvider {
+public class FuelableInfoDataProvider extends CapabilityInfoDataProvider<IFuelable> {
 
     public static final FuelableInfoDataProvider INSTANCE = new FuelableInfoDataProvider();
 
+    @Override
     public void register(IWailaRegistrar registrar) {
+        super.register(registrar);
         registrar.registerNBTProvider(this, TileEntity.class);
         registrar.registerBodyProvider(this, TileEntity.class);
-        registrar.addConfig("TJ", "tj.fuelable");
+    }
+
+    @Override
+    public Capability<IFuelable> getCapability() {
+        return GregtechCapabilities.CAPABILITY_FUELABLE;
+    }
+
+    @Override
+    public String getConfigName() {
+        return "tj.fuelable";
     }
 
     @Nonnull
     @Override
-    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos) {
-        if (!(te instanceof MetaTileEntityHolder))
-            return tag;
-        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) te).getMetaTileEntity();
-        if (metaTileEntity == null)
-            return tag;
-        final IFuelable fuelable = metaTileEntity.getCapability(GregtechCapabilities.CAPABILITY_FUELABLE, null);
-        if (fuelable == null)
-            return tag;
+    public List<String> getWailaBody(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config, IFuelable fuelable) {
+        final NBTTagList tagList = accessor.getNBTData().getTagList(this.getConfigName(), 10);
+        for (int i = 0; i < tagList.tagCount(); i++) {
+            final NBTTagCompound compound = tagList.getCompoundTagAt(i);
+            if (compound.hasKey("item")) {
+                final ItemStack stack = new ItemStack(compound.getCompoundTag("item"));
+                tooltip.add(I18n.format("gregtech.top.fuel_name") + " " + stack.getDisplayName());
+            } else tooltip.add(I18n.format("gregtech.top.fuel_name") + I18n.format(compound.getString("fuelName")));
+
+            final int fuelRemaining = compound.getInteger("fuelRemaining");
+            final int fuelCapacity = compound.getInteger("fuelCapacity");
+            final int fuelConsumed = compound.getInteger("fuelConsumed");
+            final double burnTimePrecise = compound.getLong("fuelBurnTime") / 20.0;
+
+            if (fuelRemaining < fuelConsumed) {
+                tooltip.add(I18n.format("gregtech.top.fuel_min_consume") + " " + TJValues.thousandTwoPlaceFormat.format(fuelConsumed));
+            } else tooltip.add(I18n.format("gregtech.top.fuel_burn") + " " + TJValues.thousandTwoPlaceFormat.format(burnTimePrecise) +
+                        " " + I18n.format("gregtech.top.fuel_time"));
+            tooltip.add(SpecialChars.getRenderString("tj.progressinfo", "", String.valueOf(fuelRemaining),
+                    String.valueOf(fuelCapacity), "", "", Color.GOLD.toString(), ",###"));
+        }
+        if (tagList.isEmpty())
+            tooltip.add(I18n.format("gregtech.top.fuel_none"));
+        return tooltip;
+    }
+
+    @Nonnull
+    @Override
+    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos, IFuelable fuelable) {
         final NBTTagList tagList = new NBTTagList();
         final Collection<IFuelInfo> fuelInfos = fuelable.getFuels();
         if (fuelInfos != null) {
@@ -61,45 +91,7 @@ public class FuelableInfoDataProvider implements IWailaDataProvider {
                 tagList.appendTag(compound);
             }
         }
-        tag.setTag("tj.fuelable.list", tagList);
+        tag.setTag(this.getConfigName(), tagList);
         return tag;
-    }
-
-    @Nonnull
-    @Override
-    public List<String> getWailaBody(ItemStack itemStack, List<String> tooltip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
-        if (!config.getConfig("tj.fuelable"))
-            return tooltip;
-        if (!(accessor.getTileEntity() instanceof MetaTileEntityHolder))
-            return tooltip;
-        final MetaTileEntity metaTileEntity = ((MetaTileEntityHolder) accessor.getTileEntity()).getMetaTileEntity();
-        if (metaTileEntity == null)
-            return tooltip;
-        final IFuelable fuelable = metaTileEntity.getCapability(GregtechCapabilities.CAPABILITY_FUELABLE, null);
-        if (fuelable == null)
-            return tooltip;
-        final NBTTagList tagList = accessor.getNBTData().getTagList("tj.fuelable.list", 10);
-        for (int i = 0; i < tagList.tagCount(); i++) {
-            final NBTTagCompound compound = tagList.getCompoundTagAt(i);
-            if (compound.hasKey("item")) {
-                final ItemStack stack = new ItemStack(compound.getCompoundTag("item"));
-                tooltip.add(I18n.format("gregtech.top.fuel_name") + " " + stack.getDisplayName());
-            } else
-                tooltip.add(I18n.format("gregtech.top.fuel_name") + I18n.format(compound.getString("fuelName")));
-            final int fuelRemaining = compound.getInteger("fuelRemaining");
-            final int fuelCapacity = compound.getInteger("fuelCapacity");
-            final int fuelConsumed = compound.getInteger("fuelConsumed");
-            final double burnTimePrecise = compound.getLong("fuelBurnTime") / 20.0;
-            if (fuelRemaining < fuelConsumed) {
-                tooltip.add(I18n.format("gregtech.top.fuel_min_consume") + " " + TJValues.thousandTwoPlaceFormat.format(fuelConsumed));
-            } else
-                tooltip.add(I18n.format("gregtech.top.fuel_burn") + " " + TJValues.thousandTwoPlaceFormat.format(burnTimePrecise) +
-                        " " + I18n.format("gregtech.top.fuel_time"));
-            tooltip.add(SpecialChars.getRenderString("tj.progressinfo", "", String.valueOf(fuelRemaining),
-                    String.valueOf(fuelCapacity), "", "", Color.GOLD.toString(), ",###"));
-        }
-        if (tagList.isEmpty())
-            tooltip.add(I18n.format("gregtech.top.fuel_none"));
-        return tooltip;
     }
 }
