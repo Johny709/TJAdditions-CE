@@ -10,6 +10,7 @@ public final class HWYLACompatibility implements IWailaPlugin {
 
     @Override
     public void register(IWailaRegistrar iWailaRegistrar) {
+        FluidHandlerInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         FuelableInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         EnergyInfoDataProvider.INSTANCE.register(iWailaRegistrar);
         HeatInfoDataProvider.INSTANCE.register(iWailaRegistrar);

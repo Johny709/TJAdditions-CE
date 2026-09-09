@@ -2,7 +2,6 @@ package tj.mui;
 
 import gregtech.api.gui.resources.AdoptableTextureArea;
 import gregtech.api.gui.resources.TextureArea;
-import tj.util.Color;
 
 public final class TJGuiTextures {
 
@@ -27,6 +26,7 @@ public final class TJGuiTextures {
     public static final TextureArea AUTOSCROLL_UP = TextureArea.fullImage("textures/gui/base/auto_scroll_up.png");
     public static final TextureArea AUTOSCROLL_DOWN = TextureArea.fullImage("textures/gui/base/auto_scroll_down.png");
 
+    public static final TextureArea BAR_BLUE = AdoptableTextureArea.fullImage("textures/gui/bar/bar_blue.png");
     public static final TextureArea BAR_RED = AdoptableTextureArea.fullImage("textures/gui/bar/bar_red.png");
     public static final TextureArea BAR_YELLOW = AdoptableTextureArea.fullImage("textures/gui/bar/bar_yellow.png");
     public static final TextureArea BAR_GREEN = AdoptableTextureArea.fullImage("textures/gui/bar/bar_green.png");
@@ -104,6 +104,7 @@ public final class TJGuiTextures {
 
     public static TextureArea getBarByColor(String color) {
         switch (color) {
+            case "§b": return TJGuiTextures.BAR_BLUE;
             case "§e": return TJGuiTextures.BAR_YELLOW;
             case "§a": return TJGuiTextures.BAR_GREEN;
             case "§6": return TJGuiTextures.BAR_ORANGE;
