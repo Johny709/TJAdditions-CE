@@ -4,7 +4,6 @@ import appeng.api.config.Settings;
 import appeng.api.config.Upgrades;
 import appeng.block.misc.BlockInterface;
 import appeng.core.Api;
-import baubles.api.BaublesApi;
 import com.circulation.random_complement.client.RCSettings;
 import com.circulation.random_complement.common.interfaces.RCIConfigurableObject;
 import gregtech.api.gui.GuiTextures;
@@ -18,21 +17,15 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.integration.ae2.ISuperInterface;
 import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.integration.ae2.tile.TilePatternInterface;
@@ -47,9 +40,6 @@ import tj.util.TJItemUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.LongUnaryOperator;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class BlockPatternInterface extends BlockInterface {
@@ -95,27 +85,17 @@ public class BlockPatternInterface extends BlockInterface {
     public static ModularUI createInterfaceGUI(TileEntityHolder holder, EntityPlayer player, ISuperInterface superInterface) {
         final DualitySuperInterface duality = (DualitySuperInterface) superInterface.getInterfaceDuality();
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
-        final ItemStack patternMultiTool = Optional.of(player.inventory.mainInventory)
-                .map(inventory -> {
-                    for (ItemStack stack : inventory)
-                        if (stack.isItemEqual(TJItemUtils.getItemStackFromName("nae2:pattern_multiplier")))
-                            return stack;
-                    final IItemHandlerModifiable baubleSlots = BaublesApi.getBaublesHandler(player);
-                    for (int i = 0; i < baubleSlots.getSlots(); i++)
-                        if (baubleSlots.getStackInSlot(i).isItemEqual(TJItemUtils.getItemStackFromName("nae2:pattern_multiplier")))
-                            return baubleSlots.getStackInSlot(i);
-                    return ItemStack.EMPTY;
-                }).get();
+        final ItemStack patternMultiTool = TJGuiUtils.getPatternMultiTool(player);
         final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(patternMultiTool);
         final NBTTagCompound invTag = compound.getCompoundTag("inv");
         final NBTTagCompound upgradeTag = compound.getCompoundTag("upgrades");
         final FilteredItemStackHandler multiPatternSlots = new FilteredItemStackHandler(null, 36, 64)
                 .setItemStackPredicate((slot, itemStack) -> itemStack.isItemEqual(Api.INSTANCE.definitions().materials().blankPattern().maybeStack(1).orElse(ItemStack.EMPTY)) ||
                         itemStack.isItemEqual(Api.INSTANCE.definitions().items().encodedPattern().maybeStack(1).orElse(ItemStack.EMPTY)) || itemStack.isItemEqual(TJItemUtils.getItemStackFromName("ae2fc:dense_encoded_pattern")));
-        multiPatternSlots.setOnContentsChangedPost((slot, itemStack) -> writePatternMultiToolToNBT(multiPatternSlots, invTag));
+        multiPatternSlots.setOnContentsChangedPost((slot, itemStack) -> TJGuiUtils.writePatternMultiToolToNBT(multiPatternSlots, invTag));
         final FilteredItemStackHandler multiUpgradeSlots = new FilteredItemStackHandler(null, 3, 1)
                 .setItemStackPredicate((slot, itemStack) -> itemStack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)));
-        multiUpgradeSlots.setOnContentsChangedPost((slot, itemStack) -> writePatternMultiToolToNBT(multiUpgradeSlots, upgradeTag));
+        multiUpgradeSlots.setOnContentsChangedPost((slot, itemStack) -> TJGuiUtils.writePatternMultiToolToNBT(multiUpgradeSlots, upgradeTag));
 
         final SlotScrollableWidgetGroup patternScrollableSlotGroup = new SlotScrollableWidgetGroup(7, 123, 166, 72, 9)
                 .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(multiPatternSlots, itemStack, false))
@@ -140,7 +120,7 @@ public class BlockPatternInterface extends BlockInterface {
         }
         final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
                 .image(179, 0, 32, 194, GuiTextures.BORDERED_BACKGROUND);
-        createPatternMultiToolGUI(builder.widget(new LabelWidget(7, 23, "gui.appliedenergistics2.StoredItems"))
+        TJGuiUtils.createPatternMultiToolGUI(builder.widget(new LabelWidget(7, 23, "gui.appliedenergistics2.StoredItems"))
                 .widget(new LabelWidget(7, 113, "gui.appliedenergistics2.Patterns"))
                 .widget(patternScrollableSlotGroup)
                 .widget(upgradeScrollableSlotGroup), patternMultiTool, multiUpgradeSlots, duality.getPatterns(), multiPatternSlots, invTag);
@@ -189,19 +169,19 @@ public class BlockPatternInterface extends BlockInterface {
                         .setToggleTexture(TJGuiTextures.TOGGLE_BLOCKING_MODE)
                         .setInvertTexture(true)
                         .useToggleTexture(true))
-                .widget(new TJToggleButtonWidget(-18, 134, 16, 16, () -> false, (BooleanConsumer) bool -> changePatternAmount(duality.getPatterns(), patternScrollableSlotGroup, m -> m * 2, () -> updatePatterns(duality.getPatterns())))
+                .widget(new TJToggleButtonWidget(-18, 134, 16, 16, () -> false, (BooleanConsumer) bool -> TJGuiUtils.changePatternAmount(duality.getPatterns(), patternScrollableSlotGroup, m -> m * 2, () -> TJGuiUtils.updatePatterns(duality.getPatterns())))
                         .setToggleTooltipHoverText("gui.pattern_term.auto_fill_pattern.MULTIPLY_2.text", "gui.pattern_term.auto_fill_pattern.MULTIPLY_2.text")
                         .setToggleTitleTooltipHoverText("gui.action.MULTIPLY_2.name", "gui.action.MULTIPLY_2.name")
                         .setActiveTexture(TJGuiTextures.AE2_MULTIPLY2_BUTTON, TJGuiTextures.AE2_MULTIPLY2_BUTTON))
-                .widget(new TJToggleButtonWidget(-18, 152, 16, 16, () -> false, (BooleanConsumer) bool -> changePatternAmount(duality.getPatterns(), patternScrollableSlotGroup, m -> m / 2, () -> updatePatterns(duality.getPatterns())))
+                .widget(new TJToggleButtonWidget(-18, 152, 16, 16, () -> false, (BooleanConsumer) bool -> TJGuiUtils.changePatternAmount(duality.getPatterns(), patternScrollableSlotGroup, m -> m / 2, () -> TJGuiUtils.updatePatterns(duality.getPatterns())))
                         .setToggleTooltipHoverText("gui.pattern_term.auto_fill_pattern.DIVIDE_2.text", "gui.pattern_term.auto_fill_pattern.DIVIDE_2.text")
                         .setToggleTitleTooltipHoverText("gui.action.DIVIDE_2.name", "gui.action.DIVIDE_2.name")
                         .setActiveTexture(TJGuiTextures.AE2_DIVIDE2_BUTTON, TJGuiTextures.AE2_DIVIDE2_BUTTON))
-                .widget(new TJToggleButtonWidget(-18, 170, 16, 16, () -> false, (BooleanConsumer) bool -> changePatternAmount(duality.getPatterns(), patternScrollableSlotGroup, m -> m * 3, () -> updatePatterns(duality.getPatterns())))
+                .widget(new TJToggleButtonWidget(-18, 170, 16, 16, () -> false, (BooleanConsumer) bool -> TJGuiUtils.changePatternAmount(duality.getPatterns(), patternScrollableSlotGroup, m -> m * 3, () -> TJGuiUtils.updatePatterns(duality.getPatterns())))
                         .setToggleTooltipHoverText("gui.pattern_term.auto_fill_pattern.MULTIPLY_3.text", "gui.pattern_term.auto_fill_pattern.MULTIPLY_3.text")
                         .setToggleTitleTooltipHoverText("gui.action.MULTIPLY_3.name", "gui.action.MULTIPLY_3.name")
                         .setActiveTexture(TJGuiTextures.AE2_MULTIPLY3_BUTTON, TJGuiTextures.AE2_MULTIPLY3_BUTTON))
-                .widget(new TJToggleButtonWidget(-18, 188, 16, 16, () -> false, (BooleanConsumer) bool -> changePatternAmount(duality.getPatterns(), patternScrollableSlotGroup, m -> m / 3, () -> updatePatterns(duality.getPatterns())))
+                .widget(new TJToggleButtonWidget(-18, 188, 16, 16, () -> false, (BooleanConsumer) bool -> TJGuiUtils.changePatternAmount(duality.getPatterns(), patternScrollableSlotGroup, m -> m / 3, () -> TJGuiUtils.updatePatterns(duality.getPatterns())))
                         .setToggleTooltipHoverText("gui.pattern_term.auto_fill_pattern.DIVIDE_3.text", "gui.pattern_term.auto_fill_pattern.DIVIDE_3.text")
                         .setToggleTitleTooltipHoverText("gui.action.DIVIDE_3.name", "gui.action.DIVIDE_3.name")
                         .setActiveTexture(TJGuiTextures.AE2_DIVIDE3_BUTTON, TJGuiTextures.AE2_DIVIDE3_BUTTON))
@@ -228,8 +208,8 @@ public class BlockPatternInterface extends BlockInterface {
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 209, patternMultiTool))
                 .bindOpenListener(() -> {
                     if (!patternMultiTool.isEmpty()) {
-                        readPatternMultiToolNBT(multiPatternSlots, invTag.getTagList("Items", 10));
-                        readPatternMultiToolNBT(multiUpgradeSlots, upgradeTag.getTagList("Items", 10));
+                        TJGuiUtils.readPatternMultiToolNBT(multiPatternSlots, invTag.getTagList("Items", 10));
+                        TJGuiUtils.readPatternMultiToolNBT(multiUpgradeSlots, upgradeTag.getTagList("Items", 10));
                         if (patternMultiTool.getTagCompound() == null || patternMultiTool.getTagCompound().isEmpty()) {
                             compound.setTag("inv", invTag);
                             compound.setTag("upgrades", upgradeTag);
@@ -237,153 +217,5 @@ public class BlockPatternInterface extends BlockInterface {
                         }
                     }
                 }).build(holder, player);
-    }
-
-    private static void createPatternMultiToolGUI(ModularUI.Builder builder, ItemStack patternMultiTool, FilteredItemStackHandler multiUpgradeSlots, IItemHandler patternSlots, IItemHandler multiPatternSlots, NBTTagCompound invTag) {
-        if (!patternMultiTool.isEmpty()) {
-            final SlotScrollableWidgetGroup multiPatternSlotGroup = new SlotScrollableWidgetGroup(-118, 14, 72, 162, 4)
-                    .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(patternSlots, itemStack, false))
-                    .setItemHandler(multiPatternSlots)
-                    .setScrollWidth(0);
-            builder.widget(new ImageWidget(-125, 0, 105, 218, GuiTextures.BORDERED_BACKGROUND))
-                    .widget(new LabelWidget(-118, 4, "item.nae2.pattern_multiplier.name"))
-                    .widget(new ButtonWidget<>(-118, 176, 18, 18, "*2", data -> changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m * 2, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
-                            .setTitleHoverTooltipText("gui.action.MULTIPLY_2.name").setHoverTooltipText("gui.pattern_term.auto_fill_pattern.MULTIPLY_2.text").setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                    .widget(new ButtonWidget<>(-118, 194, 18, 18, "/2", data -> changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m / 2, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
-                            .setTitleHoverTooltipText("gui.action.DIVIDE_2.name").setHoverTooltipText("gui.pattern_term.auto_fill_pattern.DIVIDE_2.text").setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                    .widget(new ButtonWidget<>(-100, 176, 18, 18, "*3", data -> changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m * 3, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
-                            .setTitleHoverTooltipText("gui.action.MULTIPLY_3.name").setHoverTooltipText("gui.pattern_term.auto_fill_pattern.MULTIPLY_3.text").setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                    .widget(new ButtonWidget<>(-100, 194, 18, 18, "/3", data -> changePatternAmount(multiPatternSlots,  multiPatternSlotGroup, m -> m / 3, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
-                            .setTitleHoverTooltipText("gui.action.DIVIDE_3.name").setHoverTooltipText("gui.pattern_term.auto_fill_pattern.DIVIDE_3.text").setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                    .widget(new ButtonWidget<>(-82, 176, 18, 18, "+1", data -> changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m + 1, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
-                            .setTitleHoverTooltipText("gui.tooltips.appliedenergistics2.IncreaseByOne").setHoverTooltipText("gui.tooltips.appliedenergistics2.IncreaseByOneDesc").setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                    .widget(new ButtonWidget<>(-82, 194, 18, 18, "-1", data -> changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m - 1, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
-                            .setTitleHoverTooltipText("gui.tooltips.appliedenergistics2.DecreaseByOne").setHoverTooltipText("gui.tooltips.appliedenergistics2.DecreaseByOneDesc").setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                    .widget(new ButtonWidget<>(-64, 176, 36, 36, "X", data -> clearPatterns(multiPatternSlots, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
-                            .setTitleHoverTooltipText("nae2.pattern_multiplier.unencode").setHoverTooltipText("nae2.pattern_multiplier.unencode.desc").setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            for (int i = 0; i < multiPatternSlots.getSlots(); i++) {
-                final int index = i;
-                multiPatternSlotGroup.addWidget(new AEPatternSlotWidget(multiPatternSlots, i, 18 * (i / 9), 18 * (i % 9))
-                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
-                        .setActiveSupplier(() -> index / 9 <= multiUpgradeSlots.getSlotsFilled())
-                        .setSlotLocationInfo(true, false)
-                        .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
-                        .setWidgetGroup(multiPatternSlotGroup)
-                        .setSlotProtection(true));
-            }
-            builder.widget(multiPatternSlotGroup);
-            for (int i = 0; i < multiUpgradeSlots.getSlots(); i++) {
-                builder.widget(new TJSlotWidget<>(multiUpgradeSlots, i, -46, 14 + (i * 18))
-                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                        .setSlotProtection(true));
-            }
-        }
-    }
-
-    private static void writePatternMultiToolToNBT(IItemHandler itemHandler, NBTTagCompound compound) {
-        final NBTTagList tagList = new NBTTagList();
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            final ItemStack stack = itemHandler.getStackInSlot(i);
-            if (!stack.isEmpty()) {
-                final NBTTagCompound tagCompound = stack.serializeNBT();
-                tagCompound.setInteger("Slot", i);
-                tagList.appendTag(tagCompound);
-            }
-        }
-        compound.setTag("Items", tagList);
-    }
-
-    private static void readPatternMultiToolNBT(IItemHandlerModifiable itemHandler, NBTTagList tagList) {
-        for (int i = 0; i < tagList.tagCount(); i++) {
-            final NBTTagCompound compound = tagList.getCompoundTagAt(i);
-            if (compound.hasKey("Slot")) {
-                final ItemStack patternStack = TJItemUtils.getItemStackFromName(compound.getString("id"), compound.getInteger("Count"), compound.getShort("Damage"));
-                patternStack.setTagCompound(compound.getCompoundTag("tag"));
-                itemHandler.setStackInSlot(compound.getInteger("Slot"), patternStack);
-            }
-        }
-    }
-
-    private static void changePatternAmount(IItemHandler patternSlots, SlotScrollableWidgetGroup patternSlotWidgets, LongUnaryOperator multiplier, Runnable callback) {
-        for (int i = 0; i < patternSlots.getSlots(); i++) {
-            final ItemStack stack = patternSlots.getStackInSlot(i);
-            final NBTTagCompound compound = stack.getTagCompound();
-            if (stack.isEmpty() || compound == null) continue;
-            final ResourceLocation resourcelocation = Item.REGISTRY.getNameForObject(stack.getItem());
-            final String id = resourcelocation != null ? resourcelocation.toString() : "minecraft:air";
-            final NBTTagList inputList = compound.getTagList(id.equals("ae2fc:dense_encoded_pattern") ? "Inputs" : "in", 10);
-            final NBTTagList outputList = compound.getTagList(id.equals("ae2fc:dense_encoded_pattern") ? "Outputs" : "out", 10);
-            final NBTTagList newInputList = new NBTTagList(), newOutputList = new NBTTagList();
-            final Predicate<Boolean> setPatternInputs = simulate -> {
-                for (int j = 0; j < inputList.tagCount(); j++) {
-                    final NBTTagCompound patternCompound = inputList.getCompoundTagAt(j);
-                    final long amount = patternCompound.hasKey("Cnt") ? patternCompound.getLong("Cnt") : patternCompound.getInteger("Count");
-                    final long newAmount = multiplier.applyAsLong(amount);
-                    if (patternCompound.isEmpty()) {
-                        if (!simulate)
-                            newInputList.appendTag(patternCompound);
-                        continue;
-                    }
-                    if (newAmount > 0 && newAmount <= Integer.MAX_VALUE) {
-                        if (!simulate) {
-                            if (id.equals("ae2fc:dense_encoded_pattern")) {
-                                patternCompound.setLong("Cnt", newAmount);
-                            } else patternCompound.setInteger("Count", (int) newAmount);
-                            newInputList.appendTag(patternCompound);
-                        }
-                    } else return false;
-                }
-                for (int j = 0; j < outputList.tagCount(); j++) {
-                    final NBTTagCompound patternCompound = outputList.getCompoundTagAt(j);
-                    final long amount = patternCompound.hasKey("Cnt") ? patternCompound.getLong("Cnt") : patternCompound.getInteger("Count");
-                    final long newAmount = multiplier.applyAsLong(amount);
-                    if (patternCompound.isEmpty()) {
-                        if (!simulate)
-                            newOutputList.appendTag(patternCompound);
-                        continue;
-                    }
-                    if (newAmount > 0 && newAmount <= Integer.MAX_VALUE) {
-                        if (!simulate) {
-                            if (id.equals("ae2fc:dense_encoded_pattern")) {
-                                patternCompound.setLong("Cnt", newAmount);
-                            } else patternCompound.setInteger("Count", (int) newAmount);
-                            newOutputList.appendTag(patternCompound);
-                        }
-                    } else return false;
-                }
-                if (!simulate) {
-                    compound.setTag("in", newInputList);
-                    compound.setTag("out", newOutputList);
-                    if (id.equals("ae2fc:dense_encoded_pattern")) {
-                        compound.setTag("Inputs", newInputList);
-                        compound.setTag("Outputs", newOutputList);
-                    }
-                }
-                return true;
-            };
-            if (setPatternInputs.test(true))
-                setPatternInputs.test(false);
-        }
-        callback.run();
-        patternSlotWidgets.getNativeWidgets().stream()
-                .filter(widget -> widget instanceof TJSlotWidget<?>)
-                .forEach(slot -> ((TJSlotWidget<?>) slot).forceUpdate());
-    }
-
-    private static void clearPatterns(IItemHandler patternSlots, Runnable callback) {
-        for (int i = 0; i < patternSlots.getSlots(); i++) {
-            ItemStack pattern = patternSlots.extractItem(i, Integer.MAX_VALUE, false);
-            pattern = Api.INSTANCE.definitions().materials().blankPattern().maybeStack(pattern.getCount()).orElse(ItemStack.EMPTY);
-            patternSlots.insertItem(i, pattern, false);
-        }
-        callback.run();
-    }
-
-    private static void updatePatterns(IItemHandler patternSlots) {
-        final NonNullList<ItemStack> itemStacks = NonNullList.create();
-        for (int i = 0; i < patternSlots.getSlots(); i++)
-            itemStacks.add(patternSlots.extractItem(i, Integer.MAX_VALUE, false));
-        for (int i = 0; i < patternSlots.getSlots(); i++)
-            patternSlots.insertItem(i, itemStacks.get(i), false);
     }
 }

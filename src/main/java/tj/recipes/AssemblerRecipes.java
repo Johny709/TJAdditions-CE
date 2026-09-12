@@ -21,6 +21,7 @@ import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import tj.items.item.TJItems;
 import tj.util.TJItemUtils;
 
 import java.util.Objects;
@@ -349,6 +350,16 @@ public class AssemblerRecipes {
                 .fluidInputs(Water.getFluid(4096000))
                 .outputs(WATER_RESERVOIR_HATCH.getStackForm())
                 .EUt(GAValues.VA[9]).duration(1200)
+                .buildAndRegister();
+        ASSEMBLER_RECIPES.recipeBuilder()
+                .input(OrePrefix.plate, Titanium, 32)
+                .inputs(Api.INSTANCE.definitions().materials().blankPattern().maybeStack(16).orElse(ItemStack.EMPTY),
+                        Api.INSTANCE.definitions().materials().engProcessor().maybeStack(4).orElse(ItemStack.EMPTY),
+                        Api.INSTANCE.definitions().materials().calcProcessor().maybeStack(4).orElse(ItemStack.EMPTY),
+                        TJItemUtils.getItemStackFromName("nae2:pattern_multiplier"))
+                .input(OrePrefix.circuit, Elite, 2)
+                .outputs(TJItems.SUPER_PATTERN_MULTITOOL.maybeStack(1).orElse(ItemStack.EMPTY))
+                .EUt(GAValues.VA[4]).duration(1200)
                 .buildAndRegister();
         for (int i = 0, tier = 1; i < FARMING_STATION.length; i++, tier++) {
             ASSEMBLER_RECIPES.recipeBuilder()

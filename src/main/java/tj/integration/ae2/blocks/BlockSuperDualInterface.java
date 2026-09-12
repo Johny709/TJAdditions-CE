@@ -5,7 +5,6 @@ import appeng.api.config.Upgrades;
 import appeng.block.misc.BlockInterface;
 import appeng.core.Api;
 import appeng.fluids.util.AEFluidInventory;
-import baubles.api.BaublesApi;
 import com.circulation.random_complement.client.RCSettings;
 import com.circulation.random_complement.common.interfaces.RCIConfigurableObject;
 import gregtech.api.gui.GuiTextures;
@@ -31,7 +30,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.blocks.block.TJBlocks;
 import tj.builder.WidgetTabBuilder;
 import tj.integration.ae2.ISuperDualInterface;
@@ -50,7 +48,6 @@ import tj.util.TJItemUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLocation.LEFT;
@@ -105,17 +102,7 @@ public class BlockSuperDualInterface extends BlockInterface {
 
     public static ModularUI createDualInterfaceGUI(TileEntityHolder holder, EntityPlayer player, ISuperDualInterface superDualInterface) {
         final DualitySuperInterface duality = (DualitySuperInterface) superDualInterface.getInterfaceDuality();
-        final ItemStack patternMultiTool = Optional.of(player.inventory.mainInventory)
-                .map(inventory -> {
-                    for (ItemStack stack : inventory)
-                        if (stack.isItemEqual(TJItemUtils.getItemStackFromName("nae2:pattern_multiplier")))
-                            return stack;
-                    final IItemHandlerModifiable baubleSlots = BaublesApi.getBaublesHandler(player);
-                    for (int i = 0; i < baubleSlots.getSlots(); i++)
-                        if (baubleSlots.getStackInSlot(i).isItemEqual(TJItemUtils.getItemStackFromName("nae2:pattern_multiplier")))
-                            return baubleSlots.getStackInSlot(i);
-                    return ItemStack.EMPTY;
-                }).get();
+        final ItemStack patternMultiTool = TJGuiUtils.getPatternMultiTool(player);
         final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(patternMultiTool);
         final NBTTagCompound invTag = compound.getCompoundTag("inv");
         final NBTTagCompound upgradeTag = compound.getCompoundTag("upgrades");
