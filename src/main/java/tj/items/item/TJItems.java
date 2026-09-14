@@ -18,7 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class TJItems {
+public final class TJItems {
 
     public static final Object2ObjectMap<ResourceLocation, Item> TJ_ITEM_REGISTRY = new Object2ObjectOpenHashMap<>();
     public static final Object2ObjectMap<ResourceLocation, IItemDefinition> TJ_ITEM_DEFINITION_REGISTRY = new Object2ObjectOpenHashMap<>();
@@ -102,7 +102,7 @@ public class TJItems {
         PART_SUPER_FLUID_INTERFACE_TERMINAL = registerItem(registry, item -> new ItemDefinition("me.part.super_fluid_interface_terminal", new ItemPartSuperFluidInterfaceTerminal()));
         PART_FLUID_STORAGE_BUS_TERMINAL = registerItem(registry, item -> new ItemDefinition("me.part.fluid_storage_bus_terminal", new ItemPartFluidStorageBusTerminal()));
 
-        SUPER_PATTERN_MULTITOOL = registerItem(registry, item -> new ItemDefinition("me.part.super_pattern_multiplier", item));
+        SUPER_PATTERN_MULTITOOL = registerItem(registry, item -> new ItemDefinition("me.part.super_pattern_multiplier", new ItemSuperPatternMultiplier()));
 
         MATERIAL_ITEM_CELL_65536K = registerItem(registry, item -> new ItemDefinition("me.material.item_cell.65536k", item));
         MATERIAL_ITEM_CELL_262144K = registerItem(registry, item -> new ItemDefinition("me.material.item_cell.262144k", item));

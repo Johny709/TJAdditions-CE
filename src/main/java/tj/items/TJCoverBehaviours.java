@@ -15,7 +15,7 @@ import java.util.function.BiFunction;
 
 import static tj.items.TJMetaItems.*;
 
-public class TJCoverBehaviours {
+public final class TJCoverBehaviours {
 
     public static void init() {
         TJ.logger.info("Registering Covers from TJ...");

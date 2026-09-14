@@ -8,7 +8,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-public class TJMetaItems {
+public final class TJMetaItems {
 
     public static List<MetaItem<?>> ITEMS = MetaItem.getMetaItems();
 

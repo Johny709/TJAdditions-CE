@@ -189,7 +189,7 @@ public final class TJGuiUtils {
                             .setTitleHoverTooltipText("nae2.pattern_multiplier.unencode").setHoverTooltipText("nae2.pattern_multiplier.unencode.desc").setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
             if (isUpgraded) {
                 multiPatternSlots.setSize(72);
-                multiUpgradeSlots.setSize(6);
+                multiUpgradeSlots.setSize(7);
             }
             for (int i = 0; i < multiPatternSlots.getSlots(); i++) {
                 final int index = i;
