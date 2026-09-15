@@ -147,6 +147,8 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+        final Position position = this.getPosition();
+        final Size size = this.getSize();
         //make sure mouse is not hovered on any element when outside of bounds
         if (!this.isPositionInsideScissor(mouseX, mouseY)) {
             mouseX = Integer.MAX_VALUE;
@@ -154,19 +156,18 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
         }
         final int finalMouseX = mouseX;
         final int finalMouseY = mouseY;
-        final Position position = this.getPosition();
-        final Size size = this.getSize();
         final int paneSize = this.scrollPaneWidth;
-        final int scrollX = position.x + size.width - paneSize;
-        drawSolidRect(scrollX, position.y, paneSize, size.height, 0xFF666666);
-        drawSolidRect(scrollX + 1, position.y + 1, paneSize - 2, size.height - 2, 0xFF888888);
+        if (this.totalListHeight > size.height) {
+            final int scrollX = position.x + size.width - paneSize;
+            drawSolidRect(scrollX, position.y, paneSize, size.height, 0xFF666666);
+            drawSolidRect(scrollX + 1, position.y + 1, paneSize - 2, size.height - 2, 0xFF888888);
 
-        final int maxScrollOffset = this.totalListHeight - size.height;
-        final float scrollPercent = maxScrollOffset == 0 ? 0 : this.scrollOffset / (maxScrollOffset * 1.0f);
-        final int scrollSliderHeight = 14;
-        final int scrollSliderY = Math.round(position.y + (size.height - scrollSliderHeight) * scrollPercent);
-        drawGradientRect(scrollX + 1, scrollSliderY, paneSize - 2, scrollSliderHeight, 0xFF555555, 0xFF454545);
-
+            final int maxScrollOffset = this.totalListHeight - size.height;
+            final float scrollPercent = maxScrollOffset == 0 ? 0 : this.scrollOffset / (maxScrollOffset * 1.0f);
+            final int scrollSliderHeight = 14;
+            final int scrollSliderY = Math.round(position.y + (size.height - scrollSliderHeight) * scrollPercent);
+            drawGradientRect(scrollX + 1, scrollSliderY, paneSize - 2, scrollSliderHeight, 0xFF555555, 0xFF454545);
+        }
         RenderUtil.useScissor(position.x, position.y, size.width - paneSize, size.height, () ->
                 super.drawInBackground(finalMouseX, finalMouseY, context));
     }
