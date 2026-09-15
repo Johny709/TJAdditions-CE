@@ -89,7 +89,8 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
             recipeEUt *= 4;
         }
         overclockManager.setParallel(this.batchMode.getAmount());
-        overclockManager.setEUtAndDuration(recipeEUt / 4, duration);
+        overclockManager.setDuration(duration * this.getDurationMultiplier() / 100);
+        overclockManager.setEUtAndDuration(recipeEUt / 4, overclockManager.getDuration() * this.batchMode.getAmount());
     }
 
     @Override
