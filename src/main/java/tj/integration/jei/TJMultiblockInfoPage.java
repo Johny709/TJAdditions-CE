@@ -90,10 +90,6 @@ public abstract class TJMultiblockInfoPage extends MultiblockInfoPage {
         }
     }
 
-    @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
-        return Collections.emptyList();
-    }
 
     @Override
     public String[] getDescription() {

@@ -118,7 +118,7 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
     protected BlockPattern createStructurePattern() {
         final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            if (layer % 4 == 0) {
+            if (layer % getExtentStep() == 0) {
                 final String mufflerMM = layer == 0 ? "XXXMXXX" : "XXXPXXX";
                 factoryPattern.aisle("~XXXXX~", "XXXXXXX", "XXXXXXX", mufflerMM, "XXXXXXX", "XXXXXXX", "~XXXXX~");
                 factoryPattern.aisle("~AAAAA~", "AcccccA", "Ac#c#cA", "AccPccA", "Ac#c#cA", "AcccccA", "~AAAAA~");
@@ -246,5 +246,11 @@ public class MetaTileEntityParallelAlloyBlastSmelter extends ParallelRecipeMapMu
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelAlloyBlastSmelter.maximumParallel;
+    }
+
+
+    @Override
+    protected int getExtentStep() {
+        return 4;
     }
 }

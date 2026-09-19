@@ -6,6 +6,7 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.items.metaitem.MetaItem;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import net.minecraft.item.Item;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -14,6 +15,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.capability.IJEIExtentSync;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.workable.XLHotCoolantTurbineWorkableHandler;
@@ -78,7 +80,7 @@ import static tj.mui.TJGuiTextures.*;
 import static tj.mui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.mui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
-public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantTurbine implements IMaintenance, IProgressBar {
+public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantTurbine implements IMaintenance, IProgressBar, IJEIExtentSync {
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS, IMPORT_ITEMS, OUTPUT_ENERGY, MAINTENANCE_HATCH};
     public static final int BASE_PARALLEL = 12;
@@ -110,7 +112,7 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
     protected Instant placedDown = Instant.now();
 
     public MetaTileEntityXLHotCoolantTurbine(ResourceLocation metaTileEntityId, MetaTileEntityHotCoolantTurbine.TurbineType turbineType) {
-        super(metaTileEntityId, turbineType);
+        super(metaTileEntityId, turbineType,0,7);
         this.turbineType = turbineType;
         this.reinitializeStructurePattern();
     }
@@ -425,6 +427,11 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         super.invalidateStructure();
         this.importFluidHandler = new FluidTankList(true, Collections.emptyList());
         this.importItemHandler = new ItemHandlerList(Collections.emptyList());
+
+
+        if (!this.getAbilities(ABILITY_ROTOR_HOLDER).isEmpty()) {
+            super.invalidateStructure();
+        }
     }
 
     @Override
@@ -635,6 +642,16 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
         return Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName();
     }
 
+
+    @Override
+    public void setJEIPreviewLayer(int layer) {
+        this.parallels = MathHelper.clamp(layer, this.getMinExtent(), this.getMaxExtent());
+        this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    public int getJEIPreviewLayer() {
+        return this.parallels;
     @Override
     @SideOnly(Side.CLIENT)
     public boolean shouldPlaySound() {

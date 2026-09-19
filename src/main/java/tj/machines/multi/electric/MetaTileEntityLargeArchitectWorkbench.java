@@ -200,6 +200,8 @@ public class MetaTileEntityLargeArchitectWorkbench extends ExtendableMultiblockC
     }
 
     @Override
+    public int getJEIPreviewLayer() {
+        return this.parallelLayer;
     @SideOnly(Side.CLIENT)
     public boolean shouldPlaySound() {
         return this.isValid() && workableHandler.isActive() && this.isStructureFormed();

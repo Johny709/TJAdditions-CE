@@ -38,10 +38,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
-import tj.capability.IParallelController;
-import tj.capability.IRecipeMap;
-import tj.capability.OverclockManager;
-import tj.capability.TJCapabilities;
+import tj.capability.*;
 import tj.capability.impl.handler.IRecipeHandler;
 import tj.capability.impl.workable.ParallelRecipeLogic;
 import tj.mui.TJGuiTextures;
@@ -67,7 +64,7 @@ import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
 import static tj.mui.TJGuiTextures.*;
 import static tj.mui.TJGuiTextures.TOGGLE_FLUID_VOID_BUTTON;
 
-public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockControllerBase implements IParallelController, IMultiRecipe, IRecipeHandler {
+public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockControllerBase implements IParallelController, IMultiRecipe, IRecipeHandler, IJEIExtentSync {
 
     private final RecipeMap<?>[] recipeMaps;
     protected final ParallelRecipeLogic<? extends IRecipeHandler> recipeLogic = this.createRecipeLogic();
@@ -109,6 +106,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     protected ParallelRecipeLogic<? extends IRecipeHandler> createRecipeLogic() {
         return new ParallelRecipeLogic<>(this);
+    }
+
+    protected int getExtentStep() {
+        return 1;
     }
 
     @Override
@@ -590,6 +591,22 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     }
 
     @Override
+    public int getMaxExtent() {
+        return (this.getMaxParallel() + getExtentStep() - 1) / getExtentStep();
+
+    }
+
+    @Override
+    public void setJEIPreviewLayer(int extent) {
+        //int rawLayer = Math.min(extent * getExtentStep(), this.getMaxParallel());
+        int rawLayer = Math.min(1 + (extent - 1) * getExtentStep(), getMaxParallel());
+        this.parallelLayer = MathHelper.clamp(rawLayer, 1, this.getMaxParallel());
+        this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    public int getJEIPreviewLayer() {
+        return (parallelLayer + getExtentStep() - 1) / getExtentStep();
     @SideOnly(Side.CLIENT)
     public SoundEvent getSound(){
         return this.getRecipeMap().getSound();

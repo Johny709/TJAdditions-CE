@@ -2,6 +2,7 @@ package tj.machines.multi.electric;
 
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
+import gregtech.api.GTValues;
 import gregtech.api.capability.IEnergyContainer;
 import gregtech.api.capability.impl.EnergyContainerHandler;
 import gregtech.api.capability.impl.EnergyContainerList;
@@ -67,7 +68,7 @@ public class MetaTileEntityMegaFusion extends TJRecipeMapMultiblockController im
     private long maxHeat;
 
     public MetaTileEntityMegaFusion(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, RecipeMaps.FUSION_RECIPES, true, false);
+        super(metaTileEntityId, RecipeMaps.FUSION_RECIPES, true, false,1,1,10);
         this.recipeLogic.setAllowOverclocking(false);
         this.energyContainer = new EnergyContainerHandler(this, Integer.MAX_VALUE, 0, 0 ,0, 0) {
             @Override

@@ -5,6 +5,8 @@ import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
+import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.Style;
@@ -33,37 +35,27 @@ public class ParallelElectricBlastFurnaceInfo extends TJMultiblockInfoPage imple
     }
 
     @Override
-    public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
-        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        final int size = Math.min(TJConfig.machines.maxLayersInJEI, this.getController().getMaxParallel());
-        for (int shapeInfo = 1; shapeInfo <= size; shapeInfo++) {
-            final TJMultiblockShapeInfo.Builder builder = new TJMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
-            for (int layer = 0; layer < shapeInfo; layer++) {
-                String muffler = layer == 0 ? "CCmCC" : "CCPCC";
-                builder.aisle("CCCCC", "CCCCC", muffler, "CCCCC", "CCCCC");
-                builder.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
-                builder.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
-            }
-            builder.aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCEMC");
-            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
-            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
-                infos[tier] = builder.where('S', this.getController(), WEST)
-                        .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF))
-                        .where('c', this.getCoils(tier))
-                        .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
-                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
-                        .where('E', this.getEnergyHatch(tier, false), EAST)
-                        .where('I', MetaTileEntities.ITEM_IMPORT_BUS[tier], WEST)
-                        .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[tier], WEST)
-                        .where('O', MetaTileEntities.ITEM_EXPORT_BUS[tier], WEST)
-                        .where('o', MetaTileEntities.FLUID_EXPORT_HATCH[tier], WEST)
-                        .where('m', GATileEntities.MUFFLER_HATCH[0], EnumFacing.UP)
-                        .build();
-            }
-            shapeInfos.add(infos);
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
+        final TJMultiblockShapeInfo.Builder builder = new TJMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
+        for (int layer = 0; layer < extent; layer++) {
+            String muffler = layer == 0 ? "CCmCC" : "CCPCC";
+            builder.aisle("CCCCC", "CCCCC", muffler, "CCCCC", "CCCCC");
+            builder.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
+            builder.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
         }
-        return shapeInfos;
+        return builder.aisle("IiSOo", "CCCCC", "CCCCC", "CCCCC", "CCEMC").where('S', this.getController(), WEST)
+                    .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF))
+                    .where('c', PlaceholderType.COIL)
+                    .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
+                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
+                    .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EAST)
+                    .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
+                    .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
+                    .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
+                    .where('o', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
+                    .where('m', GATileEntities.MUFFLER_HATCH[0], EnumFacing.UP)
+                    .build();
+
     }
 
     @Override

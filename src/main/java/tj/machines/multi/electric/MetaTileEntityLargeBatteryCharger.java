@@ -8,6 +8,7 @@ import gregicadditions.client.ClientHandler;
 import gregicadditions.item.CellCasing;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.metal.MetalCasing1;
+import gregtech.api.GTValues;
 import gregtech.api.capability.*;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
@@ -92,7 +93,7 @@ public class MetaTileEntityLargeBatteryCharger extends TJMultiblockControllerBas
     private int pageIndex;
 
     public MetaTileEntityLargeBatteryCharger(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId);
+        super(metaTileEntityId,1,1, GTValues.HV);
     }
 
     @Override

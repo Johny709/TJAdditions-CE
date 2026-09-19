@@ -286,4 +286,5 @@ public class MetaTileEntityParallelCircuitAssemblyLine extends TJRecipeMapMultib
             }
         }
     }
+
 }
