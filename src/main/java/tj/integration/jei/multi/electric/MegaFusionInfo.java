@@ -4,6 +4,7 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.util.EnumFacing;
 import tj.TJConfig;
 import tj.blocks.BlockFusionCasings;
@@ -26,9 +27,8 @@ public class MegaFusionInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
         final List<String[]> pattern = new ArrayList<>();
-        final List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
         final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, RIGHT, DOWN);
         pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~CCCCCCCCCCCCC~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~CCCCCCCCCCCCCCCCCCC~~~~~~~~~~~~~", "~~~~~~~~~~~~CCCCCCCCCCCCCCCCCCCCC~~~~~~~~~~~~", "~~~~~~~~~~CCCCCCCCCCCCCCCCCCCCCCCCC~~~~~~~~~~", "~~~~~~~~~CCCCCCCCC~~~~~~~~~CCCCCCCCC~~~~~~~~~", "~~~~~~~~CCCCCCCC~~~~~~~~~~~~~CCCCCCCC~~~~~~~~", "~~~~~~~CCCCCCC~~~~~~~~~~~~~~~~~CCCCCCC~~~~~~~", "~~~~~~~CCCCCC~~~~~~~~~~~~~~~~~~~CCCCCC~~~~~~~", "~~~~~~CCCCCC~~~~~~~~~~~~~~~~~~~~~CCCCCC~~~~~~", "~~~~~CCCCCC~~~~~~~~~~~~~~~~~~~~~~~CCCCCC~~~~~", "~~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~~", "~~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~~", "~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~", "~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~", "~~~~CCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCC~~~~", "~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~", "~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~", "~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~", "~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~", "~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~", "~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~", "~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~", "~~~~CCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCC~~~~", "~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~", "~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~", "~~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~~", "~~~~~CCCCC~~~~~~~~~~~~~~~~~~~~~~~~~CCCCC~~~~~", "~~~~~CCCCCC~~~~~~~~~~~~~~~~~~~~~~~CCCCCC~~~~~", "~~~~~~CCCCCC~~~~~~~~~~~~~~~~~~~~~CCCCCC~~~~~~", "~~~~~~~CCCCCC~~~~~~~~~~~~~~~~~~~CCCCCC~~~~~~~", "~~~~~~~CCCCCCC~~~~~~~~~~~~~~~~~CCCCCCC~~~~~~~", "~~~~~~~~CCCCCCCC~~~~~~~~~~~~~CCCCCCCC~~~~~~~~", "~~~~~~~~~CCCCCCCCC~~~~~~~~~CCCCCCCCC~~~~~~~~~", "~~~~~~~~~~CCCCCCCCCCCCCCCCCCCCCCCCC~~~~~~~~~~", "~~~~~~~~~~~~CCCCCCCCCCCCCCCCCCCCC~~~~~~~~~~~~", "~~~~~~~~~~~~~CCCCCCCCCCCCCCCCCCC~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~CCCCCCCCCCCCC~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~CCCCCCC~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
         pattern.add(new String[]{"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~CCCCCCCCCCC~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~CCCCCcccccccCCCCC~~~~~~~~~~~~~~", "~~~~~~~~~~~~CCCCcccccccccccccCCCC~~~~~~~~~~~~", "~~~~~~~~~~~CCcccccccccccccccccccCC~~~~~~~~~~~", "~~~~~~~~~CCCcccccccccccccccccccccCCC~~~~~~~~~", "~~~~~~~~CCcccccccccccccccccccccccccCC~~~~~~~~", "~~~~~~~CCcccccccccCCCCCCCCCcccccccccCC~~~~~~~", "~~~~~~CCccccccccCCCC~~~~~CCCCccccccccCC~~~~~~", "~~~~~~CcccccccCCC~~~~~~~~~~~CCCcccccccC~~~~~~", "~~~~~CCccccccCC~~~~~~~~~~~~~~~CCccccccCC~~~~~", "~~~~CCccccccCC~~~~~~~~~~~~~~~~~CCccccccCC~~~~", "~~~~CccccccCC~~~~~~~~~~~~~~~~~~~CCccccccC~~~~", "~~~CCcccccCC~~~~~~~~~~~~~~~~~~~~~CCcccccCC~~~", "~~~CCcccccC~~~~~~~~~~~~~~~~~~~~~~~CcccccCC~~~", "~~~CcccccCC~~~~~~~~~~~~~~~~~~~~~~~CCcccccC~~~", "~~CCcccccC~~~~~~~~~~~~~~~~~~~~~~~~~CcccccCC~~", "~~CCccccCC~~~~~~~~~~~~~~~~~~~~~~~~~CCccccCC~~", "~~CcccccCC~~~~~~~~~~~~~~~~~~~~~~~~~CCcccccC~~", "~~CcccccC~~~~~~~~~~~~~~~~~~~~~~~~~~~CcccccC~~", "~~CcccccC~~~~~~~~~~~~~~~~~~~~~~~~~~~CcccccC~~", "~~CcccccC~~~~~~~~~~~~~~~~~~~~~~~~~~~CcccccC~~", "~~CcccccC~~~~~~~~~~~~~~~~~~~~~~~~~~~CcccccC~~", "~~CcccccC~~~~~~~~~~~~~~~~~~~~~~~~~~~CcccccC~~", "~~CcccccCC~~~~~~~~~~~~~~~~~~~~~~~~~CCcccccC~~", "~~CCccccCC~~~~~~~~~~~~~~~~~~~~~~~~~CCccccCC~~", "~~CCcccccC~~~~~~~~~~~~~~~~~~~~~~~~~CcccccCC~~", "~~~CcccccCC~~~~~~~~~~~~~~~~~~~~~~~CCcccccC~~~", "~~~CCcccccC~~~~~~~~~~~~~~~~~~~~~~~CcccccCC~~~", "~~~CCcccccCC~~~~~~~~~~~~~~~~~~~~~CCcccccCC~~~", "~~~~CccccccCC~~~~~~~~~~~~~~~~~~~CCccccccC~~~~", "~~~~CCccccccCC~~~~~~~~~~~~~~~~~CCccccccCC~~~~", "~~~~~CCccccccCC~~~~~~~~~~~~~~~CCccccccCC~~~~~", "~~~~~~CcccccccCCC~~~~~~~~~~~CCCcccccccC~~~~~~", "~~~~~~CCccccccccCCCC~~~~~CCCCccccccccCC~~~~~~", "~~~~~~~CCcccccccccCCCCCCCCCcccccccccCC~~~~~~~", "~~~~~~~~CCcccccccccccccccccccccccccCC~~~~~~~~", "~~~~~~~~~CCCcccccccccccccccccccccCCC~~~~~~~~~", "~~~~~~~~~~~CCcccccccccccccccccccCC~~~~~~~~~~~", "~~~~~~~~~~~~CCCCcccccccccccccCCCC~~~~~~~~~~~~", "~~~~~~~~~~~~~~CCCCCcccccccCCCCC~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~CCCCCCCCCCC~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"});
@@ -45,18 +45,14 @@ public class MegaFusionInfo extends TJMultiblockInfoPage {
         }
         Collections.reverse(pattern);
         pattern.forEach(builder::aisle);
-        builder.where('S', this.getController(), EnumFacing.WEST)
+        return builder.where('S', this.getController(), EnumFacing.WEST)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST)
                 .where('C', TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_CASING_UEV))
-                .where('c', TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_COIL_UEV));
-        final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
-        for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
-            shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.WEST)
-                    .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
-                    .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.WEST)
-                    .build());
-        }
-        return shapeInfos;
+                .where('c', TJMetaBlocks.FUSION_CASING.getState(BlockFusionCasings.FusionType.FUSION_COIL_UEV))
+                .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.WEST)
+                .where('I', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+                .where('O', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
+                .build();
     }
 
     @Override

@@ -66,8 +66,13 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
     protected LargeAtmosphereCollectorWorkableHandler airCollectorHandler;
     protected BooleanConsumer fastModeConsumer;
 
+
     public MetaTileEntityLargeAtmosphereCollector(ResourceLocation metaTileEntityId, MetaTileEntityLargeTurbine.TurbineType turbineType) {
-        super(metaTileEntityId, turbineType.recipeMap, GTValues.V[4]);
+        this(metaTileEntityId, turbineType,1,1);
+    }
+
+    public MetaTileEntityLargeAtmosphereCollector(ResourceLocation metaTileEntityId, MetaTileEntityLargeTurbine.TurbineType turbineType, int minExtent, int maxExtent) {
+        super(metaTileEntityId, turbineType.recipeMap, GTValues.V[4], minExtent, maxExtent);
         this.turbineType = turbineType;
         this.reinitializeStructurePattern();
     }
@@ -160,9 +165,15 @@ public class MetaTileEntityLargeAtmosphereCollector extends TJRotorHolderMultibl
 
     @Override
     public void invalidateStructure() {
-        super.invalidateStructure();
+        //super.invalidateStructure();
+       // this.exportFluidHandler = null;
+        //this.importItemHandler = new ItemHandlerList(Collections.emptyList());
         this.exportFluidHandler = null;
         this.importItemHandler = new ItemHandlerList(Collections.emptyList());
+
+        if (!this.getAbilities(ABILITY_ROTOR_HOLDER).isEmpty()) {
+            super.invalidateStructure();
+        }
     }
 
     @Override

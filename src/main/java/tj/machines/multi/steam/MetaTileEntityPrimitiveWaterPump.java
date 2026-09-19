@@ -17,6 +17,7 @@ import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,6 +28,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
@@ -56,7 +58,7 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
     private boolean otherMode;
 
     public MetaTileEntityPrimitiveWaterPump(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, false);
+        super(metaTileEntityId, false, 0, 3, 0);
         this.maintenance_problems = 0b111111;
     }
 
@@ -193,6 +195,18 @@ public class MetaTileEntityPrimitiveWaterPump extends TJMultiblockControllerBase
         super.readFromNBT(data);
         this.otherMode = data.getBoolean("otherMode");
         this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return this.isValid() && workableHandler.isActive() && this.isStructureFormed();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return GTSoundEvents.PUMP;
     }
 
     private static class PrimitivePumpWorkableHandler extends AbstractWorkableHandler<IMachineHandler> {

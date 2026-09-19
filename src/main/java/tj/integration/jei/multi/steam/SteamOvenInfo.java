@@ -25,8 +25,8 @@ public class SteamOvenInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
-        return Collections.singletonList(TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
+        return TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("FHF", "CCC", "~C~")
                 .aisle("FFF", "C#C", "~C~")
                 .aisle("FFF", "ISO", "~C~")
@@ -36,7 +36,7 @@ public class SteamOvenInfo extends TJMultiblockInfoPage {
                 .where('H', GATileEntities.STEAM_HATCH, EnumFacing.WEST)
                 .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.BRONZE_BRICKS))
                 .where('F', MetaBlocks.BOILER_FIREBOX_CASING.getState(BlockFireboxCasing.FireboxCasingType.BRONZE_FIREBOX))
-                .build());
+                .build();
     }
 
     @Override

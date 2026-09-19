@@ -138,7 +138,7 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     protected BlockPattern createStructurePattern() {
         final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            if (layer % 4 == 0) {
+            if (layer % getExtentStep() == 0) {
                 String muffler = layer == 0 ? "XXMXX" : "XXPXX";
                 factoryPattern.aisle("XXXXX", "XXXXX", muffler, "XXXXX", "XXXXX");
                 factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
@@ -302,5 +302,10 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     @Override
     public FluidStack getFluidStack() {
         return this.pyro;
+    }
+
+    @Override
+    protected int getExtentStep() {
+        return 4;
     }
 }

@@ -7,6 +7,7 @@ import gregtech.api.util.BlockInfo;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
@@ -30,9 +31,8 @@ public class ChaosReplicatorInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
-        final List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
+        return TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("CCCCCCC", "CCCEMCC", "CQQCQQC", "CQQCQQC", "CQQCQQC", "CQQQQQC", "CQQQQQC", "CCCCCCC", "CCCCCCC")
                 .aisle("CCCCCCC", "CDDDDDC", "QF###FQ", "QF###FQ", "QF#A#FQ", "QF###FQ", "QF###FQ", "CDDDDDC", "CCCCCCC")
                 .aisle("CCCCCCC", "CDDDDDC", "Q#DDD#Q", "Q#####Q", "Q#####Q", "Q#####Q", "Q#DDD#Q", "CDDDDDC", "CCCCCCC")
@@ -47,16 +47,12 @@ public class ChaosReplicatorInfo extends TJMultiblockInfoPage {
                 .where('D', new BlockInfo(Block.getBlockFromName("draconicevolution:infused_obsidian")))
                 .where('Q', new BlockInfo(Block.getBlockFromName("enderio:block_fused_quartz")))
                 .where('A', new BlockInfo(Block.getBlockFromName("draconicevolution:draconic_block")))
-                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST);
-        final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
-        for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
-            shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
-                    .where('I', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)
-                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[tier], EnumFacing.WEST)
-                    .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
-                    .build());
-        }
-        return shapeInfos;
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST)
+                .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.EAST)
+                .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
+                .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
+                .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+                .build();
     }
 
     @Override

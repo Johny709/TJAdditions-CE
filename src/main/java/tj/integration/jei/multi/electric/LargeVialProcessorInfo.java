@@ -10,6 +10,7 @@ import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
@@ -32,9 +33,8 @@ public class LargeVialProcessorInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
-        final List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
+        return TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
                 .aisle("CCECC", "F~~~F", "F~~~F", "F~~~F", "CCCCC")
                 .aisle("CTTTC", "~BGB~", "~BGB~", "~BGB~", "CTTTC")
                 .aisle("CTeTC", "~GeG~", "~GeG~", "~GeG~", "CTeTC")
@@ -47,16 +47,12 @@ public class LargeVialProcessorInfo extends TJMultiblockInfoPage {
                 .where('F', MetaBlocks.FRAMES.get(GAMaterials.Protactinium.getMaterial()).getDefaultState())
                 .where('e', Block.getBlockFromName("enderio:block_alloy").getStateFromMeta(8))
                 .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
-                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST);
-        final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
-        for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
-            shapeInfos.add(builder.where('E', this.getEnergyHatch(tier, false), EnumFacing.EAST)
-                    .where('I', MetaTileEntities.ITEM_EXPORT_BUS[tier], EnumFacing.WEST)
-                    .where('O', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)
-                    .where('i', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.WEST)
-                    .build());
-        }
-        return shapeInfos;
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.EAST)
+                .where('I', PlaceholderType.OUTPUT_BUS,MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
+                .where('O', PlaceholderType.INPUT_BUS,MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
+                .where('i', PlaceholderType.OUTPUT_HATCH,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
+                .build();
     }
 
     @Override

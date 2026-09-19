@@ -8,6 +8,8 @@ import gregtech.api.unification.material.Materials;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
+import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -38,7 +40,7 @@ public class XLAtmosphereCollectorInfo extends TJMultiblockInfoPage implements I
     }
 
     @Override
-    public List<TJMultiblockShapeInfo[]> getMatchingShapes(TJMultiblockShapeInfo[] shapes) {
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
         final MetaTileEntityHolder holderNorth = new MetaTileEntityHolder();
         final MetaTileEntityHolder holderSouth = new MetaTileEntityHolder();
         holderNorth.setMetaTileEntity(MetaTileEntities.ROTOR_HOLDER[2]);
@@ -48,38 +50,32 @@ public class XLAtmosphereCollectorInfo extends TJMultiblockInfoPage implements I
         TurbineRotorBehavior.getInstanceFor(rotorStack).setPartMaterial(rotorStack, Materials.Darmstadtium);
         ((MetaTileEntityRotorHolder) holderNorth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
         ((MetaTileEntityRotorHolder) holderSouth.getMetaTileEntity()).getRotorInventory().setStackInSlot(0, rotorStack);
-        final List<TJMultiblockShapeInfo[]> shapeInfos = new ArrayList<>();
-        for (int shapeInfo = 0; shapeInfo < 7; shapeInfo++) {
-            TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
-                    .aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCOCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC")
-                    .aisle("CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC")
-                    .aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC");
-            for (int j = 0; j <= shapeInfo; j++) {
-                builder.aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC");
-                builder.aisle("CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC");
-                builder.aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC");
-            }
-            builder.aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC")
-                    .aisle("CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC")
-                    .aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPISJPPPC", "CPPPCMCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC");
-            final TJMultiblockShapeInfo[] infos = new TJMultiblockShapeInfo[15];
-            final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
-            for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
-                infos[tier] = builder.where('S', this.atmosphereCollector, EnumFacing.WEST)
-                        .where('C', this.atmosphereCollector.turbineType.casingState)
-                        .where('P', this.atmosphereCollector.getPipeState())
-                        .where('R', holderNorth.getMetaTileEntity(), EnumFacing.NORTH)
-                        .where('T', holderSouth.getMetaTileEntity(), EnumFacing.SOUTH)
-                        .where('I', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
-                        .where('J', MetaTileEntities.ITEM_IMPORT_BUS[tier], EnumFacing.WEST)
-                        .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[tier], EnumFacing.EAST)
-                        .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                        .where(!this.atmosphereCollector.turbineType.hasOutputHatch ? 'O' : '#', !this.atmosphereCollector.turbineType.hasOutputHatch ? this.atmosphereCollector.turbineType.casingState : Blocks.AIR.getDefaultState())
-                        .build();
-            }
-            shapeInfos.add(infos);
+
+
+        TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder(FRONT, UP, LEFT)
+                .aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCOCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC")
+                .aisle("CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC")
+                .aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC");
+        for (int j = 0; j <= extent; j++) {
+            builder.aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC");
+            builder.aisle("CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC");
+            builder.aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC");
         }
-        return shapeInfos;
+        return builder.aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC")
+                .aisle("CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "R#########T", "CPPPCCCPPPC")
+                .aisle("CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC", "CPPPISJPPPC", "CPPPCMCPPPC", "CPPPCCCPPPC", "CPPPCCCPPPC")
+                    .where('S', this.atmosphereCollector, EnumFacing.WEST)
+                    .where('C', this.atmosphereCollector.turbineType.casingState)
+                    .where('P', this.atmosphereCollector.getPipeState())
+                    .where('R', holderNorth.getMetaTileEntity(), EnumFacing.NORTH)
+                    .where('T', holderSouth.getMetaTileEntity(), EnumFacing.SOUTH)
+                    .where('I', PlaceholderType.INPUT_HATCH,MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+                    .where('J', PlaceholderType.INPUT_BUS,MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
+                    .where('O', PlaceholderType.OUTPUT_HATCH, MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.EAST)
+                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
+                    .where(!this.atmosphereCollector.turbineType.hasOutputHatch ? 'O' : '#',  !this.atmosphereCollector.turbineType.hasOutputHatch ? this.atmosphereCollector.turbineType.casingState : Blocks.AIR.getDefaultState())
+                    .build();
+
     }
 
     @Override

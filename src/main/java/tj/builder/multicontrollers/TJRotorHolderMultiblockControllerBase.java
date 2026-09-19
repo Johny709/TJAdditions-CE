@@ -65,7 +65,11 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
     protected Instant placedDown = Instant.now();
 
     public TJRotorHolderMultiblockControllerBase(ResourceLocation metaTileEntityId, FuelRecipeMap recipeMap, long maxVoltage) {
-        super(metaTileEntityId, recipeMap, maxVoltage);
+        this(metaTileEntityId, recipeMap, maxVoltage,1,1);
+    }
+
+    public TJRotorHolderMultiblockControllerBase(ResourceLocation metaTileEntityId, FuelRecipeMap recipeMap, long maxVoltage, int minExtent, int maxExtent) {
+        super(metaTileEntityId, recipeMap, maxVoltage,minExtent, maxExtent);
     }
 
     @Override

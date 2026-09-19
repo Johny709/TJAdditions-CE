@@ -7,6 +7,7 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import tj.TJConfig;
@@ -36,9 +37,8 @@ public class LargeWirelessEnergyEmitterInfo extends TJMultiblockInfoPage {
     }
 
     @Override
-    public List<MultiblockShapeInfo> getMatchingShapes() {
-        final List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
-        final TJMultiblockShapeInfo.Builder builder = TJMultiblockShapeInfo.builder()
+    public MultiblockShapeInfo getMatchingShapes(int extent) {
+        return TJMultiblockShapeInfo.builder()
                 .aisle("~CCC~", "~CCC~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("CCCCC", "CCFCC", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~CFC~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~", "~~~~~")
                 .aisle("iCCCE", "SFIFM", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~FIF~", "~~F~~", "~~F~~", "~~F~~", "~~F~~", "~~F~~")
@@ -47,15 +47,12 @@ public class LargeWirelessEnergyEmitterInfo extends TJMultiblockInfoPage {
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', this.tileEntity.getCasingState(transferType))
                 .where('F', this.tileEntity.getFrameState(transferType))
-                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST);
-        final int maxTier = TJConfig.machines.disableLayersInJEI ? 4 : 15;
-        for (int tier = TJConfig.machines.disableLayersInJEI ? 3 : 0; tier < maxTier; tier++) {
-            shapeInfos.add(builder.where('E', this.transferType == INPUT ? this.getEnergyHatch(tier, false) : this.getEnergyHatch(tier, true), EnumFacing.EAST)
-                    .where('i', MetaTileEntities.FLUID_IMPORT_HATCH[tier], EnumFacing.WEST)
-                    .where('I', this.getVoltageCasing(tier))
-                    .build());
-        }
-        return shapeInfos;
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST)
+                .where('E',this.transferType == INPUT ? PlaceholderType.ENERGY_INPUT_HATCH : PlaceholderType.ENERGY_OUTPUT_HATCH ,this.transferType == INPUT ? this.getEnergyHatch(0, false) : this.getEnergyHatch(0, true), EnumFacing.EAST)
+                .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+                .where('I', PlaceholderType.FRAMEWORK,this.getVoltageCasing(0))
+                .build();
+
     }
 
     @Override
