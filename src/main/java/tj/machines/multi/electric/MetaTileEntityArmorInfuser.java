@@ -16,18 +16,10 @@ import gregtech.common.blocks.BlockMultiblockCasing;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.block.Block;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.OverclockManager;
 import tj.textures.TJTextures;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 
 public class MetaTileEntityArmorInfuser extends TJRecipeMapMultiblockController {
@@ -40,13 +32,6 @@ public class MetaTileEntityArmorInfuser extends TJRecipeMapMultiblockController 
 
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityArmorInfuser(this.metaTileEntityId);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("tj.multiblock.temporary"));
-        super.addInformation(stack, player, tooltip, advanced);
     }
 
     @Override

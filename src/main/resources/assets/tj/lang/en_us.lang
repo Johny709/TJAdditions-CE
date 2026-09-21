@@ -529,7 +529,6 @@ tj.multiblock.recipe_cache.chanced_outputs=Chanced Outputs:
 tj.multiblock.date.ago=Hours: §a%s§r Minutes: §a%s§r Seconds: §a%s
 tj.multiblock.date.placed_down=Placed down on: §b%s
 tj.multiblock.date.active=Running since: §b%s
-tj.multiblock.temporary=§eTemporary multiblock. Maybe subject to be removed.
 tj.multiblock.mega=Starts at §b1§7 parallel in §dLuV§7 and below. Parallels quadruple for each voltage tier above §dLuV.
 tj.multiblock.parallel_controller.energy_bonus=Current Energy Usage: §b%s%%
 

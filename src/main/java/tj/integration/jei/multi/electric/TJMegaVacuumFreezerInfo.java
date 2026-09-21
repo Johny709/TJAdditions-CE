@@ -18,14 +18,11 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import org.apache.commons.lang3.ArrayUtils;
-import tj.TJConfig;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
@@ -70,8 +67,7 @@ public class TJMegaVacuumFreezerInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.temporary"),
-                        I18n.format("tj.multiblock.mega").replace("§7", "§r")},
+        return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.mega").replace("§7", "§r")},
                 super.getDescription());
     }
 

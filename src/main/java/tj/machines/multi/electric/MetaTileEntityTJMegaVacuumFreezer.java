@@ -52,7 +52,6 @@ public class MetaTileEntityTJMegaVacuumFreezer extends TJRecipeMapMultiblockCont
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("tj.multiblock.temporary"));
         tooltip.add(I18n.format("tj.multiblock.mega"));
         super.addInformation(stack, player, tooltip, advanced);
     }

@@ -10,20 +10,12 @@ import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.render.ICubeRenderer;
 import net.minecraft.block.Block;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJRecipeMaps;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 import tj.capability.OverclockManager;
 import tj.textures.TJTextures;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 
 public class MetaTileEntityDragonReplicator extends TJRecipeMapMultiblockController {
@@ -36,13 +28,6 @@ public class MetaTileEntityDragonReplicator extends TJRecipeMapMultiblockControl
 
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
         return new MetaTileEntityDragonReplicator(this.metaTileEntityId);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("tj.multiblock.temporary"));
-        super.addInformation(stack, player, tooltip, advanced);
     }
 
     @Override

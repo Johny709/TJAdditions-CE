@@ -10,13 +10,10 @@ import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import org.apache.commons.lang3.ArrayUtils;
-import tj.TJConfig;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 
@@ -49,8 +46,7 @@ public class TJDistillationTowerInfo extends TJMultiblockInfoPage {
 
     @Override
     public String[] getDescription() {
-        return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.temporary"),
-                I18n.format("tj.multiblock.distillation_tower.layers", 2, 13).replace("§7", "§r")},
+        return ArrayUtils.addAll(new String[]{I18n.format("tj.multiblock.distillation_tower.layers", 2, 13).replace("§7", "§r")},
                 super.getDescription());
     }
 }

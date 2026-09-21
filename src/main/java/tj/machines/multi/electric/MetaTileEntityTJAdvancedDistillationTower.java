@@ -59,7 +59,6 @@ public class MetaTileEntityTJAdvancedDistillationTower extends TJMultiRecipeMapM
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("tj.multiblock.temporary"));
         tooltip.add(I18n.format("tj.multiblock.distillation_tower.layers", 2, 13));
         tooltip.add(I18n.format("gregtech.multiblock.advanced_distillation_tower.description1"));
         tooltip.add(I18n.format("gregtech.multiblock.advanced_distillation_tower.description2"));
