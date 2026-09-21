@@ -611,9 +611,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
 
     @Override
     public int getJEIPreviewLayer() {
-        return (parallelLayer + getExtentStep() - 1) / getExtentStep();
+        return (this.parallelLayer + getExtentStep() - 1) / getExtentStep();
+    }
+
     @SideOnly(Side.CLIENT)
-    public SoundEvent getSound(){
+    public SoundEvent getSound() {
         return this.getRecipeMap().getSound();
     }
 }

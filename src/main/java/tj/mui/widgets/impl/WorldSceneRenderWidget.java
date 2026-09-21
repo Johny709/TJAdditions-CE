@@ -12,6 +12,7 @@ import gregtech.api.render.scene.WorldSceneRenderer;
 import gregtech.api.util.BlockInfo;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
+import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -24,7 +25,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.spongepowered.include.com.google.common.collect.ImmutableMap;
-import tj.TJ;
 import tj.mui.widgets.TJWidget;
 
 import javax.vecmath.Vector3f;
@@ -50,7 +50,7 @@ public class WorldSceneRenderWidget extends TJWidget<WorldSceneRenderWidget> {
         final MetaTileEntityHolder tileEntity = new MetaTileEntityHolder();
         final MetaTileEntity mte = tileEntity.setMetaTileEntity(metaTileEntity);
         mte.setFrontFacing(metaTileEntity.getFrontFacing());
-        this.worldSceneRenderer = new WorldSceneRenderer(ImmutableMap.of(new BlockPos(0, 0, 0), new BlockInfo(metaTileEntity.getWorld().getBlockState(pos), tileEntity)));
+        this.worldSceneRenderer = new WorldSceneRenderer(ImmutableMap.of(new BlockPos(0, 0, 0), new BlockInfo(metaTileEntity.getWorld().getBlockState(pos), PlaceholderType.CASING)));
         this.worldSceneRenderer.setRenderCallback(this::preRenderScene);
     }
 
