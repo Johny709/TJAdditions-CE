@@ -64,7 +64,12 @@ public class MetaTileEntityWaterReservoirHatch extends MetaTileEntityMultiblockP
 
     @Override
     protected FluidTankList createImportFluidHandler() {
-        return new FluidTankList(false, this.fluidTank);
+        return new FluidTankList(true, this.fluidTank);
+    }
+
+    @Override
+    protected FluidTankList createExportFluidHandler() {
+        return new FluidTankList(true, this.fluidTank);
     }
 
     @Override
@@ -79,19 +84,6 @@ public class MetaTileEntityWaterReservoirHatch extends MetaTileEntityMultiblockP
                         .setInverted(true))
                 .bindPlayerInventory(player.inventory)
                 .build(this.getHolder(), player);
-    }
-
-    private long getWaterAmount() {
-        return TJFluidUtils.getFluidAmountFromTanks(this.fluidTank.getFluid(), this.getImportFluids());
-    }
-
-    private long getWaterCapacity() {
-        return TJFluidUtils.getFluidCapacityFromTanks(this.fluidTank.getFluid(), this.getImportFluids());
-    }
-
-    @Override
-    public MultiblockAbility<IFluidTank> getAbility() {
-        return MultiblockAbility.IMPORT_FLUIDS;
     }
 
     @Override
@@ -117,5 +109,18 @@ public class MetaTileEntityWaterReservoirHatch extends MetaTileEntityMultiblockP
             renderState.alphaOverride = oldAlphaOverride;
         }
         ClientHandler.COVER_INFINITE_WATER.renderSided(getFrontFacing(), renderState, translation, pipeline);
+    }
+
+    private long getWaterAmount() {
+        return TJFluidUtils.getFluidAmountFromTanks(this.fluidTank.getFluid(), this.getImportFluids());
+    }
+
+    private long getWaterCapacity() {
+        return TJFluidUtils.getFluidCapacityFromTanks(this.fluidTank.getFluid(), this.getImportFluids());
+    }
+
+    @Override
+    public MultiblockAbility<IFluidTank> getAbility() {
+        return MultiblockAbility.IMPORT_FLUIDS;
     }
 }
