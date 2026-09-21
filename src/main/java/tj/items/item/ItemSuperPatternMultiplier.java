@@ -1,6 +1,9 @@
 package tj.items.item;
 
 import appeng.core.Api;
+import baubles.api.BaubleType;
+import baubles.api.IBauble;
+import baubles.api.cap.BaublesCapabilities;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.WidgetGroup;
@@ -12,8 +15,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
@@ -25,8 +31,9 @@ import tj.mui.widgets.impl.TJSlotWidget;
 import tj.util.TJItemUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-public class ItemSuperPatternMultiplier extends Item implements ItemUIFactory {
+public class ItemSuperPatternMultiplier extends Item implements ItemUIFactory, IBauble {
 
     @Override
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
@@ -130,5 +137,29 @@ public class ItemSuperPatternMultiplier extends Item implements ItemUIFactory {
         if (!worldIn.isRemote && TJItems.SUPER_PATTERN_MULTITOOL.isSameAs(playerIn.getHeldItemMainhand()))
             PlayerInventoryHolder.openHandItemUI(playerIn, handIn);
         return new ActionResult<>(EnumActionResult.SUCCESS, playerIn.getHeldItem(handIn));
+    }
+
+    @Nullable
+    @Override
+    public ICapabilityProvider initCapabilities(@Nonnull ItemStack stack, @Nullable NBTTagCompound nbt) {
+        return new ICapabilityProvider() {
+            @Override
+            public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
+                return capability == BaublesCapabilities.CAPABILITY_ITEM_BAUBLE;
+            }
+
+            @Nullable
+            @Override
+            public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
+                if (capability == BaublesCapabilities.CAPABILITY_ITEM_BAUBLE)
+                    return BaublesCapabilities.CAPABILITY_ITEM_BAUBLE.cast(ItemSuperPatternMultiplier.this);
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public BaubleType getBaubleType(ItemStack itemStack) {
+        return BaubleType.TRINKET;
     }
 }
