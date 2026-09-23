@@ -230,6 +230,9 @@ public final class TJGuiUtils {
                         .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
                         .setSlotProtection(true));
             }
+        } else {
+            multiPatternSlots.setSize(0);
+            multiUpgradeSlots.setSize(0);
         }
     }
 

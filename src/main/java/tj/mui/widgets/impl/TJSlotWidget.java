@@ -309,8 +309,9 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
                             if (this.takeItemsPredicate != null && !this.takeItemsPredicate.test(this.getItemHandler().extractItem(this.slotIndex, amount, true))) return;
                             newStack = this.getItemHandler().extractItem(this.slotIndex, amount, false);
                             if (this.widgetGroup != null) {
-                                if (isShiftKeyPressed && this.widgetGroup.getItemStackTransfer() != null) {
-                                    newStack = this.widgetGroup.getItemStackTransfer().apply(newStack);
+                                if (isShiftKeyPressed) {
+                                    if (this.widgetGroup.getItemStackTransfer() != null)
+                                        newStack = this.widgetGroup.getItemStackTransfer().apply(newStack);
                                 } else this.writeUpdateInfo(3, buffer1 -> buffer1.writeInt(5));
                             }
                             if (isShiftKeyPressed)
