@@ -38,7 +38,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
+import tj.mui.widgets.impl.SlotWidgetGroup;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.mui.widgets.impl.TJSlotWidget;
 import tj.items.handlers.CabinetItemStackHandler;
@@ -54,7 +54,7 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
 
     private static final IndexedCuboid6 COLLISION_BOX = new IndexedCuboid6(null, new Cuboid6(3 / 16.0, 0 / 16.0, 3 / 16.0, 13 / 16.0, 14 / 16.0, 13 / 16.0));
     private static final int SLOT_LIMIT = 8192;
-    private final Map<EntityPlayer, SlotScrollableWidgetGroup> guiUsers = new ConcurrentHashMap<>();
+    private final Map<EntityPlayer, SlotWidgetGroup> guiUsers = new ConcurrentHashMap<>();
     private boolean resetUIs;
     private float doorAngle = 0.0f;
     private float prevDoorAngle = 0.0f;
@@ -151,18 +151,18 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        SlotScrollableWidgetGroup slotScrollableWidgetGroup = this.guiUsers.getOrDefault(player, new SlotScrollableWidgetGroup(7, 35, 180, 72, 9))
+        SlotWidgetGroup slotWidgetGroup = this.guiUsers.getOrDefault(player, new SlotWidgetGroup(7, 35, 180, 72, 9))
                 .setItemHandler(this.importItems);
-        slotScrollableWidgetGroup.clearWidgets();
+        slotWidgetGroup.clearWidgets();
         for (int i = 0; i < this.importItems.getSlots(); i++) {
-            slotScrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.importItems, i, 18 * (i % 9), 18 * (i / 9))
-                    .setWidgetGroup(slotScrollableWidgetGroup)
+            slotWidgetGroup.addWidget(new TJSlotWidget<>(this.importItems, i, 18 * (i % 9), 18 * (i / 9))
+                    .setWidgetGroup(slotWidgetGroup)
                     .setActiveBackgroundTexture(GuiTextures.SLOT));
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 197)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
-                .bindOpenListener(() -> this.guiUsers.put(player, slotScrollableWidgetGroup))
+                .bindOpenListener(() -> this.guiUsers.put(player, slotWidgetGroup))
                 .bindCloseListener(() -> this.guiUsers.remove(player))
                 .widget(new ImageWidget(7, 15, 126, 18, GuiTextures.DISPLAY))
                 .widget(new AdvancedTextWidget(10, 20, this::addDisplayText, 0xFFFFFF))
@@ -171,7 +171,7 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
                 .widget(new TJToggleButtonWidget(151, 15, 18, 18, GuiTextures.BUTTON_BLACKLIST, () -> ((CabinetItemStackHandler) this.importItems).isItemUnlocked(), this::setLocked)
                         .setToggleTitleTooltipHoverText("tj.machine.filing_cabinet.toggle.disabled", "tj.machine.filing_cabinet.toggle.enabled"))
                 .widget(new SortingButtonWidget(109, 4, 60, 10, "gregtech.gui.sort", (info) -> MetaTileEntityCompressedChest.sortInventorySlotContents(this.importItems)))
-                .widget(slotScrollableWidgetGroup)
+                .widget(slotWidgetGroup)
                 .bindPlayerInventory(player.inventory, 115)
                 .build(this.getHolder(), player);
     }

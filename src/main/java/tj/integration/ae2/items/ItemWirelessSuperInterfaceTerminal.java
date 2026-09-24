@@ -437,7 +437,7 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
 
     private static ModularUI.Builder createPatternMultiToolGUI(ModularUI.Builder builder, ItemStack patternMultiTool, FilteredItemStackHandler multiUpgradeSlots, IItemHandler multiPatternSlots, NBTTagCompound invTag, AEItemListWidget<?> aeItemListWidget) {
         if (!patternMultiTool.isEmpty()) {
-            final SlotScrollableWidgetGroup multiPatternSlotGroup = new SlotScrollableWidgetGroup(-118, 14, 72, 162, 4)
+            final SlotWidgetGroup multiPatternSlotGroup = new SlotWidgetGroup(-118, 14, 72, 162, 4)
                     .setItemStackTransfer(aeItemListWidget::insertItem)
                     .setItemHandler(multiPatternSlots)
                     .setScrollWidth(0);
@@ -495,7 +495,7 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
         }
     }
 
-    private static void changePatternAmount(IItemHandler patternSlots, SlotScrollableWidgetGroup patternSlotWidgets, LongUnaryOperator multiplier, Runnable callback) {
+    private static void changePatternAmount(IItemHandler patternSlots, SlotWidgetGroup patternSlotWidgets, LongUnaryOperator multiplier, Runnable callback) {
         for (int i = 0; i < patternSlots.getSlots(); i++) {
             final ItemStack stack = patternSlots.getStackInSlot(i);
             final NBTTagCompound compound = stack.getTagCompound();

@@ -189,7 +189,7 @@ public class BlockSuperUltimateInterface extends BlockInterface {
     private static void createPatternInterfaceTab(List<Widget> tab, ISuperDualInterface superDualInterface, ButtonPopUpWidget<?> buttonPopUpWidget, ButtonPopUpWidget<?> buttonPopUpTickWidget, IItemHandler multiPatternSlots) {
         final DualitySuperInterface duality = (DualitySuperInterface) superDualInterface.getInterfaceDuality();
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
-        final SlotScrollableWidgetGroup patternScrollableSlotGroup = new SlotScrollableWidgetGroup(7, 34, 166, 162, 9)
+        final SlotWidgetGroup patternScrollableSlotGroup = new SlotWidgetGroup(7, 34, 166, 162, 9)
                 .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(multiPatternSlots, itemStack, false))
                 .setItemHandler(duality.getPatterns())
                 .setScrollWidth(4);
@@ -202,7 +202,7 @@ public class BlockSuperUltimateInterface extends BlockInterface {
                     .setWidgetGroup(patternScrollableSlotGroup)
                     .setActiveInit(false));
         }
-        final SlotScrollableWidgetGroup upgradeScrollableSlotGroup = new SlotScrollableWidgetGroup(216, 7, 22, 180, 1)
+        final SlotWidgetGroup upgradeScrollableSlotGroup = new SlotWidgetGroup(216, 7, 22, 180, 1)
                 .setItemHandler(upgradeHandler)
                 .setScrollWidth(4);
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
@@ -287,7 +287,7 @@ public class BlockSuperUltimateInterface extends BlockInterface {
                 .setMaxStringLength(11);
         stackSizeTextField.setTextSupplier(() -> superDualInterface.getStackSize((int) stackSizeTextField.getTextIdLong()));
         selectionWidgetGroup.setIndexListener(stackSizeTextField::setTextIdLong);
-        final SlotScrollableWidgetGroup storageScrollableSlotGroup = new SlotScrollableWidgetGroup(7, 34, 166, 144, 9)
+        final SlotWidgetGroup storageScrollableSlotGroup = new SlotWidgetGroup(7, 34, 166, 144, 9)
                 .setScrollWidth(4);
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
             final TJPhantomItemSlotWidget phantomItemSlotWidget = new TJPhantomItemSlotWidget(18 * (i % 9), 36 * (i / 9), 18, 18, i, duality.getConfig())
@@ -306,7 +306,7 @@ public class BlockSuperUltimateInterface extends BlockInterface {
             selectionWidgetGroup.addSubWidget(i, stackSizeTextField);
             selectionWidgetGroup.addSelectionBox(i, phantomItemSlotWidget);
         }
-        final SlotScrollableWidgetGroup upgradeScrollableSlotGroup = new SlotScrollableWidgetGroup(216, 7, 22, 180, 1)
+        final SlotWidgetGroup upgradeScrollableSlotGroup = new SlotWidgetGroup(216, 7, 22, 180, 1)
                 .setItemHandler(upgradeHandler)
                 .setScrollWidth(4);
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
@@ -337,7 +337,7 @@ public class BlockSuperUltimateInterface extends BlockInterface {
     private static void createFluidInterfaceTab(List<Widget> tab, ISuperDualInterface superDualInterface, ButtonPopUpWidget<?> buttonPopUpWidget, ButtonPopUpWidget<?> buttonPopUpTickWidget) {
         final DualitySuperFluidInterface duality = (DualitySuperFluidInterface) superDualInterface.getDualityFluidInterface();
         final IItemHandler upgradeHandler = duality.getInventoryByName("upgrades");
-        final SlotScrollableWidgetGroup storageScrollableSlotGroup = new SlotScrollableWidgetGroup(7, 34, 166, 144, 9)
+        final SlotWidgetGroup storageScrollableSlotGroup = new SlotWidgetGroup(7, 34, 166, 144, 9)
                 .setScrollWidth(4);
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
             final int index = i;

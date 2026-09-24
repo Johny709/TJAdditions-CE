@@ -9,7 +9,7 @@ import gregtech.api.gui.widgets.ProgressWidget;
 import gregtech.api.gui.widgets.SlotWidget;
 import gregtech.api.gui.widgets.TankWidget;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
+import tj.mui.widgets.impl.SlotWidgetGroup;
 
 public class RecipeMapLargeAssemblyLine extends RecipeMapAssemblyLine<QubitConsumerRecipeBuilder> {
 
@@ -19,9 +19,9 @@ public class RecipeMapLargeAssemblyLine extends RecipeMapAssemblyLine<QubitConsu
 
     @Override
     public ModularUI.Builder createJeiUITemplate(IItemHandlerModifiable importItems, IItemHandlerModifiable exportItems, FluidTankList importFluids, FluidTankList exportFluids) {
-        SlotScrollableWidgetGroup itemSlotGroup = new SlotScrollableWidgetGroup(32, 18, 72, 72, 4)
+        SlotWidgetGroup itemSlotGroup = new SlotWidgetGroup(32, 18, 72, 72, 4)
                 .setScrollWidth(4);
-        SlotScrollableWidgetGroup fluidSlotGroup = new SlotScrollableWidgetGroup(10, 18, 18, 72, 1)
+        SlotWidgetGroup fluidSlotGroup = new SlotWidgetGroup(10, 18, 18, 72, 1)
                 .setScrollWidth(4);
         for (int i = 0; i < 256; i++) {
             itemSlotGroup.addWidget(new SlotWidget(importItems, i, 18 * (i % 4), 18 * (i / 4))

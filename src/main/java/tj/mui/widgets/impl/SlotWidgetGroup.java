@@ -13,7 +13,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
-import org.lwjgl.input.Keyboard;
 import tj.TJ;
 import tj.mui.widgets.ISlotGroup;
 import tj.mui.widgets.ISlotHandler;
@@ -28,7 +27,7 @@ import java.util.Map;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup {
+public class SlotWidgetGroup extends WidgetGroup implements ISlotGroup {
 
     private final int rowLength;
     private final int posX;
@@ -51,23 +50,23 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     @SideOnly(Side.CLIENT)
     private int timer;
 
-    public SlotScrollableWidgetGroup(int x, int y, int width, int height, int rowLength) {
+    public SlotWidgetGroup(int x, int y, int width, int height, int rowLength) {
         super(new Position(x, y), new Size(width, height));
         this.rowLength = rowLength;
         this.posX = x;
     }
 
-    public SlotScrollableWidgetGroup setScrollWidth(int scrollPaneWidth) {
+    public SlotWidgetGroup setScrollWidth(int scrollPaneWidth) {
         this.scrollPaneWidth = scrollPaneWidth;
         return this;
     }
 
-    public SlotScrollableWidgetGroup setItemHandler(IItemHandler itemHandler) {
+    public SlotWidgetGroup setItemHandler(IItemHandler itemHandler) {
         this.itemHandler = itemHandler;
         return this;
     }
 
-    public SlotScrollableWidgetGroup setItemStackTransfer(UnaryOperator<ItemStack> itemStackTransfer) {
+    public SlotWidgetGroup setItemStackTransfer(UnaryOperator<ItemStack> itemStackTransfer) {
         this.itemStackTransfer = itemStackTransfer;
         return this;
     }
@@ -220,14 +219,11 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
         this.lastMouseX = mouseX;
         this.lastMouseY = mouseY;
-        boolean isShiftKeyPressed = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
         if (this.isOnScrollPane(mouseX, mouseY)) {
             this.draggedOnScrollBar = true;
         }
         if (this.isPositionInsideScissor(mouseX, mouseY)) {
             return super.mouseClicked(mouseX, mouseY, button);
-        } else if (isShiftKeyPressed && this.itemHandler != null) {
-            this.writeClientAction(4, buffer -> buffer.writeBoolean(false));
         }
         return false;
     }
@@ -301,11 +297,6 @@ public class SlotScrollableWidgetGroup extends WidgetGroup implements ISlotGroup
             } catch (IOException e) {
                 TJ.logger.info(e.getMessage());
             }
-        } else if (id == 4) {
-            final ItemStack stack = this.gui.entityPlayer.inventory.getItemStack();
-            final ItemStack finalStack = TJItemUtils.insertIntoItemHandler(this.itemHandler, stack, buffer.readBoolean());
-            this.gui.entityPlayer.inventory.setItemStack(finalStack);
-            this.writeUpdateInfo(3, buffer1 -> buffer1.writeItemStack(finalStack));
         } else if (id == 5) {
             try {
                 ItemStack heldStack = buffer.readItemStack();

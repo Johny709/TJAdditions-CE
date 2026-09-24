@@ -165,7 +165,7 @@ public class BlockSuperDualInterface extends BlockInterface {
     private static void createInterfaceTab(List<Widget> tab, ISuperDualInterface superDualInterface, IItemHandler multiPatternSlots) {
         final DualitySuperInterface duality = (DualitySuperInterface) superDualInterface.getInterfaceDuality();
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
-        final SlotScrollableWidgetGroup patternScrollableSlotGroup = new SlotScrollableWidgetGroup(7, 133, 166, 72, 9)
+        final SlotWidgetGroup patternScrollableSlotGroup = new SlotWidgetGroup(7, 133, 166, 72, 9)
                 .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(multiPatternSlots, itemStack, false))
                 .setItemHandler(duality.getPatterns())
                 .setScrollWidth(4);

@@ -109,7 +109,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         final WidgetGroup inventorySlotGroup = new WidgetGroup(new Position(7, 72)), craftingSlotGroup = new WidgetGroup(new Position(7, 14));
-        final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(109, 14, 64, 54, 3);
+        final SlotWidgetGroup scrollableWidgetGroup = new SlotWidgetGroup(109, 14, 64, 54, 3);
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             inventorySlotGroup.addWidget(new SlotWidget(this.importItems, i, 18 * (i % 9), 18 * (i / 9), true, true)
                     .setBackgroundTexture(SLOT));

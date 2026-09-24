@@ -121,7 +121,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(7, 22));
-        final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(105, 22, 64, 54, 3);
+        final SlotWidgetGroup scrollableWidgetGroup = new SlotWidgetGroup(105, 22, 64, 54, 3);
         final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 39, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)

@@ -101,7 +101,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(113, 8, 60, 72, 3)
+        final SlotWidgetGroup scrollableWidgetGroup = new SlotWidgetGroup(113, 8, 60, 72, 3)
                 .setScrollWidth(6);
         final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(90, 30, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)

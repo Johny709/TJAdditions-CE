@@ -36,7 +36,7 @@ import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.item.TJItems;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.AEPatternSlotWidget;
-import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
+import tj.mui.widgets.impl.SlotWidgetGroup;
 import tj.mui.widgets.impl.TJSlotWidget;
 import tj.util.TJItemUtils;
 
@@ -168,7 +168,7 @@ public final class TJGuiUtils {
     public static void createPatternMultiToolGUI(ModularUI.Builder builder, ItemStack patternMultiTool, FilteredItemStackHandler multiUpgradeSlots, IItemHandler patternSlots, FilteredItemStackHandler multiPatternSlots, NBTTagCompound invTag) {
         if (!patternMultiTool.isEmpty()) {
             final boolean isUpgraded = patternMultiTool.isItemEqual(TJItems.SUPER_PATTERN_MULTITOOL.maybeStack(1).orElse(ItemStack.EMPTY));
-            final SlotScrollableWidgetGroup multiPatternSlotGroup = new SlotScrollableWidgetGroup(-122, 14, 76, 162, 4)
+            final SlotWidgetGroup multiPatternSlotGroup = new SlotWidgetGroup(-122, 14, 76, 162, 4)
                     .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(patternSlots, itemStack, false))
                     .setItemHandler(multiPatternSlots)
                     .setScrollWidth(4);
@@ -261,7 +261,7 @@ public final class TJGuiUtils {
         }
     }
 
-    public static void changePatternAmount(IItemHandler patternSlots, SlotScrollableWidgetGroup patternSlotWidgets, LongUnaryOperator multiplier, Runnable callback) {
+    public static void changePatternAmount(IItemHandler patternSlots, SlotWidgetGroup patternSlotWidgets, LongUnaryOperator multiplier, Runnable callback) {
         for (int i = 0; i < patternSlots.getSlots(); i++) {
             final ItemStack stack = patternSlots.getStackInSlot(i);
             final NBTTagCompound compound = stack.getTagCompound();

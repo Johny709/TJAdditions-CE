@@ -26,7 +26,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
+import tj.mui.widgets.impl.SlotWidgetGroup;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
 
@@ -80,7 +80,7 @@ public class MetaTileEntityBuffer extends GATieredMetaTileEntity {
         final int startX = Math.max(25, 79 - (9 * (this.getTier() - 1)));
         final int startX2 =  Math.max(7, 61 - (9 * (this.getTier() - 1)));
         final WidgetGroup slotGroup = new WidgetGroup(new Position(0, 7));
-        final SlotScrollableWidgetGroup slotScrollGroup = new SlotScrollableWidgetGroup(0, 7, 193, 180, 10)
+        final SlotWidgetGroup slotScrollGroup = new SlotWidgetGroup(0, 7, 193, 180, 10)
                 .setScrollWidth(5);
         final WidgetGroup widgetGroup = this.getTier() > 8 ? slotScrollGroup : slotGroup;
         for (int i = 0; i < this.importItems.getSlots(); i++) {

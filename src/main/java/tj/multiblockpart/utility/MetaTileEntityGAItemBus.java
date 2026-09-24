@@ -15,7 +15,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
+import tj.mui.widgets.impl.SlotWidgetGroup;
 import tj.mui.widgets.impl.TJLabelWidget;
 
 public class MetaTileEntityGAItemBus extends MetaTileEntityItemBus {
@@ -38,7 +38,7 @@ public class MetaTileEntityGAItemBus extends MetaTileEntityItemBus {
         final int startX = Math.max(7, 79 - (9 * (this.getTier() - 1)));
         final IItemHandlerModifiable itemHandler = this.isOutput ? this.getExportItems() : this.getImportItems();
         final WidgetGroup slotGroup = new WidgetGroup(new Position(0, 7));
-        final SlotScrollableWidgetGroup slotScrollGroup = new SlotScrollableWidgetGroup(0, 7, 193, 180, 10)
+        final SlotWidgetGroup slotScrollGroup = new SlotWidgetGroup(0, 7, 193, 180, 10)
                 .setScrollWidth(5);
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             final SlotWidget slotWidget = new SlotWidget(itemHandler, i, startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)))

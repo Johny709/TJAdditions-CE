@@ -38,7 +38,7 @@ import tj.builder.RecipeUtility;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.SlotScrollableWidgetGroup;
+import tj.mui.widgets.impl.SlotWidgetGroup;
 import tj.mui.widgets.impl.CraftingRecipeTransferWidget;
 import tj.mui.widgets.impl.SlotDisplayWidget;
 import tj.multiblockpart.TJMultiblockAbility;
@@ -86,7 +86,7 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         final WidgetGroup craftingSlotGroup = new WidgetGroup(new Position(7, 14));
-        final SlotScrollableWidgetGroup scrollableWidgetGroup = new SlotScrollableWidgetGroup(109, 14, 64, 54, 3);
+        final SlotWidgetGroup scrollableWidgetGroup = new SlotWidgetGroup(109, 14, 64, 54, 3);
         for (int i = 0; i < this.craftingInventory.getSlots(); i++) {
             final int finalI = i;
             craftingSlotGroup.addWidget(new PhantomSlotWidget(this.craftingInventory, i, 18 * (i % 3), 18 * (i / 3))
