@@ -6,6 +6,8 @@ import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.Position;
 import gregtech.api.util.RenderUtil;
 import gregtech.api.util.Size;
+import mezz.jei.Internal;
+import mezz.jei.runtime.JeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
@@ -16,12 +18,11 @@ import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.mui.TJGuiUtils;
-import tj.mui.widgets.IRecipeClickArea;
 
 import java.util.Collections;
 import java.util.function.Supplier;
 
-public class TJLabelWidget extends Widget implements IRecipeClickArea {
+public class TJLabelWidget extends Widget {
 
     private final TextureArea labelTexture;
     private final Supplier<String> recipeUid;
@@ -131,6 +132,18 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    public boolean mouseClicked(int mouseX, int mouseY, int button) {
+        if (this.isMouseOverElement(mouseX, mouseY)) {
+            final JeiRuntime jeiRuntime = Internal.getRuntime();
+            if (jeiRuntime != null) {
+                jeiRuntime.getRecipesGui().showCategories(Collections.singletonList(this.uid));
+            }
+        }
+        return true;
+    }
+
+    @Override
     public void detectAndSendChanges() {
         if (this.recipeUid != null) {
             final String uid = this.recipeUid.get();
@@ -189,11 +202,5 @@ public class TJLabelWidget extends Widget implements IRecipeClickArea {
                 }
             }
         }
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public String getRecipeUid(int mouseX, int mouseY, int mouseButton) {
-        return mouseButton == 0 && this.isMouseOverElement(mouseX, mouseY) ? this.uid : null;
     }
 }

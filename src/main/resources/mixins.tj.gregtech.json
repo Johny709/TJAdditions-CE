@@ -32,8 +32,6 @@
   "client": [
     "gregtech.client.IMixinMultiblockInfoRecipeWrapper",
     "gregtech.client.MixinModularUIGuiHandler",
-    "gregtech.client.MixinModularUIGui",
-    "gregtech.client.MixinMultiblockInfoRecipeWrapper",
-    "jei.MixinInputHandler"
+    "gregtech.client.MixinMultiblockInfoRecipeWrapper"
   ]
 }
