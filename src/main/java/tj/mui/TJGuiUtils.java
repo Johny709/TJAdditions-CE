@@ -168,10 +168,9 @@ public final class TJGuiUtils {
     public static void createPatternMultiToolGUI(ModularUI.Builder builder, ItemStack patternMultiTool, FilteredItemStackHandler multiUpgradeSlots, IItemHandler patternSlots, FilteredItemStackHandler multiPatternSlots, NBTTagCompound invTag) {
         if (!patternMultiTool.isEmpty()) {
             final boolean isUpgraded = patternMultiTool.isItemEqual(TJItems.SUPER_PATTERN_MULTITOOL.maybeStack(1).orElse(ItemStack.EMPTY));
-            final SlotWidgetGroup multiPatternSlotGroup = new SlotWidgetGroup(-122, 14, 76, 162, 4)
+            final SlotWidgetGroup multiPatternSlotGroup = new SlotWidgetGroup(-122, 14, 72, 162, 4)
                     .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(patternSlots, itemStack, false))
-                    .setItemHandler(multiPatternSlots)
-                    .setScrollWidth(4);
+                    .setItemHandler(multiPatternSlots);
             builder.widget(new ImageWidget(-129, 0, 109, 218, GuiTextures.BORDERED_BACKGROUND))
                     .widget(new LabelWidget(-122, 4, "item.nae2.pattern_multiplier.name"))
                     .widget(new ButtonWidget<>(-122, 176, 18, 18, "*2", data ->

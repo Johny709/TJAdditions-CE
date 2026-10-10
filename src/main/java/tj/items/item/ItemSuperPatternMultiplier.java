@@ -52,12 +52,9 @@ public class ItemSuperPatternMultiplier extends Item implements ItemUIFactory, I
                         itemStack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)));
         multiUpgradeSlots.setOnContentsChangedPost((slot, itemStack) -> TJGuiUtils.writePatternMultiToolToNBT(multiUpgradeSlots, upgradeTag));
 
-        final SlotWidgetGroup patternSlotGroup = new SlotWidgetGroup(7, 7, 166, 72, 9)
-                .setItemHandler(multiPatternSlots)
-                .setScrollWidth(4);
-        final SlotWidgetGroup upgradeSlotGroup = new SlotWidgetGroup(186, 7, 22, 126, 1)
-                .setItemHandler(multiUpgradeSlots)
-                .setScrollWidth(4);
+        final SlotWidgetGroup patternSlotGroup = new SlotWidgetGroup(7, 7, 162, 72, 9);
+        final SlotWidgetGroup upgradeSlotGroup = new SlotWidgetGroup(186, 7, 18, 126, 1)
+                .setItemHandler(multiUpgradeSlots);
         for (int i = 0; i < multiPatternSlots.getSlots(); i++) {
             final int index = i;
             patternSlotGroup.addWidget(new AEPatternSlotWidget(multiPatternSlots, i, 18 * (i % 9), 18 * (i / 9))

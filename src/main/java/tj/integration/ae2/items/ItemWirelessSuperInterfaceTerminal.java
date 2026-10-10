@@ -439,8 +439,7 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
         if (!patternMultiTool.isEmpty()) {
             final SlotWidgetGroup multiPatternSlotGroup = new SlotWidgetGroup(-118, 14, 72, 162, 4)
                     .setItemStackTransfer(aeItemListWidget::insertItem)
-                    .setItemHandler(multiPatternSlots)
-                    .setScrollWidth(0);
+                    .setItemHandler(multiPatternSlots);
             builder.widget(new ImageWidget(-125, 0, 105, 218, GuiTextures.BORDERED_BACKGROUND))
                     .widget(new LabelWidget(-118, 4, "item.nae2.pattern_multiplier.name"))
                     .widget(new ButtonWidget<>(-118, 176, 18, 18, "*2", data -> changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m * 2, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))

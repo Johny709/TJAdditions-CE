@@ -95,10 +95,9 @@ public class BlockSuperInterface extends BlockInterface {
                 .setItemStackPredicate((slot, itemStack) -> itemStack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)));
         multiUpgradeSlots.setOnContentsChangedPost((slot, itemStack) -> TJGuiUtils.writePatternMultiToolToNBT(multiUpgradeSlots, upgradeTag));
 
-        final SlotWidgetGroup patternScrollableSlotGroup = new SlotWidgetGroup(7, 133, 166, 72, 9)
+        final SlotWidgetGroup patternScrollableSlotGroup = new SlotWidgetGroup(7, 133, 162, 72, 9)
                 .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(multiPatternSlots, itemStack, false))
-                .setItemHandler(duality.getPatterns())
-                .setScrollWidth(4);
+                .setItemHandler(duality.getPatterns());
         final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(0, 0, 0, 0);
         final ImageWidget stackSizeDisplay = new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND);

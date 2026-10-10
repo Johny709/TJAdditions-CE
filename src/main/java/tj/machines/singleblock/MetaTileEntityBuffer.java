@@ -80,8 +80,7 @@ public class MetaTileEntityBuffer extends GATieredMetaTileEntity {
         final int startX = Math.max(25, 79 - (9 * (this.getTier() - 1)));
         final int startX2 =  Math.max(7, 61 - (9 * (this.getTier() - 1)));
         final WidgetGroup slotGroup = new WidgetGroup(new Position(0, 7));
-        final SlotWidgetGroup slotScrollGroup = new SlotWidgetGroup(0, 7, 193, 180, 10)
-                .setScrollWidth(5);
+        final SlotWidgetGroup slotScrollGroup = new SlotWidgetGroup(0, 7, 188, 180, 10);
         final WidgetGroup widgetGroup = this.getTier() > 8 ? slotScrollGroup : slotGroup;
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             widgetGroup.addWidget(new SlotWidget(this.importItems, i, startX + (18 * (i % tier)), 18 * (i / tier))

@@ -97,12 +97,10 @@ public class BlockPatternInterface extends BlockInterface {
                 .setItemStackPredicate((slot, itemStack) -> itemStack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)));
         multiUpgradeSlots.setOnContentsChangedPost((slot, itemStack) -> TJGuiUtils.writePatternMultiToolToNBT(multiUpgradeSlots, upgradeTag));
 
-        final SlotWidgetGroup patternScrollableSlotGroup = new SlotWidgetGroup(7, 123, 166, 72, 9)
+        final SlotWidgetGroup patternScrollableSlotGroup = new SlotWidgetGroup(7, 123, 162, 72, 9)
                 .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(multiPatternSlots, itemStack, false))
-                .setItemHandler(duality.getPatterns())
-                .setScrollWidth(4);
-        final SlotWidgetGroup upgradeScrollableSlotGroup = new SlotWidgetGroup(186, 7, 22, 180, 1)
-                .setScrollWidth(4);
+                .setItemHandler(duality.getPatterns());
+        final SlotWidgetGroup upgradeScrollableSlotGroup = new SlotWidgetGroup(186, 7, 18, 180, 1);
         final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             upgradeScrollableSlotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 0, 18 * i)

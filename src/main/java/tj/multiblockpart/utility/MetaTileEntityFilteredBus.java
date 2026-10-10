@@ -124,8 +124,7 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
         final ButtonPopUpWidget<?> popUpWidget = new ButtonPopUpWidget<>(0, 0, 0, 0)
                 .addPopup(widgetGroup -> {
                     final WidgetGroup slotGroup = new WidgetGroup(new Position(0, 7));
-                    SlotWidgetGroup slotScrollGroup = new SlotWidgetGroup(0, 7, 193, 180, 10)
-                            .setScrollWidth(5);
+                    SlotWidgetGroup slotScrollGroup = new SlotWidgetGroup(0, 7, 188, 180, 10);
                     for (int i = 0; i < itemHandler.getSlots(); i++) {
                         final SlotWidget slotWidget = new SlotWidget(itemHandler, i, startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)))
                                 .setBackgroundTexture(GuiTextures.SLOT);
@@ -140,8 +139,7 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                         .useToggleTexture(true), widgetGroup -> {
                     final WidgetGroup slotGroup = new WidgetGroup(new Position(0, 7));
-                    final SlotWidgetGroup slotScrollGroup = new SlotWidgetGroup(0, 7, 193, 180, 10)
-                            .setScrollWidth(5);
+                    final SlotWidgetGroup slotScrollGroup = new SlotWidgetGroup(0, 7, 188, 180, 10);
                     for (int i = 0; i < this.filterInventory.getSlots(); i++) {
                         final TJPhantomItemSlotWidget slotWidget = new TJPhantomItemSlotWidget(startX + (18 * (i % Math.min(10, this.getTier() + 1))), 18 * (i / Math.min(10, this.getTier() + 1)), 18, 18, i, this.filterInventory)
                                 .setBackgroundTextures(GuiTextures.SLOT, GuiTextures.FILTER_SLOT_OVERLAY);

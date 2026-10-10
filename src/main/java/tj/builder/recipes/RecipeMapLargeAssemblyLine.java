@@ -19,10 +19,8 @@ public class RecipeMapLargeAssemblyLine extends RecipeMapAssemblyLine<QubitConsu
 
     @Override
     public ModularUI.Builder createJeiUITemplate(IItemHandlerModifiable importItems, IItemHandlerModifiable exportItems, FluidTankList importFluids, FluidTankList exportFluids) {
-        SlotWidgetGroup itemSlotGroup = new SlotWidgetGroup(32, 18, 72, 72, 4)
-                .setScrollWidth(4);
-        SlotWidgetGroup fluidSlotGroup = new SlotWidgetGroup(10, 18, 18, 72, 1)
-                .setScrollWidth(4);
+        SlotWidgetGroup itemSlotGroup = new SlotWidgetGroup(32, 18, 72, 72, 4);
+        SlotWidgetGroup fluidSlotGroup = new SlotWidgetGroup(10, 18, 18, 72, 1);
         for (int i = 0; i < 256; i++) {
             itemSlotGroup.addWidget(new SlotWidget(importItems, i, 18 * (i % 4), 18 * (i / 4))
                     .setBackgroundTexture(GuiTextures.SLOT, GuiTextures.MOLD_OVERLAY));

@@ -15,6 +15,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.TJWidgetGroup;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 
 public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGroup<R> {
@@ -22,8 +23,13 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
     protected final int posX;
     protected TextureArea scrollSliderTexture;
     protected TextureArea scrollBarTexture;
-    protected Rectangle scrollSliderRec;
-    protected Rectangle scrollBarRec;
+
+    @Nonnull
+    protected Rectangle scrollSliderRec = new Rectangle(0, 0);
+
+    @Nonnull
+    protected Rectangle scrollBarRec = new Rectangle(0, 0);
+
     protected int scrollBarXOffset;
     protected int scrollOffset;
     protected int scrollHeight;
@@ -33,7 +39,7 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
 
     public ScrollingWidgetGroup(int x, int y, int width, int height) {
         super(new Position(x, y), new Size(width, height));
-        this.setScrollSlider(1, 1, 2, 10, GuiTextures.BORDERED_BACKGROUND);
+        this.setScrollSlider(0, 0, 4, 10, GuiTextures.BORDERED_BACKGROUND);
         this.setScrollbar(0, 0, 4, height, GuiTextures.SLOT);
         this.posX = x;
     }
