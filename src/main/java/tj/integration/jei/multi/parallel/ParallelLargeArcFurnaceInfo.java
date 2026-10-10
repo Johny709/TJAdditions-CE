@@ -1,9 +1,11 @@
 package tj.integration.jei.multi.parallel;
 
+import gregicadditions.channels.GAChannelRegistry;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.PumpCasing;
 import gregicadditions.machines.GATileEntities;
 import gregtech.common.blocks.*;
+import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import gregtech.integration.jei.multiblock.channel.PlaceholderType;
@@ -44,15 +46,15 @@ public class ParallelLargeArcFurnaceInfo extends TJMultiblockInfoPage implements
         return builder.aisle("~IMO~", "CCcCC", "CCcCC", "CCcCC", "~iEo~").where('S', this.getController(), WEST)
                     .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF))
                     .where('G', MetaBlocks.MUTLIBLOCK_CASING.getState(BlockMultiblockCasing.MultiblockCasingType.GRATE_CASING))
-                    .where('P', PlaceholderType.PUMP , GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[0]))
+                    .where('P', GAChannelRegistry.PUMP , GAMetaBlocks.PUMP_CASING.getState(PumpCasing.CasingType.values()[0]))
                     .where('c', MetaBlocks.WIRE_COIL.getState(BlockWireCoil.CoilType.CUPRONICKEL))
                     .where('T', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TITANIUM_PIPE))
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                    .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EAST)
-                    .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
-                    .where('i', PlaceholderType.OUTPUT_BUS,MetaTileEntities.ITEM_EXPORT_BUS[0], EAST)
-                    .where('O', PlaceholderType.INPUT_HATCH,MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                    .where('o', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EAST)
+                    .where('E', ChannelRegistry.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EAST)
+                    .where('I', ChannelRegistry.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
+                    .where('i', ChannelRegistry.OUTPUT_BUS,MetaTileEntities.ITEM_EXPORT_BUS[0], EAST)
+                    .where('O', ChannelRegistry.INPUT_HATCH,MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
+                    .where('o', ChannelRegistry.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EAST)
                     .build();
 
     }

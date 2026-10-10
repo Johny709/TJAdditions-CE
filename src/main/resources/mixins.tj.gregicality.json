@@ -50,7 +50,8 @@
     "gregicality.MixinTileEntityChemicalPlant",
     "gregicality.MixinTileEntityFusionReactor",
     "gregicality.MixinTileEntityLargeChemicalReactor",
-    "gregicality.MixinTileEntityLargeThermalCentrifuge"
+    "gregicality.MixinTileEntityLargeThermalCentrifuge",
+    "gregicality.MixinGAFreedomWrenchBehaviour"
   ],
   "server": [],
   "client": []

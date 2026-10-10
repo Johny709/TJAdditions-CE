@@ -75,7 +75,7 @@ public class MetaTileEntityParallelVolcanus extends ParallelRecipeMapMultiblockC
     private int bonusTemperature;
 
     public MetaTileEntityParallelVolcanus(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, GATileEntities.VOLCANUS.recipeMap);
+        super(metaTileEntityId, 1,1,0,7, GATileEntities.VOLCANUS.recipeMap);
         this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(this.recipeLogic.isActive()));
     }
 

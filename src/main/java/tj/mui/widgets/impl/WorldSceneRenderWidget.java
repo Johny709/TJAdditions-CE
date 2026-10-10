@@ -50,7 +50,7 @@ public class WorldSceneRenderWidget extends TJWidget<WorldSceneRenderWidget> {
         final MetaTileEntityHolder tileEntity = new MetaTileEntityHolder();
         final MetaTileEntity mte = tileEntity.setMetaTileEntity(metaTileEntity);
         mte.setFrontFacing(metaTileEntity.getFrontFacing());
-        this.worldSceneRenderer = new WorldSceneRenderer(ImmutableMap.of(new BlockPos(0, 0, 0), new BlockInfo(metaTileEntity.getWorld().getBlockState(pos), PlaceholderType.CASING)));
+        this.worldSceneRenderer = new WorldSceneRenderer(ImmutableMap.of(new BlockPos(0, 0, 0), new BlockInfo(metaTileEntity.getWorld().getBlockState(pos), null)));
         this.worldSceneRenderer.setRenderCallback(this::preRenderScene);
     }
 

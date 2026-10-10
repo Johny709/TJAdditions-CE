@@ -1,9 +1,11 @@
 package tj.integration.jei.multi.parallel;
 
+import gregicadditions.channels.GAChannelRegistry;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.PistonCasing;
 import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.machines.GATileEntities;
+import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import gregtech.integration.jei.multiblock.channel.PlaceholderType;
@@ -44,10 +46,10 @@ public class ParallelLargeForgeHammerInfo extends TJMultiblockInfoPage implement
         }
         return builder.aisle("ISO", "~M~", "~~~", "~~~", "~~~").where('S', this.getController(), WEST)
                     .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.IRON))
-                    .where('P', PlaceholderType.PISTON, GAMetaBlocks.PISTON_CASING.getState(PistonCasing.CasingType.values()[0]))
+                    .where('P', GAChannelRegistry.PISTON, GAMetaBlocks.PISTON_CASING.getState(PistonCasing.CasingType.values()[0]))
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                    .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EAST)
-                    .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
+                    .where('E', ChannelRegistry.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EAST)
+                    .where('I', ChannelRegistry.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
                     .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
                     .build();
 

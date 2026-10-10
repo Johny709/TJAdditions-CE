@@ -4,6 +4,7 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.common.blocks.BlockBoilerCasing;
 import gregtech.common.blocks.BlockMetalCasing;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import gregtech.integration.jei.multiblock.channel.PlaceholderType;
@@ -35,25 +36,25 @@ public class ParallelVacuumFreezerInfo extends TJMultiblockInfoPage implements I
 
     @Override
     public MultiblockShapeInfo getMatchingShapes(int extent) {
-
         final TJMultiblockShapeInfo.Builder builder = new TJMultiblockShapeInfo.Builder(FRONT, RIGHT, DOWN);
         for (int layer = 0; layer < extent; layer++) {
             String entityS = layer == extent - 1 ? "~ISO~" : "~CCC~";
             String energyH = layer == extent - 1 ? "~CEM~" : "~CCC~";
-            builder.aisle("~CCC~", "CCCCC", "CCCCC", "CCCCC", "~CCC~");
+            String centerRow = layer == 0 ? "CCCCC" : "CCPCC";
+            builder.aisle("~CCC~", "CCCCC", centerRow, "CCCCC", "~CCC~");
             builder.aisle(entityS, "C#P#C", "CPPPC", "C#P#C", energyH);
         }
-        return builder.aisle("~iCo~", "CCCCC", "CCCCC", "CCCCC", "~CCC~").where('S', this.getController(), WEST)
-                    .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.ALUMINIUM_FROSTPROOF))
-                    .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
-                    .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
-                    .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EAST)
-                    .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
-                    .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                    .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
-                    .where('o', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
-                    .build();
-
+        return builder.aisle("~iCo~", "CCCCC", "CCCCC", "CCCCC", "~CCC~")
+                .where('S', this.getController(), WEST)
+                .where('C', MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.ALUMINIUM_FROSTPROOF))
+                .where('P', MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE))
+                .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
+                .where('E', ChannelRegistry.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EAST)
+                .where('I', ChannelRegistry.INPUT_BUS, MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
+                .where('i', ChannelRegistry.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
+                .where('O', MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
+                .where('o', ChannelRegistry.OUTPUT_HATCH, MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
+                .build();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package tj.integration.jei.multi.electric;
 
+import gregicadditions.channels.GAChannelRegistry;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.GATransparentCasing;
@@ -7,6 +8,7 @@ import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.item.metal.NuclearCasing;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
+import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import gregtech.integration.jei.multiblock.channel.PlaceholderType;
@@ -47,11 +49,11 @@ public class LargeNuclearReactorInfo extends TJMultiblockInfoPage implements IPa
         return builder.aisle("~~~~~C~~~~~", "~~~~GCG~~~~", "~~CCCCCCC~~", "~~CCCCCCC~~", "~GCCCCCCCG~", "CCCCCCCCCCC", "~GCCCCCCCG~", "~~CCCCCCC~~", "~~CCCCCCC~~", "~~~~GCG~~~~", "~~~~~C~~~~~")
             .where('S', this.getController(), WEST)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EAST)
-                .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EAST)
-                .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
-                .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
-                .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
-                .where('o', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
+                .where('E', ChannelRegistry.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EAST)
+                .where('I', ChannelRegistry.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
+                .where('O', ChannelRegistry.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
+                .where('i', ChannelRegistry.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], WEST)
+                .where('o', ChannelRegistry.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], WEST)
                 .where('C', GAMetaBlocks.MUTLIBLOCK_CASING.getState(GAMultiblockCasing.CasingType.CLADDED_REACTOR_CASING))
                 .where('N', GAMetaBlocks.NUCLEAR_CASING.getState(NuclearCasing.CasingType.NEPTUNIUM))
                 .where('R', GAMetaBlocks.NUCLEAR_CASING.getState(NuclearCasing.CasingType.CURIUM))
@@ -65,8 +67,8 @@ public class LargeNuclearReactorInfo extends TJMultiblockInfoPage implements IPa
                 .where('U', GAMetaBlocks.NUCLEAR_CASING.getState(NuclearCasing.CasingType.URANIUM))
                 .where('c', GAMetaBlocks.NUCLEAR_CASING.getState(NuclearCasing.CasingType.CALIFORNIUM))
                 .where('F', GAMetaBlocks.NUCLEAR_CASING.getState(NuclearCasing.CasingType.FERMIUM))
-                .where('G', PlaceholderType.GLASS, GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.values()[0]))
-                .where('g', PlaceholderType.FIELD_GEN,GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.values()[0]))
+                .where('G', GAChannelRegistry.GLASS, GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.values()[0]))
+                .where('g', GAChannelRegistry.FIELD_GEN,GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.values()[0]))
                 .build();
     }
 

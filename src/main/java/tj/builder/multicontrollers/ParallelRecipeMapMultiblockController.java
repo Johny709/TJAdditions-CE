@@ -18,15 +18,13 @@ import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
+import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.util.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
@@ -36,6 +34,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
+import org.lwjgl.input.Keyboard;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
 import tj.capability.*;
@@ -76,7 +75,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     protected long maxVoltage;
 
     public ParallelRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?>... recipeMaps) {
-        super(metaTileEntityId);
+        this(metaTileEntityId,1, 1, 0, 14, recipeMaps);
+    }
+
+    public ParallelRecipeMapMultiblockController(ResourceLocation metaTileEntityId, int minExtent, int maxExtent, int minTier, int maxTier, RecipeMap<?>... recipeMaps) {
+        super(metaTileEntityId, minExtent, maxExtent, minTier, maxTier);
         this.recipeMaps = recipeMaps;
         this.recipeLogic.setActiveConsumer((active, i) -> this.activeDate = active ? Instant.now() : null);
         this.recipeLogic.setProblemConsumer((problem, i)-> this.activeDate = null);
@@ -359,8 +362,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     @Override
     public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
         if (!this.getWorld().isRemote) {
+
+            int multiplier = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) ? 10 : 1;
+
             final int lastParallelLayer = this.parallelLayer;
-            this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - 1 : this.parallelLayer + 1, 1, this.getMaxParallel());
+            this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - multiplier : this.parallelLayer + multiplier, 1, this.getMaxParallel());
             if (this.parallelLayer != lastParallelLayer) {
                 playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
                 this.recipeLogic.setLayer(this.parallelLayer, playerIn.isSneaking());
@@ -368,6 +374,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
             this.resetStructure();
             this.writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
             this.markDirty();
+            getWorld().playSound(null, playerIn.getPosition(),GTSoundEvents.SCREWDRIVER, SoundCategory.PLAYERS,1F,1F);
         }
         return true;
     }

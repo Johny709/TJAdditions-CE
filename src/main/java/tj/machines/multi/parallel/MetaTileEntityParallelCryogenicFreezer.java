@@ -57,7 +57,7 @@ public class MetaTileEntityParallelCryogenicFreezer extends ParallelRecipeMapMul
     private FluidStack cryotheum;
 
     public MetaTileEntityParallelCryogenicFreezer(ResourceLocation metaTileEntityId) {
-        super(metaTileEntityId, GATileEntities.VACUUM_FREEZER.recipeMap);
+        super(metaTileEntityId,1,1,0,7, GATileEntities.VACUUM_FREEZER.recipeMap);
     }
 
     @Override

@@ -5,6 +5,7 @@ import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.unification.material.Materials;
+import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
@@ -69,9 +70,9 @@ public class XLAtmosphereCollectorInfo extends TJMultiblockInfoPage implements I
                     .where('P', this.atmosphereCollector.getPipeState())
                     .where('R', holderNorth.getMetaTileEntity(), EnumFacing.NORTH)
                     .where('T', holderSouth.getMetaTileEntity(), EnumFacing.SOUTH)
-                    .where('I', PlaceholderType.INPUT_HATCH,MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
-                    .where('J', PlaceholderType.INPUT_BUS,MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
-                    .where('O', PlaceholderType.OUTPUT_HATCH, MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.EAST)
+                    .where('I', ChannelRegistry.INPUT_HATCH,MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+                    .where('J', ChannelRegistry.INPUT_BUS,MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
+                    .where('O', ChannelRegistry.OUTPUT_HATCH, MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.EAST)
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                     .where(!this.atmosphereCollector.turbineType.hasOutputHatch ? 'O' : '#',  !this.atmosphereCollector.turbineType.hasOutputHatch ? this.atmosphereCollector.turbineType.casingState : Blocks.AIR.getDefaultState())
                     .build();

@@ -6,6 +6,7 @@ import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
 import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import gregtech.integration.jei.multiblock.channel.PlaceholderType;
@@ -50,10 +51,10 @@ public class ParallelLargeAlloySmelterInfo extends TJMultiblockInfoPage implemen
                      .where('S', this.getController(), WEST)
                     .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.ZIRCONIUM_CARBIDE))
                     .where('M', GATileEntities.MAINTENANCE_HATCH[0], WEST)
-                    .where('c', PlaceholderType.COIL)
-                    .where('E', PlaceholderType.ENERGY_INPUT_HATCH,this.getEnergyHatch(0, false), EAST)
-                    .where('I', PlaceholderType.INPUT_BUS, MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
-                    .where('O', PlaceholderType.OUTPUT_BUS,MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
+                    .where('c', ChannelRegistry.COIL)
+                    .where('E', ChannelRegistry.ENERGY_INPUT_HATCH,this.getEnergyHatch(0, false), EAST)
+                    .where('I', ChannelRegistry.INPUT_BUS, MetaTileEntities.ITEM_IMPORT_BUS[0], WEST)
+                    .where('O', ChannelRegistry.OUTPUT_BUS,MetaTileEntities.ITEM_EXPORT_BUS[0], WEST)
                     .build();
     }
 

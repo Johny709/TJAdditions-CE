@@ -1,10 +1,12 @@
 package tj.integration.jei.multi.electric;
 
+import gregicadditions.channels.GAChannelRegistry;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
+import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import gregtech.integration.jei.multiblock.channel.PlaceholderType;
@@ -46,16 +48,16 @@ public class MegaAlloyBlastSmelterInfo extends TJMultiblockInfoPage {
                 .aisle("~~~CCCCC~~~", "~~~HHHHH~~~", "~~~GCOCG~~~", "~~~GISiG~~~", "~~~GCmCG~~~", "~~~HHHHH~~~", "~~~CCCCC~~~", "~~~~~~~~~~~", "~~~~~~~~~~~", "~~~~~~~~~~~", "~~~~~~~~~~~", "~~~~~~~~~~~", "~~~~~~~~~~~", "~~~~~~~~~~~", "~~~~~~~~~~~", "~~~~~~~~~~~", "~~~~~~~~~~~", "~~~~~~~~~~~", "~~~~~~~~~~~", "~~~~~~~~~~~")
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('m', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                .where('M', PlaceholderType.MUFFLER, GATileEntities.MUFFLER_HATCH[0], EnumFacing.UP)
+                .where('M', GAChannelRegistry.MUFFLER, GATileEntities.MUFFLER_HATCH[0], EnumFacing.UP)
                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.ZIRCONIUM_CARBIDE))
                 .where('H', TJMetaBlocks.ACTIVE_ABILITY_BLOCKS.getState(BlockActiveAbility.AbilityType.HEAT_VENT).withProperty(BlockActiveAbility.ACTIVE, false))
                 .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.OSMIRIDIUM_GLASS))
-                .where('E', PlaceholderType.ENERGY_INPUT_HATCH,this.getEnergyHatch(0, false), EnumFacing.EAST)
-                .where('I', PlaceholderType.INPUT_BUS,MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
-                .where('i', PlaceholderType.INPUT_HATCH,MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
-                .where('O', PlaceholderType.OUTPUT_HATCH,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
-                .where('F', PlaceholderType.FRAMEWORK)
-                .where('c', PlaceholderType.COIL)
+                .where('E', ChannelRegistry.ENERGY_INPUT_HATCH,this.getEnergyHatch(0, false), EnumFacing.EAST)
+                .where('I', ChannelRegistry.INPUT_BUS,MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
+                .where('i', ChannelRegistry.INPUT_HATCH,MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+                .where('O', ChannelRegistry.OUTPUT_HATCH,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
+                .where('F', GAChannelRegistry.FRAMEWORK)
+                .where('c', ChannelRegistry.COIL)
                 .build();
     }
 

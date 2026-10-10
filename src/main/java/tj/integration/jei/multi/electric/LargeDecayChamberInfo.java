@@ -1,11 +1,13 @@
 package tj.integration.jei.multi.electric;
 
+import gregicadditions.channels.GAChannelRegistry;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.components.FieldGenCasing;
 import gregicadditions.item.metal.MetalCasing2;
 import gregicadditions.item.metal.NuclearCasing;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
+import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import gregtech.integration.jei.multiblock.channel.PlaceholderType;
@@ -42,13 +44,13 @@ public class LargeDecayChamberInfo extends TJMultiblockInfoPage {
                 .where('S', this.getController(), EnumFacing.WEST)
                 .where('C', GAMetaBlocks.METAL_CASING_2.getState(MetalCasing2.CasingType.LEAD))
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.EAST)
-                    .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
-                    .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
-                    .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
-                    .where('o', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
-                    .where('F', PlaceholderType.FIELD_GEN ,GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.values()[0]))
-                    .where('R', PlaceholderType.NUCLEAR_CASING,GAMetaBlocks.NUCLEAR_CASING.getState(NuclearCasing.CasingType.values()[0]))
+                .where('E', ChannelRegistry.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.EAST)
+                    .where('I', ChannelRegistry.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
+                    .where('O', ChannelRegistry.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
+                    .where('i', ChannelRegistry.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+                    .where('o', ChannelRegistry.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
+                    .where('F', GAChannelRegistry.FIELD_GEN ,GAMetaBlocks.FIELD_GEN_CASING.getState(FieldGenCasing.CasingType.values()[0]))
+                    .where('R', GAChannelRegistry.NUCLEAR_CASING,GAMetaBlocks.NUCLEAR_CASING.getState(NuclearCasing.CasingType.values()[0]))
                     .build();
     }
 

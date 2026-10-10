@@ -70,12 +70,12 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     }
 
     public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, boolean hasMaintenance, boolean hasDistinct, int minExtent, int maxExtent) {
-        this(metaTileEntityId,recipeMap,hasMaintenance,hasDistinct,minExtent,maxExtent, 0);
+        this(metaTileEntityId,recipeMap,hasMaintenance,hasDistinct,minExtent,maxExtent, 0, 14);
     }
 
 
-    public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, boolean hasMaintenance, boolean hasDistinct, int minExtent, int maxExtent, int minTier) {
-        super(metaTileEntityId, hasMaintenance, hasDistinct, minExtent, maxExtent, minTier);
+    public TJRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?> recipeMap, boolean hasMaintenance, boolean hasDistinct, int minExtent, int maxExtent, int minTier, int maxTier) {
+        super(metaTileEntityId, hasMaintenance, hasDistinct, minExtent, maxExtent, minTier, maxTier);
         this.recipeMap = recipeMap != null ? recipeMap : RecipeMaps.FURNACE_RECIPES;
         this.recipeLogic.setActiveConsumer(active -> this.activeDate = active ? Instant.now() : null);
         this.recipeLogic.setProblemConsumer(problem -> this.activeDate = null);

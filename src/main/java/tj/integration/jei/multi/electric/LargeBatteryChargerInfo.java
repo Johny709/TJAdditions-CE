@@ -1,11 +1,13 @@
 package tj.integration.jei.multi.electric;
 
+import gregicadditions.channels.GAChannelRegistry;
 import gregicadditions.item.CellCasing;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import gregtech.integration.jei.multiblock.channel.PlaceholderType;
@@ -41,12 +43,12 @@ public class LargeBatteryChargerInfo extends TJMultiblockInfoPage {
                 .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.TALONITE))
                 .where('F', MetaBlocks.FRAMES.get(Talonite).getDefaultState())
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                .where('e', PlaceholderType.ENERGY_OUTPUT_HATCH, this.getEnergyHatch(0, true), EnumFacing.EAST)
-                .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.EAST)
-                .where('I', PlaceholderType.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
-                .where('O', PlaceholderType.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
-                .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
-                .where('B', PlaceholderType.CELL,GAMetaBlocks.CELL_CASING.getState(CellCasing.CellType.values()[0]))
+                .where('e', ChannelRegistry.ENERGY_OUTPUT_HATCH, this.getEnergyHatch(0, true), EnumFacing.EAST)
+                .where('E', ChannelRegistry.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.EAST)
+                .where('I', ChannelRegistry.INPUT_BUS , MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
+                .where('O', ChannelRegistry.OUTPUT_BUS, MetaTileEntities.ITEM_EXPORT_BUS[0], EnumFacing.WEST)
+                .where('i', ChannelRegistry.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+                .where('B', GAChannelRegistry.CELL,GAMetaBlocks.CELL_CASING.getState(CellCasing.CellType.values()[0]))
                 .build();
     }
 
