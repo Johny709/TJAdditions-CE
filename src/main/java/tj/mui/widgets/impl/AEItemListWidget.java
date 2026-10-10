@@ -79,8 +79,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
 
     /**
      *
-     * @param x x offset the end of the main scroll widget length.
-     * @param y y offset the end of the main scroll widget length.
+     * @param x x offset at the end of the main scroll widget length.
+     * @param y y offset at the end of the main scroll widget length.
      * @param width length of scroll bar.
      * @param height height of scroll bar.
      * @param scrollbarTexture texture of scroll bar.
@@ -94,8 +94,8 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
 
     /**
      *
-     * @param x x offset the end of the main scroll widget length.
-     * @param y y offset the end of the main scroll widget length.
+     * @param x x offset at the end of the main scroll widget length.
+     * @param y y offset at the end of the main scroll widget length.
      * @param width length of scroll bar slider.
      * @param height height of scroll bar slider.
      * @param scrollSliderTexture texture of scroll bar slider.

@@ -74,9 +74,8 @@ public class ScrollableDisplayWidget extends ScrollableListWidget {
         }
         if (this.autoScroll) {
             int scroll = mouseY - this.autoScrollY;
-            if (scroll > 5 || scroll < -5) {
-                scroll += scroll < 0 ? 5 : -5;
-                this.setScrollOffset(scroll);
+            if (scroll > 4 || scroll < -4) {
+                this.setScrollOffset(scroll / 5);
                 if (scroll > 0)
                     TJGuiTextures.AUTOSCROLL_DOWN.draw(mouseX - 8, mouseY - 8, 16, 16);
                 else TJGuiTextures.AUTOSCROLL_UP.draw(mouseX - 8, mouseY - 8, 16, 16);

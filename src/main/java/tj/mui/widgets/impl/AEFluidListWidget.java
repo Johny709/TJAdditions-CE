@@ -91,6 +91,14 @@ public class AEFluidListWidget<T> extends TJWidget<AEFluidListWidget<T>> impleme
         this.setScrollbar(0, y, 18, height, GuiTextures.SLOT);
     }
 
+    /**
+     *
+     * @param x x offset at the end of the main scroll widget length.
+     * @param y y offset at the end of the main scroll widget length.
+     * @param width length of scroll bar.
+     * @param height height of scroll bar.
+     * @param scrollbarTexture texture of scroll bar.
+     */
     public AEFluidListWidget<T> setScrollbar(int x, int y, int width, int height, TextureArea scrollbarTexture) {
         this.scrollBarRec = new Rectangle(x, y, width, height);
         this.scrollBarTexture = scrollbarTexture;
@@ -98,6 +106,14 @@ public class AEFluidListWidget<T> extends TJWidget<AEFluidListWidget<T>> impleme
         return this;
     }
 
+    /**
+     *
+     * @param x x offset at the end of the main scroll widget length.
+     * @param y y offset at the end of the main scroll widget length.
+     * @param width length of scroll bar slider.
+     * @param height height of scroll bar slider.
+     * @param scrollSliderTexture texture of scroll bar slider.
+     */
     public AEFluidListWidget<T> setScrollSlider(int x, int y, int width, int height, TextureArea scrollSliderTexture) {
         this.scrollSliderRec = new Rectangle(x, y, width, height);
         this.scrollSliderTexture = scrollSliderTexture;

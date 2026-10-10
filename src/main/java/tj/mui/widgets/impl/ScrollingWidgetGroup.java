@@ -40,8 +40,8 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
 
     /**
      *
-     * @param x x offset the end of the main scroll widget length.
-     * @param y y offset the end of the main scroll widget length.
+     * @param x x offset at the end of the main scroll widget length.
+     * @param y y offset at the end of the main scroll widget length.
      * @param width length of scroll bar.
      * @param height height of scroll bar.
      * @param scrollbarTexture texture of scroll bar.
@@ -55,8 +55,8 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
 
     /**
      *
-     * @param x x offset the end of the main scroll widget length.
-     * @param y y offset the end of the main scroll widget length.
+     * @param x x offset at the end of the main scroll widget length.
+     * @param y y offset at the end of the main scroll widget length.
      * @param width length of scroll bar slider.
      * @param height height of scroll bar slider.
      * @param scrollSliderTexture texture of scroll bar slider.
@@ -72,12 +72,11 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
     public void drawInForeground(int mouseX, int mouseY) {
         if (this.autoScroll) {
             int scroll = mouseY - this.autoScrollY;
-            if (scroll > 5 || scroll < -5) {
-                scroll -= scroll < 0 ? 5 : -5;
-                this.addScrollOffset(scroll);
-                if (scroll > 0)
+            if (scroll > 4 || scroll < -4) {
+                this.addScrollOffset(scroll / 5);
+                if (scroll > 0) {
                     TJGuiTextures.AUTOSCROLL_DOWN.draw(mouseX - 8, mouseY - 8, 16, 16);
-                else TJGuiTextures.AUTOSCROLL_UP.draw(mouseX - 8, mouseY - 8, 16, 16);
+                } else TJGuiTextures.AUTOSCROLL_UP.draw(mouseX - 8, mouseY - 8, 16, 16);
             } else TJGuiTextures.AUTOSCROLL.draw(mouseX - 8, mouseY - 8, 16, 16);
         }
         if (this.isMouseOverElement(mouseX, mouseY))
