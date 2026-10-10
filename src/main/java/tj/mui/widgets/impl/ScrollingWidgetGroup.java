@@ -102,7 +102,7 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
         if (this.scrollBarTexture != null)
             this.scrollBarTexture.draw(this.scrollBarRec.x, this.scrollBarRec.y, this.scrollBarRec.width, this.scrollBarRec.height);
         if (this.scrollSliderTexture == null) return;
-        final double heightDiff = (double) this.scrollBarRec.height / this.scrollHeight;
+        final double heightDiff = (double) this.scrollBarRec.height / (this.scrollHeight - size.height);
         final int scrollOffset = this.scrollSliderRec.y + (int) Math.round(this.scrollOffset * heightDiff);
         final int sliderY = Math.max(this.scrollBarRec.y, Math.min(this.scrollBarRec.y + this.scrollBarRec.height - this.scrollSliderRec.height, scrollOffset));
         this.scrollSliderTexture.draw(this.scrollSliderRec.x, sliderY, this.scrollSliderRec.width, this.scrollSliderRec.height);
@@ -120,8 +120,10 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
             }
             return super.mouseClicked(mouseX, mouseY, button);
         } else if (this.scrollBarRec.contains(mouseX, mouseY)) {
-            final double heightDiff = (double) this.scrollBarRec.height / this.scrollHeight;
-            this.addScrollOffset((int) ((mouseY - this.scrollBarRec.y) / heightDiff));
+            final double heightDiff = (double) this.scrollBarRec.height / (this.scrollHeight - this.getSize().height);
+            this.scrollOffset = (int) Math.max(0, (mouseY - this.scrollBarRec.y) / heightDiff);
+            this.setSubWidgetOffSet(this.scrollOffset);
+            this.writeClientAction(2, buffer -> buffer.writeInt(this.scrollOffset));
         }
         return false;
     }
@@ -130,8 +132,10 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
     @SideOnly(Side.CLIENT)
     public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
         if ((button == 0 || button == 1) && this.scrollBarRec.contains(mouseX, mouseY)) {
-            final double heightDiff = (double) this.scrollBarRec.height / this.scrollHeight;
-            this.addScrollOffset((int) ((mouseY - this.scrollBarRec.y) / heightDiff));
+            final double heightDiff = (double) this.scrollBarRec.height / (this.scrollHeight - this.getSize().height);
+            this.scrollOffset = (int) Math.max(0, (mouseY - this.scrollBarRec.y) / heightDiff);
+            this.setSubWidgetOffSet(this.scrollOffset);
+            this.writeClientAction(2, buffer -> buffer.writeInt(this.scrollOffset));
         }
         if (this.isMouseOverElement(mouseX, mouseY))
             super.mouseDragged(mouseX, mouseY, button, timeDragged);
@@ -184,7 +188,7 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
 
     private void addScrollOffset(int delta) {
         this.scrollOffset += delta;
-        this.scrollOffset = Math.max(0, Math.min(this.scrollOffset, this.scrollHeight));
+        this.scrollOffset = Math.max(0, Math.min(this.scrollOffset, this.scrollHeight - this.getSize().height));
         this.setSubWidgetOffSet(this.scrollOffset);
         this.writeClientAction(2, buffer -> buffer.writeInt(this.scrollOffset));
     }
