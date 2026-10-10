@@ -49,7 +49,6 @@ import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.AdvancedDisplayWidget;
 import tj.mui.widgets.impl.GhostCircuitWidget;
 import tj.mui.widgets.impl.JEIRecipeTransferWidget;
-import tj.mui.widgets.impl.OldCycleButtonWidget;
 import tj.mui.widgets.impl.ScrollableDisplayWidget;
 import tj.machines.multi.BatchMode;
 import tj.multiblockpart.TJMultiblockAbility;
@@ -63,7 +62,6 @@ import java.util.Map;
 import java.util.stream.LongStream;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
-import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.common.blocks.BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;

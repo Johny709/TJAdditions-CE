@@ -1,15 +1,10 @@
 package tj.mui.widgets.impl;
 
-import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
-import gregtech.api.util.RenderUtil;
 import gregtech.api.util.Size;
-import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
@@ -22,21 +17,12 @@ import tj.util.TJItemUtils;
 import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
-public class SlotWidgetGroup extends WidgetGroup implements ISlotGroup {
+public class SlotWidgetGroup extends ScrollingWidgetGroup<SlotWidgetGroup> implements ISlotGroup {
 
     private final int rowLength;
-    private final int posX;
-    protected int totalListHeight;
-    protected int scrollOffset;
-    protected int scrollPaneWidth = 10;
-    protected int lastMouseX;
-    protected int lastMouseY;
-    protected boolean draggedOnScrollBar;
     protected IItemHandler itemHandler;
     protected UnaryOperator<ItemStack> itemStackTransfer;
 
@@ -51,13 +37,12 @@ public class SlotWidgetGroup extends WidgetGroup implements ISlotGroup {
     private int timer;
 
     public SlotWidgetGroup(int x, int y, int width, int height, int rowLength) {
-        super(new Position(x, y), new Size(width, height));
+        super(x, y, width, height);
         this.rowLength = rowLength;
-        this.posX = x;
     }
 
+    @Deprecated
     public SlotWidgetGroup setScrollWidth(int scrollPaneWidth) {
-        this.scrollPaneWidth = scrollPaneWidth;
         return this;
     }
 
@@ -79,25 +64,9 @@ public class SlotWidgetGroup extends WidgetGroup implements ISlotGroup {
     }
 
     @Override
-    public void addWidget(Widget widget) {
-        super.addWidget(widget);
-    }
-
-    @Override
     protected boolean recomputeSize() {
         this.updateElementPositions();
         return false;
-    }
-
-    private void addScrollOffset(int offset) {
-        this.scrollOffset = MathHelper.clamp(this.scrollOffset + offset, 0, this.totalListHeight - this.getSize().height);
-        this.updateElementPositions();
-    }
-
-    private boolean isOnScrollPane(int mouseX, int mouseY) {
-        final Position pos = this.getPosition();
-        final Size size = this.getSize();
-        return isMouseOver(pos.x + size.width - this.scrollPaneWidth, pos.y, this.scrollPaneWidth, size.height, mouseX, mouseY);
     }
 
     @Override
@@ -117,9 +86,9 @@ public class SlotWidgetGroup extends WidgetGroup implements ISlotGroup {
                 totalListHeight += widget.getSize().getHeight();
             }
             final Size size = getSize();
-            widget.applyScissor(position.x, position.y, size.width - this.scrollPaneWidth, size.height);
+            widget.applyScissor(position.x, position.y, size.width - this.scrollBarRec.width, size.height);
         }
-        this.totalListHeight = totalListHeight;
+        this.scrollHeight = totalListHeight;
     }
 
     @Override
@@ -132,123 +101,7 @@ public class SlotWidgetGroup extends WidgetGroup implements ISlotGroup {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void drawInForeground(int mouseX, int mouseY) {
-        //make sure mouse is not hovered on any element when outside of bounds,
-        //since foreground rendering is not scissored,
-        //because cut tooltips don't really look nice
-        if (!this.isPositionInsideScissor(mouseX, mouseY)) {
-            mouseX = Integer.MAX_VALUE;
-            mouseY = Integer.MAX_VALUE;
-        }
-        super.drawInForeground(mouseX, mouseY);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        final Position position = this.getPosition();
-        final Size size = this.getSize();
-        //make sure mouse is not hovered on any element when outside of bounds
-        if (!this.isPositionInsideScissor(mouseX, mouseY)) {
-            mouseX = Integer.MAX_VALUE;
-            mouseY = Integer.MAX_VALUE;
-        }
-        final int finalMouseX = mouseX;
-        final int finalMouseY = mouseY;
-        final int paneSize = this.scrollPaneWidth;
-        if (this.totalListHeight > size.height) {
-            final int scrollX = position.x + size.width - paneSize;
-            drawSolidRect(scrollX, position.y, paneSize, size.height, 0xFF666666);
-            drawSolidRect(scrollX + 1, position.y + 1, paneSize - 2, size.height - 2, 0xFF888888);
-
-            final int maxScrollOffset = this.totalListHeight - size.height;
-            final float scrollPercent = maxScrollOffset == 0 ? 0 : this.scrollOffset / (maxScrollOffset * 1.0f);
-            final int scrollSliderHeight = 14;
-            final int scrollSliderY = Math.round(position.y + (size.height - scrollSliderHeight) * scrollPercent);
-            drawGradientRect(scrollX + 1, scrollSliderY, paneSize - 2, scrollSliderHeight, 0xFF555555, 0xFF454545);
-        }
-        RenderUtil.useScissor(position.x, position.y, size.width - paneSize, size.height, () ->
-                super.drawInBackground(finalMouseX, finalMouseY, context));
-    }
-
-    @Override
-    public boolean isWidgetClickable(final Widget widget) {
-        if (!super.isWidgetClickable(widget)) {
-            return false;
-        }
-        return this.isWidgetOverlapsScissor(widget);
-    }
-
-    private boolean isPositionInsideScissor(int mouseX, int mouseY) {
-        return this.isMouseOverElement(mouseX, mouseY) && !this.isOnScrollPane(mouseX, mouseY);
-    }
-
-    private boolean isWidgetOverlapsScissor(Widget widget) {
-        final Position position = widget.getPosition();
-        final Size size = widget.getSize();
-        final int x0 = position.x;
-        final int y0 = position.y;
-        final int x1 = position.x + size.width - 1;
-        final int y1 = position.y + size.height - 1;
-        return this.isPositionInsideScissor(x0, y0) ||
-                this.isPositionInsideScissor(x0, y1) ||
-                this.isPositionInsideScissor(x1, y0) ||
-                this.isPositionInsideScissor(x1, y1);
-    }
-
-    private boolean isBoxInsideScissor(Rectangle rectangle) {
-        return this.isPositionInsideScissor(rectangle.x, rectangle.y) &&
-                this.isPositionInsideScissor(rectangle.x + rectangle.width - 1, rectangle.y + rectangle.height - 1);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
-        if (this.isMouseInWidget(mouseX, mouseY)) {
-            final int direction = -MathHelper.clamp(wheelDelta, -1, 1);
-            final int moveDelta = direction * 10;
-            this.addScrollOffset(moveDelta);
-            this.writeClientAction(2, buffer -> buffer.writeInt(moveDelta));
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        this.lastMouseX = mouseX;
-        this.lastMouseY = mouseY;
-        if (this.isOnScrollPane(mouseX, mouseY)) {
-            this.draggedOnScrollBar = true;
-        }
-        if (this.isPositionInsideScissor(mouseX, mouseY)) {
-            return super.mouseClicked(mouseX, mouseY, button);
-        }
-        return false;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
-        final int mouseDelta = (mouseY - this.lastMouseY);
-        this.lastMouseX = mouseX;
-        this.lastMouseY = mouseY;
-        if (this.draggedOnScrollBar) {
-            this.addScrollOffset(mouseDelta);
-            this.writeClientAction(2, buffer -> buffer.writeInt(mouseDelta));
-            return true;
-        }
-        if (this.isPositionInsideScissor(mouseX, mouseY)) {
-            return super.mouseDragged(mouseX, mouseY, button, timeDragged);
-        }
-        return false;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
     public boolean mouseReleased(int mouseX, int mouseY, int button) {
-        this.draggedOnScrollBar = false;
         if (!this.dragWidgets.isEmpty()) {
             this.writeClientAction(5, buffer -> {
                 buffer.writeItemStack(this.dragStack);
@@ -262,10 +115,7 @@ public class SlotWidgetGroup extends WidgetGroup implements ISlotGroup {
             this.dragWidgets.clear();
             this.canAddWidgets = true;
         }
-        if (this.isPositionInsideScissor(mouseX, mouseY)) {
-            return super.mouseReleased(mouseX, mouseY, button);
-        }
-        return false;
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
 
@@ -289,9 +139,7 @@ public class SlotWidgetGroup extends WidgetGroup implements ISlotGroup {
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
-        if (id == 2) {
-            this.addScrollOffset(buffer.readInt());
-        } else if (id == 3) {
+        if (id == 3) {
             try {
                 this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
             } catch (IOException e) {
@@ -326,22 +174,6 @@ public class SlotWidgetGroup extends WidgetGroup implements ISlotGroup {
     }
 
     @Override
-    public Object getIngredientOverMouse(int mouseX, int mouseY) {
-        if (this.isPositionInsideScissor(mouseX, mouseY)) {
-            return super.getIngredientOverMouse(mouseX, mouseY);
-        }
-        return null;
-    }
-
-    @Override
-    public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
-        //for phantom targets, show only ones who are fully inside scissor box to avoid visual glitches
-        return super.getPhantomTargets(ingredient).stream()
-                .filter(it -> this.isBoxInsideScissor(it.getArea()))
-                .collect(Collectors.toList());
-    }
-
-    @Override
     @SideOnly(Side.CLIENT)
     public void addSlotToDrag(ISlotHandler widget, Runnable callback) {
         if (this.canAddWidgets && !this.dragWidgets.containsKey(widget)) {
@@ -369,12 +201,6 @@ public class SlotWidgetGroup extends WidgetGroup implements ISlotGroup {
             this.gui.entityPlayer.inventory.setItemStack(heldStack);
             this.writeClientAction(3, buffer -> buffer.writeItemStack(heldStack));
         }
-    }
-
-    private boolean isMouseInWidget(int mouseX, int mouseY) {
-        final Size size = this.getSize();
-        final int posY = this.getPosition().getY();
-        return mouseX >= this.posX && mouseX <= this.posX + size.getWidth() && mouseY >= posY && mouseY <= posY + size.getHeight();
     }
 
     @Override

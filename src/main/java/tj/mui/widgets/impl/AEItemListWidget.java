@@ -77,6 +77,14 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         this.setScrollbar(0, y, 18, height, GuiTextures.SLOT);
     }
 
+    /**
+     *
+     * @param x x offset the end of the main scroll widget length.
+     * @param y y offset the end of the main scroll widget length.
+     * @param width length of scroll bar.
+     * @param height height of scroll bar.
+     * @param scrollbarTexture texture of scroll bar.
+     */
     public AEItemListWidget<T> setScrollbar(int x, int y, int width, int height, TextureArea scrollbarTexture) {
         this.scrollBarRec = new Rectangle(x, y, width, height);
         this.scrollBarTexture = scrollbarTexture;
@@ -84,6 +92,14 @@ public class AEItemListWidget<T> extends TJWidget<AEItemListWidget<T>> implement
         return this;
     }
 
+    /**
+     *
+     * @param x x offset the end of the main scroll widget length.
+     * @param y y offset the end of the main scroll widget length.
+     * @param width length of scroll bar slider.
+     * @param height height of scroll bar slider.
+     * @param scrollSliderTexture texture of scroll bar slider.
+     */
     public AEItemListWidget<T> setScrollSlider(int x, int y, int width, int height, TextureArea scrollSliderTexture) {
         this.scrollSliderRec = new Rectangle(x, y, width, height);
         this.scrollSliderTexture = scrollSliderTexture;
