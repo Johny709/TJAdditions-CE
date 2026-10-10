@@ -136,11 +136,11 @@ public class TJLabelWidget extends Widget {
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
         if (this.isMouseOverElement(mouseX, mouseY)) {
             final JeiRuntime jeiRuntime = Internal.getRuntime();
-            if (jeiRuntime != null) {
+            if (jeiRuntime != null && this.uid != null && !this.uid.isEmpty()) {
                 jeiRuntime.getRecipesGui().showCategories(Collections.singletonList(this.uid));
             }
         }
-        return true;
+        return false;
     }
 
     @Override
