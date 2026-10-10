@@ -168,43 +168,43 @@ public final class TJGuiUtils {
     public static void createPatternMultiToolGUI(ModularUI.Builder builder, ItemStack patternMultiTool, FilteredItemStackHandler multiUpgradeSlots, IItemHandler patternSlots, FilteredItemStackHandler multiPatternSlots, NBTTagCompound invTag) {
         if (!patternMultiTool.isEmpty()) {
             final boolean isUpgraded = patternMultiTool.isItemEqual(TJItems.SUPER_PATTERN_MULTITOOL.maybeStack(1).orElse(ItemStack.EMPTY));
-            final SlotWidgetGroup multiPatternSlotGroup = new SlotWidgetGroup(-122, 14, 72, 162, 4)
+            final SlotWidgetGroup multiPatternSlotGroup = new SlotWidgetGroup(-122, 14, 72, 162, 8, true)
                     .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(patternSlots, itemStack, false))
                     .setItemHandler(multiPatternSlots);
-            builder.widget(new ImageWidget(-129, 0, 109, 218, GuiTextures.BORDERED_BACKGROUND))
+            builder.widget(new ImageWidget(-129, 0, 109, 222, GuiTextures.BORDERED_BACKGROUND))
                     .widget(new LabelWidget(-122, 4, "item.nae2.pattern_multiplier.name"))
-                    .widget(new ButtonWidget<>(-122, 176, 18, 18, "*2", data ->
+                    .widget(new ButtonWidget<>(-122, 180, 18, 18, "*2", data ->
                             changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m * 2,
                                     () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
                             .setHoverTooltipText("gui.pattern_term.auto_fill_pattern.MULTIPLY_2.text")
                             .setTitleHoverTooltipText("gui.action.MULTIPLY_2.name")
                             .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                    .widget(new ButtonWidget<>(-122, 194, 18, 18, "/2", data ->
+                    .widget(new ButtonWidget<>(-122, 198, 18, 18, "/2", data ->
                             changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m / 2, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
                             .setHoverTooltipText("gui.pattern_term.auto_fill_pattern.DIVIDE_2.text")
                             .setTitleHoverTooltipText("gui.action.DIVIDE_2.name")
                             .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                    .widget(new ButtonWidget<>(-104, 176, 18, 18, "*3", data ->
+                    .widget(new ButtonWidget<>(-104, 180, 18, 18, "*3", data ->
                             changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m * 3, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
                             .setHoverTooltipText("gui.pattern_term.auto_fill_pattern.MULTIPLY_3.text")
                             .setTitleHoverTooltipText("gui.action.MULTIPLY_3.name")
                             .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                    .widget(new ButtonWidget<>(-104, 194, 18, 18, "/3", data ->
+                    .widget(new ButtonWidget<>(-104, 198, 18, 18, "/3", data ->
                             changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m / 3, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
                             .setHoverTooltipText("gui.pattern_term.auto_fill_pattern.DIVIDE_3.text")
                             .setTitleHoverTooltipText("gui.action.DIVIDE_3.name")
                             .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                    .widget(new ButtonWidget<>(-86, 176, 18, 18, "+1", data ->
+                    .widget(new ButtonWidget<>(-86, 180, 18, 18, "+1", data ->
                             changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m + 1, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
                             .setTitleHoverTooltipText("gui.tooltips.appliedenergistics2.IncreaseByOne")
                             .setHoverTooltipText("gui.tooltips.appliedenergistics2.IncreaseByOneDesc")
                             .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                    .widget(new ButtonWidget<>(-86, 194, 18, 18, "-1", data ->
+                    .widget(new ButtonWidget<>(-86, 198, 18, 18, "-1", data ->
                             changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m - 1, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
                             .setTitleHoverTooltipText("gui.tooltips.appliedenergistics2.DecreaseByOne")
                             .setHoverTooltipText("gui.tooltips.appliedenergistics2.DecreaseByOneDesc")
                             .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                    .widget(new ButtonWidget<>(-68, 176, 36, 36, "X", data ->
+                    .widget(new ButtonWidget<>(-68, 180, 36, 36, "X", data ->
                             clearPatterns(multiPatternSlots, () -> writePatternMultiToolToNBT(multiPatternSlots, invTag)))
                             .setTitleHoverTooltipText("nae2.pattern_multiplier.unencode")
                             .setHoverTooltipText("nae2.pattern_multiplier.unencode.desc")
@@ -215,7 +215,7 @@ public final class TJGuiUtils {
             }
             for (int i = 0; i < multiPatternSlots.getSlots(); i++) {
                 final int index = i;
-                multiPatternSlotGroup.addWidget(new AEPatternSlotWidget(multiPatternSlots, i, 18 * (i / (isUpgraded ? 18 : 9)), 18 * (i % (isUpgraded ? 18 : 9)))
+                multiPatternSlotGroup.addWidget(new AEPatternSlotWidget(multiPatternSlots, i, 18 * (i / 9), 18 * (i % 9))
                         .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
                         .setActiveSupplier(() -> index / 9 <= multiUpgradeSlots.getSlotsFilled())
                         .setSlotLocationInfo(true, false)

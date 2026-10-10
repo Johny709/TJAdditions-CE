@@ -23,8 +23,11 @@ public final class TJGuiTextures {
     public static final TextureArea SELECTION_BOX_2 = AdoptableTextureArea.fullImage("textures/gui/base/select_box2.png", 18, 18, 1, 1);
 
     public static final TextureArea AUTOSCROLL = TextureArea.fullImage("textures/gui/base/auto_scroll.png");
+    public static final TextureArea AUTOSCROLL_2 = TextureArea.fullImage("textures/gui/base/auto_scroll_2.png");
     public static final TextureArea AUTOSCROLL_UP = TextureArea.fullImage("textures/gui/base/auto_scroll_up.png");
     public static final TextureArea AUTOSCROLL_DOWN = TextureArea.fullImage("textures/gui/base/auto_scroll_down.png");
+    public static final TextureArea AUTOSCROLL_LEFT = TextureArea.fullImage("textures/gui/base/auto_scroll_left.png");
+    public static final TextureArea AUTOSCROLL_RIGHT = TextureArea.fullImage("textures/gui/base/auto_scroll_right.png");
 
     public static final TextureArea BAR_BLUE = AdoptableTextureArea.fullImage("textures/gui/bar/bar_blue.png");
     public static final TextureArea BAR_RED = AdoptableTextureArea.fullImage("textures/gui/bar/bar_red.png");

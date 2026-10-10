@@ -14,7 +14,6 @@ import tj.mui.widgets.ISlotHandler;
 import tj.mixin.gregtech.IMixinAbstractWidgetGroup;
 import tj.util.TJItemUtils;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,9 +40,9 @@ public class SlotWidgetGroup extends ScrollingWidgetGroup<SlotWidgetGroup> imple
         this.rowLength = rowLength;
     }
 
-    @Deprecated
-    public SlotWidgetGroup setScrollWidth(int scrollPaneWidth) {
-        return this;
+    public SlotWidgetGroup(int x, int y, int width, int height, int rowLength, boolean horizontal) {
+        super(x, y, width, height, horizontal);
+        this.rowLength = rowLength;
     }
 
     public SlotWidgetGroup setItemHandler(IItemHandler itemHandler) {
@@ -66,29 +65,34 @@ public class SlotWidgetGroup extends ScrollingWidgetGroup<SlotWidgetGroup> imple
     @Override
     protected boolean recomputeSize() {
         this.updateElementPositions();
-        return false;
+        return super.recomputeSize();
     }
 
     @Override
     protected void onPositionUpdate() {
+        super.onPositionUpdate();
         this.updateElementPositions();
     }
 
     private void updateElementPositions() {
         final Position position = this.getPosition();
-        final int currentPosY = position.y - this.scrollOffset;
+        final int currentPosY = position.y - this.scrollVerticalOffset;
         int totalListHeight = 0;
+        int totalListWidth = 0;
         for (int i = 0; i < this.widgets.size(); i++) {
             final Widget widget = this.widgets.get(i);
             final Position childPosition = new Position(position.x, currentPosY);
             widget.setParentPosition(childPosition);
             if (i % this.rowLength == 0) {
-                totalListHeight += widget.getSize().getHeight();
+                totalListHeight += widget.getSize().height;
+                totalListWidth = 0;
             }
+            totalListWidth = Math.max(totalListWidth, totalListWidth + widget.getSize().width);
             final Size size = getSize();
-            widget.applyScissor(position.x, position.y, size.width - this.scrollBarRec.width, size.height);
+            widget.applyScissor(position.x, position.y, size.width - this.scrollVerticalBarRec.width, size.height - this.scrollVerticalBarRec.height);
         }
         this.scrollHeight = totalListHeight;
+        this.scrollWidth = totalListWidth;
     }
 
     @Override
@@ -139,7 +143,7 @@ public class SlotWidgetGroup extends ScrollingWidgetGroup<SlotWidgetGroup> imple
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
-        if (id == 3) {
+        if (id == 4) {
             try {
                 this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
             } catch (IOException e) {
@@ -199,7 +203,7 @@ public class SlotWidgetGroup extends ScrollingWidgetGroup<SlotWidgetGroup> imple
             if (amountPerSlot < 2 && heldStack.getCount() < 1)
                 this.canAddWidgets = false;
             this.gui.entityPlayer.inventory.setItemStack(heldStack);
-            this.writeClientAction(3, buffer -> buffer.writeItemStack(heldStack));
+            this.writeClientAction(4, buffer -> buffer.writeItemStack(heldStack));
         }
     }
 
