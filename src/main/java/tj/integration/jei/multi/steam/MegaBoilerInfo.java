@@ -1,10 +1,12 @@
 package tj.integration.jei.multi.steam;
 
 import com.google.common.collect.Lists;
+import gregicadditions.channels.GAChannelRegistry;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.recipes.RecipeMaps;
+import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
@@ -65,7 +67,7 @@ public class MegaBoilerInfo extends MultiblockInfoPage {
                 .where('O', MetaTileEntities.FLUID_EXPORT_HATCH[GTValues.MAX], EnumFacing.WEST)
                 .where('H', MetaTileEntities.FLUID_IMPORT_HATCH[GTValues.MAX], EnumFacing.WEST)
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
-                .where('m', PlaceholderType.MUFFLER, GATileEntities.MUFFLER_HATCH[0], EnumFacing.EAST)
+                .where('m', GAChannelRegistry.MUFFLER, GATileEntities.MUFFLER_HATCH[0], EnumFacing.EAST)
                 .build();
     }
 

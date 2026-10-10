@@ -7,6 +7,7 @@ import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.machines.GATileEntities;
+import gregicadditions.machines.multi.CasingLinks;
 import gregicadditions.machines.multi.IMaintenance;
 import gregicadditions.machines.multi.multiblockpart.MetaTileEntityMaintenanceHatch;
 import gregicadditions.machines.multi.multiblockpart.MetaTileEntityMufflerHatch;
@@ -41,6 +42,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -114,39 +116,44 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
     protected Instant placedDown = Instant.now();
     protected Instant activeDate;
 
+    private Set<BlockPos> casingPositions = Collections.emptySet();
 
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId) {
         this(metaTileEntityId, true, true,1,1);
     }
 
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, int minExtent, int maxExtent) {
-        this(metaTileEntityId, true, true,minExtent,maxExtent,0);
+        this(metaTileEntityId, true, true,minExtent,maxExtent,0,14);
+    }
+
+    public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, int minExtent, int maxExtent, int minTier, int maxTier) {
+        this(metaTileEntityId, true, true,minExtent,maxExtent,minTier,maxTier);
     }
 
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance) {
-        this(metaTileEntityId, hasMaintenance, true,1,1,0);
+        this(metaTileEntityId, hasMaintenance, true,1,1,0,14);
     }
 
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance, boolean hasDistinct) {
-        this(metaTileEntityId, hasMaintenance, hasDistinct,1,1,0);
+        this(metaTileEntityId, hasMaintenance, hasDistinct,1,1,0,14);
     }
 
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, int minExtent, int maxExtent, int minTier) {
-        this(metaTileEntityId, true, true, minExtent, maxExtent, minTier);
+        this(metaTileEntityId, true, true, minExtent, maxExtent, minTier,14);
     }
 
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance, int minExtent, int maxExtent, int minTier) {
-        this(metaTileEntityId, hasMaintenance, true, minExtent, maxExtent, minTier);
+        this(metaTileEntityId, hasMaintenance, true, minExtent, maxExtent, minTier,14);
     }
 
     public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance, boolean hasDistinct, int minExtent, int maxExtent) {
-        this(metaTileEntityId, hasMaintenance, hasDistinct,minExtent,maxExtent,0);
+        this(metaTileEntityId, hasMaintenance, hasDistinct,minExtent,maxExtent,0,14);
     }
 
 
 
-    public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance, boolean hasDistinct, int minExtent, int maxExtent, int minTier) {
-        super(metaTileEntityId,minExtent,maxExtent,minTier);
+    public TJMultiblockControllerBase(ResourceLocation metaTileEntityId, boolean hasMaintenance, boolean hasDistinct, int minExtent, int maxExtent, int minTier, int maxTier) {
+        super(metaTileEntityId,minExtent,maxExtent,minTier,maxTier);
         this.hasMuffler = false;
         this.hasDistinct = hasDistinct;
         this.hasMaintenance = hasMaintenance;
@@ -259,6 +266,11 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
                 }
             }
         }
+
+        Set<BlockPos> positions = context.get("casingPos");
+        casingPositions = positions == null ? Collections.emptySet() : new HashSet<>(positions);
+        CasingLinks.send(this,casingPositions);
+
     }
 
     @Override
@@ -270,6 +282,9 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
         this.exportFluidTank = new FluidTankList(true);
         this.inputEnergyContainer = new EnergyContainerList(Collections.emptyList());
         this.outputEnergyContainer = new EnergyContainerList(Collections.emptyList());
+
+        casingPositions = Collections.emptySet();
+        CasingLinks.send(this, casingPositions);
     }
 
     @Override
@@ -431,6 +446,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
         super.writeInitialSyncData(buf);
         buf.writeByte(this.maintenance_problems);
         buf.writeInt(this.timeActive);
+        CasingLinks.write(buf, casingPositions);
     }
 
     @Override
@@ -438,6 +454,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
         super.receiveInitialSyncData(buf);
         this.maintenance_problems = buf.readByte();
         this.timeActive = buf.readInt();
+        CasingLinks.set(this, CasingLinks.read(buf));
     }
 
     @Override
@@ -446,6 +463,10 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
         if (dataId == STORE_TAPED) {
             this.storedTaped = buf.readBoolean();
         }
+        if (dataId == CasingLinks.DATA_ID ) {
+            CasingLinks.set(this, CasingLinks.read(buf));
+        }
+
     }
 
     @Override

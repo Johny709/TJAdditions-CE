@@ -69,12 +69,12 @@ public class MetaTileEntityParallelVacuumFreezer extends ParallelRecipeMapMultib
     protected BlockPattern createStructurePattern() {
         final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
         for (int layer = 0; layer < this.parallelLayer; layer++) {
-            String entityP = layer == 0 ? "XXXXX" : "XXPXX";
-
-            String entityS = layer >= this.parallelLayer - 4 ? "~XSX~" : "~XXX~";
-            factoryPattern.aisle("~XXX~", "XXXXX", entityP, "XXXXX", "~XXX~");
-            factoryPattern.aisle(entityS, "X#P#X", "XPPPX", "X#P#X", "~XXX~");
-
+            final String entityP = layer == 0 ? "XXXXX" : "XXPXX";
+            if (layer % getExtentStep() == 0) {
+                final String entityS = layer >= this.parallelLayer - 4 ? "~XSX~" : "~XXX~";
+                factoryPattern.aisle("~XXX~", "XXXXX", entityP, "XXXXX", "~XXX~");
+                factoryPattern.aisle(entityS, "X#P#X", "XPPPX", "X#P#X", "~XXX~");
+            }
         }
         return factoryPattern.aisle("~XXX~", "XXXXX", "XXXXX", "XXXXX", "~XXX~")
                 .setAmountAtLeast('L', 16)
@@ -120,5 +120,10 @@ public class MetaTileEntityParallelVacuumFreezer extends ParallelRecipeMapMultib
     @Override
     public int getMaxParallel() {
         return TJConfig.parallelVacuumFreezer.maximumParallel;
+    }
+
+    @Override
+    protected int getExtentStep() {
+        return 4;
     }
 }

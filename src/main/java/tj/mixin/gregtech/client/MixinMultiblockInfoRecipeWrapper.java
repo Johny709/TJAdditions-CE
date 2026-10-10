@@ -8,13 +8,13 @@ import gregtech.api.render.scene.WorldSceneRenderer;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockInfoRecipeWrapper;
 import gregtech.integration.jei.multiblock.channel.ChannelState;
-import gregtech.integration.jei.multiblock.channel.StructureChannels;
 import mezz.jei.api.IGuiHelper;
 import mezz.jei.api.gui.IDrawable;
 import mezz.jei.gui.recipes.RecipeLayout;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -86,6 +86,13 @@ public abstract class MixinMultiblockInfoRecipeWrapper {
     @Shadow
     private WorldSceneRenderer renderer;
 
+    @Shadow
+    protected abstract void applyChannelState(int index);
+
+    @Shadow
+    protected abstract int getMaxVoltageIndex();
+
+
     @Inject(method = "<init>", at = @At("TAIL"))
     private void init(MultiblockInfoPage infoPage, CallbackInfo ci) {
         if (infoPage.getController() instanceof IJEIExtentSync) {
@@ -109,7 +116,10 @@ public abstract class MixinMultiblockInfoRecipeWrapper {
                     border.getWidth() - ((2 * ICON_SIZE) + RIGHT_PADDING + 1), 110,
                     ICON_SIZE + 21, ICON_SIZE,
                     TJValues.VCC[voltageIndex] + GAValues.VN[voltageIndex]);
-            this.buttons.put(this.buttonVoltage, () -> this.switchVoltage(Mouse.isButtonDown(0) ? 1 : Mouse.isButtonDown(1) ? -1 : 0));
+            this.buttons.put(this.buttonVoltage, () -> this.switchVoltage(
+                    (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT))
+                            ? (Mouse.isButtonDown(0) ? 10 : Mouse.isButtonDown(1) ? -10 : 0)
+                            : (Mouse.isButtonDown(0) ? 1 : Mouse.isButtonDown(1) ? -1 : 0)));
         }
 
         this.buttonPreviousPattern.visible = true;
@@ -117,9 +127,9 @@ public abstract class MixinMultiblockInfoRecipeWrapper {
         this.buttonNextPattern.visible = true;
         this.buttonNextPattern.enabled = true;
 
-        this.buttons.put(this.buttonPreviousPattern, () -> this.switchExtent(-1));
-        this.buttons.put(this.buttonNextPattern, () -> this.switchExtent(1));
-    }
+        this.buttons.put(this.buttonPreviousPattern, () -> switchExtent(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) ? -10 : -1));
+        this.buttons.put(this.buttonNextPattern, () -> switchExtent(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) ? 10 : 1));
+    };
 
     @Unique
     private void switchExtent(int amount) {
@@ -138,15 +148,18 @@ public abstract class MixinMultiblockInfoRecipeWrapper {
     @Unique
     private void switchVoltage(int amount) {
         int minIndex = infoPage.getController().getMinTier();
-        int maxIndex = 14;
+        int maxIndex = getMaxVoltageIndex();
         int newIndex = Math.max(minIndex, Math.min(maxIndex, this.voltageIndex + amount));
-        if (newIndex == this.voltageIndex) return;
+        if (newIndex == this.voltageIndex) {
+            return;
+        }
+
         this.voltageIndex = newIndex;
         this.buttonVoltage.displayString = TJValues.VCC[newIndex] + GAValues.VN[newIndex];
 
-        for (StructureChannels ch : StructureChannels.values()) {
-            channelState.set(ch, newIndex);
-        }
+
+        applyChannelState(voltageIndex);
+
         this.rebuildScene();
         this.triggerStructureCheck(this.renderer.world);
     }

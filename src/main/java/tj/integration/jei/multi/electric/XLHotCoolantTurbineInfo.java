@@ -6,6 +6,7 @@ import gregicadditions.machines.multi.impl.MetaTileEntityRotorHolderForNuclearCo
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.unification.material.Materials;
+import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
@@ -67,10 +68,10 @@ public class XLHotCoolantTurbineInfo extends TJMultiblockInfoPage implements IPa
             .where('C', this.turbine.turbineType.casingState)
             .where('R', holderNorth.getMetaTileEntity(), EnumFacing.NORTH)
             .where('T', holderSouth.getMetaTileEntity(), EnumFacing.SOUTH)
-            .where('E', PlaceholderType.ENERGY_OUTPUT_HATCH, this.getEnergyHatch(0, true), EnumFacing.EAST)
-            .where('I', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+            .where('E', ChannelRegistry.ENERGY_OUTPUT_HATCH, this.getEnergyHatch(0, true), EnumFacing.EAST)
+            .where('I', ChannelRegistry.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
             .where('J', MetaTileEntities.ITEM_IMPORT_BUS[0], EnumFacing.WEST)
-            .where('O', PlaceholderType.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
+            .where('O', ChannelRegistry.OUTPUT_HATCH ,MetaTileEntities.FLUID_EXPORT_HATCH[0], EnumFacing.WEST)
             .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
             .where(!this.turbine.turbineType.hasOutputHatch ? 'O' : '#', !this.turbine.turbineType.hasOutputHatch ? this.turbine.turbineType.casingState : Blocks.AIR.getDefaultState())
             .build();

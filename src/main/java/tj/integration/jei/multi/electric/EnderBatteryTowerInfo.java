@@ -1,10 +1,12 @@
 package tj.integration.jei.multi.electric;
 
+import gregicadditions.channels.GAChannelRegistry;
 import gregicadditions.item.CellCasing;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GATransparentCasing;
 import gregicadditions.item.metal.MetalCasing1;
 import gregicadditions.machines.GATileEntities;
+import gregtech.common.channels.ChannelRegistry;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
@@ -43,9 +45,9 @@ public class EnderBatteryTowerInfo extends TJMultiblockInfoPage implements IPara
             .where('S', this.getController(), EnumFacing.WEST)
             .where('G', GAMetaBlocks.TRANSPARENT_CASING.getState(GATransparentCasing.CasingType.BOROSILICATE_GLASS))
             .where('C', GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.HASTELLOY_X78))
-            .where('c', PlaceholderType.CELL,GAMetaBlocks.CELL_CASING.getState(CellCasing.CellType.values()[0]))
-            .where('e', PlaceholderType.ENERGY_OUTPUT_HATCH, this.getEnergyHatch(0, true), EnumFacing.EAST)
-            .where('E', PlaceholderType.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.EAST)
+            .where('c', GAChannelRegistry.CELL,GAMetaBlocks.CELL_CASING.getState(CellCasing.CellType.values()[0]))
+            .where('e', ChannelRegistry.ENERGY_OUTPUT_HATCH, this.getEnergyHatch(0, true), EnumFacing.EAST)
+            .where('E', ChannelRegistry.ENERGY_INPUT_HATCH, this.getEnergyHatch(0, false), EnumFacing.EAST)
             .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST)
             .build();
 

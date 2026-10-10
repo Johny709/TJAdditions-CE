@@ -1,10 +1,12 @@
 package tj.integration.jei.multi.electric;
 
+import gregicadditions.channels.GAChannelRegistry;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.GAMultiblockCasing;
 import gregicadditions.item.GAMultiblockCasing2;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
+import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import gregtech.integration.jei.multiblock.channel.PlaceholderType;
@@ -48,9 +50,9 @@ public class LargeWirelessEnergyEmitterInfo extends TJMultiblockInfoPage {
                 .where('C', this.tileEntity.getCasingState(transferType))
                 .where('F', this.tileEntity.getFrameState(transferType))
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.EAST)
-                .where('E',this.transferType == INPUT ? PlaceholderType.ENERGY_INPUT_HATCH : PlaceholderType.ENERGY_OUTPUT_HATCH ,this.transferType == INPUT ? this.getEnergyHatch(0, false) : this.getEnergyHatch(0, true), EnumFacing.EAST)
-                .where('i', PlaceholderType.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
-                .where('I', PlaceholderType.FRAMEWORK,this.getVoltageCasing(0))
+                .where('E',this.transferType == INPUT ? ChannelRegistry.ENERGY_INPUT_HATCH : ChannelRegistry.ENERGY_OUTPUT_HATCH ,this.transferType == INPUT ? this.getEnergyHatch(0, false) : this.getEnergyHatch(0, true), EnumFacing.EAST)
+                .where('i', ChannelRegistry.INPUT_HATCH, MetaTileEntities.FLUID_IMPORT_HATCH[0], EnumFacing.WEST)
+                .where('I', GAChannelRegistry.FRAMEWORK,this.getVoltageCasing(0))
                 .build();
 
     }
