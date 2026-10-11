@@ -32,13 +32,25 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
     protected Rectangle scrollHorizontalSliderRec = new Rectangle(0, 0);
 
     @Nonnull
+    protected Position horizontalSliderPosInit = Position.ORIGIN;
+
+    @Nonnull
     protected Rectangle scrollVerticalSliderRec = new Rectangle(0, 0);
+
+    @Nonnull
+    protected Position verticalSliderPosInit = Position.ORIGIN;
 
     @Nonnull
     protected Rectangle scrollVerticalBarRec = new Rectangle(0, 0);
 
     @Nonnull
+    protected Position verticalBarPosInit = Position.ORIGIN;
+
+    @Nonnull
     protected Rectangle scrollHorizontalBarRec = new Rectangle(0, 0);
+
+    @Nonnull
+    protected Position horizontalBarPosInit = Position.ORIGIN;
 
     protected int scrollVerticalOffset;
     protected int scrollHorizontalOffset;
@@ -49,7 +61,6 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
     protected int autoScrollY;
     protected int autoScrollX;
     protected boolean autoScroll;
-    protected boolean initialized;
 
     public ScrollingWidgetGroup(int x, int y, int width, int height) {
         this(x, y, width, height, false);
@@ -76,20 +87,22 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
      */
     public R setScrollVerticalbar(int x, int y, int width, int height, TextureArea scrollbarTexture) {
         this.scrollVerticalBarRec = new Rectangle(x, y, width, height);
+        this.verticalBarPosInit = new Position(x, y);
         this.scrollVerticalBarTexture = scrollbarTexture;
         return this.thisWidget();
     }
 
     /**
      *
-     * @param x x offset at the end of the main scroll widget length.
-     * @param y y offset at the end of the main scroll widget length.
+     * @param x x offset from vertical scroll bar position.
+     * @param y y offset from verticial scroll bar position.
      * @param width length of scroll bar slider.
      * @param height height of scroll bar slider.
      * @param scrollSliderTexture texture of scroll bar slider.
      */
     public R setScrollVerticalSlider(int x, int y, int width, int height, TextureArea scrollSliderTexture) {
         this.scrollVerticalSliderRec = new Rectangle(x, y, width, height);
+        this.verticalSliderPosInit = new Position(x, y);
         this.scrollVerticalSliderTexture = scrollSliderTexture;
         return this.thisWidget();
     }
@@ -104,40 +117,75 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
      */
     public R setScrollHorizontalBar(int x, int y, int width, int height, TextureArea scrollbarTexture) {
         this.scrollHorizontalBarRec = new Rectangle(x, y, width, height);
+        this.horizontalBarPosInit = new Position(x, y);
         this.scrollHorizontalBarTexture = scrollbarTexture;
         return this.thisWidget();
     }
 
     /**
      *
-     * @param x x offset at the bottom of the main scroll widget height.
-     * @param y y offset at the bottom of the main scroll widget height.
+     * @param x x offset from horizontal scroll bar position.
+     * @param y y offset from horizontal scroll bar position.
      * @param width length of scroll bar.
      * @param height height of scroll bar.
      * @param scrollSliderTexture texture of scroll bar.
      */
     public R setScrollHorizontalSlider(int x, int y, int width, int height, TextureArea scrollSliderTexture) {
         this.scrollHorizontalSliderRec = new Rectangle(x, y, width, height);
+        this.horizontalSliderPosInit = new Position(x, y);
         this.scrollHorizontalSliderTexture = scrollSliderTexture;
         return this.thisWidget();
     }
 
     @Override
+    public void initWidget() {
+        super.initWidget();
+        this.reinitializeScrollbars();
+    }
+
+    @Override
+    public void setParentPosition(Position parentPosition) {
+        super.setParentPosition(parentPosition);
+        this.reinitializeScrollbars();
+    }
+
+    @Override
     protected boolean recomputeSize() {
-        this.initialized = false;
+        this.reinitializeScrollbars();
         return super.recomputeSize();
     }
 
     @Override
     protected void onPositionUpdate() {
         super.onPositionUpdate();
-        this.initialized = false;
+        this.reinitializeScrollbars();
     }
 
     @Override
     protected void onSizeUpdate() {
         super.onSizeUpdate();
-        this.initialized = false;
+        this.reinitializeScrollbars();
+    }
+
+    private void reinitializeScrollbars() {
+        final Size size = this.getSize();
+        final Position pos = this.getPosition();
+        this.scrollVerticalBarRec = new Rectangle(this.verticalBarPosInit.x + pos.x + size.width,
+                this.verticalBarPosInit.y + pos.y,
+                this.scrollVerticalBarRec.width,
+                this.scrollVerticalBarRec.height);
+        this.scrollVerticalSliderRec = new Rectangle(this.scrollVerticalBarRec.x + this.verticalSliderPosInit.x,
+                this.scrollVerticalBarRec.y + this.verticalSliderPosInit.y,
+                this.scrollVerticalSliderRec.width,
+                this.scrollVerticalSliderRec.height);
+        this.scrollHorizontalBarRec = new Rectangle(this.horizontalBarPosInit.x + pos.x,
+                this.horizontalBarPosInit.y + pos.y + size.height,
+                this.scrollHorizontalBarRec.width,
+                this.scrollHorizontalBarRec.height);
+        this.scrollHorizontalSliderRec = new Rectangle(this.scrollHorizontalBarRec.x + this.horizontalSliderPosInit.x,
+                this.scrollHorizontalBarRec.y + this.horizontalSliderPosInit.y,
+                this.scrollHorizontalSliderRec.width,
+                this.scrollHorizontalSliderRec.height);
     }
 
     @Override
@@ -168,13 +216,6 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         final Size size = this.getSize();
         final Position pos = this.getPosition();
-        if (!this.initialized) {
-            this.initialized = true;
-            this.scrollVerticalBarRec = new Rectangle(this.scrollVerticalBarRec.x + pos.x + size.width, this.scrollVerticalBarRec.y + pos.y, this.scrollVerticalBarRec.width, this.scrollVerticalBarRec.height);
-            this.scrollVerticalSliderRec = new Rectangle(this.scrollVerticalBarRec.x + this.scrollVerticalSliderRec.x, this.scrollVerticalBarRec.y + this.scrollVerticalSliderRec.y, this.scrollVerticalSliderRec.width, this.scrollVerticalSliderRec.height);
-            this.scrollHorizontalBarRec = new Rectangle(this.scrollHorizontalBarRec.x + pos.x, this.scrollHorizontalBarRec.y + pos.y + size.height, this.scrollHorizontalBarRec.width, this.scrollHorizontalBarRec.height);
-            this.scrollHorizontalSliderRec = new Rectangle(this.scrollHorizontalBarRec.x + this.scrollHorizontalSliderRec.x, this.scrollHorizontalBarRec.y + this.scrollHorizontalSliderRec.y, this.scrollHorizontalSliderRec.width, this.scrollHorizontalSliderRec.height);
-        }
         RenderUtil.useScissor(pos.x, pos.y, size.width, size.height, () -> super.drawInBackground(mouseX, mouseY, context));
         GlStateManager.color(1.0f, 1.0f, 1.0f);
         GlStateManager.enableBlend();
