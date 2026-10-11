@@ -194,12 +194,8 @@ public class SelectionWidgetGroup extends WidgetGroup {
     }
 
     private void updateWidgets(int lastIndex, int newIndex) {
-        this.widgetMap.getOrDefault(lastIndex, Collections.emptyList()).stream()
-                .filter(widget -> widget instanceof TJWidget)
-                .forEach(widget -> ((TJWidget<?>) widget).setActive(false));
-        this.widgetMap.getOrDefault(newIndex, Collections.emptyList()).stream()
-                .filter(widget -> widget instanceof TJWidget)
-                .forEach(widget -> ((TJWidget<?>) widget).setActive(true));
+        this.widgetMap.getOrDefault(lastIndex, Collections.emptyList()).forEach(widget -> widget.setVisible(false));
+        this.widgetMap.getOrDefault(newIndex, Collections.emptyList()).forEach(widget -> widget.setVisible(true));
     }
 
     public int getIndex() {

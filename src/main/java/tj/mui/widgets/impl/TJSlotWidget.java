@@ -113,7 +113,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     }
 
     /**
-     * @param slotEnabled enable to prevent weird slot behavior if this slot is outside of main GUI box.
+     * @param slotEnabled enable to prevent weird slot behavior if this slot is outside of main GUI box or GUI container.
      */
     public R setSlotProtection(boolean slotEnabled) {
         this.slotItemHandler.setEnabled(slotEnabled);

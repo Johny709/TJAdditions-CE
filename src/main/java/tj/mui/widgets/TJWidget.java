@@ -9,6 +9,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.function.BooleanSupplier;
 
+/**
+ * Has handling for active and inactive states. {@link #isVisible()} and {@link #isActive()} aren't necessarily the same thing.
+ * {@link #isVisible()} can simply be used to make widget not be seen at all.
+ * {@link #isActive()} means a widget can have a locked or unlocked state and can function differently depending on state, such as showing different texture.
+ */
 public abstract class TJWidget<R extends TJWidget<R>> extends Widget {
 
     protected BooleanSupplier activeSupplier;

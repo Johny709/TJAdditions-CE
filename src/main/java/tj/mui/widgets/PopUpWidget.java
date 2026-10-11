@@ -240,12 +240,8 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends TJWidgetGroup<R> impl
     }
 
     protected void updateWidgets(int lastIndex, int newIndex) {
-        this.widgetMap.get(lastIndex).getRight().getContainedWidgets(true).stream()
-                .filter(widget -> widget instanceof TJWidget)
-                .forEach(widget -> ((TJWidget<?>) widget).setActive(false));
-        this.widgetMap.get(newIndex).getRight().getContainedWidgets(true).stream()
-                .filter(widget -> widget instanceof TJWidget)
-                .forEach(widget -> ((TJWidget<?>) widget).setActive(true));
+        this.widgetMap.get(lastIndex).getRight().getContainedWidgets(true).forEach(widget -> widget.setVisible(false));
+        this.widgetMap.get(newIndex).getRight().getContainedWidgets(true).forEach(widget -> widget.setVisible(true));
     }
 
     @Override

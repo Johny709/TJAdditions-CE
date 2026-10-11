@@ -1,11 +1,14 @@
 package tj.mui.widgets.impl;
 
+import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.util.EnumActionResult;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.tuple.Pair;
 import tj.TJ;
 import tj.mui.widgets.ButtonWidget;
@@ -13,12 +16,15 @@ import tj.mui.widgets.PopUpWidget;
 import tj.mui.widgets.TJWidgetGroup;
 import tj.util.predicates.ActionResultPredicate;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidget<T> {
 
     private final Int2ObjectMap<ActionResultPredicate<String>> buttonConditions = new Int2ObjectOpenHashMap<>();
+    private final List<Widget> buttons = new ArrayList<>();
 
     public ButtonPopUpWidget() {
         this(0, 0, 0, 0);
@@ -59,12 +65,11 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
         final boolean visible = widgets.test(widgetGroup);
         for (Widget widget : this.pendingWidgets)
             widgetGroup.addWidget(widget);
-        widgetGroup.addWidget(button);
-        this.widgetMap.get(0).getRight().addWidget(button);
         this.addWidget(widgetGroup);
-        button.setParentPosition(this.getPosition());
+        this.addWidget(button); // initialize button
         this.pendingWidgets.clear();
         this.widgetMap.put(this.selectedIndex++, Pair.of(visible, widgetGroup));
+        this.buttons.add(button);
         return this.thisWidget();
     }
 
@@ -102,6 +107,77 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
     public T addPopup(ButtonWidget<?> button, Predicate<TJWidgetGroup<?>> widgets) {
         this.addPopup(0, 0, 0, 0, button, widgets);
         return this.thisWidget();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void updateScreen() {
+        super.updateScreen();
+        this.buttons.stream()
+                .filter(Widget::isVisible)
+                .forEach(Widget::updateScreen);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void drawInForeground(int mouseX, int mouseY) {
+        super.drawInForeground(mouseX, mouseY);
+        this.buttons.forEach(widget -> widget.drawInForeground(mouseX, mouseY));
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
+        super.drawInBackground(mouseX, mouseY, context);
+        this.buttons.forEach(widget -> widget.drawInBackground(mouseX, mouseY, context));
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean mouseClicked(int mouseX, int mouseY, int button) {
+        final boolean clicked = super.mouseClicked(mouseX, mouseY, button);
+        if (!clicked) for (Widget widget : this.buttons)
+            if (widget.mouseClicked(mouseX, mouseY, button))
+                return true;
+        return clicked;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean mouseReleased(int mouseX, int mouseY, int button) {
+        final boolean released = super.mouseReleased(mouseX, mouseY, button);
+        if (!released) for (Widget widget : this.buttons)
+            if (widget.mouseReleased(mouseX, mouseY, button))
+                return true;
+        return released;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
+        final boolean dragged = super.mouseDragged(mouseX, mouseY, button, timeDragged);
+        if (!dragged) for (Widget widget : this.buttons)
+            if (widget.mouseDragged(mouseX, mouseY, button, timeDragged))
+                return true;
+        return dragged;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
+        final boolean wheeled = super.mouseWheelMove(mouseX, mouseY, wheelDelta);
+        if (!wheeled) for (Widget widget : this.buttons)
+            if (widget.mouseWheelMove(mouseX, mouseY, wheelDelta))
+                return true;
+        return wheeled;
+    }
+
+    @Override
+    public void detectAndSendChanges() {
+        super.detectAndSendChanges();
+        this.buttons.stream()
+                .filter(Widget::isVisible)
+                .forEach(Widget::detectAndSendChanges);
     }
 
     @Override
