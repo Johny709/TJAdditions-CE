@@ -137,6 +137,12 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
     }
 
     @Override
+    protected void onSizeUpdate() {
+        super.onSizeUpdate();
+        this.initialized = false;
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
         if (this.autoScroll) {
@@ -242,12 +248,12 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
-        if (this.scrollVerticalBarRec.contains(mouseX, mouseY)) {
+        if (this.scrollVerticalBarRec.contains(mouseX + this.gui.getGuiLeft(), mouseY)) {
             this.addScrollVerticalOffset(MathHelper.clamp(wheelDelta, -1, 1) * -18);
-        } else if (this.scrollHorizontalBarRec.contains(mouseX, mouseY)) {
+        } else if (this.scrollHorizontalBarRec.contains(mouseX + this.gui.getGuiLeft(), mouseY)) {
             this.addScrollHorizontalOffset(MathHelper.clamp(wheelDelta, -1, 1) * -18);
         }
-        if (this.isMouseInWidget(mouseX, mouseY)) {
+        if (this.isMouseOverElement(mouseX + this.gui.getGuiLeft(), mouseY)) {
             this.addScrollVerticalOffset(MathHelper.clamp(wheelDelta, -1, 1) * -18);
             return super.mouseWheelMove(mouseX, mouseY, wheelDelta);
         }
@@ -303,12 +309,6 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
         this.scrollHorizontalOffset = Math.max(0, Math.min(this.scrollHorizontalOffset, this.scrollWidth - this.getSize().width));
         this.setSubWidgetXOffset(this.scrollHorizontalOffset);
         this.writeClientAction(3, buffer -> buffer.writeInt(this.scrollHorizontalOffset));
-    }
-
-    private boolean isMouseInWidget(int mouseX, int mouseY) {
-        final Size size = this.getSize();
-        final int posY = this.getPosition().y;
-        return mouseX >= this.posX && mouseX <= this.posX + size.width && mouseY >= posY && mouseY <= posY + size.height;
     }
 
     private void setSubWidgetYOffSet(int offSet) {
