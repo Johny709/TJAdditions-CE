@@ -22,10 +22,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.TJSlotWidget;
-import tj.mui.widgets.impl.AnimatedImageWidget;
-import tj.mui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.widgets.impl.*;
 import tj.items.TJMetaItems;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.util.references.ObjectReference;
@@ -102,10 +99,10 @@ public class NBTReaderBehaviour implements IItemBehaviour, ItemUIFactory {
                         .setItemLabel(TJMetaItems.NBT_READER.getStackForm()).setLocale(name))
                 .image(0, -20, 200, 237, GuiTextures.BORDERED_BACKGROUND)
                 .image(6, -14, 188, 145, MULTIBLOCK_DISPLAY_BASE)
-                .widget(new ScrollableDisplayWidget(10, -11, 187, 140)
-                        .addTextWidget(new AdvancedTextWidget(0, 0, textList -> textList.add(new TextComponentString(largeItemStackHandler.getStackInSlot(0).isEmpty() ? data : itemData.getValue())), 0xFFFFFF)
+                .widget(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                        .addSubWidget(new AdvancedTextWidget(0, 0, textList -> textList.add(new TextComponentString(largeItemStackHandler.getStackInSlot(0).isEmpty() ? data : itemData.getValue())), 0xFFFFFF)
                                 .setMaxWidthLimit(180))
-                        .setScrollPanelWidth(3))
+                        .setResetScrollOnSizeChange(true))
                 .widget(new TJSlotWidget<>(largeItemStackHandler, 0, 175, 192)
                         .setActiveBackgroundTexture(GuiTextures.SLOT))
                 .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 134, itemStack))

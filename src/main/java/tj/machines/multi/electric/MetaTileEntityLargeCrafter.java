@@ -49,7 +49,7 @@ import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.AdvancedDisplayWidget;
-import tj.mui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.widgets.impl.ScrollingWidgetGroup;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 import tj.util.Color;
@@ -136,10 +136,10 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         super.addTabs(tabBuilder, player);
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
-            debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
-                    .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addDebugDisplayText, 0xFFFFFF)
+            debugTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                    .addSubWidget(new AdvancedDisplayWidget(0, 0, this::addDebugDisplayText, 0xFFFFFF)
                             .setMaxWidthLimit(180))
-                    .setScrollPanelWidth(3));
+                    .setResetScrollOnSizeChange(true));
         });
     }
 

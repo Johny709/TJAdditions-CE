@@ -141,18 +141,18 @@ public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderM
     protected void addTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
-                        .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addMaintenanceDisplayText, 0xFFFFFF)
+                maintenanceTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                        .addSubWidget(new AdvancedDisplayWidget(0, 0, this::addMaintenanceDisplayText, 0xFFFFFF)
                                 .setMaxWidthLimit(180))
-                        .setScrollPanelWidth(3)));
+                        .setResetScrollOnSizeChange(true)));
     }
 
     protected void mainDisplayTab(List<Widget> widgetGroup) {
-        widgetGroup.add(new ScrollableDisplayWidget(10, -11, 187, 140)
-                .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addDisplayText, 0xFFFFFF)
+        widgetGroup.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                .addSubWidget(new AdvancedDisplayWidget(0, 0, this::addDisplayText, 0xFFFFFF)
                         .setClickHandler(this::handleDisplayClick)
                         .setMaxWidthLimit(180))
-                .setScrollPanelWidth(3));
+                .setResetScrollOnSizeChange(true));
         widgetGroup.add(new TJToggleButtonWidget(175, 169, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
         widgetGroup.add(new TJToggleButtonWidget(175, 133, 18, 18, TJGuiTextures.TOGGLE_CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)

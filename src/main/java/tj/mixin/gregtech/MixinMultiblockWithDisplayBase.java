@@ -102,19 +102,19 @@ public abstract class MixinMultiblockWithDisplayBase extends MultiblockControlle
     protected void addNewTabs(WidgetTabBuilder tabBuilder) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::addMainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
-                        .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::configureMaintenanceDisplayText, 0xFFFFFF)
+                maintenanceTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                        .addSubWidget(new AdvancedDisplayWidget(0, 0, this::configureMaintenanceDisplayText, 0xFFFFFF)
                                 .setMaxWidthLimit(180))
-                        .setScrollPanelWidth(3)));
+                        .setResetScrollOnSizeChange(true)));
     }
 
     @Unique
     protected void addMainDisplayTab(List<Widget> widgetGroup) {
-        widgetGroup.add(new ScrollableDisplayWidget(10, -11, 187, 140)
-                .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::configureDisplayText, 0xFFFFFF)
+        widgetGroup.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                .addSubWidget(new AdvancedDisplayWidget(0, 0, this::configureDisplayText, 0xFFFFFF)
                         .setClickHandler(this::handleDisplayClick)
                         .setMaxWidthLimit(180))
-                .setScrollPanelWidth(3));
+                .setResetScrollOnSizeChange(true));
         widgetGroup.add(new TJToggleButtonWidget(175, 133, 18, 18, TOGGLE_CAUTION_BUTTON, this::isStructureCheck, this::doStructureCheck)
                 .setToggleTitleTooltipHoverText("machine.universal.toggle.check.mode.disabled", "machine.universal.toggle.check.mode.enabled"));
     }

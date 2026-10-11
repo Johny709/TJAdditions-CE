@@ -222,9 +222,9 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                     widgetGroup.addWidget(new ImageWidget(35, 17, 130, 18, DISPLAY));
                     widgetGroup.addWidget(new ImageWidget(35, 40, 130, 18, DISPLAY));
                     widgetGroup.addWidget(new ImageWidget(30, this.getOffsetY(144), 139, 18, DISPLAY));
-                    widgetGroup.addWidget(new ScrollableDisplayWidget(10, 60, 183, 97)
-                            .addDisplayWidget(displayWidget)
-                            .setScrollPanelWidth(3));
+                    widgetGroup.addWidget(new ScrollingWidgetGroup<>(10, 60, 185, 97)
+                            .addSubWidget(displayWidget)
+                            .setResetScrollOnSizeChange(true));
                     widgetGroup.addWidget(new NewTextFieldWidget<>(38, 45, 112, 13, false)
                             .setTextResponder((key, id) -> this.getEnderProfile().setChannel(key, id, this))
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
@@ -355,9 +355,9 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(new ImageWidget(35, 17, 130, 18, DISPLAY));
                     widgetGroup.addWidget(new ImageWidget(30, (this.getOffsetY(144)), 139, 18, DISPLAY));
-                    widgetGroup.addWidget(new ScrollableDisplayWidget(10, 38, 183, 119)
-                            .addDisplayWidget(displayWidget)
-                            .setScrollPanelWidth(3));
+                    widgetGroup.addWidget(new ScrollingWidgetGroup<>(10, 38, 185, 119)
+                            .addSubWidget(displayWidget)
+                            .setResetScrollOnSizeChange(true));
                     widgetGroup.addWidget(new NewTextFieldWidget<>(32, 22, 136, 18)
                             .setTextResponder((key, id) -> this.getEnderProfile().setFrequency(key, id, this))
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
@@ -442,8 +442,9 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                             widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 130, BORDERED_BACKGROUND));
                                             widgetGroup2.addWidget(new ImageWidget(3, 25, 176, 80, DISPLAY));
                                             widgetGroup2.addWidget(new ImageWidget(30, 106, 115, 18, DISPLAY));
-                                            widgetGroup2.addWidget(new ScrollableDisplayWidget(3, 25, 185, 80)
-                                                    .addTextWidget(playerTextWidget));
+                                            widgetGroup2.addWidget(new ScrollingWidgetGroup<>(3, 25, 185, 80)
+                                                    .addSubWidget(playerTextWidget)
+                                                    .setResetScrollOnSizeChange(true));
                                             widgetGroup2.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.allowed_players", this.frequency)), 0x404040));
                                             widgetGroup2.addWidget(new NewTextFieldWidget<>(32, 110, 112, 13, false)
                                                     .setValidator(str -> Pattern.compile(".*").matcher(str).matches())

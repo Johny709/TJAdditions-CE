@@ -257,23 +257,24 @@ public class MetaTileEntityXLHotCoolantTurbine extends MetaTileEntityHotCoolantT
                 .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.TURBINE_OVERLAY));
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
         tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
-                        .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addMaintenanceDisplayText, 0xFFFFFF)
+                maintenanceTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                        .addSubWidget(new AdvancedDisplayWidget(0, 0, this::addMaintenanceDisplayText, 0xFFFFFF)
                                 .setMaxWidthLimit(180))
-                        .setScrollPanelWidth(3)));
-        tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab -> rotorTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
-                .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addRotorDisplayText, 0xFFFFFF)
-                        .setClickHandler(this::handleRotorDisplayClick)
-                        .setMaxWidthLimit(180))
-                .setScrollPanelWidth(3)));
+                        .setResetScrollOnSizeChange(true)));
+        tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab ->
+                rotorTab.add(new ScrollingWidgetGroup<>(10, -11, 187, 140)
+                        .addSubWidget(new AdvancedDisplayWidget(0, 2, this::addRotorDisplayText, 0xFFFFFF)
+                                .setClickHandler(this::handleRotorDisplayClick)
+                                .setMaxWidthLimit(180))
+                        .setResetScrollOnSizeChange(true)));
     }
 
     private void mainDisplayTab(List<Widget> widgetGroup) {
-        widgetGroup.add(new ScrollableDisplayWidget(10, -11, 187, 140)
-                .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addDisplayText, 0xFFFFFF)
+        widgetGroup.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                .addSubWidget(new AdvancedDisplayWidget(0, 0, this::addDisplayText, 0xFFFFFF)
                         .setClickHandler(this::handleDisplayClick)
                         .setMaxWidthLimit(180))
-                .setScrollPanelWidth(3));
+                .setResetScrollOnSizeChange(true));
         widgetGroup.add(new TJToggleButtonWidget(175, 169, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
         widgetGroup.add(new TJToggleButtonWidget(175, 133, 18, 18, TJGuiTextures.TOGGLE_CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)

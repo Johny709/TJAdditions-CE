@@ -16,9 +16,7 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.*;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.ButtonWidget;
-import tj.mui.widgets.impl.AdvancedDisplayWidget;
-import tj.mui.widgets.impl.NewTextFieldWidget;
-import tj.mui.widgets.impl.TJAdvancedTextWidget;
+import tj.mui.widgets.impl.*;
 import gregicadditions.GAUtility;
 import gregicadditions.GAValues;
 import gregicadditions.item.components.FieldGenCasing;
@@ -61,9 +59,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import tj.mui.widgets.impl.ClickPopUpWidget;
-import tj.mui.widgets.impl.ScrollableDisplayWidget;
-import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.util.TJFluidUtils;
 import tj.util.consumers.QuadConsumer;
 
@@ -251,9 +246,9 @@ public class MetaTileEntityTeleporter extends TJMultiblockControllerBase impleme
         displayWidget.setMaxWidthLimit(1024);
         tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                 .addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(new ScrollableDisplayWidget(10, -15, 183, 142)
-                            .addDisplayWidget(displayWidget)
-                            .setScrollPanelWidth(3));
+                    widgetGroup.addWidget(new ScrollingWidgetGroup<>(10, -15, 185, 142)
+                            .addSubWidget(displayWidget)
+                            .setResetScrollOnSizeChange(true));
                     widgetGroup.addWidget(new ImageWidget(7, this.getOffsetY(114), 162, 18, DISPLAY));
                     widgetGroup.addWidget(new NewTextFieldWidget<>(12, this.getOffsetY(119), 157, 18)
                             .setValidator(str -> Pattern.compile(".*").matcher(str).matches())

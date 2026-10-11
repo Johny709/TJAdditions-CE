@@ -21,7 +21,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGroup<R> {
+public class ScrollingWidgetGroup<R extends ScrollingWidgetGroup<R>> extends TJWidgetGroup<R> {
 
     protected TextureArea scrollVerticalSliderTexture;
     protected TextureArea scrollVerticalBarTexture;
@@ -60,6 +60,7 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
     protected int scrollWidth;
     protected int autoScrollY;
     protected int autoScrollX;
+    protected boolean resetScrollOnSizeChange;
     protected boolean autoScroll;
 
     public ScrollingWidgetGroup(int x, int y, int width, int height) {
@@ -137,6 +138,14 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
         return this.thisWidget();
     }
 
+    /**
+     * @param resetScrollOnSizeChange set scroll offset to starting point when widget size changes.
+     */
+    public R setResetScrollOnSizeChange(boolean resetScrollOnSizeChange) {
+        this.resetScrollOnSizeChange = resetScrollOnSizeChange;
+        return this.thisWidget();
+    }
+
     @Override
     public void initWidget() {
         super.initWidget();
@@ -165,6 +174,12 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
     protected void onSizeUpdate() {
         super.onSizeUpdate();
         this.reinitializeScrollbars();
+        if (this.resetScrollOnSizeChange) {
+            this.addScrollHorizontalOffset(Integer.MIN_VALUE);
+            this.addScrollVerticalOffset(Integer.MIN_VALUE);
+            for (Widget widget : this.widgets)
+                widget.setParentPosition(this.getPosition());
+        }
     }
 
     private void reinitializeScrollbars() {
@@ -186,6 +201,23 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
                 this.scrollHorizontalBarRec.y + this.horizontalSliderPosInit.y,
                 this.scrollHorizontalSliderRec.width,
                 this.scrollHorizontalSliderRec.height);
+        this.updateElementPositions();
+    }
+
+    protected void updateElementPositions() {
+        int scrollWidth = 0;
+        int scrollHeight = 0;
+        final Position pos = this.getPosition();
+        final Position newPos = new Position(pos.x - this.lastScrollOffsetX, pos.y - this.lastScrollOffsetY);
+        for (Widget widget : this.widgets) {
+            final Size size = widget.getSize();
+            final Position pos1 = widget.getPosition();
+            scrollWidth = Math.max(scrollWidth, pos1.x + size.width);
+            scrollHeight = Math.max(scrollHeight, pos1.y + size.height);
+            widget.setParentPosition(newPos);
+        }
+        this.scrollWidth = scrollWidth;
+        this.scrollHeight = scrollHeight;
     }
 
     @Override
@@ -219,21 +251,25 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
         RenderUtil.useScissor(pos.x, pos.y, size.width, size.height, () -> super.drawInBackground(mouseX, mouseY, context));
         GlStateManager.color(1.0f, 1.0f, 1.0f);
         GlStateManager.enableBlend();
-        if (this.scrollVerticalBarTexture != null)
-            this.scrollVerticalBarTexture.draw(this.scrollVerticalBarRec.x, this.scrollVerticalBarRec.y, this.scrollVerticalBarRec.width, this.scrollVerticalBarRec.height);
-        if (this.scrollHorizontalBarTexture != null)
-            this.scrollHorizontalBarTexture.draw(this.scrollHorizontalBarRec.x, this.scrollHorizontalBarRec.y, this.scrollHorizontalBarRec.width, this.scrollHorizontalBarRec.height);
-        if (this.scrollVerticalSliderTexture != null) {
-            final double heightDiff = (double) this.scrollVerticalBarRec.height / (this.scrollHeight - size.height);
-            final int scrollOffset = this.scrollVerticalSliderRec.y + (int) Math.round(this.scrollVerticalOffset * heightDiff);
-            final int sliderY = Math.max(this.scrollVerticalBarRec.y, Math.min(this.scrollVerticalBarRec.y + this.scrollVerticalBarRec.height - this.scrollVerticalSliderRec.height, scrollOffset));
-            this.scrollVerticalSliderTexture.draw(this.scrollVerticalSliderRec.x, sliderY, this.scrollVerticalSliderRec.width, this.scrollVerticalSliderRec.height);
+        if (this.scrollHeight > size.height) {
+            if (this.scrollVerticalBarTexture != null)
+                this.scrollVerticalBarTexture.draw(this.scrollVerticalBarRec.x, this.scrollVerticalBarRec.y, this.scrollVerticalBarRec.width, this.scrollVerticalBarRec.height);
+            if (this.scrollVerticalSliderTexture != null) {
+                final double heightDiff = (double) this.scrollVerticalBarRec.height / (this.scrollHeight - size.height);
+                final int scrollOffset = this.scrollVerticalSliderRec.y + (int) Math.round(this.scrollVerticalOffset * heightDiff);
+                final int sliderY = Math.max(this.scrollVerticalBarRec.y, Math.min(this.scrollVerticalBarRec.y + this.scrollVerticalBarRec.height - this.scrollVerticalSliderRec.height, scrollOffset));
+                this.scrollVerticalSliderTexture.draw(this.scrollVerticalSliderRec.x, sliderY, this.scrollVerticalSliderRec.width, this.scrollVerticalSliderRec.height);
+            }
         }
-        if (this.scrollHorizontalBarTexture != null) {
-            final double widthDiff = (double) this.scrollHorizontalBarRec.width / (this.scrollWidth - size.width);
-            final int scrollOffset = this.scrollHorizontalSliderRec.x + (int) Math.round(this.scrollHorizontalOffset * widthDiff);
-            final int sliderX = Math.max(this.scrollHorizontalBarRec.x, Math.min(this.scrollHorizontalBarRec.x + this.scrollHorizontalBarRec.width - this.scrollHorizontalSliderRec.width, scrollOffset));
-            this.scrollHorizontalSliderTexture.draw(sliderX, this.scrollHorizontalSliderRec.y, this.scrollHorizontalSliderRec.width, this.scrollHorizontalSliderRec.height);
+        if (this.scrollWidth > size.width) {
+            if (this.scrollHorizontalBarTexture != null)
+                this.scrollHorizontalBarTexture.draw(this.scrollHorizontalBarRec.x, this.scrollHorizontalBarRec.y, this.scrollHorizontalBarRec.width, this.scrollHorizontalBarRec.height);
+            if (this.scrollHorizontalBarTexture != null) {
+                final double widthDiff = (double) this.scrollHorizontalBarRec.width / (this.scrollWidth - size.width);
+                final int scrollOffset = this.scrollHorizontalSliderRec.x + (int) Math.round(this.scrollHorizontalOffset * widthDiff);
+                final int sliderX = Math.max(this.scrollHorizontalBarRec.x, Math.min(this.scrollHorizontalBarRec.x + this.scrollHorizontalBarRec.width - this.scrollHorizontalSliderRec.width, scrollOffset));
+                this.scrollHorizontalSliderTexture.draw(sliderX, this.scrollHorizontalSliderRec.y, this.scrollHorizontalSliderRec.width, this.scrollHorizontalSliderRec.height);
+            }
         }
     }
 
@@ -376,7 +412,9 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
     @Override
     public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
         return super.getPhantomTargets(ingredient).stream()
-                .filter(target -> this.isPositionInsideScissor(target.getArea().x, target.getArea().y))
-                .collect(Collectors.toList());
+                .filter(target -> {
+                    final Rectangle area = target.getArea();
+                    return this.isPositionInsideScissor(area.x, area.y);
+                }).collect(Collectors.toList());
     }
 }

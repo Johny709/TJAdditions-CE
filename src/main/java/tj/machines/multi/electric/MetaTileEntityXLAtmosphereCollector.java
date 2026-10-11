@@ -35,7 +35,7 @@ import tj.capability.impl.workable.XLAtmosphereCollectorWorkableHandler;
 import tj.items.behaviours.TurbineUpgradeBehaviour;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.mui.widgets.impl.AdvancedDisplayWidget;
-import tj.mui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.widgets.impl.ScrollingWidgetGroup;
 import tj.mui.widgets.impl.TJSlotWidget;
 import tj.util.TextUtils;
 import tj.util.TooltipHelper;
@@ -144,11 +144,12 @@ public class MetaTileEntityXLAtmosphereCollector extends MetaTileEntityLargeAtmo
         super.addTabs(tabBuilder);
         tabBuilder.addWidget(new TJSlotWidget<>(this.importItems, 0, 175, 191)
                 .setActiveBackgroundTexture(GuiTextures.SLOT, GuiTextures.TURBINE_OVERLAY));
-        tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab -> rotorTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
-                .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addRotorDisplayText, 0xFFFFFF)
-                        .setClickHandler(this::handleRotorDisplayClick)
-                        .setMaxWidthLimit(180))
-                .setScrollPanelWidth(3)));
+        tabBuilder.addTab("tj.multiblock.tab.rotor", GAMetaItems.HUGE_TURBINE_ROTOR.getStackForm(), rotorTab ->
+                rotorTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                        .addSubWidget(new AdvancedDisplayWidget(0, 2, this::addRotorDisplayText, 0xFFFFFF)
+                                .setClickHandler(this::handleRotorDisplayClick)
+                                .setMaxWidthLimit(180))
+                        .setResetScrollOnSizeChange(true)));
     }
 
     @Override

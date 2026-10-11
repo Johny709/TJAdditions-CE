@@ -5,7 +5,6 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
 import gregicadditions.Gregicality;
-import gregtech.api.GTValues;
 import gregtech.api.gui.Widget;
 import gregtech.api.metatileentity.MTETrait;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
@@ -35,7 +34,7 @@ import tj.capability.impl.handler.IRecipeHandler;
 import tj.capability.impl.workable.BasicRecipeLogic;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.AdvancedDisplayWidget;
-import tj.mui.widgets.impl.ScrollableDisplayWidget;
+import tj.mui.widgets.impl.ScrollingWidgetGroup;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
@@ -138,10 +137,10 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
                     .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
             debugTab.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
                     .setToggleTitleTooltipHoverText("machine.universal.toggle.fluid_voiding.disabled", "machine.universal.toggle.fluid_voiding.enabled"));
-            debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
-                    .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::addDebugDisplayText, 0xFFFFFF)
+            debugTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                    .addSubWidget(new AdvancedDisplayWidget(0, 0, this::addDebugDisplayText, 0xFFFFFF)
                             .setMaxWidthLimit(180))
-                    .setScrollPanelWidth(3));
+                    .setResetScrollOnSizeChange(true));
         });
     }
 
@@ -296,10 +295,6 @@ public abstract class TJRecipeMapMultiblockController extends TJMultiblockContro
     }
 
     public int getDurationMultiplier() {
-        return 100;
-    }
-
-    public int getChanceMultiplier() {
         return 100;
     }
 

@@ -18,6 +18,11 @@ public class TJWidgetGroup<R extends TJWidgetGroup<R>> extends WidgetGroup {
         super(position, size);
     }
 
+    public R addSubWidget(Widget widget) {
+        this.addWidget(widget);
+        return this.thisWidget();
+    }
+
     /**
      * @return True to cancel subsequent {@link #mouseClicked(int, int, int)} calls in this widget group.
      * Make sure to return true in widget within this widget group to cancel.

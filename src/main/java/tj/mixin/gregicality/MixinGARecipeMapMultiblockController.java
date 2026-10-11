@@ -28,8 +28,8 @@ import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.AdvancedDisplayWidget;
-import tj.mui.widgets.impl.ScrollableDisplayWidget;
 import tj.mixin.gregtech.MixinRecipeMapMultiblockController;
+import tj.mui.widgets.impl.ScrollingWidgetGroup;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
 
 import java.text.SimpleDateFormat;
@@ -87,10 +87,10 @@ public abstract class MixinGARecipeMapMultiblockController extends MixinRecipeMa
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
             debugTab.add(new TJToggleButtonWidget(175, 133, 18, 18, TOGGLE_RESET_BUTTON, () -> false, b -> this.recipeMapWorkable.previousRecipe.clear())
                     .setTitleHoverTooltipText("tj.multiblock.parallel.recipe.clear.disabled"));
-            debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
-                    .addDisplayWidget(new AdvancedDisplayWidget(0, 0, this::configureDebugDisplayText, 0xFFFFFF)
+            debugTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                    .addSubWidget(new AdvancedDisplayWidget(0, 0, this::configureDebugDisplayText, 0xFFFFFF)
                             .setMaxWidthLimit(180))
-                    .setScrollPanelWidth(3));
+                    .setResetScrollOnSizeChange(true));
         });
     }
 

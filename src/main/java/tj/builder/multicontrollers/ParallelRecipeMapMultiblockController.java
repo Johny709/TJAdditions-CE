@@ -160,11 +160,11 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
             workableTab.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
                     .setToggleTitleTooltipHoverText("machine.universal.toggle.fluid_voiding.disabled", "machine.universal.toggle.fluid_voiding.enabled"));
-            workableTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
-                    .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addWorkableDisplayText, 0xFFFFFF)
+            workableTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                    .addSubWidget(new AdvancedDisplayWidget(0, 2, this::addWorkableDisplayText, 0xFFFFFF)
                             .setClickHandler(this::handleWorkableDisplayClick)
                             .setMaxWidthLimit(180))
-                    .setScrollPanelWidth(3));
+                    .setResetScrollOnSizeChange(true));
         });
         tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
             debugTab.add(new TJToggleButtonWidget(175, 133, 18, 18, TOGGLE_RESET_BUTTON, () -> false, b -> this.recipeLogic.getRecipeLRUCache().clear())
@@ -173,10 +173,10 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
             debugTab.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
                     .setToggleTitleTooltipHoverText("machine.universal.toggle.fluid_voiding.disabled", "machine.universal.toggle.fluid_voiding.enabled"));
-            debugTab.add(new ScrollableDisplayWidget(10, -11, 187, 140)
-                    .addDisplayWidget(new AdvancedDisplayWidget(0, 2, this::addDebugDisplayText, 0xFFFFFF)
+            debugTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                    .addSubWidget(new AdvancedDisplayWidget(0, 2, this::addDebugDisplayText, 0xFFFFFF)
                             .setMaxWidthLimit(180))
-                    .setScrollPanelWidth(3));
+                    .setResetScrollOnSizeChange(true));
         });
     }
 
