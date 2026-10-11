@@ -76,7 +76,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
      */
     public R enableBackground(boolean enableBackground) {
         this.enableBackground = enableBackground;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -85,7 +85,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
      */
     public R setTextResponder(BiConsumer<String, String> textResponder) {
         this.textResponder = textResponder;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -94,7 +94,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
      */
     public R setUpdateOnTyping(boolean updateOnType) {
         this.updateOnType = updateOnType;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -103,7 +103,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
      */
     public R setTextSupplier(Supplier<String> textSupplier) {
         this.textSupplier = textSupplier;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -113,7 +113,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
     public R setTooltipText(String tooltipText) {
         Preconditions.checkNotNull(tooltipText, "tooltipText");
         this.tooltipText = tooltipText;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -130,7 +130,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
     public R setTooltipFormat(Supplier<String[]> formatSupplier) {
         this.formatSupplier = formatSupplier;
         this.format = new String[formatSupplier.get().length];
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -141,7 +141,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
     public R setBackgroundText(String backgroundText, int color) {
         this.backgroundText = backgroundText;
         this.backgroundTextColor = color;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -159,7 +159,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
     public R setTextColor(int textColor) {
         if (isClientSide())
             this.textField.setTextColor(textColor);
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -170,7 +170,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
         this.maxStringLength = maxStringLength;
         if (isClientSide())
             this.textField.setMaxStringLength(maxStringLength);
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -183,7 +183,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
             Objects.requireNonNull(validator);
             this.textField.setValidator(validator::test);
         }
-        return (R) this;
+        return this.thisWidget();
     }
 
     public R setTextId(String textId) {
@@ -191,13 +191,13 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
         try {
             this.textIdLong = Long.parseLong(textId);
         } catch (NumberFormatException ignored) {}
-        return (R) this;
+        return this.thisWidget();
     }
 
     public R setTextIdLong(long textIdLong) {
         this.textIdLong = textIdLong;
         this.textId = String.valueOf(textIdLong);
-        return (R) this;
+        return this.thisWidget();
     }
 
     public String getTextId() {
@@ -289,7 +289,7 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
         if (this.enableBackground)
             GuiTextures.DISPLAY.draw(position.getX() - 3, position.getY() - 5, size.getWidth(), size.getHeight());
         this.textField.drawTextBox();
-        if (this.backgroundText != null && this.textField.getText().isEmpty() && !this.textField.isFocused()) {;
+        if (this.backgroundText != null && this.textField.getText().isEmpty() && !this.textField.isFocused()) {
             final String locale = I18n.format(this.backgroundText);
             this.drawStringSized(locale, position.getX(), position.getY(), this.backgroundTextColor, true, 1, false);
         }

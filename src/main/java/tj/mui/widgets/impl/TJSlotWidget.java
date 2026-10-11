@@ -84,32 +84,32 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
 
     public R setWidgetGroup(ISlotGroup widgetGroup) {
         this.widgetGroup = widgetGroup;
-        return (R) this;
+        return this.thisWidget();
     }
 
     public R setTakeItemsPredicate(Predicate<ItemStack> takeItemsPredicate) {
         this.takeItemsPredicate = takeItemsPredicate;
-        return (R) this;
+        return this.thisWidget();
     }
 
     public R setPutItemsPredicate(Predicate<ItemStack> putItemsPredicate) {
         this.putItemsPredicate = putItemsPredicate;
-        return (R) this;
+        return this.thisWidget();
     }
 
     public R setActiveBackgroundTexture(TextureArea... activeBackgroundTexture) {
         this.activeBackgroundTexture = activeBackgroundTexture;
-        return (R) this;
+        return this.thisWidget();
     }
 
     public R setInactiveBackgroundTexture(TextureArea... inactiveBackgroundTexture) {
         this.inactiveBackgroundTexture = inactiveBackgroundTexture;
-        return (R) this;
+        return this.thisWidget();
     }
 
     public R setSlotLocationInfo(boolean isPlayerInventory, boolean isHotbarSlot) {
         this.slotLocationInfo = new SlotLocationInfo(isPlayerInventory, isHotbarSlot);
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -117,7 +117,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
      */
     public R setSlotProtection(boolean slotEnabled) {
         this.slotItemHandler.setEnabled(slotEnabled);
-        return (R) this;
+        return this.thisWidget();
     }
 
     @Override

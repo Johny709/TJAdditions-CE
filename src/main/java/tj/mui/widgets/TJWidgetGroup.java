@@ -117,6 +117,10 @@ public class TJWidgetGroup<R extends TJWidgetGroup<R>> extends WidgetGroup {
         return false;
     }
 
+    /**
+     * To remove unchecked cast warnings spam.
+     * @return this widget object.
+     */
     protected R thisWidget() {
         return (R) this;
     }

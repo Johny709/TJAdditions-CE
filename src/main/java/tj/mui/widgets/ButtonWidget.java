@@ -58,7 +58,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
      */
     public R setButtonResponderWithMouse(QuadConsumer<String, Integer, Integer, Integer> textResponderWithMouse) {
         this.textResponderWithMouse = textResponderWithMouse;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -68,7 +68,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
      */
     public R setTitleHoverTooltipText(String titleHoverTooltipText) {
         this.titleHoverTooltipText = titleHoverTooltipText;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -79,7 +79,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
     public R setHoverTooltipText(String hoverTooltipText) {
         Preconditions.checkNotNull(hoverTooltipText, "tooltipText");
         this.hoverTooltipText = hoverTooltipText;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -88,7 +88,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
     public R setDynamicTooltipText(Supplier<String> dynamicTooltipText) {
         Preconditions.checkNotNull(dynamicTooltipText, "dynamicTooltipText");
         this.dynamicTooltipText = dynamicTooltipText;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -104,7 +104,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
     public R setTooltipFormat(Supplier<String[]> formatSupplier) {
         this.formatSupplier = formatSupplier;
         this.format = new String[formatSupplier.get().length];
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -113,7 +113,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
      */
     public R setButtonResponder(Consumer<String> buttonResponder) {
         this.buttonResponder = buttonResponder;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -123,8 +123,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
      */
     public R setButtonId(String buttonId) {
         this.buttonId = buttonId;
-
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -133,7 +132,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
      */
     public R appendButtonId(UnaryOperator<String> buttonId) {
         this.buttonId = buttonId.apply(this.buttonId);
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -142,7 +141,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
      */
     public R setBackgroundTextures(TextureArea... backgroundTextures) {
         this.backgroundTextures = backgroundTextures;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -151,7 +150,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
      */
     public R setItemDisplay(ItemStack displayItem) {
         this.displayItem = displayItem;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -160,7 +159,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
      */
     public R setDisplayText(String displayText) {
         this.displayText = displayText;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -169,12 +168,12 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
      */
     public R setDisplayTextColor(int textColor) {
         this.textColor = textColor;
-        return (R) this;
+        return this.thisWidget();
     }
 
     public R setButtonIdAsLong(long buttonIdAsLong) {
         this.buttonIdAsLong = buttonIdAsLong;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -182,7 +181,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
      */
     public R setDynamicButtonId(Supplier<String> buttonIdSupplier) {
         this.buttonIdSupplier = buttonIdSupplier;
-        return (R) this;
+        return this.thisWidget();
     }
 
     public long getButtonIdAsLong() {

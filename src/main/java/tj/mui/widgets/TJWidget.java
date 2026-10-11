@@ -28,12 +28,12 @@ public abstract class TJWidget<R extends TJWidget<R>> extends Widget {
      */
     public R setActiveInit(boolean isActive) {
         this.isActive = isActive;
-        return (R) this;
+        return this.thisWidget();
     }
 
     public R setActiveSupplier(BooleanSupplier activeSupplier) {
         this.activeSupplier = activeSupplier;
-        return (R) this;
+        return this.thisWidget();
     }
 
     @Override
@@ -69,5 +69,13 @@ public abstract class TJWidget<R extends TJWidget<R>> extends Widget {
 
     public boolean isActive() {
         return this.isActive;
+    }
+
+    /**
+     * To remove unchecked cast warnings spam.
+     * @return this widget object.
+     */
+    protected R thisWidget() {
+        return (R) this;
     }
 }
