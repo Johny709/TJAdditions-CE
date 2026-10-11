@@ -260,6 +260,8 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
             this.setSubWidgetXOffset(this.scrollHorizontalOffset);
             this.writeClientAction(3, buffer -> buffer.writeInt(this.scrollHorizontalOffset));
         }
+        if (this.autoScroll)
+            this.autoScroll = false;
         return false;
     }
 
