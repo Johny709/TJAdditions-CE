@@ -3,6 +3,7 @@ package tj.integration.theoneprobe.impl;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.ObjectCollection;
 import mcjty.theoneprobe.api.IElement;
 import mcjty.theoneprobe.network.NetworkTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,11 +13,21 @@ import tj.mui.TJGuiUtils;
 import tj.util.wrappers.GTFluidStackWrapper;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ElementFluidList implements IElement {
 
     private final Object2ObjectMap<FluidStack, GTFluidStackWrapper> fluidMap = new Object2ObjectLinkedOpenHashMap<>();
     private Collection<FluidStack> fluidStacks;
+
+    public ElementFluidList(ObjectCollection<List<FluidStack>> fluidStacks) {
+        this.fluidStacks = fluidStacks.stream()
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
 
     public ElementFluidList(Collection<FluidStack> fluidStacks) {
         this.fluidStacks = fluidStacks;

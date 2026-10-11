@@ -3,6 +3,7 @@ package tj.integration.theoneprobe.impl;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.ObjectCollection;
 import mcjty.theoneprobe.api.IElement;
 import mcjty.theoneprobe.network.NetworkTools;
 import net.minecraft.item.ItemStack;
@@ -12,11 +13,21 @@ import tj.util.map.Strategies;
 import tj.util.wrappers.GTItemStackWrapper;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ElementItemList implements IElement {
 
     private final Object2ObjectMap<ItemStack, GTItemStackWrapper> itemMap = new Object2ObjectLinkedOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
     private Collection<ItemStack> itemStacks;
+
+    public ElementItemList(ObjectCollection<List<ItemStack>> itemStacks) {
+        this.itemStacks = itemStacks.stream()
+                .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
 
     public ElementItemList(Collection<ItemStack> itemStacks) {
         this.itemStacks = itemStacks;
