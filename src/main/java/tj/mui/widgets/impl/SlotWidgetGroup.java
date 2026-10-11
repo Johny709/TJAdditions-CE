@@ -1,5 +1,6 @@
 package tj.mui.widgets.impl;
 
+import gregtech.api.gui.INativeWidget;
 import gregtech.api.gui.Widget;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
@@ -79,17 +80,19 @@ public class SlotWidgetGroup extends ScrollingWidgetGroup<SlotWidgetGroup> imple
         final int currentPosY = position.y - this.scrollVerticalOffset;
         int totalListHeight = 0;
         int totalListWidth = 0;
-        for (int i = 0; i < this.widgets.size(); i++) {
-            final Widget widget = this.widgets.get(i);
+        int slotIndex = 0;
+        for (Widget widget : this.widgets) {
+            if (!(widget instanceof INativeWidget)) continue;
             final Position childPosition = new Position(position.x, currentPosY);
             widget.setParentPosition(childPosition);
-            if (i % this.rowLength == 0) {
+            if (slotIndex % this.rowLength == 0) {
                 totalListHeight += widget.getSize().height;
                 totalListWidth = 0;
             }
             totalListWidth = Math.max(totalListWidth, totalListWidth + widget.getSize().width);
             final Size size = getSize();
-            widget.applyScissor(position.x, position.y, size.width - this.scrollVerticalBarRec.width, size.height - this.scrollVerticalBarRec.height);
+            widget.applyScissor(position.x, position.y, size.width, size.height);
+            slotIndex++;
         }
         this.scrollHeight = totalListHeight;
         this.scrollWidth = totalListWidth;

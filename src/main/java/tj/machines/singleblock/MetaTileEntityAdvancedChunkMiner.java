@@ -101,7 +101,9 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        final SlotWidgetGroup scrollableWidgetGroup = new SlotWidgetGroup(113, 8, 54, 72, 3);
+        final SlotWidgetGroup scrollableWidgetGroup = new SlotWidgetGroup(113, 8, 54, 72, 3)
+                .setScrollVerticalbar(0, 0, 6, 72, GuiTextures.SLOT)
+                .setScrollVerticalSlider(0, 0, 6, 10, GuiTextures.BORDERED_BACKGROUND);
         final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(90, 30, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
@@ -109,6 +111,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                 .setFluidOutputTankSupplier(this::getExportFluids);
         for (int i = 0; i < this.getExportItemInventory().getSlots(); i++) {
             scrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.getExportItemInventory(), i, 18 * (i % 3), 18 * (i / 3))
+                    .setPutItemsPredicate(itemStack -> false)
                     .setActiveBackgroundTexture(GuiTextures.SLOT));
             scrollableWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 3), 18 * (i / 3), 18, 18, displayWidget::getItemOutputAt, null));
         }

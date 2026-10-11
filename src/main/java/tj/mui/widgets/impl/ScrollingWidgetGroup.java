@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGroup<R> {
 
-    protected final int posX;
     protected TextureArea scrollVerticalSliderTexture;
     protected TextureArea scrollVerticalBarTexture;
     protected TextureArea scrollHorizontalSliderTexture;
@@ -65,7 +64,6 @@ public class ScrollingWidgetGroup<R extends TJWidgetGroup<R>> extends TJWidgetGr
             this.setScrollHorizontalSlider(0, 0, 10, 4, GuiTextures.BORDERED_BACKGROUND);
             this.setScrollHorizontalBar(0, 0, width, 4, GuiTextures.SLOT);
         }
-        this.posX = x;
     }
 
     /**

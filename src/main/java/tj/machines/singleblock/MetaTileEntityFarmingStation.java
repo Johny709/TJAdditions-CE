@@ -121,7 +121,9 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(7, 22));
-        final SlotWidgetGroup scrollableWidgetGroup = new SlotWidgetGroup(105, 22, 64, 54, 3);
+        final SlotWidgetGroup scrollableWidgetGroup = new SlotWidgetGroup(105, 22, 54, 54, 3)
+                .setScrollVerticalbar(0, 0, 10, 54, SLOT)
+                .setScrollVerticalSlider(0, 0, 10, 10, BORDERED_BACKGROUND);
         final RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 39, 21, 20)
                 .setFluidOutputSupplier(this.workableHandler::getFluidOutputs)
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
@@ -134,8 +136,9 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
             widgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 2), 18 * (i / 2), 18, 18, displayWidget::getItemInputAt, null));
         }
         for (int i = 0; i < this.exportItems.getSlots(); i++) {
-            scrollableWidgetGroup.addWidget(new SlotWidget(this.exportItems, i, 18 * (i % 3), 18 * (i / 3), true, false)
-                    .setBackgroundTexture(SLOT));
+            scrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.exportItems, i, 18 * (i % 3), 18 * (i / 3))
+                    .setPutItemsPredicate(itemStack -> false)
+                    .setActiveBackgroundTexture(SLOT));
             scrollableWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 3), 18 * (i / 3), 18, 18, displayWidget::getItemOutputAt, null));
         }
         return ModularUI.builder(BORDERED_BACKGROUND, 176, 182)
