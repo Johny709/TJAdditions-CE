@@ -114,7 +114,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
     public void updateScreen() {
         super.updateScreen();
         this.buttons.stream()
-                .filter(Widget::isVisible)
+                .filter(widget -> !widget.isVisible())
                 .forEach(Widget::updateScreen);
     }
 
@@ -176,7 +176,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
         this.buttons.stream()
-                .filter(Widget::isVisible)
+                .filter(widget -> !widget.isVisible())
                 .forEach(Widget::detectAndSendChanges);
     }
 

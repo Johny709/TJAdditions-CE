@@ -140,6 +140,7 @@ public class ScrollingWidgetGroup<R extends ScrollingWidgetGroup<R>> extends TJW
 
     /**
      * @param resetScrollOnSizeChange set scroll offset to starting point when widget size changes.
+     * Default: False.
      */
     public R setResetScrollOnSizeChange(boolean resetScrollOnSizeChange) {
         this.resetScrollOnSizeChange = resetScrollOnSizeChange;

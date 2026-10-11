@@ -24,7 +24,6 @@ import gregtech.api.multiblock.FactoryBlockPattern;
 import gregtech.api.multiblock.PatternMatchContext;
 import gregtech.api.render.ICubeRenderer;
 import gregtech.api.render.Textures;
-import gregtech.api.util.function.BooleanConsumer;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.covers.filter.OreDictionaryItemFilter;
 import gregtech.common.items.MetaItems;
@@ -59,11 +58,12 @@ import tj.builder.WidgetTabBuilder;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.impl.PopUpWidgetGroup;
+import tj.mui.widgets.PopUpWidget;
 import tj.machines.ExtendedItemFilter;
 import tj.machines.TJMiner;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
+import tj.util.references.BooleanReference;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -99,12 +99,9 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
     protected boolean voidItems;
     protected boolean canRestart = false;
     protected final ExtendedItemFilter blockFilter;
-    protected BooleanConsumer enableBlockPopUp;
     protected final OreDictionaryItemFilter oreDictFilter;
-    protected BooleanConsumer enableOreDictPopUp;
     protected boolean enableFilter;
     protected boolean blackListFilter;
-    protected boolean oreDict;
 
     public MetaTileEntityEliteLargeMiner(ResourceLocation metaTileEntityId, Type type) {
         super(metaTileEntityId);
@@ -338,24 +335,26 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
     @Override
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         super.addTabs(tabBuilder, player);
+        final BooleanReference oreDict = new BooleanReference();
         tabBuilder.addTab("tj.multiblock.tab.filter", MetaItems.ITEM_FILTER.getStackForm(), filterTab -> {
-            PopUpWidgetGroup slotsPopUp = new PopUpWidgetGroup(0, 7, 180, 90, null);
-            PopUpWidgetGroup oreDictPopUp = new PopUpWidgetGroup(9, 37, 179, 90, GuiTextures.BACKGROUND);
-            this.blockFilter.initUI(slotsPopUp::addWidget);
-            this.enableBlockPopUp = slotsPopUp::setEnabled;
-            this.enableBlockPopUp.apply(!this.oreDict);
-            this.oreDictFilter.initUI(oreDictPopUp::addWidget);
-            this.enableOreDictPopUp = oreDictPopUp::setEnabled;
-            this.enableOreDictPopUp.apply(this.oreDict);
             filterTab.add(new TJToggleButtonWidget(175, 133, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK, this::isEnableFilter, this::setEnableFilter)
                     .setToggleTitleTooltipHoverText("machine.universal.toggle.filter.disabled", "machine.universal.toggle.filter.enabled"));
             filterTab.add(new ImageWidget(175, 133, 18, 18, TJGuiTextures.ITEM_FILTER));
             filterTab.add(new TJToggleButtonWidget(175, 151, 18, 18, GuiTextures.BUTTON_BLACKLIST, this::isBlackListFilter, this::setBlackListFilter)
                     .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled", "cover.filter.blacklist.enabled"));
-            filterTab.add(new TJToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, this::isOreDict, this::setOreDict)
-                    .setToggleTitleTooltipHoverText("cover.filter.ore_dictionary.open.disabled", "cover.filter.ore_dictionary.open.enabled"));
-            filterTab.add(slotsPopUp);
-            filterTab.add(oreDictPopUp);
+            filterTab.add(new TJToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_FILTER_DAMAGE, oreDict::isValue, oreDict::setValue)
+                    .setToggleTitleTooltipHoverText("cover.filter.ore_dictionary.open.disabled",
+                            "cover.filter.ore_dictionary.open.enabled"));
+            filterTab.add(new PopUpWidget<>()
+                    .addPopup(widgetGroup -> {
+                        this.blockFilter.initUI(widgetGroup::addWidget);
+                        return false;
+                    }).addPopup(widgetGroup -> {
+                        widgetGroup.addWidget(new ImageWidget(0, 0, 179, 90, GuiTextures.BORDERED_BACKGROUND));
+                        this.oreDictFilter.initUI(widgetGroup::addWidget);
+                        return false;
+                    }).setIndexSupplier(() -> oreDict.isValue() ? 1 : 0)
+                    .setClickToDefault(false));
         });
         tabBuilder.addTab("tj.multiblock.tab.settings", MetaItems.WRENCH.getStackForm(), settingsTab -> {
             settingsTab.add(new TJToggleButtonWidget(175, 133, 18, 18, TOGGLE_ITEM_VOID_BUTTON, () -> this.voidItems, this::setVoidItems)
@@ -439,16 +438,6 @@ public class MetaTileEntityEliteLargeMiner extends TJMultiblockControllerBase im
 
     public boolean isBlackListFilter() {
         return this.blackListFilter;
-    }
-
-    private void setOreDict(boolean oreDict) {
-        this.oreDict = oreDict;
-        this.enableBlockPopUp.apply(!oreDict);
-        this.enableOreDictPopUp.apply(oreDict);
-    }
-
-    private boolean isOreDict() {
-        return this.oreDict;
     }
 
     @Override
