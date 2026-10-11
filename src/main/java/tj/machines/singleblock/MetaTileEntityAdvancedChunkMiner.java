@@ -109,8 +109,8 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
-        for (int i = 0; i < this.getExportItemInventory().getSlots(); i++) {
-            scrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.getExportItemInventory(), i, 18 * (i % 3), 18 * (i / 3))
+        for (int i = 0; i < this.exportItems.getSlots(); i++) {
+            scrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.exportItems, i, 18 * (i % 3), 18 * (i / 3))
                     .setPutItemsPredicate(itemStack -> false)
                     .setActiveBackgroundTexture(GuiTextures.SLOT));
             scrollableWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 3), 18 * (i / 3), 18, 18, displayWidget::getItemOutputAt, null));
