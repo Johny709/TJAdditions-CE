@@ -4,7 +4,6 @@ import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.resources.AdoptableTextureArea;
 import gregtech.api.gui.widgets.AbstractWidgetGroup;
-import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -23,10 +22,9 @@ import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
 
-public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup implements IWidgetGroup {
+public class PopUpWidget<R extends PopUpWidget<R>> extends TJWidgetGroup<R> implements IWidgetGroup {
 
-    protected static final Pair<Boolean, WidgetGroup> DUMMY_WIDGET_GROUP = Pair.of(false, new WidgetGroup());
-    protected final Int2ObjectMap<Pair<Boolean, WidgetGroup>> widgetMap = new Int2ObjectOpenHashMap<>();
+    protected final Int2ObjectMap<Pair<Boolean, TJWidgetGroup<?>>> widgetMap = new Int2ObjectOpenHashMap<>();
     protected final List<Widget> pendingWidgets = new ArrayList<>();
     protected Rectangle clickArea;
     protected AdoptableTextureArea textureArea;
@@ -44,12 +42,12 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup i
 
     public R passPopup(Consumer<PopUpWidget<R>> widgetConsumer) {
         widgetConsumer.accept(this);
-        return (R) this;
+        return this.thisWidget();
     }
 
     public R setClickArea(Rectangle clickArea) {
         this.clickArea = clickArea;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -58,7 +56,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup i
      */
     public R setTexture(AdoptableTextureArea textureArea) {
         this.textureArea = textureArea;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -67,7 +65,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup i
      */
     public R setIndexSupplier(IntSupplier indexSupplier) {
         this.indexSupplier = indexSupplier;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
@@ -76,36 +74,26 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup i
      */
     public R setClickToDefault(boolean clickToDefault) {
         this.clickToDefault = clickToDefault;
-        return (R) this;
+        return this.thisWidget();
     }
 
     /**
      * return true in the predicate for non-selected widgets to be visible but still can not be interacted. Adds a new popup every time this method is called.
      * @param widgets widgets to add.
      */
-    public R addPopup(Predicate<WidgetGroup> widgets) {
-        final WidgetGroup widgetGroup = new WidgetGroup();
+    public R addPopup(Predicate<TJWidgetGroup<?>> widgets) {
+        final TJWidgetGroup<?> widgetGroup = new TJWidgetGroup<>();
         final boolean visible = widgets.test(widgetGroup);
         this.addWidget(widgetGroup);
         this.pendingWidgets.clear();
         this.widgetMap.put(this.selectedIndex++ ,Pair.of(visible, widgetGroup));
-        return (R) this;
+        return this.thisWidget();
     }
 
     @Override
     public void initWidget() {
         super.initWidget();
         this.selectedIndex = 0;
-    }
-
-    @Override
-    public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
-        return this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().getPhantomTargets(ingredient);
-    }
-
-    @Override
-    public Object getIngredientOverMouse(int mouseX, int mouseY) {
-        return this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().getIngredientOverMouse(mouseX, mouseY);
     }
 
     @Override
@@ -122,13 +110,13 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup i
                 });
             }
         }
-        this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().detectAndSendChanges();
+        this.widgetMap.get(this.selectedIndex).getRight().detectAndSendChanges();
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void updateScreen() {
-        for (Int2ObjectMap.Entry<Pair<Boolean, WidgetGroup>> widget : this.widgetMap.int2ObjectEntrySet())
+        for (Int2ObjectMap.Entry<Pair<Boolean, TJWidgetGroup<?>>> widget : this.widgetMap.int2ObjectEntrySet())
             if (this.selectedIndex == widget.getIntKey() || widget.getValue().getLeft())
                 widget.getValue().getRight().updateScreen();
     }
@@ -136,7 +124,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup i
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().drawInForeground(mouseX, mouseY);
+        this.widgetMap.get(this.selectedIndex).getRight().drawInForeground(mouseX, mouseY);
     }
 
     @Override
@@ -144,7 +132,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup i
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         if (this.textureArea != null)
             this.textureArea.draw(this.getPosition().getX(), this.getPosition().getY(), this.getSize().getWidth(), this.getSize().getHeight());
-        for (Int2ObjectMap.Entry<Pair<Boolean, WidgetGroup>> widget : this.widgetMap.int2ObjectEntrySet())
+        for (Int2ObjectMap.Entry<Pair<Boolean, TJWidgetGroup<?>>> widget : this.widgetMap.int2ObjectEntrySet())
             if (this.selectedIndex == widget.getIntKey() || widget.getValue().getLeft())
                 widget.getValue().getRight().drawInBackground(mouseX, mouseY, context);
     }
@@ -152,13 +140,13 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup i
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
-        return this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().mouseWheelMove(mouseX, mouseY, wheelDelta);
+        return this.widgetMap.get(this.selectedIndex).getRight().mouseWheelMove(mouseX, mouseY, wheelDelta);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        if (this.clickToDefault && this.selectedIndex != 0 && !this.isMouseOverElements(this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getValue(), mouseX, mouseY)) {
+        if (this.clickToDefault && this.selectedIndex != 0 && !this.isMouseOverElements(this.widgetMap.get(this.selectedIndex).getValue(), mouseX, mouseY)) {
             final int lastIndex = this.selectedIndex;
             this.selectedIndex = 0;
             this.updateWidgets(lastIndex, this.selectedIndex);
@@ -167,7 +155,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup i
                 buffer.writeInt(this.selectedIndex);
             });
         }
-        return this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().mouseClicked(mouseX, mouseY, button);
+        return this.widgetMap.get(this.selectedIndex).getRight().mouseClicked(mouseX, mouseY, button);
     }
 
     public boolean isMouseOverElements(AbstractWidgetGroup widgetGroup, int mouseX, int mouseY) {
@@ -181,19 +169,19 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup i
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
-        return this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().mouseDragged(mouseX, mouseY, button, timeDragged);
+        return this.widgetMap.get(this.selectedIndex).getRight().mouseDragged(mouseX, mouseY, button, timeDragged);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseReleased(int mouseX, int mouseY, int button) {
-        return this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().mouseReleased(mouseX, mouseY, button);
+        return this.widgetMap.get(this.selectedIndex).getRight().mouseReleased(mouseX, mouseY, button);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean keyTyped(char charTyped, int keyCode) {
-        return this.widgetMap.getOrDefault(this.selectedIndex, DUMMY_WIDGET_GROUP).getRight().keyTyped(charTyped, keyCode);
+        return this.widgetMap.get(this.selectedIndex).getRight().keyTyped(charTyped, keyCode);
     }
 
     @Override
@@ -220,7 +208,7 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup i
     @Override
     public Rectangle toRectangleBox() {
         final Rectangle rectangle = super.toRectangleBox();
-        final Pair<Boolean, WidgetGroup> widgetGroup = this.widgetMap.get(this.selectedIndex);
+        final Pair<Boolean, TJWidgetGroup<?>> widgetGroup = this.widgetMap.get(this.selectedIndex);
         if (!widgetGroup.getKey())
             return rectangle;
         int x = rectangle.x;
@@ -252,12 +240,22 @@ public class PopUpWidget<R extends PopUpWidget<R>> extends AbstractWidgetGroup i
     }
 
     protected void updateWidgets(int lastIndex, int newIndex) {
-        this.widgetMap.getOrDefault(lastIndex, DUMMY_WIDGET_GROUP).getRight().getContainedWidgets(true).stream()
+        this.widgetMap.get(lastIndex).getRight().getContainedWidgets(true).stream()
                 .filter(widget -> widget instanceof TJWidget)
                 .forEach(widget -> ((TJWidget<?>) widget).setActive(false));
-        this.widgetMap.getOrDefault(newIndex, DUMMY_WIDGET_GROUP).getRight().getContainedWidgets(true).stream()
+        this.widgetMap.get(newIndex).getRight().getContainedWidgets(true).stream()
                 .filter(widget -> widget instanceof TJWidget)
                 .forEach(widget -> ((TJWidget<?>) widget).setActive(true));
+    }
+
+    @Override
+    public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
+        return this.widgetMap.get(this.selectedIndex).getRight().getPhantomTargets(ingredient);
+    }
+
+    @Override
+    public Object getIngredientOverMouse(int mouseX, int mouseY) {
+        return this.widgetMap.get(this.selectedIndex).getRight().getIngredientOverMouse(mouseX, mouseY);
     }
 
     public int getIndex() {

@@ -1,7 +1,6 @@
 package tj.mui.widgets.impl;
 
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -10,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumActionResult;
 import org.apache.commons.lang3.tuple.Pair;
 import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.TJWidgetGroup;
 import tj.util.predicates.QuadActionResultPredicate;
 
 import java.util.function.Consumer;
@@ -34,8 +34,8 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
      * @param add set to add this text widget to this widget group
      * @param widgets widgets to add.
      */
-    public ClickPopUpWidget addPopup(int x, int y, int width, int height, AdvancedDisplayWidget textWidget, boolean add, Predicate<WidgetGroup> widgets) {
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
+    public ClickPopUpWidget addPopup(int x, int y, int width, int height, AdvancedDisplayWidget textWidget, boolean add, Predicate<TJWidgetGroup<?>> widgets) {
+        final TJWidgetGroup<?> widgetGroup = new TJWidgetGroup<>(new Position(x, y), new Size(width, height));
         final boolean visible = widgets.test(widgetGroup);
         textWidget.setTextId(String.valueOf(this.selectedIndex))
                 .addClickHandler(this::handleDisplayClick);
@@ -60,8 +60,8 @@ public class ClickPopUpWidget extends ButtonPopUpWidget<ClickPopUpWidget> {
      * @param add set to add this text widget to this widget group
      * @param widgets widgets to add.
      */
-    public ClickPopUpWidget addPopup(int x, int y, int width, int height, TJAdvancedTextWidget textWidget, boolean add, Predicate<WidgetGroup> widgets) {
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
+    public ClickPopUpWidget addPopup(int x, int y, int width, int height, TJAdvancedTextWidget textWidget, boolean add, Predicate<TJWidgetGroup<?>> widgets) {
+        final TJWidgetGroup<?> widgetGroup = new TJWidgetGroup<>(new Position(x, y), new Size(width, height));
         final boolean visible = widgets.test(widgetGroup);
         textWidget.setTextId(String.valueOf(this.selectedIndex))
                 .addClickHandler(this::handleDisplayClick);

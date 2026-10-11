@@ -1,7 +1,6 @@
 package tj.mui.widgets.impl;
 
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -11,6 +10,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import tj.TJ;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.PopUpWidget;
+import tj.mui.widgets.TJWidgetGroup;
 import tj.util.predicates.ActionResultPredicate;
 
 import java.util.function.Consumer;
@@ -36,7 +36,7 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
         button.setButtonId(String.valueOf(0));
         button.setButtonResponder(this::setPopupIndex);
         this.pendingWidgets.add(button);
-        return (T) this;
+        return this.thisWidget();
     }
 
     /**
@@ -49,21 +49,23 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
      * @param button button widget to activate this popup.
      * @param widgets widgets to add.
      */
-    public T addPopup(int x, int y, int width, int height, ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
+    public T addPopup(int x, int y, int width, int height, ButtonWidget<?> button, Predicate<TJWidgetGroup<?>> widgets) {
         button.appendButtonId(buttonId -> buttonId + ":" + this.selectedIndex)
                 .setButtonResponder(this::setPopupIndex)
                 .setButtonIdAsLong(this.selectedIndex);
         if (button instanceof TJToggleButtonWidget)
             ((TJToggleButtonWidget) button).setButtonSupplier(() -> this.selectedIndex == button.getButtonIdAsLong());
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
+        final TJWidgetGroup<?> widgetGroup = new TJWidgetGroup<>(new Position(x, y), new Size(width, height));
         final boolean visible = widgets.test(widgetGroup);
         for (Widget widget : this.pendingWidgets)
             widgetGroup.addWidget(widget);
+        widgetGroup.addWidget(button);
         this.widgetMap.get(0).getRight().addWidget(button);
         this.addWidget(widgetGroup);
+        button.setParentPosition(this.getPosition());
         this.pendingWidgets.clear();
         this.widgetMap.put(this.selectedIndex++, Pair.of(visible, widgetGroup));
-        return (T) this;
+        return this.thisWidget();
     }
 
     /**
@@ -75,20 +77,20 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
      * @param width width of widget group
      * @param height height of widget group.
      */
-    public T addFailPopup(int x, int y, int width, int height, Consumer<WidgetGroup> widgets) {
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(x, y), new Size(width, height));
+    public T addFailPopup(int x, int y, int width, int height, Consumer<TJWidgetGroup<?>> widgets) {
+        final TJWidgetGroup<?> widgetGroup = new TJWidgetGroup<>(new Position(x, y), new Size(width, height));
         widgets.accept(widgetGroup);
         for (Widget widget : this.pendingWidgets)
             widgetGroup.addWidget(widget);
         this.addWidget(widgetGroup);
         this.pendingWidgets.clear();
         this.widgetMap.put(this.selectedIndex++, Pair.of(false, widgetGroup));
-        return (T) this;
+        return this.thisWidget();
     }
 
     public T addPopupCondition(ActionResultPredicate<String> buttonCondition) {
         this.buttonConditions.put(this.selectedIndex, buttonCondition);
-        return (T) this;
+        return this.thisWidget();
     }
 
     /**
@@ -97,9 +99,9 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
      * @param button button widget to activate this popup.
      * @param widgets widgets to add.
      */
-    public T addPopup(ButtonWidget<?> button, Predicate<WidgetGroup> widgets) {
+    public T addPopup(ButtonWidget<?> button, Predicate<TJWidgetGroup<?>> widgets) {
         this.addPopup(0, 0, 0, 0, button, widgets);
-        return (T) this;
+        return this.thisWidget();
     }
 
     @Override
