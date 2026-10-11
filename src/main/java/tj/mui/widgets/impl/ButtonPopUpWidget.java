@@ -24,6 +24,10 @@ import java.util.function.Predicate;
 public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidget<T> {
 
     private final Int2ObjectMap<ActionResultPredicate<String>> buttonConditions = new Int2ObjectOpenHashMap<>();
+
+    /**
+     * This is to prevent popup button from disappearing when popup is opened.
+     */
     private final List<Widget> buttons = new ArrayList<>();
 
     public ButtonPopUpWidget() {
@@ -121,15 +125,15 @@ public class ButtonPopUpWidget<T extends ButtonPopUpWidget<T>> extends PopUpWidg
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInForeground(int mouseX, int mouseY) {
-        super.drawInForeground(mouseX, mouseY);
         this.buttons.forEach(widget -> widget.drawInForeground(mouseX, mouseY));
+        super.drawInForeground(mouseX, mouseY);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-        super.drawInBackground(mouseX, mouseY, context);
         this.buttons.forEach(widget -> widget.drawInBackground(mouseX, mouseY, context));
+        super.drawInBackground(mouseX, mouseY, context);
     }
 
     @Override

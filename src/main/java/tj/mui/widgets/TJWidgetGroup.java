@@ -14,6 +14,10 @@ public class TJWidgetGroup<R extends TJWidgetGroup<R>> extends WidgetGroup {
         this(Position.ORIGIN, Size.ZERO);
     }
 
+    public TJWidgetGroup(Position position) {
+        super(position);
+    }
+
     public TJWidgetGroup(Position position, Size size) {
         super(position, size);
     }
@@ -31,7 +35,9 @@ public class TJWidgetGroup<R extends TJWidgetGroup<R>> extends WidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
-        for (Widget widget : this.widgets) {
+        // Reversed iteration cause the widgets called last for rendering are displayed in front so check those first.
+        for (int i = this.widgets.size() - 1; i > -1; i--) {
+            final Widget widget = this.widgets.get(i);
             if (!this.isWidgetClickable(widget)) continue;
             if (widget.mouseClicked(mouseX, mouseY, button))
                 return true;
@@ -47,7 +53,9 @@ public class TJWidgetGroup<R extends TJWidgetGroup<R>> extends WidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseReleased(int mouseX, int mouseY, int button) {
-        for (Widget widget : this.widgets) {
+        // Reversed iteration cause the widgets called last for rendering are displayed in front so check those first.
+        for (int i = this.widgets.size() - 1; i > -1; i--) {
+            final Widget widget = this.widgets.get(i);
             if (!this.isWidgetClickable(widget)) continue;
             if (widget.mouseReleased(mouseX, mouseY, button))
                 return true;
@@ -63,7 +71,9 @@ public class TJWidgetGroup<R extends TJWidgetGroup<R>> extends WidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
-        for (Widget widget : this.widgets) {
+        // Reversed iteration cause the widgets called last for rendering are displayed in front so check those first.
+        for (int i = this.widgets.size() - 1; i > -1; i--) {
+            final Widget widget = this.widgets.get(i);
             if (!this.isWidgetClickable(widget)) continue;
             if (widget.mouseDragged(mouseX, mouseY, button, timeDragged))
                 return true;
@@ -79,7 +89,9 @@ public class TJWidgetGroup<R extends TJWidgetGroup<R>> extends WidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
-        for (Widget widget : this.widgets) {
+        // Reversed iteration cause the widgets called last for rendering are displayed in front so check those first.
+        for (int i = this.widgets.size() - 1; i > -1; i--) {
+            final Widget widget = this.widgets.get(i);
             if (!this.isWidgetClickable(widget)) continue;
             if (widget.mouseWheelMove(mouseX, mouseY, wheelDelta))
                 return true;
@@ -95,7 +107,9 @@ public class TJWidgetGroup<R extends TJWidgetGroup<R>> extends WidgetGroup {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean keyTyped(char charTyped, int keyCode) {
-        for (Widget widget : this.widgets) {
+        // Reversed iteration cause the widgets called last for rendering are displayed in front so check those first.
+        for (int i = this.widgets.size() - 1; i > -1; i--) {
+            final Widget widget = this.widgets.get(i);
             if (!this.isWidgetClickable(widget)) continue;
             if (widget.keyTyped(charTyped, keyCode))
                 return true;

@@ -1,13 +1,12 @@
 package tj.builder;
 
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.AbstractWidgetGroup;
-import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.gui.widgets.tab.ItemTabInfo;
 import gregtech.api.gui.widgets.tab.TabListRenderer;
 import gregtech.api.util.Position;
 import net.minecraft.item.ItemStack;
 import tj.mui.widgets.TJTabGroup;
+import tj.mui.widgets.TJWidgetGroup;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -17,7 +16,7 @@ import java.util.function.Supplier;
 
 public final class WidgetTabBuilder {
 
-    private final LinkedHashMap<ItemTabInfo, AbstractWidgetGroup> tabs = new LinkedHashMap<>();
+    private final LinkedHashMap<ItemTabInfo, TJWidgetGroup<?>> tabs = new LinkedHashMap<>();
     private final List<Widget> widgetGroup = new ArrayList<>();
     private Position position = Position.ORIGIN;
     private Supplier<TabListRenderer> tabListRenderer;
@@ -55,7 +54,8 @@ public final class WidgetTabBuilder {
     }
 
     public WidgetTabBuilder addTab(String name, ItemStack itemDisplay, Consumer<List<Widget>> widgetGroupConsumer) {
-        final WidgetGroup widgetGroup = new WidgetGroup(), offsetWidgetGroup = new WidgetGroup(new Position(0, -this.position.getY()));
+        final TJWidgetGroup<?> widgetGroup = new TJWidgetGroup<>();
+        final TJWidgetGroup<?> offsetWidgetGroup = new TJWidgetGroup<>(new Position(0, -this.position.getY()));
         final List<Widget> widgets = new ArrayList<>();
         widgetGroupConsumer.accept(widgets);
         widgets.forEach(widget -> {
@@ -68,8 +68,9 @@ public final class WidgetTabBuilder {
         return this;
     }
 
-    public WidgetGroup buildWidgetGroup() {
-        final WidgetGroup widgetGroup = new WidgetGroup(this.position), offsetWidgetGroup = new WidgetGroup(new Position(0, -this.position.getY()));
+    public TJWidgetGroup<?> buildWidgetGroup() {
+        final TJWidgetGroup<?> widgetGroup = new TJWidgetGroup<>(this.position);
+        final TJWidgetGroup<?> offsetWidgetGroup = new TJWidgetGroup<>(new Position(0, -this.position.getY()));
         this.widgetGroup.forEach(widget -> {
             if (widget.getPosition().getY() < this.offsetY)
                 offsetWidgetGroup.addWidget(widget);

@@ -150,10 +150,10 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
         textWidget.setMaxWidthLimit(1000);
         tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                 .addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new ImageWidget(30, 38, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new ImageWidget(3, 61, 170, 80, DISPLAY));
-                    widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
+                    widgetGroup.addWidget(new TJImageWidget(30, 15, 115, 18, DISPLAY));
+                    widgetGroup.addWidget(new TJImageWidget(30, 38, 115, 18, DISPLAY));
+                    widgetGroup.addWidget(new TJImageWidget(3, 61, 170, 80, DISPLAY));
+                    widgetGroup.addWidget(new TJImageWidget(30, 142, 115, 18, DISPLAY));
                     widgetGroup.addWidget(new ScrollingWidgetGroup<>(3, 61, 182, 80)
                             .addSubWidget(textWidget));
                     widgetGroup.addWidget(new NewTextFieldWidget<>(32, 43, 112, 13, false)
@@ -219,8 +219,8 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                         .setButtonSupplier(TJValues::isFalse)
                         .useToggleTexture(true))
                 .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
-                    widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
-                    widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
+                    widgetGroup.addWidget(new TJImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
+                    widgetGroup.addWidget(new TJImageWidget(10, 15, 162, 18, DISPLAY));
                     widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
                         int index = textFieldWidgetRename.getTextId().lastIndexOf(":");
                         String entry = textFieldWidgetRename.getTextId().substring(0, index);
@@ -233,7 +233,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                         .useToggleTexture(true))
                 .addPopupCondition(this.handleDisplayClick(textFieldWidgetRename)).addFailPopup(0, 40, 182, 40, widgetGroup2 -> {
-                    widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
+                    widgetGroup2.addWidget(new TJImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
                     widgetGroup2.addWidget(new AdvancedTextWidget(30, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
                 }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                         .setDisplayText("machine.universal.cancel")
@@ -252,8 +252,8 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                         .useToggleTexture(true)
                         .setDisplayText("O"), widgetGroup -> {
-                    widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
-                    widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
+                    widgetGroup.addWidget(new TJImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
+                    widgetGroup.addWidget(new TJImageWidget(10, 15, 162, 18, DISPLAY));
                     widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.channel")), 0x404040));
                     widgetGroup.addWidget(textFieldWidgetEntry);
                     return false;
@@ -262,7 +262,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                         .useToggleTexture(true))
                 .addPopupCondition(this::handleButtonClick).addFailPopup(0, 40, 182, 40, widgetGroup2 -> {
-                    widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
+                    widgetGroup2.addWidget(new TJImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
                     widgetGroup2.addWidget(new AdvancedTextWidget(30, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
                 }).passPopup(this::addToPopUpWidget));
     }
@@ -285,9 +285,9 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
         textWidget.setMaxWidthLimit(1000);
         tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                 .addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(new ImageWidget(30, 15, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new ImageWidget(3, 38, 170, 103, DISPLAY));
-                    widgetGroup.addWidget(new ImageWidget(30, 142, 115, 18, DISPLAY));
+                    widgetGroup.addWidget(new TJImageWidget(30, 15, 115, 18, DISPLAY));
+                    widgetGroup.addWidget(new TJImageWidget(3, 38, 170, 103, DISPLAY));
+                    widgetGroup.addWidget(new TJImageWidget(30, 142, 115, 18, DISPLAY));
                     widgetGroup.addWidget(new ScrollingWidgetGroup<>(3, 38, 182, 103)
                             .addSubWidget(textWidget));
                     widgetGroup.addWidget(new NewTextFieldWidget<>(32, 20, 112, 18)
@@ -326,8 +326,8 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                         .setButtonSupplier(TJValues::isFalse)
                         .useToggleTexture(true))
                 .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
-                    widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
-                    widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
+                    widgetGroup.addWidget(new TJImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
+                    widgetGroup.addWidget(new TJImageWidget(10, 15, 162, 18, DISPLAY));
                     widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
                         int index = textFieldWidgetRename.getTextId().lastIndexOf(":");
                         String entry = textFieldWidgetRename.getTextId().substring(0, index);
@@ -340,7 +340,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                         .useToggleTexture(true))
                 .addPopupCondition(this.handleDisplayClick(textFieldWidgetRename)).addFailPopup(0, 40, 182, 40, widgetGroup2 -> {
-                    widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
+                    widgetGroup2.addWidget(new TJImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
                     widgetGroup2.addWidget(new AdvancedTextWidget(30, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
                 }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
                         .setDisplayText("machine.universal.cancel")
@@ -358,8 +358,8 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                         .useToggleTexture(true)
                         .setDisplayText("O"), widgetGroup -> {
-                    widgetGroup.addWidget(new ImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
-                    widgetGroup.addWidget(new ImageWidget(10, 15, 162, 18, DISPLAY));
+                    widgetGroup.addWidget(new TJImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
+                    widgetGroup.addWidget(new TJImageWidget(10, 15, 162, 18, DISPLAY));
                     widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.frequency")), 0x404040));
                     widgetGroup.addWidget(textFieldWidgetChannel);
                     return false;
@@ -372,9 +372,9 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                                 TJAdvancedTextWidget playerTextWidget = new TJAdvancedTextWidget(2, 3, this.addPlayerDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
                                 widgetGroup1.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
                                         .addPopup(widgetGroup2 -> {
-                                            widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 130, BORDERED_BACKGROUND));
-                                            widgetGroup2.addWidget(new ImageWidget(3, 25, 176, 80, DISPLAY));
-                                            widgetGroup2.addWidget(new ImageWidget(30, 106, 115, 18, DISPLAY));
+                                            widgetGroup2.addWidget(new TJImageWidget(0, 0, 182, 130, BORDERED_BACKGROUND));
+                                            widgetGroup2.addWidget(new TJImageWidget(3, 25, 176, 80, DISPLAY));
+                                            widgetGroup2.addWidget(new TJImageWidget(30, 106, 115, 18, DISPLAY));
                                             widgetGroup2.addWidget(new ScrollingWidgetGroup<>(3, 25, 185, 80)
                                                     .addSubWidget(playerTextWidget));
                                             widgetGroup2.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.allowed_players", this.frequency)), 0x404040));
@@ -387,7 +387,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                                                     .setUpdateOnTyping(true));
                                             return true;
                                         }).addPopup(0, 0, 182, 100, playerTextWidget, false, widgetGroup2 -> {
-                                            widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 100, BORDERED_BACKGROUND));
+                                            widgetGroup2.addWidget(new TJImageWidget(0, 0, 182, 100, BORDERED_BACKGROUND));
                                             widgetGroup2.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.edit_permission", playerName[0])), 0x404040));
                                             widgetGroup2.addWidget(new TJToggleButtonWidget(3, 25, 88, 18)
                                                     .setToggleDisplayText("machine.universal.false", "machine.universal.true")
@@ -430,7 +430,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                                                     .setButtonSupplier(() -> permissions[0][5] != 0)
                                                     .setToggleTexture(TOGGLE_BUTTON_BACK)
                                                     .useToggleTexture(true));
-                                            widgetGroup2.addWidget(new ImageWidget(3, 79, 176, 18, DISPLAY));
+                                            widgetGroup2.addWidget(new TJImageWidget(3, 79, 176, 18, DISPLAY));
                                             widgetGroup2.addWidget(new NewTextFieldWidget<>(5, 84, 174, 13)
                                                     .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                                                     .setTextResponder((text, id) -> permissions[0][6] = Long.parseLong(text))
@@ -443,7 +443,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                                                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                                                 .useToggleTexture(true))
                                         .addPopupCondition(this.handlePlayerDisplayClick(playerName, permissions)).addFailPopup(0, 40, 182, 40, widgetGroup2 -> {
-                                            widgetGroup2.addWidget(new ImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
+                                            widgetGroup2.addWidget(new TJImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
                                             widgetGroup2.addWidget(new AdvancedTextWidget(30, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
                                         }));
                                 return true;
@@ -461,8 +461,8 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
     }
 
     private boolean addSearchTextWidgets(WidgetGroup widgetGroup, int[][] patternFlags, int i) {
-        widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
-        widgetGroup.addWidget(new ImageWidget(3, 57, 54, 18, DISPLAY));
+        widgetGroup.addWidget(new TJImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
+        widgetGroup.addWidget(new TJImageWidget(3, 57, 54, 18, DISPLAY));
         widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList -> textList.add(new TextComponentTranslation("string.regex.flag", this.getFlags(patternFlags[i]))), 0x404040));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 3, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][0] = pressed ? Pattern.UNIX_LINES : 0)
