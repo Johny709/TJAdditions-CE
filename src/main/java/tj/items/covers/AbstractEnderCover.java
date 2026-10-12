@@ -127,28 +127,28 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     }
 
     private void createChannelTab(List<Widget> tab, EntityPlayer player, int[] searchResults, int[][] patternFlags, String[] search) {
-        NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
+        final NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setBackgroundText("machine.universal.toggle.rename.channel")
                 .setTooltipText("machine.universal.toggle.rename.channel")
                 .setTextResponder(this.getEnderProfile()::editChannel)
                 .setMaxStringLength(256);
-        NewTextFieldWidget<?> textFieldWidgetEntry = new NewTextFieldWidget<>(12, 20, 159, 13)
+        final NewTextFieldWidget<?> textFieldWidgetEntry = new NewTextFieldWidget<>(12, 20, 159, 13)
                 .setTextResponder((key, id) -> this.getEnderProfile().addChannel(key, id, this))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setBackgroundText("machine.universal.toggle.add.channel")
                 .setTooltipText("machine.universal.toggle.add.channel")
                 .setTextId(player.getUniqueID().toString())
                 .setMaxStringLength(256);
-        TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
+        final TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
         textWidget.setMaxWidthLimit(1000);
         tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(new TJImageWidget(30, 15, 115, 18, DISPLAY));
                     widgetGroup.addWidget(new TJImageWidget(30, 38, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new TJImageWidget(3, 61, 170, 80, DISPLAY));
+                    widgetGroup.addWidget(new TJImageWidget(3, 61, 170, 80, MULTIBLOCK_DISPLAY_BASE));
                     widgetGroup.addWidget(new TJImageWidget(30, 142, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new ScrollingWidgetGroup<>(3, 61, 180, 80)
+                    widgetGroup.addWidget(new ScrollingWidgetGroup<>(3, 61, 172, 80)
                             .addSubWidget(textWidget));
                     widgetGroup.addWidget(new NewTextFieldWidget<>(32, 43, 112, 13, false)
                             .setTextResponder((key, id) -> this.getEnderProfile().setChannel(key, id, this))
@@ -218,8 +218,8 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                     widgetGroup.addWidget(new TJImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                     widgetGroup.addWidget(new TJImageWidget(10, 15, 162, 18, DISPLAY));
                     widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
-                        int index = textFieldWidgetRename.getTextId().lastIndexOf(":");
-                        String entry = textFieldWidgetRename.getTextId().substring(0, index);
+                        final int index = textFieldWidgetRename.getTextId().lastIndexOf(":");
+                        final String entry = textFieldWidgetRename.getTextId().substring(0, index);
                         textList.add(new TextComponentTranslation("machine.universal.renaming", entry));
                     }, 0x404040));
                     widgetGroup.addWidget(textFieldWidgetRename);
@@ -282,9 +282,9 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         tab.add(new ClickPopUpWidget(0, 0, 0, 0)
                 .addPopup(widgetGroup -> {
                     widgetGroup.addWidget(new TJImageWidget(30, 15, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new TJImageWidget(3, 38, 170, 103, DISPLAY));
+                    widgetGroup.addWidget(new TJImageWidget(3, 38, 170, 103, MULTIBLOCK_DISPLAY_BASE));
                     widgetGroup.addWidget(new TJImageWidget(30, 142, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new ScrollingWidgetGroup<>(3, 38, 180, 103)
+                    widgetGroup.addWidget(new ScrollingWidgetGroup<>(3, 38, 172, 103)
                             .addSubWidget(textWidget));
                     widgetGroup.addWidget(new NewTextFieldWidget<>(32, 20, 112, 18)
                             .setTextResponder((key, id) -> this.getEnderProfile().setFrequency(key, id, this))
@@ -325,8 +325,8 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                     widgetGroup.addWidget(new TJImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
                     widgetGroup.addWidget(new TJImageWidget(10, 15, 162, 18, DISPLAY));
                     widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
-                        int index = textFieldWidgetRename.getTextId().lastIndexOf(":");
-                        String entry = textFieldWidgetRename.getTextId().substring(0, index);
+                        final int index = textFieldWidgetRename.getTextId().lastIndexOf(":");
+                        final String entry = textFieldWidgetRename.getTextId().substring(0, index);
                         textList.add(new TextComponentTranslation("machine.universal.renaming", entry));
                     }, 0x404040));
                     widgetGroup.addWidget(textFieldWidgetRename);
@@ -365,7 +365,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                         .useToggleTexture(true), widgetGroup -> {
                     widgetGroup.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
                             .addPopup(widgetGroup1 -> {
-                                TJAdvancedTextWidget playerTextWidget = new TJAdvancedTextWidget(2, 3, this.addPlayerDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
+                                final TJAdvancedTextWidget playerTextWidget = new TJAdvancedTextWidget(2, 3, this.addPlayerDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
                                 widgetGroup1.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
                                         .addPopup(widgetGroup2 -> {
                                             widgetGroup2.addWidget(new TJImageWidget(0, 0, 182, 130, BORDERED_BACKGROUND));
