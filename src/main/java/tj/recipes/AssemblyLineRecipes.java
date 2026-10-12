@@ -1031,12 +1031,68 @@ public class AssemblyLineRecipes {
                     .outputs(ENDER_ENERGY_INPUT_HATCHES[i].getStackForm())
                     .EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1])).duration(1000)
                     .buildAndRegister();
+            ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                    .fluidInputs(SolderingAlloy.getFluid(9216), Lubricant.getFluid(32000), EnderPearl.getFluid(2880), EnderEye.getFluid(2880))
+                    .inputs(stack, UHPIC.getStackForm(32), ENDER_ENERGY_INPUT_HATCHES[i].getStackForm(), ENDER_ENERGY_COVERS[Math.max(0, i - 2)].getStackForm(), FIELD_GENERATOR_UHV.getStackForm(2), EMITTER_UHV.getStackForm(2), SENSOR_UHV.getStackForm(2))
+                    .input(OrePrefix.circuit, UEV, 4)
+                    .outputs(ENDER_ENERGY_INPUT_HATCHES_4[i].getStackForm())
+                    .EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1])).duration(1000)
+                    .buildAndRegister();
+            ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                    .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), EnderPearl.getFluid(5760), EnderEye.getFluid(5760))
+                    .inputs(stack, UHPIC.getStackForm(64), ENDER_ENERGY_INPUT_HATCHES_4[i].getStackForm(2), ENDER_ENERGY_COVERS[Math.max(0, i - 2)].getStackForm(2), FIELD_GENERATOR_UHV.getStackForm(4), EMITTER_UHV.getStackForm(4), SENSOR_UHV.getStackForm(4))
+                    .input(OrePrefix.circuit, UEV, 8)
+                    .outputs(ENDER_ENERGY_INPUT_HATCHES_16[i].getStackForm())
+                    .EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1])).duration(1000)
+                    .buildAndRegister();
+            ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                    .fluidInputs(SolderingAlloy.getFluid(36864), Lubricant.getFluid(256000), EnderPearl.getFluid(11520), EnderEye.getFluid(11520))
+                    .inputs(stack, UHPIC.getStackForm(64), UHPIC.getStackForm(64), ENDER_ENERGY_INPUT_HATCHES_16[i].getStackForm(2), ENDER_ENERGY_COVERS[Math.max(0, i - 2)].getStackForm(2), FIELD_GENERATOR_UHV.getStackForm(8), EMITTER_UHV.getStackForm(8), SENSOR_UHV.getStackForm(8))
+                    .input(OrePrefix.circuit, UEV, 16)
+                    .outputs(ENDER_ENERGY_INPUT_HATCHES_64[i].getStackForm())
+                    .EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1])).duration(1000)
+                    .buildAndRegister();
+            ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                    .fluidInputs(SolderingAlloy.getFluid(73728), Lubricant.getFluid(1024000), EnderPearl.getFluid(23040), EnderEye.getFluid(23040))
+                    .inputs(stack, UHPIC.getStackForm(64), UHPIC.getStackForm(64), UHPIC.getStackForm(64), UHPIC.getStackForm(64), ENDER_ENERGY_INPUT_HATCHES_64[i].getStackForm(2), ENDER_ENERGY_COVERS[Math.max(0, i - 2)].getStackForm(2), FIELD_GENERATOR_UHV.getStackForm(16), EMITTER_UHV.getStackForm(16), SENSOR_UHV.getStackForm(16))
+                    .input(OrePrefix.circuit, UEV, 32)
+                    .outputs(ENDER_ENERGY_INPUT_HATCHES_256[i].getStackForm())
+                    .EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1])).duration(1000)
+                    .buildAndRegister();
 
             ASSEMBLY_LINE_RECIPES.recipeBuilder()
                     .fluidInputs(SolderingAlloy.getFluid(4608), Lubricant.getFluid(16000), EnderPearl.getFluid(1440), EnderEye.getFluid(1440))
                     .inputs(stack, UHPIC.getStackForm(16), RecipeInit.getEnergyHatch(i + 1, true), ENDER_ENERGY_COVERS[Math.max(0, i - 2)].getStackForm(), EMITTER_UHV.getStackForm(), SENSOR_UHV.getStackForm())
                     .input(OrePrefix.circuit, UEV, 2)
                     .outputs(ENDER_ENERGY_OUTPUT_HATCHES[i].getStackForm())
+                    .EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1])).duration(1000)
+                    .buildAndRegister();
+            ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                    .fluidInputs(SolderingAlloy.getFluid(9216), Lubricant.getFluid(32000), EnderPearl.getFluid(2880), EnderEye.getFluid(2880))
+                    .inputs(stack, UHPIC.getStackForm(32), ENDER_ENERGY_OUTPUT_HATCHES[i].getStackForm(), ENDER_ENERGY_COVERS[Math.max(0, i - 2)].getStackForm(), FIELD_GENERATOR_UHV.getStackForm(2), EMITTER_UHV.getStackForm(2), SENSOR_UHV.getStackForm(2))
+                    .input(OrePrefix.circuit, UEV, 4)
+                    .outputs(ENDER_ENERGY_OUTPUT_HATCHES_4[i].getStackForm())
+                    .EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1])).duration(1000)
+                    .buildAndRegister();
+            ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                    .fluidInputs(SolderingAlloy.getFluid(18432), Lubricant.getFluid(64000), EnderPearl.getFluid(5760), EnderEye.getFluid(5760))
+                    .inputs(stack, UHPIC.getStackForm(64), ENDER_ENERGY_OUTPUT_HATCHES_4[i].getStackForm(2), ENDER_ENERGY_COVERS[Math.max(0, i - 2)].getStackForm(2), FIELD_GENERATOR_UHV.getStackForm(4), EMITTER_UHV.getStackForm(4), SENSOR_UHV.getStackForm(4))
+                    .input(OrePrefix.circuit, UEV, 8)
+                    .outputs(ENDER_ENERGY_OUTPUT_HATCHES_16[i].getStackForm())
+                    .EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1])).duration(1000)
+                    .buildAndRegister();
+            ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                    .fluidInputs(SolderingAlloy.getFluid(36864), Lubricant.getFluid(256000), EnderPearl.getFluid(11520), EnderEye.getFluid(11520))
+                    .inputs(stack, UHPIC.getStackForm(64), UHPIC.getStackForm(64), ENDER_ENERGY_OUTPUT_HATCHES_16[i].getStackForm(2), ENDER_ENERGY_COVERS[Math.max(0, i - 2)].getStackForm(2), FIELD_GENERATOR_UHV.getStackForm(8), EMITTER_UHV.getStackForm(8), SENSOR_UHV.getStackForm(8))
+                    .input(OrePrefix.circuit, UEV, 16)
+                    .outputs(ENDER_ENERGY_OUTPUT_HATCHES_64[i].getStackForm())
+                    .EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1])).duration(1000)
+                    .buildAndRegister();
+            ASSEMBLY_LINE_RECIPES.recipeBuilder()
+                    .fluidInputs(SolderingAlloy.getFluid(73728), Lubricant.getFluid(1024000), EnderPearl.getFluid(23040), EnderEye.getFluid(23040))
+                    .inputs(stack, UHPIC.getStackForm(64), UHPIC.getStackForm(64), UHPIC.getStackForm(64), UHPIC.getStackForm(64), ENDER_ENERGY_OUTPUT_HATCHES_64[i].getStackForm(2), ENDER_ENERGY_COVERS[Math.max(0, i - 2)].getStackForm(2), FIELD_GENERATOR_UHV.getStackForm(16), EMITTER_UHV.getStackForm(16), SENSOR_UHV.getStackForm(16))
+                    .input(OrePrefix.circuit, UEV, 32)
+                    .outputs(ENDER_ENERGY_OUTPUT_HATCHES_256[i].getStackForm())
                     .EUt(Math.max(GAValues.VA[9], GAValues.VA[i + 1])).duration(1000)
                     .buildAndRegister();
         }
