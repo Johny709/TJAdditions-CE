@@ -3,39 +3,41 @@ package tj.capability.impl.workable;
 import gregtech.api.capability.IEnergyContainer;
 import net.minecraft.util.EnumFacing;
 
-public class EnderEnergyHandler implements IEnergyContainer {
+public class EnderEnergyHandlerWrapper implements IEnergyContainer {
 
     private BasicEnergyHandler basicEnergyHandler;
     private long inputVoltage;
     private long outputVoltage;
+    private long outputEnergyLimit = Integer.MIN_VALUE;
     private int inputAmps;
     private int outputAmps;
 
-    public EnderEnergyHandler(BasicEnergyHandler basicEnergyHandler) {
+    public EnderEnergyHandlerWrapper(BasicEnergyHandler basicEnergyHandler) {
         this.basicEnergyHandler = basicEnergyHandler;
     }
 
-    public EnderEnergyHandler setBasicEnergyHandler(BasicEnergyHandler basicEnergyHandler) {
+    public EnderEnergyHandlerWrapper setBasicEnergyHandler(BasicEnergyHandler basicEnergyHandler) {
         this.basicEnergyHandler = basicEnergyHandler;
+        this.reinitializeEnergyLimit();
         return this;
     }
 
-    public EnderEnergyHandler setInputVoltage(long inputVoltage) {
+    public EnderEnergyHandlerWrapper setInputVoltage(long inputVoltage) {
         this.inputVoltage = inputVoltage;
         return this;
     }
 
-    public EnderEnergyHandler setOutputVoltage(long outputVoltage) {
+    public EnderEnergyHandlerWrapper setOutputVoltage(long outputVoltage) {
         this.outputVoltage = outputVoltage;
         return this;
     }
 
-    public EnderEnergyHandler setInputAmps(int inputAmps) {
+    public EnderEnergyHandlerWrapper setInputAmps(int inputAmps) {
         this.inputAmps = inputAmps;
         return this;
     }
 
-    public EnderEnergyHandler setOutputAmps(int outputAmps) {
+    public EnderEnergyHandlerWrapper setOutputAmps(int outputAmps) {
         this.outputAmps = outputAmps;
         return this;
     }
@@ -52,7 +54,7 @@ public class EnderEnergyHandler implements IEnergyContainer {
 
     @Override
     public long addEnergy(long energyToAdd) {
-        return this.basicEnergyHandler.addEnergy(energyToAdd);
+        return this.basicEnergyHandler.addEnergy(this.outputEnergyLimit != Integer.MIN_VALUE ? Math.min(energyToAdd, this.outputEnergyLimit) : energyToAdd);
     }
 
     @Override
@@ -61,8 +63,8 @@ public class EnderEnergyHandler implements IEnergyContainer {
     }
 
     @Override
-    public long changeEnergy(long l) {
-        return this.basicEnergyHandler.changeEnergy(l);
+    public long changeEnergy(long energy) {
+        return this.basicEnergyHandler.changeEnergy(this.outputEnergyLimit != Integer.MIN_VALUE ? Math.min(energy, this.outputEnergyLimit) : energy);
     }
 
     @Override
@@ -93,5 +95,11 @@ public class EnderEnergyHandler implements IEnergyContainer {
     @Override
     public long getOutputVoltage() {
         return this.outputVoltage;
+    }
+
+    public void reinitializeEnergyLimit() {
+        if (this.outputVoltage > 0 && this.outputAmps > 0) {
+            this.outputEnergyLimit = this.outputVoltage * this.outputAmps;
+        } else this.outputEnergyLimit = Integer.MIN_VALUE;
     }
 }
