@@ -28,8 +28,6 @@ import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.*;
-import tj.util.Color;
-import tj.util.TooltipHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -57,7 +55,6 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
-        tooltip.add(TooltipHelper.blinkingText(Color.YELLOW, 20, "tj.machine.filtered_bus.warning"));
         tooltip.add(I18n.format("tj.machine.filtered_bus.description"));
         tooltip.add(I18n.format("machine.universal.slots", TJValues.thousandFormat.format(this.getTierSlots(this.getTier()))));
         tooltip.add(I18n.format("gregtech.universal.enabled"));
