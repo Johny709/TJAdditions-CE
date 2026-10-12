@@ -1053,11 +1053,14 @@ public class AssemblyLineRecipes {
                 .buildAndRegister();
         ASSEMBLY_LINE_RECIPES.recipeBuilder()
                 .fluidInputs(SolderingAlloy.getFluid(14400), Lubricant.getFluid(16000), EnderPearl.getFluid(57600), EnderPearl.getFluid(57600))
-                .inputs(BATTERY_TOWER.getStackForm(16), SENSOR_UHV.getStackForm(16), EMITTER_UHV.getStackForm(16), FIELD_GENERATOR_UHV.getStackForm(16))
+                .inputs(BATTERY_TOWER.getStackForm(16), SENSOR_UHV.getStackForm(16), EMITTER_UHV.getStackForm(16), GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TALONITE, 16))
                 .inputs(UHPIC.getStackForm(16))
                 .input(OrePrefix.circuit, UEV, 16)
                 .input(OrePrefix.circuit, UEV, 16)
-                .inputs(UHPIC.getStackForm(16), GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TALONITE, 16), UHPIC.getStackForm(16), UHPIC.getStackForm(16), GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TALONITE, 16))
+                .inputs(UHPIC.getStackForm(16), UHPIC.getStackForm(16))
+                .input(OrePrefix.circuit, UEV, 16)
+                .input(OrePrefix.circuit, UEV, 16)
+                .inputs(UHPIC.getStackForm(16), GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TALONITE, 16), ROBOT_ARM_UHV.getStackForm(16), FIELD_GENERATOR_UHV.getStackForm(16), GAMetaBlocks.METAL_CASING_1.getItemVariant(MetalCasing1.CasingType.TALONITE, 16))
                 .outputs(ENDER_BATTERY_TOWER.getStackForm())
                 .EUt(GAValues.VA[10]).duration(2000)
                 .buildAndRegister();

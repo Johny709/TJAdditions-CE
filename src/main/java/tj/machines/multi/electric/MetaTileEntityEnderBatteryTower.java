@@ -25,6 +25,7 @@ import gregtech.api.render.Textures;
 import gregtech.common.covers.CoverPump;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -114,8 +115,9 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(net.minecraft.client.resources.I18n.format("gtadditions.multiblock.battery_tower.tooltip.1"));
-        tooltip.add(net.minecraft.client.resources.I18n.format("tj.multiblock.ender_battery_tower.description"));
+        tooltip.add(I18n.format("gtadditions.multiblock.battery_tower.tooltip.1"));
+        tooltip.add(I18n.format("tj.multiblock.ender_battery_tower.description"));
+        tooltip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
     }
 
     @Override
