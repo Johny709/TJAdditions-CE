@@ -24,15 +24,16 @@ import tj.machines.TJMetaTileEntities;
 import tj.network.TJNetworkHandler;
 
 
-@Mod(modid = TJ.MODID, name = TJ.NAME, version = TJ.VERSION)
+@Mod(modid = TJ.MODID, name = TJ.NAME, version = TJ.VERSION, dependencies = "required-after:gregtech@[1.18.4,);" +
+        "required-after:gtadditions@[0.26.3,)")
 public class TJ {
-
-    @Mod.Instance(value = TJ.MODID)
-    public static TJ INSTANCE;
 
     public static final String MODID = "tj";
     public static final String NAME = "TJ";
     public static final String VERSION = "2.10.0";
+
+    @Mod.Instance(value = TJ.MODID)
+    public static TJ INSTANCE;
 
     @SidedProxy(modId = MODID, clientSide = "tj.ClientProxy", serverSide = "tj.CommonProxy")
     public static CommonProxy proxy;
