@@ -38,7 +38,7 @@ import static tj.textures.TJTextures.PORTAL_OVERLAY;
 public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
 
     private final IItemHandler itemInventory;
-    private final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, 1);
+    private final LargeItemStackHandler itemFilter = new LargeItemStackHandler(16, 1);
     private final Object2ObjectMap<ItemStack, ItemStack> itemType = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
     private final int capacity;
     private final int tier;
@@ -86,17 +86,17 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
 
     @Override
     protected void addToPopUpWidget(PopUpWidget<?> buttonPopUpWidget) {
-        ((ButtonPopUpWidget<?>) buttonPopUpWidget).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 161, 18, 18)
+        ((ButtonPopUpWidget<?>) buttonPopUpWidget).addPopup(94, 43, 78, 96, new TJToggleButtonWidget(151, 161, 18, 18)
                         .setHoverTooltipText("cover.conveyor.item_filter.title")
                         .setToggleTexture(TOGGLE_BUTTON_BACK)
                         .setBackgroundTextures(ITEM_FILTER)
                         .useToggleTexture(true), widgetGroup -> {
-            widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
-            widgetGroup.addWidget(new TJToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
+            widgetGroup.addWidget(new ImageWidget(0, 0, 78, 96, BORDERED_BACKGROUND));
+            widgetGroup.addWidget(new TJToggleButtonWidget(3, 75, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
                     .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled",
                             "cover.filter.blacklist.enabled"));
             for (int i = 0; i < this.itemFilter.getSlots(); i++) {
-                widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3) + 3, 18 * (i / 3) + 3, 18, 18, i, this.itemFilter,
+                widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4) + 3, 18 * (i / 4) + 3, 18, 18, i, this.itemFilter,
                         item -> {
                     if (item.isEmpty()) return;
                     this.itemType.put(item, item);

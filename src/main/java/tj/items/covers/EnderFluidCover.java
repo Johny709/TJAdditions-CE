@@ -41,7 +41,7 @@ public class EnderFluidCover extends AbstractEnderCover<FluidTank> {
 
     private final IFluidHandler fluidTank;
     private final Object2ObjectMap<FluidStack, FluidStack> fluidType = new Object2ObjectOpenHashMap<>();
-    private final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
+    private final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 16)
             .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
             .collect(Collectors.toList()));
     private final int capacity;
@@ -106,17 +106,17 @@ public class EnderFluidCover extends AbstractEnderCover<FluidTank> {
 
     @Override
     protected void addToPopUpWidget(PopUpWidget<?> buttonPopUpWidget) {
-        ((ButtonPopUpWidget<?>) buttonPopUpWidget).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 161, 18, 18)
+        ((ButtonPopUpWidget<?>) buttonPopUpWidget).addPopup(94, 43, 78, 96, new TJToggleButtonWidget(151, 161, 18, 18)
                 .setHoverTooltipText("cover.pump.fluid_filter.title")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .setBackgroundTextures(FLUID_FILTER)
                 .useToggleTexture(true), widgetGroup -> {
-            widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
-            widgetGroup.addWidget(new TJToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
+            widgetGroup.addWidget(new ImageWidget(0, 0, 78, 96, BORDERED_BACKGROUND));
+            widgetGroup.addWidget(new TJToggleButtonWidget(3, 75, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
                     .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled",
                             "cover.filter.blacklist.enabled"));
             for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
-                widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3) + 3, 18 * (i / 3) + 3, 18, 18, i, this.fluidFilter,
+                widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 4) + 3, 18 * (i / 4) + 3, 18, 18, i, this.fluidFilter,
                         fluid -> {
                     if (fluid != null)
                         this.fluidType.put(fluid, fluid);
