@@ -2,10 +2,11 @@ package tj.items.covers;
 
 import gregicadditions.GAValues;
 import gregtech.api.cover.ICoverable;
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
-import gregtech.common.covers.filter.SimpleItemFilter;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -17,13 +18,14 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import tj.TJValues;
 import tj.mui.widgets.PopUpWidget;
+import tj.mui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.mui.widgets.impl.TJSlotWidget;
 import tj.mui.widgets.impl.ButtonPopUpWidget;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
-import tj.util.TextUtils;
+import tj.util.map.Strategies;
 
 import java.awt.*;
 import java.util.function.Consumer;
@@ -36,7 +38,8 @@ import static tj.textures.TJTextures.PORTAL_OVERLAY;
 public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
 
     private final IItemHandler itemInventory;
-    private final SimpleItemFilter itemFilter;
+    private final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, 1);
+    private final Object2ObjectMap<ItemStack, ItemStack> itemType = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
     private final int capacity;
     private final int tier;
     private boolean isFilterBlacklist = true;
@@ -48,20 +51,6 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
         this.capacity = (int) Math.min(Math.pow(4, tier) * 10, Integer.MAX_VALUE);
         this.maxTransferRate = (int) Math.min(Math.round(Math.pow(4, tier) / 20), Integer.MAX_VALUE);
         this.transferRate = this.maxTransferRate;
-        this.itemFilter = new SimpleItemFilter() {
-            @Override
-            public void initUI(Consumer<Widget> widgetGroup) {
-                for (int i = 0; i < 9; i++) {
-                    widgetGroup.accept(new PhantomSlotWidget(itemFilterSlots, i, 3 + 18 * (i % 3), 3 + 18 * (i / 3)).setBackgroundTexture(SLOT));
-                }
-                widgetGroup.accept(new TJToggleButtonWidget(21, 57, 18, 18, BUTTON_FILTER_DAMAGE,
-                        () -> ignoreDamage, this::setIgnoreDamage)
-                        .setToggleTitleTooltipHoverText("cover.item_filter.ignore_damage.disabled", "cover.item_filter.ignore_damage.enabled"));
-                widgetGroup.accept(new TJToggleButtonWidget(39, 57, 18, 18, BUTTON_FILTER_NBT,
-                        () -> ignoreNBT, this::setIgnoreNBT)
-                        .setToggleTitleTooltipHoverText("cover.item_filter.ignore_nbt.disabled", "cover.item_filter.ignore_nbt.enabled"));
-            }
-        };
         this.handler = this.createHandler();
     }
 
@@ -104,8 +93,16 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
                         .useToggleTexture(true), widgetGroup -> {
             widgetGroup.addWidget(new ImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
             widgetGroup.addWidget(new TJToggleButtonWidget(3, 57, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
-                    .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled", "cover.filter.blacklist.enabled"));
-            this.itemFilter.initUI(widgetGroup::addWidget);
+                    .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled",
+                            "cover.filter.blacklist.enabled"));
+            for (int i = 0; i < this.itemFilter.getSlots(); i++) {
+                widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3) + 3, 18 * (i / 3) + 3, 18, 18, i, this.itemFilter,
+                        item -> {
+                    if (item.isEmpty()) return;
+                    this.itemType.put(item, item);
+                }, this.itemType::remove).setPutItemsPredicate(item -> !this.itemType.containsKey(item))
+                        .setBackgroundTextures(GuiTextures.SLOT));
+            }
             return false;
         }).setClickArea(new Rectangle(346, 107, 60, 78));
     }
@@ -132,14 +129,15 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
 
     @Override
     protected void addChannelText(ITextComponent keyEntry, String key, LargeItemStackHandler value) {
-        ItemStack item = value.getStackInSlot(0);
-        boolean empty = item.isEmpty();
-        String name = !empty ? item.getTranslationKey() + ".name" : TextUtils.translate("metaitem.fluid_cell.empty");
-        int capacity = value.getCapacity();
-        int amount = !empty ? item.getCount() : 0;
+        final ItemStack item = value.getStackInSlot(0);
+        final boolean empty = item.isEmpty();
+        final String name = !empty ? item.getTranslationKey() + ".name" : "metaitem.fluid_cell.empty";
+        final int capacity = value.getCapacity();
+        final int amount = !empty ? item.getCount() : 0;
         keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation(name)
                 .appendText("\n")
-                .appendText(TextUtils.translate("machine.universal.item.stored", TJValues.thousandFormat.format(amount), TJValues.thousandFormat.format(capacity)))));
+                .appendSibling(new TextComponentTranslation("machine.universal.item.stored", TJValues.thousandFormat.format(amount),
+                        TJValues.thousandFormat.format(capacity)))));
     }
 
     @Override
@@ -147,21 +145,17 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
         if (this.isWorkingEnabled && this.handler != null) {
             if (this.pumpMode == IMPORT) {
                 this.moveInventoryItems(this.itemInventory, this.handler);
-            } else {
-                this.moveInventoryItems(this.handler, this.itemInventory);
-            }
+            } else this.moveInventoryItems(this.handler, this.itemInventory);
         }
     }
 
     private void moveInventoryItems(IItemHandler sourceInventory, IItemHandler targetInventory) {
         for (int srcIndex = 0; srcIndex < sourceInventory.getSlots(); srcIndex++) {
+            if (this.itemType.containsKey(sourceInventory.getStackInSlot(srcIndex)) == this.isFilterBlacklist) continue;
             ItemStack sourceStack = sourceInventory.extractItem(srcIndex, Math.min(this.transferRate, this.maxTransferRate), true);
-            boolean isFilterStack = this.itemFilter.matchItemStack(sourceStack) != null;
-            if (sourceStack.isEmpty() || this.isFilterBlacklist == isFilterStack) {
-                continue;
-            }
-            ItemStack remainder = ItemHandlerHelper.insertItemStacked(targetInventory, sourceStack, true);
-            int amountToInsert = sourceStack.getCount() - remainder.getCount();
+            if (sourceStack.isEmpty()) continue;
+            final ItemStack remainder = ItemHandlerHelper.insertItemStacked(targetInventory, sourceStack, true);
+            final int amountToInsert = sourceStack.getCount() - remainder.getCount();
             if (amountToInsert > 0) {
                 sourceStack = sourceInventory.extractItem(srcIndex, amountToInsert, false);
                 ItemHandlerHelper.insertItemStacked(targetInventory, sourceStack, false);
@@ -172,14 +166,19 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
     @Override
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        this.itemFilter.writeToNBT(data);
+        data.setTag("itemFilter", this.itemFilter.serializeNBT());
         data.setBoolean("FilterBlacklist", this.isFilterBlacklist);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        this.itemFilter.readFromNBT(data);
+        this.itemFilter.deserializeNBT(data.getCompoundTag("itemFilter"));
         this.isFilterBlacklist = data.getBoolean("FilterBlacklist");
+        for (int i = 0; i < this.itemFilter.getSlots(); i++) {
+            final ItemStack stack = this.itemFilter.getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+            this.itemType.put(stack, stack);
+        }
     }
 }
