@@ -79,10 +79,12 @@ public class WorkableInfoDataProvider extends CapabilityInfoDataProvider<IWorkab
             final NBTTagCompound recipeCompound = new NBTTagCompound();
             final NBTTagList itemOutputs = new NBTTagList();
             final NBTTagList fluidOutputs = new NBTTagList();
-            for (ItemStack item : ((IMixinAbstractRecipeLogic) workable).getItemOutputs())
-                itemOutputs.appendTag(item.serializeNBT());
-            for (FluidStack fluid : ((IMixinAbstractRecipeLogic) workable).getFluidOutputs())
-                fluidOutputs.appendTag(fluid.writeToNBT(new NBTTagCompound()));
+            if (((IMixinAbstractRecipeLogic) workable).getItemOutputs() != null)
+                for (ItemStack item : ((IMixinAbstractRecipeLogic) workable).getItemOutputs())
+                    itemOutputs.appendTag(item.serializeNBT());
+            if (((IMixinAbstractRecipeLogic) workable).getFluidOutputs() != null)
+                for (FluidStack fluid : ((IMixinAbstractRecipeLogic) workable).getFluidOutputs())
+                    fluidOutputs.appendTag(fluid.writeToNBT(new NBTTagCompound()));
             recipeCompound.setTag("itemOutputs", itemOutputs);
             recipeCompound.setTag("fluidOutputs", fluidOutputs);
             compound.setBoolean("active", workable.isActive());
