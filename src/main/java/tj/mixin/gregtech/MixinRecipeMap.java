@@ -120,7 +120,7 @@ public abstract class MixinRecipeMap implements IRecipeMap {
                                       IItemHandlerModifiable itemOutput,
                                       FluidTankList fluidInput,
                                       FluidTankList fluidOutput) {
-        int offsetY = 30;
+        int offsetY = 34;
         offsetY = Math.max(offsetY, this.addInventorySlotGroupAdvanced(builder, itemInput, fluidInput, false, displayWidget, offsetY));
         offsetY = Math.max(offsetY, this.addInventorySlotGroupAdvanced(builder, itemOutput, fluidOutput, true, displayWidget, offsetY));
         return offsetY;

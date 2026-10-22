@@ -4,7 +4,6 @@ import gregicadditions.Gregicality;
 import gregicadditions.machines.overrides.GASimpleMachineMetaTileEntity;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.CycleButtonWidget;
 import gregtech.api.gui.widgets.DischargerSlotWidget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.ProgressWidget;
@@ -18,12 +17,12 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import tj.TJConfig;
 import tj.capability.IRecipeMap;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.*;
 import tj.mixin.gregtech.IMixinAbstractRecipeLogic;
+import tj.util.VoltageOverclock;
 import tj.util.references.IntegerReference;
 
 @Mixin(value = GASimpleMachineMetaTileEntity.class, remap = false)
@@ -48,9 +47,8 @@ public abstract class MixinGASimpleMachineMetaTileEntity extends MixinGAWorkable
     @Shadow
     public abstract void setAutoOutputFluids(boolean autoOutputFluids);
 
-    @Inject(method = "createGuiTemplate", at = @At("RETURN"), locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
-    private void injectCreateGUITemplate(EntityPlayer player, CallbackInfoReturnable<ModularUI.Builder> cir,
-                                         ModularUI.Builder builder, int leftButtonStartX, int rightButtonStartX) {
+    @Inject(method = "createGuiTemplate", at = @At("RETURN"), cancellable = true)
+    private void injectCreateGUITemplate(EntityPlayer player, CallbackInfoReturnable<ModularUI.Builder> cir) {
         if (!TJConfig.machines.multiblockUIOverrides) return;
         RecipeOutputDisplayWidget displayWidget = new RecipeOutputDisplayWidget(77, 22, 21, 20)
                 .setFluidOutputSupplier(((IMixinAbstractRecipeLogic) this.workable)::getFluidOutputs)
@@ -78,10 +76,11 @@ public abstract class MixinGASimpleMachineMetaTileEntity extends MixinGAWorkable
             uiBuilder.bindPlayerInventory(player.inventory, 48 + offsetY)
                     .widget(new ImageWidget(79, 26 + (offsetY / 2), 18, 18, GuiTextures.INDICATOR_NO_ENERGY)
                             .setPredicate(this.workable::isHasNotEnoughEnergy))
-                    .widget(new CycleButtonWidget(leftButtonStart.getAndIncrement(18), 26 + offsetY, 18, 18,
-                            this.workable.getAvailableOverclockingTiers(), this.workable::getOverclockTier, this.workable::setOverclockTier)
-                            .setTooltipHoverString("gregtech.gui.overclock.description")
-                            .setButtonTexture(GuiTextures.BUTTON_OVERCLOCK))
+                    .widget(new TJCycleButtonWidget<>(leftButtonStart.getAndIncrement(18), 26 + offsetY, 18, 18, VoltageOverclock.class,
+                            () -> VoltageOverclock.values()[this.workable.getOverclockTier()],
+                            voltage -> this.workable.setOverclockTier(Math.min(this.getTier() + 1, voltage.ordinal())))
+                            .setTitleHoverTooltipText("gregtech.gui.overclock.description")
+                            .setBackgroundTextures(TJGuiTextures.EMPTY_BUTTON))
                     .widget(new TJToggleButtonWidget(leftButtonStart.getAndIncrement(18), 26 + offsetY, 18, 18, GuiTextures.TOGGLE_BUTTON_BACK,
                             this.workable::isCheckOutputsFitBeforeStarting, this.workable::setCheckOutputsFitBeforeStarting)
                             .setToggleTitleTooltipHoverText("gregtech.multiblock.check_output_fit_before.disabled",

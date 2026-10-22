@@ -12,7 +12,6 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.IStringSerializable;
-import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.mui.widgets.ButtonWidget;
@@ -48,10 +47,8 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
             this.setCycleDisplayText(cycles.stream()
                     .filter(e -> e instanceof IStringSerializable)
                     .map(e -> ((IStringSerializable) e).getName())
-                    .map(e -> {
-                      final String translated = I18n.format(e);
-                      return !e.equals(translated) ? translated : "";
-                    }).toArray(String[]::new));
+                    .map(I18n::format)
+                    .toArray(String[]::new));
     }
 
     /**
@@ -143,6 +140,8 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
                     pos.getY() + size.getHeight() / 2 - fontRenderer.FONT_HEIGHT / 2, this.textColor);
             GlStateManager.color(1.0f, 1.0f, 1.0f);
         }
+        if (this.isMouseOverElement(mouseX, mouseY))
+            drawSelectionOverlay(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
     }
 
     @Override

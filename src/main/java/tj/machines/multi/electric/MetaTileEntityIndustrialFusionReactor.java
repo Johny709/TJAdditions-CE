@@ -67,7 +67,6 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
-import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.INPUT_ENERGY;
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
@@ -292,7 +291,7 @@ public class MetaTileEntityIndustrialFusionReactor extends TJRecipeMapMultiblock
         widgetGroup.add(new TJCycleButtonWidget<>(175, 151, 18, 18, BatchMode.class, () -> this.batchMode, this::setBatchMode)
                 .setCycleTextures(BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
                 .setHoverTooltipText("machine.universal.batch.amount")
-                .setBackgroundTextures(TOGGLE_BUTTON_BACK)
+                .setBackgroundTextures(EMPTY_BUTTON)
                 .setTooltipFormat(this::getTooltipFormat));
     }
 

@@ -56,7 +56,6 @@ import java.util.Map;
 import java.util.stream.LongStream;
 
 import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
-import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
 import static gregtech.common.blocks.BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX;
 import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
@@ -155,7 +154,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
                     .setCycleTextures(BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
                     .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.batchMode.getAmount())))
                     .setHoverTooltipText("machine.universal.batch.amount")
-                    .setBackgroundTextures(TOGGLE_BUTTON_BACK));
+                    .setBackgroundTextures(EMPTY_BUTTON));
             workableTab.add(new TJToggleButtonWidget(175, 151, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
                     .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
             workableTab.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
