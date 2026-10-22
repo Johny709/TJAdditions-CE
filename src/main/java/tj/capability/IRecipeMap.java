@@ -10,13 +10,12 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.mui.widgets.impl.RecipeOutputDisplayWidget;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.DoubleSupplier;
 
 public interface IRecipeMap {
 
-    ModularUI.Builder createUITemplateAdvanced(DoubleSupplier progressSupplier, IItemHandlerModifiable importItems, IItemHandlerModifiable exportItems, FluidTankList importFluids, FluidTankList exportFluids, RecipeOutputDisplayWidget displayWidget);
-
-    void addInventorySlotGroupAdvanced(ModularUI.Builder builder, IItemHandlerModifiable itemHandler, FluidTankList fluidHandler, boolean isOutputs, RecipeOutputDisplayWidget displayWidget);
+    ModularUI.Builder createUITemplateAdvanced(DoubleSupplier progressSupplier, IItemHandlerModifiable importItems, IItemHandlerModifiable exportItems, FluidTankList importFluids, FluidTankList exportFluids, RecipeOutputDisplayWidget displayWidget, BiConsumer<ModularUI.Builder, Integer> uiConsumer);
 
     Recipe findRecipeDistinct(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, int outputFluidTankCapacity, boolean useOptimizedRecipeLookUp, List<Recipe> occupiedRecipes, boolean distinct);
 

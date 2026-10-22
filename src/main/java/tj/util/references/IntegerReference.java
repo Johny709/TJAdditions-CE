@@ -21,6 +21,12 @@ public final class IntegerReference {
         return this.value;
     }
 
+    public int getAndIncrement(int value) {
+        final int oldValue = this.value;
+        this.value += value;
+        return oldValue;
+    }
+
     @Override
     public String toString() {
         return String.valueOf(this.value);

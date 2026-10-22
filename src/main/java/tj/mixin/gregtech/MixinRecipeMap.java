@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.DoubleSupplier;
 
 @Mixin(value = RecipeMap.class, remap = false)
@@ -47,7 +48,14 @@ public abstract class MixinRecipeMap implements IRecipeMap {
     }
 
     @Shadow
-    protected abstract void addSlot(ModularUI.Builder builder, int x, int y, int slotIndex, IItemHandlerModifiable itemHandler, FluidTankList fluidHandler, boolean isFluid, boolean isOutputs);
+    protected abstract void addSlot(ModularUI.Builder builder,
+                                    int x,
+                                    int y,
+                                    int slotIndex,
+                                    IItemHandlerModifiable itemHandler,
+                                    FluidTankList fluidHandler,
+                                    boolean isFluid,
+                                    boolean isOutputs);
 
     @Shadow
     @Final
@@ -78,16 +86,53 @@ public abstract class MixinRecipeMap implements IRecipeMap {
     private int maxInputs;
 
     @Override
-    public ModularUI.Builder createUITemplateAdvanced(DoubleSupplier progressSupplier, IItemHandlerModifiable importItems, IItemHandlerModifiable exportItems, FluidTankList importFluids, FluidTankList exportFluids, RecipeOutputDisplayWidget displayWidget) {
-        ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 166);
+    public ModularUI.Builder createUITemplateAdvanced(DoubleSupplier progressSupplier,
+                                                      IItemHandlerModifiable importItems,
+                                                      IItemHandlerModifiable exportItems,
+                                                      FluidTankList importFluids,
+                                                      FluidTankList exportFluids,
+                                                      RecipeOutputDisplayWidget displayWidget,
+                                                      BiConsumer<ModularUI.Builder, Integer> uiConsumer) {
+        final int offsetY = this.calculateSlotPosition(null, displayWidget, importItems, exportItems, importFluids, exportFluids);
+        final ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 130 + offsetY);
+        this.calculateSlotPosition(builder, displayWidget, importItems, exportItems, importFluids, exportFluids);
         builder.widget(new ProgressWidget(progressSupplier, 77, 22, 21, 20, this.progressBarTexture, this.moveType));
-        this.addInventorySlotGroupAdvanced(builder, importItems, importFluids, false, displayWidget);
-        this.addInventorySlotGroupAdvanced(builder, exportItems, exportFluids, true, displayWidget);
+        uiConsumer.accept(builder, offsetY);
         return builder;
     }
 
     @Override
-    public void addInventorySlotGroupAdvanced(ModularUI.Builder builder, IItemHandlerModifiable itemHandler, FluidTankList fluidHandler, boolean isOutputs, RecipeOutputDisplayWidget displayWidget) {
+    public Recipe findRecipeDistinct(long voltage,
+                                     IItemHandlerModifiable inputs,
+                                     IMultipleTankHandler fluidInputs,
+                                     int outputFluidTankCapacity,
+                                     boolean useOptimizedRecipeLookUp,
+                                     List<Recipe> occupiedRecipes,
+                                     boolean distinct) {
+        return this.findRecipeDistinct(voltage, GTUtility.itemHandlerToList(inputs), GTUtility.fluidHandlerToList(fluidInputs),
+                outputFluidTankCapacity, MatchingMode.DEFAULT, useOptimizedRecipeLookUp, occupiedRecipes, distinct);
+    }
+
+    @Unique
+    private int calculateSlotPosition(ModularUI.Builder builder,
+                                      RecipeOutputDisplayWidget displayWidget,
+                                      IItemHandlerModifiable itemInput,
+                                      IItemHandlerModifiable itemOutput,
+                                      FluidTankList fluidInput,
+                                      FluidTankList fluidOutput) {
+        int offsetY = 30;
+        offsetY = Math.max(offsetY, this.addInventorySlotGroupAdvanced(builder, itemInput, fluidInput, false, displayWidget, offsetY));
+        offsetY = Math.max(offsetY, this.addInventorySlotGroupAdvanced(builder, itemOutput, fluidOutput, true, displayWidget, offsetY));
+        return offsetY;
+    }
+
+    @Unique
+    public int addInventorySlotGroupAdvanced(ModularUI.Builder builder,
+                                             IItemHandlerModifiable itemHandler,
+                                             FluidTankList fluidHandler,
+                                             boolean isOutputs,
+                                             RecipeOutputDisplayWidget displayWidget,
+                                             int offsetY) {
         int itemInputsCount = itemHandler.getSlots();
         int fluidInputsCount = fluidHandler.getTanks();
         boolean invertFluids = false;
@@ -107,9 +152,12 @@ public abstract class MixinRecipeMap implements IRecipeMap {
                 int slotIndex = i * itemSlotsToLeft + j;
                 int x = startInputsX + 18 * j;
                 int y = startInputsY + 18 * i;
-                addSlot(builder, x, y, slotIndex, itemHandler, fluidHandler, invertFluids, isOutputs);
-                if (isOutputs)
-                    builder.widget(new RecipeOutputSlotWidget(slotIndex, x, y, 18, 18, displayWidget::getItemOutputAt, null));
+                offsetY = Math.max(offsetY, y);
+                if (builder != null) {
+                    addSlot(builder, x, y, slotIndex, itemHandler, fluidHandler, invertFluids, isOutputs);
+                    if (isOutputs)
+                        builder.widget(new RecipeOutputSlotWidget(slotIndex, x, y, 18, 18, displayWidget::getItemOutputAt, null));
+                }
             }
         }
         if (fluidInputsCount > 0 || invertFluids) {
@@ -117,30 +165,39 @@ public abstract class MixinRecipeMap implements IRecipeMap {
                 int startSpecX = isOutputs ? startInputsX + itemSlotsToLeft * 18 : startInputsX - 18;
                 for (int i = 0; i < fluidInputsCount; i++) {
                     int y = startInputsY + 18 * i;
-                    addSlot(builder, startSpecX, y, i, itemHandler, fluidHandler, !invertFluids, isOutputs);
-                    if (isOutputs)
-                        builder.widget(new RecipeOutputSlotWidget(i, startSpecX, y, 18, 18, null, displayWidget::getFluidOutputAt));
+                    offsetY = Math.max(offsetY, y);
+                    if (builder != null) {
+                        addSlot(builder, startSpecX, y, i, itemHandler, fluidHandler, !invertFluids, isOutputs);
+                        if (isOutputs)
+                            builder.widget(new RecipeOutputSlotWidget(i, startSpecX, y, 18, 18, null, displayWidget::getFluidOutputAt));
+                    }
                 }
             } else {
                 int startSpecY = startInputsY + itemSlotsToDown * 18;
                 for (int i = 0; i < fluidInputsCount; i++) {
                     int x = isOutputs ? startInputsX + 18 * (i % 3) : startInputsX + itemSlotsToLeft * 18 - 18 - 18 * (i % 3);
                     int y = startSpecY + (i / 3) * 18;
-                    addSlot(builder, x, y, i, itemHandler, fluidHandler, !invertFluids, isOutputs);
-                    if (isOutputs)
-                        builder.widget(new RecipeOutputSlotWidget(i, x, y, 18, 18, null, displayWidget::getFluidOutputAt));
+                    offsetY = Math.max(offsetY, y);
+                    if (builder != null) {
+                        addSlot(builder, x, y, i, itemHandler, fluidHandler, !invertFluids, isOutputs);
+                        if (isOutputs)
+                            builder.widget(new RecipeOutputSlotWidget(i, x, y, 18, 18, null, displayWidget::getFluidOutputAt));
+                    }
                 }
             }
         }
-    }
-
-    @Override
-    public Recipe findRecipeDistinct(long voltage, IItemHandlerModifiable inputs, IMultipleTankHandler fluidInputs, int outputFluidTankCapacity, boolean useOptimizedRecipeLookUp, List<Recipe> occupiedRecipes, boolean distinct) {
-        return this.findRecipeDistinct(voltage, GTUtility.itemHandlerToList(inputs), GTUtility.fluidHandlerToList(fluidInputs), outputFluidTankCapacity, MatchingMode.DEFAULT, useOptimizedRecipeLookUp, occupiedRecipes, distinct);
+        return offsetY;
     }
 
     @Unique
-    public Recipe findRecipeDistinct(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, int outputFluidTankCapacity, MatchingMode matchingMode, boolean useOptimizedRecipeLookUp, List<Recipe> occupiedRecipes, boolean distinct) {
+    public Recipe findRecipeDistinct(long voltage,
+                                     List<ItemStack> inputs,
+                                     List<FluidStack> fluidInputs,
+                                     int outputFluidTankCapacity,
+                                     MatchingMode matchingMode,
+                                     boolean useOptimizedRecipeLookUp,
+                                     List<Recipe> occupiedRecipes,
+                                     boolean distinct) {
         if (this.recipeList.isEmpty())
             return null;
         if (this.minFluidInputs > 0 && GTUtility.amountOfNonNullElements(fluidInputs) < this.minFluidInputs)
@@ -155,7 +212,12 @@ public abstract class MixinRecipeMap implements IRecipeMap {
     }
 
     @Unique
-    public Recipe findByFluidInputsDistinct(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, MatchingMode matchingMode, List<Recipe> occupiedRecipes, boolean distinct) {
+    public Recipe findByFluidInputsDistinct(long voltage,
+                                            List<ItemStack> inputs,
+                                            List<FluidStack> fluidInputs,
+                                            MatchingMode matchingMode,
+                                            List<Recipe> occupiedRecipes,
+                                            boolean distinct) {
         for (FluidStack fluid : fluidInputs) {
             if (fluid == null) continue;
             Collection<Recipe> recipes = this.recipeFluidMap.get(new MapFluidIngredient(fluid));
@@ -171,7 +233,12 @@ public abstract class MixinRecipeMap implements IRecipeMap {
     }
 
     @Unique
-    public Recipe findByInputsDistinct(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, MatchingMode matchingMode, List<Recipe> occupiedRecipes, boolean distinct) {
+    public Recipe findByInputsDistinct(long voltage,
+                                       List<ItemStack> inputs,
+                                       List<FluidStack> fluidInputs,
+                                       MatchingMode matchingMode,
+                                       List<Recipe> occupiedRecipes,
+                                       boolean distinct) {
         for (Recipe recipe : this.recipeList) {
             if (recipe.matches(false, inputs, fluidInputs, matchingMode)) {
                 if (distinct && occupiedRecipes.contains(recipe)) continue;
@@ -182,7 +249,12 @@ public abstract class MixinRecipeMap implements IRecipeMap {
     }
 
     @Unique
-    public Recipe findWithHashMapDistinct(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, MatchingMode matchingMode, List<Recipe> occupiedRecipes, boolean distinct) {
+    public Recipe findWithHashMapDistinct(long voltage,
+                                          List<ItemStack> inputs,
+                                          List<FluidStack> fluidInputs,
+                                          MatchingMode matchingMode,
+                                          List<Recipe> occupiedRecipes,
+                                          boolean distinct) {
         HashSet<MapItemStackIngredient> uniqueItems = new HashSet<>();
         HashSet<MapFluidIngredient> uniqueFluids = new HashSet<>();
 
@@ -250,7 +322,11 @@ public abstract class MixinRecipeMap implements IRecipeMap {
     }
 
     @Override
-    public Recipe findByInputsAndOutputs(long voltage, List<ItemStack> inputs, List<ItemStack> outputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutputs) {
+    public Recipe findByInputsAndOutputs(long voltage,
+                                         List<ItemStack> inputs,
+                                         List<ItemStack> outputs,
+                                         List<FluidStack> fluidInputs,
+                                         List<FluidStack> fluidOutputs) {
         for (Recipe recipe : this.recipeList) {
             if (RecipeUtility.recipeMatches(recipe, inputs, outputs, fluidInputs, fluidOutputs)) {
                 return voltage >= recipe.getEUt() ? recipe : null;
