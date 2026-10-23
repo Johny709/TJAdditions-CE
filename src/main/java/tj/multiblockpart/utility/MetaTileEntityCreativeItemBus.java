@@ -6,7 +6,8 @@ import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
 import gregtech.api.capability.IInventoryNotifiable;
-import gregtech.api.capability.impl.ItemHandlerList;
+import gregtech.api.capability.impl.NotifiableItemHandlerList;
+import gregtech.api.capability.impl.NotifiableItemStackHandler;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.WidgetGroup;
@@ -44,12 +45,12 @@ import java.util.regex.Pattern;
 
 public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IItemHandlerModifiable> {
 
-    private final ItemStackHandler circuitInventory = new ItemStackHandler(1);
+    private final ItemStackHandler circuitInventory = new NotifiableItemStackHandler(this, 1);
     private final IItemHandlerModifiable combinedInventory;
 
     public MetaTileEntityCreativeItemBus(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GAValues.MAX);
-        this.combinedInventory = new ItemHandlerList(Arrays.asList(this.circuitInventory, this.importItems));
+        this.combinedInventory = new NotifiableItemHandlerList(this, Arrays.asList(this.circuitInventory, this.importItems));
     }
 
     @Override
@@ -150,15 +151,15 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
     @Override
     public void addToMultiBlock(MultiblockControllerBase controllerBase) {
         super.addToMultiBlock(controllerBase);
-        if (this.importItems instanceof IInventoryNotifiable)
-            ((IInventoryNotifiable) this.importItems).addMetaTileEntityToNotifiable(controllerBase);
+        if (this.combinedInventory instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.combinedInventory).addMetaTileEntityToNotifiable(controllerBase);
     }
 
     @Override
     public void removeFromMultiBlock(MultiblockControllerBase controllerBase) {
         super.removeFromMultiBlock(controllerBase);
-        if (this.importItems instanceof IInventoryNotifiable)
-            ((IInventoryNotifiable) this.importItems).removeMetaTileEntityFromNotifiable(controllerBase);
+        if (this.combinedInventory instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.combinedInventory).removeMetaTileEntityFromNotifiable(controllerBase);
     }
 
     @Override

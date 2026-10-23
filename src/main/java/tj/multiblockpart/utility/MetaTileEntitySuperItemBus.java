@@ -4,13 +4,13 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.capability.IInventoryNotifiable;
-import gregtech.api.capability.impl.ItemHandlerList;
+import gregtech.api.capability.impl.NotifiableItemHandlerList;
+import gregtech.api.capability.impl.NotifiableItemStackHandler;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.gui.widget.GhostCircuitWidget;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
 import tj.items.handlers.NotifiableLargeItemStackHandler;
 import tj.mui.TJGuiTextures;
@@ -50,7 +50,7 @@ import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_IT
 
 public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IItemHandlerModifiable> {
 
-    private final IItemHandlerModifiable ghostCircuitSlot = new ItemStackHandler(1);
+    private final IItemHandlerModifiable ghostCircuitSlot = new NotifiableItemStackHandler(this, 1);
     private final IItemHandlerModifiable combinedInventory;
     private final boolean isExport;
     private int ticks = 5;
@@ -59,7 +59,7 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
         super(metaTileEntityId, tier);
         this.isExport = isExport;
         this.initializeInventory();
-        this.combinedInventory = new ItemHandlerList(Arrays.asList(this.ghostCircuitSlot, this.importItems));
+        this.combinedInventory = new NotifiableItemHandlerList(this, Arrays.asList(this.ghostCircuitSlot, this.importItems));
     }
 
     @Override
@@ -193,8 +193,8 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
     @Override
     public void addToMultiBlock(MultiblockControllerBase controllerBase) {
         super.addToMultiBlock(controllerBase);
-        if (this.importItems instanceof IInventoryNotifiable)
-            ((IInventoryNotifiable) this.importItems).addMetaTileEntityToNotifiable(controllerBase);
+        if (this.combinedInventory instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.combinedInventory).addMetaTileEntityToNotifiable(controllerBase);
         if (this.exportItems instanceof IInventoryNotifiable)
             ((IInventoryNotifiable) this.exportItems).addMetaTileEntityToNotifiable(controllerBase);
     }
@@ -202,8 +202,8 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
     @Override
     public void removeFromMultiBlock(MultiblockControllerBase controllerBase) {
         super.removeFromMultiBlock(controllerBase);
-        if (this.importItems instanceof IInventoryNotifiable)
-            ((IInventoryNotifiable) this.importItems).removeMetaTileEntityFromNotifiable(controllerBase);
+        if (this.combinedInventory instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.combinedInventory).removeMetaTileEntityFromNotifiable(controllerBase);
         if (this.exportItems instanceof IInventoryNotifiable)
             ((IInventoryNotifiable) this.exportItems).removeMetaTileEntityFromNotifiable(controllerBase);
     }
