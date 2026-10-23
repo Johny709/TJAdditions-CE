@@ -15,26 +15,6 @@ public class LargeItemStackHandler extends ItemStackHandler {
         this.capacity = capacity;
     }
 
-    public int getCapacity() {
-        return this.capacity;
-    }
-
-    @Override
-    public int getSlotLimit(int slot) {
-        return this.capacity;
-    }
-
-    @Override
-    protected int getStackLimit(int slot, @Nonnull ItemStack stack) {
-        return this.capacity;
-    }
-
-    @Override
-    @Nonnull
-    public ItemStack getStackInSlot(int slot) {
-        return this.stacks.get(slot);
-    }
-
     @Nonnull
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
@@ -63,6 +43,22 @@ public class LargeItemStackHandler extends ItemStackHandler {
         }
     }
 
+    @Override
+    public int getSlotLimit(int slot) {
+        return this.capacity;
+    }
+
+    @Override
+    protected int getStackLimit(int slot, @Nonnull ItemStack stack) {
+        return this.capacity;
+    }
+
+    @Override
+    @Nonnull
+    public ItemStack getStackInSlot(int slot) {
+        return this.stacks.get(slot);
+    }
+
     public int getSlotsFilled() {
         int amount = 0;
         for (int i = 0; i < this.getSlots(); i++) {
@@ -70,5 +66,9 @@ public class LargeItemStackHandler extends ItemStackHandler {
                 amount++;
         }
         return amount;
+    }
+
+    public int getCapacity() {
+        return this.capacity;
     }
 }

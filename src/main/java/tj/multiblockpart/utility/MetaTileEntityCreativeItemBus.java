@@ -5,6 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
+import gregtech.api.capability.IInventoryNotifiable;
 import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
@@ -13,6 +14,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.render.Textures;
 import gregtech.api.util.Position;
 import net.minecraft.client.resources.I18n;
@@ -27,10 +29,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
+import tj.items.handlers.NotifiableLargeItemStackHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.*;
-import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
 
 import javax.annotation.Nonnull;
@@ -62,7 +64,9 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new LargeItemStackHandler(16, Integer.MAX_VALUE) {
+        return new NotifiableLargeItemStackHandler(this, 16, Integer.MAX_VALUE) {
+            private final int[] lastItemAmount = new int[this.getSlots()];
+
             @Nonnull
             @Override
             public ItemStack extractItem(int slot, int amount, boolean simulate) {
@@ -70,6 +74,9 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
                     return super.extractItem(slot, amount, simulate);
                 final ItemStack stack = this.getStackInSlot(slot).copy();
                 stack.setCount(Math.min(stack.getCount(), amount));
+                if (this.lastItemAmount[slot] != stack.getCount())
+                    this.onContentsChanged(slot);
+                this.lastItemAmount[slot] = stack.getCount();
                 return stack;
             }
         };
@@ -137,6 +144,20 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
     @Override
     public void registerAbilities(List<IItemHandlerModifiable> list) {
         list.add(this.combinedInventory);
+    }
+
+    @Override
+    public void addToMultiBlock(MultiblockControllerBase controllerBase) {
+        super.addToMultiBlock(controllerBase);
+        if (this.importItems instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.importItems).addMetaTileEntityToNotifiable(controllerBase);
+    }
+
+    @Override
+    public void removeFromMultiBlock(MultiblockControllerBase controllerBase) {
+        super.removeFromMultiBlock(controllerBase);
+        if (this.importItems instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.importItems).removeMetaTileEntityFromNotifiable(controllerBase);
     }
 
     @Override

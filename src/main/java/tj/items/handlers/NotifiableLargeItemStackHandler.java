@@ -1,0 +1,75 @@
+package tj.items.handlers;
+
+import gregtech.api.capability.impl.NotifiableItemStackHandler;
+import gregtech.api.metatileentity.MetaTileEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.items.ItemHandlerHelper;
+
+import javax.annotation.Nonnull;
+
+public class NotifiableLargeItemStackHandler extends NotifiableItemStackHandler {
+
+    private final int capacity;
+
+    public NotifiableLargeItemStackHandler(MetaTileEntity metaTileEntity, int slots, int capacity) {
+        super(metaTileEntity, slots);
+        this.capacity = capacity;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack extractItem(int slot, int amount, boolean simulate) {
+        if (amount == 0)
+            return ItemStack.EMPTY;
+
+        final ItemStack existing = this.stacks.get(slot);
+
+        if (existing.isEmpty())
+            return ItemStack.EMPTY;
+
+        final int toExtract = Math.min(amount, this.capacity);
+
+        if (existing.getCount() <= toExtract) {
+            if (!simulate) {
+                this.stacks.set(slot, ItemStack.EMPTY);
+                this.onContentsChanged(slot);
+            }
+            return existing;
+        } else {
+            if (!simulate) {
+                this.stacks.set(slot, ItemHandlerHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
+                this.onContentsChanged(slot);
+            }
+            return ItemHandlerHelper.copyStackWithSize(existing, toExtract);
+        }
+    }
+
+    @Override
+    public int getSlotLimit(int slot) {
+        return this.capacity;
+    }
+
+    @Override
+    protected int getStackLimit(int slot, @Nonnull ItemStack stack) {
+        return this.capacity;
+    }
+
+    @Override
+    @Nonnull
+    public ItemStack getStackInSlot(int slot) {
+        return this.stacks.get(slot);
+    }
+
+    public int getSlotsFilled() {
+        int amount = 0;
+        for (int i = 0; i < this.getSlots(); i++) {
+            if (!this.getStackInSlot(i).isEmpty())
+                amount++;
+        }
+        return amount;
+    }
+
+    public int getCapacity() {
+        return this.capacity;
+    }
+}

@@ -3,12 +3,15 @@ package tj.multiblockpart.utility;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.capability.IInventoryNotifiable;
 import gregtech.api.capability.impl.ItemHandlerList;
+import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
+import tj.items.handlers.NotifiableLargeItemStackHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.mui.widgets.impl.GhostCircuitWidget;
@@ -86,7 +89,7 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
                 : Integer.MAX_VALUE;
 
         return this.isExport ? super.createImportItemHandler()
-                : new LargeItemStackHandler(slots, size);
+                : new NotifiableLargeItemStackHandler(this, slots, size);
     }
 
     @Override
@@ -96,7 +99,7 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
                 : this.getTier() < GAValues.MAX ? 16384
                 : Integer.MAX_VALUE;
 
-        return isExport ? new LargeItemStackHandler(slots, size)
+        return isExport ? new NotifiableLargeItemStackHandler(this, slots, size)
                 : super.createExportItemHandler();
     }
 
@@ -186,6 +189,24 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
     @Override
     public void registerAbilities(List<IItemHandlerModifiable> list) {
         list.add(this.isExport ? this.exportItems : this.combinedInventory);
+    }
+
+    @Override
+    public void addToMultiBlock(MultiblockControllerBase controllerBase) {
+        super.addToMultiBlock(controllerBase);
+        if (this.importItems instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.importItems).addMetaTileEntityToNotifiable(controllerBase);
+        if (this.exportItems instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.exportItems).addMetaTileEntityToNotifiable(controllerBase);
+    }
+
+    @Override
+    public void removeFromMultiBlock(MultiblockControllerBase controllerBase) {
+        super.removeFromMultiBlock(controllerBase);
+        if (this.importItems instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.importItems).removeMetaTileEntityFromNotifiable(controllerBase);
+        if (this.exportItems instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.exportItems).removeMetaTileEntityFromNotifiable(controllerBase);
     }
 
     @Override

@@ -4,6 +4,8 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
+import gregtech.api.capability.IInventoryNotifiable;
+import gregtech.api.capability.impl.NotifiableItemStackHandler;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -55,9 +57,9 @@ import static tj.mui.TJGuiTextures.DARKENED_SLOT;
 public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IRecipeMapProvider>, IRecipeMapProvider {
 
     private final InventoryCrafting inventoryCrafting = new InventoryCrafting(new DummyContainer(), 3, 3);
-    private final ItemStackHandler craftingInventory = new ItemStackHandler(9);
+    private final ItemStackHandler craftingInventory = new NotifiableItemStackHandler(this, 9);
     private final ItemStackHandler encodingInventory;
-    private final ItemStackHandler resultInventory = new ItemStackHandler(1);
+    private final ItemStackHandler resultInventory = new NotifiableItemStackHandler(this, 1);
     private final Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = new Int2ObjectOpenHashMap<>();
     private final int encodingSlots;
     private Runnable clearRecipeCache;
@@ -66,7 +68,7 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
     public MetaTileEntityCrafterHatch(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.encodingSlots = 6 + (tier * 3);
-        this.encodingInventory = new ItemStackHandler(this.encodingSlots);
+        this.encodingInventory = new NotifiableItemStackHandler(this, this.encodingSlots);
     }
 
     @Override
@@ -241,11 +243,23 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
         super.addToMultiBlock(controller);
         if (controller instanceof IRecipeMapProvider)
             this.clearRecipeCache = ((IRecipeMapProvider) controller)::clearRecipeCache;
+        if (this.craftingInventory instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.craftingInventory).addMetaTileEntityToNotifiable(controller);
+        if (this.resultInventory instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.resultInventory).addMetaTileEntityToNotifiable(controller);
+        if (this.encodingInventory instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.encodingInventory).addMetaTileEntityToNotifiable(controller);
     }
 
     @Override
     public void removeFromMultiBlock(MultiblockControllerBase controller) {
         super.removeFromMultiBlock(controller);
         this.clearRecipeCache = null;
+        if (this.craftingInventory instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.craftingInventory).removeMetaTileEntityFromNotifiable(controller);
+        if (this.resultInventory instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.resultInventory).removeMetaTileEntityFromNotifiable(controller);
+        if (this.encodingInventory instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.encodingInventory).removeMetaTileEntityFromNotifiable(controller);
     }
 }

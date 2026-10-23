@@ -3,6 +3,10 @@ package tj.multiblockpart.utility;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.capability.IInventoryNotifiable;
+import gregtech.api.capability.impl.NotifiableFluidTank;
+import gregtech.api.capability.impl.NotifiableFluidTankList;
+import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -31,7 +35,6 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
@@ -81,11 +84,11 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
         final int slots = Math.min(16, (tier + 1) * (tier + 1));
         int capacity = (int) Math.pow(2, tier - 1) * 1024000;
         capacity *= getTier() >= GAValues.UMV ? 8 : 1;
-        int finalCapacity = getTier() >= GAValues.MAX ? Integer.MAX_VALUE : capacity;
+        final int finalCapacity = getTier() >= GAValues.MAX ? Integer.MAX_VALUE : capacity;
 
-        return isExport ? super.createImportFluidHandler()
-                : new FluidTankList(false, IntStream.range(0, slots)
-                .mapToObj(tank -> new FluidTank(finalCapacity))
+        return this.isExport ? super.createImportFluidHandler()
+                : new NotifiableFluidTankList(this, false, IntStream.range(0, slots)
+                .mapToObj(tank -> new NotifiableFluidTank(this, finalCapacity))
                 .collect(Collectors.toList()));
     }
 
@@ -95,10 +98,10 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
         final int slots = Math.min(16, (tier + 1) * (tier + 1));
         int capacity = (int) Math.pow(2, tier - 1) * 1024000;
         capacity *= getTier() >= GAValues.UMV ? 8 : 1;
-        int finalCapacity = getTier() >= GAValues.MAX ? Integer.MAX_VALUE : capacity;
+        final int finalCapacity = getTier() >= GAValues.MAX ? Integer.MAX_VALUE : capacity;
 
-        return isExport ? new FluidTankList(true, IntStream.range(0, slots)
-                .mapToObj(tank -> new FluidTank(finalCapacity))
+        return this.isExport ? new NotifiableFluidTankList(this, true, IntStream.range(0, slots)
+                .mapToObj(tank -> new NotifiableFluidTank(this, finalCapacity))
                 .collect(Collectors.toList()))
         : super.createExportFluidHandler();
     }
@@ -106,18 +109,16 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
     @Override
     public void update() {
         super.update();
-        if (!getWorld().isRemote && getOffsetTimer() % ticks == 0) {
-            if (isExport) {
-                pushFluidsIntoNearbyHandlers(getFrontFacing());
-            } else {
-                pullFluidsFromNearbyHandlers(getFrontFacing());
-            }
+        if (!this.getWorld().isRemote && this.getOffsetTimer() % this.ticks == 0) {
+            if (this.isExport) {
+                this.pushFluidsIntoNearbyHandlers(getFrontFacing());
+            } else this.pullFluidsFromNearbyHandlers(getFrontFacing());
         }
     }
 
     @Override
     protected ModularUI createUI(EntityPlayer player) {
-        final FluidTankList tank = isExport ? exportFluids : importFluids;
+        final FluidTankList tank = this.isExport ? this.exportFluids : this.importFluids;
         final int tier = Math.min(3, getTier() / 3);
         final WidgetGroup widgetGroup = new WidgetGroup();
         widgetGroup.addWidget(new TJLabelWidget(7, -19, 180, 19, TJGuiTextures.MACHINE_LABEL_2)
@@ -200,24 +201,42 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
 
     @Override
     public MultiblockAbility<IFluidTank> getAbility() {
-        return isExport ? EXPORT_FLUIDS : IMPORT_FLUIDS;
+        return this.isExport ? EXPORT_FLUIDS : IMPORT_FLUIDS;
     }
 
     @Override
     public void registerAbilities(List<IFluidTank> list) {
-        list.addAll(isExport ? exportFluids.getFluidTanks() : importFluids.getFluidTanks());
+        list.addAll(this.isExport ? this.exportFluids.getFluidTanks() : this.importFluids.getFluidTanks());
+    }
+
+    @Override
+    public void addToMultiBlock(MultiblockControllerBase controllerBase) {
+        super.addToMultiBlock(controllerBase);
+        if (this.importFluids instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.importFluids).addMetaTileEntityToNotifiable(controllerBase);
+        if (this.exportFluids instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.exportFluids).addMetaTileEntityToNotifiable(controllerBase);
+    }
+
+    @Override
+    public void removeFromMultiBlock(MultiblockControllerBase controllerBase) {
+        super.removeFromMultiBlock(controllerBase);
+        if (this.importFluids instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.importFluids).removeMetaTileEntityFromNotifiable(controllerBase);
+        if (this.exportFluids instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.exportFluids).removeMetaTileEntityFromNotifiable(controllerBase);
     }
 
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        data.setInteger("Ticks", ticks);
+        data.setInteger("Ticks", this.ticks);
         return data;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
-        ticks = data.hasKey("Ticks") ? data.getInteger("Ticks") : 1;
+        this.ticks = data.hasKey("Ticks") ? data.getInteger("Ticks") : 1;
     }
 }

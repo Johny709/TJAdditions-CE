@@ -5,7 +5,10 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.GAValues;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
+import gregtech.api.capability.IInventoryNotifiable;
 import gregtech.api.capability.impl.FluidTankList;
+import gregtech.api.capability.impl.NotifiableFluidTank;
+import gregtech.api.capability.impl.NotifiableFluidTankList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
@@ -13,6 +16,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.render.Textures;
 import gregtech.api.util.Position;
 import net.minecraft.client.resources.I18n;
@@ -61,14 +65,19 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
 
     @Override
     protected FluidTankList createImportFluidHandler() {
-        return new FluidTankList(true, IntStream.range(0, 16)
-                .mapToObj(i -> new FluidTank(Integer.MAX_VALUE) {
+        return new NotifiableFluidTankList(this, true, IntStream.range(0, 16)
+                .mapToObj(i -> new NotifiableFluidTank(this, Integer.MAX_VALUE) {
+                    private int lastFluidAmount = 0;
+
                     @Override
                     public FluidStack drain(FluidStack resource, boolean doDrain) {
                         FluidStack fluidStack = this.getFluid();
                         if (fluidStack == null || !fluidStack.isFluidEqual(resource)) return null;
                         fluidStack = fluidStack.copy();
                         fluidStack.amount = Math.min(fluidStack.amount, resource.amount);
+                        if (this.lastFluidAmount != fluidStack.amount)
+                            this.onContentsChanged();
+                        this.lastFluidAmount = fluidStack.amount;
                         return fluidStack;
                     }
 
@@ -80,6 +89,9 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
                         if (fluidStack == null) return null;
                         fluidStack = fluidStack.copy();
                         fluidStack.amount = Math.min(fluidStack.amount, maxDrain);
+                        if (this.lastFluidAmount != fluidStack.amount)
+                            this.onContentsChanged();
+                        this.lastFluidAmount = fluidStack.amount;
                         return fluidStack;
                     }
                 }).collect(Collectors.toList()));
@@ -146,6 +158,20 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
     @Override
     public void registerAbilities(List<IFluidTank> list) {
         list.addAll(this.getImportFluids().getFluidTanks());
+    }
+
+    @Override
+    public void addToMultiBlock(MultiblockControllerBase controllerBase) {
+        super.addToMultiBlock(controllerBase);
+        if (this.importFluids instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.importFluids).addMetaTileEntityToNotifiable(controllerBase);
+    }
+
+    @Override
+    public void removeFromMultiBlock(MultiblockControllerBase controllerBase) {
+        super.removeFromMultiBlock(controllerBase);
+        if (this.importFluids instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.importFluids).removeMetaTileEntityFromNotifiable(controllerBase);
     }
 
     private void setFluidCount(String text, String id) {

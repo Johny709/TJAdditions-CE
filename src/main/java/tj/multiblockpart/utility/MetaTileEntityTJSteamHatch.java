@@ -4,8 +4,10 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
+import gregtech.api.capability.IInventoryNotifiable;
 import gregtech.api.capability.impl.FilteredFluidHandler;
 import gregtech.api.capability.impl.FluidTankList;
+import gregtech.api.capability.impl.NotifiableFluidTankList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.FluidContainerSlotWidget;
@@ -16,6 +18,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.recipes.ModHandler;
 import gregtech.api.render.Textures;
 import net.minecraft.client.resources.I18n;
@@ -49,7 +52,7 @@ public class MetaTileEntityTJSteamHatch extends GAMetaTileEntityMultiblockPart i
         super(metaTileEntityId, tier);
         this.isExport = isExport;
         final long capacity = (long) (Math.pow(4, tier) * 16000);
-        this.steamTank = new FilteredFluidHandler((int) Math.min(capacity, Integer.MAX_VALUE)).setFillPredicate(ModHandler::isSteam);
+        this.steamTank = new FilteredFluidHandler(this, (int) Math.min(capacity, Integer.MAX_VALUE)).setFillPredicate(ModHandler::isSteam);
         initializeInventory();
     }
 
@@ -78,25 +81,24 @@ public class MetaTileEntityTJSteamHatch extends GAMetaTileEntityMultiblockPart i
 
     @Override
     protected FluidTankList createImportFluidHandler() {
-        return isExport ? super.createImportFluidHandler() : new FluidTankList(false, steamTank);
+        return this.isExport ? super.createImportFluidHandler() : new NotifiableFluidTankList(this, false, this.steamTank);
     }
 
     @Override
     protected FluidTankList createExportFluidHandler() {
-        return isExport ? new FluidTankList(false, steamTank) : super.createExportFluidHandler();
+        return this.isExport ? new NotifiableFluidTankList(this, false, this.steamTank) : super.createExportFluidHandler();
     }
 
     @Override
     public void update() {
         super.update();
-        if (getWorld().isRemote)
-            return;
-        if (isExport) {
-            fillContainerFromInternalTank(importItems, exportItems, 0, 0);
-            pushFluidsIntoNearbyHandlers(getFrontFacing());
+        if (this.getWorld().isRemote) return;
+        if (this.isExport) {
+            this.fillContainerFromInternalTank(this.importItems, this.exportItems, 0, 0);
+            this.pushFluidsIntoNearbyHandlers(this.getFrontFacing());
         } else {
-            fillInternalTankFromFluidContainer(importItems, exportItems, 0, 0);
-            pullFluidsFromNearbyHandlers(getFrontFacing());
+            this.fillInternalTankFromFluidContainer(this.importItems, this.exportItems, 0, 0);
+            this.pullFluidsFromNearbyHandlers(this.getFrontFacing());
         }
     }
 
@@ -154,11 +156,29 @@ public class MetaTileEntityTJSteamHatch extends GAMetaTileEntityMultiblockPart i
 
     @Override
     public MultiblockAbility<IFluidTank> getAbility() {
-        return isExport ? STEAM_OUTPUT : STEAM;
+        return this.isExport ? STEAM_OUTPUT : STEAM;
     }
 
     @Override
     public void registerAbilities(List<IFluidTank> abilityList) {
-        abilityList.addAll(isExport ? exportFluids.getFluidTanks() : importFluids.getFluidTanks());
+        abilityList.addAll(this.isExport ? this.exportFluids.getFluidTanks() : this.importFluids.getFluidTanks());
+    }
+
+    @Override
+    public void addToMultiBlock(MultiblockControllerBase controllerBase) {
+        super.addToMultiBlock(controllerBase);
+        if (this.importFluids instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.importFluids).addMetaTileEntityToNotifiable(controllerBase);
+        if (this.exportFluids instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.exportFluids).addMetaTileEntityToNotifiable(controllerBase);
+    }
+
+    @Override
+    public void removeFromMultiBlock(MultiblockControllerBase controllerBase) {
+        super.removeFromMultiBlock(controllerBase);
+        if (this.importFluids instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.importFluids).removeMetaTileEntityFromNotifiable(controllerBase);
+        if (this.exportFluids instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.exportFluids).removeMetaTileEntityFromNotifiable(controllerBase);
     }
 }

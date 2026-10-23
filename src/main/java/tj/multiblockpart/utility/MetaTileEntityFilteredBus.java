@@ -4,6 +4,8 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregicadditions.machines.multi.multiblockpart.GAMetaTileEntityMultiblockPart;
+import gregtech.api.capability.IInventoryNotifiable;
+import gregtech.api.capability.impl.NotifiableItemStackHandler;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.SlotWidget;
@@ -12,6 +14,7 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.render.Textures;
 import gregtech.api.util.Position;
 import net.minecraft.client.resources.I18n;
@@ -64,15 +67,15 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
     public void update() {
         super.update();
         if (!this.getWorld().isRemote && this.getOffsetTimer() % 5 == 0) {
-            if (this.isOutput)
+            if (this.isOutput) {
                 this.pushItemsIntoNearbyHandlers(this.getFrontFacing());
-             else this.pullItemsFromNearbyHandlers(this.getFrontFacing());
+            } else this.pullItemsFromNearbyHandlers(this.getFrontFacing());
         }
     }
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return this.isOutput ? super.createImportItemHandler() : new ItemStackHandler(this.getTierSlots(this.getTier())) {
+        return this.isOutput ? super.createImportItemHandler() : new NotifiableItemStackHandler(this, this.getTierSlots(this.getTier())) {
             @Override
             @Nonnull
             public ItemStack getStackInSlot(int slot) {
@@ -94,7 +97,7 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return this.isOutput ? new ItemStackHandler(this.getTierSlots(this.getTier())) {
+        return this.isOutput ? new NotifiableItemStackHandler(this, this.getTierSlots(this.getTier())) {
             @Override
             @Nonnull
             public ItemStack getStackInSlot(int slot) {
@@ -165,6 +168,24 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
     @Override
     public void registerAbilities(List<IItemHandlerModifiable> list) {
         list.add(this.isOutput ? this.getExportItems() : this.getImportItems());
+    }
+
+    @Override
+    public void addToMultiBlock(MultiblockControllerBase controllerBase) {
+        super.addToMultiBlock(controllerBase);
+        if (this.importItems instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.importItems).addMetaTileEntityToNotifiable(controllerBase);
+        if (this.exportItems instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.exportItems).addMetaTileEntityToNotifiable(controllerBase);
+    }
+
+    @Override
+    public void removeFromMultiBlock(MultiblockControllerBase controllerBase) {
+        super.removeFromMultiBlock(controllerBase);
+        if (this.importItems instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.importItems).removeMetaTileEntityFromNotifiable(controllerBase);
+        if (this.exportItems instanceof IInventoryNotifiable)
+            ((IInventoryNotifiable) this.exportItems).removeMetaTileEntityFromNotifiable(controllerBase);
     }
 
     @Override
