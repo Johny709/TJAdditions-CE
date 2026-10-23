@@ -26,7 +26,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -68,6 +67,13 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
         return new NotifiableFluidTankList(this, true, IntStream.range(0, 16)
                 .mapToObj(i -> new NotifiableFluidTank(this, Integer.MAX_VALUE) {
                     private int lastFluidAmount = 0;
+
+                    @Override
+                    public int fill(FluidStack resource, boolean doFill) {
+                        if (doFill)
+                            this.onContentsChanged();
+                        return super.fill(resource, doFill);
+                    }
 
                     @Override
                     public FluidStack drain(FluidStack resource, boolean doDrain) {
@@ -180,6 +186,10 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
         final FluidStack fluidStack = this.importFluids.getTankAt(index).getFluid();
         if (fluidStack == null) return;
         fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text));
+        final FluidStack testStack = fluidStack.copy();
+        testStack.amount = 0;
+        // to notify MTEs that inventory contents have changed
+        this.importFluids.getTankAt(index).fill(testStack, true);
         this.markDirty();
     }
 
