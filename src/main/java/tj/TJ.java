@@ -24,8 +24,8 @@ import tj.machines.TJMetaTileEntities;
 import tj.network.TJNetworkHandler;
 
 
-@Mod(modid = TJ.MODID, name = TJ.NAME, version = TJ.VERSION, dependencies = "required-after:gregtech@[1.18.4,);" +
-        "required-after:gtadditions@[0.26.3,)")
+@Mod(modid = TJ.MODID, name = TJ.NAME, version = TJ.VERSION, dependencies = "required-after:gregtech@[1.18.6,);" +
+        "required-after:gtadditions@[0.26.5,)")
 public class TJ {
 
     public static final String MODID = "tj";
