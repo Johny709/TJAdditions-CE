@@ -210,5 +210,8 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
     }
 
     @Override
-    public void setWorkingEnabled(boolean b) {}
+    public void setWorkingEnabled(boolean isWorking) {
+        this.isWorking = isWorking;
+        this.markAsDirty();
+    }
 }

@@ -216,5 +216,8 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
     }
 
     @Override
-    public void setWorkingEnabled(boolean b) {}
+    public void setWorkingEnabled(boolean isWorking) {
+        this.isWorking =  isWorking;
+        this.markAsDirty();
+    }
 }
