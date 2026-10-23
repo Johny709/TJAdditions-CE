@@ -18,6 +18,7 @@ import gregtech.api.recipes.CountableIngredient;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.gui.widget.GhostCircuitWidget;
 import gregtech.common.items.MetaItems;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

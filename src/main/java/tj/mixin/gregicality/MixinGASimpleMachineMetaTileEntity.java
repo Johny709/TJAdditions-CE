@@ -12,6 +12,7 @@ import gregtech.api.metatileentity.SimpleMachineMetaTileEntity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.items.ItemStackHandler;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,6 +29,7 @@ import tj.util.references.IntegerReference;
 @Mixin(value = GASimpleMachineMetaTileEntity.class, remap = false)
 public abstract class MixinGASimpleMachineMetaTileEntity extends MixinGAWorkableTieredMetaTileEntity {
 
+    @Final
     @Shadow
     private ItemStackHandler chargerInventory;
 
