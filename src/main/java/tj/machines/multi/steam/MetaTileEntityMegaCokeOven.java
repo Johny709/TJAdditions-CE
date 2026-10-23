@@ -17,6 +17,8 @@ import net.minecraft.util.ResourceLocation;
 import tj.TJValues;
 import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
 
+import javax.annotation.Nonnull;
+
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 
 
@@ -79,6 +81,7 @@ public class MetaTileEntityMegaCokeOven extends TJRecipeMapMultiblockController 
         return 1;
     }
 
+    @Nonnull
     @Override
     public IEnergyContainer getInputEnergyContainer() {
         return TJValues.DUMMY_ENERGY;

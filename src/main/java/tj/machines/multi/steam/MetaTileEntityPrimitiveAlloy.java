@@ -20,6 +20,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 import tj.capability.OverclockManager;
 
+import javax.annotation.Nonnull;
+
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
 
 
@@ -79,6 +81,7 @@ public class MetaTileEntityPrimitiveAlloy extends TJRecipeMapMultiblockControlle
         return true;
     }
 
+    @Nonnull
     @Override
     public IEnergyContainer getInputEnergyContainer() {
         return TJValues.DUMMY_ENERGY;

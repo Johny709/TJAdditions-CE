@@ -17,6 +17,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 import tj.capability.OverclockManager;
 
+import javax.annotation.Nonnull;
+
 import static gregicadditions.client.ClientHandler.ZIRCONIUM_CARBIDE_CASING;
 import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
 import static gregtech.api.metatileentity.multiblock.MultiblockAbility.EXPORT_FLUIDS;
@@ -77,6 +79,7 @@ public class MetaTileEntityHeatExchanger extends TJRecipeMapMultiblockController
         return true;
     }
 
+    @Nonnull
     @Override
     public IEnergyContainer getInputEnergyContainer() {
         return TJValues.DUMMY_ENERGY;

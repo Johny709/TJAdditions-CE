@@ -21,7 +21,6 @@ import gregtech.api.capability.impl.ItemHandlerList;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.multiblock.IMultiblockPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
@@ -63,6 +62,7 @@ import tj.mui.TJHorizontoalTabListRenderer;
 import tj.mui.widgets.impl.*;
 import tj.multiblockpart.TJMultiblockAbility;
 
+import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -106,12 +106,18 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
     protected boolean doStructureCheck = false;
     protected boolean isWorkingEnabled = true;
 
-    protected IItemHandlerModifiable importItemInventory;
-    protected IItemHandlerModifiable exportItemInventory;
-    protected IMultipleTankHandler importFluidTank;
-    protected IMultipleTankHandler exportFluidTank;
-    protected IEnergyContainer inputEnergyContainer;
-    protected IEnergyContainer outputEnergyContainer;
+    @Nonnull
+    protected IItemHandlerModifiable importItemInventory = new ItemHandlerList(Collections.emptyList());
+    @Nonnull
+    protected IItemHandlerModifiable exportItemInventory = new ItemHandlerList(Collections.emptyList());
+    @Nonnull
+    protected IMultipleTankHandler importFluidTank = new FluidTankList(true);
+    @Nonnull
+    protected IMultipleTankHandler exportFluidTank = new FluidTankList(true);
+    @Nonnull
+    protected IEnergyContainer inputEnergyContainer = new EnergyContainerList(Collections.emptyList());
+    @Nonnull
+    protected IEnergyContainer outputEnergyContainer = new EnergyContainerList(Collections.emptyList());
 
     protected Instant placedDown = Instant.now();
     protected Instant activeDate;
@@ -502,31 +508,37 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
         return this.getAbilities(IMPORT_ITEMS).get(index);
     }
 
+    @Nonnull
     @Override
     public IItemHandlerModifiable getImportItemInventory() {
         return this.importItemInventory;
     }
 
+    @Nonnull
     @Override
     public IItemHandlerModifiable getExportItemInventory() {
         return this.exportItemInventory;
     }
 
+    @Nonnull
     @Override
     public IMultipleTankHandler getImportFluidTank() {
         return this.importFluidTank;
     }
 
+    @Nonnull
     @Override
     public IMultipleTankHandler getExportFluidTank() {
         return this.exportFluidTank;
     }
 
+    @Nonnull
     @Override
     public IEnergyContainer getInputEnergyContainer() {
         return this.inputEnergyContainer;
     }
 
+    @Nonnull
     @Override
     public IEnergyContainer getOutputEnergyContainer() {
         return this.outputEnergyContainer;
