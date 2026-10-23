@@ -34,6 +34,7 @@ public class DistillationRecipeLogic extends BasicRecipeLogic<IDistillationHandl
                 this.fluidOutputIndex++;
             } else return false;
         }
+        this.lastRecipe = null;
         this.recipeRecheck = true;
         this.itemOutputIndex = 0;
         this.fluidOutputIndex = 0;

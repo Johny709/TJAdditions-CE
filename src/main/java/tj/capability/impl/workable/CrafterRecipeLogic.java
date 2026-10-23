@@ -44,7 +44,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
         super.initialize(busCount);
         this.recipeMapList.clear();
         if (this.metaTileEntity instanceof MultiblockControllerBase) {
-            List<IRecipeMapProvider> crafters = ((MultiblockControllerBase) this.metaTileEntity).getAbilities(TJMultiblockAbility.CRAFTER);
+            final List<IRecipeMapProvider> crafters = ((MultiblockControllerBase) this.metaTileEntity).getAbilities(TJMultiblockAbility.CRAFTER);
             for (IRecipeMapProvider provider : crafters)
                 this.recipeMapList.add(provider.getRecipeMap());
         } else if (this.metaTileEntity instanceof IRecipeMapProvider) {

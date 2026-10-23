@@ -97,6 +97,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
             if (this.completeRecipe(i)) {
                 this.progress[i] = 0;
                 this.energyPerTick[i] = 0;
+                this.metaTileEntity.setInventoryNotified(true);
                 if (this.handler.hasMaintenanceHatch())
                     this.handler.calculateMaintenance(this.maxProgress[i]);
                 if (this.hasProblem[i])
@@ -110,19 +111,17 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
             }
         }
         if (this.progress[i] < 1) {
-            if (!this.metaTileEntity.isInventoryNotified()) {
+            if (this.metaTileEntity.isInventoryNotified() || this.otherConditions(i)) {
                 this.metaTileEntity.setInventoryNotified(false);
-                this.sleepRecipe(i);
-                return;
-            }
-            final boolean canStart = this.startRecipe(i);
-            if (canStart) {
-                this.progress[i] = 1;
-                this.progressRecipe(this.progress[i], i);
-                if (!this.isActive[i])
-                    this.setActive(true, i);
-            } else this.failRecipe(i);
-            this.wasActiveAndNeedsUpdate[i] = !canStart;
+                final boolean canStart = this.startRecipe(i);
+                if (canStart) {
+                    this.progress[i] = 1;
+                    this.progressRecipe(this.progress[i], i);
+                    if (!this.isActive[i])
+                        this.setActive(true, i);
+                } else this.failRecipe(i);
+                this.wasActiveAndNeedsUpdate[i] = !canStart;
+            } else this.sleepRecipe(i);
         } else this.progressRecipe(this.progress[i], i);
     }
 
@@ -163,6 +162,13 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
      */
     protected boolean completeRecipe(int i) {
         return false;
+    }
+
+    /**
+     * Check for other conditions before recipe logic goes into lookdown.
+     */
+    protected boolean otherConditions(int i) {
+        return true;
     }
 
     protected int calculateOverclock(long baseEnergy, int duration, float multiplier, int i) {

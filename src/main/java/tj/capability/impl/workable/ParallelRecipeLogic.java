@@ -40,6 +40,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     private final Int2ObjectMap<List<FluidStack>> fluidInputs = new Int2ObjectOpenHashMap<>();
     private final Int2ObjectMap<List<FluidStack>> fluidOutputs = new Int2ObjectOpenHashMap<>();
     private final List<Recipe> occupiedRecipes = new ArrayList<>();
+    private Recipe[] lastRecipes = new Recipe[1];
     private int[] parallelsPerformed = new int[1];
     private int[] itemOutputIndex = new int[1];
     private int[] fluidOutputIndex = new int[1];
@@ -65,6 +66,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
     @Override
     public void setLayer(int i, boolean remove) {
         super.setLayer(i, remove);
+        this.lastRecipes = Arrays.copyOf(this.lastRecipes, this.size);
         this.parallelsPerformed = Arrays.copyOf(this.parallelsPerformed, this.size);
         this.itemOutputIndex = Arrays.copyOf(this.itemOutputIndex, this.size);
         this.fluidOutputIndex = Arrays.copyOf(this.fluidOutputIndex, this.size);
@@ -128,6 +130,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
             }
         }
         if (recipe != null) {
+            this.lastRecipes[i] = recipe;
             this.overclockManager.setEUt(recipe.getEUt());
             this.overclockManager.setDurationMultiplier(2.8F);
             this.overclockManager.setDuration(recipe.getDuration());
@@ -164,6 +167,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
                 this.fluidOutputIndex[i]++;
             } else return false;
         }
+        this.lastRecipes[i] = null;
         this.itemOutputIndex[i] = 0;
         this.fluidOutputIndex[i] = 0;
         this.itemInputs.get(i).clear();
@@ -288,6 +292,11 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
             fluid.amount *= parallels;
             this.fluidOutputs.get(i).add(fluid);
         }
+    }
+
+    @Override
+    protected boolean otherConditions(int i) {
+        return this.lastRecipes[i] != null;
     }
 
     private boolean checkRecipeInputsDirty(IItemHandler itemInputs, IMultipleTankHandler fluidInputs) {
@@ -447,6 +456,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
         super.deserializeNBT(compound);
         final NBTTagList occupiedRecipeList = compound.getTagList("occupiedRecipes", 10);
         final NBTTagList itemInputIndexList = compound.getTagList("itemInputIndex", 3), fluidInputIndexList = compound.getTagList("fluidInputIndex", 3), recipeLockList = compound.getTagList("recipeLock", 1);
+        this.lastRecipes = new Recipe[this.size];
         this.parallelsPerformed = new int[this.size];
         this.itemOutputIndex = new int[this.size];
         this.fluidOutputIndex = new int[this.size];

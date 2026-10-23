@@ -151,6 +151,7 @@ public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<
         if (this.progress > this.maxProgress) {
             if (this.completeRecipe()) {
                 this.progress = 0;
+                this.metaTileEntity.setInventoryNotified(true);
                 if (this.resetEnergy)
                     this.energyPerTick = 0;
                 if (this.hasProblem)
@@ -162,19 +163,17 @@ public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<
             }
         }
         if (this.progress < 1) {
-            if (!this.metaTileEntity.isInventoryNotified()) {
+            if (this.metaTileEntity.isInventoryNotified() || this.otherConditions()) {
                 this.metaTileEntity.setInventoryNotified(false);
-                this.sleepRecipe();
-                return;
-            }
-            final boolean canStart = this.startRecipe();
-            if (canStart) {
-                this.progress = 1;
-                this.progressRecipe(this.progress);
-                if (!this.isActive)
-                    this.setActive(true);
-            } else this.failRecipe();
-            this.wasActiveAndNeedsUpdate = !canStart;
+                final boolean canStart = this.startRecipe();
+                if (canStart) {
+                    this.progress = 1;
+                    this.progressRecipe(this.progress);
+                    if (!this.isActive)
+                        this.setActive(true);
+                } else this.failRecipe();
+                this.wasActiveAndNeedsUpdate = !canStart;
+            } else this.sleepRecipe();
         } else this.progressRecipe(this.progress);
     }
 
@@ -206,6 +205,13 @@ public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<
             this.progress++;
         } else if (this.progress > 1)
             this.progress--;
+    }
+
+    /**
+     * Check for other conditions before recipe logic goes into lookdown.
+     */
+    protected boolean otherConditions() {
+        return true;
     }
 
     /**

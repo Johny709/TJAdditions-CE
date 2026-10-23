@@ -36,6 +36,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     protected ItemStack[] lastItemInputs;
     protected ItemStack[][] lastItemInputsMatrix;
     protected FluidStack[] lastFluidInputs;
+    protected Recipe lastRecipe;
     protected boolean allowOverclocking = true;
     protected boolean recipeRecheck = true;
     protected boolean voidingItems;
@@ -88,6 +89,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             }
         }
         if (recipe != null) {
+            this.lastRecipe = recipe;
             this.overclockManager.setEUt(recipe.getEUt());
             this.overclockManager.setDurationMultiplier(2.8F);
             this.overclockManager.setDuration(recipe.getDuration());
@@ -121,6 +123,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
                 this.fluidOutputIndex++;
             } else return false;
         }
+        this.lastRecipe = null;
         this.recipeRecheck = true;
         this.itemOutputIndex = 0;
         this.fluidOutputIndex = 0;
@@ -408,6 +411,11 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     @Override
     public List<FluidStack> getFluidOutputs() {
         return this.fluidOutputs;
+    }
+
+    @Override
+    protected boolean otherConditions() {
+        return this.lastRecipe != null;
     }
 
     public void setVoidingItems(boolean voidingItems) {

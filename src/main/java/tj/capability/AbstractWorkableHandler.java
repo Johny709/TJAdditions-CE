@@ -82,6 +82,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
             if (this.completeRecipe()) {
                 this.progress = 0;
                 this.energyPerTick = 0;
+                this.metaTileEntity.setInventoryNotified(true);
                 if (this.handler.hasMaintenanceHatch())
                     this.handler.calculateMaintenance(this.maxProgress);
                 if (this.hasProblem)
@@ -95,19 +96,17 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
             }
         }
         if (this.progress < 1) {
-            if (!this.metaTileEntity.isInventoryNotified()) {
+            if (this.metaTileEntity.isInventoryNotified() || this.otherConditions()) {
                 this.metaTileEntity.setInventoryNotified(false);
-                return;
-            }
-            final boolean canStart = this.startRecipe();
-            if (canStart) {
-                this.sleepTime = 1;
-                this.progress = 1;
-                this.progressRecipe(this.progress);
-                if (!this.isActive)
-                    this.setActive(true);
-            } else this.failRecipe();
-            this.wasActiveAndNeedsUpdate = !canStart;
+                final boolean canStart = this.startRecipe();
+                if (canStart) {
+                    this.progress = 1;
+                    this.progressRecipe(this.progress);
+                    if (!this.isActive)
+                        this.setActive(true);
+                } else this.failRecipe();
+                this.wasActiveAndNeedsUpdate = !canStart;
+            } else this.sleepRecipe();
         } else this.progressRecipe(this.progress);
     }
 
@@ -156,6 +155,13 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
      */
     protected boolean completeRecipe() {
         return false;
+    }
+
+    /**
+     * Check for other conditions before recipe logic goes into lookdown.
+     */
+    protected boolean otherConditions() {
+        return true;
     }
 
     protected int calculateOverclock(long baseEnergy, int duration, float multiplier) {
