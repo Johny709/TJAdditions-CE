@@ -2,6 +2,7 @@ package tj.mui.widgets.impl;
 
 import gregtech.api.gui.INativeWidget;
 import gregtech.api.gui.Widget;
+import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
 import net.minecraft.item.ItemStack;
@@ -72,7 +73,7 @@ public class SlotWidgetGroup extends ScrollingWidgetGroup<SlotWidgetGroup> imple
         int slotIndex = 0;
         for (Widget widget : this.widgets) {
             widget.setParentPosition(newPos);
-            if (!(widget instanceof INativeWidget)) continue;
+            if (!(widget instanceof INativeWidget || widget instanceof IIngredientSlot)) continue;
             if (slotIndex % this.rowLength == 0) {
                 totalListHeight += widget.getSize().height;
                 totalListWidth = 0;
