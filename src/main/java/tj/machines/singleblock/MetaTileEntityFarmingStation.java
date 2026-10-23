@@ -71,7 +71,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                 }
             });
 
-    private final IFluidTank waterTank = new FilteredFluidHandler(this.getTier() >= GTValues.ZPM ? 256000 : this.getTier() >= GTValues.EV ? 128000 : 64000).setFillPredicate(ModHandler::isWater);
+    private final IFluidTank waterTank = new FilteredFluidHandler(this, this.getTier() >= GTValues.ZPM ? 256000 : this.getTier() >= GTValues.EV ? 128000 : 64000).setFillPredicate(ModHandler::isWater);
 
     public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);

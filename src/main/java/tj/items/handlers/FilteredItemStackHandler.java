@@ -35,6 +35,8 @@ public class FilteredItemStackHandler extends LargeItemStackHandler implements I
     public FilteredItemStackHandler(ICoverable holder, int slots, int capacity) {
         super(slots, capacity);
         this.holder = holder;
+        if (this.holder instanceof MetaTileEntity)
+            this.metaTileEntitiesToNotify.add((MetaTileEntity) this.holder);
     }
 
     /**
@@ -93,7 +95,8 @@ public class FilteredItemStackHandler extends LargeItemStackHandler implements I
 
     @Override
     public void addMetaTileEntityToNotifiable(MetaTileEntity metaTileEntity) {
-        this.metaTileEntitiesToNotify.add(metaTileEntity);
+        if (metaTileEntity != null)
+            this.metaTileEntitiesToNotify.add(metaTileEntity);
     }
 
     @Override
