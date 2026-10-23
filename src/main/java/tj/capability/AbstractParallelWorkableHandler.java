@@ -86,6 +86,12 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
         this.busCount = busCount;
     }
 
+    @Override
+    public void update() {
+        for (int i = 0; i < this.size; i++)
+            this.update(i);
+    }
+
     public void update(int i) {
         if (!this.isWorking[i]) {
             this.stopRecipe(i);

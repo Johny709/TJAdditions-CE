@@ -76,8 +76,11 @@ public abstract class MixinGASimpleMachineMetaTileEntity extends MixinGAWorkable
                                 "gregtech.gui.fluid_auto_output.tooltip.enabled"));
             }
             uiBuilder.bindPlayerInventory(player.inventory, 48 + offsetY)
-                    .widget(new ImageWidget(79, 26 + (offsetY / 2), 18, 18, GuiTextures.INDICATOR_NO_ENERGY)
+                    .widget(new ImageWidget(79, 42, 18, 18, GuiTextures.INDICATOR_NO_ENERGY)
                             .setPredicate(this.workable::isHasNotEnoughEnergy))
+                    .widget(new ImageWidget(79, 60, 18, 18, GuiTextures.CAUTION_ICON)
+                            .setHoverTooltip(this.workable::getHasProblemsReason)
+                            .setPredicate(this.workable::isHasProblems))
                     .widget(new TJCycleButtonWidget<>(leftButtonStart.getAndIncrement(18), 26 + offsetY, 18, 18, VoltageOverclock.class,
                             () -> VoltageOverclock.values()[this.workable.getOverclockTier()],
                             voltage -> this.workable.setOverclockTier(Math.min(this.getTier() + 1, voltage.ordinal())))

@@ -140,8 +140,7 @@ public abstract class ParallelRecipeMapMultiblockController extends TJMultiblock
     @Override
     protected void updateFormedValid() {
         if (this.isWorkingEnabled && ((this.getProblems() >> 5) & 1) != 0)
-            for (int i = 0; i < this.recipeLogic.getSize(); i++)
-                this.recipeLogic.update(i);
+            this.recipeLogic.update();
     }
 
     @Override
