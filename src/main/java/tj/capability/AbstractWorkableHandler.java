@@ -95,8 +95,8 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
             }
         }
         if (this.progress < 1) {
-            if (this.sleepTimer > 1) {
-                this.sleepRecipe();
+            if (!this.metaTileEntity.isInventoryNotified()) {
+                this.metaTileEntity.setInventoryNotified(false);
                 return;
             }
             final boolean canStart = this.startRecipe();

@@ -8,7 +8,6 @@ import gregtech.api.capability.IMultipleTankHandler;
 import gregtech.api.capability.IWorkable;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.util.function.BooleanConsumer;
-import gregtech.common.ConfigHolder;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.capabilities.Capability;
@@ -44,9 +43,6 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
     protected int maxProgress;
     protected int lastInputIndex;
     protected int busCount;
-    protected int sleepTimer;
-    protected int sleepTime = 1;
-    protected int failCount;
 
     public AbstractGAFuelRecipeLogic(MetaTileEntity metaTileEntity, HotCoolantRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank, long maxVoltage) {
         super(metaTileEntity, recipeMap, energyContainer, fluidTank, maxVoltage);
@@ -60,7 +56,7 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
     public R initialize(int busCount) {
         this.lastInputIndex = 0;
         this.busCount = busCount;
-        return (R) this;
+        return this.thisLogic();
     }
 
     /**
@@ -68,7 +64,7 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
      */
     public R setImportItemsSupplier(Supplier<IItemHandlerModifiable> importItemsSupplier) {
         this.importItemsSupplier = importItemsSupplier;
-        return (R) this;
+        return this.thisLogic();
     }
 
     /**
@@ -76,7 +72,7 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
      */
     public R setExportItemsSupplier(Supplier<IItemHandlerModifiable> exportItemsSupplier) {
         this.exportItemsSupplier = exportItemsSupplier;
-        return (R) this;
+        return this.thisLogic();
     }
 
     /**
@@ -84,7 +80,7 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
      */
     public R setExportFluidsSupplier(Supplier<IFluidHandler> exportFluidsSupplier) {
         this.exportFluidsSupplier = exportFluidsSupplier;
-        return (R) this;
+        return this.thisLogic();
     }
 
     /**
@@ -92,7 +88,7 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
      */
     public R setResetEnergy(boolean resetEnergy) {
         this.resetEnergy = resetEnergy;
-        return (R) this;
+        return this.thisLogic();
     }
 
     /**
@@ -100,7 +96,7 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
      */
     public R setImportEnergySupplier(Supplier<IEnergyContainer> importEnergySupplier) {
         this.importEnergySupplier = importEnergySupplier;
-        return (R) this;
+        return this.thisLogic();
     }
 
     /**
@@ -108,7 +104,7 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
      */
     public R setInputBus(IntFunction<IItemHandlerModifiable> inputBus) {
         this.inputBus = inputBus;
-        return (R) this;
+        return this.thisLogic();
     }
 
     /**
@@ -116,7 +112,7 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
      */
     public R setMaxVoltageSupplier(LongSupplier maxVoltageSupplier) {
         this.maxVoltageSupplier = maxVoltageSupplier;
-        return (R) this;
+        return this.thisLogic();
     }
 
     /**
@@ -124,7 +120,7 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
      */
     public R setTierSupplier(IntSupplier tierSupplier) {
         this.tierSupplier = tierSupplier;
-        return (R) this;
+        return this.thisLogic();
     }
 
     /**
@@ -132,7 +128,7 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
      */
     public R setParallelSupplier(IntSupplier parallelSupplier) {
         this.parallelSupplier = parallelSupplier;
-        return (R) this;
+        return this.thisLogic();
     }
 
     /**
@@ -140,7 +136,7 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
      */
     public R setActive(BooleanConsumer activeConsumer) {
         this.activeConsumer = activeConsumer;
-        return (R) this;
+        return this.thisLogic();
     }
 
     @Override
@@ -166,14 +162,14 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
             }
         }
         if (this.progress < 1) {
-            if (this.sleepTimer > 1) {
+            if (!this.metaTileEntity.isInventoryNotified()) {
+                this.metaTileEntity.setInventoryNotified(false);
                 this.sleepRecipe();
                 return;
             }
             boolean canStart = this.startRecipe();
             if (canStart) {
                 this.progress = 1;
-                this.sleepTime = 1;
                 this.progressRecipe(this.progress);
                 if (!this.isActive)
                     this.setActive(true);
@@ -193,9 +189,7 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
      * For every tick the workable handler is on sleep timer
      */
     @OverridingMethodsMustInvokeSuper
-    protected void sleepRecipe() {
-        this.sleepTimer--;
-    }
+    protected void sleepRecipe() {}
 
     /**
      * For every tick the workable handler is stopped
@@ -203,16 +197,10 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
     protected void stopRecipe() {}
 
     /**
-     * When recipe was unable to start. Recommended to invoke super method to utilize sleep timer for performance
+     * When recipe was unable to start.
      */
     @OverridingMethodsMustInvokeSuper
-    protected void failRecipe() {
-        if (this.failCount > 4) {
-            this.sleepTime = Math.min(this.sleepTime * 2, Math.min(ConfigHolder.maxSleepTime, 400));
-            this.failCount = 0;
-        } else this.failCount++;
-        this.sleepTimer = this.sleepTime;
-    }
+    protected void failRecipe() {}
 
     protected void progressRecipe(int progress) {
         if (this.importEnergySupplier.get().removeEnergy(this.energyPerTick) == -this.energyPerTick) {
@@ -405,5 +393,13 @@ public abstract class AbstractGAFuelRecipeLogic<R extends AbstractGAFuelRecipeLo
             this.writeCustomData(1, buffer -> buffer.writeBoolean(isActive));
             this.metaTileEntity.markDirty();
         }
+    }
+
+    /**
+     * To remove unchecked cast warnings spam.
+     * @return this widget object.
+     */
+    protected R thisLogic() {
+        return (R) this;
     }
 }

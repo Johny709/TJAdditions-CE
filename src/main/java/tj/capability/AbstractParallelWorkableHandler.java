@@ -26,9 +26,6 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
     protected int[] maxProgress = new int[1];
     protected int[] parallel = new int[1];
     protected int[] lastInputIndex = new int[1];
-    protected int[] sleepTimer = new int[1];
-    protected int[] sleepTime = new int[1];
-    protected int[] failCount = new int[1];
     protected boolean isDistinct;
     protected int busCount;
     protected int size = 1;
@@ -36,7 +33,6 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
     public AbstractParallelWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
         Arrays.fill(this.isWorking, true);
-        Arrays.fill(this.sleepTime, 1);
         Arrays.fill(this.parallel, 1);
         if (metaTileEntity instanceof IMachineHandler) {
             this.handler = (H) metaTileEntity;
@@ -67,11 +63,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
         this.maxProgress = Arrays.copyOf(this.maxProgress, this.size);
         this.parallel = Arrays.copyOf(this.parallel, this.size);
         this.lastInputIndex = Arrays.copyOf(this.lastInputIndex, this.size);
-        this.sleepTimer = Arrays.copyOf(this.sleepTimer, this.size);
-        this.sleepTime = Arrays.copyOf(this.sleepTime, this.size);
-        this.failCount = Arrays.copyOf(this.failCount, this.size);
         if (!remove) {
-            this.sleepTime[this.size -1] = 1;
             this.isWorking[this.size -1] = true;
             this.parallel[this.size -1] = 1;
         }
@@ -118,13 +110,13 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
             }
         }
         if (this.progress[i] < 1) {
-            if (this.sleepTimer[i] > 1) {
+            if (!this.metaTileEntity.isInventoryNotified()) {
+                this.metaTileEntity.setInventoryNotified(false);
                 this.sleepRecipe(i);
                 return;
             }
             final boolean canStart = this.startRecipe(i);
             if (canStart) {
-                this.sleepTime[i] = 1;
                 this.progress[i] = 1;
                 this.progressRecipe(this.progress[i], i);
                 if (!this.isActive[i])
@@ -145,9 +137,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
      * For every tick the workable handler is on sleep timer
      */
     @OverridingMethodsMustInvokeSuper
-    protected void sleepRecipe(int i) {
-        this.sleepTimer[i]--;
-    }
+    protected void sleepRecipe(int i) {}
 
     /**
      * For every tick the workable handler is stopped
@@ -159,13 +149,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
      * Recommended to invoke super method to utilize sleep timer for performance
      */
     @OverridingMethodsMustInvokeSuper
-    protected void failRecipe(int i) {
-        if (this.failCount[i] > 4) {
-            this.sleepTime[i] = Math.min(this.sleepTime[i] * 2, Math.min(ConfigHolder.maxSleepTime, 400));
-            this.failCount[i] = 0;
-        } else this.failCount[i]++;
-        this.sleepTimer[i] = this.sleepTime[i];
-    }
+    protected void failRecipe(int i) {}
 
     protected void progressRecipe(int progress, int i) {
         if (this.handler.getInputEnergyContainer().removeEnergy(this.energyPerTick[i]) == -this.energyPerTick[i]) {
@@ -291,9 +275,6 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
         this.maxProgress = new int[this.size];
         this.parallel = new int[this.size];
         this.lastInputIndex = new int[this.size];
-        this.sleepTime = new int[this.size];
-        this.sleepTimer = new int[this.size];
-        this.failCount = new int[this.size];
         for (int i = 0; i < isWorkingList.tagCount(); i++)
             this.isWorking[i] = ((NBTTagByte) isWorkingList.get(i)).getByte() == 1;
         for (int i = 0; i < isActiveList.tagCount(); i++)
@@ -311,7 +292,6 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
         for (int i = 0; i < parallelList.tagCount(); i++)
             this.parallel[i] = parallelList.getIntAt(i);
         this.isDistinct = compound.getBoolean("distinct");
-        Arrays.fill(this.sleepTime, 1);
     }
 
     @Override
