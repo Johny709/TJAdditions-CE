@@ -168,7 +168,7 @@ public abstract class AbstractParallelWorkableHandler<H extends IMachineHandler>
      * Check for other conditions before recipe logic goes into lookdown.
      */
     protected boolean otherConditions(int i) {
-        return true;
+        return false;
     }
 
     protected int calculateOverclock(long baseEnergy, int duration, float multiplier, int i) {

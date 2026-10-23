@@ -1,19 +1,24 @@
 package tj.items.handlers;
 
+import gregtech.api.capability.IInventoryNotifiable;
 import gregtech.api.cover.ICoverable;
+import gregtech.api.metatileentity.MetaTileEntity;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.item.ItemStack;
 import org.apache.logging.log4j.util.TriConsumer;
 import tj.mui.widgets.impl.TJSlotWidget;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
 /**
  * Recommended to use {@link TJSlotWidget} for player interacting with this.
  */
-public class FilteredItemStackHandler extends LargeItemStackHandler {
+public class FilteredItemStackHandler extends LargeItemStackHandler implements IInventoryNotifiable {
 
+    protected final List<MetaTileEntity> metaTileEntitiesToNotify = new ObjectArrayList<>();
     private final ICoverable holder;
     private TriConsumer<Integer, ItemStack, Boolean> onContentsChangedPre;
     private BiConsumer<Integer, ItemStack> onContentsChangedPost;
@@ -80,7 +85,19 @@ public class FilteredItemStackHandler extends LargeItemStackHandler {
     protected void onContentsChanged(int slot) {
         if (this.onContentsChangedPost != null)
             this.onContentsChangedPost.accept(slot, this.getStackInSlot(slot));
+        for (MetaTileEntity metaTileEntity : this.metaTileEntitiesToNotify)
+            metaTileEntity.setInventoryNotified(true);
         if (this.holder != null)
             this.holder.markDirty();
+    }
+
+    @Override
+    public void addMetaTileEntityToNotifiable(MetaTileEntity metaTileEntity) {
+        this.metaTileEntitiesToNotify.add(metaTileEntity);
+    }
+
+    @Override
+    public void removeMetaTileEntityFromNotifiable(MetaTileEntity metaTileEntity) {
+        this.metaTileEntitiesToNotify.remove(metaTileEntity);
     }
 }

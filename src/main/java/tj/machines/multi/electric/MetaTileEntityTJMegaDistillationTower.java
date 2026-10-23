@@ -200,6 +200,7 @@ public class MetaTileEntityTJMegaDistillationTower extends TJRecipeMapMultiblock
                 this.fluidOutputIndex2 = 0;
                 this.fluidOutputIndex++;
             }
+            this.lastRecipe = null;
             this.recipeRecheck = true;
             this.itemOutputIndex = 0;
             this.fluidOutputIndex = 0;

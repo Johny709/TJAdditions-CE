@@ -6,6 +6,8 @@ import codechicken.lib.vec.Matrix4;
 import gregicadditions.client.ClientHandler;
 import gregtech.api.capability.impl.FilteredFluidHandler;
 import gregtech.api.capability.impl.FluidTankList;
+import gregtech.api.capability.impl.NotifiableFluidTankList;
+import gregtech.api.capability.impl.NotifiableItemStackHandler;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
@@ -30,12 +32,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
 import tj.capability.impl.handler.IMinerHandler;
 import tj.capability.impl.workable.MinerWorkableHandler;
+import tj.items.handlers.NotifiableLargeItemStackHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.*;
-import tj.items.handlers.LargeItemStackHandler;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -48,7 +49,7 @@ import static tj.mui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEntity implements IMinerHandler {
 
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
-    private final LargeItemStackHandler filterInventory = new LargeItemStackHandler(27, 1);
+    private final NotifiableItemStackHandler filterInventory = new NotifiableLargeItemStackHandler(this, 27, 1);
     private final FluidStack drillingFluid;
 
     public MetaTileEntityAdvancedChunkMiner(ResourceLocation metaTileEntityId, int tier) {
@@ -76,17 +77,17 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new ItemStackHandler(2);
+        return new NotifiableItemStackHandler(this, 2);
     }
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new ItemStackHandler(9 + (this.getTier() * 3));
+        return new NotifiableItemStackHandler(this, 9 + (this.getTier() * 3));
     }
 
     @Override
     protected FluidTankList createImportFluidHandler() {
-        return new FluidTankList(false,  new FilteredFluidHandler(64000)
+        return new NotifiableFluidTankList(this, false,  new FilteredFluidHandler(64000)
                 .setFillPredicate(fluidStack -> Objects.requireNonNull(Materials.DrillingFluid.getFluid(0)).isFluidEqual(fluidStack)));
     }
 

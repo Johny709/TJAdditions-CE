@@ -3,6 +3,7 @@ package tj.machines.singleblock;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.capability.impl.NotifiableItemStackHandler;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -18,7 +19,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
 import tj.capability.impl.handler.INameHandler;
 import tj.capability.impl.workable.NamingMachineWorkableHandler;
 import tj.mui.TJGuiTextures;
@@ -59,12 +59,12 @@ public class MetaTileEntityNamingMachine extends TJTieredWorkableMetaTileEntity 
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new ItemStackHandler(2);
+        return new NotifiableItemStackHandler(this, 2);
     }
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new ItemStackHandler(4);
+        return new NotifiableItemStackHandler(this, 4);
     }
 
     @Override

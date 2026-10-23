@@ -211,7 +211,7 @@ public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<
      * Check for other conditions before recipe logic goes into lookdown.
      */
     protected boolean otherConditions() {
-        return true;
+        return false;
     }
 
     /**

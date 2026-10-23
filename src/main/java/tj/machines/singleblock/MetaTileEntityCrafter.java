@@ -3,6 +3,7 @@ package tj.machines.singleblock;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.capability.impl.NotifiableItemStackHandler;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -98,12 +99,12 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new ItemStackHandler(18);
+        return new NotifiableItemStackHandler(this, 18);
     }
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new ItemStackHandler(4);
+        return new NotifiableItemStackHandler(this, 4);
     }
 
     @Override
@@ -248,8 +249,8 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
             final NBTTagCompound recipeNBT = new NBTTagCompound();
             final NBTTagList patternNBT = new NBTTagList();
             final NonNullList<ItemStack> itemStacks = recipeEntry.getValue().getRight();
-            for (int i = 0; i < itemStacks.size(); i++) {
-                patternNBT.appendTag(itemStacks.get(i).serializeNBT());
+            for (ItemStack itemStack : itemStacks) {
+                patternNBT.appendTag(itemStack.serializeNBT());
             }
             recipeNBT.setInteger("index", recipeEntry.getKey());
             recipeNBT.setString("id", recipeEntry.getValue().getLeft().getRegistryName().toString());

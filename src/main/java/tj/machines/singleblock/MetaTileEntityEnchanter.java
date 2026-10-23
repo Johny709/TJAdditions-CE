@@ -4,6 +4,9 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.capability.impl.FluidTankList;
+import gregtech.api.capability.impl.NotifiableFluidTank;
+import gregtech.api.capability.impl.NotifiableFluidTankList;
+import gregtech.api.capability.impl.NotifiableItemStackHandler;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -15,12 +18,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
 import tj.capability.impl.workable.EnchanterWorkableHandler;
 import tj.mui.TJGuiTextures;
@@ -44,7 +45,7 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
 
     public MetaTileEntityEnchanter(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
-        this.tank = new FluidTank(64000);
+        this.tank = new NotifiableFluidTank(this, 64000);
         this.parallel = this.getTier();
         this.workableHandler.initialize(1);
         this.initializeInventory();
@@ -71,17 +72,17 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new ItemStackHandler(2);
+        return new NotifiableItemStackHandler(this, 2);
     }
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new ItemStackHandler(4);
+        return new NotifiableItemStackHandler(this, 4);
     }
 
     @Override
     protected FluidTankList createImportFluidHandler() {
-        return new FluidTankList(true, this.tank);
+        return new NotifiableFluidTankList(this, true, this.tank);
     }
 
     @Override

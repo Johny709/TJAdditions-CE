@@ -4,9 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.GTValues;
-import gregtech.api.capability.impl.FilteredFluidHandler;
-import gregtech.api.capability.impl.FluidTankList;
-import gregtech.api.capability.impl.ItemHandlerList;
+import gregtech.api.capability.impl.*;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.items.toolitem.ToolMetaItem;
@@ -36,10 +34,10 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.capability.impl.handler.IFarmerHandler;
 import tj.capability.impl.workable.FarmingStationWorkableHandler;
+import tj.items.handlers.NotifiableLargeItemStackHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.*;
 import tj.items.handlers.FilteredItemStackHandler;
-import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
@@ -105,17 +103,17 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return this.seedInventory != null ? new ItemHandlerList(Arrays.asList(this.seedInventory, this.toolInventory, this.fertilizerInventory)) : super.createImportItemHandler();
+        return this.seedInventory != null ? new NotifiableItemHandlerList(this, Arrays.asList(this.seedInventory, this.toolInventory, this.fertilizerInventory)) : super.createImportItemHandler();
     }
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new LargeItemStackHandler(6 + (3 * this.getTier()), this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64);
+        return new NotifiableLargeItemStackHandler(this, 6 + (3 * this.getTier()), this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64);
     }
 
     @Override
     protected FluidTankList createImportFluidHandler() {
-        return this.waterTank != null ? new FluidTankList(true, this.waterTank) : super.createImportFluidHandler();
+        return this.waterTank != null ? new NotifiableFluidTankList(this, true, this.waterTank) : super.createImportFluidHandler();
     }
 
     @Override

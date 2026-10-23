@@ -161,7 +161,7 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
      * Check for other conditions before recipe logic goes into lookdown.
      */
     protected boolean otherConditions() {
-        return true;
+        return false;
     }
 
     protected int calculateOverclock(long baseEnergy, int duration, float multiplier) {
