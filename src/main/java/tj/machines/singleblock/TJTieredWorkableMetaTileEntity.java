@@ -24,6 +24,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
+import tj.capability.IJEIRecipeUID;
 import tj.capability.IMachineHandler;
 
 import javax.annotation.Nullable;
@@ -32,7 +33,7 @@ import java.util.List;
 /**
  * Serves as a basis to implement your own recipe or workable handler for single blocks.
  */
-public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEntity implements IActiveOutputSide, IMachineHandler {
+public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEntity implements IActiveOutputSide, IMachineHandler, IJEIRecipeUID {
 
     protected final ItemStackHandler chargerInventory;
     private EnumFacing outputFacing = this.getInitialFacing();
@@ -270,6 +271,14 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
     @Override
     public int getTier() {
         return super.getTier();
+    }
+
+    /**
+     * Recipe Uid for JEI recipe click area.
+     */
+    @Override
+    public String getRecipeUid() {
+        return null;
     }
 
     @Override

@@ -53,10 +53,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.builder.WidgetTabBuilder;
-import tj.capability.IMachineHandler;
-import tj.capability.IMuffler;
-import tj.capability.IProgressBar;
-import tj.capability.ProgressBar;
+import tj.capability.*;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJHorizontoalTabListRenderer;
 import tj.mui.widgets.impl.*;
@@ -78,7 +75,7 @@ import static tj.mui.TJGuiTextures.*;
 import static tj.mui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
 import static tj.mui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
 
-public abstract class TJMultiblockControllerBase extends MultiblockControllerBase implements IControllable, IMaintenance, IMuffler, IMachineHandler {
+public abstract class TJMultiblockControllerBase extends MultiblockControllerBase implements IControllable, IMaintenance, IMuffler, IMachineHandler, IJEIRecipeUID {
 
     private final List<ItemStack> recoveryItems = new ArrayList<ItemStack>() {{
         add(OreDictUnifier.get(OrePrefix.dustTiny, Materials.Ash));
@@ -563,6 +560,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
     /**
      * Recipe Uid for JEI recipe click area.
      */
+    @Override
     public String getRecipeUid() {
         return null;
     }
