@@ -65,26 +65,6 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
     }
 
     @Override
-    protected int getPortalColor() {
-        return 0xff3e00;
-    }
-
-    @Override
-    public int getTier() {
-        return this.tier;
-    }
-
-    @Override
-    protected String getName() {
-        return "metaitem.ender_item_cover_" + GAValues.VN[this.tier].toLowerCase() + ".name";
-    }
-
-    @Override
-    protected Object2ObjectMap<String, EnderCoverProfile<LargeItemStackHandler>> getPlayerMap() {
-        return EnderWorldData.getINSTANCE().getItemChestPlayerMap();
-    }
-
-    @Override
     protected void addToPopUpWidget(PopUpWidget<?> buttonPopUpWidget) {
         ((ButtonPopUpWidget<?>) buttonPopUpWidget).addPopup(94, 43, 78, 96, new TJToggleButtonWidget(151, 161, 18, 18)
                         .setHoverTooltipText("cover.conveyor.item_filter.title")
@@ -111,15 +91,6 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
     protected void addWidgets(Consumer<Widget> widget) {
         widget.accept(new TJSlotWidget<>(() -> this.handler, 0, 7, 38)
                 .setActiveBackgroundTexture(SLOT));
-    }
-
-    private void setFilterBlacklist(boolean isFilterBlacklist) {
-        this.isFilterBlacklist = isFilterBlacklist;
-        this.markAsDirty();
-    }
-
-    private boolean isFilterBlacklist() {
-        return this.isFilterBlacklist;
     }
 
     @Override
@@ -167,18 +138,47 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         data.setTag("itemFilter", this.itemFilter.serializeNBT());
-        data.setBoolean("FilterBlacklist", this.isFilterBlacklist);
+        data.setBoolean("filterBlacklist", this.isFilterBlacklist);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
         super.readFromNBT(data);
         this.itemFilter.deserializeNBT(data.getCompoundTag("itemFilter"));
-        this.isFilterBlacklist = data.getBoolean("FilterBlacklist");
+        this.isFilterBlacklist = data.getBoolean("filterBlacklist");
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
             final ItemStack stack = this.itemFilter.getStackInSlot(i);
             if (stack.isEmpty()) continue;
             this.itemType.put(stack, stack);
         }
+    }
+
+    @Override
+    protected int getPortalColor() {
+        return 0xff3e00;
+    }
+
+    @Override
+    public int getTier() {
+        return this.tier;
+    }
+
+    @Override
+    protected String getName() {
+        return "metaitem.ender_item_cover_" + GAValues.VN[this.tier].toLowerCase() + ".name";
+    }
+
+    @Override
+    protected Object2ObjectMap<String, EnderCoverProfile<LargeItemStackHandler>> getPlayerMap() {
+        return EnderWorldData.getINSTANCE().getItemChestPlayerMap();
+    }
+
+    private void setFilterBlacklist(boolean isFilterBlacklist) {
+        this.isFilterBlacklist = isFilterBlacklist;
+        this.markAsDirty();
+    }
+
+    private boolean isFilterBlacklist() {
+        return this.isFilterBlacklist;
     }
 }
