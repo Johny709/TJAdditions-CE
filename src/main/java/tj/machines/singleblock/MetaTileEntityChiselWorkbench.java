@@ -3,21 +3,25 @@ package tj.machines.singleblock;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+import gregtech.api.capability.impl.NotifiableItemHandlerList;
 import gregtech.api.capability.impl.NotifiableItemStackHandler;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.common.gui.widget.GhostCircuitWidget;
 import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.ItemStackHandler;
 import tj.capability.impl.workable.ChiselWorkbenchWorkableHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.*;
@@ -25,6 +29,7 @@ import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 
 import static gregtech.api.gui.GuiTextures.*;
@@ -34,11 +39,15 @@ import static tj.mui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntity {
 
     private final ChiselWorkbenchWorkableHandler workableHandler = new ChiselWorkbenchWorkableHandler(this);
+    private final ItemStackHandler ghostCircuitSlot = new NotifiableItemStackHandler(this, 1);
+    private final ItemStackHandler ghostCircuitSlot1 = new NotifiableItemStackHandler(this, 1);
+    private final IItemHandlerModifiable combinedInventory;
     private final int parallel;
 
     public MetaTileEntityChiselWorkbench(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
         this.parallel = this.getTier();
+        this.combinedInventory = new NotifiableItemHandlerList(this, Arrays.asList(this.ghostCircuitSlot, this.ghostCircuitSlot1, this.importItems));
     }
 
     @Override
@@ -102,6 +111,8 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
                         .setBackgroundTexture(SLOT, MOLD_OVERLAY))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
+                .widget(new GhostCircuitWidget(this.ghostCircuitSlot, 133, 62))
+                .widget(new GhostCircuitWidget(this.ghostCircuitSlot1, 151, 62))
                 .widget(new TJToggleButtonWidget(-24, 142, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
                 .widget(new TJToggleButtonWidget(7, 62, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
@@ -123,6 +134,26 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
         TJTextures.CHISEL.renderSided(this.frontFacing.getOpposite(), renderState, translation, pipeline);
         TJTextures.CHISEL.renderSided(EnumFacingHelper.getLeftFacingFrom(this.frontFacing), renderState, translation, pipeline);
         TJTextures.CHISEL.renderSided(EnumFacingHelper.getRightFacingFrom(this.frontFacing), renderState, translation, pipeline);
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setTag("ghostCircuit", this.ghostCircuitSlot.serializeNBT());
+        data.setTag("ghostCircuit1", this.ghostCircuitSlot1.serializeNBT());
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.ghostCircuitSlot.deserializeNBT(data.getCompoundTag("ghostCircuit"));
+        this.ghostCircuitSlot1.deserializeNBT(data.getCompoundTag("ghostCircuit1"));
+    }
+
+    @Override
+    public IItemHandlerModifiable getImportItemInventory() {
+        return this.combinedInventory;
     }
 
     @Override
