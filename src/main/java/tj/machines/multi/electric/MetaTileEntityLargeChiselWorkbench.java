@@ -198,6 +198,11 @@ public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockCont
     }
 
     @Override
+    public String getRecipeUid() {
+        return "chisel.chiseling";
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public SoundEvent getSound() {
         return GTSoundEvents.CUT;

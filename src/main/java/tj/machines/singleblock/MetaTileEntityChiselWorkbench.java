@@ -95,7 +95,7 @@ public class MetaTileEntityChiselWorkbench extends TJTieredWorkableMetaTileEntit
         }
         return builder.image(-28, 0, 26, 104, BORDERED_BACKGROUND)
                 .image(-28, 138, 26, 26, BORDERED_BACKGROUND)
-                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2, () -> "chisel.chiseling")
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
                         .setLocale("tj.multiblock.bars.energy", null)
