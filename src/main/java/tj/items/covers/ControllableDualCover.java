@@ -335,7 +335,7 @@ public class ControllableDualCover extends DualCover {
                             final int extract = Math.min(filterStack.getCount(), stack.getCount() - inserted);
                             if (extract < 1) continue;
                             final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
-                            TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                            TJItemUtils.insertIntoItemHandlerNotifiable(destItemHandler, otherStack, false);
                         }
                     }
                 }
@@ -366,7 +366,7 @@ public class ControllableDualCover extends DualCover {
                             final int extract = Math.min(stack.getCount() - inserted, itemStackWrapper.getCount());
                             if (extract < 1) continue;
                             final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
-                            TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                            TJItemUtils.insertIntoItemHandlerNotifiable(destItemHandler, otherStack, false);
                         }
                     }
                 }
@@ -380,7 +380,7 @@ public class ControllableDualCover extends DualCover {
                             final int extract = Math.min(this.itemSupplyThroughput, stack.getCount() - inserted);
                             if (extract < 1) continue;
                             final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
-                            TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                            TJItemUtils.insertIntoItemHandlerNotifiable(destItemHandler, otherStack, false);
                         }
                     }
                 }
@@ -394,7 +394,7 @@ public class ControllableDualCover extends DualCover {
                             final int extract = Math.min(this.itemSupplyThroughput, stack.getCount() - inserted);
                             if (extract < 1) continue;
                             final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
-                            TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                            TJItemUtils.insertIntoItemHandlerNotifiable(destItemHandler, otherStack, false);
                         }
                     }
                 }
@@ -421,7 +421,7 @@ public class ControllableDualCover extends DualCover {
                         if (extract < 1) continue;
                         counter.increment(extract);
                         final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
-                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                        TJItemUtils.insertIntoItemHandlerNotifiable(destItemHandler, otherStack, false);
                     }
                 }
                 break;
@@ -452,7 +452,7 @@ public class ControllableDualCover extends DualCover {
                         if (extract < 1) continue;
                         counter.increment(extract);
                         final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
-                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                        TJItemUtils.insertIntoItemHandlerNotifiable(destItemHandler, otherStack, false);
                     }
                 }
                 break;
@@ -466,7 +466,7 @@ public class ControllableDualCover extends DualCover {
                         if (extract < 1) continue;
                         counter.increment(extract);
                         final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
-                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                        TJItemUtils.insertIntoItemHandlerNotifiable(destItemHandler, otherStack, false);
                     }
                 }
                 break;
@@ -480,7 +480,7 @@ public class ControllableDualCover extends DualCover {
                         if (extract < 1) continue;
                         counter.increment(extract);
                         final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
-                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                        TJItemUtils.insertIntoItemHandlerNotifiable(destItemHandler, otherStack, false);
                     }
                 }
         }

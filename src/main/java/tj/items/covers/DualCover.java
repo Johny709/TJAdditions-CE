@@ -398,7 +398,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable, 
                         if (extract < 1) continue;
                         itemTransferRate -= extract;
                         final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
-                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                        TJItemUtils.insertIntoItemHandlerNotifiable(destItemHandler, otherStack, false);
                     }
                 }
                 break;
@@ -411,7 +411,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable, 
                         if (extract < 1) continue;
                         itemTransferRate -= extract;
                         final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
-                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                        TJItemUtils.insertIntoItemHandlerNotifiable(destItemHandler, otherStack, false);
                     }
                 }
                 break;
@@ -424,7 +424,7 @@ public class DualCover extends CoverBehavior implements CoverWithUI, ITickable, 
                         if (extract < 1) continue;
                         itemTransferRate -= extract;
                         final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
-                        TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                        TJItemUtils.insertIntoItemHandlerNotifiable(destItemHandler, otherStack, false);
                     }
                 }
         }

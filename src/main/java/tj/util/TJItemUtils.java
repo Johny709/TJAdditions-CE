@@ -130,7 +130,7 @@ public final class TJItemUtils {
     }
 
     /**
-     * Tries to insert into container inventory or item handler
+     * Tries to insert into container inventory or item handler. Doesn't notify the item handler that items are getting filled up.
      * @param itemHandler container inventory
      * @param stack the ItemStack to insert
      * @param simulate test to see if the item can be inserted without actually inserting the item for real.
@@ -153,6 +153,24 @@ public final class TJItemUtils {
                 if (!simulate)
                     slotStack.grow(extracted);
             }
+        }
+        return stack;
+    }
+
+    /**
+     * Tries to insert into container inventory or item handler. Notifies the item handler that items are getting inserted and filling up.
+     * @param itemHandler container inventory
+     * @param stack the ItemStack to insert
+     * @param simulate test to see if the item can be inserted without actually inserting the item for real.
+     * @return ItemStack reminder. returns empty when ItemStack is fully inserted. returns the stack unmodified when unable to insert at all.
+     */
+    public static ItemStack insertIntoItemHandlerNotifiable(IItemHandler itemHandler, @Nonnull ItemStack stack, boolean simulate) {
+        if (itemHandler == null || stack.isEmpty())
+            return stack;
+
+        for (int i = 0; i < itemHandler.getSlots() && !stack.isEmpty(); i++) {
+            stack = itemHandler.insertItem(i, stack, simulate);
+            if (stack.isEmpty()) break;
         }
         return stack;
     }

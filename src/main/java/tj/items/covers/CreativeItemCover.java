@@ -126,7 +126,7 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
         if (this.isWorking && this.coverHolder.getOffsetTimer() % this.speed == 0) {
             for (int i = 0; i < 9; i++) {
                 final ItemStack filterStack = this.itemFilter.getStackInSlot(i).copy();
-                TJItemUtils.insertIntoItemHandler(this.itemHandler, filterStack, false);
+                TJItemUtils.insertIntoItemHandlerNotifiable(this.itemHandler, filterStack, false);
             }
         }
     }
