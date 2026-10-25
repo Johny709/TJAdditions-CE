@@ -2,9 +2,7 @@ package tj.multiblockpart.utility;
 
 import gregicadditions.client.ClientHandler;
 import gregicadditions.machines.multi.multiblockpart.MetaTileEntityMultiFluidHatch;
-import gregtech.api.capability.impl.FluidHandlerProxy;
-import gregtech.api.capability.impl.FluidTankList;
-import gregtech.api.capability.impl.ItemHandlerProxy;
+import gregtech.api.capability.impl.*;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
@@ -42,9 +40,9 @@ public class MetaTileEntityTJMultiFluidHatch extends MetaTileEntityMultiFluidHat
     protected void initializeInventory() {
         final FluidTank[] fluidsHandlers = new FluidTank[(int) Math.pow(this.getTier(), 2)];
         for (int i = 0; i < fluidsHandlers.length; i++) {
-            fluidsHandlers[i] = new FluidTank(TANK_SIZE);
+            fluidsHandlers[i] = new NotifiableFluidTank(this, TANK_SIZE);
         }
-        this.fluidTanks = new FluidTankList(false, fluidsHandlers);
+        this.fluidTanks = new NotifiableFluidTankList(this, false, fluidsHandlers);
         this.fluidInventory = fluidTanks;
         this.importItems = this.createImportItemHandler();
         this.exportItems = this.createExportItemHandler();
