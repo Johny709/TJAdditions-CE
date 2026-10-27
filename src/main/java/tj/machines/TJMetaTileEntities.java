@@ -305,12 +305,6 @@ public class TJMetaTileEntities {
             NAMING_MACHINES[i] = GregTechAPI.registerMetaTileEntity(5393 + i, new MetaTileEntityNamingMachine(TJId("naming_machine." + GAValues.VN[tier]), tier));
         for (int i = 0; i < BUFFERS.length; i++) // occupies ID range 5407 - 5421
             BUFFERS[i] = GregTechAPI.registerMetaTileEntity(5407 + i, new MetaTileEntityBuffer(TJId("gt_buffer." + GAValues.VN[i]), i));
-        COMPRESSED_CHEST = GregTechAPI.registerMetaTileEntity(5422, new MetaTileEntityCompressedChest(TJId("compressed_chest"), false));
-        COMPRESSED_CRATE = GregTechAPI.registerMetaTileEntity(5423, new MetaTileEntityCompressedCrate(TJId("compressed_crate"), false));
-        INFINITY_CHEST = GregTechAPI.registerMetaTileEntity(5424, new MetaTileEntityCompressedChest(TJId("infinity_chest"), true));
-        INFINITY_CRATE = GregTechAPI.registerMetaTileEntity(5425, new MetaTileEntityCompressedCrate(TJId("infinity_crate"), true));
-        FILING_CABINET = GregTechAPI.registerMetaTileEntity(5426, new MetaTileEntityFilingCabinet(TJId("filing_cabinet")));
-        ARMOR_WORKBENCH = GregTechAPI.registerMetaTileEntity(5427, new MetaTileEntityArmorWorkbench(TJId("armor_workbench")));
 
         // range 5500+ -> misc
         ACCELERATOR_ANCHOR_POINT = GregTechAPI.registerMetaTileEntity(5500, new MetaTileEntityAcceleratorAnchorPoint(TJId("accelerator_anchor_point")));
@@ -339,6 +333,12 @@ public class TJMetaTileEntities {
         MULTI_SMELTER = GregTechAPI.registerMetaTileEntity(5532, new MetaTileEntityTJMultiSmelter(TJId("multi_smelter")));
         STEAM_OVEN = GregTechAPI.registerMetaTileEntity(5533, new MetaTileEntitySteamOven(TJId("steam_oven")));
         STEAM_GRINDER = GregTechAPI.registerMetaTileEntity(5534, new MetaTileEntitySteamGrinder(TJId("steam_grinder")));
+        COMPRESSED_CHEST = GregTechAPI.registerMetaTileEntity(5535, new MetaTileEntityCompressedChest(TJId("compressed_chest"), false));
+        COMPRESSED_CRATE = GregTechAPI.registerMetaTileEntity(5536, new MetaTileEntityCompressedCrate(TJId("compressed_crate"), false));
+        INFINITY_CHEST = GregTechAPI.registerMetaTileEntity(5537, new MetaTileEntityCompressedChest(TJId("infinity_chest"), true));
+        INFINITY_CRATE = GregTechAPI.registerMetaTileEntity(5538, new MetaTileEntityCompressedCrate(TJId("infinity_crate"), true));
+        FILING_CABINET = GregTechAPI.registerMetaTileEntity(5539, new MetaTileEntityFilingCabinet(TJId("filing_cabinet")));
+        ARMOR_WORKBENCH = GregTechAPI.registerMetaTileEntity(5540, new MetaTileEntityArmorWorkbench(TJId("armor_workbench")));
 
         // append tiers to existing hatches
         MetaTileEntities.ITEM_IMPORT_BUS = Arrays.copyOf(MetaTileEntities.ITEM_IMPORT_BUS, 15);
