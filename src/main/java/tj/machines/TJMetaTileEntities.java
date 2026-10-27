@@ -41,6 +41,7 @@ public class TJMetaTileEntities {
     public static final MetaTileEntityFarmingStation[] FARMING_STATION = new MetaTileEntityFarmingStation[14];
     public static final MetaTileEntityAdvancedChunkMiner[] ADVANCED_CHUNK_MINERS = new MetaTileEntityAdvancedChunkMiner[14];
     public static final MetaTileEntityNamingMachine[] NAMING_MACHINES = new MetaTileEntityNamingMachine[14];
+    public static final MetaTileEntitySuperFisher[] SUPER_FISHERS = new MetaTileEntitySuperFisher[14];
     public static final MetaTileEntitySuperItemBus[] SUPER_ITEM_INPUT_BUS = new MetaTileEntitySuperItemBus[5];
     public static final MetaTileEntitySuperItemBus[] SUPER_ITEM_OUTPUT_BUS = new MetaTileEntitySuperItemBus[5];
     public static final MetaTileEntitySuperFluidHatch[] SUPER_FLUID_INPUT_HATCH = new MetaTileEntitySuperFluidHatch[5];
@@ -305,6 +306,8 @@ public class TJMetaTileEntities {
             NAMING_MACHINES[i] = GregTechAPI.registerMetaTileEntity(5393 + i, new MetaTileEntityNamingMachine(TJId("naming_machine." + GAValues.VN[tier]), tier));
         for (int i = 0; i < BUFFERS.length; i++) // occupies ID range 5407 - 5421
             BUFFERS[i] = GregTechAPI.registerMetaTileEntity(5407 + i, new MetaTileEntityBuffer(TJId("gt_buffer." + GAValues.VN[i]), i));
+        for (int i = 0, tier = 1; i < SUPER_FISHERS.length; i++, tier++) // occupies ID range 5422 - 5435
+            SUPER_FISHERS[i] = GregTechAPI.registerMetaTileEntity(5422 + i, new MetaTileEntitySuperFisher(TJId("super_fisher." + GAValues.VN[tier]), tier));
 
         // range 5500+ -> misc
         ACCELERATOR_ANCHOR_POINT = GregTechAPI.registerMetaTileEntity(5500, new MetaTileEntityAcceleratorAnchorPoint(TJId("accelerator_anchor_point")));
