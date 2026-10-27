@@ -84,7 +84,9 @@ public class MetaTileEntityCoalBoiler extends MetaTileEntity implements IWorkabl
         this.boilerType = boilerType;
         this.waterTank = new FilteredFluidHandler(16000).setFillPredicate(ModHandler::isWater);
         this.steamTank = new FluidTank(16000);
-        initializeInventory();
+        // reinitialize inventory because the values "waterTank" and "steamTank", which is being used in creation of item handlers is not initialized yet
+        // to the correct value until sub constructor is called.
+        this.initializeInventory();
     }
 
     @Override

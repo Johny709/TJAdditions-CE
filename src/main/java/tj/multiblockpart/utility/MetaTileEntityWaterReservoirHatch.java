@@ -48,6 +48,8 @@ public class MetaTileEntityWaterReservoirHatch extends MetaTileEntityMultiblockP
 
     public MetaTileEntityWaterReservoirHatch(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
+        // reinitialize inventory because the value "fluidTank", which is being used in creation of item handlers is not initialized yet
+        // to the correct value until sub constructor is called.
         this.initializeInventory();
     }
 

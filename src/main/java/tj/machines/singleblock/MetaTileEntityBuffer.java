@@ -39,6 +39,8 @@ public class MetaTileEntityBuffer extends GATieredMetaTileEntity {
 
     public MetaTileEntityBuffer(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
+        // reinitialize inventory because the value "tier", which is being used in creation of item and fluid handlers is not initialized yet
+        // to the correct value until sub constructor is called.
         this.initializeInventory();
         this.itemInventory = this.importItems;
         this.fluidInventory = this.importFluids;

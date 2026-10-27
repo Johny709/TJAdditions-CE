@@ -53,7 +53,9 @@ public class MetaTileEntityTJSteamHatch extends GAMetaTileEntityMultiblockPart i
         this.isExport = isExport;
         final long capacity = (long) (Math.pow(4, tier) * 16000);
         this.steamTank = new FilteredFluidHandler(this, (int) Math.min(capacity, Integer.MAX_VALUE)).setFillPredicate(ModHandler::isSteam);
-        initializeInventory();
+        // reinitialize inventory because the value "isExport" and "steamTank", which is being used in creation of item handlers is not initialized yet
+        // to the correct value until sub constructor is called.
+        this.initializeInventory();
     }
 
     @Override

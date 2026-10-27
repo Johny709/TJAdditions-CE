@@ -46,6 +46,8 @@ public class MetaTileEntityFilteredBus extends GAMetaTileEntityMultiblockPart im
         super(metaTileEntityId, tier);
         this.isOutput = isOutput;
         this.filterInventory = new ItemStackHandler(this.getTierSlots(tier));
+        // reinitialize inventory because the value "tier" and "isOutput", which is being used in creation of item handlers is not initialized yet
+        // to the correct value until sub constructor is called.
         this.initializeInventory();
     }
 

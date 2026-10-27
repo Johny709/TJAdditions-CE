@@ -58,6 +58,8 @@ public class MetaTileEntitySuperItemBus extends GAMetaTileEntityMultiblockPart i
     public MetaTileEntitySuperItemBus(ResourceLocation metaTileEntityId, int tier, boolean isExport) {
         super(metaTileEntityId, tier);
         this.isExport = isExport;
+        // reinitialize inventory because the value "tier" and "isExport", which is being used in creation of item handlers is not initialized yet
+        // to the correct value until sub constructor is called.
         this.initializeInventory();
         this.combinedInventory = new NotifiableItemHandlerList(this, Arrays.asList(this.ghostCircuitSlot, this.importItems));
     }

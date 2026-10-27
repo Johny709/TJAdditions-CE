@@ -18,29 +18,31 @@ import java.util.List;
 
 public class MetaTileEntityTJMultiFluidHatch extends MetaTileEntityMultiFluidHatch {
 
-    private final int TANK_SIZE;
-    private final boolean isExportHatch;
+    private final int tankSize;
+    private final boolean isExport;
     private ICubeRenderer hatchTexture = null;
     private final int tier;
 
-    public MetaTileEntityTJMultiFluidHatch(ResourceLocation metaTileEntityId, int tier, boolean isExportHatch, int tankSize) {
-        super(metaTileEntityId, tier, isExportHatch);
-        this.TANK_SIZE = tankSize;
-        this.isExportHatch = isExportHatch;
+    public MetaTileEntityTJMultiFluidHatch(ResourceLocation metaTileEntityId, int tier, boolean isExport, int tankSize) {
+        super(metaTileEntityId, tier, isExport);
+        this.tankSize = tankSize;
+        this.isExport = isExport;
         this.tier = tier;
-        initializeInventory();
+        // reinitialize inventory because the value "tier", "isExport", and "tankSize", which is being used in creation of item handlers is not initialized yet
+        // to the correct value until sub constructor is called.
+        this.initializeInventory();
     }
 
     @Override
     public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
-        return new MetaTileEntityTJMultiFluidHatch(metaTileEntityId, this.getTier(), this.isExportHatch, this.TANK_SIZE);
+        return new MetaTileEntityTJMultiFluidHatch(metaTileEntityId, this.getTier(), this.isExport, this.tankSize);
     }
 
     @Override
     protected void initializeInventory() {
         final FluidTank[] fluidsHandlers = new FluidTank[(int) Math.pow(this.getTier(), 2)];
         for (int i = 0; i < fluidsHandlers.length; i++) {
-            fluidsHandlers[i] = new NotifiableFluidTank(this, TANK_SIZE);
+            fluidsHandlers[i] = new NotifiableFluidTank(this, tankSize);
         }
         this.fluidTanks = new NotifiableFluidTankList(this, false, fluidsHandlers);
         this.fluidInventory = fluidTanks;
@@ -54,7 +56,7 @@ public class MetaTileEntityTJMultiFluidHatch extends MetaTileEntityMultiFluidHat
 
     @Override
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
-        tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.1", TANK_SIZE));
+        tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.1", tankSize));
         tooltip.add(I18n.format("gtadditions.machine.multi_fluid_hatch_universal.tooltip.2", (int) Math.pow(this.getTier(), 2)));
         tooltip.add(I18n.format("gregtech.universal.enabled"));
     }

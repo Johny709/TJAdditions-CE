@@ -46,6 +46,8 @@ public class TJSimpleMachineMetaTileEntity extends TJTieredWorkableMetaTileEntit
         super(metaTileEntityId, tier);
         this.recipeMap = recipeMap;
         this.renderer = renderer;
+        // reinitialize inventory because the value "recipeMap", which is being used in creation of item handlers is not initialized yet
+        // to the correct value until sub constructor is called.
         this.initializeInventory();
     }
 

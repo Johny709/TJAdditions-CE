@@ -56,7 +56,9 @@ public class MetaTileEntitySuperFluidHatch extends GAMetaTileEntityMultiblockPar
     public MetaTileEntitySuperFluidHatch(ResourceLocation metaTileEntityId, int tier, boolean isExport) {
         super(metaTileEntityId, tier);
         this.isExport = isExport;
-        initializeInventory();
+        // reinitialize inventory because the values "tier" and "isExport", which is being used in creation of item handlers is not initialized yet
+        // to the correct value until sub constructor is called.
+        this.initializeInventory();
     }
 
     @Override

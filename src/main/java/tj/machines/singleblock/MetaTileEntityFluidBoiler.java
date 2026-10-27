@@ -41,7 +41,9 @@ public class MetaTileEntityFluidBoiler extends MetaTileEntityCoalBoiler {
         this.fuelTank = new FilteredFluidHandler(16000).setFillPredicate(fluid ->
                 new FluidStack(FluidRegistry.LAVA, 1).isFluidEqual(fluid) ||
                 Objects.requireNonNull(Creosote.getFluid(1)).isFluidEqual(fluid));
-        initializeInventory();
+        // reinitialize inventory because the value "fuelTank", which is being used in creation of item handlers is not initialized yet
+        // to the correct value until sub constructor is called.
+        this.initializeInventory();
     }
 
     @Override

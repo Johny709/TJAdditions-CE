@@ -77,6 +77,8 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
         super(metaTileEntityId, tier);
         final int range = (9 + (2 * tier)) * (9 + (2 * tier));
         this.workableHandler.initialize(range);
+        // reinitialize inventory because the values "tier", "seedInventory", "fertilizerInventory", "toolInventory", and "waterTank", which is being used in
+        // creation of item handlers is not initialized yet to the correct value until sub constructor is called.
         this.initializeInventory();
     }
 

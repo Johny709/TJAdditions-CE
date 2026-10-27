@@ -56,6 +56,8 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
         super(metaTileEntityId, tier);
         this.drillingFluid = Materials.DrillingFluid.getFluid(1 << tier - 1);
         this.workableHandler.initialize(1);
+        // reinitialize inventory because the value "tier", which is being used in creation of item handlers is not initialized yet
+        // to the correct value until sub constructor is called.
         this.initializeInventory();
     }
 
