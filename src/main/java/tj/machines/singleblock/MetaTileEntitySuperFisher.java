@@ -16,20 +16,23 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import tj.capability.impl.handler.IPosHandler;
 import tj.capability.impl.workable.FisherWorkableHandler;
+import tj.items.handlers.FilteredItemStackHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
+import tj.util.TJItemUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 import static gregtech.api.gui.GuiTextures.*;
-import static gregtech.api.gui.GuiTextures.BOXED_OVERLAY;
 import static gregtech.api.gui.GuiTextures.BUTTON_FLUID_OUTPUT;
 import static gregtech.api.gui.GuiTextures.BUTTON_ITEM_OUTPUT;
 import static gregtech.api.gui.GuiTextures.CHARGER_OVERLAY;
@@ -37,8 +40,9 @@ import static gregtech.api.gui.GuiTextures.INDICATOR_NO_ENERGY;
 import static gregtech.api.gui.GuiTextures.SLOT;
 import static tj.mui.TJGuiTextures.TOGGLE_POWER_BUTTON;
 
-public class MetaTileEntitySuperFisher extends TJTieredWorkableMetaTileEntity {
+public class MetaTileEntitySuperFisher extends TJTieredWorkableMetaTileEntity implements IPosHandler {
 
+    public static final ItemStack STRING = TJItemUtils.getItemStackFromName("minecraft:string");
     private final FisherWorkableHandler workableHandler = new FisherWorkableHandler(this);
     private final int parallel;
 
@@ -61,13 +65,14 @@ public class MetaTileEntitySuperFisher extends TJTieredWorkableMetaTileEntity {
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
         tooltip.add(I18n.format("tj.multiblock.parallel", this.parallel));
-        tooltip.add(I18n.format("gregtech.machine.fisher.speed", 1600 / 2 << this.getTier() * 2));
+        tooltip.add(I18n.format("gregtech.machine.fisher.speed", Math.max(1, 3200 / (2 << this.getTier()))));
         tooltip.add(I18n.format("gregtech.machine.fisher.requirement", (int) Math.sqrt(25)));
     }
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return new NotifiableItemStackHandler(this, 1);
+        return new FilteredItemStackHandler(this, 1)
+                .setItemStackPredicate((slot, item) -> item.isItemEqual(STRING));
     }
 
     @Override
@@ -101,7 +106,7 @@ public class MetaTileEntitySuperFisher extends TJTieredWorkableMetaTileEntity {
                     .setBackgroundTexture(SLOT));
             slotWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, x, y, 18, 18, displayWidget::getItemOutputAt, null));
         }
-        return ModularUI.builder(BORDERED_BACKGROUND, 176, 130 + offsetY)
+        return ModularUI.builder(BORDERED_BACKGROUND, 176, 133 + offsetY)
                 .image(-28, 0, 26, 104, BORDERED_BACKGROUND)
                 .image(-28, 138, 26, 26, BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
@@ -113,7 +118,7 @@ public class MetaTileEntitySuperFisher extends TJTieredWorkableMetaTileEntity {
                         .setInverted(true))
                 .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 25, 7, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new SlotWidget(this.importItems, 0, 7, 7, true, true)
-                        .setBackgroundTexture(SLOT, BOXED_OVERLAY))
+                        .setBackgroundTexture(SLOT))
                 .widget(new DischargerSlotWidget(this.chargerInventory, 0, -24, 82)
                         .setBackgroundTexture(SLOT, CHARGER_OVERLAY))
                 .widget(new TJToggleButtonWidget(-24, 142, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
@@ -141,8 +146,18 @@ public class MetaTileEntitySuperFisher extends TJTieredWorkableMetaTileEntity {
             Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
     }
 
+    @Override
+    public int getParallel() {
+        return this.parallel;
+    }
+
     private int getSlotGrid(int tier) {
         tier++;
         return tier * tier;
+    }
+
+    @Override
+    public BlockPos getBlockPos() {
+        return this.getPos().offset(EnumFacing.DOWN);
     }
 }

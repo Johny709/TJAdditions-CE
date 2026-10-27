@@ -4,15 +4,17 @@ import gregicadditions.GAValues;
 import gregtech.api.metatileentity.MetaTileEntity;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.loot.LootContext;
 import net.minecraft.world.storage.loot.LootTableList;
 import tj.capability.AbstractWorkableHandler;
-import tj.capability.IMachineHandler;
+import tj.capability.impl.handler.IPosHandler;
 import tj.util.Counter;
 import tj.util.TJItemUtils;
 import tj.util.map.Strategies;
@@ -21,11 +23,13 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FisherWorkableHandler extends AbstractWorkableHandler<IMachineHandler> {
+public class FisherWorkableHandler extends AbstractWorkableHandler<IPosHandler> {
 
     private final Object2ObjectMap<ItemStack, Counter> itemMapSorter = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY_NBT);
+    private final BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
+    private boolean foundRecipe;
     private int outputIndex;
 
     public FisherWorkableHandler(MetaTileEntity metaTileEntity) {
@@ -34,10 +38,14 @@ public class FisherWorkableHandler extends AbstractWorkableHandler<IMachineHandl
 
     @Override
     protected boolean startRecipe() {
-        if (this.handler.getInputEnergyContainer().getEnergyStored() >= GAValues.V[this.handler.getTier()]) {
+        if (!this.foundRecipe && this.handler.getImportItemInventory().extractItem(0, this.handler.getParallel(), true).isEmpty()) {
+            return false;
+        } else this.foundRecipe = true;
+        if (this.handler.getInputEnergyContainer().getEnergyStored() >= GAValues.V[this.handler.getTier()] && this.checkWaterAround()) {
             this.handler.getInputEnergyContainer().removeEnergy(GAValues.V[this.handler.getTier()]);
+            final ItemStack extracted = this.handler.getImportItemInventory().extractItem(0, this.handler.getParallel(), false);
             final World world = this.metaTileEntity.getWorld();
-            for (int i = 0; i < this.handler.getParallel(); i++) {
+            for (int i = 0; i < extracted.getCount(); i++) {
                 final List<ItemStack> lootOutput = world.getLootTableManager().getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING)
                         .generateLootForPools(world.rand, new LootContext.Builder((WorldServer) world).build());
                 for (ItemStack stack : lootOutput) {
@@ -45,6 +53,7 @@ public class FisherWorkableHandler extends AbstractWorkableHandler<IMachineHandl
                             .increment(stack.getCount());
                 }
             }
+            this.itemInputs.add(extracted);
             this.itemOutputs.addAll(this.itemMapSorter.keySet());
             this.setMaxProgress(this.calculateOverclock(30, 800, 2));
             this.energyPerTick = 0;
@@ -61,10 +70,23 @@ public class FisherWorkableHandler extends AbstractWorkableHandler<IMachineHandl
                 this.outputIndex++;
             } else return false;
         }
+        this.foundRecipe = false;
         this.outputIndex = 0;
         this.itemInputs.clear();
         this.itemOutputs.clear();
         this.itemMapSorter.clear();
+        return true;
+    }
+
+    private boolean checkWaterAround() {
+        final BlockPos pos = this.handler.getBlockPos();
+        for (int x = -2; x < 3; x++) {
+            for (int z = -2; z < 3; z++) {
+                this.blockPos.setPos(pos.getX() + x, pos.getY(), pos.getZ() + z);
+                if (this.metaTileEntity.getWorld().getBlockState(this.blockPos) != Blocks.WATER.getDefaultState())
+                    return false;
+            }
+        }
         return true;
     }
 
@@ -91,6 +113,11 @@ public class FisherWorkableHandler extends AbstractWorkableHandler<IMachineHandl
         for (int i = 0; i < itemOutputList.tagCount(); i++)
             this.itemOutputs.add(new ItemStack(itemOutputList.getCompoundTagAt(i)));
         this.outputIndex = compound.getInteger("outputIndex");
+    }
+
+    @Override
+    protected boolean otherConditions() {
+        return this.foundRecipe;
     }
 
     @Nonnull

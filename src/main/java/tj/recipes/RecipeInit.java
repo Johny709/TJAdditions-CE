@@ -586,6 +586,15 @@ public final class RecipeInit {
                     'H', GACraftingComponents.HULL.getIngredient(tier),
                     'A', new ItemStack(Blocks.ANVIL));
         }
+        for (int i = 0, tier = 1; i < SUPER_FISHERS.length; i++, tier++) {
+            ModHandler.addShapedRecipe("super_fisher." + GAValues.VN[tier], SUPER_FISHERS[i].getStackForm(), "FRF", "PHP", "ECE",
+                    'F', TJItemUtils.getItemStackFromName("minecraft:fishing_rod"),
+                    'E', GACraftingComponents.CABLE_SINGLE.getIngredient(tier),
+                    'R', GACraftingComponents.ROBOT_ARM.getIngredient(tier),
+                    'C', GACraftingComponents.CIRCUIT.getIngredient(tier),
+                    'P', GACraftingComponents.PLATE.getIngredient(tier),
+                    'H', GACraftingComponents.HULL.getIngredient(tier));
+        }
         for (int i = 0; i < 4; i++) {
             ItemStack aeCellParts2 = i == 0 ? TJItemUtils.getItemStackFromName("nae2:material", 3, 4) : aeCellParts[i - 1].copy();
             aeCellParts2.setCount(3);
