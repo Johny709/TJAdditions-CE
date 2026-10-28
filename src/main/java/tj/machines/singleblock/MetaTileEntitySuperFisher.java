@@ -96,7 +96,7 @@ public class MetaTileEntitySuperFisher extends TJTieredWorkableMetaTileEntity im
                 .setItemOutputSupplier(this.workableHandler::getItemOutputs)
                 .setItemOutputInventorySupplier(this::getExportItems)
                 .setFluidOutputTankSupplier(this::getExportFluids);
-        final WidgetGroup slotWidgetGroup = this.getTier() > GTValues.LuV ? new ScrollingWidgetGroup<>(43, 7, 126, 126)
+        final WidgetGroup slotWidgetGroup = this.getTier() > GTValues.LuV ? new SlotWidgetGroup(43, 7, 126, 126, slotLength)
                 : new WidgetGroup(new Position(43, 7));
         for (int i = 0; i < this.exportItems.getSlots(); i++) {
             final int x = 18 * (i % slotLength);
