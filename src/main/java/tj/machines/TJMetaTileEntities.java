@@ -168,6 +168,7 @@ public class TJMetaTileEntities {
     public static MetaTileEntitySteamOven STEAM_OVEN;
     public static MetaTileEntitySteamGrinder STEAM_GRINDER;
     public static MetaTileEntityMegaAlloyBlastSmelter MEGA_ALLOY_BLAST_SMELTER;
+    public static MetaTileEntityLargeSuperFisher LARGE_SUPER_FISHER;
     public static MetaTileEntityCompressedChest COMPRESSED_CHEST;
     public static MetaTileEntityCompressedCrate COMPRESSED_CRATE;
     public static MetaTileEntityCompressedChest INFINITY_CHEST;
@@ -279,6 +280,7 @@ public class TJMetaTileEntities {
         XL_ATMOSPHERE_COLLECTORS[1] = GregTechAPI.registerMetaTileEntity(5152, new MetaTileEntityXLAtmosphereCollector(TJId("gas_atmosphere_collector_turbine"), MetaTileEntityLargeTurbine.TurbineType.GAS));
         XL_ATMOSPHERE_COLLECTORS[2] = GregTechAPI.registerMetaTileEntity(5153, new MetaTileEntityXLAtmosphereCollector(TJId("plasma_atmosphere_collector_turbine"), MetaTileEntityLargeTurbine.TurbineType.PLASMA));
         MEGA_ALLOY_BLAST_SMELTER = GregTechAPI.registerMetaTileEntity(5154, new MetaTileEntityMegaAlloyBlastSmelter(TJId("mega_alloy_blast_smelter")));
+        LARGE_SUPER_FISHER = GregTechAPI.registerMetaTileEntity(5155, new MetaTileEntityLargeSuperFisher(TJId("large_super_fisher")));
 
         // range 5300+ -> singleblocks
         COAL_BOILER[0] = GregTechAPI.registerMetaTileEntity(5300, new MetaTileEntityCoalBoiler(TJId("coal_boiler_bronze"), BRONZE));

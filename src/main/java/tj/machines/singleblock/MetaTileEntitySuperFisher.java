@@ -11,11 +11,13 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.render.Textures;
 import gregtech.api.util.Position;
+import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -159,5 +161,17 @@ public class MetaTileEntitySuperFisher extends TJTieredWorkableMetaTileEntity im
     @Override
     public BlockPos getBlockPos() {
         return this.getPos().offset(EnumFacing.DOWN);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return this.workableHandler.isActive() && this.workableHandler.isWorkingEnabled();
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return GTSoundEvents.PUMP;
     }
 }

@@ -13,9 +13,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.loot.LootContext;
 import net.minecraft.world.storage.loot.LootTableList;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.impl.handler.IPosHandler;
-import tj.util.Counter;
 import tj.util.TJItemUtils;
 import tj.util.map.Strategies;
 
@@ -23,9 +23,11 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static tj.machines.singleblock.MetaTileEntitySuperFisher.STRING;
+
 public class FisherWorkableHandler extends AbstractWorkableHandler<IPosHandler> {
 
-    private final Object2ObjectMap<ItemStack, Counter> itemMapSorter = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY_NBT);
+    private final Object2ObjectMap<ItemStack, ItemStack> itemMapSorter = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY_NBT);
     private final BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
@@ -38,22 +40,35 @@ public class FisherWorkableHandler extends AbstractWorkableHandler<IPosHandler> 
 
     @Override
     protected boolean startRecipe() {
-        if (!this.foundRecipe && this.handler.getImportItemInventory().extractItem(0, this.handler.getParallel(), true).isEmpty()) {
-            return false;
-        } else this.foundRecipe = true;
-        if (this.handler.getInputEnergyContainer().getEnergyStored() >= GAValues.V[this.handler.getTier()] && this.checkWaterAround()) {
+        IItemHandlerModifiable itemInputs;
+        if (this.isDistinct) {
+            itemInputs = this.handler.getInputBus(this.lastInputIndex);
+            this.foundRecipe = this.findAndConsumeInputs(itemInputs, true) > 0;
+            if (!this.foundRecipe) for (int i = 0; i < this.busCount; i++) {
+                if (i == this.lastInputIndex) continue;
+                itemInputs = this.handler.getInputBus(i);
+                this.foundRecipe = this.findAndConsumeInputs(itemInputs, true) > 0;
+                if (this.foundRecipe) {
+                    this.lastInputIndex = i;
+                    break;
+                }
+            }
+        } else {
+            itemInputs = this.handler.getImportItemInventory();
+            this.foundRecipe = this.findAndConsumeInputs(itemInputs, true) > 0;
+        }
+        if (this.foundRecipe && this.handler.getInputEnergyContainer().getEnergyStored() >= GAValues.V[this.handler.getTier()] && this.checkWaterAround()) {
             this.handler.getInputEnergyContainer().removeEnergy(GAValues.V[this.handler.getTier()]);
-            final ItemStack extracted = this.handler.getImportItemInventory().extractItem(0, this.handler.getParallel(), false);
+            final int amount = this.findAndConsumeInputs(itemInputs, false);
             final World world = this.metaTileEntity.getWorld();
-            for (int i = 0; i < extracted.getCount(); i++) {
+            for (int i = 0; i < amount; i++) {
                 final List<ItemStack> lootOutput = world.getLootTableManager().getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING)
                         .generateLootForPools(world.rand, new LootContext.Builder((WorldServer) world).build());
                 for (ItemStack stack : lootOutput) {
-                    this.itemMapSorter.computeIfAbsent(stack, k -> new Counter(0))
-                            .increment(stack.getCount());
+                    this.itemMapSorter.computeIfAbsent(stack, k -> k)
+                            .grow(stack.getCount());
                 }
             }
-            this.itemInputs.add(extracted);
             this.itemOutputs.addAll(this.itemMapSorter.keySet());
             this.setMaxProgress(this.calculateOverclock(30, 800, 2));
             this.energyPerTick = 0;
@@ -76,6 +91,21 @@ public class FisherWorkableHandler extends AbstractWorkableHandler<IPosHandler> 
         this.itemOutputs.clear();
         this.itemMapSorter.clear();
         return true;
+    }
+
+    private int findAndConsumeInputs(IItemHandlerModifiable itemInputs, boolean simulate) {
+        int amount = 0;
+        int availableParallels = this.handler.getParallel();
+        for (int i = 0; i < itemInputs.getSlots() && availableParallels > 0; i++) {
+            if (!itemInputs.getStackInSlot(i).isItemEqual(STRING)) continue;
+            final ItemStack stack = itemInputs.extractItem(i, availableParallels, simulate).copy();
+            if (stack.isEmpty()) continue;
+            if (!simulate)
+                this.itemInputs.add(stack);
+            amount += stack.getCount();
+            availableParallels -= stack.getCount();
+        }
+        return amount;
     }
 
     private boolean checkWaterAround() {

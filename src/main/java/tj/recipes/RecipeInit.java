@@ -441,6 +441,13 @@ public final class RecipeInit {
                 'L', new UnificationEntry(OrePrefix.stick, Molybdenum),
                 'T', new UnificationEntry(OrePrefix.plate, Tantalum),
                 'R', new UnificationEntry(OrePrefix.rotor, Titanium));
+        ModHandler.addShapedRecipe("large_super_fisher", LARGE_SUPER_FISHER.getStackForm(), "PRP", "DHD", "MCM",
+                'D', GACraftingComponents.PLATE_DENSE.getIngredient(6),
+                'R', GACraftingComponents.ROBOT_ARM.getIngredient(6),
+                'C', GACraftingComponents.CIRCUIT.getIngredient(6),
+                'M', GACraftingComponents.MOTOR.getIngredient(6),
+                'P', GACraftingComponents.PUMP.getIngredient(6),
+                'H', SUPER_FISHERS[5].getStackForm());
         ModHandler.addShapelessRecipe("tj_crafting_storage_65536k", CRAFTING_STORAGE_65536K.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_65536K.maybeStack(1).orElse(null), aeBlocks.craftingUnit().maybeStack(1).orElse(null));
         ModHandler.addShapelessRecipe("tj_crafting_storage_262144k", CRAFTING_STORAGE_262144K.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_262144K.maybeStack(1).orElse(null), aeBlocks.craftingUnit().maybeStack(1).orElse(null));
         ModHandler.addShapelessRecipe("tj_crafting_storage_1048m", CRAFTING_STORAGE_1048M.maybeStack(1).orElse(ItemStack.EMPTY), MATERIAL_ITEM_CELL_1048M.maybeStack(1).orElse(null), aeBlocks.craftingUnit().maybeStack(1).orElse(null));
