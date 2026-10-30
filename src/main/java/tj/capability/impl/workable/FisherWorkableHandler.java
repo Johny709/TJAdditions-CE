@@ -32,6 +32,7 @@ public class FisherWorkableHandler extends AbstractWorkableHandler<IPosHandler> 
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     private boolean foundRecipe;
+    private boolean voiding;
     private int outputIndex;
 
     public FisherWorkableHandler(MetaTileEntity metaTileEntity) {
@@ -80,7 +81,7 @@ public class FisherWorkableHandler extends AbstractWorkableHandler<IPosHandler> 
     protected boolean completeRecipe() {
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
             final ItemStack stack = this.itemOutputs.get(i);
-            if (TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
+            if (this.voiding || TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
                 TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
                 this.outputIndex++;
             } else return false;
@@ -131,6 +132,7 @@ public class FisherWorkableHandler extends AbstractWorkableHandler<IPosHandler> 
         compound.setTag("itemInputs", itemInputList);
         compound.setTag("itemOutputs", itemOutputList);
         compound.setInteger("outputIndex", this.outputIndex);
+        compound.setBoolean("voiding", this.voiding);
         return compound;
     }
 
@@ -143,6 +145,7 @@ public class FisherWorkableHandler extends AbstractWorkableHandler<IPosHandler> 
         for (int i = 0; i < itemOutputList.tagCount(); i++)
             this.itemOutputs.add(new ItemStack(itemOutputList.getCompoundTagAt(i)));
         this.outputIndex = compound.getInteger("outputIndex");
+        this.voiding = compound.getBoolean("voiding");
     }
 
     @Override
@@ -160,5 +163,14 @@ public class FisherWorkableHandler extends AbstractWorkableHandler<IPosHandler> 
     @Override
     public List<ItemStack> getItemOutputs() {
         return this.itemOutputs;
+    }
+
+    public void setVoiding(boolean voiding) {
+        this.voiding = voiding;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isVoiding() {
+        return this.voiding;
     }
 }

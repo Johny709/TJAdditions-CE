@@ -23,6 +23,7 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     private int circuitNumber;
     private int outputIndex;
+    private boolean voiding;
 
     public ChiselWorkbenchWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -64,7 +65,7 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
     protected boolean completeRecipe() {
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
             final ItemStack stack = this.itemOutputs.get(i);
-            if (TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
+            if (this.voiding || TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
                 TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
                 this.outputIndex++;
             } else return false;
@@ -129,6 +130,7 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
         compound.setTag("itemOutputs", itemOutputList);
         compound.setInteger("outputIndex", this.outputIndex);
         compound.setInteger("circuitNumber", this.circuitNumber);
+        compound.setBoolean("voiding", this.voiding);
         return compound;
     }
 
@@ -138,6 +140,7 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
         final NBTTagList itemInputList = compound.getTagList("itemInputs", 10), itemOutputList = compound.getTagList("itemOutputs", 10);
         this.circuitNumber = compound.getInteger("circuitNumber");
         this.outputIndex = compound.getInteger("outputIndex");
+        this.voiding = compound.getBoolean("voiding");
         for (int i = 0; i < itemInputList.tagCount(); i++)
             this.itemInputs.add(new ItemStack(itemInputList.getCompoundTagAt(i)));
         for (int i = 0; i < itemOutputList.tagCount(); i++)
@@ -154,5 +157,14 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
     @Override
     public List<ItemStack> getItemOutputs() {
         return this.itemOutputs;
+    }
+
+    public void setVoiding(boolean voiding) {
+        this.voiding = voiding;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isVoiding() {
+        return this.voiding;
     }
 }

@@ -96,10 +96,48 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
         TooltipHelper.shiftTextJEI(tooltip, tip -> tip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeCrafter.stack)));
     }
 
-
     @Override
     protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
         return abilities.containsKey(CRAFTER) && abilities.containsKey(IMPORT_ITEMS) && abilities.containsKey(EXPORT_ITEMS) && abilities.containsKey(INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
+    }
+
+    @Override
+    protected boolean shouldUpdate(MTETrait trait) {
+        return false;
+    }
+
+    @Override
+    protected void updateFormedValid() {
+        if (((this.getProblems() >> 5) & 1) != 0)
+            this.recipeLogic.update();
+    }
+
+    @Override
+    protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
+        super.addTabs(tabBuilder, player);
+        tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
+            debugTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                    .addSubWidget(new AdvancedDisplayWidget(0, 0, this::addDebugDisplayText, 0xFFFFFF)
+                            .setMaxWidthLimit(180))
+                    .setResetScrollOnSizeChange(true));
+            debugTab.add(new TJToggleButtonWidget(175, 133, 18, 18, TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
+        });
+    }
+
+    @Override
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.recipeLogic::isDistinct, this.recipeLogic::setDistinct)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.distinct.mode.disabled", "machine.universal.toggle.distinct.mode.enabled"));
+    }
+
+    private void addDebugDisplayText(GUIDisplayBuilder builder) {
+        builder.addTranslationLine("tj.multiblock.parallel.debug.cache.capacity", TJValues.thousandFormat.format(this.recipeLogic.getPreviousRecipe().getCapacity()));
+        builder.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))),
+                "tj.multiblock.parallel.debug.cache.hit", TJValues.thousandFormat.format(this.recipeLogic.getPreviousRecipe().getCacheHit()));
+        builder.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))),
+                "tj.multiblock.parallel.debug.cache.miss", TJValues.thousandFormat.format(this.recipeLogic.getPreviousRecipe().getCacheMiss()));
     }
 
     @Override
@@ -126,58 +164,6 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
     }
 
     @Override
-    protected void mainDisplayTab(List<Widget> widgetGroup) {
-        super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new TJToggleButtonWidget(172, 151, 18, 18, TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidOutputs, this.recipeLogic::setVoidOutputs)
-                .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
-    }
-
-    @Override
-    protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
-        super.addTabs(tabBuilder, player);
-        tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
-            debugTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
-                    .addSubWidget(new AdvancedDisplayWidget(0, 0, this::addDebugDisplayText, 0xFFFFFF)
-                            .setMaxWidthLimit(180))
-                    .setResetScrollOnSizeChange(true));
-        });
-    }
-
-    private void addDebugDisplayText(GUIDisplayBuilder builder) {
-        builder.addTranslationLine("tj.multiblock.parallel.debug.cache.capacity", TJValues.thousandFormat.format(this.recipeLogic.getPreviousRecipe().getCapacity()));
-        builder.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))),
-                "tj.multiblock.parallel.debug.cache.hit", TJValues.thousandFormat.format(this.recipeLogic.getPreviousRecipe().getCacheHit()));
-        builder.addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))),
-                "tj.multiblock.parallel.debug.cache.miss", TJValues.thousandFormat.format(this.recipeLogic.getPreviousRecipe().getCacheMiss()));
-    }
-
-    @Override
-    protected void formStructure(PatternMatchContext context) {
-        super.formStructure(context);
-        this.recipeLogic.initialize(this.getAbilities(IMPORT_ITEMS).size());
-        final int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
-        final int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
-        int tier = Math.min(conveyor, robotArm);
-        if (tier >= GAValues.MAX) {
-            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
-            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
-            tier = TJUtility.getTierByVoltage(this.maxVoltage);
-        } else this.maxVoltage = 8L << tier * 2;
-        this.parallel = TJConfig.largeCrafter.stack * tier;
-    }
-
-    @Override
-    protected boolean shouldUpdate(MTETrait trait) {
-        return false;
-    }
-
-    @Override
-    protected void updateFormedValid() {
-        if (((this.getProblems() >> 5) & 1) != 0)
-            this.recipeLogic.update();
-    }
-
-    @Override
     protected BlockPattern createStructurePattern() {
         return FactoryBlockPattern.start(RIGHT, UP, BACK)
                 .aisle("XXXXX", "FXXXF", "FXXXF", "FXXXF", "~XXX~")
@@ -196,6 +182,21 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
                 .where('#', isAirPredicate())
                 .where('~', tile -> true)
                 .build();
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        this.recipeLogic.initialize(this.getAbilities(IMPORT_ITEMS).size());
+        final int conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV).getTier();
+        final int robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV).getTier();
+        int tier = Math.min(conveyor, robotArm);
+        if (tier >= GAValues.MAX) {
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
+            tier = TJUtility.getTierByVoltage(this.maxVoltage);
+        } else this.maxVoltage = 8L << tier * 2;
+        this.parallel = TJConfig.largeCrafter.stack * tier;
     }
 
     private IBlockState getCasingState() {

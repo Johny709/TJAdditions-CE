@@ -26,6 +26,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
     private int catalystIndex;
     private int outputIndex;
     private int experience;
+    private boolean voiding;
 
     public EnchanterWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -72,7 +73,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
     protected boolean completeRecipe() {
         for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
             final ItemStack stack = this.itemOutputs.get(i);
-            if (TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
+            if (this.voiding || TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
                 TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
                 this.outputIndex++;
             } else return false;
@@ -227,6 +228,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
         compound.setTag("fluidInputs", fluidInputs);
         compound.setInteger("outputIndex", this.outputIndex);
         compound.setInteger("experience", this.experience);
+        compound.setBoolean("voiding", this.voiding);
         return compound;
     }
 
@@ -235,6 +237,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
         super.deserializeNBT(compound);
         this.outputIndex = compound.getInteger("outputIndex");
         this.experience = compound.getInteger("experience");
+        this.voiding = compound.getBoolean("voiding");
         final NBTTagList itemInputs = compound.getTagList("itemInputs", 10), itemOutputs = compound.getTagList("itemOutputs", 10),
                 fluidInputs = compound.getTagList("fluidInputs", 10);
         for (int i = 0; i < itemInputs.tagCount(); i++)
@@ -261,5 +264,14 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
     @Override
     public List<FluidStack> getFluidInputs() {
         return this.fluidInputs;
+    }
+
+    public void setVoiding(boolean voiding) {
+        this.voiding = voiding;
+        this.metaTileEntity.markDirty();
+    }
+
+    public boolean isVoiding() {
+        return this.voiding;
     }
 }

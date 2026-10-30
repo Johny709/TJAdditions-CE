@@ -37,6 +37,8 @@ import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.capability.impl.handler.IPosHandler;
 import tj.capability.impl.workable.FisherWorkableHandler;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 import tj.util.TJUtility;
 
@@ -86,6 +88,20 @@ public class MetaTileEntityLargeSuperFisher extends TJMultiblockControllerBase i
     protected void updateFormedValid() {
         if (((this.getProblems() >> 5) & 1) != 0)
             this.workableHandler.update();
+    }
+
+    @Override
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.workableHandler::isDistinct, this.workableHandler::setDistinct)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.distinct.mode.disabled", "machine.universal.toggle.distinct.mode.enabled"));
+    }
+
+    @Override
+    protected void maintenanceDisplayTab(List<Widget> widgetGroup) {
+        super.maintenanceDisplayTab(widgetGroup);
+        widgetGroup.add(new TJToggleButtonWidget(175, 133, 18, 18, TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON, this.workableHandler::isVoiding, this.workableHandler::setVoiding)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
     }
 
     @Override

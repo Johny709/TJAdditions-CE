@@ -39,6 +39,7 @@ import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.builder.multicontrollers.GUIDisplayBuilder;
 import tj.capability.impl.handler.INameHandler;
 import tj.capability.impl.workable.NamingMachineWorkableHandler;
+import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.ButtonPopUpWidget;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.mui.widgets.impl.WindowsWidgetGroup;
@@ -98,9 +99,16 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.workableHandler::isDistinct, this.workableHandler::setDistinct)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.distinct.mode.disabled", "machine.universal.toggle.distinct.mode.enabled"));
+    }
+
+    @Override
+    protected void maintenanceDisplayTab(List<Widget> widgetGroup) {
+        super.maintenanceDisplayTab(widgetGroup);
         widgetGroup.add(new ButtonPopUpWidget<>()
                 .addPopup(widgetGroup1 -> true)
-                .addPopup(new TJToggleButtonWidget(175, 152, 18, 18)
+                .addPopup(new TJToggleButtonWidget(175, 134, 18, 18)
                         .setItemDisplay(new ItemStack(Item.getByNameOrId("enderio:item_material"), 1, 11))
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                         .setHoverTooltipText("tj.multiblock.tab.settings")
@@ -111,6 +119,8 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
                                     .setMaxStringLength(1024)));
                     return false;
                 }));
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON, this.workableHandler::isVoiding, this.workableHandler::setVoiding)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
     }
 
     @Override

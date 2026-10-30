@@ -335,11 +335,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
     @OverridingMethodsMustInvokeSuper
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
-        tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
-                maintenanceTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
-                        .addSubWidget(new AdvancedDisplayWidget(0, 0, this::addMaintenanceDisplayText, 0xFFFFFF)
-                                .setMaxWidthLimit(180))
-                        .setResetScrollOnSizeChange(true)));
+        tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), this::maintenanceDisplayTab);
     }
 
     @OverridingMethodsMustInvokeSuper
@@ -355,6 +351,15 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
                 .setToggleTitleTooltipHoverText("machine.universal.toggle.check.mode.disabled", "machine.universal.toggle.check.mode.enabled"));
     }
 
+    @OverridingMethodsMustInvokeSuper
+    protected void maintenanceDisplayTab(List<Widget> widgetGroup) {
+        widgetGroup.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                .addSubWidget(new AdvancedDisplayWidget(0, 0, this::addMaintenanceDisplayText, 0xFFFFFF)
+                        .setMaxWidthLimit(180))
+                .setResetScrollOnSizeChange(true));
+    }
+
+    @OverridingMethodsMustInvokeSuper
     protected void addDisplayText(GUIDisplayBuilder builder) {
         if (!this.isStructureFormed()) {
             final ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
@@ -365,6 +370,7 @@ public abstract class TJMultiblockControllerBase extends MultiblockControllerBas
         }
     }
 
+    @OverridingMethodsMustInvokeSuper
     protected void addMaintenanceDisplayText(GUIDisplayBuilder builder) {
         final Instant now = Instant.now();
         final SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMMM d, yyyy hh:mm:ss aa");
