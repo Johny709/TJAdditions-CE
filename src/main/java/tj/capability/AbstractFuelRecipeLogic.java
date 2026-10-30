@@ -8,6 +8,7 @@ import gregtech.api.capability.impl.FuelRecipeLogic;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.machines.FuelRecipeMap;
 import gregtech.api.util.function.BooleanConsumer;
+import gregtech.common.ConfigHolder;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.capabilities.Capability;
@@ -43,6 +44,9 @@ public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<
     protected int maxProgress;
     protected int lastInputIndex;
     protected int busCount;
+    protected int sleepTimer;
+    protected int sleepTime = 1;
+    protected int failCount;
 
     public AbstractFuelRecipeLogic(MetaTileEntity metaTileEntity, FuelRecipeMap recipeMap, Supplier<IEnergyContainer> energyContainer, Supplier<IMultipleTankHandler> fluidTank, long maxVoltage) {
         super(metaTileEntity, recipeMap, energyContainer, fluidTank, maxVoltage);
@@ -163,16 +167,20 @@ public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<
             }
         }
         if (this.progress < 1) {
-            if (this.metaTileEntity.isInventoryNotified() || this.otherConditions()) {
+            final boolean isNotified = this.metaTileEntity.isInventoryNotified();
+            if (isNotified || this.otherConditions()) {
                 this.metaTileEntity.setInventoryNotified(false);
-                final boolean canStart = this.startRecipe();
-                if (canStart) {
-                    this.progress = 1;
-                    this.progressRecipe(this.progress);
-                    if (!this.isActive)
-                        this.setActive(true);
-                } else this.failRecipe();
-                this.wasActiveAndNeedsUpdate = !canStart;
+                if (isNotified || this.sleepTimer < 1) {
+                    final boolean canStart = this.startRecipe();
+                    if (canStart) {
+                        this.progress = 1;
+                        this.sleepTime = 1;
+                        this.progressRecipe(this.progress);
+                        if (!this.isActive)
+                            this.setActive(true);
+                    } else this.failRecipe();
+                    this.wasActiveAndNeedsUpdate = !canStart;
+                } else this.sleepRecipe();
             } else this.sleepRecipe();
         } else this.progressRecipe(this.progress);
     }
@@ -188,7 +196,9 @@ public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<
      * For every tick the workable handler is on sleep timer
      */
     @OverridingMethodsMustInvokeSuper
-    protected void sleepRecipe() {}
+    protected void sleepRecipe() {
+        this.sleepTimer--;
+    }
 
     /**
      * For every tick the workable handler is stopped
@@ -196,9 +206,17 @@ public abstract class AbstractFuelRecipeLogic<R extends AbstractFuelRecipeLogic<
     protected void stopRecipe() {}
 
     /**
-     * When recipe was unable to start.
+     * This gets called if recipe wasn't able to start, {@link #startRecipe()} returns false.
+     * Recommended to invoke super method to utilize sleep timer for performance
      */
-    protected void failRecipe() {}
+    @OverridingMethodsMustInvokeSuper
+    protected void failRecipe() {
+        if (this.failCount > 4) {
+            this.sleepTime = Math.min(this.sleepTime * 2, Math.min(ConfigHolder.maxSleepTime, 400));
+            this.failCount = 0;
+        } else this.failCount++;
+        this.sleepTimer = this.sleepTime;
+    }
 
     protected void progressRecipe(int progress) {
         if (this.importEnergySupplier.get().removeEnergy(this.energyPerTick) == -this.energyPerTick) {

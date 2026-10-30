@@ -96,16 +96,20 @@ public abstract class AbstractWorkableHandler<H extends IMachineHandler> extends
             }
         }
         if (this.progress < 1) {
-            if (this.metaTileEntity.isInventoryNotified() || this.otherConditions()) {
+            final boolean isNotified = this.metaTileEntity.isInventoryNotified();
+            if (isNotified || this.otherConditions()) {
                 this.metaTileEntity.setInventoryNotified(false);
-                final boolean canStart = this.startRecipe();
-                if (canStart) {
-                    this.progress = 1;
-                    this.progressRecipe(this.progress);
-                    if (!this.isActive)
-                        this.setActive(true);
-                } else this.failRecipe();
-                this.wasActiveAndNeedsUpdate = !canStart;
+                if (isNotified || this.sleepTimer < 1) {
+                    final boolean canStart = this.startRecipe();
+                    if (canStart) {
+                        this.progress = 1;
+                        this.sleepTime = 1;
+                        this.progressRecipe(this.progress);
+                        if (!this.isActive)
+                            this.setActive(true);
+                    } else this.failRecipe();
+                    this.wasActiveAndNeedsUpdate = !canStart;
+                } else this.sleepRecipe();
             } else this.sleepRecipe();
         } else this.progressRecipe(this.progress);
     }
