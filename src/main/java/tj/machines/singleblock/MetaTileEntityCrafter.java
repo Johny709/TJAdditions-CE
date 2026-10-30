@@ -239,6 +239,8 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
         Textures.PIPE_OUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
         if (this.isAutoOutputItems())
             Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
+        if (this.isAutoOutputFluids())
+            Textures.FLUID_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
     }
 
     @Override

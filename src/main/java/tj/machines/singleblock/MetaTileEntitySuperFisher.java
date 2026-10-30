@@ -144,11 +144,13 @@ public class MetaTileEntitySuperFisher extends TJTieredWorkableMetaTileEntity im
         super.renderMetaTileEntity(renderState, translation, pipeline);
         Textures.SCREEN.renderSided(EnumFacing.UP, renderState, translation, pipeline);
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workableHandler.isActive(), this.workableHandler.isHasProblems(), this.workableHandler.isWorkingEnabled());
+        TJTextures.FISHING_ROD.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
+        TJTextures.FISHING_ROD.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
         Textures.PIPE_OUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
-        TJTextures.NAME_TAG.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
-        TJTextures.NAME_TAG.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
         if (this.isAutoOutputItems())
             Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
+        if (this.isAutoOutputFluids())
+            Textures.FLUID_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
     }
 
     @Override
