@@ -5,6 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.GTValues;
 import gregtech.api.capability.impl.*;
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.items.toolitem.ToolMetaItem;
@@ -178,6 +179,9 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setToggleTitleTooltipHoverText("tj.machine.farming_station.tool_output.tooltip.disabled", "tj.machine.farming_station.tool_output.tooltip.enabled"))
                 .widget(new ImageWidget(79, 58, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
+                .widget(new ImageWidget(79, 60, 18, 18, GuiTextures.CAUTION_ICON)
+                        .setHoverTooltip(this.workableHandler::getHasProblemReason)
+                        .setPredicate(this.workableHandler::isHasProblems))
                 .widget(widgetGroup)
                 .widget(scrollableWidgetGroup)
                 .bindPlayerInventory(player.inventory, 100)

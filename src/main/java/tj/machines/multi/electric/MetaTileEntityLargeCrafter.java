@@ -153,7 +153,7 @@ public class MetaTileEntityLargeCrafter extends TJMultiblockControllerBase imple
                             .appendSibling(this.recipeLogic.isDistinct()
                                     ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
                                     : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
-                    .addIsWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress(), this.recipeLogic.isHasProblems())
+                    .addIsWorkingLine(this.recipeLogic.isWorkingEnabled(), this.recipeLogic.isActive(), this.recipeLogic.getProgress(), this.recipeLogic.getMaxProgress(), this.recipeLogic.isHasProblems(), this.recipeLogic.getHasProblemReason())
                     .addRecipeInputLine(this.recipeLogic)
                     .addRecipeOutputLine(this.recipeLogic);
     }

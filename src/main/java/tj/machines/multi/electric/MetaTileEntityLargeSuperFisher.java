@@ -118,7 +118,7 @@ public class MetaTileEntityLargeSuperFisher extends TJMultiblockControllerBase i
                         .appendSibling(this.workableHandler.isDistinct()
                                 ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
                                 : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
-                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.isHasProblems())
+                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.isHasProblems(), this.workableHandler.getHasProblemReason())
                 .addRecipeInputLine(this.workableHandler)
                 .addRecipeOutputLine(this.workableHandler);
     }

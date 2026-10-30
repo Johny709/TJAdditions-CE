@@ -76,7 +76,7 @@ public abstract class MixinRecipeMapMultiblockController extends MixinMultiblock
                         text.addTextComponent(new TextComponentString(String.format("Cache size (%s) hit (%s) miss (%s)", this.recipeMapWorkable.previousRecipe.getCachedRecipeCount(), this.recipeMapWorkable.previousRecipe.getCacheHit(), this.recipeMapWorkable.previousRecipe.getCacheMiss()))
                                 .setStyle(new Style().setColor(TextFormatting.WHITE)));
                     }
-                }).addIsWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), this.recipeMapWorkable.isHasProblems(), 999)
+                }).addIsWorkingLine(this.recipeMapWorkable.isWorkingEnabled(), this.recipeMapWorkable.isActive(), this.recipeMapWorkable.getProgress(), this.recipeMapWorkable.getMaxProgress(), this.recipeMapWorkable.isHasProblems(), this.recipeMapWorkable.getHasProblemsReason(), 999)
                 .addRecipeOutputLine(this.recipeMapWorkable, 1000);
     }
 

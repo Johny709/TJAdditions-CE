@@ -387,6 +387,10 @@ public final class GUIDisplayBuilder {
         return this.addIsWorkingLine(isWorkingEnabled, isActive, progress, maxProgress, hasProblems, "", priority);
     }
 
+    public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, boolean hasProblems, @Nonnull String hasProblemsReason) {
+        return this.addIsWorkingLine(isWorkingEnabled, isActive, progress, maxProgress, hasProblems, hasProblemsReason, 0);
+    }
+
     public GUIDisplayBuilder addIsWorkingLine(boolean isWorkingEnabled, boolean isActive, int progress, int maxProgress, boolean hasProblems, @Nonnull String hasProblemsReason, int priority) {
         if (isActive) {
             progress--;

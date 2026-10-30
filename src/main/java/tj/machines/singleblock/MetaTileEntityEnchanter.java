@@ -7,6 +7,7 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.capability.impl.NotifiableFluidTank;
 import gregtech.api.capability.impl.NotifiableFluidTankList;
 import gregtech.api.capability.impl.NotifiableItemStackHandler;
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -129,6 +130,9 @@ public class MetaTileEntityEnchanter extends TJTieredWorkableMetaTileEntity {
                         .setToggleTitleTooltipHoverText("gregtech.gui.fluid_auto_output.tooltip.disabled", "gregtech.gui.fluid_auto_output.tooltip.enabled"))
                 .widget(new ImageWidget(79, 42, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
+                .widget(new ImageWidget(79, 60, 18, 18, GuiTextures.CAUTION_ICON)
+                        .setHoverTooltip(this.workableHandler::getHasProblemReason)
+                        .setPredicate(this.workableHandler::isHasProblems))
                 .bindPlayerInventory(player.inventory)
                 .widget(displayWidget)
                 .build(this.getHolder(), player);

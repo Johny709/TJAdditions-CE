@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import gregtech.api.capability.impl.NotifiableItemStackHandler;
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.metatileentity.MetaTileEntity;
@@ -175,6 +176,9 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                     this.setCraftingResult(0, ItemStack.EMPTY);
                 }).setBackgroundTextures(BUTTON_CLEAR_GRID))
                 .widget(new CraftingRecipeTransferWidget(this::setCraftingResult))
+                .widget(new ImageWidget(79, 60, 18, 18, GuiTextures.CAUTION_ICON)
+                        .setHoverTooltip(this.recipeLogic::getHasProblemReason)
+                        .setPredicate(this.recipeLogic::isHasProblems))
                 .widget(craftingSlotGroup)
                 .widget(inventorySlotGroup)
                 .widget(scrollableWidgetGroup)
