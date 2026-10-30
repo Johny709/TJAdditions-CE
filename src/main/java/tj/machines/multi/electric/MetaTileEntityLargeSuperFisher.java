@@ -40,6 +40,7 @@ import tj.capability.impl.workable.FisherWorkableHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
+import tj.util.EnumFacingHelper;
 import tj.util.TJUtility;
 
 import javax.annotation.Nullable;
@@ -175,6 +176,8 @@ public class MetaTileEntityLargeSuperFisher extends TJMultiblockControllerBase i
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive(), this.workableHandler.isHasProblems(), this.workableHandler.isWorkingEnabled());
+        TJTextures.NAME_TAG.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
+        TJTextures.NAME_TAG.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
     }
 
     private IBlockState getCasingState() {

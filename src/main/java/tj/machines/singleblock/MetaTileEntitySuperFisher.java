@@ -29,6 +29,7 @@ import tj.items.handlers.FilteredItemStackHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
+import tj.util.EnumFacingHelper;
 import tj.util.TJItemUtils;
 
 import javax.annotation.Nullable;
@@ -144,6 +145,8 @@ public class MetaTileEntitySuperFisher extends TJTieredWorkableMetaTileEntity im
         Textures.SCREEN.renderSided(EnumFacing.UP, renderState, translation, pipeline);
         TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workableHandler.isActive(), this.workableHandler.isHasProblems(), this.workableHandler.isWorkingEnabled());
         Textures.PIPE_OUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
+        TJTextures.NAME_TAG.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
+        TJTextures.NAME_TAG.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
         if (this.isAutoOutputItems())
             Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
     }
