@@ -66,7 +66,6 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
     protected FluidTankList createImportFluidHandler() {
         return new NotifiableFluidTankList(this, true, IntStream.range(0, 16)
                 .mapToObj(i -> new NotifiableFluidTank(this, Integer.MAX_VALUE) {
-                    private int lastFluidAmount = 0;
 
                     @Override
                     public int fill(FluidStack resource, boolean doFill) {
@@ -78,12 +77,10 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
                     @Override
                     public FluidStack drain(FluidStack resource, boolean doDrain) {
                         FluidStack fluidStack = this.getFluid();
-                        if (fluidStack == null || !fluidStack.isFluidEqual(resource)) return null;
+                        if (fluidStack == null || !fluidStack.isFluidEqual(resource))
+                            return null;
                         fluidStack = fluidStack.copy();
                         fluidStack.amount = Math.min(fluidStack.amount, resource.amount);
-                        if (this.lastFluidAmount != fluidStack.amount)
-                            this.onContentsChanged();
-                        this.lastFluidAmount = fluidStack.amount;
                         return fluidStack;
                     }
 
@@ -92,12 +89,10 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
                         if (maxDrain == Integer.MIN_VALUE)
                             super.drain(Integer.MAX_VALUE, doDrain);
                         FluidStack fluidStack = this.getFluid();
-                        if (fluidStack == null) return null;
+                        if (fluidStack == null)
+                            return null;
                         fluidStack = fluidStack.copy();
                         fluidStack.amount = Math.min(fluidStack.amount, maxDrain);
-                        if (this.lastFluidAmount != fluidStack.amount)
-                            this.onContentsChanged();
-                        this.lastFluidAmount = fluidStack.amount;
                         return fluidStack;
                     }
                 }).collect(Collectors.toList()));

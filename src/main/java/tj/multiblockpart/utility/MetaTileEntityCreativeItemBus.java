@@ -67,7 +67,6 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
         return new NotifiableLargeItemStackHandler(this, 16, Integer.MAX_VALUE) {
-            private final int[] lastItemAmount = new int[this.getSlots()];
 
             @Nonnull
             @Override
@@ -76,9 +75,6 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
                     return super.extractItem(slot, amount, simulate);
                 final ItemStack stack = this.getStackInSlot(slot).copy();
                 stack.setCount(Math.min(stack.getCount(), amount));
-                if (this.lastItemAmount[slot] != stack.getCount())
-                    this.onContentsChanged(slot);
-                this.lastItemAmount[slot] = stack.getCount();
                 return stack;
             }
         };
