@@ -8,18 +8,14 @@ import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
-import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
-import tj.TJConfig;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMiner;
-import tj.machines.multi.electric.MetaTileEntityEliteLargeMiner;
+import tj.machines.multiblock.electric.MetaTileEntityEliteLargeMiner;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class LargeMinerInfo extends TJMultiblockInfoPage {
 

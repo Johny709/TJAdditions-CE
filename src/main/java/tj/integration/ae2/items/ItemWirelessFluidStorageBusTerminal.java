@@ -33,7 +33,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
-import tj.builder.WidgetTabBuilder;
+import tj.mui.widgets.WidgetTabBuilder;
 import tj.integration.ae2.ISuperFluidInterfaceTerminal;
 import tj.items.item.TJItems;
 import tj.mui.TJGuiTextures;

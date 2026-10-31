@@ -25,8 +25,8 @@ import tj.machines.TJMetaTileEntities;
 import javax.annotation.Nonnull;
 
 import static tj.machines.TJMetaTileEntities.*;
-import static tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.INPUT;
-import static tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.OUTPUT;
+import static tj.machines.multiblock.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.INPUT;
+import static tj.machines.multiblock.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.OUTPUT;
 
 public class TJMultiblockInfoCategory implements IRecipeCategory<MultiblockInfoRecipeWrapper> {
     private final IDrawable background;

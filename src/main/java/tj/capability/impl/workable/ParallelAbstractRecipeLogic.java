@@ -22,7 +22,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
+import tj.machines.controllers.OldParallelRecipeMapMultiblockController;
 import tj.capability.IMultipleWorkable;
 import tj.capability.IRecipeMap;
 import tj.capability.OverclockManager;

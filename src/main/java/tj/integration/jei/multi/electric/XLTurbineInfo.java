@@ -10,20 +10,15 @@ import gregtech.common.items.behaviors.TurbineRotorBehavior;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
-import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import tj.TJConfig;
 import tj.capability.impl.workable.XLTurbineWorkableHandler;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.integration.jei.multi.parallel.IParallelMultiblockInfoPage;
-import tj.machines.multi.electric.MetaTileEntityXLTurbine;
-
-import java.util.ArrayList;
-import java.util.List;
+import tj.machines.multiblock.electric.MetaTileEntityXLTurbine;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 

@@ -44,7 +44,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.builder.WidgetTabBuilder;
+import tj.mui.widgets.WidgetTabBuilder;
 import tj.integration.ae2.ISuperInterfaceTerminal;
 import tj.integration.ae2.part.*;
 import tj.integration.ae2.tile.*;

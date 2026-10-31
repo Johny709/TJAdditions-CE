@@ -11,7 +11,7 @@ import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.machines.controllers.GUIDisplayBuilder;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;

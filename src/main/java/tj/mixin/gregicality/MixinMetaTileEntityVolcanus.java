@@ -11,7 +11,7 @@ import tj.util.TJFluidUtils;
 import java.util.Queue;
 import java.util.function.UnaryOperator;
 
-import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.PYROTHEUM;
+import static tj.machines.multiblock.electric.MetaTileEntityVoidMOreMiner.PYROTHEUM;
 
 @Mixin(value = MetaTileEntityVolcanus.class, remap = false)
 public abstract class MixinMetaTileEntityVolcanus extends MixinMetaTileEntityElectricBlastFurnace implements IProgressBar {

@@ -1,7 +1,7 @@
 package tj.capability.impl.handler;
 
 import gregtech.api.recipes.Recipe;
-import tj.machines.multi.BatchMode;
+import tj.machines.multiblock.BatchMode;
 
 public interface IFusionProvider {
 

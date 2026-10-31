@@ -10,14 +10,13 @@ import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
-import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import tj.blocks.BlockAbility;
 import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
-import tj.machines.multi.steam.MetaTileEntityLargeSolarBoiler;
+import tj.machines.multiblock.steam.MetaTileEntityLargeSolarBoiler;
 import tj.util.Color;
 
 public class LargeSolarBoilerInfo extends MultiblockInfoPage {

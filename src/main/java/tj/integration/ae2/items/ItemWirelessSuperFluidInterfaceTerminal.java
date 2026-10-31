@@ -31,7 +31,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import tj.builder.WidgetTabBuilder;
+import tj.mui.widgets.WidgetTabBuilder;
 import tj.integration.ae2.ISuperFluidInterfaceTerminal;
 import tj.integration.ae2.part.*;
 import tj.integration.ae2.tile.*;

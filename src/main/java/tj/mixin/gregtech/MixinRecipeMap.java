@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import tj.builder.RecipeUtility;
+import tj.recipes.RecipeUtility;
 import tj.capability.IRecipeMap;
 import tj.mui.widgets.impl.RecipeOutputDisplayWidget;
 import tj.mui.widgets.impl.RecipeOutputSlotWidget;

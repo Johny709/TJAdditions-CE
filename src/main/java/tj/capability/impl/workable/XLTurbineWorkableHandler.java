@@ -14,9 +14,8 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.apache.commons.lang3.ArrayUtils;
-import tj.machines.multi.electric.MetaTileEntityXLTurbine;
+import tj.machines.multiblock.electric.MetaTileEntityXLTurbine;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 import static gregtech.api.unification.material.Materials.DistilledWater;

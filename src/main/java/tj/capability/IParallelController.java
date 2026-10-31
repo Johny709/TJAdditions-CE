@@ -1,7 +1,7 @@
 package tj.capability;
 
 import gregtech.api.recipes.RecipeMap;
-import tj.machines.multi.BatchMode;
+import tj.machines.multiblock.BatchMode;
 
 public interface IParallelController {
 

@@ -1,0 +1,153 @@
+package tj.machines.multiblock.parallel;
+
+import gregicadditions.GAValues;
+import gregtech.api.capability.IEnergyContainer;
+import tj.TJConfig;
+import tj.machines.controllers.ParallelRecipeMapMultiblockController;
+import gregicadditions.item.components.PumpCasing;
+import gregicadditions.machines.GATileEntities;
+import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.metatileentity.multiblock.IMultiblockPart;
+import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.multiblock.BlockPattern;
+import gregtech.api.multiblock.FactoryBlockPattern;
+import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.render.ICubeRenderer;
+import gregtech.api.render.OrientedOverlayRenderer;
+import gregtech.api.render.Textures;
+import gregtech.common.blocks.BlockBoilerCasing;
+import gregtech.common.blocks.BlockMetalCasing;
+import gregtech.common.blocks.MetaBlocks;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.util.TJUtility;
+import tj.util.TooltipHelper;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+
+import static tj.machines.multiblock.electric.MetaTileEntityLargeGreenhouse.glassPredicate;
+import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.pumpPredicate;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static gregtech.api.render.Textures.*;
+
+
+public class MetaTileEntityParallelLargeCanningMachine extends ParallelRecipeMapMultiblockController {
+
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, MAINTENANCE_HATCH, INPUT_ENERGY, REDSTONE_CONTROLLER};
+
+    public MetaTileEntityParallelLargeCanningMachine(ResourceLocation metaTileEntityId) {
+        super(metaTileEntityId, GATileEntities.LARGE_CANNING_MACHINE.getRecipeMaps());
+    }
+
+    @Override
+    public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
+        return new MetaTileEntityParallelLargeCanningMachine(this.metaTileEntityId);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("tj.multiblock.parallel_large_canning_machine.description"));
+        tooltip.add(I18n.format("tj.multiblock.parallel.description"));
+        TooltipHelper.shiftTextJEI(tooltip, tip -> super.addInformation(stack, player, tip, advanced));
+    }
+
+    @Override
+    protected BlockPattern createStructurePattern() {
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, DOWN, BACK);
+        factoryPattern.aisle("~~P~~", "~XPX~", "PPPPP", "~XPX~", "~~P~~");
+        for (int layer = 0; layer < this.parallelLayer; layer++) {
+            factoryPattern.aisle("~~P~~", "~G#G~", "P#p#P", "~G#G~", "~~P~~");
+        }
+        return factoryPattern.aisle("~~P~~", "~XPX~", "PPSPP", "~XPX~", "~~P~~")
+                .setAmountAtLeast('L', 2)
+                .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('G', statePredicate(this.getCasingState()).or(glassPredicate()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
+                .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.STEEL_PIPE)))
+                .where('p', pumpPredicate())
+                .where('#', isAirPredicate())
+                .where('~', tile -> true)
+                .build();
+    }
+
+    private IBlockState getCasingState() {
+        return MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.STEEL_SOLID);
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        final int tier = context.getOrDefault("Pump", PumpCasing.CasingType.PUMP_LV).getTier();
+        if (tier >= GAValues.MAX) {
+            this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
+                    .mapToLong(IEnergyContainer::getInputVoltage)
+                    .max()
+                    .orElse(0);
+            long amps = this.getAbilities(INPUT_ENERGY).stream()
+                    .filter(energy -> energy.getInputVoltage() == this.maxVoltage)
+                    .mapToLong(IEnergyContainer::getInputAmperage)
+                    .sum() / Math.max(1, this.parallelLayer);
+            amps = Math.min(4096, amps);
+            while (amps >= 4) {
+                amps /= 4;
+                this.maxVoltage *= 4;
+            }
+            if (this.maxVoltage >= Integer.MAX_VALUE)
+                this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
+        } else this.maxVoltage = 8L << tier * 2;
+        this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
+    }
+
+    @Override
+    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
+        return Textures.SOLID_STEEL_CASING;
+    }
+
+    @Nonnull
+    @Override
+    protected OrientedOverlayRenderer getFrontOverlay() {
+        switch (this.getRecipeMapIndex()) {
+            case 1: return FLUID_CANNER_OVERLAY;
+            case 2: return FLUID_SOLIDIFIER_OVERLAY;
+            default: return CANNER_OVERLAY;
+        }
+    }
+
+    @Override
+    public int getEUtMultiplier() {
+        return TJConfig.parallelLargeCanningMachine.eutPercentage;
+    }
+
+    @Override
+    public int getDurationMultiplier() {
+        return TJConfig.parallelLargeCanningMachine.durationPercentage;
+    }
+
+    @Override
+    public int getChanceMultiplier() {
+        return TJConfig.parallelLargeCanningMachine.chancePercentage;
+    }
+
+    @Override
+    public int getParallel() {
+        return TJConfig.parallelLargeCanningMachine.stack;
+    }
+
+    @Override
+    public int getMaxParallel() {
+        return TJConfig.parallelLargeCanningMachine.maximumParallel;
+    }
+}

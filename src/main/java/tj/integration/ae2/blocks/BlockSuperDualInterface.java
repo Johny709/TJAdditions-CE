@@ -31,7 +31,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import tj.blocks.block.TJBlocks;
-import tj.builder.WidgetTabBuilder;
+import tj.mui.widgets.WidgetTabBuilder;
 import tj.integration.ae2.ISuperDualInterface;
 import tj.integration.ae2.helpers.DualitySuperFluidInterface;
 import tj.integration.ae2.helpers.DualitySuperInterface;

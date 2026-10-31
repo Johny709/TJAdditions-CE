@@ -7,7 +7,7 @@ import gregtech.api.recipes.recipes.FuelRecipe;
 import gregtech.common.metatileentities.electric.multiblockpart.MetaTileEntityRotorHolder;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import net.minecraft.util.math.MathHelper;
-import tj.machines.multi.electric.MetaTileEntityLargeAtmosphereCollector;
+import tj.machines.multiblock.electric.MetaTileEntityLargeAtmosphereCollector;
 
 import java.util.function.Supplier;
 

@@ -1,0 +1,321 @@
+package tj.machines.controllers;
+
+import gregicadditions.GAConfig;
+import gregicadditions.Gregicality;
+import gregicadditions.capabilities.GregicAdditionsCapabilities;
+import gregicadditions.machines.GATileEntities;
+import gregicadditions.machines.multi.IMaintenance;
+import gregicadditions.machines.multi.multiblockpart.MetaTileEntityMaintenanceHatch;
+import gregtech.api.gui.GuiTextures;
+import gregtech.api.gui.ModularUI;
+import gregtech.api.gui.Widget;
+import gregtech.api.metatileentity.multiblock.IMultiblockPart;
+import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.machines.FuelRecipeMap;
+import gregtech.api.util.XSTR;
+import gregtech.common.metatileentities.multi.electric.generator.RotorHolderMultiblockController;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.HoverEvent;
+import tj.TJValues;
+import tj.mui.widgets.WidgetTabBuilder;
+import tj.capability.IProgressBar;
+import tj.capability.ProgressBar;
+import tj.mui.TJGuiTextures;
+import tj.mui.TJHorizontoalTabListRenderer;
+import tj.mui.widgets.impl.*;
+
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.*;
+import java.util.function.UnaryOperator;
+
+import static gregicadditions.capabilities.MultiblockDataCodes.STORE_TAPED;
+import static tj.mui.TJGuiTextures.*;
+import static tj.mui.TJHorizontoalTabListRenderer.HorizontalStartCorner.LEFT;
+import static tj.mui.TJHorizontoalTabListRenderer.VerticalLocation.BOTTOM;
+
+public abstract class TJRotorHolderMultiblockControllerBase extends RotorHolderMultiblockController implements IMaintenance {
+
+    /**
+     * This value stores whether each of the 5 maintenance problems have been fixed.
+     * A value of 0 means the problem is not fixed, else it is fixed
+     * Value positions correspond to the following from left to right: 0=Wrench, 1=Screwdriver, 2=Soft Hammer, 3=Hard Hammer, 4=Wire Cutter, 5=Crowbar
+     */
+    protected byte maintenance_problems;
+
+    public static final XSTR XSTR_RAND = new XSTR();
+    private int timeActive;
+    private static final int minimumMaintenanceTime = 5184000; // 72 real-life hours = 5184000 ticks
+
+    // Used for data preservation with Maintenance Hatch
+    private boolean storedTaped = false;
+    protected boolean doStructureCheck;
+
+    protected Instant placedDown = Instant.now();
+
+    public TJRotorHolderMultiblockControllerBase(ResourceLocation metaTileEntityId, FuelRecipeMap recipeMap, long maxVoltage) {
+        this(metaTileEntityId, recipeMap, maxVoltage,1,1);
+    }
+
+    public TJRotorHolderMultiblockControllerBase(ResourceLocation metaTileEntityId, FuelRecipeMap recipeMap, long maxVoltage, int minExtent, int maxExtent) {
+        super(metaTileEntityId, recipeMap, maxVoltage,minExtent, maxExtent);
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        int maintenanceCount = abilities.getOrDefault(GregicAdditionsCapabilities.MAINTENANCE_HATCH, Collections.emptyList()).size();
+        return maintenanceCount == 1;
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        if (getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).isEmpty())
+            return;
+        MetaTileEntityMaintenanceHatch maintenanceHatch = getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).get(0);
+        if (maintenanceHatch.getType() == 2 || !GAConfig.GT5U.enableMaintenance) {
+            this.maintenance_problems = 0b111111;
+        } else {
+            readMaintenanceData(maintenanceHatch);
+            if (maintenanceHatch.getType() == 0 && storedTaped) {
+                maintenanceHatch.setTaped(true);
+                storeTaped(false);
+            }
+        }
+    }
+
+    @Override
+    protected ModularUI createUI(EntityPlayer entityPlayer) {
+        int height = this.getExtended();
+        int[][] barMatrix = null;
+        height += this.getHolder().getMetaTileEntity() instanceof IProgressBar && (barMatrix = ((IProgressBar) this.getHolder().getMetaTileEntity()).getBarMatrix()) != null ? barMatrix.length * 10 : 0;
+        final ModularUI.Builder builder = ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 200, 216);
+        final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
+                .setTabListRenderer(() -> new TJHorizontoalTabListRenderer(LEFT, BOTTOM))
+                .setPosition(0, 1)
+                .offsetPosition(0, height)
+                .offsetY(132 - this.getExtended());
+        builder.image(0, -20, 200, 237 + height, GuiTextures.BORDERED_BACKGROUND)
+                .image(6, -14, 188, 145, MULTIBLOCK_DISPLAY_BASE)
+                .widget(new TJLabelWidget(9, -38, 184, 18, MACHINE_LABEL_2, this::getRecipeUid)
+                        .setItemLabel(this.getStackForm())
+                        .setLocale(this.getMetaFullName()));
+        this.addTabs(tabBuilder);
+        if (barMatrix != null)
+            this.addBars(barMatrix, builder);
+        return builder.bindPlayerInventory(entityPlayer.inventory, GuiTextures.SLOT ,7, 134 + height)
+                .widget(tabBuilder.build())
+                .widget(tabBuilder.buildWidgetGroup())
+                .widget(new AnimatedImageWidget(164, 102, 26, 26, 41, TJ_LOGO_ANIMATED))
+                .build(this.getHolder(), entityPlayer);
+    }
+
+    private void addBars(int[][] barMatrix, ModularUI.Builder builder) {
+        final Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars = new ArrayDeque<>();
+        ((IProgressBar) this.getHolder().getMetaTileEntity()).getProgressBars(bars);
+        for (int i = 0; i < barMatrix.length; i++) {
+            final int[] column = barMatrix[i];
+            for (int j = 0; j < column.length; j++) {
+                final ProgressBar bar = bars.poll().apply(new ProgressBar.ProgressBarBuilder()).build();
+                final int height = 188 / column.length;
+                builder.widget(new TJProgressBarWidget(7 + (j * height), 132 + (i * 10), height, 10, bar.getProgress(), bar.getMaxProgress(), bar.isFluid())
+                        .setTexture(TJGuiTextures.FLUID_BAR).setBarTexture(bar.getBarTexture())
+                        .setLocale(bar.getLocale(), bar.getParams())
+                        .setFluid(bar.getFluidStackSupplier()));
+            }
+        }
+    }
+
+    @OverridingMethodsMustInvokeSuper
+    protected void addTabs(WidgetTabBuilder tabBuilder) {
+        tabBuilder.addTab("tj.multiblock.tab.display", this.getStackForm(), this::mainDisplayTab);
+        tabBuilder.addTab("tj.multiblock.tab.maintenance", GATileEntities.MAINTENANCE_HATCH[0].getStackForm(), maintenanceTab ->
+                maintenanceTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                        .addSubWidget(new AdvancedDisplayWidget(0, 0, this::addMaintenanceDisplayText, 0xFFFFFF)
+                                .setMaxWidthLimit(180))
+                        .setResetScrollOnSizeChange(true)));
+    }
+
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        widgetGroup.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                .addSubWidget(new AdvancedDisplayWidget(0, 0, this::addDisplayText, 0xFFFFFF)
+                        .setClickHandler(this::handleDisplayClick)
+                        .setMaxWidthLimit(180))
+                .setResetScrollOnSizeChange(true));
+        widgetGroup.add(new TJToggleButtonWidget(175, 169, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 133, 18, 18, TJGuiTextures.TOGGLE_CAUTION_BUTTON, this::getDoStructureCheck, this::setDoStructureCheck)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.check.mode.disabled", "machine.universal.toggle.check.mode.enabled"));
+    }
+
+    protected void addDisplayText(GUIDisplayBuilder builder) {
+        if (!this.isStructureFormed()) {
+            ITextComponent tooltip = new TextComponentTranslation("gregtech.multiblock.invalid_structure.tooltip");
+            tooltip.setStyle(new Style().setColor(TextFormatting.GRAY));
+            builder.customLine(text -> text.addTextComponent(new TextComponentTranslation("gregtech.multiblock.invalid_structure")
+                    .setStyle(new Style().setColor(TextFormatting.RED)
+                            .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)))));
+        }
+    }
+
+    protected void addMaintenanceDisplayText(GUIDisplayBuilder builder) {
+        final Instant now = Instant.now();
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("E, MMMM d, yyyy hh:mm:ss aa");
+        final long timeElapsed = now.getEpochSecond() - this.placedDown.getEpochSecond();
+        builder.addTranslationLine("tj.multiblock.date.placed_down", dateFormat.format(Date.from(this.placedDown)))
+                .addTranslationLine("tj.multiblock.date.ago", TJValues.thousandFormat.format(timeElapsed / 3600), TJValues.thousandFormat.format((timeElapsed % 3600) / 60), TJValues.thousandFormat.format(timeElapsed % 60))
+                .addEmptyLine()
+                .addMaintenanceDisplayLines(this.getProblems(), this.hasProblems(), 1000);
+    }
+
+    private boolean getDoStructureCheck() {
+        if (isStructureFormed())
+            this.doStructureCheck = false;
+        return this.doStructureCheck;
+    }
+
+    private void setDoStructureCheck(boolean check) {
+        if (isStructureFormed()) {
+            this.doStructureCheck = true;
+            invalidateStructure();
+            this.structurePattern = createStructurePattern();
+        }
+    }
+
+    public abstract boolean isWorkingEnabled();
+
+    public abstract void setWorkingEnabled(boolean isWorking);
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setByte("Maintenance", this.maintenance_problems);
+        data.setInteger("ActiveTimer", this.timeActive);
+        data.setLong("placedDownDate", this.placedDown.getEpochSecond());
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.maintenance_problems = data.getByte("Maintenance");
+        this.timeActive = data.getInteger("ActiveTimer");
+        if (data.hasKey("placedDownDate"))
+            this.placedDown = Instant.ofEpochSecond(data.getLong("placedDownDate"));
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        buf.writeByte(this.maintenance_problems);
+        buf.writeInt(this.timeActive);
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.maintenance_problems = buf.readByte();
+        this.timeActive = buf.readInt();
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == STORE_TAPED) {
+            storedTaped = buf.readBoolean();
+        }
+    }
+
+    /**
+     * Sets the maintenance problem corresponding to index to fixed
+     *
+     * @param index the index of the maintenance problem
+     */
+    public void setMaintenanceFixed(int index) {
+        this.maintenance_problems |= 1 << index;
+    }
+
+    /**
+     * Used to cause a single random maintenance problem
+     */
+    protected void causeProblems() {
+        this.maintenance_problems &= ~(1 << ((int) (XSTR_RAND.nextFloat()*5)));
+    }
+
+    /**
+     *
+     * @return the byte value representing the maintenance problems
+     */
+    public byte getProblems() {
+        return maintenance_problems;
+    }
+
+    /**
+     *
+     * @return the amount of maintenance problems the multiblock has
+     */
+    public int getNumProblems() {
+        return 6 - Integer.bitCount(maintenance_problems);
+    }
+
+    /**
+     *
+     * @return whether the multiblock has any maintenance problems
+     */
+    public boolean hasProblems() {
+        return this.maintenance_problems < 63;
+    }
+
+    /**
+     * Used to calculate whether a maintenance problem should happen based on machine time active
+     * @param duration duration in ticks to add to the counter of active time
+     */
+
+    public void calculateMaintenance(int duration) {
+        MetaTileEntityMaintenanceHatch maintenanceHatch = getAbilities(GregicAdditionsCapabilities.MAINTENANCE_HATCH).get(0);
+        if (maintenanceHatch.getType() == 2 || !GAConfig.GT5U.enableMaintenance) {
+            return;
+        }
+
+        timeActive += duration;
+        if (minimumMaintenanceTime - timeActive <= 0)
+            if(XSTR_RAND.nextFloat() - 0.75f >= 0) {
+                causeProblems();
+                maintenanceHatch.setTaped(false);
+            }
+    }
+
+    private void readMaintenanceData(MetaTileEntityMaintenanceHatch hatch) {
+        if (hatch.hasMaintenanceData()) {
+            Tuple<Byte, Integer> data = hatch.readMaintenanceData();
+            this.maintenance_problems = data.getFirst();
+            this.timeActive = data.getSecond();
+        }
+    }
+
+    public void storeTaped(boolean isTaped) {
+        this.storedTaped = isTaped;
+        writeCustomData(STORE_TAPED, buf -> buf.writeBoolean(isTaped));
+    }
+
+    protected int getExtended() {
+        return 0;
+    }
+
+    /**
+     * Recipe Uid for JEI recipe click area.
+     */
+    public String getRecipeUid() {
+        return Gregicality.MODID + ":" + this.recipeMap.getUnlocalizedName();
+    }
+}

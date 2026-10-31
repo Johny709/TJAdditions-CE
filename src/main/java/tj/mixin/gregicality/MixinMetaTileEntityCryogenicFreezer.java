@@ -11,7 +11,7 @@ import tj.util.TJFluidUtils;
 import java.util.Queue;
 import java.util.function.UnaryOperator;
 
-import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.CRYOTHEUM;
+import static tj.machines.multiblock.electric.MetaTileEntityVoidMOreMiner.CRYOTHEUM;
 
 @Mixin(value = MetaTileEntityCryogenicFreezer.class, remap = false)
 public abstract class MixinMetaTileEntityCryogenicFreezer extends MixinMetaTileEntityVacuumFreezer implements IProgressBar {

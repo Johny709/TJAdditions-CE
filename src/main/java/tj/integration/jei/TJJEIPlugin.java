@@ -10,8 +10,7 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.ingredients.VanillaTypes;
 import net.minecraft.util.ResourceLocation;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.builder.multicontrollers.TJMultiblockControllerBase;
+import tj.machines.controllers.ParallelRecipeMapMultiblockController;
 import tj.capability.IJEIRecipeUID;
 import tj.integration.jei.recipe.GTRecipeTransferGuiHandler;
 

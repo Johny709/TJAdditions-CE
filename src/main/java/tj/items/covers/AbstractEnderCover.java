@@ -29,7 +29,7 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
-import tj.builder.WidgetTabBuilder;
+import tj.mui.widgets.WidgetTabBuilder;
 import tj.capability.IEnderNotifiable;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.PopUpWidget;

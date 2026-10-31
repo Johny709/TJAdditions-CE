@@ -7,15 +7,10 @@ import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
-import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
-import tj.TJConfig;
 import tj.integration.jei.TJMultiblockShapeInfo;
-import tj.machines.multi.electric.MetaTileEntityLargeAtmosphereCollector;
-
-import java.util.ArrayList;
-import java.util.List;
+import tj.machines.multiblock.electric.MetaTileEntityLargeAtmosphereCollector;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 

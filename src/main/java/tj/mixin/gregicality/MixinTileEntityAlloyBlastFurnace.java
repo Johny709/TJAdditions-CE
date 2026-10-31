@@ -4,7 +4,7 @@ import gregicadditions.machines.multi.TileEntityAlloyBlastFurnace;
 import net.minecraft.util.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.machines.controllers.GUIDisplayBuilder;
 
 @Mixin(value = TileEntityAlloyBlastFurnace.class, remap = false)
 public abstract class MixinTileEntityAlloyBlastFurnace extends MixinGARecipeMapMultiblockController {

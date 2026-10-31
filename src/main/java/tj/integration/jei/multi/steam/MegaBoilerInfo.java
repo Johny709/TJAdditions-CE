@@ -1,17 +1,14 @@
 package tj.integration.jei.multi.steam;
 
-import com.google.common.collect.Lists;
 import gregicadditions.channels.GAChannelRegistry;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.GTValues;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.recipes.RecipeMaps;
-import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
-import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
@@ -21,10 +18,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import tj.TJValues;
 import tj.integration.jei.TJMultiblockShapeInfo;
-import tj.machines.multi.steam.MetaTileEntityMegaBoiler;
+import tj.machines.multiblock.steam.MetaTileEntityMegaBoiler;
 import tj.util.Color;
-
-import java.util.List;
 
 public class MegaBoilerInfo extends MultiblockInfoPage {
 

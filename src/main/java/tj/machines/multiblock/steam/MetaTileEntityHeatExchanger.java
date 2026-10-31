@@ -1,0 +1,92 @@
+package tj.machines.multiblock.steam;
+
+import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.recipes.Recipe;
+import tj.TJRecipeMaps;
+import tj.TJValues;
+import tj.machines.controllers.TJRecipeMapMultiblockController;
+import gregicadditions.item.metal.MetalCasing1;
+import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.metatileentity.multiblock.IMultiblockPart;
+import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.multiblock.BlockPattern;
+import gregtech.api.multiblock.FactoryBlockPattern;
+import gregtech.api.render.ICubeRenderer;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.ResourceLocation;
+import tj.capability.OverclockManager;
+
+import javax.annotation.Nonnull;
+
+import static gregicadditions.client.ClientHandler.ZIRCONIUM_CARBIDE_CASING;
+import static gregicadditions.item.GAMetaBlocks.METAL_CASING_1;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.EXPORT_FLUIDS;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.IMPORT_FLUIDS;
+
+
+public class MetaTileEntityHeatExchanger extends TJRecipeMapMultiblockController {
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_FLUIDS, EXPORT_FLUIDS};
+
+    public MetaTileEntityHeatExchanger(ResourceLocation metaTileEntityId) {
+        super(metaTileEntityId, TJRecipeMaps.HEAT_EXCHANGER_RECIPES, false, true);
+        this.recipeLogic.setAllowOverclocking(false);
+    }
+
+    @Override
+    public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
+        return new MetaTileEntityHeatExchanger(this.metaTileEntityId);
+    }
+
+    @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        overclockManager.setParallel(1);
+    }
+
+    @Override
+    protected BlockPattern createStructurePattern() {
+        return FactoryBlockPattern.start()
+                .aisle("XXX", "XXX", "XXX")
+                .aisle("XXX", "X#X", "XXX")
+                .aisle("XXX", "XSX", "XXX")
+                .where('S', this.selfPredicate())
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('#', isAirPredicate())
+                .build();
+    }
+
+    private IBlockState getCasingState() {
+        return METAL_CASING_1.getState(MetalCasing1.CasingType.ZIRCONIUM_CARBIDE);
+    }
+
+    @Override
+    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
+        return ZIRCONIUM_CARBIDE_CASING;
+    }
+
+    @Override
+    public int getEUtMultiplier() {
+        return 0;
+    }
+
+    @Override
+    public int getParallel() {
+        return 0; // don't display parallel overclocking per tier on tooltip
+    }
+
+    @Override
+    public boolean renderTJLogoOverlay() {
+        return true;
+    }
+
+    @Nonnull
+    @Override
+    public IEnergyContainer getInputEnergyContainer() {
+        return TJValues.DUMMY_ENERGY;
+    }
+
+    @Override
+    public boolean usesEnergy() {
+        return false;
+    }
+}

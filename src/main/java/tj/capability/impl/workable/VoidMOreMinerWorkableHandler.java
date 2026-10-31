@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import static gregicadditions.GAMaterials.*;
 import static gregicadditions.GAMaterials.UsedDrillingMud;
 import static gregicadditions.recipes.categories.handlers.VoidMinerHandler.ORES_3;
-import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.*;
+import static tj.machines.multiblock.electric.MetaTileEntityVoidMOreMiner.*;
 
 public class VoidMOreMinerWorkableHandler extends AbstractWorkableHandler<IMachineHandler> implements IHeatInfo {
 

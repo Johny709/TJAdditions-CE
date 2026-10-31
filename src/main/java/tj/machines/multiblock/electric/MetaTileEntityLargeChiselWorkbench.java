@@ -1,0 +1,232 @@
+package tj.machines.multiblock.electric;
+
+import codechicken.lib.render.CCRenderState;
+import codechicken.lib.render.pipeline.IVertexOperation;
+import codechicken.lib.vec.Matrix4;
+import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
+import gregicadditions.client.ClientHandler;
+import gregicadditions.item.GAMetaBlocks;
+import gregicadditions.item.components.ConveyorCasing;
+import gregicadditions.item.components.RobotArmCasing;
+import gregicadditions.item.metal.MetalCasing1;
+import gregtech.api.gui.Widget;
+import gregtech.api.metatileentity.MTETrait;
+import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.metatileentity.multiblock.IMultiblockPart;
+import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.multiblock.BlockPattern;
+import gregtech.api.multiblock.FactoryBlockPattern;
+import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.render.ICubeRenderer;
+import gregtech.common.sound.GTSoundEvents;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.TJConfig;
+import tj.TJValues;
+import tj.capability.impl.workable.ChiselWorkbenchWorkableHandler;
+import tj.machines.controllers.ExtendableMultiblockController;
+import tj.machines.controllers.GUIDisplayBuilder;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.TJToggleButtonWidget;
+import tj.textures.TJTextures;
+import tj.util.EnumFacingHelper;
+import tj.util.TJUtility;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
+
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.conveyorPredicate;
+import static gregicadditions.machines.multi.simple.LargeSimpleRecipeMapMultiblockController.robotArmPredicate;
+import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+
+public class MetaTileEntityLargeChiselWorkbench extends ExtendableMultiblockController {
+
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, INPUT_ENERGY, MAINTENANCE_HATCH};
+    private final ChiselWorkbenchWorkableHandler workableHandler = new ChiselWorkbenchWorkableHandler(this);
+    private long maxVoltage;
+    private int parallel;
+
+    public MetaTileEntityLargeChiselWorkbench(ResourceLocation metaTileEntityId) {
+        super(metaTileEntityId);
+    }
+
+    @Override
+    public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
+        return new MetaTileEntityLargeChiselWorkbench(this.metaTileEntityId);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        super.addInformation(stack, player, tooltip, advanced);
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.4", TJConfig.largeChiselWorkbench.stack));
+        tooltip.add(I18n.format("tj.multiblock.large_chisel_workbench.description"));
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        return abilities.containsKey(IMPORT_ITEMS) && abilities.containsKey(EXPORT_ITEMS) && abilities.containsKey(INPUT_ENERGY) && super.checkStructureComponents(parts, abilities);
+    }
+
+    @Override
+    protected boolean shouldUpdate(MTETrait trait) {
+        return false;
+    }
+
+    @Override
+    protected void updateFormedValid() {
+        if (((this.getProblems() >> 5) & 1) != 0)
+            this.workableHandler.update();
+    }
+
+    @Override
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.workableHandler::isDistinct, this.workableHandler::setDistinct)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.distinct.mode.disabled", "machine.universal.toggle.distinct.mode.enabled"));
+    }
+
+    @Override
+    protected void maintenanceDisplayTab(List<Widget> widgetGroup) {
+        super.maintenanceDisplayTab(widgetGroup);
+        widgetGroup.add(new TJToggleButtonWidget(175, 133, 18, 18, TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON, this.workableHandler::isVoiding, this.workableHandler::setVoiding)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
+    }
+
+    @Override
+    protected void addDisplayText(GUIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (this.isStructureFormed())
+            builder.addVoltageInLine(this.inputEnergyContainer)
+                    .addVoltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
+                    .addEnergyInputLine(this.inputEnergyContainer, this.workableHandler.getEnergyPerTick())
+                    .addTranslationLine("tj.multiblock.parallel", TJValues.thousandFormat.format(this.parallel))
+                    .customLine(text -> text.addTextComponent(new TextComponentTranslation("gtadditions.multiblock.universal.distinct")
+                            .appendText(" ")
+                            .appendSibling(this.workableHandler.isDistinct()
+                                    ? withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.yes"), "distinctEnabled")
+                                    : withButton(new TextComponentTranslation("gtadditions.multiblock.universal.distinct.no"), "distinctDisabled"))))
+                    .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.isHasProblems(), this.workableHandler.getHasProblemReason())
+                    .addRecipeInputLine(this.workableHandler)
+                    .addRecipeOutputLine(this.workableHandler);
+    }
+
+    @Override
+    protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
+        this.workableHandler.setDistinct(!componentData.equals("distinctEnabled"));
+    }
+
+    @Override
+    protected BlockPattern createStructurePattern() {
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, UP, BACK);
+        for (int layer = 0; layer < this.parallelLayer; layer++) {
+            factoryPattern.aisle("XXX", "XXX", "C~C", "C~C");
+            factoryPattern.aisle("XXX", "XcX", "###", "CrC");
+        }
+        return factoryPattern.aisle("XXX", "XSX", "C~C", "C~C")
+                .setAmountAtLeast('L', 12)
+                .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
+                .where('C', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)))
+                .where('c', conveyorPredicate())
+                .where('r', robotArmPredicate())
+                .where('#', isAirPredicate())
+                .where('~', tile -> true)
+                .build();
+    }
+
+    private IBlockState getCasingState() {
+        return GAMetaBlocks.METAL_CASING_1.getState(MetalCasing1.CasingType.MARAGING_STEEL_250);
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        final ConveyorCasing.CasingType conveyor = context.getOrDefault("Conveyor", ConveyorCasing.CasingType.CONVEYOR_LV);
+        final RobotArmCasing.CasingType robotArm = context.getOrDefault("RobotArm", RobotArmCasing.CasingType.ROBOT_ARM_LV);
+        int tier = Math.min(conveyor.getTier(), robotArm.getTier());
+        this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
+        if (tier >= GAValues.MAX) {
+            this.maxVoltage = this.inputEnergyContainer.getInputVoltage();
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
+            tier = TJUtility.getTierByVoltage(this.maxVoltage);
+        } else this.maxVoltage = 8L << tier * 2;
+        this.parallel = TJConfig.largeChiselWorkbench.stack * tier;
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.workableHandler.invalidate();
+    }
+
+    @Override
+    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
+        return ClientHandler.MARAGING_STEEL_250_CASING;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
+        super.renderMetaTileEntity(renderState, translation, pipeline);
+        TJTextures.TJ_ASSEMBLER_OVERLAY.render(renderState, translation, pipeline, this.frontFacing, this.workableHandler.isActive(), this.workableHandler.isHasProblems(), this.workableHandler.isWorkingEnabled());
+        TJTextures.CHISEL.renderSided(EnumFacingHelper.getLeftFacingFrom(this.frontFacing), renderState, translation, pipeline);
+        TJTextures.CHISEL.renderSided(EnumFacingHelper.getRightFacingFrom(this.frontFacing), renderState, translation, pipeline);
+    }
+
+    @Override
+    public void setWorkingEnabled(boolean isWorking) {
+        this.workableHandler.setWorkingEnabled(isWorking);
+    }
+
+    @Override
+    public boolean isWorkingEnabled() {
+        return this.workableHandler.isWorkingEnabled();
+    }
+
+    @Override
+    public int getMaxParallel() {
+        return TJConfig.largeChiselWorkbench.maximumSlices;
+    }
+
+    @Override
+    public long getMaxVoltage() {
+        return this.maxVoltage;
+    }
+
+    @Override
+    public int getParallel() {
+        return this.parallel;
+    }
+
+    @Override
+    public String getRecipeUid() {
+        return "chisel.chiseling";
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return GTSoundEvents.CUT;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldPlaySound() {
+        return isValid() && workableHandler.isActive() && isStructureFormed();
+    }
+}

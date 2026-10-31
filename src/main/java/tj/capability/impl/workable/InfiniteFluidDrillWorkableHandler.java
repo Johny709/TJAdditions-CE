@@ -18,7 +18,7 @@ import java.util.List;
 
 import static gregicadditions.GAMaterials.DrillingMud;
 import static gregicadditions.GAMaterials.UsedDrillingMud;
-import static tj.machines.multi.electric.MetaTileEntityVoidMOreMiner.DRILLING_MUD;
+import static tj.machines.multiblock.electric.MetaTileEntityVoidMOreMiner.DRILLING_MUD;
 
 
 public class InfiniteFluidDrillWorkableHandler extends AbstractWorkableHandler<IMachineHandler> {

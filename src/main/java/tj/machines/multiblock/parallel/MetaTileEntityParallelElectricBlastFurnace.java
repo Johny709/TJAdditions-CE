@@ -1,0 +1,244 @@
+package tj.machines.multiblock.parallel;
+
+import gregicadditions.item.GAHeatingCoil;
+import gregtech.api.capability.IEnergyContainer;
+import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.metatileentity.MetaTileEntityHolder;
+import gregtech.api.metatileentity.multiblock.IMultiblockPart;
+import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.multiblock.BlockPattern;
+import gregtech.api.multiblock.FactoryBlockPattern;
+import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.recipeproperties.BlastTemperatureProperty;
+import gregtech.api.render.ICubeRenderer;
+import gregtech.api.render.Textures;
+import gregtech.common.blocks.BlockBoilerCasing;
+import gregtech.common.blocks.BlockMetalCasing;
+import gregtech.common.blocks.BlockWireCoil;
+import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.metatileentities.MetaTileEntities;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.TJConfig;
+import tj.machines.controllers.ParallelRecipeMapMultiblockController;
+import tj.machines.controllers.GUIDisplayBuilder;
+import tj.capability.OverclockManager;
+import tj.util.TJUtility;
+import tj.util.TooltipHelper;
+
+import javax.annotation.Nullable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
+import static gregicadditions.capabilities.GregicAdditionsCapabilities.MUFFLER_HATCH;
+import static gregtech.api.metatileentity.multiblock.MultiblockAbility.*;
+import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
+import static tj.multiblockpart.TJMultiblockAbility.REDSTONE_CONTROLLER;
+
+
+public class MetaTileEntityParallelElectricBlastFurnace extends ParallelRecipeMapMultiblockController {
+
+    private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH, REDSTONE_CONTROLLER};
+    private final Set<BlockPos> activeStates = new HashSet<>();
+    private int blastFurnaceTemperature;
+    private int bonusTemperature;
+
+    public MetaTileEntityParallelElectricBlastFurnace(ResourceLocation metaTileEntityId) {
+        super(metaTileEntityId, MetaTileEntities.ELECTRIC_BLAST_FURNACE.recipeMap);
+        this.recipeLogic.setActiveConsumer((b, i) -> this.replaceCoilsAsActive(this.recipeLogic.isActive()));
+    }
+
+    @Override
+    public MetaTileEntity createMetaTileEntity(MetaTileEntityHolder holder) {
+        return new MetaTileEntityParallelElectricBlastFurnace(this.metaTileEntityId);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        tooltip.add(I18n.format("tj.multiblock.parallel_electric_blast_furnace.description"));
+        tooltip.add(I18n.format("tj.multiblock.parallel.description"));
+        TooltipHelper.shiftTextJEI(tooltip, tip -> {
+            tip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.1"));
+            tip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.2"));
+            tip.add(I18n.format("gtadditions.multiblock.electric_blast_furnace.tooltip.3"));
+            super.addInformation(stack, player, tip, advanced);
+        });
+    }
+
+    @Override
+    public boolean checkRecipe(Recipe recipe) {
+        return this.blastFurnaceTemperature >= recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
+    }
+
+    @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        long recipeEUt = overclockManager.getEUt() * 4;
+        int duration = overclockManager.getDuration();
+        int heat = this.blastFurnaceTemperature - recipe.getRecipePropertyStorage().getRecipePropertyValue(BlastTemperatureProperty.getInstance(), 0);
+        // Apply EUt discount for every 900K above the base recipe temperature
+        recipeEUt /= (long) Math.max(1.00, (1.00 + 0.05 * (heat / 900D)));
+        while (duration > 1 && recipeEUt <= this.maxVoltage) {
+            if (heat < 1800) break;
+            heat -= 1800;
+            duration /= 4;
+            recipeEUt *= 4;
+        }
+        overclockManager.setParallel(this.batchMode.getAmount());
+        overclockManager.setDuration(duration * this.getDurationMultiplier() / 100);
+        overclockManager.setEUtAndDuration(recipeEUt / 4, overclockManager.getDuration() * this.batchMode.getAmount());
+    }
+
+    @Override
+    protected void addDisplayText(GUIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        builder.addTextComponent(new TextComponentTranslation("gregtech.multiblock.blast_furnace.max_temperature", this.blastFurnaceTemperature))
+                .addTextComponent(new TextComponentTranslation("gtadditions.multiblock.blast_furnace.additional_temperature", this.bonusTemperature));
+    }
+
+    @Override
+    protected BlockPattern createStructurePattern() {
+        final FactoryBlockPattern factoryPattern = FactoryBlockPattern.start(RIGHT, FRONT, DOWN);
+        for (int layer = 0; layer < this.parallelLayer; layer++) {
+            if (layer % getExtentStep() == 0) {
+                final String muffler = layer == 0 ? "XXMXX" : "XXPXX";
+                factoryPattern.aisle("XXXXX", "XXXXX", muffler, "XXXXX", "XXXXX");
+                factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
+                factoryPattern.aisle("ccccc", "c#c#c", "ccPcc", "c#c#c", "ccccc");
+            }
+        }
+        return factoryPattern.aisle("XXSXX", "XXXXX", "XXXXX", "XXXXX", "XXXXX")
+                .setAmountAtLeast('L', 12)
+                .where('S', this.selfPredicate())
+                .where('L', statePredicate(this.getCasingState()))
+                .where('X', statePredicate(this.getCasingState()).or(abilityPartPredicate(ALLOWED_ABILITIES)).or(multiiPartPredicate()))
+                .where('c', coilPredicate())
+                .where('P', statePredicate(MetaBlocks.BOILER_CASING.getState(BlockBoilerCasing.BoilerCasingType.TUNGSTENSTEEL_PIPE)))
+                .where('#', isAirPredicate())
+                .where('M', abilityPartPredicate(MUFFLER_HATCH))
+                .build();
+    }
+
+    private IBlockState getCasingState() {
+        return MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.INVAR_HEATPROOF);
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        this.activeStates.addAll(context.getOrDefault("coilPos", new HashSet<>()));
+        this.maxVoltage = this.getAbilities(INPUT_ENERGY).stream()
+                .mapToLong(IEnergyContainer::getInputVoltage)
+                .max()
+                .orElse(0);
+        long amps = this.getAbilities(INPUT_ENERGY).stream()
+                .filter(energy -> energy.getInputVoltage() == this.maxVoltage)
+                .mapToLong(IEnergyContainer::getInputAmperage)
+                .sum() / Math.max(1, this.parallelLayer);
+        amps = Math.min(4096, amps);
+        while (amps >= 4) {
+            amps /= 4;
+            this.maxVoltage *= 4;
+        }
+        if (this.maxVoltage >= Integer.MAX_VALUE)
+            this.maxVoltage += this.maxVoltage / Integer.MAX_VALUE;
+        this.tier = TJUtility.getTierByVoltage(this.maxVoltage);
+        this.bonusTemperature = Math.max(0, 100 * (this.tier - 2));
+        this.blastFurnaceTemperature = context.getOrDefault("coilTemperature", 0);
+        this.blastFurnaceTemperature += this.bonusTemperature;
+    }
+
+    @Override
+    public void invalidateStructure() {
+        super.invalidateStructure();
+        this.activeStates.clear();
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        this.writeActiveBlockPacket(buf, this.recipeLogic.isActive());
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.readActiveBlockPacket(buf);
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 128) {
+            this.readActiveBlockPacket(buf);
+        }
+    }
+
+    private void writeActiveBlockPacket(PacketBuffer buffer, boolean isActive) {
+        buffer.writeBoolean(isActive);
+        buffer.writeInt(this.activeStates.size());
+        for (BlockPos pos : this.activeStates) {
+            buffer.writeBlockPos(pos);
+        }
+    }
+
+    private void readActiveBlockPacket(PacketBuffer buffer) {
+        boolean isActive = buffer.readBoolean();
+        int size = buffer.readInt();
+        for (int i = 0; i < size; i++) {
+            BlockPos pos = buffer.readBlockPos();
+            IBlockState state = this.getWorld().getBlockState(pos);
+            Block block = state.getBlock();
+            if (block instanceof BlockWireCoil) {
+                state = state.withProperty(BlockWireCoil.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            } else if (block instanceof GAHeatingCoil) {
+                state = state.withProperty(GAHeatingCoil.ACTIVE, isActive);
+                this.getWorld().setBlockState(pos, state);
+            }
+        }
+    }
+
+    public void replaceCoilsAsActive(boolean isActive) {
+        this.writeCustomData(128, buffer -> this.writeActiveBlockPacket(buffer, isActive));
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (!this.getWorld().isRemote) {
+            this.replaceCoilsAsActive(false);
+            this.markDirty();
+        }
+    }
+
+    @Override
+    public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
+        return Textures.HEAT_PROOF_CASING;
+    }
+
+    @Override
+    public int getMaxParallel() {
+        return TJConfig.parallelElectricBlastFurnace.maximumParallel;
+    }
+
+
+    @Override
+    protected int getExtentStep() {
+        return 4;
+    }
+
+}

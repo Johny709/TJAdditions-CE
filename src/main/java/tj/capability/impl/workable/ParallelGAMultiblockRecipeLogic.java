@@ -14,7 +14,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJConfig;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
+import tj.machines.controllers.OldParallelRecipeMapMultiblockController;
 
 import java.util.*;
 import java.util.function.IntSupplier;

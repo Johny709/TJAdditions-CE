@@ -13,10 +13,9 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.apache.commons.lang3.ArrayUtils;
-import tj.machines.multi.electric.MetaTileEntityXLHotCoolantTurbine;
+import tj.machines.multiblock.electric.MetaTileEntityXLHotCoolantTurbine;
 import tj.mixin.gregicality.IMixinMetaTileEntityRotorHolderForNuclearCoolant;
 
-import java.util.*;
 import java.util.function.Supplier;
 
 import static gregicadditions.machines.multi.nuclear.MetaTileEntityHotCoolantTurbine.ABILITY_ROTOR_HOLDER;

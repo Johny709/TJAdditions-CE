@@ -10,10 +10,10 @@ import gregtech.common.metatileentities.multi.MetaTileEntityLargeBoiler;
 import gregtech.common.metatileentities.multi.electric.generator.MetaTileEntityLargeTurbine;
 import net.minecraft.util.ResourceLocation;
 import tj.TJ;
-import tj.machines.multi.steam.MetaTileEntitySteamGrinder;
-import tj.machines.multi.electric.*;
-import tj.machines.multi.parallel.*;
-import tj.machines.multi.steam.*;
+import tj.machines.multiblock.steam.MetaTileEntitySteamGrinder;
+import tj.machines.multiblock.electric.*;
+import tj.machines.multiblock.parallel.*;
+import tj.machines.multiblock.steam.*;
 import tj.machines.singleblock.*;
 import tj.multiblockpart.ender.MetaTileEntityEnderEnergyHatch;
 import tj.multiblockpart.rotorholder.MetaTileEntityRotorHolderForNuclearCoolantUHVPlus;
@@ -23,8 +23,8 @@ import tj.multiblockpart.utility.*;
 import java.util.Arrays;
 
 import static gregicadditions.machines.GATileEntities.*;
-import static tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.INPUT;
-import static tj.machines.multi.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.OUTPUT;
+import static tj.machines.multiblock.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.INPUT;
+import static tj.machines.multiblock.electric.MetaTileEntityLargeWirelessEnergyEmitter.TransferType.OUTPUT;
 import static tj.machines.singleblock.BoilerType.*;
 
 public class TJMetaTileEntities {

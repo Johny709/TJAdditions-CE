@@ -37,7 +37,7 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import tj.capability.impl.workable.CrafterRecipeLogic;
 import tj.capability.impl.handler.IRecipeMapProvider;
-import tj.builder.RecipeUtility;
+import tj.recipes.RecipeUtility;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.*;

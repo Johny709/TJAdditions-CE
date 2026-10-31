@@ -14,7 +14,6 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
-import tj.builder.multicontrollers.TJMultiblockControllerBase;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.IMachineHandler;
 

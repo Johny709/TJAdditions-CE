@@ -10,7 +10,6 @@ import gregtech.common.blocks.BlockWireCoil;
 import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockInfoPage;
-import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.ITextComponent;
@@ -18,11 +17,8 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import tj.TJValues;
-import tj.builder.multicontrollers.ParallelRecipeMapMultiblockController;
-import tj.builder.multicontrollers.TJRecipeMapMultiblockController;
-
-import java.util.Collections;
-import java.util.List;
+import tj.machines.controllers.ParallelRecipeMapMultiblockController;
+import tj.machines.controllers.TJRecipeMapMultiblockController;
 
 
 public abstract class TJMultiblockInfoPage extends MultiblockInfoPage {

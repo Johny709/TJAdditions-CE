@@ -11,7 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
+import tj.machines.controllers.OldParallelRecipeMapMultiblockController;
 
 import java.util.Arrays;
 import java.util.HashSet;

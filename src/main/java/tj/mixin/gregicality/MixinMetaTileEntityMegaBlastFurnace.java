@@ -4,7 +4,7 @@ import gregicadditions.machines.multi.mega.MetaTileEntityMegaBlastFurnace;
 import net.minecraft.util.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.machines.controllers.GUIDisplayBuilder;
 
 @Mixin(value = MetaTileEntityMegaBlastFurnace.class, remap = false)
 public abstract class MixinMetaTileEntityMegaBlastFurnace extends MixinMegaMultiblockRecipeMapController {

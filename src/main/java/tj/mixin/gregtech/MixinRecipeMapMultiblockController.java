@@ -16,7 +16,7 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.machines.controllers.GUIDisplayBuilder;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
 
 import java.util.List;

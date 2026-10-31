@@ -1,0 +1,626 @@
+package tj.machines.controllers;
+
+import codechicken.lib.raytracer.CuboidRayTraceResult;
+import codechicken.lib.render.CCRenderState;
+import codechicken.lib.render.pipeline.IVertexOperation;
+import codechicken.lib.vec.Matrix4;
+import gregicadditions.GAUtility;
+import gregicadditions.GAValues;
+import gregicadditions.Gregicality;
+import gregicadditions.capabilities.IMultiRecipe;
+import gregtech.api.gui.Widget;
+import gregtech.api.metatileentity.MTETrait;
+import gregtech.api.metatileentity.multiblock.IMultiblockPart;
+import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.multiblock.PatternMatchContext;
+import gregtech.api.recipes.CountableIngredient;
+import gregtech.api.recipes.Recipe;
+import gregtech.api.recipes.RecipeMap;
+import gregtech.common.blocks.MetaBlocks;
+import gregtech.common.items.MetaItems;
+import gregtech.common.sound.GTSoundEvents;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.*;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.*;
+import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.commons.lang3.ArrayUtils;
+import org.lwjgl.input.Keyboard;
+import tj.TJValues;
+import tj.mui.widgets.WidgetTabBuilder;
+import tj.capability.*;
+import tj.capability.impl.handler.IRecipeHandler;
+import tj.capability.impl.workable.ParallelRecipeLogic;
+import tj.mui.TJGuiTextures;
+import tj.mui.widgets.impl.*;
+import tj.machines.multiblock.BatchMode;
+import tj.multiblockpart.TJMultiblockAbility;
+import tj.multiblockpart.utility.MetaTileEntityMachineController;
+import tj.util.TJUtility;
+import tj.util.TextUtils;
+
+import javax.annotation.Nullable;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.LongStream;
+
+import static gregicadditions.capabilities.MultiblockDataCodes.RECIPE_MAP_INDEX;
+import static gregtech.api.gui.widgets.AdvancedTextWidget.withButton;
+import static gregtech.common.blocks.BlockTurbineCasing.TurbineCasingType.STEEL_GEARBOX;
+import static tj.capability.TJMultiblockDataCodes.PARALLEL_LAYER;
+import static tj.mui.TJGuiTextures.*;
+import static tj.mui.TJGuiTextures.TOGGLE_FLUID_VOID_BUTTON;
+
+public abstract class ParallelRecipeMapMultiblockController extends TJMultiblockControllerBase implements IParallelController, IMultiRecipe, IRecipeHandler, IJEIExtentSync {
+
+    private final RecipeMap<?>[] recipeMaps;
+    protected final ParallelRecipeLogic<? extends IRecipeHandler> recipeLogic = this.createRecipeLogic();
+    protected BatchMode batchMode = BatchMode.ONE;
+    protected int recipeMapIndex;
+    protected int parallelLayer = 1;
+    protected int energyBonus = -1;
+    protected int tier;
+    protected long maxVoltage;
+
+    public ParallelRecipeMapMultiblockController(ResourceLocation metaTileEntityId, RecipeMap<?>... recipeMaps) {
+        this(metaTileEntityId,1, 1, 0, 14, recipeMaps);
+    }
+
+    public ParallelRecipeMapMultiblockController(ResourceLocation metaTileEntityId, int minExtent, int maxExtent, int minTier, int maxTier, RecipeMap<?>... recipeMaps) {
+        super(metaTileEntityId, minExtent, maxExtent, minTier, maxTier);
+        this.recipeMaps = recipeMaps;
+        this.recipeLogic.setActiveConsumer((active, i) -> this.activeDate = active ? Instant.now() : null);
+        this.recipeLogic.setProblemConsumer((problem, i)-> this.activeDate = null);
+        this.recipeLogic.setWorkingConsumer((working, i) -> {
+            if (this.recipeLogic.isActive())
+                this.activeDate = working ? Instant.now() : null;
+        });
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
+        final StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < this.getRecipeMaps().length; i++) {
+            builder.append(this.getRecipeMaps()[i].getLocalizedName());
+            if (i < this.getRecipeMaps().length - 1)
+                builder.append(", ");
+        }
+        tooltip.add(I18n.format("tj.multiblock.parallel.extend.tooltip"));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.1", builder.toString()));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.2", TJValues.thousandTwoPlaceFormat.format(this.getEUtMultiplier() / 100.0)));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.3", TJValues.thousandTwoPlaceFormat.format(this.getDurationMultiplier() / 100.0)));
+        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.1", TJValues.thousandFormat.format(this.getParallel())));
+        tooltip.add(I18n.format("tj.multiblock.parallel.tooltip.2", TJValues.thousandFormat.format(this.getMaxParallel())));
+        tooltip.add(I18n.format("gtadditions.multiblock.universal.tooltip.5", this.getChanceMultiplier()));
+    }
+
+    protected ParallelRecipeLogic<? extends IRecipeHandler> createRecipeLogic() {
+        return new ParallelRecipeLogic<>(this);
+    }
+
+    protected int getExtentStep() {
+        return 1;
+    }
+
+    @Override
+    protected boolean checkStructureComponents(List<IMultiblockPart> parts, Map<MultiblockAbility<Object>, List<Object>> abilities) {
+        return !abilities.getOrDefault(MultiblockAbility.INPUT_ENERGY, Collections.emptyList()).isEmpty() &&
+                abilities.getOrDefault(MultiblockAbility.IMPORT_ITEMS, Collections.emptyList()).size() >= Math.min(1, this.getRecipeMap().getMinInputs()) &&
+                abilities.getOrDefault(MultiblockAbility.EXPORT_ITEMS, Collections.emptyList()).size() >= Math.min(1, this.getRecipeMap().getMinOutputs()) &&
+                abilities.getOrDefault(MultiblockAbility.IMPORT_FLUIDS, Collections.emptyList()).size() >= Math.min(1, this.getRecipeMap().getMinFluidInputs()) &&
+                abilities.getOrDefault(MultiblockAbility.EXPORT_FLUIDS, Collections.emptyList()).size() >= Math.min(1, this.getRecipeMap().getMinFluidOutputs()) &&
+                super.checkStructureComponents(parts, abilities);
+    }
+
+    @Override
+    public void preOverclock(OverclockManager<?> overclockManager, Recipe recipe) {
+        overclockManager.setEUt(overclockManager.getEUt() * this.getEUtMultiplier() / 100);
+        overclockManager.setDuration(overclockManager.getDuration() * this.getDurationMultiplier() / 100);
+        overclockManager.setDuration(overclockManager.getDuration() * this.batchMode.getAmount());
+        overclockManager.setParallel(this.getParallel() * this.getTierDifference(overclockManager.getEUt()) * this.batchMode.getAmount());
+    }
+
+    @Override
+    protected boolean shouldUpdate(MTETrait trait) {
+        return false;
+    }
+
+    @Override
+    protected void updateFormedValid() {
+        if (this.isWorkingEnabled && ((this.getProblems() >> 5) & 1) != 0)
+            this.recipeLogic.update();
+    }
+
+    @Override
+    protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
+        super.addTabs(tabBuilder, player);
+        tabBuilder.addWidget(new JEIRecipeTransferWidget(0, 0, 100, 100)
+                .setRecipeConsumer(this::setRecipe));
+        tabBuilder.addTab("tj.multiblock.tab.workable", MetaBlocks.TURBINE_CASING.getItemVariant(STEEL_GEARBOX), workableTab -> {
+            workableTab.add(new TJCycleButtonWidget<>(175, 133, 18, 18, BatchMode.class, () -> this.batchMode, this::setBatchMode)
+                    .setCycleTextures(BUTTON_BATCH_ONE, BUTTON_BATCH_FOUR, BUTTON_BATCH_SIXTEEN, BUTTON_BATCH_SIXTY_FOUR, BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX)
+                    .setTooltipFormat(() -> ArrayUtils.toArray(String.valueOf(this.batchMode.getAmount())))
+                    .setHoverTooltipText("machine.universal.batch.amount")
+                    .setBackgroundTextures(EMPTY_BUTTON));
+            workableTab.add(new TJToggleButtonWidget(175, 151, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
+            workableTab.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.fluid_voiding.disabled", "machine.universal.toggle.fluid_voiding.enabled"));
+            workableTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                    .addSubWidget(new AdvancedDisplayWidget(0, 2, this::addWorkableDisplayText, 0xFFFFFF)
+                            .setClickHandler(this::handleWorkableDisplayClick)
+                            .setMaxWidthLimit(180))
+                    .setResetScrollOnSizeChange(true));
+        });
+        tabBuilder.addTab("tj.multiblock.tab.debug", MetaItems.WRENCH.getStackForm(), debugTab -> {
+            debugTab.add(new TJToggleButtonWidget(175, 133, 18, 18, TOGGLE_RESET_BUTTON, () -> false, b -> this.recipeLogic.getRecipeLRUCache().clear())
+                    .setTitleHoverTooltipText("tj.multiblock.parallel.recipe.clear.disabled"));
+            debugTab.add(new TJToggleButtonWidget(175, 151, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.recipeLogic::isVoidingItems, this.recipeLogic::setVoidingItems)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
+            debugTab.add(new TJToggleButtonWidget(175, 169, 18, 18, TOGGLE_FLUID_VOID_BUTTON, this.recipeLogic::isVoidingFluids, this.recipeLogic::setVoidingFluids)
+                    .setToggleTitleTooltipHoverText("machine.universal.toggle.fluid_voiding.disabled", "machine.universal.toggle.fluid_voiding.enabled"));
+            debugTab.add(new ScrollingWidgetGroup<>(10, -11, 185, 140)
+                    .addSubWidget(new AdvancedDisplayWidget(0, 2, this::addDebugDisplayText, 0xFFFFFF)
+                            .setMaxWidthLimit(180))
+                    .setResetScrollOnSizeChange(true));
+        });
+    }
+
+    @Override
+    protected void mainDisplayTab(List<Widget> widgetGroup) {
+        super.mainDisplayTab(widgetGroup);
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.recipeLogic::isDistinct, this.recipeLogic::setDistinct)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.distinct.mode.disabled", "machine.universal.toggle.distinct.mode.enabled"));
+    }
+
+    @Override
+    protected void addDisplayText(GUIDisplayBuilder builder) {
+        super.addDisplayText(builder);
+        if (!this.isStructureFormed()) return;
+        builder.addVoltageInLine(this.inputEnergyContainer)
+                .addVoltageTierLine(GAUtility.getTierByVoltage(this.maxVoltage))
+                .addEnergyInputLine(this.inputEnergyContainer, this.getTotalEnergyConsumption())
+                .addEnergyBonusLine(this.energyBonus, this.isStructureFormed() && this.energyBonus >= 0)
+                .addRecipeMapLine(this.getMultiblockRecipe())
+                .addRecipeParallelInputLine(this.recipeLogic, 999)
+                .addRecipeParallelOutputLine(this.recipeLogic, 1000);
+    }
+
+    @Override
+    protected void handleDisplayClick(String componentData, Widget.ClickData clickData) {
+        if (this.recipeLogic.isActive() || !componentData.equals(this.getMultiblockRecipe().getUnlocalizedName())) return;
+        this.recipeLogic.getRecipeLRUCache().clear();
+        this.recipeLogic.invalidate();
+        this.recipeMapIndex = this.recipeMapIndex >= this.recipeMaps.length - 1 ? 0 : this.recipeMapIndex + 1;
+        if (!this.getWorld().isRemote) {
+            this.writeCustomData(RECIPE_MAP_INDEX, buf -> buf.writeInt(this.recipeMapIndex));
+            this.markDirty();
+        }
+    }
+
+    private void addWorkableDisplayText(GUIDisplayBuilder builder) {
+        builder.addTranslationLine("tj.multiblock.slices", TJValues.thousandFormat.format(this.parallelLayer))
+                .addTextComponent(new TextComponentTranslation("tj.multiblock.parallel.distinct").appendText(" ")
+                        .appendSibling(this.recipeLogic.isDistinctRecipes() ? withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.enabled"), "isDistinct")
+                                : withButton(new TextComponentTranslation("machine.universal.toggle.run.mode.disabled"), "notDistinct")));
+        if (!this.isStructureFormed()) return;
+        for (int i = 0; i < this.recipeLogic.getSize(); i++) {
+            final int progressOffset = this.recipeLogic.isInstanceActive(i) ? 1 : 0;
+            final int tier = TJUtility.getTierFromVoltage(this.recipeLogic.getRecipeEUt(i));
+            final double progressPercent = this.recipeLogic.getProgressPercent(i) * (100 - progressOffset);
+            final String isRunning = !this.recipeLogic.isWorkingEnabled(i) ? TextUtils.translate("machine.universal.work_paused")
+                    : this.recipeLogic.hasProblems(i) ? TextUtils.translate("machine.universal.has_problems")
+                    : !this.recipeLogic.isInstanceActive(i) ? TextUtils.translate("machine.universal.idling")
+                    : TextUtils.translate("machine.universal.running");
+            final int finalI = i;
+            builder.addTextComponentWithHover(new TextComponentString(": [§a" + (i + 1) + "§r] " + isRunning)
+                    .appendText(" ")
+                    .appendSibling(this.recipeLogic.isRecipeLocked(i) ? withButton(new TextComponentTranslation("tj.multiblock.parallel.lock"), "lock:" + i)
+                            : withButton(new TextComponentTranslation("tj.multiblock.parallel.unlock"), "unlock:" + finalI))
+                    .appendText(" ")
+                    .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:" + finalI)), hoverBuilder -> {
+                hoverBuilder.addTranslationLine("tj.multiblock.parallel.status", isRunning)
+                        .addTranslationLine("tj.multiblock.handler", TJValues.thousandFormat.format(finalI + 1))
+                        .addTranslationLine("tj.multiblock.eu", TJValues.thousandFormat.format(this.recipeLogic.getRecipeEUt(finalI)), tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier])
+                        .addTranslationLine("tj.multiblock.progress", TJValues.thousandTwoPlaceFormat.format((double) (this.recipeLogic.getProgress(finalI) - progressOffset) / 20), TJValues.thousandTwoPlaceFormat.format((double) this.recipeLogic.getMaxProgress(finalI) / 20), (int) progressPercent)
+                        .addTranslationLine("tj.multiblock.max_parallel", TJValues.thousandFormat.format(this.recipeLogic.getParallelsPerformed(finalI)), TJValues.thousandFormat.format(this.recipeLogic.getParallel(finalI)));
+                final List<ItemStack> itemInputs = this.recipeLogic.getAllItemInputs().get(finalI);
+                final List<FluidStack> fluidInputs = this.recipeLogic.getAllFluidInputs().get(finalI);
+                if (itemInputs != null && !itemInputs.isEmpty() || fluidInputs != null && !fluidInputs.isEmpty())
+                    hoverBuilder.addTranslationLine("machine.universal.consumption");
+                if (itemInputs != null) {
+                    for (ItemStack stack : itemInputs) {
+                        hoverBuilder.addItemStack(stack);
+                    }
+                }
+                if (fluidInputs != null) {
+                    for (FluidStack stack : fluidInputs) {
+                        hoverBuilder.addFluidStack(stack);
+                    }
+                }
+                final List<ItemStack> itemOutputs = this.recipeLogic.getAllItemOutputs().get(finalI);
+                final List<FluidStack> fluidOutputs = this.recipeLogic.getAllFluidOutputs().get(finalI);
+                if (itemOutputs != null && !itemOutputs.isEmpty() || fluidOutputs != null && !fluidOutputs.isEmpty())
+                    hoverBuilder.addTranslationLine("machine.universal.producing");
+                if (itemOutputs != null) {
+                    for (ItemStack stack : itemOutputs) {
+                        hoverBuilder.addItemStack(stack);
+                    }
+                }
+                if (fluidOutputs != null) {
+                    for (FluidStack stack : fluidOutputs) {
+                        hoverBuilder.addFluidStack(stack);
+                    }
+                }
+            });
+        }
+    }
+
+    private void addDebugDisplayText(GUIDisplayBuilder builder) {
+        builder.addTranslationLine("tj.multiblock.parallel.debug.cache.capacity", TJValues.thousandFormat.format(this.recipeLogic.getRecipeLRUCache().getCapacity()))
+                .addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.hit.info")))),
+                        "tj.multiblock.parallel.debug.cache.hit", TJValues.thousandFormat.format(this.recipeLogic.getRecipeLRUCache().getCacheHit()))
+                .addTranslationLine(text -> text.setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.parallel.debug.cache.miss.info")))),
+                        "tj.multiblock.parallel.debug.cache.miss", TJValues.thousandFormat.format(this.recipeLogic.getRecipeLRUCache().getCacheMiss()))
+                .addEmptyLine();
+        int i = 1;
+        for (Recipe recipe : this.recipeLogic.getRecipeLRUCache()) {
+            builder.addTranslationLine("tj.multiblock.recipe_cache.slot", i++)
+                    .addTranslationLine("tj.multiblock.recipe_cache.inputs");
+            for (CountableIngredient ingredient : recipe.getInputs())
+                builder.addIngredient(ingredient);
+            for (FluidStack stack : recipe.getFluidInputs())
+                builder.addFluidStack(stack);
+            if (!recipe.getOutputs().isEmpty() || !recipe.getFluidOutputs().isEmpty())
+                builder.addTranslationLine("tj.multiblock.recipe_cache.outputs");
+            for (ItemStack stack : recipe.getOutputs())
+                builder.addItemStack(stack);
+            for (FluidStack stack : recipe.getFluidOutputs())
+                builder.addFluidStack(stack);
+            if (!recipe.getChancedOutputs().isEmpty())
+                builder.addTranslationLine("tj.multiblock.recipe_cache.chanced_outputs");
+            for (Recipe.ChanceEntry entry : recipe.getChancedOutputs())
+                builder.addItemStack(entry.getItemStack());
+        }
+    }
+
+    private void handleWorkableDisplayClick(String componentData, Widget.ClickData clickData) {
+        switch (componentData) {
+            case "isDistinct":
+                this.recipeLogic.setDistinctRecipes(false);
+                return;
+            case "notDistinct":
+                this.recipeLogic.setDistinctRecipes(true);
+                return;
+            default:
+                if (componentData.startsWith("lock")) {
+                    final String[] lock = componentData.split(":");
+                    final int index = Integer.parseInt(lock[1]);
+                    this.recipeLogic.setRecipeLock(false, index);
+
+                } else if (componentData.startsWith("unlock")) {
+                    final String[] unlock = componentData.split(":");
+                    final int index = Integer.parseInt(unlock[1]);
+                    this.recipeLogic.setRecipeLock(true, index);
+
+                } else if (componentData.startsWith("remove")) {
+                    final String[] remove = componentData.split(":");
+                    final int index = Integer.parseInt(remove[1]);
+                    this.recipeLogic.setRecipe(null, index);
+                }
+        }
+    }
+
+    @Override
+    protected void formStructure(PatternMatchContext context) {
+        super.formStructure(context);
+        final int size = this.recipeLogic.getSize();
+        this.recipeLogic.initialize(this.getAbilities(MultiblockAbility.IMPORT_ITEMS).size());
+        for (int i = 0; i < this.getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).size(); i++) {
+            final MetaTileEntityMachineController controller = this.getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER).get(i);
+            if (controller.isAutomatic() || controller.getId() >= size)
+                controller.setID(Math.min(i, size - 1)).setController(this);
+        }
+    }
+
+    @Override
+    public void invalidateStructure() {
+        for (MetaTileEntityMachineController controller : this.getAbilities(TJMultiblockAbility.REDSTONE_CONTROLLER))
+            controller.setID(0).setController(null);
+        super.invalidateStructure();
+        this.recipeLogic.invalidate();
+        this.maxVoltage = 0;
+        this.tier = 0;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
+        super.renderMetaTileEntity(renderState, translation, pipeline);
+        this.getFrontOverlay().render(renderState, translation, pipeline, this.getFrontFacing(), this.recipeLogic.isActive());
+    }
+
+    @Override
+    public boolean onRightClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
+        return !MetaItems.SCREWDRIVER.isItemEqual(playerIn.getHeldItem(hand)) && super.onRightClick(playerIn, hand, facing, hitResult);
+    }
+
+    @Override
+    public boolean onScrewdriverClick(EntityPlayer playerIn, EnumHand hand, EnumFacing facing, CuboidRayTraceResult hitResult) {
+        if (!this.getWorld().isRemote) {
+
+            int multiplier = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL) ? 10 : 1;
+
+            final int lastParallelLayer = this.parallelLayer;
+            this.parallelLayer = MathHelper.clamp(playerIn.isSneaking() ? this.parallelLayer - multiplier : this.parallelLayer + multiplier, 1, this.getMaxParallel());
+            if (this.parallelLayer != lastParallelLayer) {
+                playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.success" : "tj.multiblock.parallel.layer.increment.success", this.parallelLayer));
+                this.recipeLogic.setLayer(this.parallelLayer, playerIn.isSneaking());
+            } else playerIn.sendMessage(TextUtils.addTranslationText(playerIn.isSneaking() ? "tj.multiblock.parallel.layer.decrement.fail" : "tj.multiblock.parallel.layer.increment.fail", this.parallelLayer));
+            this.resetStructure();
+            this.writeCustomData(PARALLEL_LAYER, buf -> buf.writeInt(this.parallelLayer));
+            this.markDirty();
+            getWorld().playSound(null, playerIn.getPosition(),GTSoundEvents.SCREWDRIVER, SoundCategory.PLAYERS,1F,1F);
+        }
+        return true;
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == PARALLEL_LAYER) {
+            this.parallelLayer = buf.readInt();
+            this.resetStructure();
+            this.scheduleRenderUpdate();
+        } else if (dataId == RECIPE_MAP_INDEX) {
+            this.recipeMapIndex = buf.readInt();
+            this.scheduleRenderUpdate();
+        }
+    }
+
+    @Override
+    public void writeInitialSyncData(PacketBuffer buf) {
+        super.writeInitialSyncData(buf);
+        buf.writeInt(this.parallelLayer);
+        buf.writeInt(this.recipeMapIndex);
+    }
+
+    @Override
+    public void receiveInitialSyncData(PacketBuffer buf) {
+        super.receiveInitialSyncData(buf);
+        this.parallelLayer = buf.readInt();
+        this.recipeMapIndex = buf.readInt();
+        this.resetStructure();
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setInteger("parallelLayer", this.parallelLayer);
+        data.setInteger("recipeMapIndex", this.recipeMapIndex);
+        data.setInteger("batchMode", this.batchMode.ordinal());
+        return data;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.parallelLayer = data.getInteger("parallelLayer");
+        this.recipeMapIndex = data.getInteger("recipeMapIndex");
+        this.batchMode = BatchMode.values()[data.getInteger("batchMode")];
+        this.resetStructure();
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing side) {
+        if (capability == TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER)
+            return TJCapabilities.CAPABILITY_PARALLEL_CONTROLLER.cast(this);
+        return super.getCapability(capability, side);
+    }
+
+    private void setRecipe(List<ItemStack> itemInputs, List<ItemStack> itemOutputs, List<FluidStack> fluidInputs, List<FluidStack> fluidOutput, EntityPlayer player) {
+        for (int i = 0; i < this.recipeLogic.getSize(); i++) {
+            if (this.recipeLogic.getRecipe(i) == null) {
+                final Recipe newRecipe = ((IRecipeMap) this.recipeMaps[this.getRecipeMapIndex()]).findByInputsAndOutputs(this.maxVoltage, itemInputs, itemOutputs, fluidInputs, fluidOutput);
+                this.recipeLogic.setRecipe(newRecipe, i);
+                player.sendMessage(newRecipe != null ? this.displayRecipe(TextUtils.addTranslationText("tj.multiblock.recipe.transfer.success", i + 1), newRecipe)
+                        : TextUtils.addTranslationText("tj.multiblock.recipe.transfer.fail_2", i + 1));
+                return;
+            }
+        }
+        player.sendMessage(TextUtils.addTranslationText("tj.multiblock.recipe.transfer.fail"));
+    }
+
+    private ITextComponent displayRecipe(ITextComponent textComponent, Recipe recipe) {
+        return textComponent.appendText("\n")
+                .appendSibling(this.displayItemInputs(recipe))
+                .appendText("\n")
+                .appendSibling(this.displayFluids(recipe.getFluidInputs(), "tj.multiblock.parallel.advanced.fluidInput"))
+                .appendText("\n")
+                .appendSibling(this.displayItemOutputs(recipe))
+                .appendText("\n")
+                .appendSibling(this.displayFluids(recipe.getFluidOutputs(), "tj.multiblock.parallel.advanced.fluidOutput"));
+    }
+
+    private ITextComponent displayItemInputs(Recipe recipe) {
+        final ITextComponent itemInputs = TextUtils.addTranslationText("tj.multiblock.parallel.advanced.itemInputs");
+        for (CountableIngredient item : recipe.getInputs()) {
+            itemInputs.appendText("\n-");
+            itemInputs.appendSibling(new TextComponentString("§6" + item.getIngredient().getMatchingStacks()[0].getDisplayName()));
+            itemInputs.appendText(" §7{");
+            itemInputs.appendText("§6" + String.format("%,d", item.getCount()) + "§7}");
+        }
+        return itemInputs;
+    }
+
+    private ITextComponent displayItemOutputs(Recipe recipe) {
+        final ITextComponent itemOutputs = TextUtils.addTranslationText("tj.multiblock.parallel.advanced.itemOutputs");
+        for (ItemStack item : recipe.getOutputs()) {
+            itemOutputs.appendText("\n-");
+            itemOutputs.appendSibling(new TextComponentString("§6" + item.getDisplayName()));
+            itemOutputs.appendText(" §7{");
+            itemOutputs.appendText("§6" + String.format("%,d", item.getCount()) + "§7}");
+        }
+        for (Recipe.ChanceEntry entry : recipe.getChancedOutputs()) {
+            itemOutputs.appendText("\n-");
+            itemOutputs.appendSibling(new TextComponentString("§6" + entry.getItemStack().getDisplayName()));
+            itemOutputs.appendText(" §7{");
+            itemOutputs.appendText("§6" + String.format("%,d", entry.getItemStack().getCount()) + "§7}");
+            itemOutputs.appendText(" §7{");
+            itemOutputs.appendText("§6" + TextUtils.addTranslationText("gregtech.recipe.chance", entry.getChance() / 100, entry.getBoostPerTier() / 100) + "§7}");
+        }
+        return itemOutputs;
+    }
+
+    private ITextComponent displayFluids(List<FluidStack> fluidStacks, String fluidTextLocale) {
+        final ITextComponent fluidInputs = TextUtils.addTranslationText(fluidTextLocale);
+        for (FluidStack fluid : fluidStacks) {
+            fluidInputs.appendText("\n-");
+            fluidInputs.appendSibling(new TextComponentString("§b" + fluid.getLocalizedName()));
+            fluidInputs.appendText(" §7{");
+            fluidInputs.appendText("§b" + String.format("%,d", fluid.amount) + "L§7}");
+        }
+        return fluidInputs;
+    }
+
+    @Override
+    public boolean isActive() {
+        return super.isActive() && this.recipeLogic.isActive();
+    }
+
+    @Override
+    public String getRecipeUid() {
+        return Gregicality.MODID + ":" + this.getRecipeMap().getUnlocalizedName();
+    }
+
+    @Override
+    public RecipeMap<?> getRecipeMap() {
+        return this.recipeMaps[this.getRecipeMapIndex()];
+    }
+
+    @Override
+    public RecipeMap<?> getMultiblockRecipe() {
+        return this.getRecipeMap();
+    }
+
+    @Override
+    public int getRecipeMapIndex() {
+        return this.recipeMapIndex;
+    }
+
+    @Override
+    public RecipeMap<?>[] getRecipeMaps() {
+        return this.recipeMaps;
+    }
+
+    @Override
+    public void addRecipeMaps(RecipeMap<?>[] recipeMaps) {
+        // don't plan on adding more recipeMaps once initialized
+    }
+
+    @Override
+    public long getMaxVoltage() {
+        return this.maxVoltage;
+    }
+
+    @Override
+    public int getTier() {
+        return this.tier;
+    }
+
+    public void setBatchMode(BatchMode batchMode) {
+        this.batchMode = batchMode;
+        this.markDirty();
+    }
+
+    @Override
+    public BatchMode getBatchMode() {
+        return this.batchMode;
+    }
+
+    public int getTierDifference(long recipeEUt) {
+        return this.getTier() - TJUtility.getTierFromVoltage(recipeEUt) + 1;
+    }
+
+    @Override
+    public long getMaxEUt() {
+        return this.inputEnergyContainer.getInputVoltage();
+    }
+
+    @Override
+    public long getTotalEnergyConsumption() {
+        return LongStream.range(0, this.recipeLogic.getSize())
+                .map(i -> this.recipeLogic.getRecipeEUt((int) i))
+                .sum();
+    }
+
+    @Override
+    public long getVoltageTier() {
+        return this.maxVoltage;
+    }
+
+    @Override
+    public int getEUBonus() {
+        return this.energyBonus;
+    }
+
+    public int getEUtMultiplier() {
+        return 100;
+    }
+
+    public int getDurationMultiplier() {
+        return 100;
+    }
+
+    public int getMaxParallel() {
+        return 1;
+    }
+
+    @Override
+    protected void reinitializeStructurePattern() {
+        this.parallelLayer = 1;
+        super.reinitializeStructurePattern();
+    }
+
+    private void resetStructure() {
+        if (this.isStructureFormed())
+            this.invalidateStructure();
+        this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    public int getMaxExtent() {
+        return (this.getMaxParallel() + getExtentStep() - 1) / getExtentStep();
+
+    }
+
+    @Override
+    public void setJEIPreviewLayer(int extent) {
+        //int rawLayer = Math.min(extent * getExtentStep(), this.getMaxParallel());
+        int rawLayer = Math.min(1 + (extent - 1) * getExtentStep(), getMaxParallel());
+        this.parallelLayer = MathHelper.clamp(rawLayer, 1, this.getMaxParallel());
+        this.structurePattern = this.createStructurePattern();
+    }
+
+    @Override
+    public int getJEIPreviewLayer() {
+        return (this.parallelLayer + getExtentStep() - 1) / getExtentStep();
+    }
+
+    @SideOnly(Side.CLIENT)
+    public SoundEvent getSound() {
+        return this.getRecipeMap().getSound();
+    }
+}

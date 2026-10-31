@@ -16,12 +16,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tj.TJConfig;
-import tj.builder.multicontrollers.MultiblockDisplaysUtility;
-import tj.builder.multicontrollers.GUIDisplayBuilder;
+import tj.machines.controllers.MultiblockDisplaysUtility;
+import tj.machines.controllers.GUIDisplayBuilder;
 import tj.capability.IProgressBar;
 import tj.capability.ProgressBar;
 import tj.capability.impl.workable.TJBoostableFuelRecipeLogic;
-import tj.builder.multicontrollers.MultiblockDisplayBuilder;
+import tj.machines.controllers.MultiblockDisplayBuilder;
 import tj.util.TJFluidUtils;
 
 import javax.annotation.Nonnull;

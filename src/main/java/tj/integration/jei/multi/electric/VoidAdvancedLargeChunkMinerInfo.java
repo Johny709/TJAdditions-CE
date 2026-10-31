@@ -8,20 +8,16 @@ import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.channels.ChannelRegistry;
 import gregtech.common.metatileentities.MetaTileEntities;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
-import gregtech.integration.jei.multiblock.channel.PlaceholderType;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
-import tj.TJConfig;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
 import tj.integration.jei.TJMultiblockInfoPage;
 import tj.integration.jei.TJMultiblockShapeInfo;
 import tj.machines.TJMetaTileEntities;
-import tj.machines.multi.electric.MetaTileEntityVoidLargeAdvancedChunkMiner;
+import tj.machines.multiblock.electric.MetaTileEntityVoidLargeAdvancedChunkMiner;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 import static gregtech.api.unification.material.type.Material.MATERIAL_REGISTRY;

@@ -12,7 +12,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.commons.lang3.ArrayUtils;
-import tj.machines.multi.electric.MetaTileEntityLargeAtmosphereCollector;
+import tj.machines.multiblock.electric.MetaTileEntityLargeAtmosphereCollector;
 
 import java.util.function.Supplier;
 

@@ -7,7 +7,7 @@ import tj.TJValues;
 import tj.capability.LinkEvent;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.TJLabelWidget;
-import tj.machines.multi.electric.MetaTileEntityLargeWorldAccelerator;
+import tj.machines.multiblock.electric.MetaTileEntityLargeWorldAccelerator;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.textures.TJTextures;
 import gregicadditions.GAUtility;

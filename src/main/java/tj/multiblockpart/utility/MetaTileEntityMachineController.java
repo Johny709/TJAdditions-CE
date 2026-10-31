@@ -4,7 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
 import tj.TJValues;
-import tj.builder.multicontrollers.OldParallelRecipeMapMultiblockController;
+import tj.machines.controllers.OldParallelRecipeMapMultiblockController;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.multiblockpart.TJMultiblockAbility;

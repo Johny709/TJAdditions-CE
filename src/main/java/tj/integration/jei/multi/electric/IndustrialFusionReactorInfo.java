@@ -11,10 +11,7 @@ import net.minecraft.util.EnumFacing;
 import tj.TJConfig;
 import tj.TJValues;
 import tj.integration.jei.TJMultiblockShapeInfo;
-import tj.machines.multi.electric.MetaTileEntityIndustrialFusionReactor;
-
-import java.util.ArrayList;
-import java.util.List;
+import tj.machines.multiblock.electric.MetaTileEntityIndustrialFusionReactor;
 
 import static gregtech.api.multiblock.BlockPattern.RelativeDirection.*;
 

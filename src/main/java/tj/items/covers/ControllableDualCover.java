@@ -33,7 +33,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
-import tj.builder.WidgetTabBuilder;
+import tj.mui.widgets.WidgetTabBuilder;
 import tj.capability.ParallelRecipeLRUCache;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.ButtonWidget;
