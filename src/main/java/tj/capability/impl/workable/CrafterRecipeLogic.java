@@ -1,5 +1,6 @@
 package tj.capability.impl.workable;
 
+import gregicadditions.GAValues;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
 import gregtech.api.recipes.CountableIngredient;
@@ -31,6 +32,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     private ItemStack[] lastItemInputs;
+    private Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> currentRecipe;
     private boolean recipeRecheck;
     private boolean voidOutputs;
     private int outputIndex;
@@ -57,12 +59,89 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
         this.lastInputIndex = 0;
     }
 
-    public void clearCache() {
-        this.previousRecipe.clear();
+    @Override
+    protected boolean startRecipe() {
+        IItemHandlerModifiable itemInputs;
+        if (this.isDistinct) {
+            itemInputs = this.handler.getInputBus(this.lastInputIndex);
+            this.currentRecipe = this.trySearchForRecipe(itemInputs);
+            if (this.currentRecipe == null) for (int i = 0; i < this.busCount; i++) {
+                if (i == this.lastInputIndex) continue;
+                itemInputs = this.handler.getInputBus(i);
+                this.currentRecipe = this.trySearchForRecipe(itemInputs);
+                if (this.currentRecipe != null) {
+                    this.lastInputIndex = i;
+                    break;
+                }
+            }
+        } else {
+            itemInputs = this.handler.getImportItemInventory();
+            this.currentRecipe = this.trySearchForRecipe(itemInputs);
+        }
+        if (this.currentRecipe != null && this.handler.getInputEnergyContainer().getEnergyStored() >= GAValues.VA[this.handler.getTier()]) {
+            final int parallels = this.handler.getParallel();
+            int amountToExtract = parallels;
+            for (CountableIngredient ingredient : this.currentRecipe.getMiddle()) { // calculate and simulate parallels
+                final int size = ingredient.getCount();
+                final int extracted = TJItemUtils.extractFromItemHandlerByIngredient(itemInputs, ingredient.getIngredient(), parallels * size, true);
+                amountToExtract = Math.min(amountToExtract, extracted / size);
+            }
+            for (CountableIngredient ingredient : this.currentRecipe.getMiddle()) { // consume recipe inputs
+                final int size = ingredient.getCount();
+                TJItemUtils.extractFromItemHandlerByIngredient(itemInputs, ingredient.getIngredient(), amountToExtract * size, false);
+            }
+            final ItemStack output = this.currentRecipe.getLeft().getRecipeOutput().copy();
+            output.setCount(output.getCount() * amountToExtract);
+            this.itemOutputs.add(output);
+            this.previousRecipe.put(this.currentRecipe);
+            this.maxProgress = this.calculateOverclock(30, 50, 2.8F);
+            return true;
+        } else return false;
     }
 
-    public CraftingRecipeLRUCache getPreviousRecipe() {
-        return this.previousRecipe;
+    @Override
+    protected boolean completeRecipe() {
+        for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
+            final ItemStack stack = this.itemOutputs.get(i);
+            if (this.voidOutputs || TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
+                TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
+                this.outputIndex++;
+            } else return false;
+        }
+        this.currentRecipe = null;
+        this.outputIndex = 0;
+        this.itemInputs.clear();
+        this.itemOutputs.clear();
+        this.recipeRecheck = true;
+        return true;
+    }
+
+    private Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> trySearchForRecipe(IItemHandlerModifiable importItems) {
+        Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> currentRecipe = this.previousRecipe.get(importItems);
+        if (currentRecipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(importItems))) {
+            this.recipeRecheck = false;
+            recipeMapList:
+            for (int i = 0; i < this.recipeMapList.size(); i++) {
+                final Map<Integer, Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = this.recipeMapList.get(i);
+                if (recipeMap == null) continue;
+                recipeMap:
+                for (int j = 0; j < recipeMap.size(); j++) {
+                    final Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> recipe = recipeMap.get(j);
+                    if (recipe == null) continue;
+                    final List<CountableIngredient> countableIngredients = recipe.getMiddle();
+                    for (int k = 0; k < countableIngredients.size(); k++) {
+                        final CountableIngredient ingredient = countableIngredients.get(k);
+                        final int size = ingredient.getCount();
+                        final int extracted = TJItemUtils.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), size, true);
+                        if (extracted < size)
+                            continue recipeMap;
+                    }
+                    currentRecipe = recipe;
+                    break recipeMapList;
+                }
+            }
+        }
+        return currentRecipe;
     }
 
     protected boolean checkRecipeInputsDirty(IItemHandler inputs) {
@@ -85,112 +164,10 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
         return shouldRecheckRecipe;
     }
 
-    private boolean trySearchForRecipe(IItemHandlerModifiable importItems) {
-        int parallels = this.handler.getParallel();
-        Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> currentRecipe = this.previousRecipe.get(importItems);
-        if (currentRecipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(importItems))) {
-            this.recipeRecheck = false;
-            recipeMapList:
-            for (int i = 0; i < this.recipeMapList.size(); i++) {
-                Map<Integer, Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = this.recipeMapList.get(i);
-                if (recipeMap == null) continue;
-                recipeMap:
-                for (int j = 0; j < recipeMap.size(); j++) {
-                    Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>> recipe = recipeMap.get(j);
-                    if (recipe == null)
-                        continue;
-                    List<CountableIngredient> countableIngredients = recipe.getMiddle();
-                    for (int k = 0; k < countableIngredients.size(); k++) {
-                        CountableIngredient ingredient = countableIngredients.get(k);
-                        int size = ingredient.getCount();
-                        int extracted = TJItemUtils.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), size, true);
-                        if (extracted < size)
-                            continue recipeMap;
-                    }
-                    currentRecipe = recipe;
-                    break recipeMapList;
-                }
-            }
-        }
-        if (currentRecipe != null) {
-            int amountToExtract = parallels;
-            for (CountableIngredient ingredient : currentRecipe.getMiddle()) { // calculate and simulate parallels
-                int size = ingredient.getCount();
-                int extracted = TJItemUtils.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), parallels * size, true);
-                amountToExtract = Math.min(amountToExtract, extracted / size);
-            }
-            for (CountableIngredient ingredient : currentRecipe.getMiddle()) { // consume recipe inputs
-                int size = ingredient.getCount();
-                TJItemUtils.extractFromItemHandlerByIngredient(importItems, ingredient.getIngredient(), amountToExtract * size, false);
-            }
-            ItemStack output = currentRecipe.getLeft().getRecipeOutput().copy();
-            output.setCount(output.getCount() * amountToExtract);
-            this.itemOutputs.add(output);
-            this.previousRecipe.put(currentRecipe);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    protected boolean startRecipe() {
-        boolean foundRecipe;
-        IItemHandlerModifiable itemInputs;
-        if (this.isDistinct) {
-            itemInputs = this.handler.getInputBus(this.lastInputIndex);
-            foundRecipe = this.trySearchForRecipe(itemInputs);
-            if (!foundRecipe) for (int i = 0; i < this.busCount; i++) {
-                if (i == this.lastInputIndex) continue;
-                itemInputs = this.handler.getInputBus(i);
-                foundRecipe = this.trySearchForRecipe(itemInputs);
-                if (foundRecipe) {
-                    this.lastInputIndex = i;
-                    break;
-                }
-            }
-        } else {
-            itemInputs = this.handler.getImportItemInventory();
-            foundRecipe = this.trySearchForRecipe(itemInputs);
-        }
-        if (foundRecipe) {
-            this.maxProgress = this.calculateOverclock(30, 50, 2.8F);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    protected boolean completeRecipe() {
-        for (int i = this.outputIndex; i < this.itemOutputs.size(); i++) {
-            ItemStack stack = this.itemOutputs.get(i);
-            if (TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, true).isEmpty()) {
-                TJItemUtils.insertIntoItemHandler(this.handler.getExportItemInventory(), stack, false);
-                this.outputIndex++;
-            } else return false;
-        }
-        this.outputIndex = 0;
-        this.itemInputs.clear();
-        this.itemOutputs.clear();
-        this.recipeRecheck = true;
-        return true;
-    }
-
-    @Nonnull
-    @Override
-    public List<ItemStack> getItemInputs() {
-        return this.itemInputs;
-    }
-
-    @Nonnull
-    @Override
-    public List<ItemStack> getItemOutputs() {
-        return this.itemOutputs;
-    }
-
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound data = super.serializeNBT();
-        NBTTagList inputList = new NBTTagList(), outputList = new NBTTagList();
+        final NBTTagCompound data = super.serializeNBT();
+        final NBTTagList inputList = new NBTTagList(), outputList = new NBTTagList();
         for (ItemStack stack : this.itemInputs)
             inputList.appendTag(stack.serializeNBT());
         for (ItemStack stack : this.itemOutputs)
@@ -205,13 +182,38 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
     @Override
     public void deserializeNBT(NBTTagCompound data) {
         super.deserializeNBT(data);
-        NBTTagList inputList = data.getTagList("inputList", 10), outputList = data.getTagList("outputList", 10);
+        final NBTTagList inputList = data.getTagList("inputList", 10), outputList = data.getTagList("outputList", 10);
         for (int i = 0; i < inputList.tagCount(); i++)
             this.itemInputs.add(new ItemStack(inputList.getCompoundTagAt(i)));
         for (int i = 0; i < outputList.tagCount(); i++)
             this.itemOutputs.add(new ItemStack(outputList.getCompoundTagAt(i)));
         this.voidOutputs = data.getBoolean("voidOutputs");
         this.outputIndex = data.getInteger("outputIndex");
+    }
+
+    @Override
+    protected boolean otherConditions() {
+        return this.currentRecipe != null;
+    }
+
+    public void clearCache() {
+        this.previousRecipe.clear();
+    }
+
+    public CraftingRecipeLRUCache getPreviousRecipe() {
+        return this.previousRecipe;
+    }
+
+    @Nonnull
+    @Override
+    public List<ItemStack> getItemInputs() {
+        return this.itemInputs;
+    }
+
+    @Nonnull
+    @Override
+    public List<ItemStack> getItemOutputs() {
+        return this.itemOutputs;
     }
 
     public void setVoidOutputs(boolean voidOutputs) {

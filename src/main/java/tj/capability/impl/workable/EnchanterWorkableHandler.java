@@ -1,5 +1,6 @@
 package tj.capability.impl.workable;
 
+import gregicadditions.GAValues;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -27,6 +28,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
     private int outputIndex;
     private int experience;
     private boolean voiding;
+    private boolean foundRecipe;
 
     public EnchanterWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -39,34 +41,32 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
 
     @Override
     protected boolean startRecipe() {
-        boolean foundRecipe;
         IItemHandlerModifiable itemInputs;
         if (this.isDistinct) {
             itemInputs = this.handler.getInputBus(this.lastInputIndex);
-            foundRecipe = this.findCatalyst(itemInputs) && this.findInputs(itemInputs, true);
-            if (!foundRecipe) for (int i = 0; i < this.busCount; i++) {
+            this.foundRecipe = this.findCatalyst(itemInputs) && this.findAndConsumeInputs(itemInputs, true);
+            if (!this.foundRecipe) for (int i = 0; i < this.busCount; i++) {
                 if (i == this.lastInputIndex) continue;
                 itemInputs = this.handler.getInputBus(i);
-                foundRecipe = this.findCatalyst(itemInputs) && this.findInputs(itemInputs, true);
-                if (foundRecipe) {
+                this.foundRecipe = this.findCatalyst(itemInputs) && this.findAndConsumeInputs(itemInputs, true);
+                if (this.foundRecipe) {
                     this.lastInputIndex = i;
                     break;
                 }
             }
         } else {
             itemInputs = this.handler.getImportItemInventory();
-            foundRecipe = this.findCatalyst(itemInputs) && this.findInputs(itemInputs, true);
+            this.foundRecipe = this.findCatalyst(itemInputs) && this.findAndConsumeInputs(itemInputs, true);
         }
-        if (foundRecipe) {
-            FluidStack fluid = FluidRegistry.getFluidStack("xpjuice", this.experience);
+        if (this.foundRecipe && this.handler.getInputEnergyContainer().getEnergyStored() >= GAValues.VA[this.handler.getTier()]) {
+            final FluidStack fluid = FluidRegistry.getFluidStack("xpjuice", this.experience);
             if (this.hasEnoughFluid(fluid, this.experience)) {
-                this.findInputs(itemInputs, false);
+                this.findAndConsumeInputs(itemInputs, false);
                 this.handler.getImportFluidTank().drain(fluid, true);
                 this.maxProgress = this.calculateOverclock(30, 2000, 2.8F);
                 return true;
-            }
-        }
-        return false;
+            } else return false;
+        } else return false;
     }
 
     @Override
@@ -78,6 +78,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
                 this.outputIndex++;
             } else return false;
         }
+        this.foundRecipe = false;
         this.experience = 0;
         this.outputIndex = 0;
         this.catalystIndex = 0;
@@ -99,7 +100,7 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
         return false;
     }
 
-    private boolean findInputs(IItemHandlerModifiable itemInputs, boolean simulate) {
+    private boolean findAndConsumeInputs(IItemHandlerModifiable itemInputs, boolean simulate) {
         int applied = 0;
         for (int i = 0; i < itemInputs.getSlots(); i++) {
             final ItemStack stack = itemInputs.getStackInSlot(i);
@@ -246,6 +247,11 @@ public class EnchanterWorkableHandler extends AbstractWorkableHandler<IMachineHa
             this.itemOutputs.add(new ItemStack(itemOutputs.getCompoundTagAt(i)));
         for (int i = 0; i < fluidInputs.tagCount(); i++)
             this.fluidInputs.add(FluidStack.loadFluidStackFromNBT(fluidInputs.getCompoundTagAt(i)));
+    }
+
+    @Override
+    protected boolean otherConditions() {
+        return this.foundRecipe;
     }
 
     @Nonnull

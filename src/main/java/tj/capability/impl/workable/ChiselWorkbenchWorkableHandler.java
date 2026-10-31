@@ -1,5 +1,6 @@
 package tj.capability.impl.workable;
 
+import gregicadditions.GAValues;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -24,6 +25,7 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
     private int circuitNumber;
     private int outputIndex;
     private boolean voiding;
+    private boolean foundRecipe;
 
     public ChiselWorkbenchWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -36,29 +38,28 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
 
     @Override
     protected boolean startRecipe() {
-        boolean foundRecipe;
         IItemHandlerModifiable itemInputs;
         if (this.isDistinct) {
             itemInputs = this.handler.getInputBus(this.lastInputIndex);
-            foundRecipe = this.findCircuit(itemInputs) && this.findInputs(itemInputs);
-            if (!foundRecipe) for (int i = 0; i < this.busCount; i++) {
+            this.foundRecipe = this.findCircuit(itemInputs) && this.findAndConsumeInputs(itemInputs, true);
+            if (!this.foundRecipe) for (int i = 0; i < this.busCount; i++) {
                 if (i == this.lastInputIndex) continue;
                 itemInputs = this.handler.getInputBus(i);
-                foundRecipe = this.findCircuit(itemInputs) && this.findInputs(itemInputs);
-                if (foundRecipe) {
+                this.foundRecipe = this.findCircuit(itemInputs) && this.findAndConsumeInputs(itemInputs, true);
+                if (this.foundRecipe) {
                     this.lastInputIndex = i;
                     break;
                 }
             }
         } else {
             itemInputs = this.handler.getImportItemInventory();
-            foundRecipe = this.findCircuit(itemInputs) && this.findInputs(itemInputs);
+            this.foundRecipe = this.findCircuit(itemInputs) && this.findAndConsumeInputs(itemInputs, true);
         }
-        if (foundRecipe) {
+        if (this.foundRecipe && this.handler.getInputEnergyContainer().getEnergyStored() >= GAValues.VA[this.handler.getTier()]) {
+            this.findAndConsumeInputs(itemInputs, false);
             this.maxProgress = this.calculateOverclock(30, 200, 2.8F);
             return true;
-        }
-        return false;
+        } else return false;
     }
 
     @Override
@@ -70,6 +71,7 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
                 this.outputIndex++;
             } else return false;
         }
+        this.foundRecipe = false;
         this.outputIndex = 0;
         this.itemInputs.clear();
         this.itemOutputs.clear();
@@ -90,24 +92,26 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
         return foundCircuit;
     }
 
-    private boolean findInputs(IItemHandlerModifiable itemInputs) {
+    private boolean findAndConsumeInputs(IItemHandlerModifiable itemInputs, boolean simulate) {
         int availableParallels = this.handler.getParallel();
         for (int i = 0; i < itemInputs.getSlots() && availableParallels > 0; i++) {
             final ItemStack stack = itemInputs.getStackInSlot(i);
             if (stack.isEmpty() || this.isCircuitStack(stack.getTagCompound())) continue;
-            final ItemStack input = this.handler.getImportItemInventory().extractItem(i, availableParallels, true);
+            final ItemStack input = itemInputs.getStackInSlot(i);
             if (input.isEmpty()) continue;
             final ICarvingGroup carvingGroup = CarvingUtils.getChiselRegistry().getGroup(stack);
             if (carvingGroup != null) {
                 final List<ICarvingVariation> carvingVariations = carvingGroup.getVariations();
                 if (carvingVariations != null && !carvingVariations.isEmpty()) {
-                    final int variation = Math.min(this.circuitNumber, carvingVariations.size() - 1);
-                    final int inputCount = this.handler.getImportItemInventory().extractItem(i, availableParallels, false).getCount();
-                    final ItemStack output = carvingVariations.get(variation).getStack().copy();
-                    output.setCount(inputCount);
-                    this.itemInputs.add(input);
-                    this.itemOutputs.add(output);
+                    final int inputCount = itemInputs.extractItem(i, availableParallels, simulate).getCount();
                     availableParallels -= inputCount;
+                    if (!simulate) {
+                        final int variation = Math.min(this.circuitNumber, carvingVariations.size() - 1);
+                        final ItemStack output = carvingVariations.get(variation).getStack().copy();
+                        output.setCount(inputCount);
+                        this.itemInputs.add(input);
+                        this.itemOutputs.add(output);
+                    }
                 }
             }
         }
@@ -145,6 +149,11 @@ public class ChiselWorkbenchWorkableHandler extends AbstractWorkableHandler<IMac
             this.itemInputs.add(new ItemStack(itemInputList.getCompoundTagAt(i)));
         for (int i = 0; i < itemOutputList.tagCount(); i++)
             this.itemOutputs.add(new ItemStack(itemOutputList.getCompoundTagAt(i)));
+    }
+
+    @Override
+    protected boolean otherConditions() {
+        return this.foundRecipe;
     }
 
     @Nonnull

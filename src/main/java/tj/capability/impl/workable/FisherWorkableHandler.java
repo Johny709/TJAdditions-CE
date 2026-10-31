@@ -66,8 +66,10 @@ public class FisherWorkableHandler extends AbstractWorkableHandler<IPosHandler> 
                 final List<ItemStack> lootOutput = world.getLootTableManager().getLootTableFromLocation(LootTableList.GAMEPLAY_FISHING)
                         .generateLootForPools(world.rand, new LootContext.Builder((WorldServer) world).build());
                 for (ItemStack stack : lootOutput) {
-                    this.itemMapSorter.computeIfAbsent(stack, k -> k)
-                            .grow(stack.getCount());
+                    final ItemStack itemStack = this.itemMapSorter.get(stack);
+                    if (itemStack == null) {
+                        this.itemMapSorter.put(stack, stack);
+                    } else itemStack.grow(stack.getCount());
                 }
             }
             this.itemOutputs.addAll(this.itemMapSorter.keySet());

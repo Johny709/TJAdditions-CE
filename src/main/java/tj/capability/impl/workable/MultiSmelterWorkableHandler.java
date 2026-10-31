@@ -1,5 +1,6 @@
 package tj.capability.impl.workable;
 
+import gregicadditions.GAValues;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipes.ModHandler;
 import net.minecraft.item.ItemStack;
@@ -19,6 +20,7 @@ public class MultiSmelterWorkableHandler extends AbstractWorkableHandler<ICoilHa
     private final List<ItemStack> itemInputs = new ArrayList<>();
     private final List<ItemStack> itemOutputs = new ArrayList<>();
     private boolean voiding;
+    private boolean foundRecipe;
     private int parallelsPerformed;
     private int outputIndex;
 
@@ -28,21 +30,29 @@ public class MultiSmelterWorkableHandler extends AbstractWorkableHandler<ICoilHa
 
     @Override
     protected boolean startRecipe() {
-        boolean canStart = false;
+        IItemHandlerModifiable itemInputs;
         if (this.isDistinct) {
-            if (!this.findInputs(this.handler.getInputBus(this.lastInputIndex))) {
-                for (int i = 0; i < this.busCount; i++) {
-                    if (i == this.lastInputIndex) continue;
-                    canStart = this.findInputs(this.handler.getInputBus(i));
-                    if (canStart) break;
+            itemInputs = this.handler.getInputBus(this.lastInputIndex);
+            this.foundRecipe = this.findAndConsumeInputs(itemInputs, true);
+            if (!this.foundRecipe) for (int i = 0; i < this.busCount; i++) {
+                if (i == this.lastInputIndex) continue;
+                itemInputs = this.handler.getInputBus(i);
+                this.foundRecipe = this.findAndConsumeInputs(itemInputs, true);
+                if (this.foundRecipe) {
+                    this.lastInputIndex = i;
+                    break;
                 }
             }
-        } else canStart = this.findInputs(this.handler.getImportItemInventory());
-        if (!canStart)
-            return false;
-        this.setMaxProgress(this.calculateOverclock(16, this.getDuration(), 2.8F));
-        this.energyPerTick /= this.handler.getCoilEnergyDiscount();
-        return true;
+        } else {
+            itemInputs = this.handler.getImportItemInventory();
+            this.foundRecipe = this.findAndConsumeInputs(itemInputs, true);
+        }
+        if (this.foundRecipe && this.handler.getInputEnergyContainer().getEnergyStored() >= GAValues.V[this.handler.getTier()] / 2) {
+            this.findAndConsumeInputs(itemInputs, false);
+            this.setMaxProgress(this.calculateOverclock(16, this.getDuration(), 2.8F));
+            this.energyPerTick /= this.handler.getCoilEnergyDiscount();
+            return true;
+        } else return false;
     }
 
     @Override
@@ -54,10 +64,29 @@ public class MultiSmelterWorkableHandler extends AbstractWorkableHandler<ICoilHa
                 this.outputIndex++;
             } else return false;
         }
+        this.foundRecipe = false;
         this.outputIndex = 0;
         this.itemInputs.clear();
         this.itemOutputs.clear();
         return true;
+    }
+
+    private boolean findAndConsumeInputs(IItemHandlerModifiable itemHandler, boolean simulate) {
+        int availableParallels = this.handler.getParallel();
+        this.parallelsPerformed = 0;
+        for (int i = 0; i < itemHandler.getSlots() && availableParallels > 0; i++) {
+            final ItemStack stack = itemHandler.extractItem(i, availableParallels, simulate);
+            if (stack.isEmpty()) continue;
+            availableParallels -= stack.getCount();
+            if (!simulate) {
+                final ItemStack output = ModHandler.getSmeltingOutput(stack).copy();
+                output.setCount(stack.getCount() * output.getCount());
+                this.parallelsPerformed += stack.getCount();
+                this.itemInputs.add(stack);
+                this.itemOutputs.add(output);
+            }
+        }
+        return availableParallels != this.handler.getParallel();
     }
 
     @Override
@@ -87,21 +116,9 @@ public class MultiSmelterWorkableHandler extends AbstractWorkableHandler<ICoilHa
         this.outputIndex = compound.getInteger("outputIndex");
     }
 
-    private boolean findInputs(IItemHandlerModifiable itemHandler) {
-        int parallels = this.handler.getParallel();
-        this.parallelsPerformed = 0;
-        for (int i = 0; i < itemHandler.getSlots() && parallels > 0; i++) {
-            ItemStack slotStack = itemHandler.extractItem(i, parallels, true);
-            if (slotStack.isEmpty()) continue;
-            final ItemStack output = ModHandler.getSmeltingOutput(slotStack).copy();
-            output.setCount(slotStack.getCount() * output.getCount());
-            slotStack = itemHandler.extractItem(i, parallels, false);
-            parallels -= slotStack.getCount();
-            this.parallelsPerformed += slotStack.getCount();
-            this.itemInputs.add(slotStack);
-            this.itemOutputs.add(output);
-        }
-        return parallels != this.handler.getParallel();
+    @Override
+    protected boolean otherConditions() {
+        return this.foundRecipe;
     }
 
     public int getDuration() {

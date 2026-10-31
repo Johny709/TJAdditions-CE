@@ -1,5 +1,6 @@
 package tj.capability.impl.workable;
 
+import gregicadditions.GAValues;
 import gregtech.api.metatileentity.MetaTileEntity;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -23,6 +24,7 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
     private int catalystIndex;
     private int outputIndex;
     private boolean voiding;
+    private boolean foundRecipe;
 
     public NamingMachineWorkableHandler(MetaTileEntity metaTileEntity) {
         super(metaTileEntity);
@@ -35,29 +37,28 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
 
     @Override
     protected boolean startRecipe() {
-        boolean foundRecipe;
         IItemHandlerModifiable itemInputs;
         if (this.isDistinct) {
             itemInputs = this.handler.getInputBus(this.lastInputIndex);
-            foundRecipe = this.findNameTag(itemInputs) && this.findInputs(itemInputs);
-            if (!foundRecipe) for (int i = 0; i < this.busCount; i++) {
+            this.foundRecipe = this.findNameTag(itemInputs) && this.findAndConsumeInputs(itemInputs, true);
+            if (!this.foundRecipe) for (int i = 0; i < this.busCount; i++) {
                 if (i == this.lastInputIndex) continue;
                 itemInputs = this.handler.getInputBus(i);
-                foundRecipe = this.findNameTag(itemInputs) && this.findInputs(itemInputs);
-                if (foundRecipe) {
+                this.foundRecipe = this.findNameTag(itemInputs) && this.findAndConsumeInputs(itemInputs, true);
+                if (this.foundRecipe) {
                     this.lastInputIndex = i;
                     break;
                 }
             }
         } else {
             itemInputs = this.handler.getImportItemInventory();
-            foundRecipe = this.findNameTag(itemInputs) && this.findInputs(itemInputs);
+            this.foundRecipe = this.findNameTag(itemInputs) && this.findAndConsumeInputs(itemInputs, true);
         }
-        if (foundRecipe) {
+        if (this.foundRecipe && this.handler.getInputEnergyContainer().getEnergyStored() >= GAValues.VA[this.handler.getTier()]) {
+            this.findAndConsumeInputs(itemInputs, false);
             this.setMaxProgress(this.calculateOverclock(30L, 50, 2.8F));
             return true;
-        }
-        return false;
+        } else return false;
     }
 
     @Override
@@ -69,6 +70,7 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
                 this.outputIndex++;
             } else return false;
         }
+        this.foundRecipe = false;
         this.outputIndex = 0;
         this.itemInputs.clear();
         this.itemOutputs.clear();
@@ -89,16 +91,19 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
         return !this.handler.getName().isEmpty();
     }
 
-    private boolean findInputs(IItemHandlerModifiable itemInputs) {
+    private boolean findAndConsumeInputs(IItemHandlerModifiable itemInputs, boolean simulate) {
         int availableParallels = this.handler.getParallel();
         for (int i = 0; i < itemInputs.getSlots() && availableParallels > 0; i++) {
             if (i == this.catalystIndex) continue;
-            final ItemStack stack = itemInputs.extractItem(i, availableParallels, false).copy();
+            final ItemStack stack = itemInputs.extractItem(i, availableParallels, simulate);
             if (stack.isEmpty()) continue;
-            this.itemInputs.add(stack);
-            stack.setStackDisplayName(this.catalyst.isEmpty() ? this.handler.getName() : this.catalyst.getDisplayName());
             availableParallels -= stack.getCount();
-            this.itemOutputs.add(stack);
+            if (!simulate) {
+                final ItemStack output = stack.copy();
+                this.itemInputs.add(output);
+                output.setStackDisplayName(this.catalyst.isEmpty() ? this.handler.getName() : this.catalyst.getDisplayName());
+                this.itemOutputs.add(output);
+            }
         }
         return availableParallels != this.handler.getParallel();
     }
@@ -128,6 +133,11 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
             this.itemOutputs.add(new ItemStack(itemOutputList.getCompoundTagAt(i)));
         this.outputIndex = compound.getInteger("outputIndex");
         this.voiding = compound.getBoolean("voiding");
+    }
+
+    @Override
+    protected boolean otherConditions() {
+        return this.foundRecipe;
     }
 
     @Nonnull
