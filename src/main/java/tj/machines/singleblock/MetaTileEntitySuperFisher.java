@@ -171,7 +171,7 @@ public class MetaTileEntitySuperFisher extends TJTieredWorkableMetaTileEntity im
     @Override
     @SideOnly(Side.CLIENT)
     public boolean shouldPlaySound() {
-        return this.workableHandler.isActive() && this.workableHandler.isWorkingEnabled();
+        return this.isValid() && this.workableHandler.isActive() && this.workableHandler.isWorkingEnabled();
     }
 
     @Override

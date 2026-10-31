@@ -93,17 +93,20 @@ public class XLHotCoolantTurbineWorkableHandler extends TJGAFuelRecipeLogic {
                 this.previousRecipe = currentRecipe;
             } else this.blacklistFluid.add(fuelStack); // blacklist fluid not found in recipe map to prevent search slowdown.
         }
-        if (currentRecipe != null && this.checkRecipe(currentRecipe)) {
+        if (currentRecipe != null) {
             final int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
             if (fuelStack.amount >= fuelAmountToUse) {
-                final FluidStack outputFluid = currentRecipe.getOutputFluid().copy();
-                outputFluid.amount = fuelAmountToUse;
-                this.fluidOutputs.add(outputFluid);
-                this.maxProgress = this.calculateRecipeDuration(currentRecipe);
-                this.exportFluidsSupplier.get().fill(outputFluid, true);
-                final FluidStack recipeFluid = currentRecipe.getRecipeFluid();
-                recipeFluid.amount = fuelAmountToUse;
-                return recipeFluid;
+                this.foundRecipe = true;
+                if (this.checkRecipe(currentRecipe)) {
+                    final FluidStack outputFluid = currentRecipe.getOutputFluid().copy();
+                    outputFluid.amount = fuelAmountToUse;
+                    this.fluidOutputs.add(outputFluid);
+                    this.maxProgress = this.calculateRecipeDuration(currentRecipe);
+                    this.exportFluidsSupplier.get().fill(outputFluid, true);
+                    final FluidStack recipeFluid = currentRecipe.getRecipeFluid();
+                    recipeFluid.amount = fuelAmountToUse;
+                    return recipeFluid;
+                }
             }
         }
         return null;

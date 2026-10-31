@@ -29,6 +29,7 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
     protected final List<FluidStack> fluidInputs = new ArrayList<>();
     protected final List<FluidStack> fluidOutputs = new ArrayList<>();
     private boolean voidEnergy = true;
+    protected boolean foundRecipe;
     protected int consumption;
     private int searchCount;
     protected String fuelName;
@@ -40,29 +41,30 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
     @Override
     protected boolean startRecipe() {
         FluidStack fuelStack = null;
-        for (int i = 0; i < this.fluidTank.get().getTanks(); i++) {
-            IFluidTank tank = this.fluidTank.get().getTankAt(i);
-            FluidStack stack = tank.getFluid();
+        final IMultipleTankHandler fluidTanks = this.fluidTank.get();
+        for (int i = 0; i < fluidTanks.getTanks(); i++) {
+            final IFluidTank tank = fluidTanks.getTankAt(i);
+            final FluidStack stack = tank.getFluid();
             if (stack == null) continue;
             if (fuelStack == null) {
                 if (this.blacklistFluid.contains(stack) || this.lastSearchedFluid.contains(stack)) continue;
                 fuelStack = stack.copy();
                 this.lastSearchedFluid.add(fuelStack);
             } else if (fuelStack.isFluidEqual(stack)) {
-                long amount = fuelStack.amount + stack.amount;
+                final long amount = fuelStack.amount + stack.amount;
                 fuelStack.amount = (int) Math.min(Integer.MAX_VALUE, amount);
             }
         }
         fuelStack = this.tryAcquireNewRecipe(fuelStack);
-        if (fuelStack != null && fuelStack.isFluidStackIdentical(this.fluidTank.get().drain(fuelStack, false))) {
-            FluidStack fluidStack = this.fluidTank.get().drain(fuelStack, true);
+        if (fuelStack != null && fuelStack.isFluidStackIdentical(fluidTanks.drain(fuelStack, false))) {
+            final FluidStack fluidStack = fluidTanks.drain(fuelStack, true);
             this.fuelName = fluidStack.getUnlocalizedName();
             this.lastSearchedFluid.remove(fuelStack);
             this.consumption = fluidStack.amount;
             this.fluidInputs.add(fuelStack);
             return true; //recipe is found and ready to use
         }
-        if (++this.searchCount >= this.fluidTank.get().getTanks()) {
+        if (++this.searchCount >= fluidTanks.getTanks()) {
             this.lastSearchedFluid.clear();
             this.searchCount = 0;
         }
@@ -82,6 +84,7 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
 
     @Override
     protected boolean completeRecipe() {
+        this.foundRecipe = false;
         this.fluidInputs.clear();
         this.fluidOutputs.clear();
         this.lastSearchedFluid.clear();
@@ -89,7 +92,7 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
     }
 
     protected FluidStack tryAcquireNewRecipe(FluidStack fuelStack) {
-        FuelRecipe currentRecipe;
+        final FuelRecipe currentRecipe;
         if (this.previousRecipe != null && this.previousRecipe.matches(this.getMaxVoltage(), fuelStack)) {
             //if previous recipe still matches inputs, try to use it
             currentRecipe = this.previousRecipe;
@@ -101,58 +104,20 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
                 this.previousRecipe = currentRecipe;
             } else this.blacklistFluid.add(fuelStack); // blacklist fluid not found in recipe map to prevent search slowdown.
         }
-        if (currentRecipe != null && checkRecipe(currentRecipe)) {
-            int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
+        if (currentRecipe != null) {
+            final int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
             if (fuelStack.amount >= fuelAmountToUse) {
-                this.maxProgress = this.calculateRecipeDuration(currentRecipe);
-                this.energyPerTick = this.startRecipe(currentRecipe, fuelAmountToUse, this.maxProgress);
-                FluidStack recipeFluid = currentRecipe.getRecipeFluid();
-                recipeFluid.amount = fuelAmountToUse;
-                return recipeFluid;
+                this.foundRecipe = true;
+                if (this.checkRecipe(currentRecipe)) {
+                    this.maxProgress = this.calculateRecipeDuration(currentRecipe);
+                    this.energyPerTick = this.startRecipe(currentRecipe, fuelAmountToUse, this.maxProgress);
+                    final FluidStack recipeFluid = currentRecipe.getRecipeFluid();
+                    recipeFluid.amount = fuelAmountToUse;
+                    return recipeFluid;
+                }
             }
         }
         return null;
-    }
-
-    @Override
-    public Collection<IFuelInfo> getFuels() {
-        final IMultipleTankHandler fluidTanks = this.fluidTank.get();
-        if (fluidTanks == null)
-            return Collections.emptySet();
-
-        final LinkedHashMap<String, IFuelInfo> fuels = new LinkedHashMap<>();
-        // Fuel capacity is all tanks
-        int fuelCapacity = 0;
-        for (IFluidTank fluidTank : fluidTanks) {
-            fuelCapacity += fluidTank.getCapacity();
-        }
-
-        for (IFluidTank fluidTank : fluidTanks) {
-            final FluidStack tankContents = fluidTank.drain(Integer.MAX_VALUE, false);
-            if (tankContents == null || tankContents.amount <= 0) {
-                fuelCapacity -= fluidTank.getCapacity();
-                continue;
-            }
-            int fuelRemaining = tankContents.amount;
-            FuelRecipe recipe = this.recipeMap.findRecipe(this.maxVoltageSupplier.getAsLong(), tankContents);
-            if (recipe == null || this.lastSearchedFluid.contains(recipe.getRecipeFluid())) {
-                fuelCapacity -= fluidTank.getCapacity();
-                continue;
-            }
-            int amountPerRecipe = this.calculateFuelAmount(recipe);
-            int duration = this.calculateRecipeDuration(recipe);
-            long fuelBurnTime = ((long) duration * fuelRemaining) / amountPerRecipe;
-
-            FluidFuelInfo fuelInfo = (FluidFuelInfo) fuels.get(tankContents.getUnlocalizedName());
-            if (fuelInfo == null) {
-                fuelInfo = new FluidFuelInfo(tankContents, fuelRemaining, fuelCapacity, amountPerRecipe, fuelBurnTime);
-                fuels.put(tankContents.getUnlocalizedName(), fuelInfo);
-            } else {
-                fuelInfo.addFuelRemaining(fuelRemaining);
-                fuelInfo.addFuelBurnTime(fuelBurnTime);
-            }
-        }
-        return fuels.values();
     }
 
     @Override
@@ -193,6 +158,52 @@ public class TJFuelRecipeLogic extends AbstractFuelRecipeLogic<TJFuelRecipeLogic
         if (capability == GregtechCapabilities.CAPABILITY_FUELABLE)
             return GregtechCapabilities.CAPABILITY_FUELABLE.cast(this);
         return super.getCapability(capability);
+    }
+
+    @Override
+    protected boolean otherConditions() {
+        return this.foundRecipe;
+    }
+
+    @Override
+    public Collection<IFuelInfo> getFuels() {
+        final IMultipleTankHandler fluidTanks = this.fluidTank.get();
+        if (fluidTanks == null)
+            return Collections.emptySet();
+
+        final LinkedHashMap<String, IFuelInfo> fuels = new LinkedHashMap<>();
+        // Fuel capacity is all tanks
+        int fuelCapacity = 0;
+        for (IFluidTank fluidTank : fluidTanks) {
+            fuelCapacity += fluidTank.getCapacity();
+        }
+
+        for (IFluidTank fluidTank : fluidTanks) {
+            final FluidStack tankContents = fluidTank.drain(Integer.MAX_VALUE, false);
+            if (tankContents == null || tankContents.amount <= 0) {
+                fuelCapacity -= fluidTank.getCapacity();
+                continue;
+            }
+            final int fuelRemaining = tankContents.amount;
+            final FuelRecipe recipe = this.recipeMap.findRecipe(this.maxVoltageSupplier.getAsLong(), tankContents);
+            if (recipe == null || this.lastSearchedFluid.contains(recipe.getRecipeFluid())) {
+                fuelCapacity -= fluidTank.getCapacity();
+                continue;
+            }
+            final int amountPerRecipe = this.calculateFuelAmount(recipe);
+            final int duration = this.calculateRecipeDuration(recipe);
+            final long fuelBurnTime = ((long) duration * fuelRemaining) / amountPerRecipe;
+
+            FluidFuelInfo fuelInfo = (FluidFuelInfo) fuels.get(tankContents.getUnlocalizedName());
+            if (fuelInfo == null) {
+                fuelInfo = new FluidFuelInfo(tankContents, fuelRemaining, fuelCapacity, amountPerRecipe, fuelBurnTime);
+                fuels.put(tankContents.getUnlocalizedName(), fuelInfo);
+            } else {
+                fuelInfo.addFuelRemaining(fuelRemaining);
+                fuelInfo.addFuelBurnTime(fuelBurnTime);
+            }
+        }
+        return fuels.values();
     }
 
     public FluidStack getFuelStack() {

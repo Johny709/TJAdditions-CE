@@ -83,22 +83,25 @@ public class LargeAtmosphereCollectorWorkableHandler extends TJFuelRecipeLogic {
                 this.previousRecipe = currentRecipe;
             } else this.blacklistFluid.add(fuelStack); // blacklist fluid not found in recipe map to prevent search slowdown.
         }
-        if (currentRecipe != null && this.checkRecipe(currentRecipe)) {
+        if (currentRecipe != null) {
             final int fuelAmountToUse = this.calculateFuelAmount(currentRecipe);
             if (fuelStack.amount >= fuelAmountToUse) {
-                this.maxProgress = this.calculateRecipeDuration(currentRecipe);
-                if (this.airCollector.turbineType == MetaTileEntityLargeTurbine.TurbineType.PLASMA) {
-                    final FluidStack outputFluid = FluidRegistry.getFluidStack(FluidRegistry.getFluidName(currentRecipe.getRecipeFluid()).substring(7), fuelAmountToUse);
-                    this.exportFluidsSupplier.get().fill(outputFluid, true);
-                    this.fluidOutputs.add(outputFluid);
-                } else if (this.airCollector.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM) {
-                    final FluidStack outputFluid = DistilledWater.getFluid(fuelAmountToUse / 160);
-                    this.exportFluidsSupplier.get().fill(outputFluid, true);
-                    this.fluidOutputs.add(outputFluid);
+                this.foundRecipe = true;
+                if (this.checkRecipe(currentRecipe)) {
+                    this.maxProgress = this.calculateRecipeDuration(currentRecipe);
+                    if (this.airCollector.turbineType == MetaTileEntityLargeTurbine.TurbineType.PLASMA) {
+                        final FluidStack outputFluid = FluidRegistry.getFluidStack(FluidRegistry.getFluidName(currentRecipe.getRecipeFluid()).substring(7), fuelAmountToUse);
+                        this.exportFluidsSupplier.get().fill(outputFluid, true);
+                        this.fluidOutputs.add(outputFluid);
+                    } else if (this.airCollector.turbineType == MetaTileEntityLargeTurbine.TurbineType.STEAM) {
+                        final FluidStack outputFluid = DistilledWater.getFluid(fuelAmountToUse / 160);
+                        this.exportFluidsSupplier.get().fill(outputFluid, true);
+                        this.fluidOutputs.add(outputFluid);
+                    }
+                    final FluidStack recipeFluid = currentRecipe.getRecipeFluid();
+                    recipeFluid.amount = fuelAmountToUse;
+                    return recipeFluid;
                 }
-                final FluidStack recipeFluid = currentRecipe.getRecipeFluid();
-                recipeFluid.amount = fuelAmountToUse;
-                return recipeFluid;
             }
         }
         return null;
