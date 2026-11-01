@@ -37,6 +37,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
@@ -73,9 +74,7 @@ import tj.util.EnumFacingHelper;
 import tj.util.TJFluidUtils;
 
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.function.UnaryOperator;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
@@ -88,6 +87,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
     private final int fortune;
     private final int tier;
+    private final Set<UUID> playersSeeBoundingBox = new HashSet<>();
     private FluidStack drillingFluid = Materials.DrillingFluid.getFluid(1);
     private int currentTier;
 
@@ -205,6 +205,8 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
                     .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
             tab.add(new TJToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
                     .setToggleTitleTooltipHoverText("tj.multiblock.advanced_large_miner.blacklist_block.disabled", "tj.multiblock.advanced_large_miner.blacklist_block.enabled"));
+            tab.add(new TJToggleButtonWidget(175, 191, 18, 18, TJGuiTextures.TOGGLE_BOX, () -> this.playersSeeBoundingBox.contains(player.getUniqueID()), bool -> this.addPlayerToSeeBoundingBox(player.getUniqueID()))
+                    .setTitleHoverTooltipText("tj.multiblock.advanced_large_miner.mining_area_bounding_box"));
         });
     }
 
@@ -279,6 +281,24 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
         // Inventory used for filters. Don't drop anything.
     }
 
+    private void addPlayerToSeeBoundingBox(UUID uuid) {
+        if (this.playersSeeBoundingBox.contains(uuid)) {
+            this.playersSeeBoundingBox.remove(uuid);
+        } else this.playersSeeBoundingBox.add(uuid);
+        this.writeCustomData(20, buffer -> buffer.writeUniqueId(uuid));
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 20) {
+            final UUID uuid = buf.readUniqueId();
+            if (this.playersSeeBoundingBox.contains(uuid)) {
+                this.playersSeeBoundingBox.remove(uuid);
+            } else this.playersSeeBoundingBox.add(uuid);
+        }
+    }
+
     @Override
     public void onAttached() {
         super.onAttached();
@@ -297,17 +317,18 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     private void initializeMiningAreaBoundingBox() {
         final String key = this.getMetaFullName() + "." + this.getPos() + "." + this.getWorld().provider.getDimension();
         RenderEventHandler.addToRenderWorldLastEvent(key, event -> {
+            final EntityPlayer player = Minecraft.getMinecraft().player;
+            if (player == null) return;
+            if (!this.playersSeeBoundingBox.contains(player.getUniqueID())) return;
 
             GlStateManager.pushMatrix();
             GlStateManager.disableCull();
             GlStateManager.disableTexture2D();
             GlStateManager.disableLighting();
             GlStateManager.disableBlend();
-            GlStateManager.disableDepth();
 
             final Chunk chunk = this.getWorld().getChunk(this.getPos());
             final float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
-            final EntityPlayer player = Minecraft.getMinecraft().player;
             final double playerX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
             final double playerY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
             final double playerZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;

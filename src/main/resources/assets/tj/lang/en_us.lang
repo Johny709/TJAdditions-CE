@@ -764,6 +764,7 @@ tj.multiblock.advanced_large_miner.blacklist.enabled=Blacklist set for Ore Dict 
 tj.multiblock.advanced_large_miner.blacklist.disabled=Whitelist set for Ore Dict Filter
 tj.multiblock.advanced_large_miner.blacklist_block.enabled=Blacklist set for Block Filter
 tj.multiblock.advanced_large_miner.blacklist_block.disabled=Whitelist set for Block Filter
+tj.multiblock.advanced_large_miner.mining_area_bounding_box=Toggle to show mining area for this miner
 
 recipemap.primitive_alloy.tj.name=Primitive Alloy Smelter
 recipemap.coke_oven_2.tj.name=Coke Oven

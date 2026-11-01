@@ -49,6 +49,7 @@ public final class TJGuiTextures {
     public static final TextureArea TOGGLE_ITEM_VOID_BUTTON = TextureArea.fullImage("textures/gui/widget/item_void_button_toggle.png");
     public static final TextureArea TOGGLE_FLUID_VOID_BUTTON = TextureArea.fullImage("textures/gui/widget/fluid_void_button_toggle.png");
     public static final TextureArea TOGGLE_CLEAR_GRID_BUTTON = TextureArea.fullImage("textures/gui/widget/button_clear_grid_toggle.png");
+    public static final TextureArea TOGGLE_BOX = TextureArea.fullImage("textures/gui/widget/toggle_box.png");
     public static final TextureArea UNLOCK_LOCK = TextureArea.fullImage("textures/gui/widget/unlock_lock.png");
     public static final TextureArea TOGGLE_DISPLAY = TextureArea.fullImage("textures/gui/widget/toggle_button_display.png");
     public static final TextureArea TOGGLE_BLOCKING_MODE = TextureArea.fullImage("textures/gui/widget/block_mode_toggle.png");

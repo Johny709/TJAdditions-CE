@@ -26,6 +26,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -47,8 +48,7 @@ import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.*;
 
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static gregtech.api.gui.GuiTextures.BUTTON_ITEM_OUTPUT;
 import static gregtech.api.gui.GuiTextures.PROGRESS_BAR_ARROW;
@@ -59,6 +59,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     private final MinerWorkableHandler workableHandler = new MinerWorkableHandler(this);
     private final NotifiableItemStackHandler filterInventory = new NotifiableLargeItemStackHandler(this, 27, 1);
     private final FluidStack drillingFluid;
+    private final Set<UUID> playersSeeBoundingBox = new HashSet<>();
 
     public MetaTileEntityAdvancedChunkMiner(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
@@ -131,7 +132,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 166)
                 .image(-28, 0, 26, 104, GuiTextures.BORDERED_BACKGROUND)
                 .image(-28, 120, 26, 44, GuiTextures.BORDERED_BACKGROUND)
-                .image(93, 168, 80, 26, GuiTextures.BORDERED_BACKGROUND)
+                .image(78, 168, 98, 26, GuiTextures.BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
@@ -145,13 +146,15 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                         .setToggleTitleTooltipHoverText("gregtech.gui.item_auto_output.tooltip.disabled", "gregtech.gui.item_auto_output.tooltip.enabled"))
                 .widget(new TJToggleButtonWidget(-24, 142, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
                         .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
-                .widget(new TJToggleButtonWidget(151, 172, 18, 18, this.workableHandler::isSilkTouch, (bool, str) -> this.workableHandler.setSilkTouch(bool))
+                .widget(new TJToggleButtonWidget(82, 172, 18, 18, TJGuiTextures.TOGGLE_BOX, () -> this.playersSeeBoundingBox.contains(player.getUniqueID()), bool -> this.addPlayerToSeeBoundingBox(player.getUniqueID()))
+                        .setTitleHoverTooltipText("tj.multiblock.advanced_large_miner.mining_area_bounding_box"))
+                .widget(new TJToggleButtonWidget(100, 172, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setDone)
+                        .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
+                .widget(new TJToggleButtonWidget(154, 172, 18, 18, this.workableHandler::isSilkTouch, (bool, str) -> this.workableHandler.setSilkTouch(bool))
                         .setDynamicTooltipText(() -> this.workableHandler.isSilkTouch() ? "tj.multiblock.advanced_large_miner.silktouch_true" : "tj.multiblock.advanced_large_miner.silktouch_false")
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                         .setItemDisplay(new ItemStack(Blocks.WEB))
                         .useToggleTexture(true))
-                .widget(new TJToggleButtonWidget(97, 172, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this.workableHandler::setDone)
-                        .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
                 .widget(new ButtonPopUpWidget<>()
                         .addPopup(widgetGroup -> {
                             widgetGroup.addWidget(new ProgressWidget(this.workableHandler::getProgressPercent, 90, 33, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL));
@@ -168,7 +171,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                             widgetGroup.addWidget(scrollableWidgetGroup);
                             widgetGroup.addWidget(displayWidget);
                             return false;
-                        }).addPopup(7, 5, 0, 0, new TJToggleButtonWidget(115, 172, 18, 18)
+                        }).addPopup(7, 5, 0, 0, new TJToggleButtonWidget(118, 172, 18, 18)
                                 .setBackgroundTextures(TJGuiTextures.ORE_DICTIONARY_FILTER)
                                 .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                                 .useToggleTexture(true), widgetGroup -> {
@@ -179,7 +182,7 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
                             widgetGroup.addWidget(new TJToggleButtonWidget(144, 57, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
                                     .setToggleTitleTooltipHoverText("tj.multiblock.advanced_large_miner.blacklist_block.disabled", "tj.multiblock.advanced_large_miner.blacklist_block.enabled"));
                             return false;
-                        }).addPopup(30, 20, 0, 0, new TJToggleButtonWidget(133, 172, 18, 18)
+                        }).addPopup(30, 20, 0, 0, new TJToggleButtonWidget(136, 172, 18, 18)
                                 .setBackgroundTextures(TJGuiTextures.ITEM_FILTER)
                                 .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                                 .useToggleTexture(true), widgetGroup -> {
@@ -218,6 +221,24 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
         this.filterInventory.deserializeNBT(data.getCompoundTag("filterInventory"));
     }
 
+    private void addPlayerToSeeBoundingBox(UUID uuid) {
+        if (this.playersSeeBoundingBox.contains(uuid)) {
+            this.playersSeeBoundingBox.remove(uuid);
+        } else this.playersSeeBoundingBox.add(uuid);
+        this.writeCustomData(20, buffer -> buffer.writeUniqueId(uuid));
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 20) {
+            final UUID uuid = buf.readUniqueId();
+            if (this.playersSeeBoundingBox.contains(uuid)) {
+                this.playersSeeBoundingBox.remove(uuid);
+            } else this.playersSeeBoundingBox.add(uuid);
+        }
+    }
+
     @Override
     public void onAttached() {
         super.onAttached();
@@ -236,17 +257,18 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     private void initializeMiningAreaBoundingBox() {
         final String key = this.getMetaFullName() + "." + this.getPos() + "." + this.getWorld().provider.getDimension();
         RenderEventHandler.addToRenderWorldLastEvent(key, event -> {
+            final EntityPlayer player = Minecraft.getMinecraft().player;
+            if (player == null) return;
+            if (!this.playersSeeBoundingBox.contains(player.getUniqueID())) return;
 
             GlStateManager.pushMatrix();
             GlStateManager.disableCull();
             GlStateManager.disableTexture2D();
             GlStateManager.disableLighting();
             GlStateManager.disableBlend();
-            GlStateManager.disableDepth();
 
             final Chunk chunk = this.getWorld().getChunk(this.getPos());
             final float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
-            final EntityPlayer player = Minecraft.getMinecraft().player;
             final double playerX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
             final double playerY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
             final double playerZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
