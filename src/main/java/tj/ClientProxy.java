@@ -12,8 +12,10 @@ import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.common.MinecraftForge;
 import tj.blocks.TJMetaBlocks;
 import tj.blocks.block.TJBlocks;
+import tj.event.RenderEventHandler;
 import tj.items.TJMetaItems;
 import tj.items.item.TJItems;
 import tj.rendering.BakedModelLoader;
@@ -37,6 +39,7 @@ public class ClientProxy extends CommonProxy {
     public void onPreLoad() {
         super.onPreLoad();
         TextureUtils.addIconRegister(TJTextures::register);
+        MinecraftForge.EVENT_BUS.register(new RenderEventHandler());
     }
 
     @SubscribeEvent

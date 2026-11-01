@@ -29,6 +29,11 @@ import gregtech.common.blocks.MetaBlocks;
 import gregtech.common.items.MetaItems;
 import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -40,13 +45,16 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import org.lwjgl.opengl.GL11;
 import tj.TJValues;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
+import tj.event.RenderEventHandler;
 import tj.mui.widgets.WidgetTabBuilder;
 import tj.machines.controllers.TJMultiblockControllerBase;
 import tj.machines.controllers.GUIDisplayBuilder;
@@ -258,6 +266,114 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
+        super.renderMetaTileEntity(renderState, translation, pipeline);
+        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive(), this.workableHandler.isHasProblems(), this.workableHandler.isWorkingEnabled());
+        ClientHandler.CHUNK_MINER_OVERLAY.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
+        ClientHandler.CHUNK_MINER_OVERLAY.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
+    }
+
+    @Override
+    public void clearMachineInventory(NonNullList<ItemStack> itemBuffer) {
+        // Inventory used for filters. Don't drop anything.
+    }
+
+    @Override
+    public void onAttached() {
+        super.onAttached();
+        if (this.getWorld().isRemote)
+            this.initializeMiningAreaBoundingBox();
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (this.getWorld().isRemote)
+            this.removeMiningAreaBoundingBox();
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void initializeMiningAreaBoundingBox() {
+        final String key = this.getMetaFullName() + "." + this.getPos() + "." + this.getWorld().provider.getDimension();
+        RenderEventHandler.addToRenderWorldLastEvent(key, event -> {
+
+            GlStateManager.pushMatrix();
+            GlStateManager.disableCull();
+            GlStateManager.disableTexture2D();
+            GlStateManager.disableLighting();
+            GlStateManager.disableBlend();
+            GlStateManager.disableDepth();
+
+            final Chunk chunk = this.getWorld().getChunk(this.getPos());
+            final float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
+            final EntityPlayer player = Minecraft.getMinecraft().player;
+            final double playerX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
+            final double playerY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
+            final double playerZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
+            // offset rendering position relative to player camera position
+            GlStateManager.translate(-playerX + chunk.x * 16, -playerY, -playerZ + chunk.z * 16);
+            GlStateManager.scale(16f, 16f, 16f);
+            GlStateManager.glLineWidth(4);
+
+            final Tessellator tessellator = Tessellator.getInstance();
+            final BufferBuilder buffer = tessellator.getBuffer();
+            buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+
+            final int reminder = this.getDiameter() % 2;
+            final int start = this.getDiameter() / 2;
+            final int end = start + reminder;
+            for (int i = -start; i < end; i++) {
+                for (int j = -start; j < end; j++) {
+                    final int x = j % this.getDiameter();
+                    final int z = j / this.getDiameter() + i;
+                    buffer.pos(x, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                }
+            }
+            tessellator.draw();
+            GlStateManager.popMatrix();
+        });
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void removeMiningAreaBoundingBox() {
+        final String key = this.getMetaFullName() + "." + this.getPos() + "." + this.getWorld().provider.getDimension();
+        RenderEventHandler.removeFromRenderWorldLastEvent(key);
+    }
+
+    @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
         switch (this.tier) {
             case 5: return ClientHandler.HSS_G_CASING;
@@ -272,20 +388,6 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
             case 14: return TJTextures.NEUTRONIUM;
             default: return ClientHandler.BLACK_STEEL_CASING;
         }
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
-        super.renderMetaTileEntity(renderState, translation, pipeline);
-        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, this.getFrontFacing(), this.workableHandler.isActive(), this.workableHandler.isHasProblems(), this.workableHandler.isWorkingEnabled());
-        ClientHandler.CHUNK_MINER_OVERLAY.renderSided(EnumFacingHelper.getLeftFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
-        ClientHandler.CHUNK_MINER_OVERLAY.renderSided(EnumFacingHelper.getRightFacingFrom(this.getFrontFacing()), renderState, translation, pipeline);
-    }
-
-    @Override
-    public void clearMachineInventory(NonNullList<ItemStack> itemBuffer) {
-        // Inventory used for filters. Don't drop anything.
     }
 
     @Override

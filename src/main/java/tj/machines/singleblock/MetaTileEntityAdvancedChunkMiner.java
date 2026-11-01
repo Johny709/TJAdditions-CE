@@ -16,6 +16,11 @@ import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.render.Textures;
 import gregtech.api.unification.material.Materials;
 import gregtech.common.sound.GTSoundEvents;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -26,14 +31,17 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import org.lwjgl.opengl.GL11;
 import tj.capability.impl.handler.IMinerHandler;
 import tj.capability.impl.workable.MinerWorkableHandler;
+import tj.event.RenderEventHandler;
 import tj.items.handlers.NotifiableLargeItemStackHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.*;
@@ -211,6 +219,100 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     }
 
     @Override
+    public void onAttached() {
+        super.onAttached();
+        if (this.getWorld().isRemote)
+            this.initializeMiningAreaBoundingBox();
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (this.getWorld().isRemote)
+            this.removeMiningAreaBoundingBox();
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void initializeMiningAreaBoundingBox() {
+        final String key = this.getMetaFullName() + "." + this.getPos() + "." + this.getWorld().provider.getDimension();
+        RenderEventHandler.addToRenderWorldLastEvent(key, event -> {
+
+            GlStateManager.pushMatrix();
+            GlStateManager.disableCull();
+            GlStateManager.disableTexture2D();
+            GlStateManager.disableLighting();
+            GlStateManager.disableBlend();
+            GlStateManager.disableDepth();
+
+            final Chunk chunk = this.getWorld().getChunk(this.getPos());
+            final float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
+            final EntityPlayer player = Minecraft.getMinecraft().player;
+            final double playerX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
+            final double playerY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
+            final double playerZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
+            // offset rendering position relative to player camera position
+            GlStateManager.translate(-playerX + chunk.x * 16, -playerY, -playerZ + chunk.z * 16);
+            GlStateManager.scale(16f, 16f, 16f);
+            GlStateManager.glLineWidth(4);
+
+            final Tessellator tessellator = Tessellator.getInstance();
+            final BufferBuilder buffer = tessellator.getBuffer();
+            buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+
+            final int reminder = this.getDiameter() % 2;
+            final int start = this.getDiameter() / 2;
+            final int end = start + reminder;
+            for (int i = -start; i < end; i++) {
+                for (int j = -start; j < end; j++) {
+                    final int x = j % this.getDiameter();
+                    final int z = j / this.getDiameter() + i;
+                    buffer.pos(x, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                }
+            }
+            tessellator.draw();
+            GlStateManager.popMatrix();
+        });
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void removeMiningAreaBoundingBox() {
+        final String key = this.getMetaFullName() + "." + this.getPos() + "." + this.getWorld().provider.getDimension();
+        RenderEventHandler.removeFromRenderWorldLastEvent(key);
+    }
+
+    @Override
     public IItemHandlerModifiable getExportItemInventory() {
         final TileEntity tileEntity = this.getWorld().getTileEntity(this.getPos().offset(this.getOutputFacing()));
         final IItemHandler itemHandler = tileEntity != null ? tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.getOutputFacing()) : null;
@@ -241,7 +343,6 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
         return this.drillingFluid;
     }
 
-
     @SideOnly(Side.CLIENT)
     @Override
     public boolean shouldPlaySound() {
@@ -253,5 +354,4 @@ public class MetaTileEntityAdvancedChunkMiner extends TJTieredWorkableMetaTileEn
     public SoundEvent getSound() {
         return GTSoundEvents.MINER;
     }
-
 }
