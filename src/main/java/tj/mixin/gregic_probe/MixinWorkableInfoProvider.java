@@ -24,7 +24,7 @@ public abstract class MixinWorkableInfoProvider {
         if (!TJConfig.machines.theOneProbeInfoProviderOverrides) return;
         final double maxProgress = (double) capability.getMaxProgress() / 20;
         final double progress = Math.min(maxProgress, (double) capability.getProgress() / 20);
-        if (maxProgress > 0) {
+        if (capability.isActive()) {
             IProbeInfo progressInfo = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT));
             progressInfo.element(new ElementProgressBar("{*gregtech.top.progress*}", String.valueOf(progress), String.valueOf(maxProgress),
                     "s", "s", Color.GREEN.toString(), ",##0.00"));

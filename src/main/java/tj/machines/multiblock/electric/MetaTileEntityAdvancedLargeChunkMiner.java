@@ -341,13 +341,14 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
             final BufferBuilder buffer = tessellator.getBuffer();
             buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
 
-            final int reminder = this.getDiameter() % 2;
-            final int start = this.getDiameter() / 2;
+            final int diameter = this.getDiameter();
+            final int reminder = diameter % 2;
+            final int start = diameter / 2;
             final int end = start + reminder;
             for (int i = -start; i < end; i++) {
                 for (int j = -start; j < end; j++) {
-                    final int x = j % this.getDiameter();
-                    final int z = j / this.getDiameter() + i;
+                    final int x = j % diameter;
+                    final int z = j / diameter + i;
                     buffer.pos(x, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
                     buffer.pos(x + 1f, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
                     buffer.pos(x + 1f, 0f, z).color(1f, 1f, 1f, 1f).endVertex();

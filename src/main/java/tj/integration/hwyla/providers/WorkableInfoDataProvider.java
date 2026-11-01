@@ -50,8 +50,10 @@ public class WorkableInfoDataProvider extends CapabilityInfoDataProvider<IWorkab
         final NBTTagCompound compound = accessor.getNBTData().getCompoundTag(this.getConfigName());
         final double maxProgress = (double) compound.getInteger("maxProgress") / 20;
         final double progress = Math.min(maxProgress, (double) compound.getInteger("progress") / 20);
-        tooltip.add(SpecialChars.getRenderString("tj.progressinfo", I18n.format("gregtech.top.progress"),
-                String.valueOf(progress), String.valueOf(maxProgress), "s", "s", Color.GREEN.toString(), ",##0.00"));
+        final boolean active = compound.getBoolean("active");
+        if (active)
+            tooltip.add(SpecialChars.getRenderString("tj.progressinfo", I18n.format("gregtech.top.progress"),
+                    String.valueOf(progress), String.valueOf(maxProgress), "s", "s", Color.GREEN.toString(), ",##0.00"));
         if (workable instanceof AbstractRecipeLogic) {
             final NBTTagCompound recipeCompound = accessor.getNBTData().getCompoundTag("tj.recipeinfo");
             final int recipeEUt = compound.getInteger("eut");
@@ -59,7 +61,7 @@ public class WorkableInfoDataProvider extends CapabilityInfoDataProvider<IWorkab
             if (compound.hasKey("eut"))
                 tooltip.add(I18n.format("tj.multiblock.eu", TJValues.thousandFormat.format(recipeEUt),
                         tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier]));
-            if (compound.getBoolean("active"))
+            if (active)
                 tooltip.add(I18n.format("machine.universal.running"));
             final NBTTagList itemOutputs = recipeCompound.getTagList("itemOutputs", 10);
             final NBTTagList fluidOutputs = recipeCompound.getTagList("fluidOutputs", 10);

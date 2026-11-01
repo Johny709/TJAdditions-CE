@@ -143,7 +143,7 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
         super.writeInitialSyncData(buf);
         buf.writeBoolean(this.isItemAutoOutput);
         buf.writeBoolean(this.isFluidAutoOutput);
-        buf.writeByte(this.outputFacing.getIndex());
+        buf.writeInt(this.outputFacing.getIndex());
         buf.writeBoolean(this.allowInputFromOutputSide);
     }
 
@@ -152,7 +152,7 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
         super.receiveInitialSyncData(buf);
         this.isItemAutoOutput = buf.readBoolean();
         this.isFluidAutoOutput = buf.readBoolean();
-        this.outputFacing = EnumFacing.VALUES[buf.readByte()];
+        this.outputFacing = EnumFacing.VALUES[buf.readInt()];
         this.allowInputFromOutputSide = buf.readBoolean();
     }
 
@@ -172,8 +172,7 @@ public abstract class TJTieredWorkableMetaTileEntity extends GATieredMetaTileEnt
         this.isItemAutoOutput = data.getBoolean("isItemAutoOutput");
         this.isFluidAutoOutput = data.getBoolean("isFluidAutoOutput");
         this.allowInputFromOutputSide = data.getBoolean("allowInputFromOutputSide");
-        if (data.hasKey("outputFacing"))
-            this.outputFacing = EnumFacing.VALUES[data.getInteger("outputFacing")];
+        this.outputFacing = EnumFacing.VALUES[data.getInteger("outputFacing")];
     }
 
     protected void setOutputFacing(EnumFacing outputFacing) {
