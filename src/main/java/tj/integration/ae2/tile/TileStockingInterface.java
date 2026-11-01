@@ -116,7 +116,7 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
                                 final int extract = stack.getCount() - inserted;
                                 if (extract < 1) continue;
                                 final ItemStack otherStack = itemHandler.extractItem(i, extract, false);
-                                TJItemUtils.insertIntoItemHandler(destItemHandler, otherStack, false);
+                                TJItemUtils.insertIntoItemHandlerNotifiable(destItemHandler, otherStack, false);
                             }
                         }
                     }

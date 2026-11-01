@@ -243,7 +243,7 @@ public final class RecipeInit {
                     'W', GACraftingComponents.CABLE_SINGLE.getIngredient(tier),
                     'M', GACraftingComponents.MOTOR.getIngredient(tier));
         }
-        for (int i = 0, tier = 1; i < ARCHITECT_WORKBENCH.length; i++, tier++) {
+        for (int i = 0, tier = 1; i < CHISEL_WORKBENCH.length; i++, tier++) {
             ModHandler.addShapedRecipe("chisel_workbench_" + GAValues.VN[tier].toLowerCase(), CHISEL_WORKBENCH[i].getStackForm(), "CAC", "RSR", "GWG",
                     'R', GACraftingComponents.CONVEYOR.getIngredient(tier),
                     'A', TJItemUtils.getItemStackFromName("chisel:auto_chisel"),
@@ -252,7 +252,7 @@ public final class RecipeInit {
                     'W', GACraftingComponents.CABLE_SINGLE.getIngredient(tier),
                     'G', GACraftingComponents.GEAR.getIngredient(tier));
         }
-        for (int i = 0, tier = 1; i < ARCHITECT_WORKBENCH.length; i++, tier++) {
+        for (int i = 0, tier = 1; i < ENCHANTER.length; i++, tier++) {
             ModHandler.addShapedRecipe("enchanter_" + GAValues.VN[tier].toLowerCase(), ENCHANTER[i].getStackForm(), "CEC", "PSP", "DWD",
                     'C', GACraftingComponents.CIRCUIT.getIngredient(tier),
                     'E', new ItemStack(Blocks.ENCHANTING_TABLE),
