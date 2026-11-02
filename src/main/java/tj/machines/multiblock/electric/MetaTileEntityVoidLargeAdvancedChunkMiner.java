@@ -29,10 +29,16 @@ import gregtech.common.items.MetaItems;
 import gregtech.common.sound.GTSoundEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
@@ -41,14 +47,17 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.registries.IForgeRegistryEntry;
+import org.lwjgl.opengl.GL11;
 import tj.TJValues;
 import tj.blocks.BlockSolidCasings;
 import tj.blocks.TJMetaBlocks;
+import tj.event.RenderEventHandler;
 import tj.mui.widgets.WidgetTabBuilder;
 import tj.machines.controllers.GUIDisplayBuilder;
 import tj.machines.controllers.TJMultiblockControllerBase;
@@ -68,9 +77,7 @@ import tj.util.TJFluidUtils;
 import tj.util.pair.IntPair;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.function.UnaryOperator;
 
 import static gregicadditions.capabilities.GregicAdditionsCapabilities.MAINTENANCE_HATCH;
@@ -81,6 +88,7 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
 
     private static final MultiblockAbility<?>[] ALLOWED_ABILITIES = {IMPORT_ITEMS, EXPORT_ITEMS, IMPORT_FLUIDS, EXPORT_FLUIDS, INPUT_ENERGY, MAINTENANCE_HATCH};
     private final InfiniteMinerWorkableHandler workableHandler = new InfiniteMinerWorkableHandler(this);
+    private final Set<UUID> playersSeeBoundingBox = new HashSet<>();
     private FluidStack drillingFluid = GAMaterials.Taranium.getFluid(1);
     private int fortune;
     private int tier;
@@ -186,6 +194,8 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
                     .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"));
             tab.add(new TJToggleButtonWidget(175, 169, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklistBlock, this.workableHandler::setBlacklistBlock)
                     .setToggleTitleTooltipHoverText("tj.multiblock.advanced_large_miner.blacklist_block.disabled", "tj.multiblock.advanced_large_miner.blacklist_block.enabled"));
+            tab.add(new TJToggleButtonWidget(175, 191, 18, 18, TJGuiTextures.TOGGLE_BOX, () -> this.playersSeeBoundingBox.contains(player.getUniqueID()), bool -> this.addPlayerToSeeBoundingBox(player.getUniqueID()))
+                    .setTitleHoverTooltipText("tj.multiblock.advanced_large_miner.mining_area_bounding_box"));
         });
     }
 
@@ -217,6 +227,7 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
         this.workableHandler.initialize(this.getAbilities(IMPORT_ITEMS).size());
         this.fortune = this.tier + this.tier;
         this.drillingFluid = GAMaterials.Taranium.getFluid(1 << this.getTier() - 1);
+        this.writeCustomData(21, buffer -> buffer.writeInt(this.tier));
     }
 
     @Override
@@ -224,6 +235,7 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
         super.invalidateStructure();
         this.tier = 0;
         this.fortune = 0;
+        this.writeCustomData(21, buffer -> buffer.writeInt(this.tier));
     }
 
     @Override
@@ -243,6 +255,122 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
     @Override
     public void clearMachineInventory(NonNullList<ItemStack> itemBuffer) {
         // Inventory used for filters. Don't drop anything.
+    }
+
+    private void addPlayerToSeeBoundingBox(UUID uuid) {
+        if (this.playersSeeBoundingBox.contains(uuid)) {
+            this.playersSeeBoundingBox.remove(uuid);
+        } else this.playersSeeBoundingBox.add(uuid);
+        this.writeCustomData(20, buffer -> buffer.writeUniqueId(uuid));
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 20) {
+            final UUID uuid = buf.readUniqueId();
+            if (this.playersSeeBoundingBox.contains(uuid)) {
+                this.playersSeeBoundingBox.remove(uuid);
+            } else this.playersSeeBoundingBox.add(uuid);
+        } else if (dataId == 21) {
+            this.tier = buf.readInt();
+        }
+    }
+
+    @Override
+    public void onAttached() {
+        super.onAttached();
+        if (this.getWorld() != null && this.getWorld().isRemote)
+            this.initializeMiningAreaBoundingBox();
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (this.getWorld() != null && this.getWorld().isRemote)
+            this.removeMiningAreaBoundingBox();
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void initializeMiningAreaBoundingBox() {
+        final String key = this.getMetaFullName() + "." + this.getPos() + "." + this.getWorld().provider.getDimension();
+        RenderEventHandler.addToRenderWorldLastEvent(key, event -> {
+            final EntityPlayer player = Minecraft.getMinecraft().player;
+            if (player == null) return;
+            if (!this.playersSeeBoundingBox.contains(player.getUniqueID())) return;
+
+            GlStateManager.pushMatrix();
+            GlStateManager.disableCull();
+            GlStateManager.disableTexture2D();
+            GlStateManager.disableLighting();
+            GlStateManager.disableBlend();
+
+            final Chunk chunk = this.getWorld().getChunk(this.getPos());
+            final float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
+            final double playerX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
+            final double playerY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
+            final double playerZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
+            // offset rendering position relative to player camera position
+            GlStateManager.translate(-playerX + chunk.x * 16, -playerY, -playerZ + chunk.z * 16);
+            GlStateManager.scale(16f, 16f, 16f);
+            GlStateManager.glLineWidth(4);
+
+            final Tessellator tessellator = Tessellator.getInstance();
+            final BufferBuilder buffer = tessellator.getBuffer();
+            buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+
+            final int diameter = this.getDiameter();
+            final int reminder = diameter % 2;
+            final int start = diameter / 2;
+            final int end = start + reminder;
+            for (int i = -start; i < end; i++) {
+                for (int j = -start; j < end; j++) {
+                    final int x = j % diameter;
+                    final int z = j / diameter + i;
+                    buffer.pos(x, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x + 1f, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1f, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+
+                    buffer.pos(x, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                }
+            }
+            tessellator.draw();
+            GlStateManager.popMatrix();
+        });
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void removeMiningAreaBoundingBox() {
+        final String key = this.getMetaFullName() + "." + this.getPos() + "." + this.getWorld().provider.getDimension();
+        RenderEventHandler.removeFromRenderWorldLastEvent(key);
     }
 
     @Override
