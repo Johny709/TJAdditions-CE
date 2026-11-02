@@ -47,13 +47,14 @@ public class RecipeInfoDataProvider extends CapabilityInfoDataProvider<IRecipeIn
         final NBTTagCompound compound = accessor.getNBTData().getCompoundTag(this.getConfigName());
         final long energyPerTick = compound.getLong("energyPerTick");
         final int tier = TJUtility.getTierFromVoltage(energyPerTick);
-        if (energyPerTick > 0)
+        final boolean active = compound.getBoolean("active");
+        if (active && energyPerTick > 0)
             tooltip.add(I18n.format("tj.multiblock.eu",
                     TJValues.thousandFormat.format(energyPerTick),
                     tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier]));
         if (compound.getBoolean("problem")) {
             tooltip.add(I18n.format("machine.universal.has_problems"));
-        } else if (compound.getBoolean("active")) {
+        } else if (active) {
             tooltip.add(I18n.format("machine.universal.running"));
         }
         final NBTTagList itemInputs = compound.getTagList("itemInputs", 10);
