@@ -65,10 +65,14 @@ public class GeneratorInfoDataProvider extends CapabilityInfoDataProvider<IGener
         final NBTTagCompound compound = new NBTTagCompound();
         final NBTTagList consumptionList = new NBTTagList();
         final NBTTagList productionList = new NBTTagList();
-        for (String str : generatorInfo.consumptionInfo())
+        for (String str : generatorInfo.consumptionInfo()) {
+            if (str == null) continue;
             consumptionList.appendTag(new NBTTagString(str));
-        for (String str : generatorInfo.productionInfo())
+        }
+        for (String str : generatorInfo.productionInfo()) {
+            if (str == null) continue;
             productionList.appendTag(new NBTTagString(str));
+        }
         compound.setTag("consumptionList", consumptionList);
         compound.setTag("productionList", productionList);
         compound.setLong("consumption", generatorInfo.getConsumption());
