@@ -2,6 +2,7 @@ package tj.integration.jei.multi.electric;
 
 import gregicadditions.GAConfig;
 import gregicadditions.GAValues;
+import gregicadditions.channels.GAChannelRegistry;
 import gregicadditions.item.GAMetaBlocks;
 import gregicadditions.item.fusion.GACryostatCasing;
 import gregicadditions.item.fusion.GADivertorCasing;
@@ -9,7 +10,9 @@ import gregicadditions.item.fusion.GAFusionCasing;
 import gregicadditions.item.fusion.GAVacuumCasing;
 import gregicadditions.machines.GATileEntities;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
+import gregtech.common.channels.ChannelRegistry;
 import gregtech.integration.jei.multiblock.MultiblockShapeInfo;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumFacing;
 import tj.integration.jei.TJMultiblockInfoPage;
@@ -57,20 +60,24 @@ public class MegaAdvancedFusionInfo extends TJMultiblockInfoPage {
 
         GADivertorCasing.CasingType type = GADivertorCasing.CasingType.values()[Math.min(4,extent)];
 
+
+        final IBlockState tieredCoil = GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.values()[type.ordinal() + 4]);
+        final IBlockState tieredVacuum = GAMetaBlocks.VACUUM_CASING.getState(GAVacuumCasing.CasingType.values()[type.ordinal()]);
+
         return builder.where('S', this.getController(), EnumFacing.WEST)
                 .where('C', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.ADV_FUSION_CASING))
+                .where('c', GAChannelRegistry.FUSION_COIL, tieredCoil)
+                .where('s', GAChannelRegistry.FUSION_COIL, tieredCoil)
+                .where('V', GAChannelRegistry.VACUUM_CASING, tieredVacuum)
                 .where('B', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_BLANKET))
                 .where('e', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_BLANKET))
                 .where('T', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.FUSION_BLANKET))
                 .where('M', GATileEntities.MAINTENANCE_HATCH[0], EnumFacing.WEST)
                 .where('I', TJMetaTileEntities.QUADRUPLE_QUADRUPLE_INPUT_HATCH, EnumFacing.WEST)
                 .where('O', TJMetaTileEntities.QUADRUPLE_QUADRUPLE_OUTPUT_HATCH, EnumFacing.WEST)
-                .where('s', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.values()[type.ordinal() + 4]))
-                .where('c', GAMetaBlocks.FUSION_CASING.getState(GAFusionCasing.CasingType.values()[type.ordinal() + 4]))
-                .where('V', GAMetaBlocks.VACUUM_CASING.getState(GAVacuumCasing.CasingType.values()[type.ordinal()]))
-                .where('R', GAMetaBlocks.CRYOSTAT_CASING.getState(GACryostatCasing.CasingType.values()[type.ordinal()]))
-                .where('D', GAMetaBlocks.DIVERTOR_CASING.getState(type))
-                .where('H', this.getEnergyHatch(type.ordinal() + GAValues.UHV, false), EnumFacing.DOWN)
+                .where('R', GAChannelRegistry.CRYOSTAT_CASING, GAMetaBlocks.CRYOSTAT_CASING.getState(GACryostatCasing.CasingType.values()[type.ordinal()]))
+                .where('D', GAChannelRegistry.DIVERTOR_CASING, GAMetaBlocks.DIVERTOR_CASING.getState(type))
+                .where('H', ChannelRegistry.ENERGY_INPUT_HATCH, this.getEnergyHatch(type.ordinal() + GAValues.UHV, false), EnumFacing.DOWN)
                 .build();
     }
 
