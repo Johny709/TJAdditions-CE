@@ -302,14 +302,14 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
     @Override
     public void onAttached() {
         super.onAttached();
-        if (this.getWorld().isRemote)
+        if (this.getWorld() != null && this.getWorld().isRemote)
             this.initializeMiningAreaBoundingBox();
     }
 
     @Override
     public void onRemoval() {
         super.onRemoval();
-        if (this.getWorld().isRemote)
+        if (this.getWorld() != null && this.getWorld().isRemote)
             this.removeMiningAreaBoundingBox();
     }
 
