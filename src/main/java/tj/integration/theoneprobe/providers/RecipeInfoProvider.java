@@ -32,7 +32,7 @@ public class RecipeInfoProvider extends CapabilityInfoProvider<IRecipeInfo> {
         final List<FluidStack> fluidInputs = capability.getFluidInputs();
         final List<ItemStack> itemOutputs = capability.getItemOutputs();
         final List<FluidStack> fluidOutputs = capability.getFluidOutputs();
-        if (capability.getEnergyPerTick() > 0) {
+        if (capability.isActive() && capability.getEnergyPerTick() > 0) {
             final IProbeInfo horizontalPane = probeInfo.horizontal(probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER));
             final int tier = TJUtility.getTierFromVoltage(capability.getEnergyPerTick());
             horizontalPane.element(new ElementTJText(String.format("{*tj.multiblock.eu[*%s;%s*]*}",

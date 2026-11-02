@@ -58,8 +58,7 @@ public class FisherWorkableHandler extends AbstractWorkableHandler<IPosHandler> 
             itemInputs = this.handler.getImportItemInventory();
             this.foundRecipe = this.findAndConsumeInputs(itemInputs, true) > 0;
         }
-        if (this.foundRecipe && this.handler.getInputEnergyContainer().getEnergyStored() >= GAValues.V[this.handler.getTier()] && this.checkWaterAround()) {
-            this.handler.getInputEnergyContainer().removeEnergy(GAValues.V[this.handler.getTier()]);
+        if (this.foundRecipe && this.handler.getInputEnergyContainer().getEnergyStored() >= GAValues.VA[this.handler.getTier()] && this.checkWaterAround()) {
             final int amount = this.findAndConsumeInputs(itemInputs, false);
             final World world = this.metaTileEntity.getWorld();
             for (int i = 0; i < amount; i++) {
@@ -74,7 +73,6 @@ public class FisherWorkableHandler extends AbstractWorkableHandler<IPosHandler> 
             }
             this.itemOutputs.addAll(this.itemMapSorter.keySet());
             this.setMaxProgress(this.calculateOverclock(30, 800, 2));
-            this.energyPerTick = 0;
             return true;
         } else return false;
     }

@@ -60,6 +60,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
     protected boolean blacklist = true;
     private boolean blacklistBlock;
     protected boolean silkTouch;
+    private boolean foundRecipe;
     private boolean voidItems;
     private boolean reset;
     private boolean done;
@@ -86,11 +87,14 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
             this.chunkIndex = 0;
         if (this.done)
             return false;
-        this.currentChunk = this.chunks.get(this.chunkIndex);
         this.energyPerTick = GAValues.VA[this.handler.getTier()];
-        this.levelY = this.metaTileEntity.getPos().offset(EnumFacing.DOWN).getY();
-        this.setMaxProgress(this.levelY * 256);
-        return this.handler.getInputEnergyContainer().getEnergyStored() >= this.energyPerTick;
+        this.foundRecipe = this.handler.getDrillingFluid().isFluidStackIdentical(this.handler.getImportFluidTank().drain(this.handler.getDrillingFluid(), false));
+        if (this.foundRecipe && this.handler.getInputEnergyContainer().getEnergyStored() >= this.energyPerTick) {
+            this.currentChunk = this.chunks.get(this.chunkIndex);
+            this.levelY = this.metaTileEntity.getPos().offset(EnumFacing.DOWN).getY();
+            this.setMaxProgress(this.levelY * 256);
+            return true;
+        } else return false;
     }
 
     @Override
@@ -138,6 +142,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
                 this.outputIndex++;
             } else return false;
         }
+        this.foundRecipe = false;
         this.itemOutputs.clear();
         this.itemType.clear();
         this.outputIndex = 0;
@@ -293,6 +298,11 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         this.oreDictFilter.readFromNBT(compound);
     }
 
+    @Override
+    protected boolean otherConditions() {
+        return this.foundRecipe;
+    }
+
     @Nonnull
     @Override
     public List<ItemStack> getItemOutputs() {
@@ -367,6 +377,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         this.done = done;
         if (this.done) {
             this.done = false;
+            this.foundRecipe = true;
             this.writeCustomData(4, buffer -> buffer.writeBoolean(this.done));
         }
         this.metaTileEntity.markDirty();

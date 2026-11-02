@@ -26,6 +26,7 @@ import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import tj.capability.AbstractWorkableHandler;
 import tj.capability.impl.handler.IFarmerHandler;
@@ -47,6 +48,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
     private boolean initialized;
     private boolean outputTools;
     private boolean voidOutputs;
+    private boolean foundRecipe;
     private int fertilizerChance;
     private int outputIndex;
     private int range;
@@ -62,7 +64,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
         this.range = range;
         this.radius = (int) Math.sqrt(range);
         this.fertilizerChance = this.handler.getTier() * 10;
-        int amount = this.handler.getTier() >= GTValues.ZPM ? 4 : this.handler.getTier() >= GTValues.EV ? 2 : 1;
+        final int amount = this.handler.getTier() >= GTValues.ZPM ? 4 : this.handler.getTier() >= GTValues.EV ? 2 : 1;
         this.harvesters = new Harvester[amount];
         for (int i = 0; i < this.harvesters.length; i++) {
             this.harvesters[i] = new Harvester();
@@ -71,9 +73,18 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
 
     @Override
     protected boolean startRecipe() {
-        this.maxProgress = this.range;
+        final IItemHandlerModifiable itemInputs = this.handler.getImportItemInventory();
+        for (int i = 0; i < itemInputs.getSlots(); i++) {
+            if (!itemInputs.getStackInSlot(i).isEmpty()) {
+                this.foundRecipe = true;
+                break;
+            }
+        }
         this.energyPerTick = (long) (this.range / 4) * this.harvesters.length;
-        return this.handler.getInputEnergyContainer().getEnergyStored() >= this.energyPerTick;
+        if (this.foundRecipe && this.handler.getInputEnergyContainer().getEnergyStored() >= this.energyPerTick) {
+            this.maxProgress = this.range;
+            return true;
+        } else return false;
     }
 
     @Override
@@ -107,8 +118,8 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
     @Override
     protected boolean completeRecipe() {
         for (int i = 0; i < this.itemOutputs.size(); i++) {
-            ItemStack stack = this.itemOutputs.get(i);
-            Block block = Block.getBlockFromItem(stack.getItem());
+            final ItemStack stack = this.itemOutputs.get(i);
+            final Block block = Block.getBlockFromItem(stack.getItem());
             if (block instanceof IPlantable || stack.getItem() instanceof IPlantable) {
                 this.itemOutputs.set(i, TJItemUtils.insertIntoItemHandler(this.handler.getImportItemInventory(), stack, false));
             }
@@ -119,28 +130,17 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
                 this.outputIndex++;
             } else return false;
         }
+        this.foundRecipe = false;
         this.outputIndex = 0;
         this.itemType.clear();
         this.itemOutputs.clear();
         return true;
     }
 
-    @Nonnull
-    @Override
-    public List<ItemStack> getItemInputs() {
-        return this.itemInputs;
-    }
-
-    @Nonnull
-    @Override
-    public List<ItemStack> getItemOutputs() {
-        return this.itemOutputs;
-    }
-
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound data = super.serializeNBT();
-        NBTTagList inputList = new NBTTagList(), outputList = new NBTTagList();
+        final NBTTagCompound data = super.serializeNBT();
+        final NBTTagList inputList = new NBTTagList(), outputList = new NBTTagList();
         for (ItemStack stack : this.itemInputs)
             inputList.appendTag(stack.serializeNBT());
         for (ItemStack stack : this.itemOutputs)
@@ -156,7 +156,7 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
     @Override
     public void deserializeNBT(NBTTagCompound data) {
         super.deserializeNBT(data);
-        NBTTagList inputList = data.getTagList("inputList", 10), outputList = data.getTagList("outputList", 10);
+        final NBTTagList inputList = data.getTagList("inputList", 10), outputList = data.getTagList("outputList", 10);
         for (int i = 0; i < inputList.tagCount(); i++)
             this.itemInputs.add(new ItemStack(inputList.getCompoundTagAt(i)));
         for (int i = 0; i < outputList.tagCount(); i++)
@@ -166,6 +166,23 @@ public class FarmingStationWorkableHandler extends AbstractWorkableHandler<IFarm
         this.outputIndex = data.getInteger("outputIndex");
         this.outputTools = data.getBoolean("outputTools");
         this.voidOutputs = data.getBoolean("voidOutputs");
+    }
+
+    @Override
+    protected boolean otherConditions() {
+        return this.foundRecipe;
+    }
+
+    @Nonnull
+    @Override
+    public List<ItemStack> getItemInputs() {
+        return this.itemInputs;
+    }
+
+    @Nonnull
+    @Override
+    public List<ItemStack> getItemOutputs() {
+        return this.itemOutputs;
     }
 
     public void setOutputTools(boolean outputTools) {

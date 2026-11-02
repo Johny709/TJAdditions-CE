@@ -58,7 +58,7 @@ public class WorkableInfoDataProvider extends CapabilityInfoDataProvider<IWorkab
             final NBTTagCompound recipeCompound = accessor.getNBTData().getCompoundTag("tj.recipeinfo");
             final int recipeEUt = compound.getInteger("eut");
             final int tier = TJUtility.getTierFromVoltage(recipeEUt);
-            if (compound.hasKey("eut"))
+            if (active && recipeEUt > 0)
                 tooltip.add(I18n.format("tj.multiblock.eu", TJValues.thousandFormat.format(recipeEUt),
                         tier > 14 ? "§c§lM§e§lA§a§lX§b§l+§d§l" + (tier - 14) : TJValues.VCC[tier] + GAValues.VN[tier]));
             if (active)
@@ -89,10 +89,10 @@ public class WorkableInfoDataProvider extends CapabilityInfoDataProvider<IWorkab
                     fluidOutputs.appendTag(fluid.writeToNBT(new NBTTagCompound()));
             recipeCompound.setTag("itemOutputs", itemOutputs);
             recipeCompound.setTag("fluidOutputs", fluidOutputs);
-            compound.setBoolean("active", workable.isActive());
             compound.setInteger("eut", ((AbstractRecipeLogic) workable).getRecipeEUt());
             tag.setTag("tj.recipeinfo", recipeCompound);
         }
+        compound.setBoolean("active", workable.isActive());
         compound.setInteger("progress", workable.getProgress());
         compound.setInteger("maxProgress", workable.getMaxProgress());
         tag.setTag(this.getConfigName(), compound);
