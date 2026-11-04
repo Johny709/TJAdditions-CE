@@ -57,6 +57,7 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
     @Override
     public void invalidate() {
         this.lastInputIndex = 0;
+        this.recipeMapList.clear();
     }
 
     @Override
@@ -80,18 +81,18 @@ public class CrafterRecipeLogic extends AbstractWorkableHandler<IMachineHandler>
         }
         if (this.currentRecipe != null && this.handler.getInputEnergyContainer().getEnergyStored() >= GAValues.VA[this.handler.getTier()]) {
             final int parallels = this.handler.getParallel();
-            int amountToExtract = parallels;
+            int parallelsPerformed = parallels;
             for (CountableIngredient ingredient : this.currentRecipe.getMiddle()) { // calculate and simulate parallels
                 final int size = ingredient.getCount();
                 final int extracted = TJItemUtils.extractFromItemHandlerByIngredient(itemInputs, ingredient.getIngredient(), parallels * size, true);
-                amountToExtract = Math.min(amountToExtract, extracted / size);
+                parallelsPerformed = Math.min(parallelsPerformed, extracted / size);
             }
             for (CountableIngredient ingredient : this.currentRecipe.getMiddle()) { // consume recipe inputs
                 final int size = ingredient.getCount();
-                TJItemUtils.extractFromItemHandlerByIngredient(itemInputs, ingredient.getIngredient(), amountToExtract * size, false);
+                TJItemUtils.extractFromItemHandlerByIngredient(itemInputs, ingredient.getIngredient(), parallelsPerformed * size, false);
             }
             final ItemStack output = this.currentRecipe.getLeft().getRecipeOutput().copy();
-            output.setCount(output.getCount() * amountToExtract);
+            output.setCount(output.getCount() * parallelsPerformed);
             this.itemOutputs.add(output);
             this.previousRecipe.put(this.currentRecipe);
             this.maxProgress = this.calculateOverclock(30, 50, 2.8F);
