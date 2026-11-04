@@ -59,9 +59,9 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
 
     private final CrafterRecipeLogic recipeLogic = new CrafterRecipeLogic(this);
     private final InventoryCrafting inventoryCrafting = new InventoryCrafting(new DummyContainer(), 3, 3);
-    private final ItemStackHandler craftingInventory = new ItemStackHandler(9);
+    private final ItemStackHandler craftingInventory = new NotifiableItemStackHandler(this, 9);
     private final ItemStackHandler encodingInventory;
-    private final ItemStackHandler resultInventory = new ItemStackHandler(1);
+    private final ItemStackHandler resultInventory = new NotifiableItemStackHandler(this, 1);
     private final Int2ObjectMap<Triple<IRecipe, NonNullList<CountableIngredient>, NonNullList<ItemStack>>> recipeMap = new Int2ObjectOpenHashMap<>();
     private final int encodingSlots;
     private final int parallel;
@@ -71,7 +71,7 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
         super(metaTileEntityId, tier);
         this.encodingSlots = 6 + (tier * 3);
         this.parallel = this.getTier();
-        this.encodingInventory = new ItemStackHandler(this.encodingSlots);
+        this.encodingInventory = new NotifiableItemStackHandler(this, this.encodingSlots);
         this.recipeLogic.initialize(1);
     }
 
