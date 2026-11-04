@@ -71,6 +71,7 @@ import tj.mui.widgets.impl.ButtonPopUpWidget;
 import tj.mui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
 import tj.mui.widgets.impl.WindowsWidgetGroup;
+import tj.rendering.TJRenderUtil;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 import tj.util.TJFluidUtils;
@@ -303,7 +304,7 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
             GlStateManager.disableCull();
             GlStateManager.disableTexture2D();
             GlStateManager.disableLighting();
-            GlStateManager.disableBlend();
+            GlStateManager.enableBlend();
 
             final Chunk chunk = this.getWorld().getChunk(this.getPos());
             final float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
@@ -312,12 +313,17 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
             final double playerZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
             // offset rendering position relative to player camera position
             GlStateManager.translate(-playerX + chunk.x * 16, -playerY, -playerZ + chunk.z * 16);
-            GlStateManager.scale(16f, 16f, 16f);
-            GlStateManager.glLineWidth(4);
+            GlStateManager.color(1.0f, 1.0f, 1.0f, 0.3f);
 
+            TJRenderUtil.drawCube(2, 0, 256);
+
+            GlStateManager.disableBlend();
+            GlStateManager.glLineWidth(8);
+            GlStateManager.scale(16f, 16f, 16f);
+            GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
             final Tessellator tessellator = Tessellator.getInstance();
             final BufferBuilder buffer = tessellator.getBuffer();
-            buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+            buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
 
             final int diameter = this.getDiameter();
             final int reminder = diameter % 2;
@@ -327,39 +333,41 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
                 for (int j = -start; j < end; j++) {
                     final int x = j % diameter;
                     final int z = j / diameter + i;
-                    buffer.pos(x, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
-                    buffer.pos(x + 1f, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
-                    buffer.pos(x + 1f, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
-                    buffer.pos(x + 1f, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 0, z).endVertex();
+                    buffer.pos(x + 1, 0, z).endVertex();
 
-                    buffer.pos(x + 1f, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
-                    buffer.pos(x, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
-                    buffer.pos(x, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
-                    buffer.pos(x, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1, 0, z).endVertex();
+                    buffer.pos(x + 1, 0, z + 1).endVertex();
 
-                    buffer.pos(x, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
-                    buffer.pos(x + 1f, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1, 0, z + 1).endVertex();
+                    buffer.pos(x, 0, z + 1).endVertex();
 
-                    buffer.pos(x + 1f, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
-                    buffer.pos(x + 1f, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 0, z + 1).endVertex();
+                    buffer.pos(x, 0, z).endVertex();
 
-                    buffer.pos(x + 1f, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
-                    buffer.pos(x, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 0, z).endVertex();
+                    buffer.pos(x, 16, z).endVertex();
 
-                    buffer.pos(x, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
-                    buffer.pos(x, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1, 0, z).endVertex();
+                    buffer.pos(x + 1, 16, z).endVertex();
 
-                    buffer.pos(x, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
-                    buffer.pos(x, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1, 0, z + 1).endVertex();
+                    buffer.pos(x + 1, 16, z + 1).endVertex();
 
-                    buffer.pos(x + 1f, 0f, z).color(1f, 1f, 1f, 1f).endVertex();
-                    buffer.pos(x + 1f, 0f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 0, z + 1).endVertex();
+                    buffer.pos(x, 16, z + 1).endVertex();
 
-                    buffer.pos(x + 1f, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
-                    buffer.pos(x + 1f, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x, 16, z).endVertex();
+                    buffer.pos(x + 1, 16, z).endVertex();
 
-                    buffer.pos(x, 16f, z).color(1f, 1f, 1f, 1f).endVertex();
-                    buffer.pos(x, 16f, z + 1f).color(1f, 1f, 1f, 1f).endVertex();
+                    buffer.pos(x + 1, 16, z).endVertex();
+                    buffer.pos(x + 1, 16, z + 1).endVertex();
+
+                    buffer.pos(x + 1, 16, z + 1).endVertex();
+                    buffer.pos(x, 16, z + 1).endVertex();
+
+                    buffer.pos(x, 16, z + 1).endVertex();
+                    buffer.pos(x, 16, z).endVertex();
                 }
             }
             tessellator.draw();
