@@ -340,7 +340,7 @@ public class MetaTileEntityAdvancedLargeChunkMiner extends TJMultiblockControlle
             TJRenderUtil.drawCube(2, 0, 256);
 
             GlStateManager.disableBlend();
-            GlStateManager.glLineWidth(8);
+            GlStateManager.glLineWidth(4);
             GlStateManager.scale(16f, 16f, 16f);
             GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
             final Tessellator tessellator = Tessellator.getInstance();
