@@ -88,7 +88,9 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
     @Override
     protected ModularUI createUI(EntityPlayer player) {
         final WidgetGroup craftingSlotGroup = new WidgetGroup(new Position(7, 14));
-        final SlotWidgetGroup scrollableWidgetGroup = new SlotWidgetGroup(109, 14, 64, 54, 3);
+        final SlotWidgetGroup scrollableWidgetGroup = new SlotWidgetGroup(109, 14, 54, 54, 3)
+                .setScrollVerticalbar(0, 0, 10, 54, SLOT)
+                .setScrollVerticalSlider(0, 0, 10, 10, BORDERED_BACKGROUND);
         for (int i = 0; i < this.craftingInventory.getSlots(); i++) {
             final int finalI = i;
             craftingSlotGroup.addWidget(new PhantomSlotWidget(this.craftingInventory, i, 18 * (i % 3), 18 * (i / 3))
