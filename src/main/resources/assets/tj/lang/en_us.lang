@@ -564,6 +564,7 @@ tj.machine.farming_station.description=Plants and harvest in an area at 1 block 
 tj.machine.farming_station.fertilizer.tooltip=Has a §e%d%%§7 chance to apply fertilizer every block iteration.
 tj.machine.farming_station.tool_output.tooltip.enabled=Auto-output electric tools that have no power: §aTrue
 tj.machine.farming_station.tool_output.tooltip.disabled=Auto-output electric tools that have no power: §cFalse
+tj.machine.farming_station.harvest_area_box=Toggle to show the harvest area of this farming station in the world
 
 tj.machine.energy_hatch.current_amps=Current amps: §e%d
 tj.machine.energy_hatch.not_found=Energy hatch not found

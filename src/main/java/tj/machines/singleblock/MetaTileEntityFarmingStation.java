@@ -21,11 +21,15 @@ import gregtech.common.tools.ToolAxe;
 import gregtech.common.tools.ToolHoe;
 import gregtech.common.tools.ToolSaw;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.*;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.fluids.IFluidTank;
@@ -35,16 +39,17 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.capability.impl.handler.IFarmerHandler;
 import tj.capability.impl.workable.FarmingStationWorkableHandler;
+import tj.event.RenderEventHandler;
 import tj.items.handlers.NotifiableLargeItemStackHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.*;
 import tj.items.handlers.FilteredItemStackHandler;
+import tj.rendering.TJRenderUtil;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static gregicadditions.GAMaterials.OrganicFertilizer;
 import static gregtech.api.gui.GuiTextures.*;
@@ -73,6 +78,7 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
             });
 
     private final IFluidTank waterTank = new FilteredFluidHandler(this, this.getTier() >= GTValues.ZPM ? 256000 : this.getTier() >= GTValues.EV ? 128000 : 64000).setFillPredicate(ModHandler::isWater);
+    private final Set<UUID> playersSeeBoundingBox = new HashSet<>();
 
     public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
         super(metaTileEntityId, tier);
@@ -169,6 +175,8 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setContainerClicking(true, true)
                         .setBackgroundTexture(FLUID_SLOT)
                         .setAlwaysShowFull(true))
+                .widget(new TJToggleButtonWidget(133, 78, 18, 18, TJGuiTextures.TOGGLE_BOX, () -> this.playersSeeBoundingBox.contains(player.getUniqueID()), bool -> this.addPlayerToSeeBoundingBox(player.getUniqueID()))
+                        .setTitleHoverTooltipText("tj.machine.farming_station.harvest_area_box"))
                 .widget(new TJToggleButtonWidget(151, 78, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.workableHandler::isVoidOutputs, this.workableHandler::setVoidOutputs)
                         .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"))
                 .widget(new TJToggleButtonWidget(-24, 158, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
@@ -197,6 +205,73 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
         Textures.PIPE_OUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
         if (this.isAutoOutputItems())
             Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
+    }
+
+    private void addPlayerToSeeBoundingBox(UUID uuid) {
+        if (this.playersSeeBoundingBox.contains(uuid)) {
+            this.playersSeeBoundingBox.remove(uuid);
+        } else this.playersSeeBoundingBox.add(uuid);
+        this.writeCustomData(20, buffer -> buffer.writeUniqueId(uuid));
+    }
+
+    @Override
+    public void receiveCustomData(int dataId, PacketBuffer buf) {
+        super.receiveCustomData(dataId, buf);
+        if (dataId == 20) {
+            final UUID uuid = buf.readUniqueId();
+            if (this.playersSeeBoundingBox.contains(uuid)) {
+                this.playersSeeBoundingBox.remove(uuid);
+            } else this.playersSeeBoundingBox.add(uuid);
+        }
+    }
+
+    @Override
+    public void onAttached() {
+        super.onAttached();
+        if (this.getWorld().isRemote)
+            this.initializeHarvestRangeBox();
+    }
+
+    @Override
+    public void onRemoval() {
+        super.onRemoval();
+        if (this.getWorld().isRemote)
+            this.removeHarvestRangeBox();
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void initializeHarvestRangeBox() {
+        final String key = this.getMetaFullName() + "." + this.getPos() + "." + this.getWorld().provider.getDimension();
+        RenderEventHandler.addToRenderWorldLastEvent(key, event -> {
+            final EntityPlayer player = Minecraft.getMinecraft().player;
+            if (player == null) return;
+            if (!this.playersSeeBoundingBox.contains(player.getUniqueID())) return;
+
+            GlStateManager.pushMatrix();
+            GlStateManager.disableCull();
+            GlStateManager.disableTexture2D();
+            GlStateManager.disableLighting();
+            GlStateManager.enableBlend();
+
+            final BlockPos pos = this.getPos();
+            final float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
+            final double playerX = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
+            final double playerY = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
+            final double playerZ = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
+            // offset rendering position relative to player camera position
+            GlStateManager.translate(-playerX + pos.getX(), -playerY + pos.getY(), -playerZ + pos.getZ());
+            GlStateManager.color(0, 0, 1.0f, 0.3f);
+
+            final int radius = (int) (9 + (2L * this.getTier())) / 2;
+            TJRenderUtil.drawCube(radius, -1, radius + 1);
+            GlStateManager.popMatrix();
+        });
+    }
+
+    @SideOnly(Side.CLIENT)
+    private void removeHarvestRangeBox() {
+        final String key = this.getMetaFullName() + "." + this.getPos() + "." + this.getWorld().provider.getDimension();
+        RenderEventHandler.removeFromRenderWorldLastEvent(key);
     }
 
     @Override
