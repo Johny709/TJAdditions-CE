@@ -855,6 +855,7 @@ tj.multiblock.large_enchanter.description=An Electric Anvil.
 tj.multiblock.large_crafter.description=Automates crafting table recipes.
 tj.multiblock.large_crafter.description.1=Add §5Crafter Hatches§7 to encode recipes.
 tj.multiblock.large_crafter.warning=WARNING: non-consumables in crafting table recipes will get consumed here for now. Some recipes may not work.
+tj.multiblock.large_crafter.clear_recipe=Clear crafting recipe grid
 
 tj.multiblock.universal.tooltip.shift=[Press shift for more info]
 tj.multiblock.universal.tooltip.shifted=[Showing more tooltips]

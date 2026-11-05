@@ -114,8 +114,8 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
                         }
                     }));
         }
-        return ModularUI.builder(BACKGROUND, 176, 156)
-                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL)
+        return ModularUI.builder(BORDERED_BACKGROUND, 176, 156)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new ImageWidget(72, 28, 26, 26, SLOT))
                 .widget(new ImageWidget(109, 14, 54, 54, DARKENED_SLOT))
@@ -124,7 +124,8 @@ public class MetaTileEntityCrafterHatch extends GAMetaTileEntityMultiblockPart i
                 .widget(new ButtonWidget<>(62, 14, 8, 8, "", clickData -> {
                     this.clearCraftingResult();
                     this.setCraftingResult(0, ItemStack.EMPTY);
-                }).setBackgroundTextures(BUTTON_CLEAR_GRID))
+                }).setBackgroundTextures(BUTTON_CLEAR_GRID)
+                        .setTitleHoverTooltipText("tj.multiblock.large_crafter.clear_recipe"))
                 .widget(new CraftingRecipeTransferWidget(this::setCraftingResult))
                 .widget(craftingSlotGroup)
                 .widget(scrollableWidgetGroup)

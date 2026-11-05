@@ -176,7 +176,8 @@ public class MetaTileEntityCrafter extends TJTieredWorkableMetaTileEntity implem
                 .widget(new ButtonWidget<>(62, 14, 8, 8, "", clickData -> {
                     this.clearCraftingResult();
                     this.setCraftingResult(0, ItemStack.EMPTY);
-                }).setBackgroundTextures(BUTTON_CLEAR_GRID))
+                }).setBackgroundTextures(BUTTON_CLEAR_GRID)
+                        .setTitleHoverTooltipText("tj.multiblock.large_crafter.clear_recipe"))
                 .widget(new CraftingRecipeTransferWidget(this::setCraftingResult))
                 .widget(new ImageWidget(79, 60, 18, 18, GuiTextures.CAUTION_ICON)
                         .setHoverTooltip(this.recipeLogic::getHasProblemReason)
