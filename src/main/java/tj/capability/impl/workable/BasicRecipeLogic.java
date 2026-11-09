@@ -81,7 +81,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             recipe = this.recipeLRUCache.get(itemInputs, this.handler.getImportFluidTank());
             if (recipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(itemInputs, this.handler.getImportFluidTank()))) {
                 this.recipeRecheck = false;
-                recipe = this.handler.getRecipeMap().searchRecipe(this.handler.getMaxVoltage(), itemInputs, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
+                recipe = this.handler.getRecipeMap().searchRecipe(this.handler.getMaxVoltage(), itemInputs, this.handler.getImportFluidTank(),
+                        this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
                 if (recipe != null) {
                     ((IGTRecipe) recipe).mergeRecipeInputs();
                     this.recipeLRUCache.put(recipe);
@@ -96,7 +97,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
             this.overclockManager.setParallel(this.handler.getParallel());
             this.overclockManager.setChanceMultiplier(this.handler.getChanceMultiplier());
             this.handler.preOverclock(this.overclockManager, recipe);
-            if (this.handler.checkRecipe(recipe) && this.consumeRecipe(recipe, itemInputs)) {
+            if (this.handler.getInputEnergyContainer().getEnergyStored() >= this.overclockManager.getEUt() &&
+                    this.handler.checkRecipe(recipe) && this.consumeRecipe(recipe, itemInputs)) {
                 this.calculateOverclock(this.overclockManager.getEUt(), this.overclockManager.getDuration(), this.overclockManager.getDurationMultiplier());
                 this.handler.postOverclock(this.overclockManager, recipe);
                 this.energyPerTick = this.overclockManager.getEUt();
@@ -155,7 +157,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
         recipe = this.recipeLRUCache.get(itemInputs, this.handler.getImportFluidTank());
         if (recipe == null && (this.recipeRecheck || this.checkRecipeInputsDirty(itemInputs, this.handler.getImportFluidTank(), index))) {
             this.recipeRecheck = false;
-            recipe = this.handler.getRecipeMap().searchRecipe(this.handler.getMaxVoltage(), itemInputs, this.handler.getImportFluidTank(), this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
+            recipe = this.handler.getRecipeMap().searchRecipe(this.handler.getMaxVoltage(), itemInputs, this.handler.getImportFluidTank(),
+                    this.getMinTankCapacity(this.handler.getExportFluidTank()), true);
             if (recipe != null) {
                 ((IGTRecipe) recipe).mergeRecipeInputs();
                 this.recipeLRUCache.put(recipe);
@@ -185,7 +188,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     protected int checkItemInputsAmount(int parallels, Recipe recipe, IItemHandlerModifiable itemInputs) {
         for (GTIngredientWrapper ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
             if (ingredient.getCount() > 0) {
-                parallels = Math.min(parallels, TJItemUtils.extractFromItemHandlerByIngredient(itemInputs, ingredient.getIngredient(), ingredient.getCount() * parallels, true) / ingredient.getCount());
+                parallels = Math.min(parallels, TJItemUtils.extractFromItemHandlerByIngredient(itemInputs, ingredient.getIngredient(),
+                        ingredient.getCount() * parallels, true) / ingredient.getCount());
                 if (parallels < 1) return 0;
             } else if (!TJItemUtils.checkItemHandlerForIngredient(itemInputs, ingredient.getIngredient()))
                 return 0;
@@ -195,7 +199,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
 
     protected void consumeItemInputs(int parallels, Recipe recipe, IItemHandlerModifiable itemInputs) {
         for (GTIngredientWrapper ingredient : ((IGTRecipe) recipe).getMergedItemInputs()) {
-            TJItemUtils.extractFromItemHandlerByIngredientToList(itemInputs, ingredient.getIngredient(), ingredient.getCount() * parallels, false, this.itemInputs);
+            TJItemUtils.extractFromItemHandlerByIngredientToList(itemInputs, ingredient.getIngredient(),
+                    ingredient.getCount() * parallels, false, this.itemInputs);
         }
     }
 
@@ -222,7 +227,8 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
     protected int checkFluidInputsAmount(int parallels, Recipe recipe) {
         for (GTFluidStackWrapper stack : ((IGTRecipe) recipe).getMergedFluidInputs()) {
             if (stack.getCount() > 0) {
-                parallels = Math.min(parallels, TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack.getFluidStack(), stack.getCount() * parallels, false) / stack.getCount());
+                parallels = Math.min(parallels, TJFluidUtils.drainFromTanks(this.handler.getImportFluidTank(), stack.getFluidStack(),
+                        stack.getCount() * parallels, false) / stack.getCount());
                 if (parallels < 1) return 0;
             } else if (!TJFluidUtils.findFluidFromTanks(this.handler.getImportFluidTank(), stack.getFluidStack()))
                 return 0;
