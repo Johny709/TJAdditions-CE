@@ -75,11 +75,13 @@ public class MultiSmelterWorkableHandler extends AbstractWorkableHandler<ICoilHa
         int availableParallels = this.handler.getParallel();
         this.parallelsPerformed = 0;
         for (int i = 0; i < itemHandler.getSlots() && availableParallels > 0; i++) {
+            ItemStack output = ModHandler.getSmeltingOutput(itemHandler.getStackInSlot(i));
+            if (output.isEmpty()) continue;
             final ItemStack stack = itemHandler.extractItem(i, availableParallels, simulate);
             if (stack.isEmpty()) continue;
             availableParallels -= stack.getCount();
             if (!simulate) {
-                final ItemStack output = ModHandler.getSmeltingOutput(stack).copy();
+                output = output.copy();
                 output.setCount(stack.getCount() * output.getCount());
                 this.parallelsPerformed += stack.getCount();
                 this.itemInputs.add(stack);
