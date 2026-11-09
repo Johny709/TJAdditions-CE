@@ -31,6 +31,7 @@ import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tj.capability.impl.handler.SteamEnergyHandlerWrapper;
 import tj.machines.controllers.GUIDisplayBuilder;
 import tj.machines.controllers.TJMultiblockControllerBase;
 import tj.capability.IProgressBar;
@@ -43,7 +44,6 @@ import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 import tj.util.TJFluidUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -85,8 +85,10 @@ public class MetaTileEntitySteamOven extends TJMultiblockControllerBase implemen
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
         if (!this.hasDistinct()) return;
-        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON, this.workableHandler::isDistinct, this.workableHandler::setDistinct)
-                .setToggleTitleTooltipHoverText("machine.universal.toggle.distinct.mode.disabled", "machine.universal.toggle.distinct.mode.enabled"));
+        widgetGroup.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_DISTINCT_BUTTON,
+                this.workableHandler::isDistinct, this.workableHandler::setDistinct)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.distinct.mode.disabled",
+                        "machine.universal.toggle.distinct.mode.enabled"));
     }
 
     @Override
@@ -97,7 +99,8 @@ public class MetaTileEntitySteamOven extends TJMultiblockControllerBase implemen
                 .addVoltageTierLine(1)
                 .addFluidInputLine(this.importFluidTank, this.workableHandler.getSteam())
                 .addParallelLine(this.workableHandler.getParallelsPerformed(), this.getParallel())
-                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress(), this.workableHandler.isHasProblems(), 998)
+                .addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(),
+                        this.workableHandler.getMaxProgress(), this.workableHandler.isHasProblems(), 998)
                 .addRecipeInputLine(this.workableHandler, 999)
                 .addRecipeOutputLine(this.workableHandler, 1000);
         if (this.hasDistinct())
@@ -114,7 +117,8 @@ public class MetaTileEntitySteamOven extends TJMultiblockControllerBase implemen
                 .where('C', statePredicate(MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.BRONZE_BRICKS)))
                 .where('X', statePredicate(MetaBlocks.METAL_CASING.getState(BlockMetalCasing.MetalCasingType.BRONZE_BRICKS))
                         .or(abilityPartPredicate(STEAM_IMPORT_ITEMS, STEAM_EXPORT_ITEMS)))
-                .where('F', statePredicate(GTUtility.getAllPropertyValues(MetaBlocks.BOILER_FIREBOX_CASING.getState(BlockFireboxCasing.FireboxCasingType.BRONZE_FIREBOX), ACTIVE))
+                .where('F', statePredicate(GTUtility.getAllPropertyValues(MetaBlocks.BOILER_FIREBOX_CASING
+                        .getState(BlockFireboxCasing.FireboxCasingType.BRONZE_FIREBOX), ACTIVE))
                         .or(abilityPartPredicate(STEAM)))
                 .where('#', isAirPredicate())
                 .where('~', tile -> true)
@@ -127,14 +131,7 @@ public class MetaTileEntitySteamOven extends TJMultiblockControllerBase implemen
         this.importFluidTank = new FluidTankList(true, this.getAbilities(STEAM));
         this.importItemInventory = new ItemHandlerList(this.getAbilities(STEAM_IMPORT_ITEMS));
         this.exportItemInventory = new ItemHandlerList(this.getAbilities(STEAM_EXPORT_ITEMS));
-    }
-
-    @Override
-    public void invalidateStructure() {
-        super.invalidateStructure();
-        this.importFluidTank = new FluidTankList(true);
-        this.importItemInventory = new ItemHandlerList(Collections.emptyList());
-        this.exportItemInventory = new ItemHandlerList(Collections.emptyList());
+        this.inputEnergyContainer = new SteamEnergyHandlerWrapper(this.importFluidTank);
     }
 
     @Override
@@ -148,12 +145,14 @@ public class MetaTileEntitySteamOven extends TJMultiblockControllerBase implemen
 
     @Override
     public ICubeRenderer getBaseTexture(IMultiblockPart sourcePart) {
-        return !(sourcePart instanceof IMultiblockAbilityPart<?>) || ((IMultiblockAbilityPart<?>) sourcePart).getAbility() != STEAM ? Textures.BRONZE_PLATED_BRICKS : this.workableHandler.isActive() ? Textures.BRONZE_FIREBOX_ACTIVE : Textures.BRONZE_FIREBOX;
+        return !(sourcePart instanceof IMultiblockAbilityPart<?>) || ((IMultiblockAbilityPart<?>) sourcePart).getAbility() != STEAM ?
+                Textures.BRONZE_PLATED_BRICKS : this.workableHandler.isActive() ? Textures.BRONZE_FIREBOX_ACTIVE : Textures.BRONZE_FIREBOX;
     }
 
     @Override
     public int getLightValueForPart(IMultiblockPart sourcePart) {
-        return !(sourcePart instanceof IMultiblockAbilityPart<?>) || ((IMultiblockAbilityPart<?>) sourcePart).getAbility() != STEAM ? 0 : this.workableHandler.isActive() ? 15 : 0;
+        return !(sourcePart instanceof IMultiblockAbilityPart<?>) || ((IMultiblockAbilityPart<?>) sourcePart).getAbility() != STEAM ?
+                0 : this.workableHandler.isActive() ? 15 : 0;
     }
 
     @Override
@@ -194,7 +193,8 @@ public class MetaTileEntitySteamOven extends TJMultiblockControllerBase implemen
     @Override
     public void getProgressBars(Queue<UnaryOperator<ProgressBar.ProgressBarBuilder>> bars) {
         bars.add(bar -> bar.setProgress(this::getSteamAmount).setMaxProgress(this::getSteamCapacity)
-                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new String[]{this.workableHandler.getSteam() != null ? this.workableHandler.getSteam().getLocalizedName() : ""})
+                .setLocale("tj.multiblock.bars.fluid").setParams(() -> new String[]{this.workableHandler.getSteam() != null ?
+                        this.workableHandler.getSteam().getLocalizedName() : ""})
                 .setFluidStackSupplier(this.workableHandler::getSteam));
     }
 
