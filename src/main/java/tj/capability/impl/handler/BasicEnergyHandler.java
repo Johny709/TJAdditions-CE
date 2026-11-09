@@ -1,4 +1,4 @@
-package tj.capability.impl.workable;
+package tj.capability.impl.handler;
 
 import gregtech.api.capability.IEnergyContainer;
 import net.minecraft.nbt.NBTTagCompound;

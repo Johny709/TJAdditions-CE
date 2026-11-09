@@ -19,6 +19,7 @@ import gregtech.common.blocks.MetaBlocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
+import tj.capability.impl.handler.SteamEnergyHandlerWrapper;
 import tj.machines.controllers.GUIDisplayBuilder;
 import tj.machines.controllers.TJRecipeMapMultiblockController;
 import tj.capability.IProgressBar;
@@ -29,7 +30,6 @@ import tj.textures.TJOrientedOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.TJFluidUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -85,14 +85,7 @@ public class MetaTileEntitySteamGrinder extends TJRecipeMapMultiblockController 
         this.importItemInventory = new ItemHandlerList(this.getAbilities(STEAM_IMPORT_ITEMS));
         this.exportItemInventory = new ItemHandlerList(this.getAbilities(STEAM_EXPORT_ITEMS));
         this.importFluidTank = new FluidTankList(true, this.getAbilities(STEAM));
-    }
-
-    @Override
-    public void invalidateStructure() {
-        super.invalidateStructure();
-        this.importItemInventory = new ItemHandlerList(Collections.emptyList());
-        this.exportItemInventory = new ItemHandlerList(Collections.emptyList());
-        this.importFluidTank = new FluidTankList(true);
+        this.inputEnergyContainer = new SteamEnergyHandlerWrapper(this.importFluidTank);
     }
 
     @Override

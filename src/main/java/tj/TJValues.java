@@ -8,7 +8,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import tj.capability.impl.workable.BasicEnergyHandler;
+import tj.capability.impl.handler.BasicEnergyHandler;
 
 import java.text.DecimalFormat;
 import java.util.Collections;

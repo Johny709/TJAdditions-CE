@@ -49,7 +49,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
 import tj.mui.widgets.WidgetTabBuilder;
 import tj.capability.impl.handler.IBatteryHandler;
-import tj.capability.impl.workable.BasicEnergyHandler;
+import tj.capability.impl.handler.BasicEnergyHandler;
 import tj.machines.controllers.ExtendableMultiblockController;
 import tj.machines.controllers.GUIDisplayBuilder;
 import tj.capability.IEnderNotifiable;

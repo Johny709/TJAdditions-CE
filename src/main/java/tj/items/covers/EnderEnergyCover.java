@@ -15,7 +15,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.event.HoverEvent;
 import tj.TJValues;
-import tj.capability.impl.workable.BasicEnergyHandler;
+import tj.capability.impl.handler.BasicEnergyHandler;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
 
