@@ -371,44 +371,42 @@ public final class TJGuiUtils {
 
     @SideOnly(Side.CLIENT)
     public static void drawItemStack(int x, int y, ItemStack itemStack, long amount, @Nullable String altTxt) {
+        final Minecraft mc = Minecraft.getMinecraft();
+        final RenderItem itemRender = mc.getRenderItem();
+        final int prevAmount = itemStack.getCount();
         itemStack.setCount(1);
         GlStateManager.pushMatrix();
         GlStateManager.translate(0.0F, 0.0F, 32.0F);
         GlStateManager.color(1F, 1F, 1F, 1F);
         GlStateManager.enableRescaleNormal();
         GlStateManager.enableLighting();
+        GlStateManager.disableBlend();
         RenderHelper.enableGUIStandardItemLighting();
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
-        Minecraft mc = Minecraft.getMinecraft();
-        RenderItem itemRender = mc.getRenderItem();
         itemRender.renderItemAndEffectIntoGUI(itemStack, x, y);
         itemRender.renderItemOverlayIntoGUI(mc.fontRenderer, itemStack, x, y, altTxt);
         GlStateManager.disableRescaleNormal();
         GlStateManager.disableLighting();
-        GlStateManager.color(1F, 1F, 1F, 1F);
+        GlStateManager.disableDepth();
         GlStateManager.scale(0.5, 0.5, 1);
         if (amount > 1) {
-            final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+            final FontRenderer fontRenderer = mc.fontRenderer;
             final String s = TextFormattingUtil.formatLongToCompactString(amount, 4);
             fontRenderer.drawStringWithShadow(s, (x + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + 12) * 2, 0xFFFFFF);
         }
         GlStateManager.popMatrix();
-        GlStateManager.enableBlend();
-        GlStateManager.disableDepth();
+        itemStack.setCount(prevAmount);
     }
 
     @SideOnly(Side.CLIENT)
     public static void drawFluidStack(int x, int y, FluidStack fluidStack, long amount) {
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        GlStateManager.disableBlend();
-        TJGuiUtils.drawFluidForGui(fluidStack, amount, amount, x + 1, y + 1, 18 - 1, 18 - 2);
         GlStateManager.pushMatrix();
+        TJGuiUtils.drawFluidForGui(fluidStack, amount, amount, x + 1, y + 1, 18 - 1, 18 - 2);
         GlStateManager.scale(0.5, 0.5, 1);
         final String s = TextFormattingUtil.formatLongToCompactString(amount, 4) + "L";
         fontRenderer.drawStringWithShadow(s, (x + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + 12) * 2, 0xFFFFFF);
         GlStateManager.popMatrix();
-        GlStateManager.enableBlend();
-        GlStateManager.color(1.0f, 1.0f, 1.0f);
     }
 
     @SideOnly(Side.CLIENT)
