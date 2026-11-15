@@ -29,8 +29,11 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import tj.integration.ae2.IFluidConfigSetter;
 import tj.mui.TJGuiTextures;
+import tj.mui.TJGuiUtils;
 import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.TJModularUI;
 import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
 
@@ -39,7 +42,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, ITickable, IWorkable {
+public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, ITickable, IWorkable, IFluidConfigSetter {
 
     private final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
             .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
@@ -79,23 +82,13 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
     public ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 25));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 25, 54, 54);
-        final ButtonWidget<?> clickButtonDivide = new ButtonWidget<>(-54, -20, 18, 18, "/2", data -> this.setFluidCount(String.valueOf(Long.parseLong(this.getFluidCount(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ButtonWidget<?> clickButtonMultiply = new ButtonWidget<>(90, -20, 18, 18, "*2", data -> this.setFluidCount(String.valueOf(Long.parseLong(this.getFluidCount(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final NewTextFieldWidget<?> fluidCountTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, this::setFluidCount)
-                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                .setUpdateOnTyping(true)
-                .setMaxStringLength(11);
-        fluidCountTextField.setTextSupplier(() -> this.getFluidCount((int) fluidCountTextField.getTextIdLong()));
-        selectionWidgetGroup.setIndexListener(fluidCountTextField::setTextIdLong);
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.fluidFilter, null)
                     .setBackgroundTexture(GuiTextures.FLUID_SLOT));
-            selectionWidgetGroup.addSubWidget(i, clickButtonDivide.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, clickButtonMultiply.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, fluidCountTextField);
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
+        return TJModularUI.builder(this, player)
+                .setHeight(187)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("cover.creative_fluid.title"))
                 .widget(new ImageWidget(61, 80, 55, 18, GuiTextures.DISPLAY))
@@ -108,8 +101,8 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
                         .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
-                .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
-                .build(this, player);
+                .widget(TJGuiUtils.createFluidConfigPanel(this, selectionWidgetGroup))
+                .build();
     }
 
     @Override
@@ -161,8 +154,8 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
             this.speed = data.getInteger("Speed");
     }
 
-    private void setFluidCount(String text, String id) {
-        final int index = Integer.parseInt(id);
+    @Override
+    public void setFluidCount(String text, int index) {
         if (index < 0 || index >= this.fluidFilter.getTanks()) return;
         final FluidStack fluidStack = this.fluidFilter.getTankAt(index).getFluid();
         if (fluidStack == null) return;
@@ -170,8 +163,9 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
         this.markAsDirty();
     }
 
-    private String getFluidCount(int index) {
-        return String.valueOf(this.fluidFilter.getTankAt(index).getFluidAmount());
+    @Override
+    public String getFluidCount(int index) {
+        return String.valueOf(index >= 0 && index < this.fluidFilter.getTanks() ? this.fluidFilter.getTankAt(index).getFluidAmount() : 0);
     }
 
     private void onReset(boolean reset) {

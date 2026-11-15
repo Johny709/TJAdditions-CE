@@ -32,6 +32,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
+import tj.integration.ae2.IFluidConfigSetter;
 import tj.integration.ae2.IItemConfigSetter;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.item.TJItems;
@@ -398,6 +399,65 @@ public final class TJGuiUtils {
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(170, 46, 18, 18, "/2", clickData ->
                         config.setItemCount(String.valueOf(Long.parseLong(config.getItemCount(selectionWidgetGroup.getIndex())) / 2),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+    }
+
+    public static PanelWidgetGroup createFluidConfigPanel(IFluidConfigSetter config, SelectionWidgetGroup selectionWidgetGroup) {
+        final NewTextFieldWidget<?> itemCountTextField = new NewTextFieldWidget<>(27, 46, 141, 18,
+                true, null, (text, id) -> config.setFluidCount(text, Integer.parseInt(id)))
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setUpdateOnTyping(true)
+                .setMaxStringLength(11);
+        itemCountTextField.setTextSupplier(() -> config.getFluidCount((int) itemCountTextField.getTextIdLong()));
+        final PanelWidgetGroup panelWidgetGroup = new PanelWidgetGroup(0, 0, 198, 100, GuiTextures.BORDERED_BACKGROUND);
+        selectionWidgetGroup.setIndexListener((index, button) -> {
+            if (index < 0 || button != 0) return;
+            itemCountTextField.setTextIdLong(index);
+            panelWidgetGroup.openPanel();
+        });
+        return panelWidgetGroup
+                .addSubWidget(itemCountTextField)
+                .addSubWidget(new ButtonWidget<>(182, 4, 12, 12, "", clickData -> panelWidgetGroup.closePanel())
+                        .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID))
+                .addSubWidget(new ButtonWidget<>(7, 20, 31, 20, "+1", clickData ->
+                        config.setFluidCount(String.valueOf(Long.parseLong(config.getFluidCount(selectionWidgetGroup.getIndex())) + 1),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(43, 20, 38, 20, "+10", clickData ->
+                        config.setFluidCount(String.valueOf(Long.parseLong(config.getFluidCount(selectionWidgetGroup.getIndex())) + 10),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(86, 20, 45, 20, "+100", clickData ->
+                        config.setFluidCount(String.valueOf(Long.parseLong(config.getFluidCount(selectionWidgetGroup.getIndex())) + 100),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(136, 20, 52, 20, "+1000", clickData ->
+                        config.setFluidCount(String.valueOf(Long.parseLong(config.getFluidCount(selectionWidgetGroup.getIndex())) + 1000),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(7, 46, 18, 18, "*2", clickData ->
+                        config.setFluidCount(String.valueOf(Long.parseLong(config.getFluidCount(selectionWidgetGroup.getIndex())) * 2),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(7, 70, 31, 20, "-1", clickData ->
+                        config.setFluidCount(String.valueOf(Long.parseLong(config.getFluidCount(selectionWidgetGroup.getIndex())) - 1),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(43, 70, 38, 20, "-10", clickData ->
+                        config.setFluidCount(String.valueOf(Long.parseLong(config.getFluidCount(selectionWidgetGroup.getIndex())) - 10),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(86, 70, 45, 20, "-100", clickData ->
+                        config.setFluidCount(String.valueOf(Long.parseLong(config.getFluidCount(selectionWidgetGroup.getIndex())) - 100),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(136, 70, 52, 20, "-1000", clickData ->
+                        config.setFluidCount(String.valueOf(Long.parseLong(config.getFluidCount(selectionWidgetGroup.getIndex())) - 1000),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(170, 46, 18, 18, "/2", clickData ->
+                        config.setFluidCount(String.valueOf(Long.parseLong(config.getFluidCount(selectionWidgetGroup.getIndex())) / 2),
                                 selectionWidgetGroup.getIndex()))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
     }
