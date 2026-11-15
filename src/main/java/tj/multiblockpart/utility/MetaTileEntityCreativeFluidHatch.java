@@ -30,9 +30,10 @@ import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.TJValues;
+import tj.integration.ae2.IFluidConfigSetter;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.ButtonWidget;
-import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.TJGuiUtils;
+import tj.mui.widgets.TJModularUI;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.mui.widgets.impl.SelectionWidgetGroup;
 import tj.mui.widgets.impl.TJPhantomFluidSlotWidget;
@@ -40,12 +41,12 @@ import tj.textures.TJTextures;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
-public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IFluidTank> {
+public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblockPart implements IFluidConfigSetter,
+        IMultiblockAbilityPart<IFluidTank> {
 
     public MetaTileEntityCreativeFluidHatch(ResourceLocation metaTileEntityId) {
         super(metaTileEntityId, GAValues.MAX);
@@ -102,32 +103,22 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
     protected ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(43, 24));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(43, 24, 72, 72);
-        final ButtonWidget<?> clickButtonDivide = new ButtonWidget<>(-36, -20, 18, 18, "/2", data -> this.setFluidCount(String.valueOf(Long.parseLong(this.getFluidCount(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ButtonWidget<?> clickButtonMultiply = new ButtonWidget<>(108, -20, 18, 18, "*2", data -> this.setFluidCount(String.valueOf(Long.parseLong(this.getFluidCount(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final NewTextFieldWidget<?> fluidCountTextField = new NewTextFieldWidget<>(-17, -20, 124, 18, true, null, this::setFluidCount)
-                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                .setUpdateOnTyping(true)
-                .setMaxStringLength(11);
-        fluidCountTextField.setTextSupplier(() -> this.getFluidCount((int) fluidCountTextField.getTextIdLong()));
-        selectionWidgetGroup.setIndexListener(fluidCountTextField::setTextIdLong);
         for (int i = 0; i < this.importFluids.getTanks(); i++) {
             final int x = 18 + 18 * (i % 4);
             final int y = 18 * (i / 4);
             widgetGroup.addWidget(new TJPhantomFluidSlotWidget(x, y, 18, 18, i, this.importFluids, fluidStack -> {})
                     .setBackgroundTexture(GuiTextures.FLUID_SLOT)
                     .setSpecialDrainingMode(true));
-            selectionWidgetGroup.addSubWidget(i, clickButtonDivide.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, clickButtonMultiply.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, fluidCountTextField);
             selectionWidgetGroup.addSelectionBox(i, x, y, 18, 18);
         }
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 184)
+        return TJModularUI.builder(this.getHolder(), player)
+                .setWidthHeight(196, 184)
                 .widget(new TJLabelWidget(7, -19, 180, 19, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
-                .bindPlayerInventory(player.inventory, 100)
-                .build(this.getHolder(), player);
+                .widget(TJGuiUtils.createFluidConfigPanel(this, selectionWidgetGroup))
+                .build();
     }
 
     @Override
@@ -152,16 +143,6 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
     }
 
     @Override
-    public MultiblockAbility<IFluidTank> getAbility() {
-        return MultiblockAbility.IMPORT_FLUIDS;
-    }
-
-    @Override
-    public void registerAbilities(List<IFluidTank> list) {
-        list.addAll(this.getImportFluids().getFluidTanks());
-    }
-
-    @Override
     public void addToMultiBlock(MultiblockControllerBase controllerBase) {
         super.addToMultiBlock(controllerBase);
         if (this.importFluids instanceof IInventoryNotifiable)
@@ -175,8 +156,18 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
             ((IInventoryNotifiable) this.importFluids).removeMetaTileEntityFromNotifiable(controllerBase);
     }
 
-    private void setFluidCount(String text, String id) {
-        final int index = Integer.parseInt(id);
+    @Override
+    public void registerAbilities(List<IFluidTank> list) {
+        list.addAll(this.getImportFluids().getFluidTanks());
+    }
+
+    @Override
+    public MultiblockAbility<IFluidTank> getAbility() {
+        return MultiblockAbility.IMPORT_FLUIDS;
+    }
+
+    @Override
+    public void setFluidCount(String text, int index) {
         if (index < 0 || index >= this.importFluids.getTanks()) return;
         final FluidStack fluidStack = this.importFluids.getTankAt(index).getFluid();
         if (fluidStack == null) return;
@@ -188,7 +179,8 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
         this.markDirty();
     }
 
-    private String getFluidCount(int index) {
-        return String.valueOf(this.importFluids.getTankAt(index).getFluidAmount());
+    @Override
+    public String getFluidCount(int index) {
+        return String.valueOf(index >= 0 && index < this.importFluids.getTanks() ? this.importFluids.getTankAt(index).getFluidAmount() : 0);
     }
 }

@@ -31,9 +31,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import tj.TJValues;
+import tj.integration.ae2.IItemConfigSetter;
 import tj.items.handlers.NotifiableLargeItemStackHandler;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.ButtonWidget;
+import tj.mui.TJGuiUtils;
+import tj.mui.widgets.TJModularUI;
 import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
 
@@ -41,9 +43,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
-public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPart implements IMultiblockAbilityPart<IItemHandlerModifiable> {
+public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPart implements IItemConfigSetter,
+        IMultiblockAbilityPart<IItemHandlerModifiable> {
 
     private final ItemStackHandler circuitInventory = new NotifiableItemStackHandler(this, 1);
     private final IItemHandlerModifiable combinedInventory;
@@ -84,33 +86,23 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
     protected ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(43, 24));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(43, 24, 72, 72);
-        final ButtonWidget<?> clickButtonDivide = new ButtonWidget<>(-36, -20, 18, 18, "/2", data -> this.setItemCount(String.valueOf(Long.parseLong(this.getItemCount(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ButtonWidget<?> clickButtonMultiply = new ButtonWidget<>(108, -20, 18, 18, "*2", data -> this.setItemCount(String.valueOf(Long.parseLong(this.getItemCount(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final NewTextFieldWidget<?> itemCountTextField = new NewTextFieldWidget<>(-17, -20, 124, 18, true, null, this::setItemCount)
-                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                .setUpdateOnTyping(true)
-                .setMaxStringLength(11);
-        itemCountTextField.setTextSupplier(() -> this.getItemCount((int) itemCountTextField.getTextIdLong()));
-        selectionWidgetGroup.setIndexListener(itemCountTextField::setTextIdLong);
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             final int x = 18 + 18 * (i % 4);
             final int y = 18 * (i / 4);
             widgetGroup.addWidget(new TJPhantomItemSlotWidget(x, y, 18, 18, i, this.importItems, item -> {})
                     .setBackgroundTextures(GuiTextures.SLOT)
                     .setSpecialExtractingMode(true));
-            selectionWidgetGroup.addSubWidget(i, clickButtonDivide.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, clickButtonMultiply.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, itemCountTextField);
             selectionWidgetGroup.addSelectionBox(i, x, y, 18, 18);
         }
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 196, 184)
+        return TJModularUI.builder(this.getHolder(), player)
+                .setWidthHeight(196, 184)
                 .widget(new TJLabelWidget(7, -19, 180, 19, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
                 .widget(new GhostCircuitWidget(this.circuitInventory, 151, 78))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
-                .bindPlayerInventory(player.inventory, 100)
-                .build(this.getHolder(), player);
+                .widget(TJGuiUtils.createItemConfigPanel(this, selectionWidgetGroup))
+                .build();
     }
 
     @Override
@@ -121,7 +113,8 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
             final int oldBaseColor = renderState.baseColour;
             final int oldAlphaOverride = renderState.alphaOverride;
 
-            renderState.baseColour = TJValues.VC[this.getTier() - 2] << 8; // TODO get better MAX color overlay. use UMV color overlay for the time being
+            // TODO get better MAX color overlay. use UMV color overlay for the time being
+            renderState.baseColour = TJValues.VC[this.getTier() - 2] << 8;
             renderState.alphaOverride = 0xFF;
 
             for (EnumFacing facing : EnumFacing.VALUES)
@@ -135,13 +128,16 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
     }
 
     @Override
-    public MultiblockAbility<IItemHandlerModifiable> getAbility() {
-        return MultiblockAbility.IMPORT_ITEMS;
+    public NBTTagCompound writeToNBT(NBTTagCompound data) {
+        super.writeToNBT(data);
+        data.setTag("ghostCircuit", this.circuitInventory.serializeNBT());
+        return data;
     }
 
     @Override
-    public void registerAbilities(List<IItemHandlerModifiable> list) {
-        list.add(this.combinedInventory);
+    public void readFromNBT(NBTTagCompound data) {
+        super.readFromNBT(data);
+        this.circuitInventory.deserializeNBT(data.getCompoundTag("ghostCircuit"));
     }
 
     @Override
@@ -159,20 +155,17 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound data) {
-        super.writeToNBT(data);
-        data.setTag("ghostCircuit", this.circuitInventory.serializeNBT());
-        return data;
+    public void registerAbilities(List<IItemHandlerModifiable> list) {
+        list.add(this.combinedInventory);
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound data) {
-        super.readFromNBT(data);
-        this.circuitInventory.deserializeNBT(data.getCompoundTag("ghostCircuit"));
+    public MultiblockAbility<IItemHandlerModifiable> getAbility() {
+        return MultiblockAbility.IMPORT_ITEMS;
     }
 
-    private void setItemCount(String text, String id) {
-        final int index = Integer.parseInt(id);
+    @Override
+    public void setItemCount(String text, int index) {
         if (index < 0 || index >= this.importItems.getSlots()) return;
         final ItemStack stack = this.importItems.getStackInSlot(index);
         if (stack.isEmpty()) return;
@@ -182,7 +175,8 @@ public class MetaTileEntityCreativeItemBus extends GAMetaTileEntityMultiblockPar
         this.markDirty();
     }
 
-    private String getItemCount(int index) {
-        return String.valueOf(this.importItems.getStackInSlot(index).getCount());
+    @Override
+    public String getItemCount(int index) {
+        return String.valueOf(index >= 0 && index < this.importItems.getSlots() ? this.importItems.getStackInSlot(index).getCount() : 0);
     }
 }
