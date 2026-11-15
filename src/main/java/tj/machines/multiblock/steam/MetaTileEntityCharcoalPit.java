@@ -343,10 +343,10 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
 
         @Override
         protected boolean startRecipe() {
-            this.setMaxProgress(this.handler.getCharcoalPos().size() * 1200);
             if (this.canStart || this.checkForFire()) {
                 final ItemStack charcoalBlocks = MetaBlocks.COMPRESSED.get(Charcoal).getItem(Charcoal);
                 charcoalBlocks.setCount(this.handler.getCharcoalPos().size());
+                this.maxProgress = this.handler.getCharcoalPos().size() * 1200;
                 this.itemOutputs.add(charcoalBlocks);
                 return true;
             }

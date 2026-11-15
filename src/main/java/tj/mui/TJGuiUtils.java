@@ -394,6 +394,7 @@ public final class TJGuiUtils {
             final String s = TextFormattingUtil.formatLongToCompactString(amount, 4);
             fontRenderer.drawStringWithShadow(s, (x + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + 12) * 2, 0xFFFFFF);
         }
+        GlStateManager.enableDepth();
         GlStateManager.popMatrix();
         itemStack.setCount(prevAmount);
     }

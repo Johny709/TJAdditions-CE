@@ -92,7 +92,7 @@ public class MinerWorkableHandler extends AbstractWorkableHandler<IMinerHandler>
         if (this.foundRecipe && this.handler.getInputEnergyContainer().getEnergyStored() >= this.energyPerTick) {
             this.currentChunk = this.chunks.get(this.chunkIndex);
             this.levelY = this.metaTileEntity.getPos().offset(EnumFacing.DOWN).getY();
-            this.setMaxProgress(this.levelY * 256);
+            this.maxProgress = this.levelY * 256;
             return true;
         } else return false;
     }

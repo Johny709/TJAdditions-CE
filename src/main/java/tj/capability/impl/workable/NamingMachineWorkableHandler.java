@@ -56,7 +56,7 @@ public class NamingMachineWorkableHandler extends AbstractWorkableHandler<INameH
         }
         if (this.foundRecipe && this.handler.getInputEnergyContainer().getEnergyStored() >= GAValues.VA[this.handler.getTier()]) {
             this.findAndConsumeInputs(itemInputs, false);
-            this.setMaxProgress(this.calculateOverclock(30L, 50, 2.8F));
+            this.maxProgress = this.calculateOverclock(30L, 50, 2.8F);
             return true;
         } else return false;
     }

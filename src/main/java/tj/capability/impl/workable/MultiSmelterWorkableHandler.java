@@ -49,7 +49,7 @@ public class MultiSmelterWorkableHandler extends AbstractWorkableHandler<ICoilHa
         }
         if (this.foundRecipe && this.handler.getInputEnergyContainer().getEnergyStored() >= GAValues.V[this.handler.getTier()] / 2) {
             this.findAndConsumeInputs(itemInputs, false);
-            this.setMaxProgress(this.calculateOverclock(16, this.getDuration(), 2.8F));
+            this.maxProgress = this.calculateOverclock(16, this.getDuration(), 2.8F);
             this.energyPerTick /= this.handler.getCoilEnergyDiscount();
             return true;
         } else return false;

@@ -59,25 +59,34 @@ import static tj.mui.TJGuiTextures.*;
 
 public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity implements IFarmerHandler {
 
+    private static ItemStack FERTILIZER;
     private final FarmingStationWorkableHandler workableHandler = new FarmingStationWorkableHandler(this);
 
-    private final IItemHandlerModifiable seedInventory = new FilteredItemStackHandler(this, 6, this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64)
-            .setItemStackPredicate((slot, stack) -> stack.getItem() instanceof IPlantable || Block.getBlockFromItem(stack.getItem()) instanceof IPlantable);
+    private final IItemHandlerModifiable seedInventory = new FilteredItemStackHandler(this, 6, this.getTier() >= GTValues.ZPM ?
+            256 : this.getTier() >= GTValues.EV ? 128 : 64)
+            .setItemStackPredicate((slot, stack) -> stack.getItem() instanceof IPlantable ||
+                    Block.getBlockFromItem(stack.getItem()) instanceof IPlantable);
 
-    private final IItemHandlerModifiable fertilizerInventory = new FilteredItemStackHandler(this, 2, this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64)
-            .setItemStackPredicate((slot, stack) -> (stack.getItem() instanceof ItemDye && stack.getItem().getMetadata(stack) == 15) || stack.isItemEqual(OreDictUnifier.get(OrePrefix.dust, OrganicFertilizer)));
+    private final IItemHandlerModifiable fertilizerInventory = new FilteredItemStackHandler(this, 2, this.getTier() >= GTValues.ZPM ?
+            256 : this.getTier() >= GTValues.EV ? 128 : 64)
+            .setItemStackPredicate((slot, stack) -> (stack.getItem() instanceof ItemDye && stack.getItem().getMetadata(stack) == 15) ||
+                    stack.isItemEqual(getFertilizer()));
 
     private final IItemHandlerModifiable toolInventory = new FilteredItemStackHandler(this, 3, 1)
             .setItemStackPredicate((slot, stack) -> {
                 switch (slot) {
-                    case 0: return stack.getItem() instanceof ItemHoe || (stack.getItem() instanceof ToolMetaItem<?> && ((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolHoe);
-                    case 1: return stack.getItem().getToolClasses(stack).contains("axe") || (stack.getItem() instanceof ToolMetaItem<?> && (((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolAxe || ((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolSaw));
+                    case 0: return stack.getItem() instanceof ItemHoe ||
+                            (stack.getItem() instanceof ToolMetaItem<?> && ((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolHoe);
+                    case 1: return stack.getItem().getToolClasses(stack).contains("axe") ||
+                            (stack.getItem() instanceof ToolMetaItem<?> && (((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolAxe ||
+                                    ((ToolMetaItem<?>) stack.getItem()).getItem(stack).getToolStats() instanceof ToolSaw));
                     case 2: return stack.getItem() instanceof ItemShears;
                     default: return false;
                 }
             });
 
-    private final IFluidTank waterTank = new FilteredFluidHandler(this, this.getTier() >= GTValues.ZPM ? 256000 : this.getTier() >= GTValues.EV ? 128000 : 64000).setFillPredicate(ModHandler::isWater);
+    private final IFluidTank waterTank = new FilteredFluidHandler(this, this.getTier() >= GTValues.ZPM ?
+            256000 : this.getTier() >= GTValues.EV ? 128000 : 64000).setFillPredicate(ModHandler::isWater);
     private final Set<UUID> playersSeeBoundingBox = new HashSet<>();
 
     public MetaTileEntityFarmingStation(ResourceLocation metaTileEntityId, int tier) {
@@ -98,7 +107,8 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, boolean advanced) {
         super.addInformation(stack, player, tooltip, advanced);
-        tooltip.add(I18n.format("machine.universal.linked.entity.radius", TJValues.thousandFormat.format((9 + (2L * this.getTier())) / 2), TJValues.thousandFormat.format((9 + (2L * this.getTier())) / 2)));
+        tooltip.add(I18n.format("machine.universal.linked.entity.radius", TJValues.thousandFormat.format((9 + (2L * this.getTier())) / 2),
+                TJValues.thousandFormat.format((9 + (2L * this.getTier())) / 2)));
         tooltip.add(I18n.format("tj.machine.farming_station.description", this.getTier() >= GTValues.ZPM ? 4 : this.getTier() >= GTValues.EV ? 2 : 1));
         tooltip.add(I18n.format("tj.machine.farming_station.fertilizer.tooltip", this.getTier() * 10));
     }
@@ -112,12 +122,15 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
 
     @Override
     protected IItemHandlerModifiable createImportItemHandler() {
-        return this.seedInventory != null ? new NotifiableItemHandlerList(this, Arrays.asList(this.seedInventory, this.toolInventory, this.fertilizerInventory)) : super.createImportItemHandler();
+        return this.seedInventory != null ?
+                new NotifiableItemHandlerList(this, Arrays.asList(this.seedInventory, this.toolInventory, this.fertilizerInventory)) :
+                super.createImportItemHandler();
     }
 
     @Override
     protected IItemHandlerModifiable createExportItemHandler() {
-        return new NotifiableLargeItemStackHandler(this, 6 + (3 * this.getTier()), this.getTier() >= GTValues.ZPM ? 256 : this.getTier() >= GTValues.EV ? 128 : 64);
+        return new NotifiableLargeItemStackHandler(this, 6 + (3 * this.getTier()), this.getTier() >= GTValues.ZPM ?
+                256 : this.getTier() >= GTValues.EV ? 128 : 64);
     }
 
     @Override
@@ -140,25 +153,29 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
         for (int i = 0; i < this.seedInventory.getSlots(); i++) {
             widgetGroup.addWidget(new TJSlotWidget<>(this.seedInventory, i, 18 * (i % 2), 18 * (i / 2))
                     .setActiveBackgroundTexture(SLOT, SEEDS_OVERLAY));
-            widgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 2), 18 * (i / 2), 18, 18, displayWidget::getItemInputAt, null));
+            widgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 2), 18 * (i / 2), 18, 18,
+                    displayWidget::getItemInputAt, null));
         }
         for (int i = 0; i < this.exportItems.getSlots(); i++) {
             scrollableWidgetGroup.addWidget(new TJSlotWidget<>(this.exportItems, i, 18 * (i % 3), 18 * (i / 3))
                     .setPutItemsPredicate(itemStack -> false)
                     .setActiveBackgroundTexture(SLOT));
-            scrollableWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 3), 18 * (i / 3), 18, 18, displayWidget::getItemOutputAt, null));
+            scrollableWidgetGroup.addWidget(new RecipeOutputSlotWidget(i, 18 * (i % 3), 18 * (i / 3), 18, 18,
+                    displayWidget::getItemOutputAt, null));
         }
         return ModularUI.builder(BORDERED_BACKGROUND, 176, 182)
                 .image(-28, 0, 26, 104, BORDERED_BACKGROUND)
                 .image(-28, 154, 26, 26, BORDERED_BACKGROUND)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getStackForm()).setLocale(this.getMetaFullName()))
-                .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored, this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
+                .widget(new TJProgressBarWidget(-24, 4, 18, 78, this.energyContainer::getEnergyStored,
+                        this.energyContainer::getEnergyCapacity, ProgressWidget.MoveType.VERTICAL)
                         .setLocale("tj.multiblock.bars.energy", null)
                         .setBarTexture(TJGuiTextures.BAR_YELLOW)
                         .setTexture(TJGuiTextures.FLUID_BAR)
                         .setInverted(true))
-                .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 39, 21, 20, PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
+                .widget(new ProgressWidget(this.workableHandler::getProgressPercent, 77, 39, 21, 20,
+                        PROGRESS_BAR_ARROW, ProgressWidget.MoveType.HORIZONTAL))
                 .widget(new TJSlotWidget<>(this.toolInventory, 0, 52, 22)
                         .setActiveBackgroundTexture(SLOT, HOE_OVERLAY))
                 .widget(new TJSlotWidget<>(this.toolInventory, 1, 52, 40)
@@ -175,16 +192,24 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
                         .setContainerClicking(true, true)
                         .setBackgroundTexture(FLUID_SLOT)
                         .setAlwaysShowFull(true))
-                .widget(new TJToggleButtonWidget(133, 78, 18, 18, TJGuiTextures.TOGGLE_BOX, () -> this.playersSeeBoundingBox.contains(player.getUniqueID()), bool -> this.addPlayerToSeeBoundingBox(player.getUniqueID()))
+                .widget(new TJToggleButtonWidget(133, 78, 18, 18, TJGuiTextures.TOGGLE_BOX,
+                        () -> this.playersSeeBoundingBox.contains(player.getUniqueID()), bool -> this.addPlayerToSeeBoundingBox(player.getUniqueID()))
                         .setTitleHoverTooltipText("tj.machine.farming_station.harvest_area_box"))
-                .widget(new TJToggleButtonWidget(151, 78, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.workableHandler::isVoidOutputs, this.workableHandler::setVoidOutputs)
-                        .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled", "machine.universal.toggle.item_voiding.enabled"))
-                .widget(new TJToggleButtonWidget(-24, 158, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled, this.workableHandler::setWorkingEnabled)
-                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
+                .widget(new TJToggleButtonWidget(151, 78, 18, 18, TOGGLE_ITEM_VOID_BUTTON, this.workableHandler::isVoidOutputs,
+                        this.workableHandler::setVoidOutputs)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.item_voiding.disabled",
+                                "machine.universal.toggle.item_voiding.enabled"))
+                .widget(new TJToggleButtonWidget(-24, 158, 18, 18, TOGGLE_POWER_BUTTON, this.workableHandler::isWorkingEnabled,
+                        this.workableHandler::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
+                                "machine.universal.toggle.run.mode.enabled"))
                 .widget(new TJToggleButtonWidget(7, 78, 18, 18, BUTTON_ITEM_OUTPUT, this::isAutoOutputItems, this::setItemAutoOutput)
-                        .setToggleTitleTooltipHoverText("gregtech.gui.item_auto_output.tooltip.disabled", "gregtech.gui.item_auto_output.tooltip.enabled"))
-                .widget(new TJToggleButtonWidget(79, 78, 18, 18, BUTTON_ALLOW_IMPORT_EXPORT, this.workableHandler::isOutputTools, this.workableHandler::setOutputTools)
-                        .setToggleTitleTooltipHoverText("tj.machine.farming_station.tool_output.tooltip.disabled", "tj.machine.farming_station.tool_output.tooltip.enabled"))
+                        .setToggleTitleTooltipHoverText("gregtech.gui.item_auto_output.tooltip.disabled",
+                                "gregtech.gui.item_auto_output.tooltip.enabled"))
+                .widget(new TJToggleButtonWidget(79, 78, 18, 18, BUTTON_ALLOW_IMPORT_EXPORT, this.workableHandler::isOutputTools,
+                        this.workableHandler::setOutputTools)
+                        .setToggleTitleTooltipHoverText("tj.machine.farming_station.tool_output.tooltip.disabled",
+                                "tj.machine.farming_station.tool_output.tooltip.enabled"))
                 .widget(new ImageWidget(79, 58, 18, 18, INDICATOR_NO_ENERGY)
                         .setPredicate(this.workableHandler::hasNotEnoughEnergy))
                 .widget(new ImageWidget(79, 60, 18, 18, GuiTextures.CAUTION_ICON)
@@ -201,7 +226,8 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     @SideOnly(Side.CLIENT)
     public void renderMetaTileEntity(CCRenderState renderState, Matrix4 translation, IVertexOperation[] pipeline) {
         super.renderMetaTileEntity(renderState, translation, pipeline);
-        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, EnumFacingHelper.getTopFacingFrom(this.getFrontFacing()), this.workableHandler.isActive(), this.workableHandler.isHasProblems(), this.workableHandler.isWorkingEnabled());
+        TJTextures.TJ_MULTIBLOCK_WORKABLE_OVERLAY.render(renderState, translation, pipeline, EnumFacingHelper.getTopFacingFrom(this.getFrontFacing()),
+                this.workableHandler.isActive(), this.workableHandler.isHasProblems(), this.workableHandler.isWorkingEnabled());
         Textures.PIPE_OUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
         if (this.isAutoOutputItems())
             Textures.ITEM_OUTPUT_OVERLAY.renderSided(this.getOutputFacing(), renderState, translation, pipeline);
@@ -294,5 +320,11 @@ public class MetaTileEntityFarmingStation extends TJTieredWorkableMetaTileEntity
     @SideOnly(Side.CLIENT)
     public SoundEvent getSound() {
         return GTSoundEvents.BATH;
+    }
+
+    private static ItemStack getFertilizer() {
+        if (FERTILIZER == null)
+            FERTILIZER = OreDictUnifier.get(OrePrefix.dust, OrganicFertilizer);
+        return FERTILIZER;
     }
 }
