@@ -32,12 +32,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
+import tj.integration.ae2.IItemConfigSetter;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.item.TJItems;
 import tj.mui.widgets.ButtonWidget;
-import tj.mui.widgets.impl.AEPatternSlotWidget;
-import tj.mui.widgets.impl.SlotWidgetGroup;
-import tj.mui.widgets.impl.TJSlotWidget;
+import tj.mui.widgets.impl.*;
 import tj.util.TJItemUtils;
 
 import javax.annotation.Nullable;
@@ -47,6 +46,7 @@ import java.text.DecimalFormat;
 import java.util.Optional;
 import java.util.function.LongUnaryOperator;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 import static gregtech.api.gui.resources.RenderUtil.setGlColorFromInt;
 
@@ -343,13 +343,80 @@ public final class TJGuiUtils {
             patternSlots.insertItem(i, itemStacks.get(i), false);
     }
 
+    public static PanelWidgetGroup createItemConfigPanel(IItemConfigSetter config, SelectionWidgetGroup selectionWidgetGroup) {
+        final NewTextFieldWidget<?> itemCountTextField = new NewTextFieldWidget<>(27, 46, 141, 18,
+                true, null, (text, id) -> config.setItemCount(text, Integer.parseInt(id)))
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setUpdateOnTyping(true)
+                .setMaxStringLength(11);
+        itemCountTextField.setTextSupplier(() -> config.getItemCount((int) itemCountTextField.getTextIdLong()));
+        final PanelWidgetGroup panelWidgetGroup = new PanelWidgetGroup(0, 0, 198, 100, GuiTextures.BORDERED_BACKGROUND);
+        selectionWidgetGroup.setIndexListener((index, button) -> {
+            if (index < 0 || button != 0) return;
+            itemCountTextField.setTextIdLong(index);
+            panelWidgetGroup.openPanel();
+        });
+        return panelWidgetGroup
+                .addSubWidget(itemCountTextField)
+                .addSubWidget(new ButtonWidget<>(182, 4, 12, 12, "", clickData -> panelWidgetGroup.closePanel())
+                        .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID))
+                .addSubWidget(new ButtonWidget<>(7, 20, 31, 20, "+1", clickData ->
+                        config.setItemCount(String.valueOf(Long.parseLong(config.getItemCount(selectionWidgetGroup.getIndex())) + 1),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(43, 20, 38, 20, "+10", clickData ->
+                        config.setItemCount(String.valueOf(Long.parseLong(config.getItemCount(selectionWidgetGroup.getIndex())) + 10),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(86, 20, 45, 20, "+100", clickData ->
+                        config.setItemCount(String.valueOf(Long.parseLong(config.getItemCount(selectionWidgetGroup.getIndex())) + 100),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(136, 20, 52, 20, "+1000", clickData ->
+                        config.setItemCount(String.valueOf(Long.parseLong(config.getItemCount(selectionWidgetGroup.getIndex())) + 1000),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(7, 46, 18, 18, "*2", clickData ->
+                        config.setItemCount(String.valueOf(Long.parseLong(config.getItemCount(selectionWidgetGroup.getIndex())) * 2),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(7, 70, 31, 20, "-1", clickData ->
+                        config.setItemCount(String.valueOf(Long.parseLong(config.getItemCount(selectionWidgetGroup.getIndex())) - 1),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(43, 70, 38, 20, "-10", clickData ->
+                        config.setItemCount(String.valueOf(Long.parseLong(config.getItemCount(selectionWidgetGroup.getIndex())) - 10),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(86, 70, 45, 20, "-100", clickData ->
+                        config.setItemCount(String.valueOf(Long.parseLong(config.getItemCount(selectionWidgetGroup.getIndex())) - 100),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(136, 70, 52, 20, "-1000", clickData ->
+                        config.setItemCount(String.valueOf(Long.parseLong(config.getItemCount(selectionWidgetGroup.getIndex())) - 1000),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(170, 46, 18, 18, "/2", clickData ->
+                        config.setItemCount(String.valueOf(Long.parseLong(config.getItemCount(selectionWidgetGroup.getIndex())) / 2),
+                                selectionWidgetGroup.getIndex()))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+    }
+
     @SideOnly(Side.CLIENT)
     public static void draw(double x, double y, int width, int height, ResourceLocation imageLocation) {
         drawSubArea(x, y, width, height, 0.0, 0.0, 1.0, 1.0, imageLocation);
     }
 
     @SideOnly(Side.CLIENT)
-    public static void drawSubArea(double x, double y, int width, int height, double drawnU, double drawnV, double drawnWidth, double drawnHeight, ResourceLocation imageLocation) {
+    public static void drawSubArea(double x,
+                                   double y,
+                                   int width,
+                                   int height,
+                                   double drawnU,
+                                   double drawnV,
+                                   double drawnWidth,
+                                   double drawnHeight,
+                                   ResourceLocation imageLocation) {
         //sub area is just different width and height
         double imageU = 0.0 + (drawnU);
         double imageV = 0.0 + (drawnV);
@@ -388,11 +455,11 @@ public final class TJGuiUtils {
         GlStateManager.disableRescaleNormal();
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
-        GlStateManager.scale(0.5, 0.5, 1);
+        GlStateManager.scale(0.60, 0.60, 1.2);
         if (amount > 1) {
             final FontRenderer fontRenderer = mc.fontRenderer;
             final String s = TextFormattingUtil.formatLongToCompactString(amount, 4);
-            fontRenderer.drawStringWithShadow(s, (x + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + 12) * 2, 0xFFFFFF);
+            fontRenderer.drawStringWithShadow(s, (x + 3) / 0.60f - fontRenderer.getStringWidth(s) + 21, (y + 11) / 0.60f, 0xFFFFFF);
         }
         GlStateManager.enableDepth();
         GlStateManager.popMatrix();
@@ -404,9 +471,9 @@ public final class TJGuiUtils {
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         GlStateManager.pushMatrix();
         TJGuiUtils.drawFluidForGui(fluidStack, amount, amount, x + 1, y + 1, 18 - 1, 18 - 2);
-        GlStateManager.scale(0.5, 0.5, 1);
+        GlStateManager.scale(0.60, 0.60, 1.2);
         final String s = TextFormattingUtil.formatLongToCompactString(amount, 4) + "L";
-        fontRenderer.drawStringWithShadow(s, (x + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (y + 12) * 2, 0xFFFFFF);
+        fontRenderer.drawStringWithShadow(s, (x + 6) / 0.60f - fontRenderer.getStringWidth(s) + 21, (y + 12) / 0.60f, 0xFFFFFF);
         GlStateManager.popMatrix();
     }
 

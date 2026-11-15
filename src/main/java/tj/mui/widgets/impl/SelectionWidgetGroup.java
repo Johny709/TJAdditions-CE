@@ -16,11 +16,11 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.TJWidget;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.IntConsumer;
 import java.util.stream.Collectors;
 
@@ -28,7 +28,7 @@ public class SelectionWidgetGroup extends WidgetGroup {
 
     private final Int2ObjectMap<List<Widget>> widgetMap = new Int2ObjectOpenHashMap<>();
     private final Object2IntMap<Widget> selectionBoxes = new Object2IntOpenHashMap<>();
-    private IntConsumer indexListener;
+    private BiConsumer<Integer, Integer> indexListener;
     private int activeIndex = -1; // don't run any sub widgets until the player selected a rectangle box.
 
     public SelectionWidgetGroup(int x, int y, int width, int height) {
@@ -51,6 +51,13 @@ public class SelectionWidgetGroup extends WidgetGroup {
      * Fires every time a new selection index has been selected both on client and server.
      */
     public void setIndexListener(IntConsumer indexListener) {
+        this.indexListener = (index, button) -> indexListener.accept(index);
+    }
+
+    /**
+     * Fires every time a new selection index has been selected both on client and server.
+     */
+    public void setIndexListener(BiConsumer<Integer, Integer> indexListener) {
         this.indexListener = indexListener;
     }
 
@@ -144,12 +151,13 @@ public class SelectionWidgetGroup extends WidgetGroup {
                 this.activeIndex = entry.getIntValue();
                 this.updateWidgets(lastIndex, this.activeIndex);
                 if (this.indexListener != null)
-                    this.indexListener.accept(this.activeIndex);
+                    this.indexListener.accept(this.activeIndex, button);
                 this.writeClientAction(2, buffer -> {
                     buffer.writeInt(lastIndex);
                     buffer.writeInt(this.activeIndex);
+                    buffer.writeInt(button);
                 });
-                return true;
+                return false;
             }
         }
         if (!this.isMouseOverElement(mouseX, mouseY) && this.widgetMap.getOrDefault(this.activeIndex, Collections.emptyList()).stream()
@@ -157,10 +165,11 @@ public class SelectionWidgetGroup extends WidgetGroup {
             this.activeIndex = -1;
             this.updateWidgets(lastIndex, this.activeIndex);
             if (this.indexListener != null)
-                this.indexListener.accept(this.activeIndex);
+                this.indexListener.accept(this.activeIndex, button);
             this.writeClientAction(2, buffer -> {
                 buffer.writeInt(lastIndex);
                 buffer.writeInt(this.activeIndex);
+                buffer.writeInt(button);
             });
         }
         return this.widgetMap.getOrDefault(this.activeIndex, Collections.emptyList()).stream()
@@ -187,9 +196,10 @@ public class SelectionWidgetGroup extends WidgetGroup {
         if (id == 2) {
             final int lastIndex = buffer.readInt();
             this.activeIndex = buffer.readInt();
+            final int button = buffer.readInt();
             this.updateWidgets(lastIndex, this.activeIndex);
             if (this.indexListener != null)
-                this.indexListener.accept(this.activeIndex);
+                this.indexListener.accept(this.activeIndex, button);
         }
     }
 

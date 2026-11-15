@@ -157,19 +157,19 @@ public class BlockStockingDualInterface extends BlockInterface {
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(0, 0, 0, 0);
         final ImageWidget stackSizeDisplay = new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND);
         final LabelWidget stackSizeLabel = new LabelWidget(14, 112, "machine.universal.stack_size");
-        final ButtonWidget<?> clickButtonAdd1 = new ButtonWidget<>(15, 127, 25, 20, "+1", data -> superDualInterface.setStackSize(String.valueOf(Long.parseLong(superDualInterface.getStackSize(selectionWidgetGroup.getIndex())) + 1), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ButtonWidget<?> clickButtonAdd10 = new ButtonWidget<>(45, 127, 30, 20, "+10", data -> superDualInterface.setStackSize(String.valueOf(Long.parseLong(superDualInterface.getStackSize(selectionWidgetGroup.getIndex())) + 10), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ButtonWidget<?> clickButtonAdd100 = new ButtonWidget<>(80, 127, 35, 20, "+100", data -> superDualInterface.setStackSize(String.valueOf(Long.parseLong(superDualInterface.getStackSize(selectionWidgetGroup.getIndex())) + 100), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ButtonWidget<?> clickButtonAdd1000 = new ButtonWidget<>(120, 127, 40, 20, "+1000", data -> superDualInterface.setStackSize(String.valueOf(Long.parseLong(superDualInterface.getStackSize(selectionWidgetGroup.getIndex())) + 1000), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ButtonWidget<?> clickButtonSub1 = new ButtonWidget<>(15, 177, 25, 20, "-1", data -> superDualInterface.setStackSize(String.valueOf(Long.parseLong(superDualInterface.getStackSize(selectionWidgetGroup.getIndex())) - 1), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ButtonWidget<?> clickButtonSub10 = new ButtonWidget<>(45, 177, 30, 20, "-10", data -> superDualInterface.setStackSize(String.valueOf(Long.parseLong(superDualInterface.getStackSize(selectionWidgetGroup.getIndex())) - 10), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ButtonWidget<?> clickButtonSub100 = new ButtonWidget<>(80, 177, 35, 20, "-100", data -> superDualInterface.setStackSize(String.valueOf(Long.parseLong(superDualInterface.getStackSize(selectionWidgetGroup.getIndex())) - 100), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ButtonWidget<?> clickButtonSub1000 = new ButtonWidget<>(120, 177, 40, 20, "-1000", data -> superDualInterface.setStackSize(String.valueOf(Long.parseLong(superDualInterface.getStackSize(selectionWidgetGroup.getIndex())) - 1000), String.valueOf(selectionWidgetGroup.getIndex())));
-        final NewTextFieldWidget<?> stackSizeTextField = new NewTextFieldWidget<>(14, 153, 148, 18, true, null, superDualInterface::setStackSize)
+        final ButtonWidget<?> clickButtonAdd1 = new ButtonWidget<>(15, 127, 25, 20, "+1", data -> superDualInterface.setItemCount(String.valueOf(Long.parseLong(superDualInterface.getItemCount(selectionWidgetGroup.getIndex())) + 1), selectionWidgetGroup.getIndex()));
+        final ButtonWidget<?> clickButtonAdd10 = new ButtonWidget<>(45, 127, 30, 20, "+10", data -> superDualInterface.setItemCount(String.valueOf(Long.parseLong(superDualInterface.getItemCount(selectionWidgetGroup.getIndex())) + 10), selectionWidgetGroup.getIndex()));
+        final ButtonWidget<?> clickButtonAdd100 = new ButtonWidget<>(80, 127, 35, 20, "+100", data -> superDualInterface.setItemCount(String.valueOf(Long.parseLong(superDualInterface.getItemCount(selectionWidgetGroup.getIndex())) + 100), selectionWidgetGroup.getIndex()));
+        final ButtonWidget<?> clickButtonAdd1000 = new ButtonWidget<>(120, 127, 40, 20, "+1000", data -> superDualInterface.setItemCount(String.valueOf(Long.parseLong(superDualInterface.getItemCount(selectionWidgetGroup.getIndex())) + 1000), selectionWidgetGroup.getIndex()));
+        final ButtonWidget<?> clickButtonSub1 = new ButtonWidget<>(15, 177, 25, 20, "-1", data -> superDualInterface.setItemCount(String.valueOf(Long.parseLong(superDualInterface.getItemCount(selectionWidgetGroup.getIndex())) - 1), selectionWidgetGroup.getIndex()));
+        final ButtonWidget<?> clickButtonSub10 = new ButtonWidget<>(45, 177, 30, 20, "-10", data -> superDualInterface.setItemCount(String.valueOf(Long.parseLong(superDualInterface.getItemCount(selectionWidgetGroup.getIndex())) - 10), selectionWidgetGroup.getIndex()));
+        final ButtonWidget<?> clickButtonSub100 = new ButtonWidget<>(80, 177, 35, 20, "-100", data -> superDualInterface.setItemCount(String.valueOf(Long.parseLong(superDualInterface.getItemCount(selectionWidgetGroup.getIndex())) - 100), selectionWidgetGroup.getIndex()));
+        final ButtonWidget<?> clickButtonSub1000 = new ButtonWidget<>(120, 177, 40, 20, "-1000", data -> superDualInterface.setItemCount(String.valueOf(Long.parseLong(superDualInterface.getItemCount(selectionWidgetGroup.getIndex())) - 1000), selectionWidgetGroup.getIndex()));
+        final NewTextFieldWidget<?> stackSizeTextField = new NewTextFieldWidget<>(14, 153, 148, 18, true, null, (text, id) -> superDualInterface.setItemCount(text, Integer.parseInt(id)))
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                 .setUpdateOnTyping(true)
                 .setMaxStringLength(11);
-        stackSizeTextField.setTextSupplier(() -> superDualInterface.getStackSize((int) stackSizeTextField.getTextIdLong()));
+        stackSizeTextField.setTextSupplier(() -> superDualInterface.getItemCount((int) stackSizeTextField.getTextIdLong()));
         selectionWidgetGroup.setIndexListener(stackSizeTextField::setTextIdLong);
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
             tab.add(new TJPhantomItemSlotWidget(7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18, i, duality.getConfig())

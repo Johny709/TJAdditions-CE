@@ -42,7 +42,7 @@ import tj.capability.impl.workable.NamingMachineWorkableHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.widgets.impl.ButtonPopUpWidget;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
-import tj.mui.widgets.impl.WindowsWidgetGroup;
+import tj.mui.widgets.impl.PanelWidgetGroup;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
 import tj.util.TJUtility;
@@ -113,7 +113,7 @@ public class MetaTileEntityLargeNamingMachine extends TJMultiblockControllerBase
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                         .setHoverTooltipText("tj.multiblock.tab.settings")
                         .useToggleTexture(true), widgetGroup1 -> {
-                    widgetGroup1.addWidget(new WindowsWidgetGroup(12, 60, 160, 40, GuiTextures.BORDERED_BACKGROUND)
+                    widgetGroup1.addWidget(new PanelWidgetGroup(12, 60, 160, 40, GuiTextures.BORDERED_BACKGROUND)
                             .addSubWidget(new TextFieldWidget(4, 15, 152, 18, true, this::getName, this::setName)
                                     .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                                     .setMaxStringLength(1024)));

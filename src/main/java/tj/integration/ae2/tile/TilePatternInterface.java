@@ -93,12 +93,12 @@ public class TilePatternInterface extends TileInterface implements ITileEntityUI
     }
 
     @Override
-    public void setStackSize(String size, String id) {
+    public void setItemCount(String size, int index) {
         // No config slots
     }
 
     @Override
-    public String getStackSize(int index) {
+    public String getItemCount(int index) {
         return null; // No config slots
     }
 

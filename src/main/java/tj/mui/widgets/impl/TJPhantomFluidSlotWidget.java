@@ -10,7 +10,6 @@ import gregtech.api.util.*;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fluids.FluidStack;
@@ -104,18 +103,8 @@ public class TJPhantomFluidSlotWidget extends Widget implements IGhostIngredient
         final Position pos = this.getPosition();
         if (this.backgroundTexture != null)
             this.backgroundTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
-        if (this.fluidStack != null) {
-            final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-            GlStateManager.disableBlend();
-            TJGuiUtils.drawFluidForGui(this.fluidStack, this.fluidStack.amount, this.fluidStack.amount, pos.getX() + 1, pos.getY() + 1, 17, 17);
-            GlStateManager.pushMatrix();
-            GlStateManager.scale(0.5, 0.5, 1);
-            final String s = TextFormattingUtil.formatLongToCompactString(this.fluidStack.amount, 4) + "L";
-            fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + 12) * 2, 0xFFFFFF);
-            GlStateManager.popMatrix();
-            GlStateManager.enableBlend();
-            GlStateManager.color(1.0f, 1.0f, 1.0f);
-        }
+        if (this.fluidStack != null)
+            TJGuiUtils.drawFluidStack(pos.x, pos.y, this.fluidStack, this.fluidStack.amount);
         if (this.isMouseOverElement(mouseX, mouseY))
             drawSelectionOverlay(pos.getX() + 1, pos.getY() + 1, size.getWidth() - 2, size.getHeight() - 2);
     }

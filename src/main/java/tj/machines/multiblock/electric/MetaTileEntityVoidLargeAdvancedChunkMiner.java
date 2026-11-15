@@ -70,7 +70,7 @@ import tj.items.handlers.LargeItemStackHandler;
 import tj.mui.widgets.impl.ButtonPopUpWidget;
 import tj.mui.widgets.impl.TJPhantomItemSlotWidget;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
-import tj.mui.widgets.impl.WindowsWidgetGroup;
+import tj.mui.widgets.impl.PanelWidgetGroup;
 import tj.rendering.TJRenderUtil;
 import tj.textures.TJTextures;
 import tj.util.EnumFacingHelper;
@@ -184,11 +184,11 @@ public class MetaTileEntityVoidLargeAdvancedChunkMiner extends TJMultiblockContr
                             .setBackgroundTextures(TJGuiTextures.ORE_DICTIONARY_FILTER)
                             .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                             .useToggleTexture(true), widgetGroup -> {
-                        WindowsWidgetGroup windowsWidgetGroup = new WindowsWidgetGroup(0, -3, 135, 45, GuiTextures.BORDERED_BACKGROUND)
+                        PanelWidgetGroup panelWidgetGroup = new PanelWidgetGroup(0, -3, 135, 45, GuiTextures.BORDERED_BACKGROUND)
                                 .addSubWidget(new TJToggleButtonWidget(113, 23, 18, 18, GuiTextures.BUTTON_BLACKLIST, this.workableHandler::isBlacklist, this.workableHandler::setBlacklist)
                                         .setToggleTitleTooltipHoverText("tj.multiblock.advanced_large_miner.blacklist.disabled", "tj.multiblock.advanced_large_miner.blacklist.enabled"));
-                        this.workableHandler.getOreDictFilter().initUI(windowsWidgetGroup::addSubWidget);
-                        widgetGroup.addWidget(windowsWidgetGroup);
+                        this.workableHandler.getOreDictFilter().initUI(panelWidgetGroup::addSubWidget);
+                        widgetGroup.addWidget(panelWidgetGroup);
                         return false;
                     }));
             tab.add(new TJToggleButtonWidget(175, 151, 18, 18, TJGuiTextures.TOGGLE_ITEM_VOID_BUTTON, this.workableHandler::isVoidItems, this.workableHandler::setVoidItems)

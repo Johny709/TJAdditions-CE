@@ -43,7 +43,7 @@ import tj.capability.impl.handler.ICharcoalHandler;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.mui.widgets.impl.ButtonPopUpWidget;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
-import tj.mui.widgets.impl.WindowsWidgetGroup;
+import tj.mui.widgets.impl.PanelWidgetGroup;
 import tj.util.references.IntegerReference;
 import tj.util.references.ObjectReference;
 
@@ -139,7 +139,7 @@ public class MetaTileEntityCharcoalPit extends TJMultiblockControllerBase implem
                         .setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
                         .setHoverTooltipText("tj.multiblock.tab.settings")
                         .useToggleTexture(true), widgetGroup1 -> {
-                    widgetGroup1.addWidget(new WindowsWidgetGroup(12, 60, 160, 120, GuiTextures.BORDERED_BACKGROUND)
+                    widgetGroup1.addWidget(new PanelWidgetGroup(12, 60, 160, 120, GuiTextures.BORDERED_BACKGROUND)
                             .addSubWidget(new TJLabelWidget(0, -1, 160, 18, null)
                                     .setLocale("tj.multiblock.charcoal_pit.window_settings")
                                     .setCanSlide(false))

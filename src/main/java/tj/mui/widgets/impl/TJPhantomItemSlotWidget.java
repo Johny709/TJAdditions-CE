@@ -17,6 +17,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import tj.TJ;
+import tj.mui.TJGuiUtils;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -104,7 +105,7 @@ public class TJPhantomItemSlotWidget extends Widget implements IGhostIngredientT
         if (this.backgroundTextures != null) for (TextureArea textureArea : this.backgroundTextures)
             textureArea.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
         if (!this.itemStack.isEmpty())
-            Widget.drawItemStack(this.itemStack, pos.getX() + 1, pos.getY() + 1, null);
+            TJGuiUtils.drawItemStack(pos.x + 1, pos.y + 1, this.itemStack, this.itemStack.getCount());
         if (this.isMouseOverElement(mouseX, mouseY))
             drawSelectionOverlay(pos.getX() + 1, pos.getY() + 1, size.getWidth() - 1, size.getHeight() - 1);
     }

@@ -6,7 +6,7 @@ import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.IPriorityHost;
 
-public interface ISuperInterface extends ICustomNameObject, IPriorityHost, IInterfaceHost {
+public interface ISuperInterface extends ICustomNameObject, IPriorityHost, IInterfaceHost, IItemConfigSetter {
 
     void setBlockingMode(boolean blockingMode);
 
@@ -21,10 +21,6 @@ public interface ISuperInterface extends ICustomNameObject, IPriorityHost, IInte
     void setBlockModeEx(CondenserOutput blockModeEx);
 
     void setIntelligentBlocking(boolean intelligentBlocking);
-
-    void setStackSize(String size, String id);
-
-    String getStackSize(int index);
 
     void setPriority(String priority, String id);
 
