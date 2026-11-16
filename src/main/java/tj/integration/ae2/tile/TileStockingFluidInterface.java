@@ -150,8 +150,8 @@ public class TileStockingFluidInterface extends TileFluidInterface implements IT
     }
 
     @Override
-    public void setTickTime(String text, String id) {
-        this.tickTime = (int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+    public void setTickTime(long tickTime) {
+        this.tickTime = (int) Math.max(1, Math.min(Integer.MAX_VALUE, tickTime));
         this.markDirty();
     }
 

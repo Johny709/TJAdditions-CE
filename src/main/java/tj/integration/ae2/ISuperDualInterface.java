@@ -8,7 +8,7 @@ public interface ISuperDualInterface extends ISuperInterface, ISuperFluidInterfa
     }
 
     @Override
-    default void setTickTime(String tickTime, String id) {
-        ISuperInterface.super.setTickTime(tickTime, id);
+    default void setTickTime(long tickTime) {
+        ISuperInterface.super.setTickTime(tickTime);
     }
 }

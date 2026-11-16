@@ -314,8 +314,8 @@ public class TileSuperUltimateInterface extends TileInterface implements ITileEn
     }
 
     @Override
-    public void setTickTime(String tickTime, String id) {
-        this.tickTime = (int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(tickTime)));
+    public void setTickTime(long tickTime) {
+        this.tickTime = (int) Math.max(1, Math.min(Integer.MAX_VALUE, tickTime));
         this.markDirty();
     }
 

@@ -5,17 +5,11 @@ import appeng.fluids.helper.IFluidInterfaceHost;
 import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IPriorityHost;
 
-public interface ISuperFluidInterface extends ICustomNameObject, IPriorityHost, IFluidInterfaceHost, IConfigurableFluidInventory {
+public interface ISuperFluidInterface extends ICustomNameObject, IPriorityHost, IFluidInterfaceHost, IConfigurableFluidInventory, ITickSetter {
 
     void setPriority(String priority, String id);
 
     default void setFluidAutoPull(boolean autoPull) {}
 
     default void setFluidAutoPush(boolean autoPush) {}
-
-    default int getTickTime() {
-        return 1;
-    }
-
-    default void setTickTime(String tickTime, String id) {}
 }

@@ -6,7 +6,7 @@ import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.IPriorityHost;
 
-public interface ISuperInterface extends ICustomNameObject, IPriorityHost, IInterfaceHost, IItemConfigSetter {
+public interface ISuperInterface extends ICustomNameObject, IPriorityHost, IInterfaceHost, IItemConfigSetter, ITickSetter {
 
     void setBlockingMode(boolean blockingMode);
 
@@ -27,12 +27,4 @@ public interface ISuperInterface extends ICustomNameObject, IPriorityHost, IInte
     default void setItemAutoPull(boolean autoPull) {}
 
     default void setItemAutoPush(boolean autoPush) {}
-
-    default int getTickTime() {
-        return 1;
-    }
-
-    default void setTickTime(String tickTime, String id) {
-
-    }
 }

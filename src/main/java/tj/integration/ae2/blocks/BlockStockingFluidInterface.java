@@ -117,17 +117,17 @@ public class BlockStockingFluidInterface extends BlockFluidInterface {
                                 .setItemDisplay(new ItemStack(Items.CLOCK)), widgetGroup -> {
                             widgetGroup.addWidget(new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
                             widgetGroup.addWidget(new LabelWidget(14, 112, "machine.universal.ticks.operation"));
-                            widgetGroup.addWidget(new NewTextFieldWidget<>(14, 153, 148, 18, true, () -> String.valueOf(superFluidInterface.getTickTime()), superFluidInterface::setTickTime)
+                            widgetGroup.addWidget(new NewTextFieldWidget<>(14, 153, 148, 18, true, () -> String.valueOf(superFluidInterface.getTickTime()), (text, id) -> superFluidInterface.setTickTime(Long.parseLong(text)))
                                     .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                                     .setUpdateOnTyping(true));
-                            widgetGroup.addWidget(new ButtonWidget<>(15, 127, 25, 20, "+1", data -> superFluidInterface.setTickTime(String.valueOf((long) superFluidInterface.getTickTime() + 1), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(45, 127, 30, 20, "+10", data -> superFluidInterface.setTickTime(String.valueOf((long) superFluidInterface.getTickTime() + 10), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(80, 127, 35, 20, "+100", data -> superFluidInterface.setTickTime(String.valueOf((long) superFluidInterface.getTickTime() + 100), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(120, 127, 40, 20, "+1000", data -> superFluidInterface.setTickTime(String.valueOf((long) superFluidInterface.getTickTime() + 1000), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(15, 177, 25, 20, "-1", data -> superFluidInterface.setTickTime(String.valueOf((long) superFluidInterface.getTickTime() - 1), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(45, 177, 30, 20, "-10", data -> superFluidInterface.setTickTime(String.valueOf((long) superFluidInterface.getTickTime() - 10), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(80, 177, 35, 20, "-100", data -> superFluidInterface.setTickTime(String.valueOf((long) superFluidInterface.getTickTime() - 100), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(120, 177, 40, 20, "-1000", data -> superFluidInterface.setTickTime(String.valueOf((long) superFluidInterface.getTickTime() - 1000), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(15, 127, 25, 20, "+1", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() + 1)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(45, 127, 30, 20, "+10", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() + 10)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(80, 127, 35, 20, "+100", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() + 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(120, 127, 40, 20, "+1000", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() + 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(15, 177, 25, 20, "-1", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() - 1)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(45, 177, 30, 20, "-10", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() - 10)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(80, 177, 35, 20, "-100", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() - 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(120, 177, 40, 20, "-1000", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() - 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
                             return false;
                         })).widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(154, 0, 22, 22)
