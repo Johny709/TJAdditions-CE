@@ -24,7 +24,8 @@ import tj.mui.uifactory.TileEntityHolder;
 public class TilePatternInterface extends TileInterface implements ITileEntityUI, ISuperInterface {
 
     public TilePatternInterface() {
-        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 4, 36, 288), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this,
+                new DualitySuperInterface(this.getProxy(), this, 10, 4, 36, 288), "duality");
     }
 
     public void openUI(EntityPlayer player, TileEntity tileEntity) {
@@ -88,18 +89,19 @@ public class TilePatternInterface extends TileInterface implements ITileEntityUI
 
     @Override
     public void setIntelligentBlocking(boolean intelligentBlocking) {
-        ((RCIConfigurableObject) this.getInterfaceDuality()).r$getConfigManager().putSetting(RCSettings.IntelligentBlocking, intelligentBlocking ? IntelligentBlocking.OPEN : IntelligentBlocking.CLOSE);
+        ((RCIConfigurableObject) this.getInterfaceDuality()).r$getConfigManager().putSetting(RCSettings.IntelligentBlocking, intelligentBlocking ?
+                IntelligentBlocking.OPEN : IntelligentBlocking.CLOSE);
         this.markDirty();
     }
 
     @Override
-    public void setItemCount(String size, int index) {
+    public void setItemCount(long count, int index) {
         // No config slots
     }
 
     @Override
-    public String getItemCount(int index) {
-        return null; // No config slots
+    public int getItemCount(int index) {
+        return 0; // No config slots
     }
 
     @Override

@@ -42,7 +42,8 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
     private int tickTime = 100;
 
     public TileStockingInterface() {
-        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 36, 9), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this,
+                new DualitySuperInterface(this.getProxy(), this, 10, 36, 9), "duality");
         this.getInterfaceDuality().getConfigManager().registerSetting(Settings.STICKY_MODE, YesNo.NO);
     }
 
@@ -87,7 +88,8 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
             try {
                 int index = 0;
                 final int stackSize = (int) Math.min(Integer.MAX_VALUE, 1024L << this.getInstalledUpgrades(Upgrades.CAPACITY) * 2);
-                final IItemList<?> iItemList = this.getProxy().getStorage().getInventory(AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class)).getStorageList();
+                final IItemList<?> iItemList = this.getProxy().getStorage().getInventory(AEApi.instance().storage()
+                        .getStorageChannel(IItemStorageChannel.class)).getStorageList();
                 for (IAEStack<?> items : iItemList) {
                     if (index < this.getInterfaceDuality().getConfig().getSlots()) {
                         if (!items.isItem()) continue;
@@ -123,13 +125,16 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
                 }
             }
         }
-        return TickRateModulation.values()[Math.max(tickRateModulation.ordinal(), this.tickTime > ticksSinceLastCall ? TickRateModulation.SLOWER.ordinal() : this.tickTime < ticksSinceLastCall ? TickRateModulation.FASTER.ordinal() : TickRateModulation.SAME.ordinal())];
+        return TickRateModulation.values()[Math.max(tickRateModulation.ordinal(), this.tickTime > ticksSinceLastCall ?
+                TickRateModulation.SLOWER.ordinal() : this.tickTime < ticksSinceLastCall ?
+                TickRateModulation.FASTER.ordinal() : TickRateModulation.SAME.ordinal())];
     }
 
     @Nonnull
     @Override
     public TickingRequest getTickingRequest(IGridNode node) {
-        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping && this.getInterfaceDuality().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO, false);
+        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping &&
+                this.getInterfaceDuality().getConfigManager().getSetting(Settings.BLOCK) == YesNo.NO, false);
     }
 
     @Override
@@ -185,9 +190,9 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
     }
 
     @Override
-    public void setItemCount(String text, int index) {
+    public void setItemCount(long count, int index) {
         final int maxSize = this.getInterfaceDuality().getConfig().getSlotLimit(0);
-        final int stackSize = (int) Math.max(1, Math.min(Long.parseLong(text), maxSize));
+        final int stackSize = (int) Math.max(1, Math.min(count, maxSize));
         final ItemStack itemStack = this.getInterfaceDuality().getConfig().extractItem(index, Integer.MAX_VALUE, false);
         if (itemStack.isEmpty()) return;
         itemStack.setCount(stackSize);
@@ -196,8 +201,8 @@ public class TileStockingInterface extends TileInterface implements ITileEntityU
     }
 
     @Override
-    public String getItemCount(int index) {
-        return String.valueOf(this.getInterfaceDuality().getConfig().getStackInSlot(index).getCount());
+    public int getItemCount(int index) {
+        return index >= 0 && index < this.getInterfaceDuality().getConfig().getSlots() ? this.getInterfaceDuality().getConfig().getStackInSlot(index).getCount() : 0;
     }
 
     @Override

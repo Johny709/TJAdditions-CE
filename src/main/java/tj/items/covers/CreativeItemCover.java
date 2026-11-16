@@ -148,17 +148,17 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
     }
 
     @Override
-    public void setItemCount(String text, int index) {
+    public void setItemCount(long count, int index) {
         if (index < 0 || index >= this.itemFilter.getSlots()) return;
         final ItemStack stack = this.itemFilter.getStackInSlot(index);
         if (stack.isEmpty()) return;
-        stack.setCount((int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+        stack.setCount((int) Math.min(Integer.MAX_VALUE, count));
         this.markAsDirty();
     }
 
     @Override
-    public String getItemCount(int index) {
-        return String.valueOf(index >= 0 && index < this.itemFilter.getSlots() ? this.itemFilter.getStackInSlot(index).getCount() : 0);
+    public int getItemCount(int index) {
+        return index >= 0 && index < this.itemFilter.getSlots() ? this.itemFilter.getStackInSlot(index).getCount() : 0;
     }
 
     private void onReset(boolean reset) {

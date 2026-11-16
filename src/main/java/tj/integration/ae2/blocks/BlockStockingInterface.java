@@ -79,19 +79,19 @@ public class BlockStockingInterface extends BlockInterface {
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(0, 0, 0, 0);
         final ImageWidget stackSizeDisplay = new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND);
         final LabelWidget stackSizeLabel = new LabelWidget(14, 112, "machine.universal.stack_size");
-        final ButtonWidget<?> clickButtonAdd1 = new ButtonWidget<>(15, 127, 25, 20, "+1", data -> superInterface.setItemCount(String.valueOf(Long.parseLong(superInterface.getItemCount(selectionWidgetGroup.getIndex())) + 1), selectionWidgetGroup.getIndex()));
-        final ButtonWidget<?> clickButtonAdd10 = new ButtonWidget<>(45, 127, 30, 20, "+10", data -> superInterface.setItemCount(String.valueOf(Long.parseLong(superInterface.getItemCount(selectionWidgetGroup.getIndex())) + 10), selectionWidgetGroup.getIndex()));
-        final ButtonWidget<?> clickButtonAdd100 = new ButtonWidget<>(80, 127, 35, 20, "+100", data -> superInterface.setItemCount(String.valueOf(Long.parseLong(superInterface.getItemCount(selectionWidgetGroup.getIndex())) + 100), selectionWidgetGroup.getIndex()));
-        final ButtonWidget<?> clickButtonAdd1000 = new ButtonWidget<>(120, 127, 40, 20, "+1000", data -> superInterface.setItemCount(String.valueOf(Long.parseLong(superInterface.getItemCount(selectionWidgetGroup.getIndex())) + 1000), selectionWidgetGroup.getIndex()));
-        final ButtonWidget<?> clickButtonSub1 = new ButtonWidget<>(15, 177, 25, 20, "-1", data -> superInterface.setItemCount(String.valueOf(Long.parseLong(superInterface.getItemCount(selectionWidgetGroup.getIndex())) - 1), selectionWidgetGroup.getIndex()));
-        final ButtonWidget<?> clickButtonSub10 = new ButtonWidget<>(45, 177, 30, 20, "-10", data -> superInterface.setItemCount(String.valueOf(Long.parseLong(superInterface.getItemCount(selectionWidgetGroup.getIndex())) - 10), selectionWidgetGroup.getIndex()));
-        final ButtonWidget<?> clickButtonSub100 = new ButtonWidget<>(80, 177, 35, 20, "-100", data -> superInterface.setItemCount(String.valueOf(Long.parseLong(superInterface.getItemCount(selectionWidgetGroup.getIndex())) - 100), selectionWidgetGroup.getIndex()));
-        final ButtonWidget<?> clickButtonSub1000 = new ButtonWidget<>(120, 177, 40, 20, "-1000", data -> superInterface.setItemCount(String.valueOf(Long.parseLong(superInterface.getItemCount(selectionWidgetGroup.getIndex())) - 1000), selectionWidgetGroup.getIndex()));
-        final NewTextFieldWidget<?> stackSizeTextField = new NewTextFieldWidget<>(14, 153, 148, 18, true, null, (text, id) -> superInterface.setItemCount(text, Integer.parseInt(id)))
+        final ButtonWidget<?> clickButtonAdd1 = new ButtonWidget<>(15, 127, 25, 20, "+1", data -> superInterface.setItemCount(superInterface.getItemCount(selectionWidgetGroup.getIndex() + 1), selectionWidgetGroup.getIndex()));
+        final ButtonWidget<?> clickButtonAdd10 = new ButtonWidget<>(45, 127, 30, 20, "+10", data -> superInterface.setItemCount(superInterface.getItemCount(selectionWidgetGroup.getIndex() + 10), selectionWidgetGroup.getIndex()));
+        final ButtonWidget<?> clickButtonAdd100 = new ButtonWidget<>(80, 127, 35, 20, "+100", data -> superInterface.setItemCount(superInterface.getItemCount(selectionWidgetGroup.getIndex() + 100), selectionWidgetGroup.getIndex()));
+        final ButtonWidget<?> clickButtonAdd1000 = new ButtonWidget<>(120, 127, 40, 20, "+1000", data -> superInterface.setItemCount(superInterface.getItemCount(selectionWidgetGroup.getIndex() + 1000), selectionWidgetGroup.getIndex()));
+        final ButtonWidget<?> clickButtonSub1 = new ButtonWidget<>(15, 177, 25, 20, "-1", data -> superInterface.setItemCount(superInterface.getItemCount(selectionWidgetGroup.getIndex() - 1), selectionWidgetGroup.getIndex()));
+        final ButtonWidget<?> clickButtonSub10 = new ButtonWidget<>(45, 177, 30, 20, "-10", data -> superInterface.setItemCount(superInterface.getItemCount(selectionWidgetGroup.getIndex() - 10), selectionWidgetGroup.getIndex()));
+        final ButtonWidget<?> clickButtonSub100 = new ButtonWidget<>(80, 177, 35, 20, "-100", data -> superInterface.setItemCount(superInterface.getItemCount(selectionWidgetGroup.getIndex() - 100), selectionWidgetGroup.getIndex()));
+        final ButtonWidget<?> clickButtonSub1000 = new ButtonWidget<>(120, 177, 40, 20, "-1000", data -> superInterface.setItemCount((selectionWidgetGroup.getIndex() - 1000), selectionWidgetGroup.getIndex()));
+        final NewTextFieldWidget<?> stackSizeTextField = new NewTextFieldWidget<>(14, 153, 148, 18, true, null, (text, id) -> superInterface.setItemCount(Long.parseLong(text), Integer.parseInt(id)))
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                 .setUpdateOnTyping(true)
                 .setMaxStringLength(11);
-        stackSizeTextField.setTextSupplier(() -> superInterface.getItemCount((int) stackSizeTextField.getTextIdLong()));
+        stackSizeTextField.setTextSupplier(() -> String.valueOf(superInterface.getItemCount((int) stackSizeTextField.getTextIdLong())));
         selectionWidgetGroup.setIndexListener(stackSizeTextField::setTextIdLong);
         final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
                 .image(179, 0, 32, 194, GuiTextures.BORDERED_BACKGROUND);

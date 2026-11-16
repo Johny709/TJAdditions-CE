@@ -2,7 +2,7 @@ package tj.integration.ae2;
 
 public interface IItemConfigSetter {
 
-    void setItemCount(String size, int index);
+    void setItemCount(long count, int index);
 
-    String getItemCount(int index);
+    int getItemCount(int index);
 }

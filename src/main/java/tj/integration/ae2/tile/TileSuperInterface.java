@@ -25,7 +25,8 @@ import tj.integration.ae2.helpers.DualitySuperInterface;
 public class TileSuperInterface extends TileInterface implements ITileEntityUI, ISuperInterface {
 
     public TileSuperInterface() {
-        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 18, 72), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(TileInterface.class, this,
+                new DualitySuperInterface(this.getProxy(), this, 10, 18, 72), "duality");
     }
 
     public void openUI(EntityPlayer player, TileEntity tileEntity) {
@@ -89,14 +90,15 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI, 
 
     @Override
     public void setIntelligentBlocking(boolean intelligentBlocking) {
-        ((RCIConfigurableObject) this.getInterfaceDuality()).r$getConfigManager().putSetting(RCSettings.IntelligentBlocking, intelligentBlocking ? IntelligentBlocking.OPEN : IntelligentBlocking.CLOSE);
+        ((RCIConfigurableObject) this.getInterfaceDuality()).r$getConfigManager().putSetting(RCSettings.IntelligentBlocking, intelligentBlocking ?
+                IntelligentBlocking.OPEN : IntelligentBlocking.CLOSE);
         this.markDirty();
     }
 
     @Override
-    public void setItemCount(String text, int index) {
+    public void setItemCount(long count, int index) {
         final int maxSize = this.getInterfaceDuality().getConfig().getSlotLimit(0);
-        final int stackSize = (int) Math.max(1, Math.min(Long.parseLong(text), maxSize));
+        final int stackSize = (int) Math.max(1, Math.min(count, maxSize));
         final ItemStack itemStack = this.getInterfaceDuality().getConfig().extractItem(index, Integer.MAX_VALUE, false);
         if (itemStack.isEmpty()) return;
         itemStack.setCount(stackSize);
@@ -105,8 +107,8 @@ public class TileSuperInterface extends TileInterface implements ITileEntityUI, 
     }
 
     @Override
-    public String getItemCount(int index) {
-        return String.valueOf(this.getInterfaceDuality().getConfig().getStackInSlot(index).getCount());
+    public int getItemCount(int index) {
+        return index >= 0 && index < this.getInterfaceDuality().getConfig().getSlots() ? this.getInterfaceDuality().getConfig().getStackInSlot(index).getCount() : 0;
     }
 
     @Override

@@ -44,7 +44,8 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
 
     public PartPatternInterface(ItemStack is) {
         super(is);
-        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 4, 36, 288), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class,
+                this, new DualitySuperInterface(this.getProxy(), this, 10, 4, 36, 288), "duality");
     }
 
     @Override
@@ -121,18 +122,19 @@ public class PartPatternInterface extends PartInterface implements ITileEntityUI
 
     @Override
     public void setIntelligentBlocking(boolean intelligentBlocking) {
-        ((RCIConfigurableObject) this.getInterfaceDuality()).r$getConfigManager().putSetting(RCSettings.IntelligentBlocking, intelligentBlocking ? IntelligentBlocking.OPEN : IntelligentBlocking.CLOSE);
+        ((RCIConfigurableObject) this.getInterfaceDuality()).r$getConfigManager().putSetting(RCSettings.IntelligentBlocking, intelligentBlocking ?
+                IntelligentBlocking.OPEN : IntelligentBlocking.CLOSE);
         this.getTile().markDirty();
     }
 
     @Override
-    public void setItemCount(String size, int index) {
+    public void setItemCount(long count, int index) {
         // No config slots
     }
 
     @Override
-    public String getItemCount(int index) {
-        return null; // No config slots
+    public int getItemCount(int index) {
+        return 0; // No config slots
     }
 
     @Override

@@ -57,7 +57,8 @@ public class PartSuperDualInterface extends PartInterface implements ITileEntity
 
     public PartSuperDualInterface(ItemStack is) {
         super(is);
-        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this, new DualitySuperInterface(this.getProxy(), this, 10, 18, 72), "duality");
+        ObfuscationReflectionHelper.setPrivateValue(PartInterface.class, this,
+                new DualitySuperInterface(this.getProxy(), this, 10, 18, 72), "duality");
     }
 
     @Override
@@ -99,13 +100,15 @@ public class PartSuperDualInterface extends PartInterface implements ITileEntity
     @Nonnull
     @Override
     public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        return TickRateModulation.values()[Math.max(super.tickingRequest(node, ticksSinceLastCall).ordinal(), this.dualityFluid.tickingRequest(node, ticksSinceLastCall).ordinal())];
+        return TickRateModulation.values()[Math.max(super.tickingRequest(node, ticksSinceLastCall).ordinal(),
+                this.dualityFluid.tickingRequest(node, ticksSinceLastCall).ordinal())];
     }
 
     @Nonnull
     @Override
     public TickingRequest getTickingRequest(IGridNode node) {
-        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping && this.dualityFluid.getTickingRequest(node).isSleeping, true);
+        return new TickingRequest(TickRates.Interface.getMin(), TickRates.Interface.getMax(), super.getTickingRequest(node).isSleeping &&
+                this.dualityFluid.getTickingRequest(node).isSleeping, true);
     }
 
     @Override
@@ -193,14 +196,15 @@ public class PartSuperDualInterface extends PartInterface implements ITileEntity
 
     @Override
     public void setIntelligentBlocking(boolean intelligentBlocking) {
-        ((RCIConfigurableObject) this.getInterfaceDuality()).r$getConfigManager().putSetting(RCSettings.IntelligentBlocking, intelligentBlocking ? IntelligentBlocking.OPEN : IntelligentBlocking.CLOSE);
+        ((RCIConfigurableObject) this.getInterfaceDuality()).r$getConfigManager().putSetting(RCSettings.IntelligentBlocking, intelligentBlocking ?
+                IntelligentBlocking.OPEN : IntelligentBlocking.CLOSE);
         this.getTile().markDirty();
     }
 
     @Override
-    public void setItemCount(String text, int index) {
+    public void setItemCount(long count, int index) {
         final int maxSize = this.getInterfaceDuality().getConfig().getSlotLimit(0);
-        final int stackSize = (int) Math.max(1, Math.min(Long.parseLong(text), maxSize));
+        final int stackSize = (int) Math.max(1, Math.min(count, maxSize));
         final ItemStack itemStack = this.getInterfaceDuality().getConfig().extractItem(index, Integer.MAX_VALUE, false);
         if (itemStack.isEmpty()) return;
         itemStack.setCount(stackSize);
@@ -209,8 +213,8 @@ public class PartSuperDualInterface extends PartInterface implements ITileEntity
     }
 
     @Override
-    public String getItemCount(int index) {
-        return String.valueOf(this.getInterfaceDuality().getConfig().getStackInSlot(index).getCount());
+    public int getItemCount(int index) {
+        return index >= 0 && index < this.getInterfaceDuality().getConfig().getSlots() ? this.getInterfaceDuality().getConfig().getStackInSlot(index).getCount() : 0;
     }
 
     @Override
