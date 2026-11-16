@@ -218,8 +218,8 @@ public class PartDualInterfaceV2 extends PartInterface implements ITileEntityUI,
     }
 
     @Override
-    public void setPriority(String text, String id) {
-        this.getInterfaceDuality().setPriority((int) Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
+    public void setPriority(long priority) {
+        this.getInterfaceDuality().setPriority((int) Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, priority)));
         this.getTile().markDirty();
     }
 }

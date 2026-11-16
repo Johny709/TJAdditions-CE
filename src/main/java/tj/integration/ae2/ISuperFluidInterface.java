@@ -5,9 +5,7 @@ import appeng.fluids.helper.IFluidInterfaceHost;
 import appeng.helpers.ICustomNameObject;
 import appeng.helpers.IPriorityHost;
 
-public interface ISuperFluidInterface extends ICustomNameObject, IPriorityHost, IFluidInterfaceHost, IConfigurableFluidInventory, ITickSetter {
-
-    void setPriority(String priority, String id);
+public interface ISuperFluidInterface extends ICustomNameObject, IPriorityHost, IFluidInterfaceHost, IConfigurableFluidInventory, ITickSetter, IPrioritySetter {
 
     default void setFluidAutoPull(boolean autoPull) {}
 

@@ -110,17 +110,17 @@ public class BlockSuperFluidInterface extends BlockFluidInterface {
                                 .setTitleHoverTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
                             widgetGroup.addWidget(new ImageWidget(7, 90, 162, 100, GuiTextures.BORDERED_BACKGROUND));
                             widgetGroup.addWidget(new LabelWidget(14, 95, "gui.appliedenergistics2.Priority"));
-                            widgetGroup.addWidget(new NewTextFieldWidget<>(14, 136, 148, 18, true, () -> String.valueOf(duality.getPriority()), superFluidInterface::setPriority)
+                            widgetGroup.addWidget(new NewTextFieldWidget<>(14, 136, 148, 18, true, () -> String.valueOf(duality.getPriority()), (text, id) -> superFluidInterface.setTickTime(Long.parseLong(text)))
                                     .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                                     .setUpdateOnTyping(true));
-                            widgetGroup.addWidget(new ButtonWidget<>(15, 110, 25, 20, "+1", data -> superFluidInterface.setPriority(String.valueOf((long) duality.getPriority() + 1), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(45, 110, 30, 20, "+10", data -> superFluidInterface.setPriority(String.valueOf((long) duality.getPriority() + 10), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(80, 110, 35, 20, "+100", data -> superFluidInterface.setPriority(String.valueOf((long) duality.getPriority() + 100), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(120, 110, 40, 20, "+1000", data -> superFluidInterface.setPriority(String.valueOf((long) duality.getPriority() + 1000), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(15, 160, 25, 20, "-1", data -> superFluidInterface.setPriority(String.valueOf((long) duality.getPriority() - 1), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(45, 160, 30, 20, "-10", data -> superFluidInterface.setPriority(String.valueOf((long) duality.getPriority() - 10), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(80, 160, 35, 20, "-100", data -> superFluidInterface.setPriority(String.valueOf((long) duality.getPriority() - 100), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(120, 160, 40, 20, "-1000", data -> superFluidInterface.setPriority(String.valueOf((long) duality.getPriority() - 1000), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(15, 110, 25, 20, "+1", data -> superFluidInterface.setPriority((long) duality.getPriority() + 1)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(45, 110, 30, 20, "+10", data -> superFluidInterface.setPriority((long) duality.getPriority() + 10)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(80, 110, 35, 20, "+100", data -> superFluidInterface.setPriority((long) duality.getPriority() + 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(120, 110, 40, 20, "+1000", data -> superFluidInterface.setPriority((long) duality.getPriority() + 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(15, 160, 25, 20, "-1", data -> superFluidInterface.setPriority((long) duality.getPriority() - 1)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(45, 160, 30, 20, "-10", data -> superFluidInterface.setPriority((long) duality.getPriority() - 10)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(80, 160, 35, 20, "-100", data -> superFluidInterface.setPriority((long) duality.getPriority() - 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+                            widgetGroup.addWidget(new ButtonWidget<>(120, 160, 40, 20, "-1000", data -> superFluidInterface.setPriority((long) duality.getPriority() - 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
                             return false;
                         }))
                 .bindPlayerInventory(player.inventory, 209)
