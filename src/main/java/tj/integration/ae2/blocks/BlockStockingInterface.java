@@ -25,8 +25,10 @@ import tj.integration.ae2.ISuperInterface;
 import tj.integration.ae2.helpers.DualitySuperInterface;
 import tj.integration.ae2.tile.TileStockingInterface;
 import tj.mui.TJGuiTextures;
+import tj.mui.TJGuiUtils;
 import tj.mui.uifactory.TileEntityHolder;
 import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.TJModularUI;
 import tj.mui.widgets.impl.*;
 
 import javax.annotation.Nonnull;
@@ -74,7 +76,6 @@ public class BlockStockingInterface extends BlockInterface {
     public static ModularUI createInterfaceGUI(TileEntityHolder holder, EntityPlayer player, ISuperInterface superInterface) {
         final DualitySuperInterface duality = (DualitySuperInterface) superInterface.getInterfaceDuality();
         final DualitySuperInterface.DualityUpgradeInventory upgradeHandler = (DualitySuperInterface.DualityUpgradeInventory) duality.getInventoryByName("upgrades");
-        final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         final ButtonPopUpWidget<?> buttonPopUpTickWidget = new ButtonPopUpWidget<>();
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(0, 0, 0, 0);
         final ImageWidget stackSizeDisplay = new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND);
@@ -93,10 +94,10 @@ public class BlockStockingInterface extends BlockInterface {
                 .setMaxStringLength(11);
         stackSizeTextField.setTextSupplier(() -> String.valueOf(superInterface.getItemCount((int) stackSizeTextField.getTextIdLong())));
         selectionWidgetGroup.setIndexListener(stackSizeTextField::setTextIdLong);
-        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
+        final TJModularUI ui = TJModularUI.builder(holder, player)
                 .image(179, 0, 32, 194, GuiTextures.BORDERED_BACKGROUND);
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
-            builder.widget(new TJPhantomItemSlotWidget(7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18, i, duality.getConfig())
+            ui.widget(new TJPhantomItemSlotWidget(7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18, i, duality.getConfig())
                     .setBackgroundTextures(TJGuiTextures.SLOT_DOWN));
             selectionWidgetGroup.addSubWidget(i, stackSizeDisplay);
             selectionWidgetGroup.addSubWidget(i, stackSizeLabel);
@@ -111,20 +112,22 @@ public class BlockStockingInterface extends BlockInterface {
             selectionWidgetGroup.addSubWidget(i, stackSizeTextField);
             selectionWidgetGroup.addSelectionBox(i, 7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18);
         }
-        builder.widget(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredItems"))
+        ui.widget(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredItems"))
                 .widget(new LabelWidget(7, 23, "gui.appliedenergistics2.Config"));
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
-            builder.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
+            ui.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
                     .setSlotProtection(true));
         }
         for (int i = 0; i < duality.getStorage().getSlots(); i++) {
-            builder.widget(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))
-                    .setActiveSupplier(() -> buttonPopUpWidget.getIndex() == 0 && buttonPopUpTickWidget.getIndex() == 0)
+            ui.widget(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))
+                    .setActiveSupplier(() -> buttonPopUpTickWidget.getIndex() == 0)
                     .setInactiveBackgroundTexture(GuiTextures.SLOT)
                     .setActiveBackgroundTexture(GuiTextures.SLOT));
         }
-        return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+        final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createPriorityPanel(superInterface);
+        return ui.setWidthHeight(176, 292)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(superInterface.getItemStackRepresentation()).setLocale(superInterface.getItemStackRepresentation().getDisplayName()))
                 .widget(new TJLabelWidget(4, 0, 162, 18, null)
                         .setDynamicLocale(superInterface::getCustomInventoryName)
@@ -138,6 +141,16 @@ public class BlockStockingInterface extends BlockInterface {
                         .setToggleTooltipHoverText("tile.me.stocking_interface.auto_push", "tile.me.stocking_interface.auto_push")
                         .setInvertTexture(true))
                 .widget(selectionWidgetGroup)
+                .widget(new ButtonWidget<>(154, 0, 22, 22)
+                        .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
+                        .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_EDGE_RIGHT)
+                        .setTitleHoverTooltipText("gui.appliedenergistics2.Priority")
+                        .setButtonResponder(s -> {
+                            if (panelWidgetGroup.isPanelOpen()) {
+                                panelWidgetGroup.closePanel();
+                            } else panelWidgetGroup.openPanel();
+                        }))
+                .widget(panelWidgetGroup)
                 .widget(buttonPopUpTickWidget.addPopup(widgetGroup -> true)
                         .addPopup(new ButtonWidget<>(132, 0, 22, 22)
                                 .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_LEFT)
@@ -157,27 +170,7 @@ public class BlockStockingInterface extends BlockInterface {
                             widgetGroup.addWidget(new ButtonWidget<>(80, 177, 35, 20, "-100", data -> superInterface.setTickTime((long) superInterface.getTickTime() - 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
                             widgetGroup.addWidget(new ButtonWidget<>(120, 177, 40, 20, "-1000", data -> superInterface.setTickTime((long) superInterface.getTickTime() - 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
                             return false;
-                        })).widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
-                        .addPopup(new ButtonWidget<>(154, 0, 22, 22)
-                                .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
-                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_EDGE_RIGHT)
-                                .setTitleHoverTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
-                            widgetGroup.addWidget(new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
-                            widgetGroup.addWidget(new LabelWidget(14, 112, "gui.appliedenergistics2.Priority"));
-                            widgetGroup.addWidget(new NewTextFieldWidget<>(14, 153, 148, 18, true, () -> String.valueOf(duality.getPriority()), (text, id) -> superInterface.setTickTime(Long.parseLong(text)))
-                                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                                    .setUpdateOnTyping(true));
-                            widgetGroup.addWidget(new ButtonWidget<>(15, 127, 25, 20, "+1", data -> superInterface.setPriority((long) duality.getPriority() + 1)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(45, 127, 30, 20, "+10", data -> superInterface.setPriority((long) duality.getPriority() + 10)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(80, 127, 35, 20, "+100", data -> superInterface.setPriority((long) duality.getPriority() + 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(120, 127, 40, 20, "+1000", data -> superInterface.setPriority((long) duality.getPriority() + 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(15, 177, 25, 20, "-1", data -> superInterface.setPriority((long) duality.getPriority() - 1)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(45, 177, 30, 20, "-10", data -> superInterface.setPriority((long) duality.getPriority() - 10)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(80, 177, 35, 20, "-100", data -> superInterface.setPriority((long) duality.getPriority() - 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(120, 177, 40, 20, "-1000", data -> superInterface.setPriority((long) duality.getPriority() - 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            return false;
                         }))
-                .bindPlayerInventory(player.inventory, 209)
-                .build(holder, player);
+                .build();
     }
 }

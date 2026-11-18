@@ -1,7 +1,6 @@
 package tj.mui.widgets.impl;
 
 import gregtech.api.gui.IRenderContext;
-import gregtech.api.gui.Widget;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
@@ -26,11 +25,6 @@ public class PanelWidgetGroup extends TJWidgetGroup<PanelWidgetGroup> {
     public PanelWidgetGroup(int x, int y, int width, int height, TextureArea backgroundTexture) {
         super(new Position(x, y), new Size(width, height));
         this.backgroundTexture = backgroundTexture;
-    }
-
-    public PanelWidgetGroup addSubWidget(Widget widget) {
-        this.addWidget(widget);
-        return this;
     }
 
     @Override
@@ -75,7 +69,7 @@ public class PanelWidgetGroup extends TJWidgetGroup<PanelWidgetGroup> {
     public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
         if (!this.panelOpen)
             return false;
-        if (this.dragging)
+        if (this.dragging && this.isMouseOverElement(mouseX, mouseY))
             this.setSelfPosition(new Position(mouseX - this.dragX, mouseY - this.dragY));
         return super.mouseDragged(mouseX, mouseY, button, timeDragged) || this.isMouseOverElement(mouseX, mouseY);
     }

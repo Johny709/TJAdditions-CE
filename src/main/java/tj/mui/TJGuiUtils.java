@@ -3,7 +3,6 @@ package tj.mui;
 import appeng.core.Api;
 import baubles.api.BaublesApi;
 import gregtech.api.gui.GuiTextures;
-import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.SlotWidget;
@@ -34,9 +33,11 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
 import tj.integration.ae2.IFluidConfigSetter;
 import tj.integration.ae2.IItemConfigSetter;
+import tj.integration.ae2.IPrioritySetter;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.item.TJItems;
 import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.TJModularUI;
 import tj.mui.widgets.impl.*;
 import tj.util.TJItemUtils;
 
@@ -44,10 +45,13 @@ import javax.annotation.Nullable;
 
 import java.awt.*;
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.IdentityHashMap;
 import java.util.Optional;
 import java.util.function.LongUnaryOperator;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static gregtech.api.gui.resources.RenderUtil.setGlColorFromInt;
 
@@ -66,24 +70,28 @@ public final class TJGuiUtils {
      * @param inventoryPlayer inventory of player
      * @param x X position
      * @param y Y position
-     * @param stack the stack used to open this GUI. this prevents the item being taken out from slot while GUI is open.
+     * @param stacks the stacks used to open this GUI. this prevents the item being taken out from slot while GUI is open.
      * @return widget
      */
-    public static WidgetGroup bindPlayerInventory(WidgetGroup widgetGroup, InventoryPlayer inventoryPlayer, int x, int y, ItemStack stack) {
+    public static WidgetGroup bindPlayerInventory(WidgetGroup widgetGroup, InventoryPlayer inventoryPlayer, int x, int y, ItemStack... stacks) {
+        final IdentityHashMap<ItemStack, ItemStack> stackIdentityHashMap = new IdentityHashMap<>(Arrays.stream(stacks)
+                .collect(Collectors.toMap(k -> k, v -> v)));
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
-                final boolean interact = inventoryPlayer.player.inventory.getStackInSlot(col + (row + 1) * 9) != stack || stack.isEmpty();
+                final ItemStack slotStack = inventoryPlayer.player.inventory.getStackInSlot(col + (row + 1) * 9);
+                final boolean interact = slotStack.isEmpty() || stackIdentityHashMap.containsKey(slotStack);
                 widgetGroup.addWidget((new SlotWidget(inventoryPlayer, col + (row + 1) * 9, x + col * 18, y + row * 18, interact, interact))
                         .setBackgroundTexture(GuiTextures.SLOT)
                         .setLocationInfo(true, false));
             }
         }
-        return bindPlayerHotbar(widgetGroup, inventoryPlayer, x, y + 58, stack);
+        return bindPlayerHotbar(widgetGroup, inventoryPlayer, x, y + 58, stackIdentityHashMap);
     }
 
-    private static WidgetGroup bindPlayerHotbar(WidgetGroup widgetGroup, InventoryPlayer inventoryPlayer, int x, int y, ItemStack stack) {
+    private static WidgetGroup bindPlayerHotbar(WidgetGroup widgetGroup, InventoryPlayer inventoryPlayer, int x, int y, IdentityHashMap<ItemStack, ItemStack> stackIdentityHashMap) {
         for (int slot = 0; slot < 9; ++slot) {
-            final boolean interact = inventoryPlayer.player.inventory.getStackInSlot(slot) != stack || stack.isEmpty();
+            final ItemStack slotStack = inventoryPlayer.player.inventory.getStackInSlot(slot);
+            final boolean interact =  slotStack.isEmpty() || stackIdentityHashMap.containsKey(slotStack);
             widgetGroup.addWidget((new SlotWidget(inventoryPlayer, slot, x + slot * 18, y, interact, interact))
                     .setBackgroundTexture(GuiTextures.SLOT)
                     .setLocationInfo(true, true));
@@ -166,13 +174,13 @@ public final class TJGuiUtils {
                 }).get();
     }
 
-    public static void createPatternMultiToolGUI(ModularUI.Builder builder, ItemStack patternMultiTool, FilteredItemStackHandler multiUpgradeSlots, IItemHandler patternSlots, FilteredItemStackHandler multiPatternSlots, NBTTagCompound invTag) {
+    public static void createPatternMultiToolGUI(TJModularUI ui, ItemStack patternMultiTool, FilteredItemStackHandler multiUpgradeSlots, IItemHandler patternSlots, FilteredItemStackHandler multiPatternSlots, NBTTagCompound invTag) {
         if (!patternMultiTool.isEmpty()) {
             final boolean isUpgraded = patternMultiTool.isItemEqual(TJItems.SUPER_PATTERN_MULTITOOL.maybeStack(1).orElse(ItemStack.EMPTY));
             final SlotWidgetGroup multiPatternSlotGroup = new SlotWidgetGroup(-122, 14, 72, 162, 8, true)
                     .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(patternSlots, itemStack, false))
                     .setItemHandler(multiPatternSlots);
-            builder.widget(new ImageWidget(-129, 0, 109, 222, GuiTextures.BORDERED_BACKGROUND))
+            ui.widget(new ImageWidget(-129, 0, 109, 222, GuiTextures.BORDERED_BACKGROUND))
                     .widget(new LabelWidget(-122, 4, "item.nae2.pattern_multiplier.name"))
                     .widget(new ButtonWidget<>(-122, 180, 18, 18, "*2", data ->
                             changePatternAmount(multiPatternSlots, multiPatternSlotGroup, m -> m * 2,
@@ -224,9 +232,9 @@ public final class TJGuiUtils {
                         .setWidgetGroup(multiPatternSlotGroup)
                         .setSlotProtection(true));
             }
-            builder.widget(multiPatternSlotGroup);
+            ui.widget(multiPatternSlotGroup);
             for (int i = 0; i < multiUpgradeSlots.getSlots(); i++) {
-                builder.widget(new TJSlotWidget<>(multiUpgradeSlots, i, -46, 14 + (i * 18))
+                ui.widget(new TJSlotWidget<>(multiUpgradeSlots, i, -46, 14 + (i * 18))
                         .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
                         .setSlotProtection(true));
             }
@@ -342,6 +350,51 @@ public final class TJGuiUtils {
             itemStacks.add(patternSlots.extractItem(i, Integer.MAX_VALUE, false));
         for (int i = 0; i < patternSlots.getSlots(); i++)
             patternSlots.insertItem(i, itemStacks.get(i), false);
+    }
+
+    public static PanelWidgetGroup createPriorityPanel(IPrioritySetter config) {
+        final NewTextFieldWidget<?> priorityTextField = new NewTextFieldWidget<>(27, 46, 141, 18,
+                true, null, (text, id) -> config.setPriority(Long.parseLong(text)))
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setUpdateOnTyping(true)
+                .setMaxStringLength(11);
+        priorityTextField.setTextSupplier(() -> String.valueOf(config.getPriority()));
+        final PanelWidgetGroup panelWidgetGroup = new PanelWidgetGroup(0, 0, 198, 100, GuiTextures.BORDERED_BACKGROUND);
+        return panelWidgetGroup
+                .addSubWidget(new LabelWidget(7, 7, "gui.appliedenergistics2.Priority"))
+                .addSubWidget(priorityTextField)
+                .addSubWidget(new ButtonWidget<>(182, 4, 12, 12, "", clickData -> panelWidgetGroup.closePanel())
+                        .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID))
+                .addSubWidget(new ButtonWidget<>(7, 20, 31, 20, "+1", clickData ->
+                        config.setPriority(config.getPriority() + 1))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(43, 20, 38, 20, "+10", clickData ->
+                        config.setPriority(config.getPriority() + 10))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(86, 20, 45, 20, "+100", clickData ->
+                        config.setPriority(config.getPriority() + 100))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(136, 20, 52, 20, "+1000", clickData ->
+                        config.setPriority(config.getPriority() + 1000))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(7, 46, 18, 18, "*2", clickData ->
+                        config.setPriority(config.getPriority() * 2L))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(7, 70, 31, 20, "-1", clickData ->
+                        config.setPriority(config.getPriority() - 1))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(43, 70, 38, 20, "-10", clickData ->
+                        config.setPriority(config.getPriority() - 10))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(86, 70, 45, 20, "-100", clickData ->
+                        config.setPriority(config.getPriority() - 100))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(136, 70, 52, 20, "-1000", clickData ->
+                        config.setPriority(config.getPriority() - 1000))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(170, 46, 18, 18, "/2", clickData ->
+                        config.setPriority(config.getPriority() / 2))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
     }
 
     public static PanelWidgetGroup createItemConfigPanel(IItemConfigSetter config, SelectionWidgetGroup selectionWidgetGroup) {

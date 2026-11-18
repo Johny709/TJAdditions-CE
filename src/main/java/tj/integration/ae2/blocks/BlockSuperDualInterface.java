@@ -31,6 +31,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import tj.blocks.block.TJBlocks;
+import tj.mui.widgets.TJModularUI;
 import tj.mui.widgets.WidgetTabBuilder;
 import tj.integration.ae2.ISuperDualInterface;
 import tj.integration.ae2.helpers.DualitySuperFluidInterface;
@@ -113,42 +114,31 @@ public class BlockSuperDualInterface extends BlockInterface {
         final FilteredItemStackHandler multiUpgradeSlots = new FilteredItemStackHandler(null, 3, 1)
                 .setItemStackPredicate((slot, itemStack) -> itemStack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)));
         multiUpgradeSlots.setOnContentsChangedPost((slot, itemStack) -> TJGuiUtils.writePatternMultiToolToNBT(multiUpgradeSlots, upgradeTag));
-        final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
                 .addTab("tile.me.super_interface.name", TJBlocks.SUPER_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> createInterfaceTab(widgets, superDualInterface, multiPatternSlots))
-                .addTab("tile.me.super_fluid_interface.name", TJBlocks.SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> createFluidInterfaceTab(widgets, superDualInterface, buttonPopUpWidget));
-        final ModularUI.Builder builder = ModularUI.builder(TJGuiTextures.SUPER_INTERFACE, 176, 292)
+                .addTab("tile.me.super_fluid_interface.name", TJBlocks.SUPER_FLUID_INTERFACE.maybeStack(1).orElse(ItemStack.EMPTY), widgets -> createFluidInterfaceTab(widgets, superDualInterface));
+        final TJModularUI ui = TJModularUI.builder(holder, player)
                 .image(179, 0, 32, 194, GuiTextures.BORDERED_BACKGROUND);
-        TJGuiUtils.createPatternMultiToolGUI(builder, patternMultiTool, multiUpgradeSlots, duality.getPatterns(), multiPatternSlots, invTag);
-        return builder.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+        TJGuiUtils.createPatternMultiToolGUI(ui, patternMultiTool, multiUpgradeSlots, duality.getPatterns(), multiPatternSlots, invTag);
+        final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createPriorityPanel(superDualInterface);
+        return ui.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(superDualInterface.getItemStackRepresentation()).setLocale(superDualInterface.getItemStackRepresentation().getDisplayName()))
                 .widget(new TJLabelWidget(4, 0, 162, 18, null)
                         .setDynamicLocale(superDualInterface::getCustomInventoryName)
                         .setCentered(false)
                         .setCanSlide(false))
                 .widget(tabBuilder.build())
-                .widget(buttonPopUpWidget.addPopup(widgetGroup -> true)
-                        .addPopup(new ButtonWidget<>(154, 0, 22, 22)
-                                .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
-                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_EDGE_RIGHT)
-                                .setTitleHoverTooltipText("gui.appliedenergistics2.Priority"), widgetGroup -> {
-                            widgetGroup.addWidget(new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
-                            widgetGroup.addWidget(new LabelWidget(14, 112, "gui.appliedenergistics2.Priority"));
-                            widgetGroup.addWidget(new NewTextFieldWidget<>(14, 153, 148, 18, true, () -> String.valueOf(duality.getPriority()), (text, id) -> superDualInterface.setTickTime(Long.parseLong(text)))
-                                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                                    .setUpdateOnTyping(true));
-                            widgetGroup.addWidget(new ButtonWidget<>(15, 127, 25, 20, "+1", data -> superDualInterface.setPriority((long) duality.getPriority() + 1)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(45, 127, 30, 20, "+10", data -> superDualInterface.setPriority((long) duality.getPriority() + 10)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(80, 127, 35, 20, "+100", data -> superDualInterface.setPriority((long) duality.getPriority() + 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(120, 127, 40, 20, "+1000", data -> superDualInterface.setPriority((long) duality.getPriority() + 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(15, 177, 25, 20, "-1", data -> superDualInterface.setPriority((long) duality.getPriority() - 1)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(45, 177, 30, 20, "-10", data -> superDualInterface.setPriority((long) duality.getPriority() - 10)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(80, 177, 35, 20, "-100", data -> superDualInterface.setPriority((long) duality.getPriority() - 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(120, 177, 40, 20, "-1000", data -> superDualInterface.setPriority((long) duality.getPriority() - 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            return false;
+                .widget(new ButtonWidget<>(154, 0, 22, 22)
+                        .setItemDisplay(Api.INSTANCE.definitions().items().certusQuartzWrench().maybeStack(1).orElse(ItemStack.EMPTY))
+                        .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_EDGE_RIGHT)
+                        .setTitleHoverTooltipText("gui.appliedenergistics2.Priority")
+                        .setButtonResponder(s -> {
+                            if (panelWidgetGroup.isPanelOpen()) {
+                                panelWidgetGroup.closePanel();
+                            } else panelWidgetGroup.openPanel();
                         }))
-                .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 209, patternMultiTool))
+                .widget(panelWidgetGroup)
                 .bindOpenListener(() -> {
                     if (!patternMultiTool.isEmpty()) {
                         TJGuiUtils.readPatternMultiToolNBT(multiPatternSlots, invTag.getTagList("Items", 10));
@@ -159,7 +149,8 @@ public class BlockSuperDualInterface extends BlockInterface {
                             patternMultiTool.setTagCompound(compound);
                         }
                     }
-                }).build(holder, player);
+                }).bindPlayerInventory(patternMultiTool)
+                .build();
     }
 
     private static void createInterfaceTab(List<Widget> tab, ISuperDualInterface superDualInterface, IItemHandler multiPatternSlots) {
@@ -278,7 +269,7 @@ public class BlockSuperDualInterface extends BlockInterface {
                 .setActiveTexture(TJGuiTextures.AE2_DIVIDE3_BUTTON, TJGuiTextures.AE2_DIVIDE3_BUTTON));
     }
 
-    private static void createFluidInterfaceTab(List<Widget> tab, ISuperDualInterface superDualInterface, ButtonPopUpWidget<?> buttonPopUpWidget) {
+    private static void createFluidInterfaceTab(List<Widget> tab, ISuperDualInterface superDualInterface) {
         final DualitySuperFluidInterface duality = (DualitySuperFluidInterface) superDualInterface.getDualityFluidInterface();
         final IItemHandler upgradeHandler = duality.getInventoryByName("upgrades");
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
@@ -294,7 +285,6 @@ public class BlockSuperDualInterface extends BlockInterface {
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
             tab.add(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)
                     .onContentsChanged(slot-> ((IDualitySuperFluidInterface) duality).onFluidInventoryHasChanged(duality.getTanks(), slot, null, null, null))
-                    .setActiveSupplier(() -> buttonPopUpWidget.getIndex() == 0)
                     .setBackgroundTextures(GuiTextures.SLOT));
         }
         tab.add(new LabelWidget(7, 181, "gui.appliedenergistics2.StoredFluids"));
