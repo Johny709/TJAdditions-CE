@@ -6,7 +6,6 @@ import appeng.fluids.block.BlockFluidInterface;
 import appeng.fluids.util.AEFluidInventory;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
@@ -37,7 +36,6 @@ import tj.mui.widgets.impl.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class BlockStockingFluidInterface extends BlockFluidInterface {
 
@@ -78,7 +76,6 @@ public class BlockStockingFluidInterface extends BlockFluidInterface {
 
     public static ModularUI createFluidInterfaceGUI(TileEntityHolder holder, EntityPlayer player, ISuperFluidInterface superFluidInterface) {
         final DualitySuperFluidInterface duality = (DualitySuperFluidInterface) superFluidInterface.getDualityFluidInterface();
-        final ButtonPopUpWidget<?> buttonPopUpTickWidget = new ButtonPopUpWidget<>();
         final IItemHandler upgradeHandler = duality.getInventoryByName("upgrades");
         final TJModularUI ui = TJModularUI.builder(holder, player)
                 .image(179, 0, 32, 194, GuiTextures.BORDERED_BACKGROUND);
@@ -95,10 +92,10 @@ public class BlockStockingFluidInterface extends BlockFluidInterface {
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
             ui.widget(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)), 18, 18)
                     .onContentsChanged(slot -> ((IDualitySuperFluidInterface) duality).onFluidInventoryHasChanged(duality.getTanks(), slot, null, null, null))
-                    .setActiveSupplier(() -> buttonPopUpTickWidget.getIndex() == 0)
                     .setBackgroundTextures(GuiTextures.SLOT));
         }
         final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createPriorityPanel(superFluidInterface);
+        final PanelWidgetGroup panelWidgetGroup1 = TJGuiUtils.createTickPanel(superFluidInterface);
         return ui.setWidthHeight(176, 292)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(superFluidInterface.getItemStackRepresentation()).setLocale(superFluidInterface.getItemStackRepresentation().getDisplayName()))
@@ -122,27 +119,17 @@ public class BlockStockingFluidInterface extends BlockFluidInterface {
                                 panelWidgetGroup.closePanel();
                             } else panelWidgetGroup.openPanel();
                         }))
-                .widget(panelWidgetGroup)
-                .widget(buttonPopUpTickWidget.addPopup(widgetGroup -> true)
-                        .addPopup(new ButtonWidget<>(132, 0, 22, 22)
-                                .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_LEFT)
-                                .setHoverTooltipText("machine.universal.ticks.operation")
-                                .setItemDisplay(new ItemStack(Items.CLOCK)), widgetGroup -> {
-                            widgetGroup.addWidget(new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND));
-                            widgetGroup.addWidget(new LabelWidget(14, 112, "machine.universal.ticks.operation"));
-                            widgetGroup.addWidget(new NewTextFieldWidget<>(14, 153, 148, 18, true, () -> String.valueOf(superFluidInterface.getTickTime()), (text, id) -> superFluidInterface.setTickTime(Long.parseLong(text)))
-                                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                                    .setUpdateOnTyping(true));
-                            widgetGroup.addWidget(new ButtonWidget<>(15, 127, 25, 20, "+1", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() + 1)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(45, 127, 30, 20, "+10", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() + 10)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(80, 127, 35, 20, "+100", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() + 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(120, 127, 40, 20, "+1000", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() + 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(15, 177, 25, 20, "-1", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() - 1)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(45, 177, 30, 20, "-10", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() - 10)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(80, 177, 35, 20, "-100", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() - 100)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            widgetGroup.addWidget(new ButtonWidget<>(120, 177, 40, 20, "-1000", data -> superFluidInterface.setTickTime((long) superFluidInterface.getTickTime() - 1000)).setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-                            return false;
+                .widget(new ButtonWidget<>(132, 0, 22, 22)
+                        .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_LEFT)
+                        .setHoverTooltipText("machine.universal.ticks.operation")
+                        .setItemDisplay(new ItemStack(Items.CLOCK))
+                        .setButtonResponder(s -> {
+                            if (panelWidgetGroup1.isPanelOpen()) {
+                                panelWidgetGroup1.closePanel();
+                            } else panelWidgetGroup1.openPanel();
                         }))
+                .widget(panelWidgetGroup)
+                .widget(panelWidgetGroup1)
                 .build();
     }
 }

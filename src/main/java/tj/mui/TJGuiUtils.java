@@ -34,6 +34,7 @@ import tj.TJValues;
 import tj.integration.ae2.IFluidConfigSetter;
 import tj.integration.ae2.IItemConfigSetter;
 import tj.integration.ae2.IPrioritySetter;
+import tj.integration.ae2.ITickSetter;
 import tj.items.handlers.FilteredItemStackHandler;
 import tj.items.item.TJItems;
 import tj.mui.widgets.ButtonWidget;
@@ -394,6 +395,51 @@ public final class TJGuiUtils {
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(170, 46, 18, 18, "/2", clickData ->
                         config.setPriority(config.getPriority() / 2))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+    }
+
+    public static PanelWidgetGroup createTickPanel(ITickSetter config) {
+        final NewTextFieldWidget<?> priorityTextField = new NewTextFieldWidget<>(27, 46, 141, 18,
+                true, null, (text, id) -> config.setTickTime(Long.parseLong(text)))
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setUpdateOnTyping(true)
+                .setMaxStringLength(11);
+        priorityTextField.setTextSupplier(() -> String.valueOf(config.getTickTime()));
+        final PanelWidgetGroup panelWidgetGroup = new PanelWidgetGroup(0, 0, 198, 100, GuiTextures.BORDERED_BACKGROUND);
+        return panelWidgetGroup
+                .addSubWidget(new LabelWidget(7, 7, "machine.universal.ticks.operation"))
+                .addSubWidget(priorityTextField)
+                .addSubWidget(new ButtonWidget<>(182, 4, 12, 12, "", clickData -> panelWidgetGroup.closePanel())
+                        .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID))
+                .addSubWidget(new ButtonWidget<>(7, 20, 31, 20, "+1", clickData ->
+                        config.setTickTime(config.getTickTime() + 1))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(43, 20, 38, 20, "+10", clickData ->
+                        config.setTickTime(config.getTickTime() + 10))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(86, 20, 45, 20, "+100", clickData ->
+                        config.setTickTime(config.getTickTime() + 100))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(136, 20, 52, 20, "+1000", clickData ->
+                        config.setTickTime(config.getTickTime() + 1000))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(7, 46, 18, 18, "*2", clickData ->
+                        config.setTickTime(config.getTickTime() * 2L))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(7, 70, 31, 20, "-1", clickData ->
+                        config.setTickTime(config.getTickTime() - 1))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(43, 70, 38, 20, "-10", clickData ->
+                        config.setTickTime(config.getTickTime() - 10))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(86, 70, 45, 20, "-100", clickData ->
+                        config.setTickTime(config.getTickTime() - 100))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(136, 70, 52, 20, "-1000", clickData ->
+                        config.setTickTime(config.getTickTime() - 1000))
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .addSubWidget(new ButtonWidget<>(170, 46, 18, 18, "/2", clickData ->
+                        config.setTickTime(config.getTickTime() / 2))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
     }
 
