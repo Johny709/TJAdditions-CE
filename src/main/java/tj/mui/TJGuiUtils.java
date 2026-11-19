@@ -138,6 +138,7 @@ public final class TJGuiUtils {
                 }
             }
         }
+        GlStateManager.color(1, 1, 1, 1);
         GlStateManager.disableBlend();
     }
 

@@ -29,8 +29,6 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.mui.widgets.WidgetTabBuilder;
 import tj.integration.ae2.ISuperFluidInterfaceTerminal;
 import tj.integration.ae2.part.*;
@@ -133,15 +131,7 @@ public class ItemWirelessSuperFluidInterfaceTerminal extends ToolWirelessTermina
         final ObjectReference<String> searchName = new ObjectReference<>("");
         final AEGhostFluidListWidget<IFluidInterfaceHost> ghostFluidListWidget = new AEGhostFluidListWidget<>(7, 22, 162, 190, gridNode, TileFluidInterface.class, TileDualInterface.class, TileSuperFluidInterface.class, TileSuperDualInterface.class, TileStockingFluidInterface.class, TileStockingDualInterface.class, TileSuperUltimateInterface.class,
                 PartFluidInterface.class, PartDualInterface.class, PartSuperFluidInterface.class, PartSuperDualInterface.class, PartStockingFluidInterface.class, PartStockingDualInterface.class, PartSuperUltimateInterface.class);
-        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT) {
-            @Override
-            @SideOnly(Side.CLIENT)
-            public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-                GlStateManager.enableBlend();
-                GlStateManager.color(1.0f, 1.0f, 1.0f);
-                super.drawInBackground(mouseX, mouseY, context);
-            }
-        });
+        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT));
         tab.add(new NewTextFieldWidget<>(7, 6, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
@@ -180,15 +170,7 @@ public class ItemWirelessSuperFluidInterfaceTerminal extends ToolWirelessTermina
 
     private static void createStorageTab(List<Widget> tab, IGridNode gridNode) {
         final ObjectReference<String> searchName = new ObjectReference<>("");
-        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT) {
-            @Override
-            @SideOnly(Side.CLIENT)
-            public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-                GlStateManager.enableBlend();
-                GlStateManager.color(1.0f, 1.0f, 1.0f);
-                super.drawInBackground(mouseX, mouseY, context);
-            }
-        });
+        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT));
         tab.add(new NewTextFieldWidget<>(7, 6, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")

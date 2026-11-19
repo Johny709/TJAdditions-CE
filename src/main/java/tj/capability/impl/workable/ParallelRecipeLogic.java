@@ -141,7 +141,7 @@ public class ParallelRecipeLogic<R extends IRecipeHandler> extends AbstractParal
                 this.calculateOverclock(this.overclockManager.getEUt(), this.overclockManager.getDuration(), this.overclockManager.getDurationMultiplier(), i);
                 this.handler.postOverclock(this.overclockManager, recipe);
                 this.energyPerTick[i] = this.overclockManager.getEUt();
-                this.setMaxProgress(this.overclockManager.getDuration(), i);
+                this.maxProgress[i] = Math.max(1, this.overclockManager.getDuration());
                 this.occupiedRecipes.set(i, recipe);
                 return true;
             }

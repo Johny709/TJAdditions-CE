@@ -250,7 +250,7 @@ public class ScrollingWidgetGroup<R extends ScrollingWidgetGroup<R>> extends TJW
         final Size size = this.getSize();
         final Position pos = this.getPosition();
         RenderUtil.useScissor(pos.x, pos.y, size.width, size.height, () -> super.drawInBackground(mouseX, mouseY, context));
-        GlStateManager.color(1.0f, 1.0f, 1.0f);
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         GlStateManager.enableBlend();
         if (this.scrollHeight > size.height) {
             if (this.scrollVerticalBarTexture != null)

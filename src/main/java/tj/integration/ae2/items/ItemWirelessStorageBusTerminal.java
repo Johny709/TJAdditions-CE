@@ -30,8 +30,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import tj.TJValues;
@@ -134,15 +132,7 @@ public class ItemWirelessStorageBusTerminal extends ToolWirelessTerminal impleme
     private static void createConfigTab(List<Widget> tab, IGridNode gridNode, ISuperInterfaceTerminal superInterfaceTerminal) {
         final ObjectReference<String> searchName = new ObjectReference<>("");
         final AEGhostItemListWidget<PartStorageBus> aeItemListConfig = new AEGhostItemListWidget<>(7, 22, 162, 190, gridNode, PartStorageBus.class);
-        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT) {
-            @Override
-            @SideOnly(Side.CLIENT)
-            public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-                GlStateManager.enableBlend();
-                GlStateManager.color(1.0f, 1.0f, 1.0f);
-                super.drawInBackground(mouseX, mouseY, context);
-            }
-        });
+        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT));
         tab.add(new NewTextFieldWidget<>(7, 6, 90, 12, true, searchName::getValue, (s, id) -> searchName.setValue(s))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
@@ -186,15 +176,7 @@ public class ItemWirelessStorageBusTerminal extends ToolWirelessTerminal impleme
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                 .setUpdateOnTyping(true));
-        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT) {
-            @Override
-            @SideOnly(Side.CLIENT)
-            public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-                GlStateManager.enableBlend();
-                GlStateManager.color(1.0f, 1.0f, 1.0f);
-                super.drawInBackground(mouseX, mouseY, context);
-            }
-        });
+        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT));
         tab.add(new AEItemListWidget<PartStorageBus>(7, 22, 162, 190, gridNode, PartStorageBus.class)
                 .setPredicate(storageBus -> searchName.getValue().isEmpty() || TJItemUtils.isItemPresent(getInventory(storageBus), searchName.getValue()))
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)

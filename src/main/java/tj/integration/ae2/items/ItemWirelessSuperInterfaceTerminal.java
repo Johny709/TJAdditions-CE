@@ -40,8 +40,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.mui.widgets.WidgetTabBuilder;
@@ -205,15 +203,7 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldNames")
                 .setUpdateOnTyping(true));
-        tab.add(new ImageWidget(6, 49, 164, 164, TJGuiTextures.BLANK_SLOT) {
-            @Override
-            @SideOnly(Side.CLIENT)
-            public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-                GlStateManager.enableBlend();
-                GlStateManager.color(1.0f, 1.0f, 1.0f);
-                super.drawInBackground(mouseX, mouseY, context);
-            }
-        });
+        tab.add(new ImageWidget(6, 49, 164, 164, TJGuiTextures.BLANK_SLOT));
         tab.add(aeItemListWidget.setSlotPredicate((slot, interfaceHost) -> slot / 9 <= interfaceHost.getInterfaceDuality().getInstalledUpgrades(Upgrades.PATTERN_EXPANSION))
                 .setItemStackTransfer((itemStack, simulate) -> TJItemUtils.insertIntoItemHandler(multiPatternSlots, itemStack, simulate))
                 .setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getPatterns())
@@ -249,15 +239,7 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                 .setUpdateOnTyping(true));
-        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT) {
-            @Override
-            @SideOnly(Side.CLIENT)
-            public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-                GlStateManager.enableBlend();
-                GlStateManager.color(1.0f, 1.0f, 1.0f);
-                super.drawInBackground(mouseX, mouseY, context);
-            }
-        });
+        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT));
         tab.add(aeItemListConfig.setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getConfig())
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setItemStackTransfer((itemStack, simulate) -> itemStack)
@@ -309,15 +291,7 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                 .setUpdateOnTyping(true));
-        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT) {
-            @Override
-            @SideOnly(Side.CLIENT)
-            public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-                GlStateManager.enableBlend();
-                GlStateManager.color(1.0f, 1.0f, 1.0f);
-                super.drawInBackground(mouseX, mouseY, context);
-            }
-        });
+        tab.add(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT));
         tab.add(aeItemListStorage.setInventorySupplier(interfaceHost -> interfaceHost.getInterfaceDuality().getStorage())
                 .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)
                 .setItemStackTransfer((itemStack, simulate) -> itemStack)

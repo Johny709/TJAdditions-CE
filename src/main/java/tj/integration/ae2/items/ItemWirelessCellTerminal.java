@@ -27,8 +27,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.items.item.TJItems;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
@@ -94,15 +92,7 @@ public class ItemWirelessCellTerminal extends ToolWirelessTerminal implements It
                         .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                         .setTooltipText("gui.tooltips.appliedenergistics2.SearchFieldInputs")
                         .setUpdateOnTyping(true))
-                .widget(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT) {
-                    @Override
-                    @SideOnly(Side.CLIENT)
-                    public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
-                        GlStateManager.enableBlend();
-                        GlStateManager.color(1.0f, 1.0f, 1.0f);
-                        super.drawInBackground(mouseX, mouseY, context);
-                    }
-                })
+                .widget(new ImageWidget(6, 21, 164, 192, TJGuiTextures.BLANK_SLOT))
                 .widget(new AEItemListWidget<IChestOrDrive>(7, 22, 162, 190, gridNode, TileDrive.class)
                         .setInventorySupplier(drive -> ((AEBaseInvTile) drive).getInternalInventory())
                         .setScrollSlider(1, 1, 10, 24, GuiTextures.BORDERED_BACKGROUND)

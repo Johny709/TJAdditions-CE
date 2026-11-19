@@ -159,7 +159,6 @@ public class BlockSuperDualInterface extends BlockInterface {
         final SlotWidgetGroup patternScrollableSlotGroup = new SlotWidgetGroup(7, 133, 162, 72, 9)
                 .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(multiPatternSlots, itemStack, false))
                 .setItemHandler(duality.getPatterns());
-        final ButtonPopUpWidget<?> buttonPopUpWidget = new ButtonPopUpWidget<>();
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(0, 0, 0, 0);
         final ImageWidget stackSizeDisplay = new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND);
         final LabelWidget stackSizeLabel = new LabelWidget(14, 112, "machine.universal.stack_size");
@@ -196,7 +195,7 @@ public class BlockSuperDualInterface extends BlockInterface {
         for (int i = 0; i < duality.getPatterns().getSlots(); i++) {
             final int index = i;
             patternScrollableSlotGroup.addWidget(new AEPatternSlotWidget(duality.getPatterns(), i, 18 * (i % 9), 18 * (i / 9))
-                    .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) && selectionWidgetGroup.getIndex() < 0 && buttonPopUpWidget.getIndex() == 0)
+                    .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) && selectionWidgetGroup.getIndex() < 0)
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
                     .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
                     .setWidgetGroup(patternScrollableSlotGroup)

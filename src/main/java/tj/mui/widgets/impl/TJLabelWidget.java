@@ -10,6 +10,7 @@ import mezz.jei.Internal;
 import mezz.jei.runtime.JeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -128,6 +129,7 @@ public class TJLabelWidget extends Widget {
             if (length < 0)
                 this.slideAtEnd = true;
             RenderUtil.useScissor(pos.getX() + widthApplied, pos.getY(), size.getWidth() - 22, size.getHeight(), () -> fontRenderer.drawString(locale, finalX, pos.getY() + 6, this.color));
+            GlStateManager.color(1, 1, 1, 1);
         }
     }
 

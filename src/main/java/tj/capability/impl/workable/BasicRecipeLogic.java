@@ -102,7 +102,7 @@ public class BasicRecipeLogic<R extends IRecipeHandler> extends AbstractWorkable
                 this.calculateOverclock(this.overclockManager.getEUt(), this.overclockManager.getDuration(), this.overclockManager.getDurationMultiplier());
                 this.handler.postOverclock(this.overclockManager, recipe);
                 this.energyPerTick = this.overclockManager.getEUt();
-                this.maxProgress = this.overclockManager.getDuration();
+                this.maxProgress = Math.max(1, this.overclockManager.getDuration());
                 return true;
             }
         }

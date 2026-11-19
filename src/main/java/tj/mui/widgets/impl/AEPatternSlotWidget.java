@@ -3,9 +3,6 @@ package tj.mui.widgets.impl;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.Position;
-import gregtech.api.util.TextFormattingUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -50,7 +47,6 @@ public class AEPatternSlotWidget extends TJSlotWidget<AEPatternSlotWidget> {
         }
         if (this.isActive) {
             if (!this.itemStack.isEmpty() || this.simulating) {
-                final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
                 final NBTTagCompound compound = TJItemUtils.getCompoundFromStack(this.itemStack);
                 final NBTTagList outputList = compound.getTagList("out", 10);
                 final NBTTagCompound outputCompound = outputList.getCompoundTagAt(0);
@@ -70,22 +66,13 @@ public class AEPatternSlotWidget extends TJSlotWidget<AEPatternSlotWidget> {
                 }
                 GlStateManager.disableBlend();
                 if (!this.output.isEmpty()) {
-                    drawItemStack(this.output, stackX, stackY, null);
+                    TJGuiUtils.drawItemStack(stackX, stackY, this.output, this.itemCount, null);
                 } else if (this.fluidOutput != null) {
                     TJGuiUtils.drawFluidForGui(this.fluidOutput, this.count, this.count, pos.getX() + 1, pos.getY() + 1, 17, 17);
-                } else drawItemStack(this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex) : this.itemStack, stackX, stackY, null);
-                GlStateManager.pushMatrix();
-                GlStateManager.scale(0.5, 0.5, 1);
-                final String s = TextFormattingUtil.formatLongToCompactString(this.count, 4) + (this.fluidOutput != null ? "L" : "");
-                fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + 12) * 2, 0xFFFFFF);
-                final int itemCount = this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex).getCount() : this.itemCount;
-                if (itemCount > 1) {
-                    final String s1 = TextFormattingUtil.formatLongToCompactString(itemCount, 4);
-                    fontRenderer.drawStringWithShadow(s1, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s1) + 21, (pos.getY() + 2) * 2, 0xFFFFFF);
-                }
-                GlStateManager.popMatrix();
-                GlStateManager.enableBlend();
-                GlStateManager.color(1.0f, 1.0f, 1.0f);
+                } else TJGuiUtils.drawItemStack(stackX, stackY,
+                        this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex) : this.itemStack,
+                        this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex).getCount() : this.itemCount,
+                        null);
             }
             if (this.simulating || this.isMouseOverElement(mouseX, mouseY))
                 drawSelectionOverlay(stackX, stackY, 16, 16);
