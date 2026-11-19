@@ -12,7 +12,6 @@ import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
-import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import gregtech.api.util.function.BooleanConsumer;
 import net.minecraft.block.state.IBlockState;
@@ -122,7 +121,8 @@ public class BlockSuperDualInterface extends BlockInterface {
                 .image(179, 0, 32, 194, GuiTextures.BORDERED_BACKGROUND);
         TJGuiUtils.createPatternMultiToolGUI(ui, patternMultiTool, multiUpgradeSlots, duality.getPatterns(), multiPatternSlots, invTag);
         final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createPriorityPanel(superDualInterface);
-        return ui.widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
+        return ui.setWidthHeight(176, 292)
+                .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(superDualInterface.getItemStackRepresentation()).setLocale(superDualInterface.getItemStackRepresentation().getDisplayName()))
                 .widget(new TJLabelWidget(4, 0, 162, 18, null)
                         .setDynamicLocale(superDualInterface::getCustomInventoryName)

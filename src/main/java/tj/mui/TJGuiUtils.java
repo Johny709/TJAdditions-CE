@@ -80,8 +80,8 @@ public final class TJGuiUtils {
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
                 final ItemStack slotStack = inventoryPlayer.player.inventory.getStackInSlot(col + (row + 1) * 9);
-                final boolean interact = slotStack.isEmpty() || stackIdentityHashMap.containsKey(slotStack);
-                widgetGroup.addWidget((new SlotWidget(inventoryPlayer, col + (row + 1) * 9, x + col * 18, y + row * 18, interact, interact))
+                final boolean interact = slotStack.isEmpty() || !stackIdentityHashMap.containsKey(slotStack);
+                widgetGroup.addWidget(new SlotWidget(inventoryPlayer, col + (row + 1) * 9, x + col * 18, y + row * 18, interact, interact)
                         .setBackgroundTexture(GuiTextures.SLOT)
                         .setLocationInfo(true, false));
             }
@@ -92,8 +92,8 @@ public final class TJGuiUtils {
     private static WidgetGroup bindPlayerHotbar(WidgetGroup widgetGroup, InventoryPlayer inventoryPlayer, int x, int y, IdentityHashMap<ItemStack, ItemStack> stackIdentityHashMap) {
         for (int slot = 0; slot < 9; ++slot) {
             final ItemStack slotStack = inventoryPlayer.player.inventory.getStackInSlot(slot);
-            final boolean interact =  slotStack.isEmpty() || stackIdentityHashMap.containsKey(slotStack);
-            widgetGroup.addWidget((new SlotWidget(inventoryPlayer, slot, x + slot * 18, y, interact, interact))
+            final boolean interact = slotStack.isEmpty() || !stackIdentityHashMap.containsKey(slotStack);
+            widgetGroup.addWidget(new SlotWidget(inventoryPlayer, slot, x + slot * 18, y, interact, interact)
                     .setBackgroundTexture(GuiTextures.SLOT)
                     .setLocationInfo(true, true));
         }

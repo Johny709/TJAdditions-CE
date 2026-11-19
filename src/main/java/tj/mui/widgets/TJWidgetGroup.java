@@ -7,6 +7,8 @@ import gregtech.api.util.Size;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.awt.*;
+
 
 public class TJWidgetGroup<R extends TJWidgetGroup<R>> extends WidgetGroup {
 
@@ -115,6 +117,24 @@ public class TJWidgetGroup<R extends TJWidgetGroup<R>> extends WidgetGroup {
                 return true;
         }
         return false;
+    }
+
+    @Override
+    public Rectangle toRectangleBox() {
+        final Rectangle rectangle = super.toRectangleBox();
+        int x = rectangle.x;
+        int y = rectangle.y;
+        int width = rectangle.width;
+        int height = rectangle.height;
+        for (Widget widget : this.widgets) {
+            if (!widget.isVisible()) continue;
+            final Rectangle rec = widget.toRectangleBox();
+            x = Math.min(x, rec.x);
+            y = Math.min(y, rec.y);
+            width = Math.max(width, rec.width);
+            height = Math.max(height, rec.height);
+        }
+        return new Rectangle(x, y, width, height);
     }
 
     /**

@@ -87,7 +87,7 @@ public final class TJModularUI {
      */
     public TJModularUI bindPlayerInventory(ItemStack... itemBlacklist) {
         final int inventoryStartY = this.height - 82;
-        this.playerSlotGroup = TJGuiUtils.bindPlayerInventory(new TJWidgetGroup<>(), player.inventory, 7, inventoryStartY, itemBlacklist);
+        this.playerSlotGroup = TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, inventoryStartY, itemBlacklist);
         return this;
     }
 
