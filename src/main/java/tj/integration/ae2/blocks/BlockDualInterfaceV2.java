@@ -10,7 +10,6 @@ import com.circulation.random_complement.common.interfaces.RCIConfigurableObject
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.LabelWidget;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
 import gregtech.api.util.function.BooleanConsumer;
@@ -48,7 +47,6 @@ import tj.util.TJItemUtils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.HorizontalLocation.LEFT;
 import static gregtech.api.gui.widgets.tab.VerticalTabListRenderer.VerticalStartCorner.TOP;
@@ -161,42 +159,15 @@ public class BlockDualInterfaceV2 extends BlockInterface {
                 .setItemStackTransfer(itemStack -> TJItemUtils.insertIntoItemHandler(multiPatternSlots, itemStack, false))
                 .setItemHandler(duality.getPatterns());
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(0, 0, 0, 0);
-        final ImageWidget stackSizeDisplay = new ImageWidget(7, 107, 162, 100, GuiTextures.BORDERED_BACKGROUND);
-        final LabelWidget stackSizeLabel = new LabelWidget(14, 112, "machine.universal.stack_size");
-        final ButtonWidget<?> clickButtonAdd1 = new ButtonWidget<>(15, 127, 25, 20, "+1", data -> superDualInterface.setItemCount(superDualInterface.getItemCount(selectionWidgetGroup.getIndex() + 1), selectionWidgetGroup.getIndex()));
-        final ButtonWidget<?> clickButtonAdd10 = new ButtonWidget<>(45, 127, 30, 20, "+10", data -> superDualInterface.setItemCount(superDualInterface.getItemCount(selectionWidgetGroup.getIndex() + 10), selectionWidgetGroup.getIndex()));
-        final ButtonWidget<?> clickButtonAdd100 = new ButtonWidget<>(80, 127, 35, 20, "+100", data -> superDualInterface.setItemCount(superDualInterface.getItemCount(selectionWidgetGroup.getIndex() + 100), selectionWidgetGroup.getIndex()));
-        final ButtonWidget<?> clickButtonAdd1000 = new ButtonWidget<>(120, 127, 40, 20, "+1000", data -> superDualInterface.setItemCount(superDualInterface.getItemCount(selectionWidgetGroup.getIndex() + 1000), selectionWidgetGroup.getIndex()));
-        final ButtonWidget<?> clickButtonSub1 = new ButtonWidget<>(15, 177, 25, 20, "-1", data -> superDualInterface.setItemCount(superDualInterface.getItemCount(selectionWidgetGroup.getIndex() - 1), selectionWidgetGroup.getIndex()));
-        final ButtonWidget<?> clickButtonSub10 = new ButtonWidget<>(45, 177, 30, 20, "-10", data -> superDualInterface.setItemCount(superDualInterface.getItemCount(selectionWidgetGroup.getIndex() - 10), selectionWidgetGroup.getIndex()));
-        final ButtonWidget<?> clickButtonSub100 = new ButtonWidget<>(80, 177, 35, 20, "-100", data -> superDualInterface.setItemCount(superDualInterface.getItemCount(selectionWidgetGroup.getIndex() - 100), selectionWidgetGroup.getIndex()));
-        final ButtonWidget<?> clickButtonSub1000 = new ButtonWidget<>(120, 177, 40, 20, "-1000", data -> superDualInterface.setItemCount(superDualInterface.getItemCount(selectionWidgetGroup.getIndex() - 1000), selectionWidgetGroup.getIndex()));
-        final NewTextFieldWidget<?> stackSizeTextField = new NewTextFieldWidget<>(14, 153, 148, 18, true, null, (text, id) -> superDualInterface.setItemCount(Long.parseLong(text), Integer.parseInt(id)))
-                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                .setUpdateOnTyping(true)
-                .setMaxStringLength(11);
-        stackSizeTextField.setTextSupplier(() -> String.valueOf(superDualInterface.getItemCount((int) stackSizeTextField.getTextIdLong())));
-        selectionWidgetGroup.setIndexListener(stackSizeTextField::setTextIdLong);
         for (int i = 0; i < duality.getConfig().getSlots(); i++) {
             tab.add(new TJPhantomItemSlotWidget(7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18, i, duality.getConfig())
                     .setBackgroundTextures(TJGuiTextures.SLOT_DOWN));
-            selectionWidgetGroup.addSubWidget(i, stackSizeDisplay);
-            selectionWidgetGroup.addSubWidget(i, stackSizeLabel);
-            selectionWidgetGroup.addSubWidget(i, clickButtonAdd1.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, clickButtonAdd10.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, clickButtonAdd100.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, clickButtonAdd1000.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, clickButtonSub1.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, clickButtonSub10.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, clickButtonSub100.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, clickButtonSub1000.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, stackSizeTextField);
             selectionWidgetGroup.addSelectionBox(i, 7 + (18 * (i % 9)), 34 + (36 * (i / 9)), 18, 18);
         }
         for (int i = 0; i < duality.getPatterns().getSlots(); i++) {
             final int index = i;
             patternScrollableSlotGroup.addWidget(new AEPatternSlotWidget(duality.getPatterns(), i, 18 * (i % 9), 18 * (i / 9))
-                    .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION) && selectionWidgetGroup.getIndex() < 0)
+                    .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
                     .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
                     .setWidgetGroup(patternScrollableSlotGroup)
@@ -267,6 +238,7 @@ public class BlockDualInterfaceV2 extends BlockInterface {
                 .setToggleTooltipHoverText("gui.pattern_term.auto_fill_pattern.DIVIDE_3.text", "gui.pattern_term.auto_fill_pattern.DIVIDE_3.text")
                 .setToggleTitleTooltipHoverText("gui.action.DIVIDE_3.name", "gui.action.DIVIDE_3.name")
                 .setActiveTexture(TJGuiTextures.AE2_DIVIDE3_BUTTON, TJGuiTextures.AE2_DIVIDE3_BUTTON));
+        tab.add(TJGuiUtils.createItemConfigPanel(superDualInterface, selectionWidgetGroup));
     }
 
     private static void createFluidInterfaceTab(List<Widget> tab, ISuperDualInterface superDualInterface, ButtonPopUpWidget<?> buttonPopUpWidget) {

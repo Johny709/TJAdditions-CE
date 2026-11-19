@@ -5,11 +5,11 @@ import gregtech.api.gui.IUIHolder;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.resources.TextureArea;
+import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.gui.widgets.WidgetGroup;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import tj.mui.TJGuiUtils;
-import tj.mui.widgets.impl.TJImageWidget;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public final class TJModularUI {
     }
 
     public TJModularUI image(int x, int y, int width, int height, TextureArea textureArea) {
-        this.widgetGroup.addWidget(new TJImageWidget(x, y, width, height, textureArea));
+        this.widgetGroup.addWidget(new ImageWidget(x, y, width, height, textureArea));
         return this;
     }
 
