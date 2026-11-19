@@ -466,39 +466,39 @@ public final class TJGuiUtils {
                                 selectionWidgetGroup.getIndex()))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(43, 20, 38, 20, "+10", clickData ->
-                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex() + 10),
+                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex()) + 10,
                                 selectionWidgetGroup.getIndex()))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(86, 20, 45, 20, "+100", clickData ->
-                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex() + 100),
+                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex()) + 100,
                                 selectionWidgetGroup.getIndex()))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(136, 20, 52, 20, "+1000", clickData ->
-                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex() + 1000),
+                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex()) + 1000,
                                 selectionWidgetGroup.getIndex()))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(7, 46, 18, 18, "*2", clickData ->
-                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex() * 2),
+                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex()) * 2L,
                                 selectionWidgetGroup.getIndex()))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(7, 70, 31, 20, "-1", clickData ->
-                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex() - 1),
+                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex()) - 1,
                                 selectionWidgetGroup.getIndex()))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(43, 70, 38, 20, "-10", clickData ->
-                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex() - 10),
+                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex()) - 10,
                                 selectionWidgetGroup.getIndex()))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(86, 70, 45, 20, "-100", clickData ->
-                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex() - 100),
+                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex()) - 100,
                                 selectionWidgetGroup.getIndex()))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(136, 70, 52, 20, "-1000", clickData ->
-                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex() - 1000),
+                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex()) - 1000,
                                 selectionWidgetGroup.getIndex()))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(170, 46, 18, 18, "/2", clickData ->
-                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex() / 2),
+                        config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex()) / 2,
                                 selectionWidgetGroup.getIndex()))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
     }
