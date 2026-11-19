@@ -17,6 +17,7 @@ import java.util.List;
 public final class TJModularUI {
 
     private final TJWidgetGroup<?> widgetGroup = new TJWidgetGroup<>();
+    private final List<Runnable> closeListeners = new ArrayList<>();
     private final List<Runnable> openListeners = new ArrayList<>();
     private final EntityPlayer player;
     private final IUIHolder holder;
@@ -82,6 +83,11 @@ public final class TJModularUI {
         return this;
     }
 
+    public TJModularUI bindCloseListener(Runnable runnable) {
+        this.closeListeners.add(runnable);
+        return this;
+    }
+
     /**
      * @param itemBlacklist prevents slots being interacted with if they contain the passed in {@link ItemStack}
      */
@@ -96,6 +102,8 @@ public final class TJModularUI {
         final ModularUI.Builder builder = ModularUI.builder(this.background, this.width, this.height);
         for (Runnable listener : this.openListeners)
             builder.bindOpenListener(listener);
+        for (Runnable listener : this.closeListeners)
+            builder.bindCloseListener(listener);
         if (this.playerSlotGroup == null) {
             builder.bindPlayerInventory(this.player.inventory, inventoryStartY);
         } else builder.widget(this.playerSlotGroup);

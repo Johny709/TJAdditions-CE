@@ -13,15 +13,14 @@ import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.util.Position;
+import gregtech.api.util.function.BooleanConsumer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
@@ -30,26 +29,27 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import tj.integration.ae2.IFluidConfigSetter;
+import tj.integration.ae2.ITickSetter;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
-import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.TJModularUI;
 import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
+import tj.util.TJItemUtils;
 
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, ITickable, IWorkable, IFluidConfigSetter {
+public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, ITickable, IWorkable, IFluidConfigSetter, ITickSetter {
 
     private final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
             .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
             .collect(Collectors.toList()));
     private final IFluidHandler fluidHandler;
     private boolean isWorking;
-    private int speed = 1;
+    private int ticks = 1;
 
     public CreativeFluidCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
@@ -75,7 +75,7 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
     }
 
     private void displayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", this.speed));
+        textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", this.ticks));
     }
 
     @Override
@@ -87,21 +87,36 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
                     .setBackgroundTexture(GuiTextures.FLUID_SLOT));
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
+        final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createTickPanel(this);
         return TJModularUI.builder(this, player)
-                .setHeight(187)
+                .setWidthHeight(200, 187)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("cover.creative_fluid.title"))
-                .widget(new ImageWidget(61, 80, 55, 18, GuiTextures.DISPLAY))
-                .widget(new AdvancedTextWidget(63, 85, this::displayText, 0xFFFFFF))
-                .widget(new ButtonWidget<>(43, 80, 18, 18, "+", this::onIncrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new ButtonWidget<>(116, 80, 18, 18, "-", this::onDecrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new TJToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
+                .widget(new TJToggleButtonWidget(174, 105, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
                         .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
-                .widget(new TJToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
+                .widget(new TJToggleButtonWidget(174, 162, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
+                                "machine.universal.toggle.run.mode.enabled"))
+                .widget(new NewTextFieldWidget<>(7, 82, 162, 18, true, () -> String.valueOf(this.ticks), (text, id) ->
+                        this.setTickTime(Long.parseLong(text)))
+                        .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                        .setTooltipText("machine.universal.ticks.operation")
+                        .setUpdateOnTyping(true)
+                        .setMaxStringLength(11))
+                .widget(new TJToggleButtonWidget(174, 82, 18, 18, panelWidgetGroup::isPanelOpen, (BooleanConsumer) value -> {
+                    if (!value && panelWidgetGroup.isPanelOpen()) {
+                        panelWidgetGroup.closePanel();
+                    } else if (value) {
+                        panelWidgetGroup.openPanel();
+                    }
+                }).setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                        .setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11)) // infinity bimetal gear
+                        .setHoverTooltipText("tj.machine.universal.ticks.operation_configure")
+                        .useToggleTexture(true))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
                 .widget(TJGuiUtils.createFluidConfigPanel(this, selectionWidgetGroup))
+                .widget(panelWidgetGroup)
                 .build();
     }
 
@@ -109,7 +124,7 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
     public void onAttached(ItemStack itemStack) {
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
         if (compound.hasKey("speed"))
-            this.speed = compound.getInteger("speed");
+            this.ticks = compound.getInteger("speed");
         if (compound.hasKey("power"))
             this.isWorking = compound.getBoolean("power");
         for (int i = 0; i < 9; i++) {
@@ -120,7 +135,7 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
 
     @Override
     public void update() {
-        if (this.isWorking && this.coverHolder.getOffsetTimer() % this.speed == 0) {
+        if (this.isWorking && this.coverHolder.getOffsetTimer() % this.ticks == 0) {
             for (int index = 0; index < 9; index++) {
                 final FluidStack fluid = this.fluidFilter.getTankAt(index).getFluid();
                 if (fluid != null) {
@@ -134,7 +149,7 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
         data.setTag("fluidFilter", this.fluidFilter.serializeNBT());
-        data.setInteger("Speed", this.speed);
+        data.setInteger("Speed", this.ticks);
         data.setBoolean("IsWorking", this.isWorking);
     }
 
@@ -151,52 +166,47 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
         this.fluidFilter.deserializeNBT(data.getCompoundTag("fluidFilter"));
         this.isWorking = data.getBoolean("IsWorking");
         if (data.hasKey("Speed"))
-            this.speed = data.getInteger("Speed");
+            this.ticks = data.getInteger("Speed");
     }
 
     @Override
-    public void setFluidCount(String text, int index) {
+    public void setFluidCount(long count, int index) {
         if (index < 0 || index >= this.fluidFilter.getTanks()) return;
         final FluidStack fluidStack = this.fluidFilter.getTankAt(index).getFluid();
         if (fluidStack == null) return;
-        fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text));
+        fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, count);
         this.markAsDirty();
     }
 
     @Override
-    public String getFluidCount(int index) {
-        return String.valueOf(index >= 0 && index < this.fluidFilter.getTanks() ? this.fluidFilter.getTankAt(index).getFluidAmount() : 0);
+    public int getFluidCount(int index) {
+        return index >= 0 && index < this.fluidFilter.getTanks() ? this.fluidFilter.getTankAt(index).getFluidAmount() : 0;
     }
 
     private void onReset(boolean reset) {
-        this.speed = 1;
+        this.ticks = 1;
         this.markAsDirty();
     }
 
-    private void onIncrement(Widget.ClickData clickData) {
-        final int value = clickData.isCtrlClick ? 100
-                : clickData.isShiftClick ? 10
-                : 1;
-        this.speed = MathHelper.clamp(this.speed + value, 1, Integer.MAX_VALUE);
+    @Override
+    public void setTickTime(long tickTime) {
+        this.ticks = (int) Math.max(1, Math.min(Integer.MAX_VALUE, tickTime));
         this.markAsDirty();
     }
 
-    private void onDecrement(Widget.ClickData clickData) {
-        final int value = clickData.isCtrlClick ? 100
-                : clickData.isShiftClick ? 10
-                : 1;
-        this.speed = MathHelper.clamp(speed - value, 1, Integer.MAX_VALUE);
-        this.markAsDirty();
+    @Override
+    public int getTickTime() {
+        return this.ticks;
     }
 
     @Override
     public int getProgress() {
-        return (int) this.coverHolder.getOffsetTimer() % this.speed;
+        return (int) this.coverHolder.getOffsetTimer() % this.ticks;
     }
 
     @Override
     public int getMaxProgress() {
-        return this.speed;
+        return this.ticks;
     }
 
     @Override

@@ -1245,6 +1245,7 @@ machine.universal.mode.transfer.output=[Output]
 machine.universal.slots=Slots: §6%s§r
 machine.universal.stack=Stack Size: §6%s§7 per slot
 machine.universal.ticks.operation=Ticks per operation
+tj.machine.universal.ticks.operation_configure=Configure Ticks Per Operation
 machine.universal.batch.amount=Batch Mode: §6%sx§7
 machine.universal.producing=Producing:
 machine.universal.consumption=Consuming:

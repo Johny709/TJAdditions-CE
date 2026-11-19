@@ -12,24 +12,23 @@ import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.util.Position;
+import gregtech.api.util.function.BooleanConsumer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import tj.integration.ae2.IItemConfigSetter;
+import tj.integration.ae2.ITickSetter;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
-import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.TJModularUI;
 import tj.mui.widgets.impl.*;
 import tj.items.handlers.LargeItemStackHandler;
@@ -37,14 +36,15 @@ import tj.textures.TJTextures;
 import tj.util.TJItemUtils;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 
-public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITickable, IWorkable, IItemConfigSetter {
+public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITickable, IWorkable, IItemConfigSetter, ITickSetter {
 
     private final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, Integer.MAX_VALUE);
     private final IItemHandler itemHandler;
     private boolean isWorking;
-    private int speed = 1;
+    private int ticks = 1;
 
     public CreativeItemCover(ICoverable coverHolder, EnumFacing attachedSide) {
         super(coverHolder, attachedSide);
@@ -70,7 +70,7 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
     }
 
     private void displayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", this.speed));
+        textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", this.ticks));
     }
 
     @Override
@@ -82,21 +82,36 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
                     .setBackgroundTextures(GuiTextures.SLOT));
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
+        final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createTickPanel(this);
         return TJModularUI.builder(this, player)
-                .setHeight(187)
+                .setWidthHeight(200, 187)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("cover.creative_item.title"))
-                .widget(new ImageWidget(61, 80, 55, 18, GuiTextures.DISPLAY))
-                .widget(new AdvancedTextWidget(63, 85, this::displayText, 0xFFFFFF))
-                .widget(new ButtonWidget<>(43, 80, 18, 18, "+", this::onIncrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new ButtonWidget<>(116, 80, 18, 18, "-", this::onDecrement).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new TJToggleButtonWidget(134, 80, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
+                .widget(new TJToggleButtonWidget(174, 105, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
                         .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
-                .widget(new TJToggleButtonWidget(152, 80, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
+                .widget(new TJToggleButtonWidget(174, 162, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
+                                "machine.universal.toggle.run.mode.enabled"))
+                .widget(new NewTextFieldWidget<>(7, 82, 162, 18, true, () -> String.valueOf(this.ticks), (text, id) ->
+                        this.setTickTime(Long.parseLong(text)))
+                        .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                        .setTooltipText("machine.universal.ticks.operation")
+                        .setUpdateOnTyping(true)
+                        .setMaxStringLength(11))
+                .widget(new TJToggleButtonWidget(174, 82, 18, 18, panelWidgetGroup::isPanelOpen, (BooleanConsumer) value -> {
+                    if (!value && panelWidgetGroup.isPanelOpen()) {
+                        panelWidgetGroup.closePanel();
+                    } else if (value) {
+                        panelWidgetGroup.openPanel();
+                    }
+                }).setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                        .setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11)) // infinity bimetal gear
+                        .setHoverTooltipText("tj.machine.universal.ticks.operation_configure")
+                        .useToggleTexture(true))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
                 .widget(TJGuiUtils.createItemConfigPanel(this, selectionWidgetGroup))
+                .widget(panelWidgetGroup)
                 .build();
     }
 
@@ -104,7 +119,7 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
     public void onAttached(ItemStack itemStack) {
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("init");
         if (compound.hasKey("speed"))
-            this.speed = compound.getInteger("speed");
+            this.ticks = compound.getInteger("speed");
         if (compound.hasKey("power"))
             this.isWorking = compound.getBoolean("power");
         for (int i = 0; i < 9; i++) {
@@ -115,7 +130,7 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
 
     @Override
     public void update() {
-        if (this.isWorking && this.coverHolder.getOffsetTimer() % this.speed == 0) {
+        if (this.isWorking && this.coverHolder.getOffsetTimer() % this.ticks == 0) {
             for (int i = 0; i < 9; i++) {
                 final ItemStack filterStack = this.itemFilter.getStackInSlot(i).copy();
                 TJItemUtils.insertIntoItemHandlerNotifiable(this.itemHandler, filterStack, false);
@@ -126,7 +141,7 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
     @Override
     public void writeToNBT(NBTTagCompound data) {
         super.writeToNBT(data);
-        data.setInteger("Speed", this.speed);
+        data.setInteger("Speed", this.ticks);
         data.setTag("itemFilter", this.itemFilter.serializeNBT());
         data.setBoolean("IsWorking", this.isWorking);
     }
@@ -137,7 +152,7 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
         this.itemFilter.deserializeNBT(data.getCompoundTag("itemFilter"));
         this.isWorking = data.getBoolean("IsWorking");
         if (data.hasKey("Speed"))
-            this.speed = data.getInteger("Speed");
+            this.ticks = data.getInteger("Speed");
     }
 
     @Override
@@ -162,34 +177,29 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
     }
 
     private void onReset(boolean reset) {
-        this.speed = 1;
+        this.ticks = 1;
         this.markAsDirty();
     }
 
-    private void onIncrement(Widget.ClickData clickData) {
-        int value = clickData.isCtrlClick ? 100
-                : clickData.isShiftClick ? 10
-                : 1;
-        this.speed = MathHelper.clamp(this.speed +value, 1, Integer.MAX_VALUE);
+    @Override
+    public void setTickTime(long tickTime) {
+        this.ticks = (int) Math.max(1, Math.min(Integer.MAX_VALUE, tickTime));
         this.markAsDirty();
     }
 
-    private void onDecrement(Widget.ClickData clickData) {
-        int value = clickData.isCtrlClick ? 100
-                : clickData.isShiftClick ? 10
-                : 1;
-        this.speed = MathHelper.clamp(this.speed -value, 1, Integer.MAX_VALUE);
-        this.markAsDirty();
+    @Override
+    public int getTickTime() {
+        return this.ticks;
     }
 
     @Override
     public int getProgress() {
-        return (int) this.coverHolder.getOffsetTimer() % this.speed;
+        return (int) this.coverHolder.getOffsetTimer() % this.ticks;
     }
 
     @Override
     public int getMaxProgress() {
-        return this.speed;
+        return this.ticks;
     }
 
     @Override

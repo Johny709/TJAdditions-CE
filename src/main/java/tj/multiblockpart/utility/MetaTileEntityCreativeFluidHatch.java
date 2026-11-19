@@ -167,11 +167,11 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
     }
 
     @Override
-    public void setFluidCount(String text, int index) {
+    public void setFluidCount(long count, int index) {
         if (index < 0 || index >= this.importFluids.getTanks()) return;
         final FluidStack fluidStack = this.importFluids.getTankAt(index).getFluid();
         if (fluidStack == null) return;
-        fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, Long.parseLong(text));
+        fluidStack.amount = (int) Math.min(Integer.MAX_VALUE, count);
         final FluidStack testStack = fluidStack.copy();
         testStack.amount = 0;
         // to notify MTEs that inventory contents have changed
@@ -180,7 +180,7 @@ public class MetaTileEntityCreativeFluidHatch extends GAMetaTileEntityMultiblock
     }
 
     @Override
-    public String getFluidCount(int index) {
-        return String.valueOf(index >= 0 && index < this.importFluids.getTanks() ? this.importFluids.getTankAt(index).getFluidAmount() : 0);
+    public int getFluidCount(int index) {
+        return index >= 0 && index < this.importFluids.getTanks() ? this.importFluids.getTankAt(index).getFluidAmount() : 0;
     }
 }
