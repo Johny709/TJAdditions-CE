@@ -9,19 +9,24 @@ import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
+import gregtech.api.util.function.BooleanConsumer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import tj.integration.ae2.IItemConfigSetter;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.ButtonWidget;
+import tj.mui.TJGuiUtils;
+import tj.mui.widgets.TJModularUI;
 import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
+import tj.util.TJItemUtils;
 
 import java.util.regex.Pattern;
 
-public class VoidAdvancedItemCover extends VoidItemCover {
+
+public class VoidAdvancedItemCover extends VoidItemCover implements IItemConfigSetter {
 
     private VoidMode voidMode = VoidMode.NORMAL;
 
@@ -56,41 +61,47 @@ public class VoidAdvancedItemCover extends VoidItemCover {
     public ModularUI createUI(EntityPlayer player) {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 48));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 48, 54, 54);
-        final ButtonWidget<?> clickButtonDivide = new ButtonWidget<>(-54, -20, 18, 18, "/2", data -> this.setItemCount(String.valueOf(Long.parseLong(this.getItemCount(selectionWidgetGroup.getIndex())) / 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final ButtonWidget<?> clickButtonMultiply = new ButtonWidget<>(90, -20, 18, 18, "*2", data -> this.setItemCount(String.valueOf(Long.parseLong(this.getItemCount(selectionWidgetGroup.getIndex())) * 2), String.valueOf(selectionWidgetGroup.getIndex())));
-        final NewTextFieldWidget<?> stackSizeTextField = new NewTextFieldWidget<>(-35, -20, 124, 18, true, null, this::setItemCount)
-                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                .setUpdateOnTyping(true)
-                .setMaxStringLength(11);
-        stackSizeTextField.setTextSupplier(() -> this.getItemCount((int) stackSizeTextField.getTextIdLong()));
-        selectionWidgetGroup.setIndexListener(stackSizeTextField::setTextIdLong);
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
             widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilter, item -> {
                 if (item.isEmpty()) return;
                 this.itemType.put(item, item);
             }, this.itemType::remove).setPutItemsPredicate(item -> !this.itemType.containsKey(item))
                     .setBackgroundTextures(GuiTextures.SLOT));
-            selectionWidgetGroup.addSubWidget(i, clickButtonDivide.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, clickButtonMultiply.setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
-            selectionWidgetGroup.addSubWidget(i, stackSizeTextField);
             selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
         }
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 208)
+        final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createTickPanel(this);
+        return TJModularUI.builder(this, player)
+                .setWidthHeight(200, 208)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("metaitem.void_advanced_item_cover.name"))
-                .widget(new NewTextFieldWidget<>(26, 7, 124, 18, true, () -> String.valueOf(this.tickTime), this::setTickTime)
+                .widget(new TJCycleButtonWidget<>(43, 106, 90, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode
+                ).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new TJToggleButtonWidget(174, 105, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
+                        .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
+                .widget(new TJToggleButtonWidget(174, 162, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
+                                "macine.universal.toggle.run.mode.enabled"))
+                .widget(new NewTextFieldWidget<>(7, 82, 162, 18, true, () -> String.valueOf(this.tickTime),
+                        (text, id) -> this.setTickTime(Long.parseLong(text)))
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setTooltipText("machine.universal.ticks.operation")
-                        .setUpdateOnTyping(true))
-                .widget(new ButtonWidget<>(7, 7, 18, 18, "/2", data -> this.setTickTime(String.valueOf((long) this.tickTime / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new ButtonWidget<>(151, 7, 18, 18, "*2", data -> this.setTickTime(String.valueOf((long) this.tickTime * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new TJCycleButtonWidget<>(43, 106, 90, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new TJToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorking)
-                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
+                        .setUpdateOnTyping(true)
+                        .setMaxStringLength(11))
+                .widget(new TJToggleButtonWidget(174, 82, 18, 18, panelWidgetGroup::isPanelOpen, (BooleanConsumer) value -> {
+                    if (!value && panelWidgetGroup.isPanelOpen()) {
+                        panelWidgetGroup.closePanel();
+                    } else if (value) {
+                        panelWidgetGroup.openPanel();
+                    }
+                }).setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                        .setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11)) // infinity bimetal gear
+                        .setHoverTooltipText("tj.machine.universal.ticks.operation_configure")
+                        .useToggleTexture(true))
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
-                .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 126)
-                .build(this, player);
+                .widget(TJGuiUtils.createItemConfigPanel(this, selectionWidgetGroup))
+                .widget(panelWidgetGroup)
+                .build();
     }
 
     @Override
@@ -124,18 +135,24 @@ public class VoidAdvancedItemCover extends VoidItemCover {
         this.voidMode = VoidMode.values()[tagCompound.getInteger("voidMode")];
     }
 
-    private void setItemCount(String text, String id) {
-        final int index = Integer.parseInt(id);
+    private void onReset(boolean reset) {
+        this.tickTime = 1;
+        this.markAsDirty();
+    }
+
+    @Override
+    public void setItemCount(long count, int index) {
         if (index < 0 || index >= this.itemFilter.getSlots()) return;
         final ItemStack stack = this.itemFilter.getStackInSlot(index);
         if (stack.isEmpty()) return;
-        stack.setCount((int) Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+        stack.setCount((int) Math.min(Integer.MAX_VALUE, count));
         this.itemType.put(stack, stack);
         this.markAsDirty();
     }
 
-    private String getItemCount(int index) {
-        return String.valueOf(this.itemFilter.getStackInSlot(index).getCount());
+    @Override
+    public int getItemCount(int index) {
+        return index >= 0 && index < this.itemFilter.getSlots() ? this.itemFilter.getStackInSlot(index).getCount() : 0;
     }
 
     public void setVoidMode(VoidMode voidMode) {

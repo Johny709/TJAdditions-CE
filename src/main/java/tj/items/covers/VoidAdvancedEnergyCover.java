@@ -9,24 +9,26 @@ import gregtech.api.capability.IWorkable;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
+import gregtech.api.util.function.BooleanConsumer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
+import tj.integration.ae2.ITickSetter;
 import tj.mui.TJGuiTextures;
+import tj.mui.TJGuiUtils;
 import tj.mui.widgets.ButtonWidget;
-import tj.mui.widgets.impl.NewTextFieldWidget;
-import tj.mui.widgets.impl.TJCycleButtonWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.widgets.TJModularUI;
+import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
+import tj.util.TJItemUtils;
 
 import java.util.regex.Pattern;
 
 
-public class VoidAdvancedEnergyCover extends VoidEnergyCover implements IWorkable {
+public class VoidAdvancedEnergyCover extends VoidEnergyCover implements IWorkable, ITickSetter {
 
     private VoidMode voidMode = VoidMode.NORMAL;
     private boolean isWorking;
@@ -67,25 +69,41 @@ public class VoidAdvancedEnergyCover extends VoidEnergyCover implements IWorkabl
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 187)
+        final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createTickPanel(this);
+        return TJModularUI.builder(this, player)
+                .setWidthHeight(200, 187)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setItemLabel(this.getPickItem()).setLocale("void_advanced_energy_cover.name"))
-                .widget(new NewTextFieldWidget<>(26, 7, 124, 18, true, () -> String.valueOf(this.ticks), this::setTicks)
-                        .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                        .setTooltipText("machine.universal.ticks.operation")
-                        .setUpdateOnTyping(true))
-                .widget(new ButtonWidget<>(7, 7, 18, 18, "/2", data -> this.setTicks(String.valueOf((long) this.ticks / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new ButtonWidget<>(151, 7, 18, 18, "*2", data -> this.setTicks(String.valueOf((long) this.ticks * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .widget(new ButtonWidget<>(7, 30, 18, 18, "/2", b -> this.setThroughput(String.valueOf((double) this.throughput / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .widget(new ButtonWidget<>(151, 30, 18, 18, "*2", b -> this.setThroughput(String.valueOf((double) this.throughput * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .widget(new NewTextFieldWidget<>(26, 30, 124, 18, true, () -> String.valueOf(this.throughput), this::setThroughput)
                         .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
                         .setUpdateOnTyping(true))
-                .widget(new TJCycleButtonWidget<>(26, 50, 124, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new TJToggleButtonWidget(151, 106, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorking)
-                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
-                .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
-                .build(this, player);
+                .widget(new TJCycleButtonWidget<>(26, 50, 124, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode)
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new TJToggleButtonWidget(174, 105, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
+                        .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
+                .widget(new TJToggleButtonWidget(174, 162, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
+                                "macine.universal.toggle.run.mode.enabled"))
+                .widget(new NewTextFieldWidget<>(7, 82, 162, 18, true, () -> String.valueOf(this.ticks),
+                        (text, id) -> this.setTickTime(Long.parseLong(text)))
+                        .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                        .setTooltipText("machine.universal.ticks.operation")
+                        .setUpdateOnTyping(true)
+                        .setMaxStringLength(11))
+                .widget(new TJToggleButtonWidget(174, 82, 18, 18, panelWidgetGroup::isPanelOpen, (BooleanConsumer) value -> {
+                    if (!value && panelWidgetGroup.isPanelOpen()) {
+                        panelWidgetGroup.closePanel();
+                    } else if (value) {
+                        panelWidgetGroup.openPanel();
+                    }
+                }).setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                        .setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11)) // infinity bimetal gear
+                        .setHoverTooltipText("tj.machine.universal.ticks.operation_configure")
+                        .useToggleTexture(true))
+                .widget(panelWidgetGroup)
+                .build();
     }
 
     @Override
@@ -123,14 +141,20 @@ public class VoidAdvancedEnergyCover extends VoidEnergyCover implements IWorkabl
         return null;
     }
 
-    public void setWorking(boolean isWorking) {
-        this.isWorking = isWorking;
+    private void onReset(boolean reset) {
+        this.ticks = 1;
         this.markAsDirty();
     }
 
-    public void setTicks(String text, String id) {
-        this.ticks = (int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+    @Override
+    public void setTickTime(long tickTime) {
+        this.ticks = (int) Math.max(1, Math.min(Integer.MAX_VALUE, tickTime));
         this.markAsDirty();
+    }
+
+    @Override
+    public int getTickTime() {
+        return this.ticks;
     }
 
     public void setThroughput(String text, String id) {
@@ -164,5 +188,8 @@ public class VoidAdvancedEnergyCover extends VoidEnergyCover implements IWorkabl
     }
 
     @Override
-    public void setWorkingEnabled(boolean b) {}
+    public void setWorkingEnabled(boolean b) {
+        this.isWorking = b;
+        this.markAsDirty();
+    }
 }

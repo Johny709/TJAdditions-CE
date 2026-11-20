@@ -20,8 +20,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -35,7 +33,6 @@ import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJTextures;
 import tj.util.TJItemUtils;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 
@@ -67,10 +64,6 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
             this.openUI((EntityPlayerMP) playerIn);
         }
         return EnumActionResult.SUCCESS;
-    }
-
-    private void displayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", this.ticks));
     }
 
     @Override

@@ -21,8 +21,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
@@ -37,7 +35,6 @@ import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
 import tj.util.TJItemUtils;
 
-import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -72,10 +69,6 @@ public class CreativeFluidCover extends CoverBehavior implements CoverWithUI, IT
             this.openUI((EntityPlayerMP) playerIn);
         }
         return EnumActionResult.SUCCESS;
-    }
-
-    private void displayText(List<ITextComponent> textList) {
-        textList.add(new TextComponentTranslation("metaitem.creative.cover.display.ticks", this.ticks));
     }
 
     @Override

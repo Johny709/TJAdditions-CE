@@ -15,6 +15,7 @@ import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.util.Position;
+import gregtech.api.util.function.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,19 +29,19 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
+import tj.integration.ae2.ITickSetter;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.ButtonWidget;
-import tj.mui.widgets.impl.NewTextFieldWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.TJPhantomFluidSlotWidget;
-import tj.mui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.TJGuiUtils;
+import tj.mui.widgets.TJModularUI;
+import tj.mui.widgets.impl.*;
 import tj.textures.TJTextures;
+import tj.util.TJItemUtils;
 
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITickable, IWorkable {
+public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITickable, IWorkable, ITickSetter {
 
     protected Object2ObjectMap<FluidStack, FluidStack> fluidType = new Object2ObjectOpenHashMap<>();
     protected final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
@@ -101,20 +102,35 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
             }, this.fluidType::remove).setPutFluidsPredicate(fluid -> !this.fluidType.containsKey(fluid))
                     .setBackgroundTexture(GuiTextures.FLUID_SLOT));
         }
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
+        final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createTickPanel(this);
+        return TJModularUI.builder(this, player)
+                .setWidthHeight(200, 176)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("metaitem.void_fluid_cover.name"))
-                .widget(new NewTextFieldWidget<>(26, 7, 124, 18, true, () -> String.valueOf(this.tickTime), this::setTickTime)
+                .widget(new TJToggleButtonWidget(174, 105, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
+                        .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
+                .widget(new TJToggleButtonWidget(174, 162, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorkingEnabled)
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
+                                "macine.universal.toggle.run.mode.enabled"))
+                .widget(new NewTextFieldWidget<>(7, 82, 162, 18, true, () -> String.valueOf(this.tickTime),
+                        (text, id) -> this.setTickTime(Long.parseLong(text)))
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setTooltipText("machine.universal.ticks.operation")
-                        .setUpdateOnTyping(true))
-                .widget(new ButtonWidget<>(7, 7, 18, 18, "/2", data -> this.setTickTime(String.valueOf((long) this.tickTime / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new ButtonWidget<>(151, 7, 18, 18, "*2", data -> this.setTickTime(String.valueOf((long) this.tickTime * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new TJToggleButtonWidget(151, 85, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorking)
-                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
+                        .setUpdateOnTyping(true)
+                        .setMaxStringLength(11))
+                .widget(new TJToggleButtonWidget(174, 82, 18, 18, panelWidgetGroup::isPanelOpen, (BooleanConsumer) value -> {
+                    if (!value && panelWidgetGroup.isPanelOpen()) {
+                        panelWidgetGroup.closePanel();
+                    } else if (value) {
+                        panelWidgetGroup.openPanel();
+                    }
+                }).setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                        .setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11)) // infinity bimetal gear
+                        .setHoverTooltipText("tj.machine.universal.ticks.operation_configure")
+                        .useToggleTexture(true))
+                .widget(panelWidgetGroup)
                 .widget(widgetGroup)
-                .bindPlayerInventory(player.inventory, GuiTextures.SLOT, 7, 105)
-                .build(this, player);
+                .build();
     }
 
     @Override
@@ -156,8 +172,8 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
         return null;
     }
 
-    public void setWorking(boolean isWorking) {
-        this.isWorking = isWorking;
+    private void onReset(boolean reset) {
+        this.tickTime = 1;
         this.markAsDirty();
     }
 
