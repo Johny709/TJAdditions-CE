@@ -18,21 +18,17 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
+import tj.integration.ae2.ITickSetter;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
-import tj.mui.widgets.ButtonWidget;
-import tj.mui.widgets.impl.NewTextFieldWidget;
-import tj.mui.widgets.impl.TJLabelWidget;
-import tj.mui.widgets.impl.TJPhantomItemSlotWidget;
+import tj.mui.widgets.TJModularUI;
+import tj.mui.widgets.impl.*;
 import tj.items.TJMetaItems;
 import tj.items.handlers.LargeItemStackHandler;
-import tj.mui.widgets.impl.TJToggleButtonWidget;
+import tj.util.TJItemUtils;
 import tj.util.map.Strategies;
-import tj.util.references.BooleanReference;
-import tj.util.references.IntegerReference;
 
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 public class VoidItemCoverBehaviour implements IItemBehaviour, ItemUIFactory {
@@ -51,6 +47,17 @@ public class VoidItemCoverBehaviour implements IItemBehaviour, ItemUIFactory {
         final WidgetGroup widgetGroup = new WidgetGroup(new Position(53, 27));
         final Object2ObjectMap<ItemStack, ItemStack> itemType = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
         final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, Integer.MAX_VALUE);
+        final ITickSetter tickSetter = new ITickSetter() {
+            @Override
+            public void setTickTime(long tickTime) {
+                compound.setInteger("tickTime", (int) Math.max(1, Math.min(Integer.MAX_VALUE, tickTime)));
+            }
+
+            @Override
+            public int getTickTime() {
+                return compound.getInteger("tickTime");
+            }
+        };
         for (int i = 0; i < itemFilter.getSlots(); i++) {
             final int index = i;
             widgetGroup.addWidget(new TJPhantomItemSlotWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18, i, itemFilter, item -> {
@@ -61,34 +68,38 @@ public class VoidItemCoverBehaviour implements IItemBehaviour, ItemUIFactory {
             }, itemType::remove).setPutItemsPredicate(item -> !itemType.containsKey(item))
                     .setBackgroundTextures(GuiTextures.SLOT));
         }
-        final BooleanReference isWorking = new BooleanReference();
-        final IntegerReference tickTime = new IntegerReference(20);
-        final BiConsumer<String, String> setTickTime = (text, id) -> {
-            tickTime.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-            compound.setInteger("tickTime", tickTime.getValue());
-        };
-        final BooleanConsumer setWorking = working -> {
-            isWorking.setValue(working);
-            compound.setBoolean("isWorking", working);
-        };
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 105 + 82)
+        final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createTickPanel(tickSetter);
+        return TJModularUI.builder(holder, player)
+                .setWidthHeight(200, 187)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJMetaItems.CREATIVE_ITEM_COVER.getStackForm()).setLocale("metaitem.void_item_cover.name"))
-                .widget(new NewTextFieldWidget<>(26, 7, 124, 18, true, tickTime::toString, setTickTime)
+                .widget(new TJToggleButtonWidget(174, 105, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON,
+                        () -> false, b -> compound.setInteger("tickTime", 1))
+                        .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
+                .widget(new TJToggleButtonWidget(174, 163, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON,
+                        () -> compound.getBoolean("isWorking"), b -> compound.setBoolean("isWorking", !compound.getBoolean("isWorking")))
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
+                                "machine.universal.toggle.run.mode.enabled"))
+                .widget(new NewTextFieldWidget<>(7, 82, 162, 18, true, () -> String.valueOf(tickSetter.getTickTime()),
+                        (text, id) -> tickSetter.setTickTime(Long.parseLong(text)))
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setTooltipText("machine.universal.ticks.operation")
-                        .setUpdateOnTyping(true))
-                .widget(new ButtonWidget<>(7, 7, 18, 18, "/2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new ButtonWidget<>(151, 7, 18, 18, "*2", data -> setTickTime.accept(String.valueOf((long) tickTime.getValue() * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new TJToggleButtonWidget(151, 85, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, isWorking::isValue, setWorking)
-                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
+                        .setUpdateOnTyping(true)
+                        .setMaxStringLength(11))
+                .widget(new TJToggleButtonWidget(174, 82, 18, 18, panelWidgetGroup::isPanelOpen, (BooleanConsumer) value -> {
+                    if (!value && panelWidgetGroup.isPanelOpen()) {
+                        panelWidgetGroup.closePanel();
+                    } else if (value) {
+                        panelWidgetGroup.openPanel();
+                    }
+                }).setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                        .setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11)) // infinity bimetal gear
+                        .setHoverTooltipText("tj.machine.universal.ticks.operation_configure")
+                        .useToggleTexture(true))
                 .widget(widgetGroup)
-                .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 105, itemStack))
+                .widget(panelWidgetGroup)
+                .bindPlayerInventory(itemStack)
                 .bindOpenListener(() -> {
-                    if (compound.hasKey("isWorking"))
-                        isWorking.setValue(compound.getBoolean("isWorking"));
-                    if (compound.hasKey("tickTime"))
-                        tickTime.setValue(compound.getInteger("tickTime"));
                     for (int i = 0; i < itemFilter.getSlots(); i++) {
                         if (compound.hasKey("slot:" + i)) {
                             itemFilter.setStackInSlot(i, new ItemStack(compound.getCompoundTag("slot:" + i)));
@@ -96,7 +107,7 @@ public class VoidItemCoverBehaviour implements IItemBehaviour, ItemUIFactory {
                         }
                     }
                 }).bindCloseListener(() -> itemStack.getOrCreateSubCompound("voidFilter").merge(compound))
-                .build(holder, player);
+                .build();
     }
 
     @Override

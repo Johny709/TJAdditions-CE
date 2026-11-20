@@ -88,7 +88,7 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
                 .widget(new TJToggleButtonWidget(174, 105, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON,
                         () -> false, b -> compound.setInteger("speed", 1))
                         .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
-                .widget(new TJToggleButtonWidget(174, 162, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON,
+                .widget(new TJToggleButtonWidget(174, 163, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON,
                         () -> compound.getBoolean("power"), b -> compound.setBoolean("power", !compound.getBoolean("power")))
                         .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
                                 "machine.universal.toggle.run.mode.enabled"))
@@ -111,6 +111,7 @@ public class CreativeItemCoverBehaviour implements IItemBehaviour, ItemUIFactory
                 .widget(widgetGroup)
                 .widget(selectionWidgetGroup)
                 .widget(TJGuiUtils.createItemConfigPanel(itemConfigSetter, selectionWidgetGroup))
+                .widget(panelWidgetGroup)
                 .bindPlayerInventory(itemStack)
                 .bindOpenListener(() -> {
                     for (int i = 0; i < 9; i++) {

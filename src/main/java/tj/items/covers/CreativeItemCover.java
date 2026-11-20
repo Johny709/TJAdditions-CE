@@ -82,7 +82,7 @@ public class CreativeItemCover extends CoverBehavior implements CoverWithUI, ITi
                         .setItemLabel(this.getPickItem()).setLocale("cover.creative_item.title"))
                 .widget(new TJToggleButtonWidget(174, 105, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
                         .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
-                .widget(new TJToggleButtonWidget(174, 162, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                .widget(new TJToggleButtonWidget(174, 163, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                         .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
                                 "machine.universal.toggle.run.mode.enabled"))
                 .widget(new NewTextFieldWidget<>(7, 82, 162, 18, true, () -> String.valueOf(this.ticks), (text, id) ->

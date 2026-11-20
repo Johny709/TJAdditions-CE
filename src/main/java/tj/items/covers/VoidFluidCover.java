@@ -104,14 +104,14 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
         }
         final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createTickPanel(this);
         return TJModularUI.builder(this, player)
-                .setWidthHeight(200, 176)
+                .setWidthHeight(200, 187)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("metaitem.void_fluid_cover.name"))
                 .widget(new TJToggleButtonWidget(174, 105, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
                         .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
-                .widget(new TJToggleButtonWidget(174, 162, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorkingEnabled)
+                .widget(new TJToggleButtonWidget(174, 163, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorkingEnabled)
                         .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
-                                "macine.universal.toggle.run.mode.enabled"))
+                                "machine.universal.toggle.run.mode.enabled"))
                 .widget(new NewTextFieldWidget<>(7, 82, 162, 18, true, () -> String.valueOf(this.tickTime),
                         (text, id) -> this.setTickTime(Long.parseLong(text)))
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
@@ -128,8 +128,8 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
                         .setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11)) // infinity bimetal gear
                         .setHoverTooltipText("tj.machine.universal.ticks.operation_configure")
                         .useToggleTexture(true))
-                .widget(panelWidgetGroup)
                 .widget(widgetGroup)
+                .widget(panelWidgetGroup)
                 .build();
     }
 
@@ -177,9 +177,15 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
         this.markAsDirty();
     }
 
-    public void setTickTime(String text, String id) {
-        this.tickTime = (int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text)));
+    @Override
+    public void setTickTime(long tickTime) {
+        this.tickTime = (int) Math.max(1, Math.min(Integer.MAX_VALUE, tickTime));
         this.markAsDirty();
+    }
+
+    @Override
+    public int getTickTime() {
+        return this.tickTime;
     }
 
     @Override

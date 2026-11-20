@@ -59,8 +59,8 @@ public class VoidAdvancedItemCover extends VoidItemCover implements IItemConfigS
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 48));
-        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 48, 54, 54);
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 26));
+        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 26, 54, 54);
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
             widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilter, item -> {
                 if (item.isEmpty()) return;
@@ -74,20 +74,20 @@ public class VoidAdvancedItemCover extends VoidItemCover implements IItemConfigS
                 .setWidthHeight(200, 208)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(this.getPickItem()).setLocale("metaitem.void_advanced_item_cover.name"))
-                .widget(new TJCycleButtonWidget<>(43, 106, 90, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode
-                ).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new TJToggleButtonWidget(174, 105, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
+                .widget(new TJCycleButtonWidget<>(7, 84, 162, 18, VoidMode.class, () -> this.voidMode, this::setVoidMode)
+                        .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
+                .widget(new TJToggleButtonWidget(174, 126, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON, () -> false, this::onReset)
                         .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
-                .widget(new TJToggleButtonWidget(174, 162, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorkingEnabled)
+                .widget(new TJToggleButtonWidget(174, 184, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON, () -> this.isWorking, this::setWorkingEnabled)
                         .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
-                                "macine.universal.toggle.run.mode.enabled"))
-                .widget(new NewTextFieldWidget<>(7, 82, 162, 18, true, () -> String.valueOf(this.tickTime),
+                                "machine.universal.toggle.run.mode.enabled"))
+                .widget(new NewTextFieldWidget<>(7, 103, 162, 18, true, () -> String.valueOf(this.tickTime),
                         (text, id) -> this.setTickTime(Long.parseLong(text)))
                         .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                         .setTooltipText("machine.universal.ticks.operation")
                         .setUpdateOnTyping(true)
                         .setMaxStringLength(11))
-                .widget(new TJToggleButtonWidget(174, 82, 18, 18, panelWidgetGroup::isPanelOpen, (BooleanConsumer) value -> {
+                .widget(new TJToggleButtonWidget(174, 103, 18, 18, panelWidgetGroup::isPanelOpen, (BooleanConsumer) value -> {
                     if (!value && panelWidgetGroup.isPanelOpen()) {
                         panelWidgetGroup.closePanel();
                     } else if (value) {

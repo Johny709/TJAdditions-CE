@@ -84,7 +84,7 @@ public class TJWidgetGroup<R extends TJWidgetGroup<R>> extends WidgetGroup {
     }
 
     /**
-     * @return True to cancel subsequent {@link #mouseDragged(int, int, int, long)} calls in this widget group.
+     * @return True to cancel subsequent {@link #mouseWheelMove(int, int, int)} calls in this widget group.
      * Make sure to return true in widget within this widget group to cancel.
      * Can be used to prevent mouse scrolling event if widget is behind another widget or not visible.
      */
@@ -102,7 +102,7 @@ public class TJWidgetGroup<R extends TJWidgetGroup<R>> extends WidgetGroup {
     }
 
     /**
-     * @return True to cancel subsequent {@link #mouseDragged(int, int, int, long)} calls in this widget group.
+     * @return True to cancel subsequent {@link #keyTyped(char, int)} calls in this widget group.
      * Make sure to return true in widget within this widget group to cancel.
      * Can be used to prevent key typing event if widget is behind another widget or not visible.
      */

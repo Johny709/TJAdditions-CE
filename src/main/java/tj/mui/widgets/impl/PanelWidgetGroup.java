@@ -69,7 +69,7 @@ public class PanelWidgetGroup extends TJWidgetGroup<PanelWidgetGroup> {
     public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
         if (!this.panelOpen)
             return false;
-        if (this.dragging && this.isMouseOverElement(mouseX, mouseY))
+        if (this.dragging && timeDragged > 0 && this.isMouseOverElement(mouseX, mouseY))
             this.setSelfPosition(new Position(mouseX - this.dragX, mouseY - this.dragY));
         return super.mouseDragged(mouseX, mouseY, button, timeDragged) || this.isMouseOverElement(mouseX, mouseY);
     }

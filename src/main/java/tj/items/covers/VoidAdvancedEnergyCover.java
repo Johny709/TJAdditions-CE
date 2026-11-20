@@ -73,7 +73,7 @@ public class VoidAdvancedEnergyCover extends VoidEnergyCover implements IWorkabl
         return TJModularUI.builder(this, player)
                 .setWidthHeight(200, 187)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
-                        .setItemLabel(this.getPickItem()).setItemLabel(this.getPickItem()).setLocale("void_advanced_energy_cover.name"))
+                        .setItemLabel(this.getPickItem()).setLocale("metaitem.void_advanced_energy_cover.name"))
                 .widget(new ButtonWidget<>(7, 30, 18, 18, "/2", b -> this.setThroughput(String.valueOf((double) this.throughput / 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .widget(new ButtonWidget<>(151, 30, 18, 18, "*2", b -> this.setThroughput(String.valueOf((double) this.throughput * 2), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .widget(new NewTextFieldWidget<>(26, 30, 124, 18, true, () -> String.valueOf(this.throughput), this::setThroughput)
