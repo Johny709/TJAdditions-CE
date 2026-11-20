@@ -35,7 +35,7 @@ public class VoidAdvancedFluidCoverBehaviour extends VoidFluidCoverBehaviour {
         final ItemStack itemStack = player.getHeldItemMainhand();
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("voidFilter");
         final Object2ObjectMap<FluidStack, FluidStack> fluidType = new Object2ObjectOpenHashMap<>();
-        final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
+        final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 16)
                 .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
                 .collect(Collectors.toList()));
         final ITickSetter tickSetter = new ITickSetter() {
@@ -64,18 +64,20 @@ public class VoidAdvancedFluidCoverBehaviour extends VoidFluidCoverBehaviour {
                 return index >= 0 && index < fluidFilter.getTanks() ? fluidFilter.getTankAt(index).getFluidAmount() : 0;
             }
         };
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 26));
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 8));
         final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 26, 54, 54);
         for (int i = 0; i < fluidFilter.getTanks(); i++) {
             final int index = i;
-            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, fluidFilter, fluid -> {
+            final int x = 18 * (i % 4);
+            final int y = 18 * (i / 4);
+            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(x, y, 18, 18, i, fluidFilter, fluid -> {
                 if (fluid != null) {
                     compound.setTag("slot:" + index, fluid.writeToNBT(new NBTTagCompound()));
                     fluidType.put(fluid, fluid);
                 } else compound.removeTag("slot:" + index);
             }, fluidType::remove).setPutFluidsPredicate(fluid -> !fluidType.containsKey(fluid))
                     .setBackgroundTexture(GuiTextures.FLUID_SLOT));
-            selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
+            selectionWidgetGroup.addSelectionBox(i, x, y, 18, 18);
         }
         final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createTickPanel(tickSetter);
         return TJModularUI.builder(holder, player)

@@ -44,9 +44,9 @@ public class VoidItemCoverBehaviour implements IItemBehaviour, ItemUIFactory {
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
         final ItemStack itemStack = player.getHeldItemMainhand();
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("voidFilter");
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(53, 27));
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(53, 8));
         final Object2ObjectMap<ItemStack, ItemStack> itemType = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
-        final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, Integer.MAX_VALUE);
+        final LargeItemStackHandler itemFilter = new LargeItemStackHandler(16, Integer.MAX_VALUE);
         final ITickSetter tickSetter = new ITickSetter() {
             @Override
             public void setTickTime(long tickTime) {
@@ -60,7 +60,7 @@ public class VoidItemCoverBehaviour implements IItemBehaviour, ItemUIFactory {
         };
         for (int i = 0; i < itemFilter.getSlots(); i++) {
             final int index = i;
-            widgetGroup.addWidget(new TJPhantomItemSlotWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18, i, itemFilter, item -> {
+            widgetGroup.addWidget(new TJPhantomItemSlotWidget(10 + 18 * (i % 4), 18 * (i / 4), 18, 18, i, itemFilter, item -> {
                 if (!item.isEmpty()) {
                     compound.setTag("slot:" + index, item.serializeNBT());
                     itemType.put(item, item);

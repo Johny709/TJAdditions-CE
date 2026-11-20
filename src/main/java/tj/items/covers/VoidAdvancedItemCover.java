@@ -59,15 +59,17 @@ public class VoidAdvancedItemCover extends VoidItemCover implements IItemConfigS
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 26));
-        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 26, 54, 54);
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 8));
+        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 8, 54, 54);
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
-            widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilter, item -> {
+            final int x = 18 * (i % 4);
+            final int y = 18 * (i / 4);
+            widgetGroup.addWidget(new TJPhantomItemSlotWidget(x, y, 18, 18, i, this.itemFilter, item -> {
                 if (item.isEmpty()) return;
                 this.itemType.put(item, item);
             }, this.itemType::remove).setPutItemsPredicate(item -> !this.itemType.containsKey(item))
                     .setBackgroundTextures(GuiTextures.SLOT));
-            selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
+            selectionWidgetGroup.addSelectionBox(i, x, y, 18, 18);
         }
         final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createTickPanel(this);
         return TJModularUI.builder(this, player)

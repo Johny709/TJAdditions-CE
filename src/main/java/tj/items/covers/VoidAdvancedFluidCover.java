@@ -60,17 +60,19 @@ public class VoidAdvancedFluidCover extends VoidFluidCover implements IFluidConf
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 26));
-        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 26, 54, 54);
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(61, 8));
+        final SelectionWidgetGroup selectionWidgetGroup = new SelectionWidgetGroup(61, 8, 54, 54);
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             final int index = i;
-            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.fluidFilter, fluid -> {
+            final int x = 18 * (i % 4);
+            final int y = 18 * (i / 4);
+            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(x, y, 18, 18, i, this.fluidFilter, fluid -> {
                 if (fluid == null) return;
                 this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);
                 this.fluidFilter.getTankAt(index).fill(fluid, true);
                 this.fluidType.put(fluid, fluid);
             }).setBackgroundTexture(GuiTextures.FLUID_SLOT));
-            selectionWidgetGroup.addSelectionBox(i, 18 * (i % 3), 18 * (i / 3), 18, 18);
+            selectionWidgetGroup.addSelectionBox(i, x, y, 18, 18);
         }
         final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createTickPanel(this);
         return TJModularUI.builder(this, player)

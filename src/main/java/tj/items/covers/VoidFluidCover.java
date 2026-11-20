@@ -44,7 +44,7 @@ import java.util.stream.IntStream;
 public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITickable, IWorkable, ITickSetter {
 
     protected Object2ObjectMap<FluidStack, FluidStack> fluidType = new Object2ObjectOpenHashMap<>();
-    protected final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
+    protected final FluidTankList fluidFilter = new FluidTankList(true, IntStream.range(0, 16)
             .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
             .collect(Collectors.toList()));
     protected final IFluidHandler fluidHandler = this.coverHolder.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, this.attachedSide);
@@ -90,10 +90,10 @@ public class VoidFluidCover extends CoverBehavior implements CoverWithUI, ITicka
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(53, 27));
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(53, 8));
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             final int index = i;
-            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18, i, this.fluidFilter, fluid -> {
+            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(10 + 18 * (i % 4), 18 * (i / 4), 18, 18, i, this.fluidFilter, fluid -> {
                 if (fluid == null) return;
                 fluid.amount = Integer.MAX_VALUE;
                 this.fluidFilter.getTankAt(index).drain(Integer.MAX_VALUE, true);

@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 public class VoidItemCover extends CoverBehavior implements CoverWithUI, ITickable, IWorkable, ITickSetter {
 
     protected final Object2ObjectMap<ItemStack, ItemStack> itemType = new Object2ObjectOpenCustomHashMap<>(Strategies.ITEMSTACK_STRATEGY);
-    protected final LargeItemStackHandler itemFilter = new LargeItemStackHandler(9, Integer.MAX_VALUE);
+    protected final LargeItemStackHandler itemFilter = new LargeItemStackHandler(16, Integer.MAX_VALUE);
     protected final IItemHandler itemHandler = this.coverHolder.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, this.attachedSide);
     protected boolean isWorking;
     protected int tickTime = 20;
@@ -84,9 +84,9 @@ public class VoidItemCover extends CoverBehavior implements CoverWithUI, ITickab
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(63, 27));
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(63, 8));
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
-            widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 3), 18 * (i / 3), 18, 18, i, this.itemFilter, item -> {
+            widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4), 18 * (i / 4), 18, 18, i, this.itemFilter, item -> {
                 if (item.isEmpty()) return;
                 this.itemType.put(item, item);
             }, this.itemType::remove).setPutItemsPredicate(item -> !this.itemType.containsKey(item))

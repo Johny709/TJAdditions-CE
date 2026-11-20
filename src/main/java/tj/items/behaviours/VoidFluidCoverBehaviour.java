@@ -48,9 +48,9 @@ public class VoidFluidCoverBehaviour implements IItemBehaviour, ItemUIFactory {
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
         final ItemStack itemStack = player.getHeldItemMainhand();
         final NBTTagCompound compound = itemStack.getOrCreateSubCompound("voidFilter");
-        final WidgetGroup widgetGroup = new WidgetGroup(new Position(53, 27));
+        final WidgetGroup widgetGroup = new WidgetGroup(new Position(53, 8));
         final Object2ObjectMap<FluidStack, FluidStack> fluidType = new Object2ObjectOpenHashMap<>();
-        final IMultipleTankHandler fluidFilter = new FluidTankList(true, IntStream.range(0, 9)
+        final IMultipleTankHandler fluidFilter = new FluidTankList(true, IntStream.range(0, 16)
                 .mapToObj(i -> new FluidTank(Integer.MAX_VALUE))
                 .collect(Collectors.toList()));
         final ITickSetter tickSetter = new ITickSetter() {
@@ -66,7 +66,7 @@ public class VoidFluidCoverBehaviour implements IItemBehaviour, ItemUIFactory {
         };
         for (int i = 0; i < fluidFilter.getTanks(); i++) {
             final int index = i;
-            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(10 + 18 * (i % 3), 18 * (i / 3), 18, 18, i, fluidFilter, fluid -> {
+            widgetGroup.addWidget(new TJPhantomFluidSlotWidget(10 + 18 * (i % 4), 18 * (i / 4), 18, 18, i, fluidFilter, fluid -> {
                 if (fluid != null) {
                     fluid.amount = Integer.MAX_VALUE;
                     compound.setTag("slot:" + index, fluid.writeToNBT(new NBTTagCompound()));
