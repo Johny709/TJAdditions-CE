@@ -126,7 +126,8 @@ public class PanelWidgetGroup extends TJWidgetGroup<PanelWidgetGroup> {
     public void openPanel() {
         if (this.panelOpen) return;
         this.panelOpen = true;
-        this.writeClientAction(2, buffer -> buffer.writeBoolean(this.panelOpen));
+        if (isClientSide())
+            this.writeClientAction(2, buffer -> buffer.writeBoolean(this.panelOpen));
         this.writeUpdateInfo(2, buffer -> buffer.writeBoolean(this.panelOpen));
     }
 
@@ -136,7 +137,8 @@ public class PanelWidgetGroup extends TJWidgetGroup<PanelWidgetGroup> {
     public void closePanel() {
         if (!this.panelOpen) return;
         this.panelOpen = false;
-        this.writeClientAction(2, buffer -> buffer.writeBoolean(this.panelOpen));
+        if (isClientSide())
+            this.writeClientAction(2, buffer -> buffer.writeBoolean(this.panelOpen));
         this.writeUpdateInfo(2, buffer -> buffer.writeBoolean(this.panelOpen));
     }
 

@@ -6,10 +6,6 @@ import gregtech.api.gui.igredient.IIngredientSlot;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
-import gregtech.api.util.TextFormattingUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -26,6 +22,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import org.lwjgl.input.Keyboard;
 import tj.TJ;
+import tj.mui.TJGuiUtils;
 import tj.mui.widgets.ISlotGroup;
 import tj.mui.widgets.ISlotHandler;
 import tj.mui.widgets.TJWidget;
@@ -159,29 +156,22 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         final Position pos = this.getPosition();
-        final int stackX = pos.getX() + 1;
-        final int stackY = pos.getY() + 1;
         if (this.isActive && this.activeBackgroundTexture != null) {
             for (TextureArea textureArea : this.activeBackgroundTexture) {
-                textureArea.draw(pos.getX(), pos.getY(), 18, 18);
+                textureArea.draw(pos.x, pos.y, 18, 18);
             }
         } else if (this.inactiveBackgroundTexture != null) for (TextureArea textureArea : this.inactiveBackgroundTexture) {
-            textureArea.draw(pos.getX(), pos.getY(), 18, 18);
+            textureArea.draw(pos.x, pos.y, 18, 18);
         }
         if (this.isActive) {
             if (!this.itemStack.isEmpty() || this.simulating) {
-                final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-                GlStateManager.disableBlend();
-                drawItemStack(this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex) : this.itemStack, stackX, stackY, null);
-                GlStateManager.pushMatrix();
-                GlStateManager.scale(0.5, 0.5, 1);
-                final String s = TextFormattingUtil.formatLongToCompactString(this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex).getCount() : this.itemCount, 4);
-                fontRenderer.drawStringWithShadow(s, (pos.getX() + 6) * 2 - fontRenderer.getStringWidth(s) + 21, (pos.getY() + 12) * 2, 0xFFFFFF);
-                GlStateManager.popMatrix();
-                GlStateManager.enableBlend();
+                TJGuiUtils.drawItemStack(pos.x, pos.y,
+                        this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex) : this.itemStack,
+                        this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex).getCount() : this.itemCount,
+                        null);
             }
             if (this.simulating || this.isMouseOverElement(mouseX, mouseY))
-                drawSelectionOverlay(stackX, stackY, 16, 16);
+                drawSelectionOverlay(pos.x + 1, pos.y + 1, 16, 16);
         }
     }
 
@@ -235,7 +225,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     @SideOnly(Side.CLIENT)
     public boolean mouseReleased(int mouseX, int mouseY, int button) {
         this.isDragging = false;
-        return !this.isActive;
+        return false;
     }
 
     @Override

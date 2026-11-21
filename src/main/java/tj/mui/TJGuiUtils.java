@@ -368,31 +368,31 @@ public final class TJGuiUtils {
                 .addSubWidget(new ButtonWidget<>(182, 4, 12, 12, "", clickData -> panelWidgetGroup.closePanel())
                         .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID))
                 .addSubWidget(new ButtonWidget<>(7, 20, 31, 20, "+1", clickData ->
-                        config.setPriority(config.getPriority() + 1))
+                        config.setPriority(config.getPriority() + 1L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(43, 20, 38, 20, "+10", clickData ->
-                        config.setPriority(config.getPriority() + 10))
+                        config.setPriority(config.getPriority() + 10L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(86, 20, 45, 20, "+100", clickData ->
-                        config.setPriority(config.getPriority() + 100))
+                        config.setPriority(config.getPriority() + 100L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(136, 20, 52, 20, "+1000", clickData ->
-                        config.setPriority(config.getPriority() + 1000))
+                        config.setPriority(config.getPriority() + 1000L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(7, 46, 18, 18, "*2", clickData ->
                         config.setPriority(config.getPriority() * 2L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(7, 70, 31, 20, "-1", clickData ->
-                        config.setPriority(config.getPriority() - 1))
+                        config.setPriority(config.getPriority() - 1L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(43, 70, 38, 20, "-10", clickData ->
-                        config.setPriority(config.getPriority() - 10))
+                        config.setPriority(config.getPriority() - 10L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(86, 70, 45, 20, "-100", clickData ->
-                        config.setPriority(config.getPriority() - 100))
+                        config.setPriority(config.getPriority() - 100L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(136, 70, 52, 20, "-1000", clickData ->
-                        config.setPriority(config.getPriority() - 1000))
+                        config.setPriority(config.getPriority() - 1000L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(170, 46, 18, 18, "/2", clickData ->
                         config.setPriority(config.getPriority() / 2))
@@ -413,31 +413,31 @@ public final class TJGuiUtils {
                 .addSubWidget(new ButtonWidget<>(182, 4, 12, 12, "", clickData -> panelWidgetGroup.closePanel())
                         .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID))
                 .addSubWidget(new ButtonWidget<>(7, 20, 31, 20, "+1", clickData ->
-                        config.setTickTime(config.getTickTime() + 1))
+                        config.setTickTime(config.getTickTime() + 1L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(43, 20, 38, 20, "+10", clickData ->
-                        config.setTickTime(config.getTickTime() + 10))
+                        config.setTickTime(config.getTickTime() + 10L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(86, 20, 45, 20, "+100", clickData ->
-                        config.setTickTime(config.getTickTime() + 100))
+                        config.setTickTime(config.getTickTime() + 100L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(136, 20, 52, 20, "+1000", clickData ->
-                        config.setTickTime(config.getTickTime() + 1000))
+                        config.setTickTime(config.getTickTime() + 1000L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(7, 46, 18, 18, "*2", clickData ->
                         config.setTickTime(config.getTickTime() * 2L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(7, 70, 31, 20, "-1", clickData ->
-                        config.setTickTime(config.getTickTime() - 1))
+                        config.setTickTime(config.getTickTime() - 1L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(43, 70, 38, 20, "-10", clickData ->
-                        config.setTickTime(config.getTickTime() - 10))
+                        config.setTickTime(config.getTickTime() - 10L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(86, 70, 45, 20, "-100", clickData ->
-                        config.setTickTime(config.getTickTime() - 100))
+                        config.setTickTime(config.getTickTime() - 100L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(136, 70, 52, 20, "-1000", clickData ->
-                        config.setTickTime(config.getTickTime() - 1000))
+                        config.setTickTime(config.getTickTime() - 1000L))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
                 .addSubWidget(new ButtonWidget<>(170, 46, 18, 18, "/2", clickData ->
                         config.setTickTime(config.getTickTime() / 2))
@@ -453,9 +453,10 @@ public final class TJGuiUtils {
         itemCountTextField.setTextSupplier(() -> String.valueOf(config.getItemCount((int) itemCountTextField.getTextIdLong())));
         final PanelWidgetGroup panelWidgetGroup = new PanelWidgetGroup(0, 0, 198, 100, GuiTextures.BORDERED_BACKGROUND);
         selectionWidgetGroup.setIndexListener((index, button) -> {
-            if (index < 0 || button != 0) return;
-            itemCountTextField.setTextIdLong(index);
-            panelWidgetGroup.openPanel();
+            if (index >= 0 && button == 0) {
+                itemCountTextField.setTextIdLong(index);
+                panelWidgetGroup.openPanel();
+            } else panelWidgetGroup.closePanel();
         });
         return panelWidgetGroup
                 .addSubWidget(itemCountTextField)
@@ -512,9 +513,10 @@ public final class TJGuiUtils {
         itemCountTextField.setTextSupplier(() -> String.valueOf(config.getFluidCount((int) itemCountTextField.getTextIdLong())));
         final PanelWidgetGroup panelWidgetGroup = new PanelWidgetGroup(0, 0, 198, 100, GuiTextures.BORDERED_BACKGROUND);
         selectionWidgetGroup.setIndexListener((index, button) -> {
-            if (index < 0 || button != 0) return;
-            itemCountTextField.setTextIdLong(index);
-            panelWidgetGroup.openPanel();
+            if (index >= 0 && button == 0) {
+                itemCountTextField.setTextIdLong(index);
+                panelWidgetGroup.openPanel();
+            } else panelWidgetGroup.closePanel();
         });
         return panelWidgetGroup
                 .addSubWidget(itemCountTextField)

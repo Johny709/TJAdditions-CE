@@ -36,8 +36,6 @@ public class AEPatternSlotWidget extends TJSlotWidget<AEPatternSlotWidget> {
     @SideOnly(Side.CLIENT)
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         final Position pos = this.getPosition();
-        final int stackX = pos.getX() + 1;
-        final int stackY = pos.getY() + 1;
         if (this.isActive && this.activeBackgroundTexture != null) {
             for (TextureArea textureArea : this.activeBackgroundTexture) {
                 textureArea.draw(pos.getX(), pos.getY(), 18, 18);
@@ -66,16 +64,16 @@ public class AEPatternSlotWidget extends TJSlotWidget<AEPatternSlotWidget> {
                 }
                 GlStateManager.disableBlend();
                 if (!this.output.isEmpty()) {
-                    TJGuiUtils.drawItemStack(stackX, stackY, this.output, this.itemCount, null);
+                    TJGuiUtils.drawItemStack(pos.x, pos.y, this.output, this.count, null);
                 } else if (this.fluidOutput != null) {
-                    TJGuiUtils.drawFluidForGui(this.fluidOutput, this.count, this.count, pos.getX() + 1, pos.getY() + 1, 17, 17);
-                } else TJGuiUtils.drawItemStack(stackX, stackY,
+                    TJGuiUtils.drawFluidStack(pos.x, pos.y, this.fluidOutput, this.count);
+                } else TJGuiUtils.drawItemStack(pos.x, pos.y,
                         this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex) : this.itemStack,
-                        this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex).getCount() : this.itemCount,
+                        this.simulating ? this.getItemHandler().getStackInSlot(this.slotIndex).getCount() : this.count,
                         null);
             }
             if (this.simulating || this.isMouseOverElement(mouseX, mouseY))
-                drawSelectionOverlay(stackX, stackY, 16, 16);
+                drawSelectionOverlay(pos.x + 1, pos.y + 1, 16, 16);
         }
     }
 }

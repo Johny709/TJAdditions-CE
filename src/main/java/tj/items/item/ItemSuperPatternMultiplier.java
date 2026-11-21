@@ -6,7 +6,6 @@ import baubles.api.IBauble;
 import baubles.api.cap.BaublesCapabilities;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
-import gregtech.api.gui.widgets.WidgetGroup;
 import gregtech.api.items.gui.ItemUIFactory;
 import gregtech.api.items.gui.PlayerInventoryHolder;
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,6 +23,7 @@ import tj.items.handlers.FilteredItemStackHandler;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
 import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.TJModularUI;
 import tj.mui.widgets.impl.AEPatternSlotWidget;
 import tj.mui.widgets.impl.SlotWidgetGroup;
 import tj.mui.widgets.impl.TJLabelWidget;
@@ -52,7 +52,8 @@ public class ItemSuperPatternMultiplier extends Item implements ItemUIFactory, I
                         itemStack.isItemEqual(Api.INSTANCE.definitions().materials().cardCapacity().maybeStack(1).orElse(ItemStack.EMPTY)));
         multiUpgradeSlots.setOnContentsChangedPost((slot, itemStack) -> TJGuiUtils.writePatternMultiToolToNBT(multiUpgradeSlots, upgradeTag));
 
-        final SlotWidgetGroup patternSlotGroup = new SlotWidgetGroup(7, 7, 162, 72, 9);
+        final SlotWidgetGroup patternSlotGroup = new SlotWidgetGroup(7, 7, 162, 72, 9)
+                .setItemHandler(multiPatternSlots);
         final SlotWidgetGroup upgradeSlotGroup = new SlotWidgetGroup(186, 7, 18, 126, 1)
                 .setItemHandler(multiUpgradeSlots);
         for (int i = 0; i < multiPatternSlots.getSlots(); i++) {
@@ -68,7 +69,8 @@ public class ItemSuperPatternMultiplier extends Item implements ItemUIFactory, I
             upgradeSlotGroup.addWidget(new TJSlotWidget<>(multiUpgradeSlots, i, 0, 18 * i)
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
         }
-        return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 200)
+        return TJModularUI.builder(holder, player)
+                .setWidthHeight(176, 200)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setLocale(patternMultiTool.getDisplayName())
                         .setItemLabel(patternMultiTool))
@@ -116,7 +118,7 @@ public class ItemSuperPatternMultiplier extends Item implements ItemUIFactory, I
                         .setTitleHoverTooltipText("nae2.pattern_multiplier.unencode")
                         .setHoverTooltipText("nae2.pattern_multiplier.unencode.desc")
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 118, player.getHeldItemMainhand()))
+                .bindPlayerInventory(player.getHeldItemMainhand())
                 .bindOpenListener(() -> {
                     TJGuiUtils.readPatternMultiToolNBT(multiPatternSlots, invTag.getTagList("Items", 10));
                     TJGuiUtils.readPatternMultiToolNBT(multiUpgradeSlots, upgradeTag.getTagList("Items", 10));
@@ -125,7 +127,7 @@ public class ItemSuperPatternMultiplier extends Item implements ItemUIFactory, I
                         compound.setTag("upgrades", upgradeTag);
                         patternMultiTool.setTagCompound(compound);
                     }
-                }).build(holder, player);
+                }).build();
     }
 
     @Nonnull
