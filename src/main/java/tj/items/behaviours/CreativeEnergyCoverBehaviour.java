@@ -15,23 +15,25 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
+import tj.integration.ae2.ITickSetter;
 import tj.mui.TJGuiTextures;
 import tj.mui.TJGuiUtils;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.PopUpWidget;
+import tj.mui.widgets.TJModularUI;
 import tj.mui.widgets.impl.NewTextFieldWidget;
+import tj.mui.widgets.impl.PanelWidgetGroup;
 import tj.mui.widgets.impl.TJLabelWidget;
 import tj.items.TJMetaItems;
 import tj.mui.widgets.impl.TJToggleButtonWidget;
+import tj.util.TJItemUtils;
 import tj.util.references.BooleanReference;
-import tj.util.references.IntegerReference;
 import tj.util.references.LongReference;
 
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
-import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
 import static tj.mui.TJGuiTextures.*;
 
 public class CreativeEnergyCoverBehaviour implements IItemBehaviour, ItemUIFactory {
@@ -47,13 +49,22 @@ public class CreativeEnergyCoverBehaviour implements IItemBehaviour, ItemUIFacto
     public ModularUI createUI(PlayerInventoryHolder holder, EntityPlayer player) {
         final ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
         final NBTTagCompound compound = stack.getOrCreateSubCompound("init");
+        final ITickSetter tickSetter = new ITickSetter() {
+            @Override
+            public void setTickTime(long tickTime) {
+                compound.setInteger("ticks", (int) Math.max(1, Math.min(Integer.MAX_VALUE, tickTime)));
+            }
+
+            @Override
+            public int getTickTime() {
+                return compound.getInteger("ticks");
+            }
+        };
         final BooleanReference simulateVoltage = new BooleanReference();
         final BooleanReference draining = new BooleanReference();
-        final BooleanReference active = new BooleanReference(true);
         final LongReference energyRate = new LongReference(Long.MAX_VALUE);
         final LongReference voltage = new LongReference(32);
         final LongReference amps = new LongReference(1);
-        final IntegerReference ticks = new IntegerReference(1);
         final BooleanConsumer setSimulateVoltage = simulate -> {
             simulateVoltage.setValue(simulate);
             compound.setBoolean("simulateVoltage", simulateVoltage.isValue());
@@ -61,10 +72,6 @@ public class CreativeEnergyCoverBehaviour implements IItemBehaviour, ItemUIFacto
         final BooleanConsumer setDraining = isDraining -> {
             draining.setValue(isDraining);
             compound.setBoolean("draining", draining.isValue());
-        };
-        final BooleanConsumer setActive = isActive -> {
-            active.setValue(isActive);
-            compound.setBoolean("active", active.isValue());
         };
         final BiConsumer<String, String> setEnergyRate = (text, id) -> {
             energyRate.setValue((long) Math.max(0, Math.min(Long.MAX_VALUE, Double.parseDouble(text))));
@@ -78,21 +85,11 @@ public class CreativeEnergyCoverBehaviour implements IItemBehaviour, ItemUIFacto
             amps.setValue(Math.max(0, Math.min(4294967295L, Long.parseLong(text))));
             compound.setLong("amps", amps.getValue());
         };
-        final BiConsumer<String, String> setTicks = (text, id) -> {
-            ticks.setValue((int) Math.max(1, Math.min(Integer.MAX_VALUE, Long.parseLong(text))));
-            compound.setInteger("ticks", ticks.getValue());
-        };
-        return ModularUI.builder(BORDERED_BACKGROUND, 176, 170)
+        final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createTickPanel(tickSetter);
+        return TJModularUI.builder(holder, player)
+                .setWidthHeight(200, 187)
                 .widget(new TJLabelWidget(7, -18, 162, 18, TJGuiTextures.MACHINE_LABEL_2)
                         .setItemLabel(TJMetaItems.CREATIVE_ENERGY_COVER.getStackForm()).setLocale("metaitem.creative.energy.cover.name"))
-                .widget(new NewTextFieldWidget<>(26, 7, 124, 18, true, ticks::toString, setTicks)
-                        .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                        .setTooltipText("machine.universal.ticks.operation")
-                        .setUpdateOnTyping(true))
-                .widget(new ButtonWidget<>(7, 7, 18, 18, "-", minus -> setTicks.accept(String.valueOf((long) ticks.getValue() - 1), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new ButtonWidget<>(151, 7, 18, 18, "+", plus -> setTicks.accept(String.valueOf((long) ticks.getValue() + 1), "")).setBackgroundTextures(GuiTextures.VANILLA_BUTTON))
-                .widget(new TJToggleButtonWidget(7, 27, 18, 18, TOGGLE_POWER_BUTTON, active::isValue, setActive)
-                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"))
                 .widget(new TJToggleButtonWidget(26, 27, 124, 18, GuiTextures.VANILLA_BUTTON, simulateVoltage::isValue, setSimulateVoltage))
                 .widget(new TJToggleButtonWidget(151, 27, 18, 18, GuiTextures.VANILLA_BUTTON, draining::isValue, setDraining)
                         .setToggleTitleTooltipHoverText("machine.universal.mode.transfer.in", "machine.universal.mode.transfer.out"))
@@ -133,24 +130,44 @@ public class CreativeEnergyCoverBehaviour implements IItemBehaviour, ItemUIFacto
                             widgetGroup.addWidget(new LabelWidget(32, 32, "metaitem.creative_energy_cover.simulate_voltage", true));
                             return false;
                         }).addPopup(widgetGroup -> false))
+                .widget(new TJToggleButtonWidget(174, 105, 18, 18, TJGuiTextures.TOGGLE_RESET_BUTTON,
+                        () -> false, b -> compound.setInteger("speed", 1))
+                        .setTitleHoverTooltipText("machine.universal.toggle.reset.disabled"))
+                .widget(new TJToggleButtonWidget(174, 163, 18, 18, TJGuiTextures.TOGGLE_POWER_BUTTON,
+                        () -> compound.getBoolean("active"), b -> compound.setBoolean("active", !compound.getBoolean("active")))
+                        .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
+                                "machine.universal.toggle.run.mode.enabled"))
+                .widget(new NewTextFieldWidget<>(7, 82, 162, 18, true, () -> String.valueOf(tickSetter.getTickTime()),
+                        (text, id) -> tickSetter.setTickTime(Long.parseLong(text)))
+                        .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                        .setTooltipText("machine.universal.ticks.operation")
+                        .setUpdateOnTyping(true)
+                        .setMaxStringLength(11))
+                .widget(new TJToggleButtonWidget(174, 82, 18, 18, panelWidgetGroup::isPanelOpen, (BooleanConsumer) value -> {
+                    if (!value && panelWidgetGroup.isPanelOpen()) {
+                        panelWidgetGroup.closePanel();
+                    } else if (value) {
+                        panelWidgetGroup.openPanel();
+                    }
+                }).setToggleTexture(GuiTextures.TOGGLE_BUTTON_BACK)
+                        .setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11)) // infinity bimetal gear
+                        .setHoverTooltipText("tj.machine.universal.ticks.operation_configure")
+                        .useToggleTexture(true))
+                .widget(panelWidgetGroup)
+                .bindPlayerInventory(stack)
                 .bindOpenListener(() -> {
                     if (compound.hasKey("simulateVoltage"))
                         simulateVoltage.setValue(compound.getBoolean("simulateVoltage"));
                     if (compound.hasKey("draining"))
                         draining.setValue(compound.getBoolean("draining"));
-                    if (compound.hasKey("active"))
-                        active.setValue(compound.getBoolean("active"));
                     if (compound.hasKey("energyRate"))
                         energyRate.setValue(compound.getLong("energyRate"));
                     if (compound.hasKey("voltage"))
                         voltage.setValue(compound.getLong("voltage"));
                     if (compound.hasKey("amps"))
                         amps.setValue(compound.getLong("amps"));
-                    if (compound.hasKey("ticks"))
-                        ticks.setValue(compound.getInteger("ticks"));
                 }).bindCloseListener(() -> stack.getOrCreateSubCompound("init").merge(compound))
-                .widget(TJGuiUtils.bindPlayerInventory(new WidgetGroup(), player.inventory, 7, 90, stack))
-                .build(holder, player);
+                .build();
     }
 
     @Override
