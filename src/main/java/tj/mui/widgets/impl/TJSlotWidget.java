@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> implements ISlotHandler, IIngredientSlot, INativeWidget {
+public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> implements ISlotHandler, IIngredientSlot, INativeWidget{
 
     private final IItemHandler itemHandler;
     private final TJSlotItemHandler slotItemHandler;
@@ -46,7 +46,7 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     protected Predicate<ItemStack> putItemsPredicate;
     protected TextureArea[] activeBackgroundTexture;
     protected TextureArea[] inactiveBackgroundTexture;
-    protected ISlotGroup widgetGroup;
+    protected ISlotGroup slotGroup;
     protected NBTTagCompound compound;
     protected boolean simulating;
     protected int slotIndex;
@@ -59,28 +59,25 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     private int simulatedAmount;
 
     @SideOnly(Side.CLIENT)
-    private boolean isDragging;
-
-    @SideOnly(Side.CLIENT)
     private boolean slotModified;
 
     public TJSlotWidget(IItemHandler itemHandler, int slotIndex, int x, int y) {
         super(new Position(x, y), new Size(18, 18));
         this.itemHandler = itemHandler;
         this.slotIndex = slotIndex;
-        this.slotItemHandler = new TJSlotItemHandler(this.itemHandler, slotIndex, x, y, isClientSide());
+        this.slotItemHandler = new TJSlotItemHandler(this.itemHandler, slotIndex, x, y);
     }
 
     public TJSlotWidget(Supplier<IItemHandler> itemHandlerSupplier, int slotIndex, int x, int y) {
         super(new Position(x, y), new Size(18, 18));
         this.itemHandler = itemHandlerSupplier.get();
         this.slotIndex = slotIndex;
-        this.slotItemHandler = new TJSlotItemHandler(itemHandlerSupplier, slotIndex, x, y, isClientSide());
+        this.slotItemHandler = new TJSlotItemHandler(itemHandlerSupplier, slotIndex, x, y);
         this.itemHandlerSupplier = itemHandlerSupplier;
     }
 
-    public R setWidgetGroup(ISlotGroup widgetGroup) {
-        this.widgetGroup = widgetGroup;
+    public R setSlotGroup(ISlotGroup slotGroup) {
+        this.slotGroup = slotGroup;
         return this.thisWidget();
     }
 
@@ -106,14 +103,6 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
 
     public R setSlotLocationInfo(boolean isPlayerInventory, boolean isHotbarSlot) {
         this.slotLocationInfo = new SlotLocationInfo(isPlayerInventory, isHotbarSlot);
-        return this.thisWidget();
-    }
-
-    /**
-     * @param slotEnabled enable to prevent weird slot behavior if this slot is outside of main GUI box or GUI container.
-     */
-    public R setSlotProtection(boolean slotEnabled) {
-        this.slotItemHandler.setEnabled(slotEnabled);
         return this.thisWidget();
     }
 
@@ -180,10 +169,9 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     public boolean mouseClicked(int mouseX, int mouseY, int button) {
         if (!this.isActive)
             return false;
-        this.isDragging = true;
         if (this.isMouseOverElement(mouseX, mouseY)) {
             this.slotModified = true;
-            if (this.widgetGroup == null || this.widgetGroup.getTimer() < 1) {
+            if (this.slotGroup == null || this.slotGroup.getTimer() < 1) {
                 final boolean isCtrlKeyPressed = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
                 final boolean isShiftKeyPressed = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
                 this.writeClientAction(1, buffer -> {
@@ -195,11 +183,12 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
                 this.writeClientAction(3, buffer -> buffer.writeInt(64 - this.gui.entityPlayer.inventory.getItemStack().getCount()));
                 return false;
             }
-            if (button == 0 && this.widgetGroup != null && !this.gui.entityPlayer.inventory.getItemStack().isEmpty())
-                this.widgetGroup.addSlotToDrag(this, () -> {
+            if (button == 0 && this.slotGroup != null && !this.gui.entityPlayer.inventory.getItemStack().isEmpty())
+                this.slotGroup.addSlotToDrag(this, () -> {
                     this.simulating = true;
                     this.writeClientAction(4, buffer -> buffer.writeBoolean(this.simulating));
                 });
+            return true;
         }
         return false;
     }
@@ -207,24 +196,27 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     @Override
     @SideOnly(Side.CLIENT)
     public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
-        if (this.isActive && this.isDragging && this.isMouseOverElement(mouseX, mouseY)) {
+        if (this.isActive && this.isMouseOverElement(mouseX, mouseY)) {
             if (!this.slotModified) {
                 this.slotModified = true;
-                if (button == 0 && this.widgetGroup != null)
-                    this.widgetGroup.addSlotToDrag(this, () -> {
-                        this.simulating = true;
-                        this.writeClientAction(4, buffer -> buffer.writeBoolean(this.simulating));
+                if (!this.gui.entityPlayer.inventory.getItemStack().isEmpty() || (this.slotGroup != null && this.slotGroup.isDragging())) {
+                    if (button == 0 && this.slotGroup != null) {
+                        this.slotGroup.addSlotToDrag(this, () -> {
+                            this.simulating = true;
+                            this.writeClientAction(4, buffer -> buffer.writeBoolean(this.simulating));
+                        });
+                    }
+                    if (button == 1)
+                        this.writeClientAction(2, buffer -> buffer.writeInt(button));
+                } else if (button == 0) {
+                    this.writeClientAction(1, buffer -> {
+                        buffer.writeBoolean(false);
+                        buffer.writeBoolean(true);
+                        buffer.writeInt(button);
                     });
-                this.writeClientAction(2, buffer -> buffer.writeInt(button));
+                }
             }
         } else this.slotModified = false;
-        return false;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean mouseReleased(int mouseX, int mouseY, int button) {
-        this.isDragging = false;
         return false;
     }
 
@@ -232,20 +224,14 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
     public ItemStack insert(ItemStack stack, boolean simulate) {
         if (this.getItemHandler() == null || this.getItemHandler().getSlots() <= this.slotIndex)
             return stack;
-        final ItemStack inventoryStack = this.getItemHandler().getStackInSlot(this.slotIndex);
-        if (inventoryStack.isEmpty() || inventoryStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(inventoryStack, stack))
-            return this.getItemHandler().insertItem(this.slotIndex, stack, simulate);
-        else return stack;
+        return this.getItemHandler().insertItem(this.slotIndex, stack, simulate);
     }
 
     @Override
     public ItemStack extract(int amount, ItemStack stack, boolean simulate) {
         if (this.getItemHandler() == null || this.getItemHandler().getSlots() <= this.slotIndex)
             return ItemStack.EMPTY;
-        final ItemStack inventoryStack = this.getItemHandler().getStackInSlot(this.slotIndex);
-        if (inventoryStack.isEmpty() || inventoryStack.isItemEqual(stack) && ItemStack.areItemStackShareTagsEqual(inventoryStack, stack))
-            return this.getItemHandler().extractItem(this.slotIndex, amount, simulate);
-        return ItemStack.EMPTY;
+        return this.getItemHandler().extractItem(this.slotIndex, amount, simulate);
     }
 
     private void insertAmount(ItemStack stack, int amount) {
@@ -296,32 +282,33 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
                     if (handStack.isEmpty()) {
                         if (this.getItemHandler() != null) {
                             final int amount = isCtrlKeyPressed ? Integer.MAX_VALUE : 64;
-                            if (this.takeItemsPredicate != null && !this.takeItemsPredicate.test(this.getItemHandler().extractItem(this.slotIndex, amount, true))) return;
+                            if (this.takeItemsPredicate != null &&
+                                    !this.takeItemsPredicate.test(this.getItemHandler().extractItem(this.slotIndex, amount, true))) return;
                             newStack = this.getItemHandler().extractItem(this.slotIndex, amount, false);
-                            if (this.widgetGroup != null) {
+                            if (this.slotGroup != null) {
                                 if (isShiftKeyPressed) {
-                                    if (this.widgetGroup.getItemStackTransfer() != null)
-                                        newStack = this.widgetGroup.getItemStackTransfer().apply(newStack);
+                                    if (this.slotGroup.getItemStackTransfer() != null)
+                                        newStack = this.slotGroup.getItemStackTransfer().apply(newStack);
                                 } else this.writeUpdateInfo(3, buffer1 -> buffer1.writeInt(5));
                             }
                             if (isShiftKeyPressed)
                                 newStack = TJItemUtils.insertInMainInventory(player.inventory, newStack);
-                        } else return;
-                    } else if (this.widgetGroup == null && (this.putItemsPredicate == null || this.putItemsPredicate.test(handStack))) {
+                        } else break;
+                    } else if (this.slotGroup == null && (this.putItemsPredicate == null || this.putItemsPredicate.test(handStack))) {
                         // if this slot was not added to a slot group then let this slot handle the stack insertion
                         newStack = TJItemUtils.insertOrSwap(this.itemHandler, this.slotIndex, handStack);
-                    } else return;
+                    } else break;
                 } else if (button == 1) {
                     if (handStack.isEmpty()) {
                         if (this.getItemHandler() != null) {
                             final ItemStack stack = this.getItemHandler().getStackInSlot(this.slotIndex);
                             if (this.takeItemsPredicate == null || this.takeItemsPredicate.test(stack))
                                 newStack = this.getItemHandler().extractItem(this.slotIndex, Math.max(1, stack.getCount() / 2), false);
-                        } else return;
+                        } else break;
                     } else {
                         if (this.putItemsPredicate == null || this.putItemsPredicate.test(handStack)) {
                             this.insertAmount(handStack, 1);
-                        } else return;
+                        } else break;
                     }
                 } else if (button == 2) {
                     if (this.getItemHandler() != null && handStack.isEmpty() && player.isCreative()) {
@@ -364,8 +351,8 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
                     this.gui.entityPlayer.inventory.setItemStack(buffer.readItemStack());
                     break;
                 case 3:
-                    if (this.widgetGroup != null)
-                        this.widgetGroup.setTimer(buffer.readInt());
+                    if (this.slotGroup != null)
+                        this.slotGroup.setTimer(buffer.readInt());
                     break;
                 case 4:
                     this.itemCount = buffer.readInt();
@@ -450,19 +437,15 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
 
     private static class TJSlotItemHandler extends SlotItemHandler {
 
-        private final boolean isClient;
         private Supplier<IItemHandler> itemHandlerSupplier;
-        private boolean enabled;
 
-        public TJSlotItemHandler(IItemHandler itemHandler, int index, int xPosition, int yPosition, boolean isClient) {
+        public TJSlotItemHandler(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
             super(itemHandler, index, xPosition, yPosition);
-            this.isClient = isClient;
         }
 
-        public TJSlotItemHandler(Supplier<IItemHandler> itemHandlerSupplier, int index, int xPosition, int yPosition, boolean isClient) {
+        public TJSlotItemHandler(Supplier<IItemHandler> itemHandlerSupplier, int index, int xPosition, int yPosition) {
             super(itemHandlerSupplier.get(), index, xPosition, yPosition);
             this.itemHandlerSupplier = itemHandlerSupplier;
-            this.isClient = isClient;
         }
 
         @Override
@@ -476,20 +459,10 @@ public class TJSlotWidget<R extends TJSlotWidget<R>> extends TJWidget<R> impleme
             return false;
         }
 
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
-
-        @Override
-        @Nonnull
-        public ItemStack getStack() {
-            return this.isClient ? ItemStack.EMPTY : super.getStack();
-        }
-
         @Override
         @SideOnly(Side.CLIENT)
         public boolean isEnabled() {
-            return this.enabled;
+            return false;
         }
 
         @Override

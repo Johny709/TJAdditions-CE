@@ -156,7 +156,7 @@ public class MetaTileEntityFilingCabinet extends MetaTileEntity implements IFast
         slotWidgetGroup.clearWidgets();
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             slotWidgetGroup.addWidget(new TJSlotWidget<>(this.importItems, i, 18 * (i % 9), 18 * (i / 9))
-                    .setWidgetGroup(slotWidgetGroup)
+                    .setSlotGroup(slotWidgetGroup)
                     .setActiveBackgroundTexture(GuiTextures.SLOT));
         }
         return ModularUI.builder(GuiTextures.BORDERED_BACKGROUND, 176, 197)

@@ -170,7 +170,7 @@ public class BlockDualInterfaceV2 extends BlockInterface {
                     .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
                     .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
-                    .setWidgetGroup(patternScrollableSlotGroup)
+                    .setSlotGroup(patternScrollableSlotGroup)
                     .setActiveInit(false));
         }
         tab.add(new LabelWidget(7, 109, "gui.appliedenergistics2.StoredItems"));
@@ -180,8 +180,7 @@ public class BlockDualInterfaceV2 extends BlockInterface {
         tab.add(selectionWidgetGroup);
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             tab.add(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
-                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                    .setSlotProtection(true));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
         }
         for (int i = 0; i < duality.getStorage().getSlots(); i++) {
             tab.add(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))
@@ -251,8 +250,7 @@ public class BlockDualInterfaceV2 extends BlockInterface {
         }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             tab.add(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
-                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                    .setSlotProtection(true));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
         }
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
             tab.add(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (72 * (i / 9)), 18, 54)

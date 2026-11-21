@@ -86,8 +86,7 @@ public class BlockStockingFluidInterface extends BlockFluidInterface {
         }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             ui.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
-                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                    .setSlotProtection(true));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
         }
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
             ui.widget(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)), 18, 18)

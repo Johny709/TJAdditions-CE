@@ -178,7 +178,7 @@ public class BlockSuperUltimateInterface extends BlockInterface {
                     .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
                     .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
-                    .setWidgetGroup(patternScrollableSlotGroup)
+                    .setSlotGroup(patternScrollableSlotGroup)
                     .setActiveInit(false));
         }
         final SlotWidgetGroup upgradeScrollableSlotGroup = new SlotWidgetGroup(216, 7, 18, 180, 1)
@@ -186,8 +186,7 @@ public class BlockSuperUltimateInterface extends BlockInterface {
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             upgradeScrollableSlotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 0, 18 * i)
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                    .setWidgetGroup(upgradeScrollableSlotGroup)
-                    .setSlotProtection(true));
+                    .setSlotGroup(upgradeScrollableSlotGroup));
         }
         tab.add(upgradeScrollableSlotGroup);
         tab.add(patternScrollableSlotGroup);
@@ -261,8 +260,7 @@ public class BlockSuperUltimateInterface extends BlockInterface {
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             upgradeScrollableSlotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 0, 18 * i)
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                    .setWidgetGroup(upgradeScrollableSlotGroup)
-                    .setSlotProtection(true));
+                    .setSlotGroup(upgradeScrollableSlotGroup));
         }
         for (int i = 0; i < duality.getStorage().getSlots(); i++) {
             storageScrollableSlotGroup.addWidget(new TJSlotWidget<>(duality.getStorage(), i, 18 * (i % 9), 18 + 36 * (i / 9))
@@ -294,8 +292,7 @@ public class BlockSuperUltimateInterface extends BlockInterface {
         }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             tab.add(new TJSlotWidget<>(upgradeHandler, i, 216, 7 + (18 * i))
-                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                    .setSlotProtection(true));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
         }
         for (int i = 0; i < duality.getTanks().getSlots(); i++) {
             storageScrollableSlotGroup.addWidget(new AEFluidTankWidget((AEFluidInventory) duality.getTanks(), i, 18 * (i % 9), 18 + 36 * (i / 9), 18, 18)

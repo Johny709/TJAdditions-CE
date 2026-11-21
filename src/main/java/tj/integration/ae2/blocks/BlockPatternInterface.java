@@ -101,8 +101,7 @@ public class BlockPatternInterface extends BlockInterface {
         final SlotWidgetGroup upgradeScrollableSlotGroup = new SlotWidgetGroup(186, 7, 18, 180, 1);
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             upgradeScrollableSlotGroup.addWidget(new TJSlotWidget<>(upgradeHandler, i, 0, 18 * i)
-                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                    .setSlotProtection(true));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
         }
         for (int i = 0; i < duality.getPatterns().getSlots(); i++) {
             final int index = i;
@@ -110,7 +109,7 @@ public class BlockPatternInterface extends BlockInterface {
                     .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
                     .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
-                    .setWidgetGroup(patternScrollableSlotGroup)
+                    .setSlotGroup(patternScrollableSlotGroup)
                     .setActiveInit(false));
         }
         final TJModularUI ui = TJModularUI.builder(holder, player)

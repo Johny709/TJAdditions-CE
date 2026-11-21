@@ -231,14 +231,12 @@ public final class TJGuiUtils {
                         .setActiveSupplier(() -> index / 9 <= multiUpgradeSlots.getSlotsFilled())
                         .setSlotLocationInfo(true, false)
                         .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
-                        .setWidgetGroup(multiPatternSlotGroup)
-                        .setSlotProtection(true));
+                        .setSlotGroup(multiPatternSlotGroup));
             }
             ui.widget(multiPatternSlotGroup);
             for (int i = 0; i < multiUpgradeSlots.getSlots(); i++) {
                 ui.widget(new TJSlotWidget<>(multiUpgradeSlots, i, -46, 14 + (i * 18))
-                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                        .setSlotProtection(true));
+                        .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
             }
         } else {
             multiPatternSlots.setSize(0);
@@ -612,16 +610,16 @@ public final class TJGuiUtils {
         GlStateManager.disableBlend();
         RenderHelper.enableGUIStandardItemLighting();
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
-        itemRender.renderItemAndEffectIntoGUI(itemStack, x, y);
-        itemRender.renderItemOverlayIntoGUI(mc.fontRenderer, itemStack, x, y, altTxt);
+        itemRender.renderItemAndEffectIntoGUI(itemStack, x + 1, y + 1);
+        itemRender.renderItemOverlayIntoGUI(mc.fontRenderer, itemStack, x + 1, y + 1, altTxt);
         GlStateManager.disableRescaleNormal();
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
-        GlStateManager.scale(0.60, 0.60, 1.2);
+        GlStateManager.scale(0.6, 0.6, 1.2);
         if (amount > 1) {
             final FontRenderer fontRenderer = mc.fontRenderer;
             final String s = TextFormattingUtil.formatLongToCompactString(amount, 4);
-            fontRenderer.drawStringWithShadow(s, (x + 3) / 0.60f - fontRenderer.getStringWidth(s) + 21, (y + 11) / 0.60f, 0xFFFFFF);
+            fontRenderer.drawStringWithShadow(s, (x + 4) / 0.6f - fontRenderer.getStringWidth(s) + 21, (y + 12) / 0.6f, 0xFFFFFF);
         }
         GlStateManager.enableDepth();
         GlStateManager.popMatrix();
@@ -633,9 +631,9 @@ public final class TJGuiUtils {
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
         GlStateManager.pushMatrix();
         TJGuiUtils.drawFluidForGui(fluidStack, amount, amount, x + 1, y + 1, 18 - 1, 18 - 2);
-        GlStateManager.scale(0.60, 0.60, 1.2);
+        GlStateManager.scale(0.6, 0.6, 1.2);
         final String s = TextFormattingUtil.formatLongToCompactString(amount, 4) + "L";
-        fontRenderer.drawStringWithShadow(s, (x + 6) / 0.60f - fontRenderer.getStringWidth(s) + 21, (y + 12) / 0.60f, 0xFFFFFF);
+        fontRenderer.drawStringWithShadow(s, (x + 6) / 0.6f - fontRenderer.getStringWidth(s) + 21, (y + 13) / 0.6f, 0xFFFFFF);
         GlStateManager.popMatrix();
     }
 

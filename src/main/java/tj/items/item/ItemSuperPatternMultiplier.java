@@ -63,7 +63,7 @@ public class ItemSuperPatternMultiplier extends Item implements ItemUIFactory, I
                     .setActiveSupplier(() -> index / 9 <= multiUpgradeSlots.getSlotsFilled())
                     .setSlotLocationInfo(true, false)
                     .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
-                    .setWidgetGroup(patternSlotGroup));
+                    .setSlotGroup(patternSlotGroup));
         }
         for (int i = 0; i < multiUpgradeSlots.getSlots(); i++) {
             upgradeSlotGroup.addWidget(new TJSlotWidget<>(multiUpgradeSlots, i, 0, 18 * i)

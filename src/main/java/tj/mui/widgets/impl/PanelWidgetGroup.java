@@ -10,6 +10,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tj.mui.widgets.TJWidgetGroup;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -96,16 +97,6 @@ public class PanelWidgetGroup extends TJWidgetGroup<PanelWidgetGroup> {
     }
 
     @Override
-    public Object getIngredientOverMouse(int mouseX, int mouseY) {
-        return this.panelOpen ? super.getIngredientOverMouse(mouseX, mouseY) : null;
-    }
-
-    @Override
-    public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
-        return this.panelOpen ? super.getPhantomTargets(ingredient) : Collections.emptyList();
-    }
-
-    @Override
     @SideOnly(Side.CLIENT)
     public void readUpdateInfo(int id, PacketBuffer buffer) {
         super.readUpdateInfo(id, buffer);
@@ -144,5 +135,20 @@ public class PanelWidgetGroup extends TJWidgetGroup<PanelWidgetGroup> {
 
     public boolean isPanelOpen() {
         return this.panelOpen;
+    }
+
+    @Override
+    public Rectangle toRectangleBox() {
+        return this.panelOpen ? super.toRectangleBox() : new Rectangle();
+    }
+
+    @Override
+    public Object getIngredientOverMouse(int mouseX, int mouseY) {
+        return this.panelOpen ? super.getIngredientOverMouse(mouseX, mouseY) : null;
+    }
+
+    @Override
+    public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
+        return this.panelOpen ? super.getPhantomTargets(ingredient) : Collections.emptyList();
     }
 }

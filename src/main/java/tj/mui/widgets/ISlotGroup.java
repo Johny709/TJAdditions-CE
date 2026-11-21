@@ -17,6 +17,9 @@ public interface ISlotGroup {
     @SideOnly(Side.CLIENT)
     void setTimer(int timer);
 
+    @SideOnly(Side.CLIENT)
+    boolean isDragging();
+
     default UnaryOperator<ItemStack> getItemStackTransfer() {
         return null;
     }

@@ -111,7 +111,7 @@ public class BlockSuperInterface extends BlockInterface {
                     .setActiveSupplier(() -> index / 9 <= upgradeHandler.getInstalledUpgrades(Upgrades.PATTERN_EXPANSION))
                     .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.PATTERN_OVERLAY)
                     .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
-                    .setWidgetGroup(patternScrollableSlotGroup)
+                    .setSlotGroup(patternScrollableSlotGroup)
                     .setActiveInit(false));
         }
         TJGuiUtils.createPatternMultiToolGUI(ui, patternMultiTool, multiUpgradeSlots, duality.getPatterns(), multiPatternSlots, invTag);
@@ -122,8 +122,7 @@ public class BlockSuperInterface extends BlockInterface {
                 .widget(selectionWidgetGroup);
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             ui.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
-                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                    .setSlotProtection(true));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
         }
         for (int i = 0; i < duality.getStorage().getSlots(); i++) {
             ui.widget(new TJSlotWidget<>(duality.getStorage(), i, 7 + (18 * (i % 9)), 52 + (36 * (i / 9)))

@@ -89,8 +89,7 @@ public class BlockSuperFluidInterface extends BlockFluidInterface {
         }
         for (int i = 0; i < upgradeHandler.getSlots(); i++) {
             ui.widget(new TJSlotWidget<>(upgradeHandler, i, 186, 7 + (18 * i))
-                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY)
-                    .setSlotProtection(true));
+                    .setActiveBackgroundTexture(GuiTextures.SLOT, TJGuiTextures.UPGRADE_OVERLAY));
         }
         final PanelWidgetGroup panelWidgetGroup = TJGuiUtils.createPriorityPanel(superFluidInterface);
         return ui.setWidthHeight(176, 292)

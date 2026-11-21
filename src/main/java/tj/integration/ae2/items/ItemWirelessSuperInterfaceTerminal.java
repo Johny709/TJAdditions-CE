@@ -437,7 +437,7 @@ public class ItemWirelessSuperInterfaceTerminal extends ToolWirelessTerminal imp
                         .setActiveSupplier(() -> index / 9 <= multiUpgradeSlots.getSlotsFilled())
                         .setSlotLocationInfo(true, false)
                         .setInactiveBackgroundTexture(TJGuiTextures.BLANK_SLOT)
-                        .setWidgetGroup(multiPatternSlotGroup));
+                        .setSlotGroup(multiPatternSlotGroup));
             }
             builder.widget(multiPatternSlotGroup);
         }

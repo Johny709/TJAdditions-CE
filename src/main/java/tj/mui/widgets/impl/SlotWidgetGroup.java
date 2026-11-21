@@ -103,6 +103,7 @@ public class SlotWidgetGroup extends ScrollingWidgetGroup<SlotWidgetGroup> imple
                 buffer.writeItemStack(this.dragStack);
                 buffer.writeInt(this.dragWidgets.size());
                 this.dragWidgets.forEach((slot, stack) -> {
+                    slot.extract(Integer.MAX_VALUE, stack, false);
                     buffer.writeInt(slot.index());
                     buffer.writeItemStack(this.dragStack);
                     slot.onRemove();
@@ -209,6 +210,12 @@ public class SlotWidgetGroup extends ScrollingWidgetGroup<SlotWidgetGroup> imple
     @SideOnly(Side.CLIENT)
     public void setTimer(int timer) {
         this.timer = timer;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean isDragging() {
+        return !this.dragWidgets.isEmpty();
     }
 
     @Override
