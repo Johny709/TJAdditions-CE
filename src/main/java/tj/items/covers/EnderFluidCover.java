@@ -5,8 +5,9 @@ import gregtech.api.capability.impl.FluidTankList;
 import gregtech.api.cover.ICoverable;
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ImageWidget;
+import gregtech.api.util.function.BooleanConsumer;
 import gregtech.common.covers.CoverPump;
+import gregtech.common.items.MetaItems;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,22 +20,18 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import tj.mui.widgets.PopUpWidget;
-import tj.mui.widgets.impl.TJPhantomFluidSlotWidget;
-import tj.mui.widgets.impl.TJTankWidget;
-import tj.mui.widgets.impl.ButtonPopUpWidget;
-import tj.mui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.widgets.impl.*;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
 
 import java.awt.*;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static gregtech.api.gui.GuiTextures.*;
 import static tj.TJValues.DUMMY_TANK;
-import static tj.mui.TJGuiTextures.FLUID_FILTER;
 import static tj.textures.TJTextures.PORTAL_OVERLAY;
 
 public class EnderFluidCover extends AbstractEnderCover<FluidTank> {
@@ -105,26 +102,30 @@ public class EnderFluidCover extends AbstractEnderCover<FluidTank> {
     }
 
     @Override
-    protected void addToPopUpWidget(PopUpWidget<?> buttonPopUpWidget) {
-        ((ButtonPopUpWidget<?>) buttonPopUpWidget).addPopup(94, 43, 78, 96, new TJToggleButtonWidget(151, 161, 18, 18)
-                .setHoverTooltipText("cover.pump.fluid_filter.title")
-                .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setBackgroundTextures(FLUID_FILTER)
-                .useToggleTexture(true), widgetGroup -> {
-            widgetGroup.addWidget(new ImageWidget(0, 0, 78, 96, BORDERED_BACKGROUND));
-            widgetGroup.addWidget(new TJToggleButtonWidget(3, 75, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
-                    .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled",
-                            "cover.filter.blacklist.enabled"));
-            for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
-                widgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 4) + 3, 18 * (i / 4) + 3, 18, 18, i, this.fluidFilter,
-                        fluid -> {
-                    if (fluid != null)
-                        this.fluidType.put(fluid, fluid);
-                }, this.fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
-                        .setPutFluidsPredicate(fluid -> !this.fluidType.containsKey(fluid)));
+    protected void addExtraWidgetsInChannelTab(List<Widget> tab) {
+        final PanelWidgetGroup panelWidgetGroup = new PanelWidgetGroup(94, 43, 78, 96, BORDERED_BACKGROUND)
+                .addSubWidget(new TJToggleButtonWidget(3, 75, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
+                        .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled",
+                                "cover.filter.blacklist.enabled"));
+        for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
+            panelWidgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 4) + 3, 18 * (i / 4) + 3, 18, 18, i, this.fluidFilter,
+                    fluid -> {
+                        if (fluid != null)
+                            this.fluidType.put(fluid, fluid);
+                    }, this.fluidType::remove).setBackgroundTexture(GuiTextures.FLUID_SLOT)
+                    .setPutFluidsPredicate(fluid -> !this.fluidType.containsKey(fluid)));
+        }
+        tab.add(new TJToggleButtonWidget(151, 161, 18, 18, panelWidgetGroup::isPanelOpen, (BooleanConsumer) value -> {
+            if (!value && panelWidgetGroup.isPanelOpen()) {
+                panelWidgetGroup.closePanel();
+            } else if (value) {
+                panelWidgetGroup.openPanel();
             }
-            return false;
-        }).setClickArea(new Rectangle(346, 107, 60, 78));
+        }).setItemDisplay(MetaItems.FLUID_FILTER.getStackForm())
+                .setTitleHoverTooltipText("cover.pump.fluid_filter.title")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        tab.add(panelWidgetGroup);
     }
 
     @Override

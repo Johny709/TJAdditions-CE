@@ -100,6 +100,8 @@ public class TJAdvancedTextWidget extends AdvancedTextWidget {
             for (QuadConsumer<String, String, ClickData, EntityPlayer> clickHandler : this.clickHandlers) {
                 clickHandler.accept(componentData, textId, clickData, player);
             }
+            if (this.clickHandler != null)
+                this.clickHandler.accept(componentData, clickData);
         }
     }
 

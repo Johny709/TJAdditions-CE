@@ -368,6 +368,8 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
             this.currentString = buffer.readString(Short.MAX_VALUE);
             if (this.updateOnType && this.textResponder != null)
                 this.textResponder.accept(this.currentString, this.textId);
+        } else if (id == 2) {
+            this.textId = buffer.readString(Short.MAX_VALUE);
         }
     }
 
@@ -378,6 +380,19 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
             this.textField.setEnabled(isActive);
             if (!isActive)
                 this.textField.setFocused(false);
+        }
+    }
+
+    /**
+     * @param textId identifier for this text field widget
+     * @param sync should sync to both client and server
+     */
+    public void setTextId(String textId, boolean sync) {
+        this.setTextId(textId);
+        if (sync) {
+            if (isClientSide())
+                this.writeClientAction(2, buffer -> buffer.writeString(this.textId));
+            this.writeUpdateInfo(2, buffer -> buffer.writeString(this.textId));
         }
     }
 

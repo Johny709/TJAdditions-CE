@@ -13,6 +13,7 @@ import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
 import gregtech.api.gui.widgets.tab.VerticalTabListRenderer;
+import gregtech.api.util.function.BooleanConsumer;
 import gregtech.common.covers.CoverPump;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,16 +30,15 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
+import tj.mui.widgets.TJModularUI;
 import tj.mui.widgets.WidgetTabBuilder;
 import tj.capability.IEnderNotifiable;
 import tj.mui.TJGuiTextures;
-import tj.mui.widgets.PopUpWidget;
 import tj.mui.widgets.impl.*;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.textures.TJTextures;
 import tj.util.TJItemUtils;
 import tj.util.TextUtils;
-import tj.util.predicates.QuadActionResultPredicate;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -53,7 +53,8 @@ import static net.minecraft.util.text.TextFormatting.GRAY;
 import static net.minecraft.util.text.TextFormatting.YELLOW;
 import static tj.mui.TJGuiTextures.*;
 
-public abstract class AbstractEnderCover<V> extends CoverBehavior implements CoverWithUI, ITickable, IControllable, IEnderNotifiable<V> {
+public abstract class AbstractEnderCover<V> extends CoverBehavior implements CoverWithUI, ITickable, IControllable,
+        IEnderNotifiable<V> {
 
     protected String frequency;
     protected String channel;
@@ -104,7 +105,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
 
     protected abstract void addWidgets(Consumer<Widget> widget);
 
-    protected void addToPopUpWidget(PopUpWidget<?> buttonPopUpWidget) {}
+    protected void addExtraWidgetsInChannelTab(List<Widget> tab) {}
 
     @Override
     public ModularUI createUI(EntityPlayer player) {
@@ -115,351 +116,434 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         final String[] playerName = {""};
         final WidgetTabBuilder tabBuilder = new WidgetTabBuilder()
                 .setTabListRenderer(() -> new VerticalTabListRenderer(TOP, LEFT))
-                .addWidget(new TJLabelWidget(7, -19, 162, 19, TJGuiTextures.MACHINE_LABEL_2)
-                        .setLocale(this.getName()).setItemLabel(this.getPickItem()))
                 .addTab(this.getName(), this.getPickItem(), tab -> this.createChannelTab(tab, player, searchResults, patternFlags, search))
-                .addTab("tj.multiblock.tab.frequencies", TJItemUtils.getItemStackFromName("appliedenergistics2:part", 1, 76), tab -> this.createFrequencyTab(tab, player, searchResults, patternFlags, permissions, search, playerName));
-        return ModularUI.builder(BORDERED_BACKGROUND, 176, 262)
-                .bindPlayerInventory(player.inventory, 181)
+                .addTab("tj.multiblock.tab.frequencies", TJItemUtils.getItemStackFromName("appliedenergistics2:part", 1, 76),
+                        tab -> this.createFrequencyTab(tab, player, searchResults, patternFlags, permissions, search, playerName));
+        return TJModularUI.builder(this, player)
+                .setHeight(262)
+                .widget(new TJLabelWidget(7, -19, 162, 19, TJGuiTextures.MACHINE_LABEL_2)
+                        .setLocale(this.getName()).setItemLabel(this.getPickItem()))
                 .widget(tabBuilder.build())
                 .widget(tabBuilder.buildWidgetGroup())
-                .build(this, player);
+                .build();
     }
 
     private void createChannelTab(List<Widget> tab, EntityPlayer player, int[] searchResults, int[][] patternFlags, String[] search) {
-        final NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
+        final NewTextFieldWidget<?> textFieldRename = new NewTextFieldWidget<>(12, 15, 159, 18, true)
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setBackgroundText("machine.universal.toggle.rename.channel")
                 .setTooltipText("machine.universal.toggle.rename.channel")
                 .setTextResponder(this.getEnderProfile()::editChannel)
                 .setMaxStringLength(256);
-        final NewTextFieldWidget<?> textFieldWidgetEntry = new NewTextFieldWidget<>(12, 20, 159, 13)
+        final NewTextFieldWidget<?> textFieldAdd = new NewTextFieldWidget<>(12, 15, 159, 18, true)
                 .setTextResponder((key, id) -> this.getEnderProfile().addChannel(key, id, this))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setBackgroundText("machine.universal.toggle.add.channel")
                 .setTooltipText("machine.universal.toggle.add.channel")
                 .setTextId(player.getUniqueID().toString())
                 .setMaxStringLength(256);
-        final TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
-        textWidget.setMaxWidthLimit(1000);
-        tab.add(new ClickPopUpWidget(0, 0, 0, 0)
-                .addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(new TJImageWidget(30, 15, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new TJImageWidget(30, 38, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new TJImageWidget(3, 61, 170, 80, MULTIBLOCK_DISPLAY_BASE));
-                    widgetGroup.addWidget(new TJImageWidget(30, 142, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new ScrollingWidgetGroup<>(3, 61, 172, 80)
-                            .addSubWidget(textWidget));
-                    widgetGroup.addWidget(new NewTextFieldWidget<>(32, 43, 112, 13, false)
-                            .setTextResponder((key, id) -> this.getEnderProfile().setChannel(key, id, this))
-                            .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                            .setBackgroundText("machine.universal.toggle.current.channel")
-                            .setTooltipText("machine.universal.toggle.current.channel")
-                            .setTextId(player.getUniqueID().toString())
-                            .setTextSupplier(this::getChannel)
-                            .setMaxStringLength(256)
-                            .setUpdateOnTyping(true));
-                    widgetGroup.addWidget(new NewTextFieldWidget<>(32, 20, 112, 13, false)
-                            .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
-                            .setBackgroundText("metaitem.ender_cover.transfer")
-                            .setTooltipText("metaitem.ender_cover.transfer")
-                            .setTooltipFormat(this::getTooltipFormat)
-                            .setTextResponder(this::setTransferRate)
-                            .setTextSupplier(this::getTransferRate)
-                            .setUpdateOnTyping(true));
-                    widgetGroup.addWidget(new NewTextFieldWidget<>(32, 147, 112, 13, false)
-                            .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                            .setTextResponder((result, id) -> search[0] = result)
-                            .setBackgroundText("machine.universal.search")
-                            .setTextSupplier(() -> search[0])
-                            .setMaxStringLength(256)
-                            .setUpdateOnTyping(true));
-                    widgetGroup.addWidget(new TJToggleButtonWidget(151, 15, 18, 18, TJValues::isFalse, this::onIncrement)
-                            .setHoverTooltipText("machine.universal.toggle.increment.disabled")
-                            .setButtonId(player.getUniqueID().toString())
-                            .setToggleTexture(TOGGLE_BUTTON_BACK)
-                            .useToggleTexture(true)
-                            .setDisplayText("+"));
-                    widgetGroup.addWidget(new TJToggleButtonWidget(7, 15, 18, 18, TJValues::isFalse, this::onDecrement)
-                            .setHoverTooltipText("machine.universal.toggle.decrement.disabled")
-                            .setButtonId(player.getUniqueID().toString())
-                            .setToggleTexture(TOGGLE_BUTTON_BACK)
-                            .useToggleTexture(true)
-                            .setDisplayText("-"));
-                    widgetGroup.addWidget(new TJToggleButtonWidget(7, 143, 18, 18)
-                            .setButtonResponder(uuid -> this.getEnderProfile().onClear(uuid, this))
-                            .setHoverTooltipText("machine.universal.toggle.clear")
-                            .setButtonId(player.getUniqueID().toString())
-                            .setBackgroundTextures(BUTTON_CLEAR_GRID)
-                            .setToggleTexture(TOGGLE_BUTTON_BACK)
-                            .useToggleTexture(true));
-                    widgetGroup.addWidget(new TJCycleButtonWidget<>(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode).setBackgroundTextures(VANILLA_BUTTON));
-                    widgetGroup.addWidget(new TJToggleButtonWidget(7, 161, 18, 18, TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                            .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled", "machine.universal.toggle.run.mode.enabled"));
-                    this.addWidgets(widgetGroup::addWidget);
-                    return true;
-                }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 142, 18, 18)
-                        .setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11))
-                        .setHoverTooltipText("machine.universal.search.settings")
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .useToggleTexture(true), widgetGroup -> this.addSearchTextWidgets(widgetGroup, patternFlags, 0))
-                .addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
-                        .setDisplayText("machine.universal.cancel")
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .setButtonSupplier(TJValues::isFalse)
-                        .useToggleTexture(true))
-                .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
-                        .setButtonResponderWithMouse(textFieldWidgetRename::triggerResponse)
-                        .setDisplayText("machine.universal.ok")
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .setButtonSupplier(TJValues::isFalse)
-                        .useToggleTexture(true))
-                .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
-                    widgetGroup.addWidget(new TJImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
-                    widgetGroup.addWidget(new TJImageWidget(10, 15, 162, 18, DISPLAY));
-                    widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
-                        final int index = textFieldWidgetRename.getTextId().lastIndexOf(":");
-                        final String entry = textFieldWidgetRename.getTextId().substring(0, index);
-                        textList.add(new TextComponentTranslation("machine.universal.renaming", entry));
-                    }, 0x404040));
-                    widgetGroup.addWidget(textFieldWidgetRename);
-                    return false;
-                }).addClosingButton(new TJToggleButtonWidget(3, 19, 176, 18)
-                        .setDisplayText("machine.universal.ok")
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .useToggleTexture(true))
-                .addPopupCondition(this.handleDisplayClick(textFieldWidgetRename)).addFailPopup(0, 40, 182, 40, widgetGroup2 -> {
-                    widgetGroup2.addWidget(new TJImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
-                    widgetGroup2.addWidget(new AdvancedTextWidget(30, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
-                }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
-                        .setDisplayText("machine.universal.cancel")
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .setButtonSupplier(TJValues::isFalse)
-                        .useToggleTexture(true))
-                .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
-                        .setButtonResponderWithMouse(textFieldWidgetEntry::triggerResponse)
-                        .setDisplayText("machine.universal.ok")
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .setButtonSupplier(TJValues::isFalse)
-                        .useToggleTexture(true))
-                .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(151, 38, 18, 18)
-                        .setHoverTooltipText("machine.universal.toggle.add.channel")
-                        .setButtonId("channel:" + player.getUniqueID())
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .useToggleTexture(true)
-                        .setDisplayText("O"), widgetGroup -> {
-                    widgetGroup.addWidget(new TJImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
-                    widgetGroup.addWidget(new TJImageWidget(10, 15, 162, 18, DISPLAY));
-                    widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.channel")), 0x404040));
-                    widgetGroup.addWidget(textFieldWidgetEntry);
-                    return false;
-                }).addClosingButton(new TJToggleButtonWidget(3, 19, 176, 18)
-                        .setDisplayText("machine.universal.ok")
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .useToggleTexture(true))
-                .addPopupCondition(this::handleButtonClick).addFailPopup(0, 40, 182, 40, widgetGroup2 -> {
-                    widgetGroup2.addWidget(new TJImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
-                    widgetGroup2.addWidget(new AdvancedTextWidget(30, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
-                }).passPopup(this::addToPopUpWidget));
+
+        final PanelWidgetGroup channelSearchPanel = new PanelWidgetGroup(112, 61, 60, 78, BORDERED_BACKGROUND);
+        final PanelWidgetGroup channelRenamePanel = new PanelWidgetGroup(0, 61, 182, 60, BORDERED_BACKGROUND);
+        final PanelWidgetGroup channelAddPanel = new PanelWidgetGroup(0, 61, 182, 60, BORDERED_BACKGROUND);
+        tab.add(new TJImageWidget(30, 15, 115, 18, DISPLAY));
+        tab.add(new TJImageWidget(30, 38, 115, 18, DISPLAY));
+        tab.add(new TJImageWidget(3, 61, 170, 80, MULTIBLOCK_DISPLAY_BASE));
+        tab.add(new TJImageWidget(30, 142, 115, 18, DISPLAY));
+        tab.add(new ScrollingWidgetGroup<>(3, 61, 172, 80)
+                .addSubWidget(new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search),
+                        0xFFFFFF).setMaxWidthLimit(1000)
+                        .setClickHandler((componentData, clickData) -> {
+                            final String[] components = componentData.split(":");
+                            if (components[0].equals("select") && components[1].equals("channel") &&
+                                    this.getEnderProfile().hasPermission(player.getUniqueID(), 5)) {
+                                this.getEnderProfile().setChannel(components[2], player.getUniqueID().toString(), this);
+                            } else if (components[0].equals("remove") && components[1].equals("channel") &&
+                                    this.getEnderProfile().hasPermission(player.getUniqueID(), 4)) {
+                                this.getEnderProfile().removeChannel(components[2], player.getUniqueID().toString());
+                            } else if (components[0].equals("rename") && components[1].equals("channel") &&
+                                    this.getEnderProfile().hasPermission(player.getUniqueID(), 4)) {
+                                textFieldRename.setTextId(components[2] + ":" + player.getUniqueID(), true);
+                                channelRenamePanel.openPanel();
+                            }
+                        })));
+        tab.add(new NewTextFieldWidget<>(32, 43, 112, 13, false)
+                .setTextResponder((key, id) -> this.getEnderProfile().setChannel(key, id, this))
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                .setBackgroundText("machine.universal.toggle.current.channel")
+                .setTooltipText("machine.universal.toggle.current.channel")
+                .setTextId(player.getUniqueID().toString())
+                .setTextSupplier(this::getChannel)
+                .setMaxStringLength(256)
+                .setUpdateOnTyping(true));
+        tab.add(new NewTextFieldWidget<>(32, 20, 112, 13, false)
+                .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
+                .setBackgroundText("metaitem.ender_cover.transfer")
+                .setTooltipText("metaitem.ender_cover.transfer")
+                .setTooltipFormat(this::getTooltipFormat)
+                .setTextResponder(this::setTransferRate)
+                .setTextSupplier(this::getTransferRate)
+                .setUpdateOnTyping(true));
+        tab.add(new NewTextFieldWidget<>(32, 147, 112, 13, false)
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                .setTextResponder((result, id) -> search[0] = result)
+                .setBackgroundText("machine.universal.search")
+                .setTextSupplier(() -> search[0])
+                .setMaxStringLength(256)
+                .setUpdateOnTyping(true));
+        tab.add(new TJToggleButtonWidget(151, 15, 18, 18, TJValues::isFalse, this::onIncrement)
+                .setHoverTooltipText("machine.universal.toggle.increment.disabled")
+                .setButtonId(player.getUniqueID().toString())
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true)
+                .setDisplayText("+"));
+        tab.add(new TJToggleButtonWidget(7, 15, 18, 18, TJValues::isFalse, this::onDecrement)
+                .setHoverTooltipText("machine.universal.toggle.decrement.disabled")
+                .setButtonId(player.getUniqueID().toString())
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true)
+                .setDisplayText("-"));
+        tab.add(new TJToggleButtonWidget(7, 143, 18, 18)
+                .setButtonResponder(uuid -> this.getEnderProfile().onClear(uuid, this))
+                .setHoverTooltipText("machine.universal.toggle.clear")
+                .setButtonId(player.getUniqueID().toString())
+                .setBackgroundTextures(BUTTON_CLEAR_GRID)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        tab.add(new TJCycleButtonWidget<>(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode)
+                .setBackgroundTextures(VANILLA_BUTTON));
+        tab.add(new TJToggleButtonWidget(7, 161, 18, 18, TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
+                .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
+                        "machine.universal.toggle.run.mode.enabled"));
+        tab.add(new TJToggleButtonWidget(151, 142, 18, 18, channelSearchPanel::isPanelOpen, (BooleanConsumer) value -> {
+            if (!value && channelSearchPanel.isPanelOpen()) {
+                channelSearchPanel.closePanel();
+            } else if (value) {
+                channelSearchPanel.openPanel();
+            }
+        }).setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11))
+                .setTitleHoverTooltipText("machine.universal.search.settings")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        tab.add(new TJToggleButtonWidget(151, 38, 18, 18, channelAddPanel::isPanelOpen, (BooleanConsumer) value -> {
+            if (!value && channelAddPanel.isPanelOpen()) {
+                channelAddPanel.closePanel();
+            } else if (value) {
+                channelAddPanel.openPanel();
+            }
+        }).setTitleHoverTooltipText("machine.universal.toggle.add.channel")
+                .setDisplayText("O")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        this.addWidgets(tab::add);
+        this.addExtraWidgetsInChannelTab(tab);
+        this.addSearchTextWidgets(channelSearchPanel, patternFlags, 0);
+        this.createChannelRenamePanel(channelRenamePanel, textFieldRename);
+        this.createChannelAddPanel(channelAddPanel, textFieldAdd);
+        tab.add(channelSearchPanel);
+        tab.add(channelRenamePanel);
+        tab.add(channelAddPanel);
     }
 
-    private void createFrequencyTab(List<Widget> tab, EntityPlayer player, int[] searchResults, int[][] patternFlags, long[][] permissions, String[] search, String[] playerName) {
-        final NewTextFieldWidget<?> textFieldWidgetRename = new NewTextFieldWidget<>(12, 20, 159, 13)
+    private void createChannelRenamePanel(PanelWidgetGroup channelRenamePanel, NewTextFieldWidget<?> textFieldRename) {
+        channelRenamePanel.addWidget(new TJToggleButtonWidget(10, 35, 81, 18, () -> false,
+                (BooleanConsumer) b -> channelRenamePanel.closePanel())
+                .setDisplayText("machine.universal.cancel")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        channelRenamePanel.addWidget(new TJToggleButtonWidget(91, 35, 81, 18, () -> false, (BooleanConsumer) b -> {
+            textFieldRename.triggerResponse();
+            channelRenamePanel.closePanel();
+        }).setDisplayText("machine.universal.ok")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        channelRenamePanel.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
+            final int index = textFieldRename.getTextId().lastIndexOf(":");
+            final String entry = textFieldRename.getTextId().substring(0, index);
+            textList.add(new TextComponentTranslation("machine.universal.renaming", entry));
+        }, 0x404040));
+        channelRenamePanel.addWidget(textFieldRename);
+    }
+
+    private void createChannelAddPanel(PanelWidgetGroup channelAddPanel, NewTextFieldWidget<?> textFieldAdd) {
+        channelAddPanel.addWidget(new TJToggleButtonWidget(10, 35, 81, 18, () -> false,
+                (BooleanConsumer) b -> channelAddPanel.closePanel())
+                .setDisplayText("machine.universal.cancel")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        channelAddPanel.addWidget(new TJToggleButtonWidget(91, 35, 81, 18, () -> false, (BooleanConsumer) b -> {
+                    textFieldAdd.triggerResponse();
+                    channelAddPanel.closePanel();
+                }).setDisplayText("machine.universal.ok")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        channelAddPanel.addWidget(new AdvancedTextWidget(55, 4, textList ->
+                textList.add(new TextComponentTranslation("machine.universal.toggle.add.channel")), 0x404040));
+        channelAddPanel.addWidget(textFieldAdd);
+    }
+
+    private void createFrequencyTab(List<Widget> tab,
+                                    EntityPlayer player,
+                                    int[] searchResults,
+                                    int[][] patternFlags,
+                                    long[][] permissions,
+                                    String[] search,
+                                    String[] playerName) {
+        final NewTextFieldWidget<?> textFieldRename = new NewTextFieldWidget<>(12, 15, 159, 18, true)
                 .setTextResponder((key, id) -> this.getEnderProfile().renameFrequency(key, id, this))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setBackgroundText("machine.universal.toggle.rename.frequency")
                 .setTooltipText("machine.universal.toggle.rename.frequency")
                 .setMaxStringLength(256);
-        final NewTextFieldWidget<?> textFieldWidgetChannel = new NewTextFieldWidget<>(12, 20, 159, 13)
+        final NewTextFieldWidget<?> textFieldAdd = new NewTextFieldWidget<>(12, 15, 159, 18, true)
                 .setTextResponder((key, id) -> this.getEnderProfile().addFrequency(key, id, this))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setBackgroundText("machine.universal.toggle.add.frequency")
                 .setTooltipText("machine.universal.toggle.add.frequency")
                 .setTextId(player.getUniqueID().toString())
                 .setMaxStringLength(256);
-        final TJAdvancedTextWidget textWidget = new TJAdvancedTextWidget(2, 3, this.addFrequencyDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
-        textWidget.setMaxWidthLimit(1000);
-        tab.add(new ClickPopUpWidget(0, 0, 0, 0)
-                .addPopup(widgetGroup -> {
-                    widgetGroup.addWidget(new TJImageWidget(30, 15, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new TJImageWidget(3, 38, 170, 103, MULTIBLOCK_DISPLAY_BASE));
-                    widgetGroup.addWidget(new TJImageWidget(30, 142, 115, 18, DISPLAY));
-                    widgetGroup.addWidget(new ScrollingWidgetGroup<>(3, 38, 172, 103)
-                            .addSubWidget(textWidget));
-                    widgetGroup.addWidget(new NewTextFieldWidget<>(32, 20, 112, 18)
-                            .setTextResponder((key, id) -> this.getEnderProfile().setFrequency(key, id, this))
-                            .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                            .setBackgroundText("machine.universal.toggle.current.frequency")
-                            .setTooltipText("machine.universal.toggle.current.frequency")
-                            .setTextId(player.getUniqueID().toString())
-                            .setTextSupplier(this::getFrequency)
-                            .setMaxStringLength(256)
-                            .setUpdateOnTyping(true));
-                    widgetGroup.addWidget(new TJToggleButtonWidget(7, 15, 18, 18)
-                            .setButtonSupplier(this.getEnderProfile()::isPublic)
-                            .setButtonId(player.getUniqueID().toString())
-                            .setToggleButtonResponder(this.getEnderProfile()::setPublic)
-                            .setToggleTexture(UNLOCK_LOCK)
-                            .useToggleTexture(true));
-                    widgetGroup.addWidget(new NewTextFieldWidget<>(32, 147, 112, 13, false)
-                            .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                            .setTextResponder((result, id) -> search[1] = result)
-                            .setBackgroundText("machine.universal.search")
-                            .setTextSupplier(() -> search[1])
-                            .setMaxStringLength(256)
-                            .setUpdateOnTyping(true));
-                    widgetGroup.addWidget(new AdvancedTextWidget(3, 170, textList -> textList.add(new TextComponentTranslation("machine.universal.owner", this.displayName)), 0x404040));
-                    return true;
-                }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
-                        .setDisplayText("machine.universal.cancel")
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .setButtonSupplier(TJValues::isFalse)
-                        .useToggleTexture(true))
-                .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
-                        .setButtonResponderWithMouse(textFieldWidgetRename::triggerResponse)
-                        .setDisplayText("machine.universal.ok")
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .setButtonSupplier(TJValues::isFalse)
-                        .useToggleTexture(true))
-                .addPopup(0, 61, 182, 60, textWidget, false, widgetGroup -> {
-                    widgetGroup.addWidget(new TJImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
-                    widgetGroup.addWidget(new TJImageWidget(10, 15, 162, 18, DISPLAY));
-                    widgetGroup.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
-                        final int index = textFieldWidgetRename.getTextId().lastIndexOf(":");
-                        final String entry = textFieldWidgetRename.getTextId().substring(0, index);
-                        textList.add(new TextComponentTranslation("machine.universal.renaming", entry));
-                    }, 0x404040));
-                    widgetGroup.addWidget(textFieldWidgetRename);
-                    return false;
-                }).addClosingButton(new TJToggleButtonWidget(3, 19, 176, 18)
-                        .setDisplayText("machine.universal.ok")
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .useToggleTexture(true))
-                .addPopupCondition(this.handleDisplayClick(textFieldWidgetRename)).addFailPopup(0, 40, 182, 40, widgetGroup2 -> {
-                    widgetGroup2.addWidget(new TJImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
-                    widgetGroup2.addWidget(new AdvancedTextWidget(30, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
-                }).addClosingButton(new TJToggleButtonWidget(10, 35, 81, 18)
-                        .setDisplayText("machine.universal.cancel")
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .setButtonSupplier(TJValues::isFalse)
-                        .useToggleTexture(true))
-                .addClosingButton(new TJToggleButtonWidget(91, 35, 81, 18)
-                        .setButtonResponderWithMouse(textFieldWidgetChannel::triggerResponse)
-                        .setDisplayText("machine.universal.ok")
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .setButtonSupplier(TJValues::isFalse)
-                        .useToggleTexture(true))
-                .addPopup(0, 61, 182, 60, new TJToggleButtonWidget(151, 15, 18, 18)
-                        .setHoverTooltipText("machine.universal.toggle.add.frequency")
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .useToggleTexture(true)
-                        .setDisplayText("O"), widgetGroup -> {
-                    widgetGroup.addWidget(new TJImageWidget(0, 0, 182, 60, BORDERED_BACKGROUND));
-                    widgetGroup.addWidget(new TJImageWidget(10, 15, 162, 18, DISPLAY));
-                    widgetGroup.addWidget(new AdvancedTextWidget(55, 4, textList -> textList.add(new TextComponentTranslation("machine.universal.toggle.add.frequency")), 0x404040));
-                    widgetGroup.addWidget(textFieldWidgetChannel);
-                    return false;
-                }).addPopup(0, 38, 182, 130, new TJToggleButtonWidget(7, 142, 18, 18)
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .setBackgroundTextures(LIST_OVERLAY)
-                        .useToggleTexture(true), widgetGroup -> {
-                    widgetGroup.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
-                            .addPopup(widgetGroup1 -> {
-                                final TJAdvancedTextWidget playerTextWidget = new TJAdvancedTextWidget(2, 3, this.addPlayerDisplayText(searchResults, patternFlags, search), 0xFFFFFF);
-                                widgetGroup1.addWidget(new ClickPopUpWidget(0, 0, 0, 0)
-                                        .addPopup(widgetGroup2 -> {
-                                            widgetGroup2.addWidget(new TJImageWidget(0, 0, 182, 130, BORDERED_BACKGROUND));
-                                            widgetGroup2.addWidget(new TJImageWidget(3, 25, 176, 80, DISPLAY));
-                                            widgetGroup2.addWidget(new TJImageWidget(30, 106, 115, 18, DISPLAY));
-                                            widgetGroup2.addWidget(new ScrollingWidgetGroup<>(3, 25, 182, 80)
-                                                    .addSubWidget(playerTextWidget));
-                                            widgetGroup2.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.allowed_players", this.frequency)), 0x404040));
-                                            widgetGroup2.addWidget(new NewTextFieldWidget<>(32, 110, 112, 13, false)
-                                                    .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
-                                                    .setTextResponder((result, id) -> search[2] = result)
-                                                    .setBackgroundText("machine.universal.search")
-                                                    .setTextSupplier(() -> search[2])
-                                                    .setMaxStringLength(256)
-                                                    .setUpdateOnTyping(true));
-                                            return true;
-                                        }).addPopup(0, 0, 182, 100, playerTextWidget, false, widgetGroup2 -> {
-                                            widgetGroup2.addWidget(new TJImageWidget(0, 0, 182, 100, BORDERED_BACKGROUND));
-                                            widgetGroup2.addWidget(new AdvancedTextWidget(10, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.edit_permission", playerName[0])), 0x404040));
-                                            widgetGroup2.addWidget(new TJToggleButtonWidget(3, 25, 88, 18)
-                                                    .setToggleDisplayText("machine.universal.false", "machine.universal.true")
-                                                    .setToggleButtonResponder((toggle, id) -> permissions[0][0] = toggle ? 1 : 0)
-                                                    .setHoverTooltipText("metaitem.ender_cover.permission.0")
-                                                    .setButtonSupplier(() -> permissions[0][0] != 0)
-                                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                                    .useToggleTexture(true));
-                                            widgetGroup2.addWidget(new TJToggleButtonWidget(91, 25, 88, 18)
-                                                    .setToggleDisplayText("machine.universal.false", "machine.universal.true")
-                                                    .setToggleButtonResponder((toggle, id) -> permissions[0][1] = toggle ? 1 : 0)
-                                                    .setHoverTooltipText("metaitem.ender_cover.permission.1")
-                                                    .setButtonSupplier(() -> permissions[0][1] != 0)
-                                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                                    .useToggleTexture(true));
-                                            widgetGroup2.addWidget(new TJToggleButtonWidget(3, 43, 88, 18)
-                                                    .setToggleDisplayText("machine.universal.false", "machine.universal.true")
-                                                    .setToggleButtonResponder((toggle, id) -> permissions[0][2] = toggle ? 1 : 0)
-                                                    .setHoverTooltipText("metaitem.ender_cover.permission.2")
-                                                    .setButtonSupplier(() -> permissions[0][2] != 0)
-                                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                                    .useToggleTexture(true));
-                                            widgetGroup2.addWidget(new TJToggleButtonWidget(91, 43, 88, 18)
-                                                    .setToggleDisplayText("machine.universal.false", "machine.universal.true")
-                                                    .setToggleButtonResponder((toggle, id) -> permissions[0][3] = toggle ? 1 : 0)
-                                                    .setHoverTooltipText("metaitem.ender_cover.permission.3")
-                                                    .setButtonSupplier(() -> permissions[0][3] != 0)
-                                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                                    .useToggleTexture(true));
-                                            widgetGroup2.addWidget(new TJToggleButtonWidget(3, 61, 88, 18)
-                                                    .setToggleDisplayText("machine.universal.false", "machine.universal.true")
-                                                    .setToggleButtonResponder((toggle, id) -> permissions[0][4] = toggle ? 1 : 0)
-                                                    .setHoverTooltipText("metaitem.ender_cover.permission.4")
-                                                    .setButtonSupplier(() -> permissions[0][4] != 0)
-                                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                                    .useToggleTexture(true));
-                                            widgetGroup2.addWidget(new TJToggleButtonWidget(91, 61, 88, 18).setToggleDisplayText("machine.universal.false", "machine.universal.true")
-                                                    .setToggleButtonResponder((toggle, id) -> permissions[0][5] = toggle ? 1 : 0)
-                                                    .setHoverTooltipText("metaitem.ender_cover.permission.5")
-                                                    .setButtonSupplier(() -> permissions[0][5] != 0)
-                                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                                    .useToggleTexture(true));
-                                            widgetGroup2.addWidget(new TJImageWidget(3, 79, 176, 18, DISPLAY));
-                                            widgetGroup2.addWidget(new NewTextFieldWidget<>(5, 84, 174, 13)
-                                                    .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                                                    .setTextResponder((text, id) -> permissions[0][6] = Long.parseLong(text))
-                                                    .setTextSupplier(() -> String.valueOf(permissions[0][6]))
-                                                    .setTooltipText("metaitem.ender_cover.permission.6")
-                                                    .setUpdateOnTyping(true));
-                                            return false;
-                                        }).addClosingButton(new TJToggleButtonWidget(3, 19, 176, 18)
-                                                .setDisplayText("machine.universal.ok")
-                                                .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                                .useToggleTexture(true))
-                                        .addPopupCondition(this.handlePlayerDisplayClick(playerName, permissions)).addFailPopup(0, 40, 182, 40, widgetGroup2 -> {
-                                            widgetGroup2.addWidget(new TJImageWidget(0, 0, 182, 40, BORDERED_BACKGROUND));
-                                            widgetGroup2.addWidget(new AdvancedTextWidget(30, 4, textList -> textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
-                                        }));
-                                return true;
-                            }).addPopup(117, 25, 60, 78, new TJToggleButtonWidget(151, 106, 18, 18)
-                                    .setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11))
-                                    .setHoverTooltipText("machine.universal.search.settings")
-                                    .setToggleTexture(TOGGLE_BUTTON_BACK)
-                                    .useToggleTexture(true), innerWidgetGroup -> this.addSearchTextWidgets(innerWidgetGroup, patternFlags, 2)));
-                    return false;
-                }).addPopup(112, 61, 60, 78, new TJToggleButtonWidget(151, 142, 18, 18)
-                        .setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11))
-                        .setHoverTooltipText("machine.universal.search.settings")
-                        .setToggleTexture(TOGGLE_BUTTON_BACK)
-                        .useToggleTexture(true), widgetGroup -> this.addSearchTextWidgets(widgetGroup, patternFlags, 1)));
+
+        final PanelWidgetGroup frequencySearchPanel = new PanelWidgetGroup(112, 61, 60, 78, BORDERED_BACKGROUND);
+        final PanelWidgetGroup frequencyRenamePanel = new PanelWidgetGroup(0, 61, 182, 60, BORDERED_BACKGROUND);
+        final PanelWidgetGroup frequencyAddPanel = new PanelWidgetGroup(0, 61, 182, 60, BORDERED_BACKGROUND);
+        final PanelWidgetGroup playerSearchPanel = new PanelWidgetGroup(117, 25, 60, 78, BORDERED_BACKGROUND);
+        final PanelWidgetGroup allowedPlayersPanel = new PanelWidgetGroup(0, 38, 182, 130, BORDERED_BACKGROUND);
+        final PanelWidgetGroup playerPermissionPanel = new PanelWidgetGroup(0, 0, 182, 100, BORDERED_BACKGROUND);
+        tab.add(new TJImageWidget(30, 15, 115, 18, DISPLAY));
+        tab.add(new TJImageWidget(3, 38, 170, 103, MULTIBLOCK_DISPLAY_BASE));
+        tab.add(new TJImageWidget(30, 142, 115, 18, DISPLAY));
+        tab.add(new ScrollingWidgetGroup<>(3, 38, 172, 103)
+                .addSubWidget(new TJAdvancedTextWidget(2, 3, this.addFrequencyDisplayText(searchResults, patternFlags, search),
+                        0xFFFFFF).setMaxWidthLimit(1000)
+                        .setClickHandler((componentData, clickData) -> {
+                            final String[] components = componentData.split(":");
+                            if (components[0].equals("select") && components[1].equals("frequency") &&
+                                    this.getEnderProfile().hasPermission(player.getUniqueID(), 2)) {
+                                this.getEnderProfile().setFrequency(components[2], player.getUniqueID().toString(), this);
+                            } else if (components[0].equals("remove") && components[1].equals("frequency") &&
+                                    this.getEnderProfile().hasPermission(player.getUniqueID(), 1)) {
+                                this.getEnderProfile().removeFrequency(components[2], player.getUniqueID().toString(), this);
+                            } else if (components[0].equals("rename") && components[1].equals("frequency") &&
+                                    this.getEnderProfile().hasPermission(player.getUniqueID(), 2)) {
+                                textFieldRename.setTextId(components[2] + ":" + player.getUniqueID(), true);
+                                frequencyRenamePanel.openPanel();
+                            }
+                        })));
+        tab.add(new NewTextFieldWidget<>(32, 20, 112, 18)
+                .setTextResponder((key, id) -> this.getEnderProfile().setFrequency(key, id, this))
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                .setBackgroundText("machine.universal.toggle.current.frequency")
+                .setTooltipText("machine.universal.toggle.current.frequency")
+                .setTextId(player.getUniqueID().toString())
+                .setTextSupplier(this::getFrequency)
+                .setMaxStringLength(256)
+                .setUpdateOnTyping(true));
+        tab.add(new TJToggleButtonWidget(7, 15, 18, 18)
+                .setButtonSupplier(this.getEnderProfile()::isPublic)
+                .setButtonId(player.getUniqueID().toString())
+                .setToggleButtonResponder(this.getEnderProfile()::setPublic)
+                .setToggleTexture(UNLOCK_LOCK)
+                .useToggleTexture(true));
+        tab.add(new NewTextFieldWidget<>(32, 147, 112, 13, false)
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                .setTextResponder((result, id) -> search[1] = result)
+                .setBackgroundText("machine.universal.search")
+                .setTextSupplier(() -> search[1])
+                .setMaxStringLength(256)
+                .setUpdateOnTyping(true));
+        tab.add(new AdvancedTextWidget(3, 170, textList ->
+                textList.add(new TextComponentTranslation("machine.universal.owner", this.displayName)), 0x404040));
+        tab.add(new TJToggleButtonWidget(151, 15, 18, 18, frequencyAddPanel::isPanelOpen, (BooleanConsumer) value -> {
+            if (!value && frequencyAddPanel.isPanelOpen()) {
+                frequencyAddPanel.closePanel();
+            } else if (value) {
+                frequencyAddPanel.openPanel();
+            }
+        }).setTitleHoverTooltipText("machine.universal.toggle.add.frequency")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true)
+                .setDisplayText("O"));
+        tab.add(new TJToggleButtonWidget(7, 142, 18, 18, allowedPlayersPanel::isPanelOpen, (BooleanConsumer) value -> {
+            if (!value && allowedPlayersPanel.isPanelOpen()) {
+                allowedPlayersPanel.closePanel();
+            } else if (value) {
+                allowedPlayersPanel.openPanel();
+            }
+        }).setTitleHoverTooltipText("metaitem.ender_cover.allowed_players_list")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setBackgroundTextures(LIST_OVERLAY)
+                .useToggleTexture(true));
+        tab.add(new TJToggleButtonWidget(151, 142, 18, 18, frequencySearchPanel::isPanelOpen, (BooleanConsumer) value -> {
+            if (!value && frequencySearchPanel.isPanelOpen()) {
+                frequencySearchPanel.closePanel();
+            } else if (value) {
+                frequencySearchPanel.openPanel();
+            }
+        }).setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11))
+                .setTitleHoverTooltipText("machine.universal.search.settings")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        this.addSearchTextWidgets(frequencySearchPanel, patternFlags, 1);
+        this.createFrequencyRenamePanel(frequencyRenamePanel, textFieldRename);
+        this.createFrequencyAddPanel(frequencyAddPanel, textFieldAdd);
+        this.addSearchTextWidgets(playerSearchPanel, patternFlags, 2);
+        this.createAllowedPlayersPanel(allowedPlayersPanel, playerPermissionPanel, playerSearchPanel, player, searchResults, patternFlags, search);
+        this.createPlayerPermissionPanel(playerPermissionPanel, permissions, playerName);
+        tab.add(frequencySearchPanel);
+        tab.add(frequencyRenamePanel);
+        tab.add(frequencyAddPanel);
+        tab.add(allowedPlayersPanel);
+        tab.add(playerPermissionPanel);
+        tab.add(playerSearchPanel);
     }
 
-    private boolean addSearchTextWidgets(WidgetGroup widgetGroup, int[][] patternFlags, int i) {
+    private void createFrequencyRenamePanel(PanelWidgetGroup frequencyRenamePanel, NewTextFieldWidget<?> textFieldRename) {
+        frequencyRenamePanel.addWidget(new TJToggleButtonWidget(10, 35, 81, 18, () -> false, (BooleanConsumer) b ->
+                frequencyRenamePanel.closePanel())
+                .setDisplayText("machine.universal.cancel")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        frequencyRenamePanel.addWidget(new TJToggleButtonWidget(91, 35, 81, 18, () -> false, (BooleanConsumer) b -> {
+            textFieldRename.triggerResponse();
+            frequencyRenamePanel.closePanel();
+        }).setDisplayText("machine.universal.ok")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        frequencyRenamePanel.addWidget(new TJImageWidget(10, 15, 162, 18, DISPLAY));
+        frequencyRenamePanel.addWidget(new AdvancedTextWidget(45, 4, (textList) -> {
+            final int index = textFieldRename.getTextId().lastIndexOf(":");
+            final String entry = textFieldRename.getTextId().substring(0, index);
+            textList.add(new TextComponentTranslation("machine.universal.renaming", entry));
+        }, 0x404040));
+        frequencyRenamePanel.addWidget(textFieldRename);
+    }
+
+    private void createFrequencyAddPanel(PanelWidgetGroup frequencyAddPanel, NewTextFieldWidget<?> textFieldAdd) {
+        frequencyAddPanel.addWidget(new TJToggleButtonWidget(10, 35, 81, 18, () -> false,
+                (BooleanConsumer) b -> frequencyAddPanel.closePanel())
+                .setDisplayText("machine.universal.cancel")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        frequencyAddPanel.addWidget(new TJToggleButtonWidget(91, 35, 81, 18, () -> false, (BooleanConsumer) b -> {
+            textFieldAdd.triggerResponse();
+            frequencyAddPanel.closePanel();
+        }).setDisplayText("machine.universal.ok")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        frequencyAddPanel.addWidget(new TJImageWidget(10, 15, 162, 18, DISPLAY));
+        frequencyAddPanel.addWidget(new AdvancedTextWidget(55, 4, textList ->
+                textList.add(new TextComponentTranslation("machine.universal.toggle.add.frequency")), 0x404040));
+        frequencyAddPanel.addWidget(textFieldAdd);
+    }
+
+    private void createAllowedPlayersPanel(PanelWidgetGroup allowedPlayersPanel,
+                                           PanelWidgetGroup playerPermissionPanel,
+                                           PanelWidgetGroup playerSearchPanel,
+                                           EntityPlayer player,
+                                           int[] searchResults,
+                                           int[][] patternFlags,
+                                           String[] search) {
+        allowedPlayersPanel.addWidget(new TJImageWidget(3, 25, 176, 80, DISPLAY));
+        allowedPlayersPanel.addWidget(new TJImageWidget(30, 106, 115, 18, DISPLAY));
+        allowedPlayersPanel.addWidget(new ScrollingWidgetGroup<>(3, 25, 182, 80)
+                .addSubWidget(new TJAdvancedTextWidget(2, 3, this.addPlayerDisplayText(searchResults, patternFlags, search),
+                        0xFFFFFF).setMaxWidthLimit(1000)
+                        .setClickHandler((componentData, clickData) -> {
+                            final String[] components = componentData.split(":");
+                            if (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getOwner().toString().equals(components[1])) return;
+                            switch (components[0]) {
+                                case "add":
+                                    this.getEnderProfile().addUser(UUID.fromString(components[1]), player.getUniqueID());
+                                    break;
+                                case "remove":
+                                    this.getEnderProfile().removeUser(UUID.fromString(components[1]), player.getUniqueID());
+                                    break;
+                                case "edit":
+                                    playerPermissionPanel.openPanel();
+                                    break;
+                            }
+                        })));
+        allowedPlayersPanel.addWidget(new AdvancedTextWidget(10, 4, textList ->
+                textList.add(new TextComponentTranslation("metaitem.ender_cover.allowed_players", this.frequency)), 0x404040));
+        allowedPlayersPanel.addWidget(new NewTextFieldWidget<>(32, 110, 112, 13, false)
+                .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
+                .setTextResponder((result, id) -> search[2] = result)
+                .setBackgroundText("machine.universal.search")
+                .setTextSupplier(() -> search[2])
+                .setMaxStringLength(256)
+                .setUpdateOnTyping(true));
+        allowedPlayersPanel.addWidget(new TJToggleButtonWidget(151, 106, 18, 18, playerSearchPanel::isPanelOpen,
+                (BooleanConsumer) value -> {
+                    if (!value && playerSearchPanel.isPanelOpen()) {
+                        playerSearchPanel.closePanel();
+                    } else if (value) {
+                        playerSearchPanel.openPanel();
+                    }
+                }).setItemDisplay(TJItemUtils.getItemStackFromName("enderio:item_material", 1, 11))
+                .setHoverTooltipText("machine.universal.search.settings")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+    }
+
+    private void createPlayerPermissionPanel(PanelWidgetGroup playerPermissionPanel, long[][] permissions, String[] playerName) {
+        playerPermissionPanel.addWidget(new AdvancedTextWidget(10, 4, textList ->
+                textList.add(new TextComponentTranslation("metaitem.ender_cover.edit_permission", playerName[0])), 0x404040));
+        playerPermissionPanel.addWidget(new TJToggleButtonWidget(3, 25, 88, 18)
+                .setToggleDisplayText("machine.universal.false", "machine.universal.true")
+                .setToggleButtonResponder((toggle, id) -> permissions[0][0] = toggle ? 1 : 0)
+                .setHoverTooltipText("metaitem.ender_cover.permission.0")
+                .setButtonSupplier(() -> permissions[0][0] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        playerPermissionPanel.addWidget(new TJToggleButtonWidget(91, 25, 88, 18)
+                .setToggleDisplayText("machine.universal.false", "machine.universal.true")
+                .setToggleButtonResponder((toggle, id) -> permissions[0][1] = toggle ? 1 : 0)
+                .setHoverTooltipText("metaitem.ender_cover.permission.1")
+                .setButtonSupplier(() -> permissions[0][1] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        playerPermissionPanel.addWidget(new TJToggleButtonWidget(3, 43, 88, 18)
+                .setToggleDisplayText("machine.universal.false", "machine.universal.true")
+                .setToggleButtonResponder((toggle, id) -> permissions[0][2] = toggle ? 1 : 0)
+                .setHoverTooltipText("metaitem.ender_cover.permission.2")
+                .setButtonSupplier(() -> permissions[0][2] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        playerPermissionPanel.addWidget(new TJToggleButtonWidget(91, 43, 88, 18)
+                .setToggleDisplayText("machine.universal.false", "machine.universal.true")
+                .setToggleButtonResponder((toggle, id) -> permissions[0][3] = toggle ? 1 : 0)
+                .setHoverTooltipText("metaitem.ender_cover.permission.3")
+                .setButtonSupplier(() -> permissions[0][3] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        playerPermissionPanel.addWidget(new TJToggleButtonWidget(3, 61, 88, 18)
+                .setToggleDisplayText("machine.universal.false", "machine.universal.true")
+                .setToggleButtonResponder((toggle, id) -> permissions[0][4] = toggle ? 1 : 0)
+                .setHoverTooltipText("metaitem.ender_cover.permission.4")
+                .setButtonSupplier(() -> permissions[0][4] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        playerPermissionPanel.addWidget(new TJToggleButtonWidget(91, 61, 88, 18)
+                .setToggleDisplayText("machine.universal.false", "machine.universal.true")
+                .setToggleButtonResponder((toggle, id) -> permissions[0][5] = toggle ? 1 : 0)
+                .setHoverTooltipText("metaitem.ender_cover.permission.5")
+                .setButtonSupplier(() -> permissions[0][5] != 0)
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        playerPermissionPanel.addWidget(new TJImageWidget(3, 79, 176, 18, DISPLAY));
+        playerPermissionPanel.addWidget(new NewTextFieldWidget<>(5, 84, 174, 13)
+                .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
+                .setTextResponder((text, id) -> permissions[0][6] = Long.parseLong(text))
+                .setTextSupplier(() -> String.valueOf(permissions[0][6]))
+                .setTooltipText("metaitem.ender_cover.permission.6")
+                .setUpdateOnTyping(true));
+    }
+
+    private void addSearchTextWidgets(WidgetGroup widgetGroup, int[][] patternFlags, int i) {
         widgetGroup.addWidget(new TJImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
         widgetGroup.addWidget(new TJImageWidget(3, 57, 54, 18, DISPLAY));
-        widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList -> textList.add(new TextComponentTranslation("string.regex.flag", this.getFlags(patternFlags[i]))), 0x404040));
+        widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList ->
+                textList.add(new TextComponentTranslation("string.regex.flag", this.getFlags(patternFlags[i]))), 0x404040));
         widgetGroup.addWidget(new TJToggleButtonWidget(3, 3, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][0] = pressed ? Pattern.UNIX_LINES : 0)
                 .setDisplayText("string.regex.pattern.unix_lines.flag")
@@ -523,56 +607,6 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                 .setButtonSupplier(() -> patternFlags[i][8] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        return false;
-    }
-
-    private EnumActionResult handleButtonClick(String buttonId) {
-        String[] id = buttonId.split(":");
-        if (id[0].equals("channel") && this.getEnderProfile().hasPermission(UUID.fromString(id[1]), 1))
-            return EnumActionResult.SUCCESS;
-        else return EnumActionResult.FAIL;
-    }
-
-    private QuadActionResultPredicate<String, String, Widget.ClickData, EntityPlayer> handleDisplayClick(NewTextFieldWidget<?> textFieldWidget) {
-        return (componentData, textId, clickData, player) -> {
-            String[] components = componentData.split(":");
-            switch (components[0]) {
-                case "select":
-                    if (components[1].equals("channel"))
-                        return this.getEnderProfile().setChannel(components[2], player.getUniqueID().toString(), this) ? EnumActionResult.PASS : EnumActionResult.FAIL;
-                    else return this.getEnderProfile().setFrequency(components[2], player.getUniqueID().toString(), this) ? EnumActionResult.PASS : EnumActionResult.FAIL;
-                case "remove":
-                    if (components[1].equals("channel"))
-                        return this.getEnderProfile().removeChannel(components[2], player.getUniqueID().toString()) ? EnumActionResult.PASS : EnumActionResult.FAIL;
-                    else return this.getEnderProfile().removeFrequency(components[2], player.getUniqueID().toString(), this) ? EnumActionResult.PASS : EnumActionResult.FAIL;
-                case "rename":
-                    if (this.getEnderProfile().hasPermission(player.getUniqueID(), components[1].equals("channel") ? 1 : 4)) {
-                        textFieldWidget.setTextId(components[2] + ":" + player.getUniqueID());
-                        return EnumActionResult.SUCCESS;
-                    } else return EnumActionResult.FAIL;
-                default: return EnumActionResult.PASS;
-            }
-        };
-    }
-
-    private QuadActionResultPredicate<String, String, Widget.ClickData, EntityPlayer> handlePlayerDisplayClick(String[] playerName, long[][] permissions) {
-        return (componentData, textId, clickData, player) -> {
-            String[] component = componentData.split(":");
-            UUID uuid = UUID.fromString(component[1]);
-            if (this.getEnderProfile().getOwner() == null || uuid.equals(player.getUniqueID()))
-                return EnumActionResult.FAIL;
-            switch (component[0]) {
-                case "add": return this.getEnderProfile().addUser(uuid, player.getUniqueID()) ? EnumActionResult.PASS : EnumActionResult.FAIL;
-                case "remove": return this.getEnderProfile().removeUser(uuid, player.getUniqueID()) ? EnumActionResult.PASS : EnumActionResult.FAIL;
-                case "edit":
-                    if (this.getEnderProfile().getAllowedUsers().get(uuid) != null && this.getEnderProfile().getAllowedUsers().get(uuid)[4] == 1 & this.getEnderProfile().getAllowedUsers().containsKey(uuid)) {
-                        playerName[0] = component[2];
-                        permissions[0] = this.getEnderProfile().getAllowedUsers().get(uuid);
-                        return EnumActionResult.SUCCESS;
-                    } else return EnumActionResult.FAIL;
-                default: return EnumActionResult.PASS;
-            }
-        };
     }
 
     private int getFlags(int[] flags) {
@@ -586,7 +620,8 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     private Consumer<List<ITextComponent>> addChannelDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
         return (textList) -> {
             int results = 0;
-            textList.add(new TextComponentString("§l" + TextUtils.translate("tj.multiblock.tab.channels") + "§r(§e" + searchResults[0] + "§r/§e" + this.getEnderProfile().getChannels().size() + "§r)"));
+            textList.add(new TextComponentString("§l" + TextUtils.translate("tj.multiblock.tab.channels") + "§r(§e" + searchResults[0]
+                    + "§r/§e" + this.getEnderProfile().getChannels().size() + "§r)"));
             for (Map.Entry<String, V> entry : this.getEnderProfile().getChannels().entrySet()) {
                 String text = entry.getKey();
                 if (!search[0].isEmpty() && !Pattern.compile(search[0], this.getFlags(patternFlags[0])).matcher(text).find())
@@ -594,11 +629,14 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
 
                 ITextComponent keyEntry = new TextComponentString(": [§a" + (++results) + "§r] " + text + (text.equals(this.channel) ? " §a<<<" : ""))
                         .appendText("\n")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.channel) ? GRAY : YELLOW)), "select:channel:" + text))
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select")
+                                .setStyle(new Style().setColor(text.equals(this.channel) ? GRAY : YELLOW)), "select:channel:" + text))
                         .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:channel:" + text))
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"),
+                                "remove:channel:" + text))
                         .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:channel:" + text));
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"),
+                                "rename:channel:" + text));
                 textList.add(keyEntry);
                 this.addChannelText(keyEntry, entry.getKey(), entry.getValue());
             }
@@ -609,7 +647,8 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     private Consumer<List<ITextComponent>> addFrequencyDisplayText(int[] searchResults, int[][] patternFlags, String[] search) {
         return (textList) -> {
             int results = 0;
-            textList.add(new TextComponentString("§l" + TextUtils.translate("tj.multiblock.tab.frequencies") + "§r(§e" + searchResults[1] + "§r/§e" + this.getPlayerMap().size() + "§r)"));
+            textList.add(new TextComponentString("§l" + TextUtils.translate("tj.multiblock.tab.frequencies") + "§r(§e" + searchResults[1]
+                    + "§r/§e" + this.getPlayerMap().size() + "§r)"));
             for (Map.Entry<String, EnderCoverProfile<V>> entry : this.getPlayerMap().entrySet()) {
                 String text =  entry.getKey() != null ? entry.getKey() : "PUBLIC";
                 if (!search[1].isEmpty() && !Pattern.compile(search[1], this.getFlags(patternFlags[1])).matcher(text).find())
@@ -617,12 +656,16 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
 
                 textList.add(new TextComponentString(": [§a" + (++results) + "§r] " + text + (text.equals(this.frequency) ? " §a<<<" : ""))
                         .appendText("\n")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select").setStyle(new Style().setColor(text.equals(this.frequency) ? GRAY : YELLOW)), "select:frequency:" + text))
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.select")
+                                .setStyle(new Style().setColor(text.equals(this.frequency) ? GRAY : YELLOW)), "select:frequency:" + text))
                         .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"), "remove:frequency:" + text))
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.remove"),
+                                "remove:frequency:" + text))
                         .appendText(" ")
-                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"), "rename:frequency:" + text))
-                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("machine.universal.owner", entry.getValue().getOwner())))));
+                        .appendSibling(withButton(new TextComponentTranslation("machine.universal.linked.rename"),
+                                "rename:frequency:" + text))
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                new TextComponentTranslation("machine.universal.owner", entry.getValue().getOwner())))));
             }
             searchResults[1] = results;
         };
@@ -632,97 +675,29 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         return (textList) -> {
             int results = 0;
             List<EntityPlayerMP> playerList = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers();
-            textList.add(new TextComponentString("§l" + TextUtils.translate("tj.multiblock.tab.players") + "§r(§e" + searchResults[2] + "§r/§e" + playerList.size() + "§r)"));
+            textList.add(new TextComponentString("§l" + TextUtils.translate("tj.multiblock.tab.players") + "§r(§e" + searchResults[2]
+                    + "§r/§e" + playerList.size() + "§r)"));
             for (EntityPlayer player : playerList) {
                 String text = player.getDisplayNameString();
                 if (!search[2].isEmpty() && !Pattern.compile(search[2], this.getFlags(patternFlags[2])).matcher(text).find())
                     continue;
                 boolean contains = this.getEnderProfile().getAllowedUsers().containsKey(player.getUniqueID());
-                textList.add(new TextComponentString(": [§a" + (++results) + "§r] " + text).setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(text)))).appendText("\n")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.add").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "add:" + player.getUniqueID()))
+                textList.add(new TextComponentString(": [§a" + (++results) + "§r] " + text)
+                        .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString(text)))).appendText("\n")
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.add").
+                                setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "add:" + player.getUniqueID()))
                         .appendText(" ")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.remove").setStyle(new Style().setColor(contains ? YELLOW : GRAY)), "remove:" + player.getUniqueID()))
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.remove")
+                                .setStyle(new Style().setColor(contains ? YELLOW : GRAY)), "remove:" + player.getUniqueID()))
                         .appendText(" ")
-                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.edit").setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "edit:" + player.getUniqueID() + ":" + text)));
+                        .appendSibling(TJAdvancedTextWidget.withButton(new TextComponentTranslation("machine.universal.linked.edit")
+                                .setStyle(new Style().setColor(contains ? GRAY : YELLOW)), "edit:" + player.getUniqueID() + ":" + text)));
             }
             searchResults[2] = results;
         };
     }
 
     protected abstract void addChannelText(ITextComponent keyEntry, String key, V value);
-
-    private String[] getTooltipFormat() {
-        return ArrayUtils.toArray(getTransferRate());
-    }
-
-    private void setTransferRate(String amount, String id) {
-        this.transferRate = Math.min(Integer.parseInt(amount), this.maxTransferRate);
-        this.markAsDirty();
-    }
-
-    public String getTransferRate() {
-        return String.valueOf(this.transferRate);
-    }
-
-    private void onIncrement(String id) {
-        this.transferRate = (int) MathHelper.clamp(this.transferRate * 2, 1, Math.min(this.maxTransferRate, this.getEnderProfile().maxThroughPut(UUID.fromString(id))));
-        this.markAsDirty();
-    }
-
-    private void onDecrement(String id) {
-        this.transferRate = (int) MathHelper.clamp(this.transferRate / 2, 1, Math.min(this.maxTransferRate, this.getEnderProfile().maxThroughPut(UUID.fromString(id))));
-        this.markAsDirty();
-    }
-
-    private void setPumpMode(CoverPump.PumpMode pumpMode) {
-        this.pumpMode = pumpMode;
-        this.markAsDirty();
-    }
-
-    @Override
-    public void setFrequency(String frequency) {
-        this.frequency = frequency;
-        this.markAsDirty();
-    }
-
-    @Override
-    public String getFrequency() {
-        return this.frequency;
-    }
-
-    @Override
-    public void setHandler(V handler) {
-        this.handler = handler;
-        this.markAsDirty();
-    }
-
-    @Override
-    public void setChannel(String lastEntry) {
-        this.channel = lastEntry;
-        this.markAsDirty();
-    }
-
-    @Override
-    public String getChannel() {
-        return this.channel;
-    }
-
-    protected int getPortalColor() {
-        return 0xffffff;
-    }
-
-    protected int getTier() {
-        return 0;
-    }
-
-    protected String getName() {
-        return "Null";
-    }
-
-    @Nonnull
-    protected EnderCoverProfile<V> getEnderProfile()  {
-        return this.getPlayerMap().getOrDefault(this.frequency, this.getPlayerMap().get(null));
-    }
 
     @Override
     public void readUpdateData(int id, PacketBuffer packetBuffer) {
@@ -778,6 +753,81 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     @Override
     public void markToDirty() {
         this.markAsDirty();
+    }
+
+    private String[] getTooltipFormat() {
+        return ArrayUtils.toArray(getTransferRate());
+    }
+
+    private void setTransferRate(String amount, String id) {
+        this.transferRate = Math.min(Integer.parseInt(amount), this.maxTransferRate);
+        this.markAsDirty();
+    }
+
+    public String getTransferRate() {
+        return String.valueOf(this.transferRate);
+    }
+
+    private void onIncrement(String id) {
+        this.transferRate = (int) MathHelper.clamp(this.transferRate * 2, 1,
+                Math.min(this.maxTransferRate, this.getEnderProfile().maxThroughPut(UUID.fromString(id))));
+        this.markAsDirty();
+    }
+
+    private void onDecrement(String id) {
+        this.transferRate = (int) MathHelper.clamp(this.transferRate / 2, 1,
+                Math.min(this.maxTransferRate, this.getEnderProfile().maxThroughPut(UUID.fromString(id))));
+        this.markAsDirty();
+    }
+
+    private void setPumpMode(CoverPump.PumpMode pumpMode) {
+        this.pumpMode = pumpMode;
+        this.markAsDirty();
+    }
+
+    @Override
+    public void setFrequency(String frequency) {
+        this.frequency = frequency;
+        this.markAsDirty();
+    }
+
+    @Override
+    public String getFrequency() {
+        return this.frequency;
+    }
+
+    @Override
+    public void setHandler(V handler) {
+        this.handler = handler;
+        this.markAsDirty();
+    }
+
+    @Override
+    public void setChannel(String lastEntry) {
+        this.channel = lastEntry;
+        this.markAsDirty();
+    }
+
+    @Override
+    public String getChannel() {
+        return this.channel;
+    }
+
+    protected int getPortalColor() {
+        return 0xffffff;
+    }
+
+    protected int getTier() {
+        return 0;
+    }
+
+    protected String getName() {
+        return "Null";
+    }
+
+    @Nonnull
+    protected EnderCoverProfile<V> getEnderProfile()  {
+        return this.getPlayerMap().getOrDefault(this.frequency, this.getPlayerMap().get(null));
     }
 
     @Override

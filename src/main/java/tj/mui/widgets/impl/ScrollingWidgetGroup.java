@@ -291,11 +291,13 @@ public class ScrollingWidgetGroup<R extends ScrollingWidgetGroup<R>> extends TJW
             this.scrollVerticalOffset = (int) Math.max(0, (mouseY - this.scrollVerticalBarRec.y) / heightDiff);
             this.setSubWidgetYOffSet(this.scrollVerticalOffset);
             this.writeClientAction(2, buffer -> buffer.writeInt(this.scrollVerticalOffset));
+            return true;
         } else if (this.scrollHorizontalBarRec.contains(mouseX, mouseY)) {
             final double widthDiff = (double) this.scrollHorizontalBarRec.width / (this.scrollWidth - this.getSize().width);
             this.scrollHorizontalOffset = (int) Math.max(0, (mouseX - this.scrollHorizontalBarRec.x) / widthDiff);
             this.setSubWidgetXOffset(this.scrollHorizontalOffset);
             this.writeClientAction(3, buffer -> buffer.writeInt(this.scrollHorizontalOffset));
+            return true;
         }
         if (this.autoScroll)
             this.autoScroll = false;
@@ -311,11 +313,13 @@ public class ScrollingWidgetGroup<R extends ScrollingWidgetGroup<R>> extends TJW
                 this.scrollVerticalOffset = (int) Math.max(0, (mouseY - this.scrollVerticalBarRec.y) / heightDiff);
                 this.setSubWidgetYOffSet(this.scrollVerticalOffset);
                 this.writeClientAction(2, buffer -> buffer.writeInt(this.scrollVerticalOffset));
+                return true;
             } else if (this.scrollHorizontalBarRec.contains(mouseX, mouseY)) {
                 final double widthDiff = (double) this.scrollHorizontalBarRec.width / (this.scrollWidth - this.getSize().width);
                 this.scrollHorizontalOffset = (int) Math.max(0, (mouseX - this.scrollHorizontalBarRec.x) / widthDiff);
                 this.setSubWidgetXOffset(this.scrollHorizontalOffset);
                 this.writeClientAction(3, buffer -> buffer.writeInt(this.scrollHorizontalOffset));
+                return true;
             }
         }
         if (this.isMouseOverElement(mouseX, mouseY))
@@ -328,8 +332,10 @@ public class ScrollingWidgetGroup<R extends ScrollingWidgetGroup<R>> extends TJW
     public boolean mouseWheelMove(int mouseX, int mouseY, int wheelDelta) {
         if (this.scrollVerticalBarRec.contains(mouseX + this.gui.getGuiLeft(), mouseY)) {
             this.addScrollVerticalOffset(MathHelper.clamp(wheelDelta, -1, 1) * -18);
+            return true;
         } else if (this.scrollHorizontalBarRec.contains(mouseX + this.gui.getGuiLeft(), mouseY)) {
             this.addScrollHorizontalOffset(MathHelper.clamp(wheelDelta, -1, 1) * -18);
+            return true;
         }
         if (this.isMouseOverElement(mouseX + this.gui.getGuiLeft(), mouseY)) {
             this.addScrollVerticalOffset(MathHelper.clamp(wheelDelta, -1, 1) * -18);

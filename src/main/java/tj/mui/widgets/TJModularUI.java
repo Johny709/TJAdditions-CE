@@ -70,7 +70,7 @@ public final class TJModularUI {
     }
 
     /**
-     * @param width set height of GUI container. Default: 176
+     * @param width set width of GUI container. Default: 176
      * @param height set height of GUI container. Default: 166
      */
     public TJModularUI setWidthHeight(int width, int height) {

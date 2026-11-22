@@ -7,6 +7,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLong;
 import tj.capability.IEnderNotifiable;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 public class EnderCoverProfile<V> {
@@ -222,6 +223,7 @@ public class EnderCoverProfile<V> {
         return this.isPublic;
     }
 
+    @Nullable
     public UUID getOwner() {
         return this.owner;
     }
