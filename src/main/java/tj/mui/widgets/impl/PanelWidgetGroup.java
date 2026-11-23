@@ -70,8 +70,15 @@ public class PanelWidgetGroup extends TJWidgetGroup<PanelWidgetGroup> {
     public boolean mouseDragged(int mouseX, int mouseY, int button, long timeDragged) {
         if (!this.panelOpen)
             return false;
-        if (this.dragging && timeDragged > 1 && this.isMouseOverElement(mouseX, mouseY))
-            this.setSelfPosition(new Position(mouseX - this.dragX, mouseY - this.dragY));
+        if (this.dragging && timeDragged > 1 && this.isMouseOverElement(mouseX, mouseY)) {
+            final int x = mouseX - this.dragX;
+            final int y = mouseY - this.dragY;
+            this.setSelfPosition(new Position(x, y));
+            this.writeClientAction(3, buffer -> {
+                buffer.writeInt(x);
+                buffer.writeInt(y);
+            });
+        }
         return super.mouseDragged(mouseX, mouseY, button, timeDragged) || this.isMouseOverElement(mouseX, mouseY);
     }
 
@@ -107,8 +114,13 @@ public class PanelWidgetGroup extends TJWidgetGroup<PanelWidgetGroup> {
     @Override
     public void handleClientAction(int id, PacketBuffer buffer) {
         super.handleClientAction(id, buffer);
-        if (id == 2)
+        if (id == 2) {
             this.panelOpen = buffer.readBoolean();
+        } else if (id == 3) {
+            final int x = buffer.readInt();
+            final int y = buffer.readInt();
+            this.setSelfPosition(new Position(x, y));
+        }
     }
 
     /**
