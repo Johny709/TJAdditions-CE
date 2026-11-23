@@ -142,10 +142,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
         final PanelWidgetGroup channelSearchPanel = new PanelWidgetGroup(112, 47, 60, 92, BORDERED_BACKGROUND);
         final PanelWidgetGroup channelRenamePanel = new PanelWidgetGroup(0, 61, 182, 60, BORDERED_BACKGROUND);
         final PanelWidgetGroup channelAddPanel = new PanelWidgetGroup(0, 61, 182, 60, BORDERED_BACKGROUND);
-        tab.add(new TJImageWidget(30, 15, 115, 18, DISPLAY));
-        tab.add(new TJImageWidget(30, 38, 115, 18, DISPLAY));
         tab.add(new TJImageWidget(3, 61, 170, 80, MULTIBLOCK_DISPLAY_BASE));
-        tab.add(new TJImageWidget(30, 142, 115, 18, DISPLAY));
         tab.add(new ScrollingWidgetGroup<>(3, 61, 172, 80)
                 .addSubWidget(new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search),
                         0xFFFFFF).setMaxWidthLimit(1000)
@@ -163,7 +160,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                                 channelRenamePanel.openPanel();
                             }
                         })));
-        tab.add(new NewTextFieldWidget<>(32, 43, 112, 13, false)
+        tab.add(new NewTextFieldWidget<>(30, 43, 116, 18, true)
                 .setTextResponder((key, id) -> this.getEnderProfile().setChannel(key, id, this))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setBackgroundText("machine.universal.toggle.current.channel")
@@ -172,7 +169,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                 .setTextSupplier(this::getChannel)
                 .setMaxStringLength(256)
                 .setUpdateOnTyping(true));
-        tab.add(new NewTextFieldWidget<>(32, 20, 112, 13, false)
+        tab.add(new NewTextFieldWidget<>(30, 20, 116, 18, true)
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                 .setBackgroundText("metaitem.ender_cover.transfer")
                 .setTooltipText("metaitem.ender_cover.transfer")
@@ -180,7 +177,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                 .setTextResponder(this::setTransferRate)
                 .setTextSupplier(this::getTransferRate)
                 .setUpdateOnTyping(true));
-        tab.add(new NewTextFieldWidget<>(32, 147, 112, 13, false)
+        tab.add(new NewTextFieldWidget<>(30, 147, 116, 18, true)
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTextResponder((result, id) -> search[0] = result)
                 .setBackgroundText("machine.universal.search")
@@ -206,7 +203,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                 .setBackgroundTextures(BUTTON_CLEAR_GRID)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        tab.add(new TJCycleButtonWidget<>(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode)
+        tab.add(new TJCycleButtonWidget<>(30, 161, 116, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode)
                 .setBackgroundTextures(VANILLA_BUTTON));
         tab.add(new TJToggleButtonWidget(7, 161, 18, 18, TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
                 .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
@@ -305,9 +302,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
         final PanelWidgetGroup playerSearchPanel = new PanelWidgetGroup(117, 25, 60, 92, BORDERED_BACKGROUND);
         final PanelWidgetGroup allowedPlayersPanel = new PanelWidgetGroup(0, 38, 182, 130, BORDERED_BACKGROUND);
         final PanelWidgetGroup playerPermissionPanel = new PanelWidgetGroup(0, 0, 182, 100, BORDERED_BACKGROUND);
-        tab.add(new TJImageWidget(30, 15, 115, 18, DISPLAY));
         tab.add(new TJImageWidget(3, 38, 170, 103, MULTIBLOCK_DISPLAY_BASE));
-        tab.add(new TJImageWidget(30, 142, 115, 18, DISPLAY));
         tab.add(new ScrollingWidgetGroup<>(3, 38, 172, 103)
                 .addSubWidget(new TJAdvancedTextWidget(2, 3, this.addFrequencyDisplayText(searchResults, patternFlags, search),
                         0xFFFFFF).setMaxWidthLimit(1000)
@@ -325,7 +320,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                                 frequencyRenamePanel.openPanel();
                             }
                         })));
-        tab.add(new NewTextFieldWidget<>(32, 20, 112, 18)
+        tab.add(new NewTextFieldWidget<>(30, 20, 116, 18, true)
                 .setTextResponder((key, id) -> this.getEnderProfile().setFrequency(key, id, this))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setBackgroundText("machine.universal.toggle.current.frequency")
@@ -340,7 +335,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
                 .setToggleButtonResponder(this.getEnderProfile()::setPublic)
                 .setToggleTexture(UNLOCK_LOCK)
                 .useToggleTexture(true));
-        tab.add(new NewTextFieldWidget<>(32, 147, 112, 13, false)
+        tab.add(new NewTextFieldWidget<>(30, 147, 116, 18, true)
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTextResponder((result, id) -> search[1] = result)
                 .setBackgroundText("machine.universal.search")

@@ -1,7 +1,6 @@
 package tj.mui.widgets.impl;
 
 import com.google.common.base.Preconditions;
-import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.IRenderContext;
 import gregtech.api.util.MCGuiUtil;
 import gregtech.api.util.Position;
@@ -62,7 +61,8 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
         this.textResponder = textResponder;
         if (isClientSide()) {
             final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-            this.textField = new GuiTextField(0, fontRenderer, x, y, width, height);
+            final int offsetY = height / 2 - 4;
+            this.textField = new GuiTextField(0, fontRenderer, x + 5, y + offsetY, width, height);
             this.textField.setCanLoseFocus(true);
             this.textField.setEnableBackgroundDrawing(enableBackground);
             this.textField.setMaxStringLength(this.maxStringLength);
@@ -286,12 +286,11 @@ public class NewTextFieldWidget<R extends NewTextFieldWidget<R>> extends TJWidge
     public void drawInBackground(int mouseX, int mouseY, IRenderContext context) {
         final Size size = this.getSize();
         final Position position = this.getPosition();
-        if (this.enableBackground)
-            GuiTextures.DISPLAY.draw(position.getX() - 3, position.getY() - 5, size.getWidth(), size.getHeight());
         this.textField.drawTextBox();
         if (this.backgroundText != null && this.textField.getText().isEmpty() && !this.textField.isFocused()) {
+            final int offsetY = size.height / 2 - 4;
             final String locale = I18n.format(this.backgroundText);
-            this.drawStringSized(locale, position.getX(), position.getY(), this.backgroundTextColor, true, 1, false);
+            this.drawStringSized(locale, position.x + 5, position.y + offsetY, this.backgroundTextColor, true, 1, false);
         }
     }
 

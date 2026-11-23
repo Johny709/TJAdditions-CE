@@ -137,24 +137,11 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         return new BasicEnergyHandler(this.inputEnergyContainer != null ? this.inputEnergyContainer.getEnergyCapacity() : 0);
     }
 
-    protected Object2ObjectMap<String, EnderCoverProfile<BasicEnergyHandler>> getPlayerMap() {
-        return EnderWorldData.getINSTANCE().getEnergyContainerPlayerMap();
-    }
-
-    @Nonnull
-    protected EnderCoverProfile<BasicEnergyHandler> getEnderProfile()  {
-        return this.getPlayerMap().getOrDefault(this.frequency, this.getPlayerMap().get(null));
-    }
-
-    @Override
-    protected int getExtended() {
-        return 18;
-    }
-
     @Override
     protected void mainDisplayTab(List<Widget> widgetGroup) {
         super.mainDisplayTab(widgetGroup);
-        widgetGroup.add(new TJCycleButtonWidget<>(7, 114, 188, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode).setBackgroundTextures(VANILLA_BUTTON));
+        widgetGroup.add(new TJCycleButtonWidget<>(7, 114, 188, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode)
+                .setBackgroundTextures(VANILLA_BUTTON));
     }
 
     @Override
@@ -188,11 +175,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         final PanelWidgetGroup channelSearchPanel = new PanelWidgetGroup(112, 47, 60, 92, BORDERED_BACKGROUND);
         final PanelWidgetGroup channelRenamePanel = new PanelWidgetGroup(0, 61, 182, 60, BORDERED_BACKGROUND);
         final PanelWidgetGroup channelAddPanel = new PanelWidgetGroup(0, 61, 182, 60, BORDERED_BACKGROUND);
-        tab.add(new TJImageWidget(30, 15, 115, 18, DISPLAY));
-        tab.add(new TJImageWidget(30, 38, 115, 18, DISPLAY));
-        tab.add(new TJImageWidget(3, 61, 170, 80, MULTIBLOCK_DISPLAY_BASE));
-        tab.add(new TJImageWidget(30, 142, 115, 18, DISPLAY));
-        tab.add(new ScrollingWidgetGroup<>(3, 61, 172, 80)
+        tab.add(new ScrollingWidgetGroup<>(10, 34, 185, 96)
                 .addSubWidget(new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search),
                         0xFFFFFF).setMaxWidthLimit(1000)
                         .setClickHandler((componentData, clickData) -> {
@@ -209,7 +192,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                 channelRenamePanel.openPanel();
                             }
                         })));
-        tab.add(new NewTextFieldWidget<>(32, 43, 112, 13, false)
+        tab.add(new NewTextFieldWidget<>(33, 13, 137, 18, true)
                 .setTextResponder((key, id) -> this.getEnderProfile().setChannel(key, id, this))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setBackgroundText("machine.universal.toggle.current.channel")
@@ -218,7 +201,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                 .setTextSupplier(this::getChannel)
                 .setMaxStringLength(256)
                 .setUpdateOnTyping(true));
-        tab.add(new NewTextFieldWidget<>(32, 20, 112, 13, false)
+        tab.add(new NewTextFieldWidget<>(33, -10, 137, 18, true)
                 .setValidator(str -> Pattern.compile("\\*?[0-9_]*\\*?").matcher(str).matches())
                 .setBackgroundText("metaitem.ender_cover.transfer")
                 .setTooltipText("metaitem.ender_cover.transfer")
@@ -226,38 +209,34 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                 .setTextResponder(this::setTransferRate)
                 .setTextSupplier(this::getTransferRate)
                 .setUpdateOnTyping(true));
-        tab.add(new NewTextFieldWidget<>(32, 147, 112, 13, false)
+        tab.add(new NewTextFieldWidget<>(30, this.getOffsetY(86), 138, 18, true)
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTextResponder((result, id) -> search[0] = result)
                 .setBackgroundText("machine.universal.search")
                 .setTextSupplier(() -> search[0])
                 .setMaxStringLength(256)
                 .setUpdateOnTyping(true));
-        tab.add(new TJToggleButtonWidget(151, 15, 18, 18, TJValues::isFalse, this::onIncrement)
+        tab.add(new TJToggleButtonWidget(175, -10, 18, 18, TJValues::isFalse, this::onIncrement)
                 .setHoverTooltipText("machine.universal.toggle.increment.disabled")
                 .setButtonId(player.getUniqueID().toString())
-                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setToggleTexture(TOGGLE_DISPLAY)
                 .useToggleTexture(true)
                 .setDisplayText("+"));
-        tab.add(new TJToggleButtonWidget(7, 15, 18, 18, TJValues::isFalse, this::onDecrement)
+        tab.add(new TJToggleButtonWidget(10, -10, 18, 18, TJValues::isFalse, this::onDecrement)
                 .setHoverTooltipText("machine.universal.toggle.decrement.disabled")
                 .setButtonId(player.getUniqueID().toString())
-                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setToggleTexture(TOGGLE_DISPLAY)
                 .useToggleTexture(true)
                 .setDisplayText("-"));
-        tab.add(new TJToggleButtonWidget(7, 143, 18, 18)
+        tab.add(new TJToggleButtonWidget(7, this.getOffsetY(86), 18, 18)
                 .setButtonResponder(uuid -> this.getEnderProfile().onClear(uuid, this))
                 .setHoverTooltipText("machine.universal.toggle.clear")
                 .setButtonId(player.getUniqueID().toString())
                 .setBackgroundTextures(BUTTON_CLEAR_GRID)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        tab.add(new TJCycleButtonWidget<>(30, 161, 115, 18, CoverPump.PumpMode.class, () -> this.pumpMode, this::setPumpMode)
-                .setBackgroundTextures(VANILLA_BUTTON));
-        tab.add(new TJToggleButtonWidget(7, 161, 18, 18, TOGGLE_POWER_BUTTON, this::isWorkingEnabled, this::setWorkingEnabled)
-                .setToggleTitleTooltipHoverText("machine.universal.toggle.run.mode.disabled",
-                        "machine.universal.toggle.run.mode.enabled"));
-        tab.add(new TJToggleButtonWidget(151, 142, 18, 18, channelSearchPanel::isPanelOpen, (BooleanConsumer) value -> {
+        tab.add(new TJToggleButtonWidget(175, this.getOffsetY(86), 18, 18, channelSearchPanel::isPanelOpen,
+                (BooleanConsumer) value -> {
             if (!value && channelSearchPanel.isPanelOpen()) {
                 channelSearchPanel.closePanel();
             } else if (value) {
@@ -267,7 +246,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                 .setTitleHoverTooltipText("machine.universal.search.settings")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        tab.add(new TJToggleButtonWidget(151, 38, 18, 18, channelAddPanel::isPanelOpen, (BooleanConsumer) value -> {
+        tab.add(new TJToggleButtonWidget(175, 13, 18, 18, channelAddPanel::isPanelOpen, (BooleanConsumer) value -> {
             if (!value && channelAddPanel.isPanelOpen()) {
                 channelAddPanel.closePanel();
             } else if (value) {
@@ -275,7 +254,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
             }
         }).setTitleHoverTooltipText("machine.universal.toggle.add.channel")
                 .setDisplayText("O")
-                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setToggleTexture(TOGGLE_DISPLAY)
                 .useToggleTexture(true));
         this.addWidgets(tab::add);
         this.addSearchTextWidgets(channelSearchPanel, patternFlags, 0);
@@ -350,10 +329,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         final PanelWidgetGroup playerSearchPanel = new PanelWidgetGroup(117, 25, 60, 92, BORDERED_BACKGROUND);
         final PanelWidgetGroup allowedPlayersPanel = new PanelWidgetGroup(0, 38, 182, 130, BORDERED_BACKGROUND);
         final PanelWidgetGroup playerPermissionPanel = new PanelWidgetGroup(0, 0, 182, 100, BORDERED_BACKGROUND);
-        tab.add(new TJImageWidget(30, 15, 115, 18, DISPLAY));
-        tab.add(new TJImageWidget(3, 38, 170, 103, MULTIBLOCK_DISPLAY_BASE));
-        tab.add(new TJImageWidget(30, 142, 115, 18, DISPLAY));
-        tab.add(new ScrollingWidgetGroup<>(3, 38, 172, 103)
+        tab.add(new ScrollingWidgetGroup<>(10, 11, 185, 119)
                 .addSubWidget(new TJAdvancedTextWidget(2, 3, this.addFrequencyDisplayText(searchResults, patternFlags, search),
                         0xFFFFFF).setMaxWidthLimit(1000)
                         .setClickHandler((componentData, clickData) -> {
@@ -370,7 +346,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                 frequencyRenamePanel.openPanel();
                             }
                         })));
-        tab.add(new NewTextFieldWidget<>(32, 20, 112, 18)
+        tab.add(new NewTextFieldWidget<>(33, -10, 137, 18, true)
                 .setTextResponder((key, id) -> this.getEnderProfile().setFrequency(key, id, this))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setBackgroundText("machine.universal.toggle.current.frequency")
@@ -379,13 +355,13 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                 .setTextSupplier(this::getFrequency)
                 .setMaxStringLength(256)
                 .setUpdateOnTyping(true));
-        tab.add(new TJToggleButtonWidget(7, 15, 18, 18)
+        tab.add(new TJToggleButtonWidget(10, -10, 18, 18)
                 .setButtonSupplier(this.getEnderProfile()::isPublic)
                 .setButtonId(player.getUniqueID().toString())
                 .setToggleButtonResponder(this.getEnderProfile()::setPublic)
                 .setToggleTexture(UNLOCK_LOCK)
                 .useToggleTexture(true));
-        tab.add(new NewTextFieldWidget<>(32, 147, 112, 13, false)
+        tab.add(new NewTextFieldWidget<>(30, this.getOffsetY(86), 138, 18, true)
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTextResponder((result, id) -> search[1] = result)
                 .setBackgroundText("machine.universal.search")
@@ -394,17 +370,18 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                 .setUpdateOnTyping(true));
         tab.add(new AdvancedTextWidget(3, 170, textList ->
                 textList.add(new TextComponentTranslation("machine.universal.owner", this.displayName)), 0x404040));
-        tab.add(new TJToggleButtonWidget(151, 15, 18, 18, frequencyAddPanel::isPanelOpen, (BooleanConsumer) value -> {
+        tab.add(new TJToggleButtonWidget(175, -10, 18, 18, frequencyAddPanel::isPanelOpen, (BooleanConsumer) value -> {
             if (!value && frequencyAddPanel.isPanelOpen()) {
                 frequencyAddPanel.closePanel();
             } else if (value) {
                 frequencyAddPanel.openPanel();
             }
         }).setTitleHoverTooltipText("machine.universal.toggle.add.frequency")
-                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .setToggleTexture(TOGGLE_DISPLAY)
                 .useToggleTexture(true)
                 .setDisplayText("O"));
-        tab.add(new TJToggleButtonWidget(7, 142, 18, 18, allowedPlayersPanel::isPanelOpen, (BooleanConsumer) value -> {
+        tab.add(new TJToggleButtonWidget(7, this.getOffsetY(86), 18, 18, allowedPlayersPanel::isPanelOpen,
+                (BooleanConsumer) value -> {
             if (!value && allowedPlayersPanel.isPanelOpen()) {
                 allowedPlayersPanel.closePanel();
             } else if (value) {
@@ -414,7 +391,8 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .setBackgroundTextures(LIST_OVERLAY)
                 .useToggleTexture(true));
-        tab.add(new TJToggleButtonWidget(151, 142, 18, 18, frequencySearchPanel::isPanelOpen, (BooleanConsumer) value -> {
+        tab.add(new TJToggleButtonWidget(175, this.getOffsetY(86), 18, 18, frequencySearchPanel::isPanelOpen,
+                (BooleanConsumer) value -> {
             if (!value && frequencySearchPanel.isPanelOpen()) {
                 frequencySearchPanel.closePanel();
             } else if (value) {
@@ -744,7 +722,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     }
 
     private void addWidgets(Consumer<Widget> widget) {
-        widget.accept(new ProgressWidget(this::getEnergyStored, 12, 40, 18, 18) {
+        widget.accept(new ProgressWidget(this::getEnergyStored, 10, 13, 18, 18) {
             private long energyStored;
             private long energyCapacity;
 
@@ -782,7 +760,8 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
 
     protected void addChannelText(ITextComponent keyEntry, String key, BasicEnergyHandler value) {
         keyEntry.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                new TextComponentTranslation("machine.universal.energy.stored", TJValues.thousandFormat.format(value.getEnergyStored()), TJValues.thousandFormat.format(value.getEnergyCapacity()))));
+                new TextComponentTranslation("machine.universal.energy.stored", TJValues.thousandFormat.format(value.getEnergyStored()),
+                        TJValues.thousandFormat.format(value.getEnergyCapacity()))));
     }
 
     @Override
@@ -791,15 +770,24 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         if (!this.isStructureFormed()) return;
         builder.addEnergyStoredLine(this.inputEnergyContainer.getEnergyStored(), this.inputEnergyContainer.getEnergyCapacity())
                 .customLine(text -> {
-                    text.addTextComponent(new TextComponentTranslation("tj.multiblock.ender_battery_tower.energy_inserted", TJValues.thousandFormat.format(this.workableHandler.getEnergyInserted()))
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.ender_battery_tower.energy_inserted.tooltip")))));
-                    text.addTextComponent(new TextComponentTranslation("tj.multiblock.ender_battery_tower.energy_extracted",TJValues.thousandFormat.format (this.workableHandler.getEnergyExtracted()))
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.ender_battery_tower.energy_extracted.tooltip")))));
-                    text.addTextComponent(new TextComponentTranslation("tj.multiblock.ender_battery_tower.last_energy_inserted", TJValues.thousandFormat.format(this.workableHandler.getLastEnergyInserted()))
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.ender_battery_tower.last_energy_inserted.tooltip")))));
-                    text.addTextComponent(new TextComponentTranslation("tj.multiblock.ender_battery_tower.last_energy_extracted", TJValues.thousandFormat.format(this.workableHandler.getLastEnergyExtracted()))
-                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("tj.multiblock.ender_battery_tower.last_energy_extracted.tooltip")))));
-                }).addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(), this.workableHandler.getMaxProgress());
+                    text.addTextComponent(new TextComponentTranslation("tj.multiblock.ender_battery_tower.energy_inserted",
+                            TJValues.thousandFormat.format(this.workableHandler.getEnergyInserted()))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                    new TextComponentTranslation("tj.multiblock.ender_battery_tower.energy_inserted.tooltip")))));
+                    text.addTextComponent(new TextComponentTranslation("tj.multiblock.ender_battery_tower.energy_extracted",
+                            TJValues.thousandFormat.format (this.workableHandler.getEnergyExtracted()))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                    new TextComponentTranslation("tj.multiblock.ender_battery_tower.energy_extracted.tooltip")))));
+                    text.addTextComponent(new TextComponentTranslation("tj.multiblock.ender_battery_tower.last_energy_inserted",
+                            TJValues.thousandFormat.format(this.workableHandler.getLastEnergyInserted()))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                    new TextComponentTranslation("tj.multiblock.ender_battery_tower.last_energy_inserted.tooltip")))));
+                    text.addTextComponent(new TextComponentTranslation("tj.multiblock.ender_battery_tower.last_energy_extracted",
+                            TJValues.thousandFormat.format(this.workableHandler.getLastEnergyExtracted()))
+                            .setStyle(new Style().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                    new TextComponentTranslation("tj.multiblock.ender_battery_tower.last_energy_extracted.tooltip")))));
+                }).addIsWorkingLine(this.workableHandler.isWorkingEnabled(), this.workableHandler.isActive(), this.workableHandler.getProgress(),
+                        this.workableHandler.getMaxProgress());
     }
 
     @Override
@@ -929,6 +917,20 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
             this.energyBuffer = new BasicEnergyHandler(0);
             this.energyBuffer.readFromNBT(data);
         }
+    }
+
+    private Object2ObjectMap<String, EnderCoverProfile<BasicEnergyHandler>> getPlayerMap() {
+        return EnderWorldData.getINSTANCE().getEnergyContainerPlayerMap();
+    }
+
+    @Nonnull
+    protected EnderCoverProfile<BasicEnergyHandler> getEnderProfile()  {
+        return this.getPlayerMap().getOrDefault(this.frequency, this.getPlayerMap().get(null));
+    }
+
+    @Override
+    protected int getExtended() {
+        return 18;
     }
 
     private String[] getTooltipFormat() {
