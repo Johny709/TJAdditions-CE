@@ -364,6 +364,7 @@ public final class TJGuiUtils {
                 .addSubWidget(new LabelWidget(7, 7, "gui.appliedenergistics2.Priority"))
                 .addSubWidget(priorityTextField)
                 .addSubWidget(new ButtonWidget<>(182, 4, 12, 12, "", clickData -> panelWidgetGroup.closePanel())
+                        .setTitleHoverTooltipText("tj.machine.universal.close_panel")
                         .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID))
                 .addSubWidget(new ButtonWidget<>(7, 20, 31, 20, "+1", clickData ->
                         config.setPriority(config.getPriority() + 1L))
@@ -409,6 +410,7 @@ public final class TJGuiUtils {
                 .addSubWidget(new LabelWidget(7, 7, "machine.universal.ticks.operation"))
                 .addSubWidget(priorityTextField)
                 .addSubWidget(new ButtonWidget<>(182, 4, 12, 12, "", clickData -> panelWidgetGroup.closePanel())
+                        .setTitleHoverTooltipText("tj.machine.universal.close_panel")
                         .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID))
                 .addSubWidget(new ButtonWidget<>(7, 20, 31, 20, "+1", clickData ->
                         config.setTickTime(config.getTickTime() + 1L))
@@ -459,6 +461,7 @@ public final class TJGuiUtils {
         return panelWidgetGroup
                 .addSubWidget(itemCountTextField)
                 .addSubWidget(new ButtonWidget<>(182, 4, 12, 12, "", clickData -> panelWidgetGroup.closePanel())
+                        .setTitleHoverTooltipText("tj.machine.universal.close_panel")
                         .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID))
                 .addSubWidget(new ButtonWidget<>(7, 20, 31, 20, "+1", clickData ->
                         config.setItemCount(config.getItemCount(selectionWidgetGroup.getIndex()) + 1,
@@ -519,6 +522,7 @@ public final class TJGuiUtils {
         return panelWidgetGroup
                 .addSubWidget(itemCountTextField)
                 .addSubWidget(new ButtonWidget<>(182, 4, 12, 12, "", clickData -> panelWidgetGroup.closePanel())
+                        .setTitleHoverTooltipText("tj.machine.universal.close_panel")
                         .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID))
                 .addSubWidget(new ButtonWidget<>(7, 20, 31, 20, "+1", clickData ->
                         config.setFluidCount(config.getFluidCount(selectionWidgetGroup.getIndex() + 1),

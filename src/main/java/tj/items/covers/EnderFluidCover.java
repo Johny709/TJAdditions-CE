@@ -20,13 +20,13 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.*;
 import tj.textures.TJSimpleOverlayRenderer;
 import tj.util.EnderWorldData;
 
 import java.awt.*;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -107,6 +107,12 @@ public class EnderFluidCover extends AbstractEnderCover<FluidTank> {
                 .addSubWidget(new TJToggleButtonWidget(3, 75, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
                         .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled",
                                 "cover.filter.blacklist.enabled"));
+        panelWidgetGroup.addWidget(new ButtonWidget<>(57, 75, 18, 18, "", clickData -> panelWidgetGroup.closePanel())
+                .setTitleHoverTooltipText("tj.machine.universal.close_panel")
+                .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID));
+        tab.add(new TJTankWidget(this::getFluidTank, 7, 38, 18, 18)
+                .setBackgroundTexture(FLUID_SLOT)
+                .setContainerClicking(true, true));
         for (int i = 0; i < this.fluidFilter.getTanks(); i++) {
             panelWidgetGroup.addWidget(new TJPhantomFluidSlotWidget(18 * (i % 4) + 3, 18 * (i / 4) + 3, 18, 18, i, this.fluidFilter,
                     fluid -> {
@@ -126,13 +132,6 @@ public class EnderFluidCover extends AbstractEnderCover<FluidTank> {
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         tab.add(panelWidgetGroup);
-    }
-
-    @Override
-    protected void addWidgets(Consumer<Widget> widget) {
-        widget.accept(new TJTankWidget(this::getFluidTank, 7, 38, 18, 18)
-                .setBackgroundTexture(FLUID_SLOT)
-                .setContainerClicking(true, true));
     }
 
     private void setFilterBlacklist(boolean isFilterBlacklist) {

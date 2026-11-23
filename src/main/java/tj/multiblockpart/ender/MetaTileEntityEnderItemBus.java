@@ -2,10 +2,11 @@ package tj.multiblockpart.ender;
 
 import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.Widget;
-import gregtech.api.gui.widgets.ImageWidget;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.MetaTileEntityHolder;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
+import gregtech.api.util.function.BooleanConsumer;
+import gregtech.common.items.MetaItems;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import net.minecraft.item.ItemStack;
@@ -17,11 +18,8 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import tj.TJValues;
-import tj.mui.widgets.PopUpWidget;
-import tj.mui.widgets.impl.TJPhantomItemSlotWidget;
-import tj.mui.widgets.impl.TJSlotWidget;
-import tj.mui.widgets.impl.ButtonPopUpWidget;
-import tj.mui.widgets.impl.TJToggleButtonWidget;
+import tj.mui.widgets.ButtonWidget;
+import tj.mui.widgets.impl.*;
 import tj.items.covers.EnderCoverProfile;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJSimpleOverlayRenderer;
@@ -35,7 +33,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static gregtech.api.gui.GuiTextures.*;
-import static tj.mui.TJGuiTextures.ITEM_FILTER;
 
 public class MetaTileEntityEnderItemBus extends AbstractEnderHatch<IItemHandlerModifiable, LargeItemStackHandler> {
 
@@ -59,26 +56,35 @@ public class MetaTileEntityEnderItemBus extends AbstractEnderHatch<IItemHandlerM
     }
 
     @Override
-    protected void addToPopUpWidget(PopUpWidget<?> buttonPopUpWidget) {
-        ((ButtonPopUpWidget<?>) buttonPopUpWidget).addPopup(94, 43, 78, 96, new TJToggleButtonWidget(151, 161, 18, 18)
-                .setHoverTooltipText("cover.conveyor.item_filter.title")
-                .setToggleTexture(TOGGLE_BUTTON_BACK)
-                .setBackgroundTextures(ITEM_FILTER)
-                .useToggleTexture(true), widgetGroup -> {
-            widgetGroup.addWidget(new ImageWidget(0, 0, 78, 96, BORDERED_BACKGROUND));
-            widgetGroup.addWidget(new TJToggleButtonWidget(3, 75, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
-                    .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled",
-                            "cover.filter.blacklist.enabled"));
-            for (int i = 0; i < this.itemFilter.getSlots(); i++) {
-                widgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4) + 3, 18 * (i / 4) + 3, 18, 18, i, this.itemFilter,
-                        item -> {
-                            if (item.isEmpty()) return;
-                            this.itemType.put(item, item);
-                        }, this.itemType::remove).setPutItemsPredicate(item -> !this.itemType.containsKey(item))
-                        .setBackgroundTextures(GuiTextures.SLOT));
+    protected void addExtraWidgetsInChannelTab(List<Widget> tab) {
+        final PanelWidgetGroup panelWidgetGroup = new PanelWidgetGroup(94, 43, 78, 96, BORDERED_BACKGROUND)
+                .addSubWidget(new TJToggleButtonWidget(3, 75, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
+                        .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled",
+                                "cover.filter.blacklist.enabled"));
+        panelWidgetGroup.addWidget(new ButtonWidget<>(57, 75, 18, 18, "", clickData -> panelWidgetGroup.closePanel())
+                .setTitleHoverTooltipText("tj.machine.universal.close_panel")
+                .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID));
+        tab.add(new TJSlotWidget<>(() -> this.handler, 0, 7, 38)
+                .setActiveBackgroundTexture(SLOT));
+        for (int i = 0; i < this.itemFilter.getSlots(); i++) {
+            panelWidgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4) + 3, 18 * (i / 4) + 3, 18, 18, i, this.itemFilter,
+                    item -> {
+                        if (item.isEmpty()) return;
+                        this.itemType.put(item, item);
+                    }, this.itemType::remove).setPutItemsPredicate(item -> !this.itemType.containsKey(item))
+                    .setBackgroundTextures(GuiTextures.SLOT));
+        }
+        tab.add(new TJToggleButtonWidget(151, 161, 18, 18, panelWidgetGroup::isPanelOpen, (BooleanConsumer) value -> {
+            if (!value && panelWidgetGroup.isPanelOpen()) {
+                panelWidgetGroup.closePanel();
+            } else if (value) {
+                panelWidgetGroup.openPanel();
             }
-            return false;
-        }).setClickArea(new Rectangle(346, 107, 60, 78));
+        }).setItemDisplay(MetaItems.ITEM_FILTER.getStackForm())
+                .setTitleHoverTooltipText("cover.conveyor.item_filter.title")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        tab.add(panelWidgetGroup);
     }
 
     @Override

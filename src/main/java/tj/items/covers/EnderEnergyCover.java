@@ -21,7 +21,6 @@ import tj.util.EnderWorldData;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static gregtech.api.capability.GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER;
 import static gregtech.api.gui.widgets.ProgressWidget.MoveType.VERTICAL;
@@ -75,8 +74,8 @@ public class EnderEnergyCover extends AbstractEnderCover<BasicEnergyHandler> {
     }
 
     @Override
-    protected void addWidgets(Consumer<Widget> widget) {
-        widget.accept(new ProgressWidget(this::getEnergyStored, 7, 38, 18, 18) {
+    protected void addExtraWidgetsInChannelTab(List<Widget> tab) {
+        tab.add(new ProgressWidget(this::getEnergyStored, 7, 38, 18, 18) {
             private long energyStored;
             private long energyCapacity;
 

@@ -208,6 +208,7 @@ public class ButtonWidget<R extends ButtonWidget<R>> extends TJWidget<R> {
         if (!this.isActive) return;
         final Size size = this.getSize();
         final Position pos = this.getPosition();
+        GlStateManager.color(1, 1, 1, 1);
         if (this.backgroundTextures != null)
             for (TextureArea textureArea : this.backgroundTextures)
                 if (textureArea instanceof SizedTextureArea) {

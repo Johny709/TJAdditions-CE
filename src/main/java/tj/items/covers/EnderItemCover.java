@@ -19,6 +19,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import tj.TJValues;
+import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.impl.*;
 import tj.items.handlers.LargeItemStackHandler;
 import tj.textures.TJSimpleOverlayRenderer;
@@ -27,7 +28,6 @@ import tj.util.map.Strategies;
 
 import java.awt.*;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static gregtech.api.gui.GuiTextures.*;
 import static gregtech.common.covers.CoverPump.PumpMode.IMPORT;
@@ -68,6 +68,11 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
                 .addSubWidget(new TJToggleButtonWidget(3, 75, 18, 18, BUTTON_BLACKLIST, this::isFilterBlacklist, this::setFilterBlacklist)
                         .setToggleTitleTooltipHoverText("cover.filter.blacklist.disabled",
                                 "cover.filter.blacklist.enabled"));
+        panelWidgetGroup.addWidget(new ButtonWidget<>(57, 75, 18, 18, "", clickData -> panelWidgetGroup.closePanel())
+                .setTitleHoverTooltipText("tj.machine.universal.close_panel")
+                .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID));
+        tab.add(new TJSlotWidget<>(() -> this.handler, 0, 7, 38)
+                .setActiveBackgroundTexture(SLOT));
         for (int i = 0; i < this.itemFilter.getSlots(); i++) {
             panelWidgetGroup.addWidget(new TJPhantomItemSlotWidget(18 * (i % 4) + 3, 18 * (i / 4) + 3, 18, 18, i, this.itemFilter,
                     item -> {
@@ -87,12 +92,6 @@ public class EnderItemCover extends AbstractEnderCover<LargeItemStackHandler> {
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
         tab.add(panelWidgetGroup);
-    }
-
-    @Override
-    protected void addWidgets(Consumer<Widget> widget) {
-        widget.accept(new TJSlotWidget<>(() -> this.handler, 0, 7, 38)
-                .setActiveBackgroundTexture(SLOT));
     }
 
     @Override

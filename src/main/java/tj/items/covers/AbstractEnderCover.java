@@ -9,6 +9,7 @@ import gregtech.api.capability.IControllable;
 import gregtech.api.cover.CoverBehavior;
 import gregtech.api.cover.CoverWithUI;
 import gregtech.api.cover.ICoverable;
+import gregtech.api.gui.GuiTextures;
 import gregtech.api.gui.ModularUI;
 import gregtech.api.gui.Widget;
 import gregtech.api.gui.widgets.*;
@@ -30,6 +31,7 @@ import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
+import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.TJModularUI;
 import tj.mui.widgets.WidgetTabBuilder;
 import tj.capability.IEnderNotifiable;
@@ -99,14 +101,6 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
         return EnumActionResult.SUCCESS;
     }
 
-    protected abstract TJSimpleOverlayRenderer getOverlay();
-
-    protected abstract Object2ObjectMap<String, EnderCoverProfile<V>> getPlayerMap();
-
-    protected abstract void addWidgets(Consumer<Widget> widget);
-
-    protected void addExtraWidgetsInChannelTab(List<Widget> tab) {}
-
     @Override
     public ModularUI createUI(EntityPlayer player) {
         final int[] searchResults = new int[3];
@@ -143,7 +137,7 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                 .setTextId(player.getUniqueID().toString())
                 .setMaxStringLength(256);
 
-        final PanelWidgetGroup channelSearchPanel = new PanelWidgetGroup(112, 61, 60, 78, BORDERED_BACKGROUND);
+        final PanelWidgetGroup channelSearchPanel = new PanelWidgetGroup(112, 47, 60, 92, BORDERED_BACKGROUND);
         final PanelWidgetGroup channelRenamePanel = new PanelWidgetGroup(0, 61, 182, 60, BORDERED_BACKGROUND);
         final PanelWidgetGroup channelAddPanel = new PanelWidgetGroup(0, 61, 182, 60, BORDERED_BACKGROUND);
         tab.add(new TJImageWidget(30, 15, 115, 18, DISPLAY));
@@ -235,7 +229,6 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                 .setDisplayText("O")
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        this.addWidgets(tab::add);
         this.addExtraWidgetsInChannelTab(tab);
         this.addSearchTextWidgets(channelSearchPanel, patternFlags, 0);
         this.createChannelRenamePanel(channelRenamePanel, textFieldRename);
@@ -303,10 +296,10 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                 .setTextId(player.getUniqueID().toString())
                 .setMaxStringLength(256);
 
-        final PanelWidgetGroup frequencySearchPanel = new PanelWidgetGroup(112, 61, 60, 78, BORDERED_BACKGROUND);
+        final PanelWidgetGroup frequencySearchPanel = new PanelWidgetGroup(112, 47, 60, 92, BORDERED_BACKGROUND);
         final PanelWidgetGroup frequencyRenamePanel = new PanelWidgetGroup(0, 61, 182, 60, BORDERED_BACKGROUND);
         final PanelWidgetGroup frequencyAddPanel = new PanelWidgetGroup(0, 61, 182, 60, BORDERED_BACKGROUND);
-        final PanelWidgetGroup playerSearchPanel = new PanelWidgetGroup(117, 25, 60, 78, BORDERED_BACKGROUND);
+        final PanelWidgetGroup playerSearchPanel = new PanelWidgetGroup(117, 25, 60, 92, BORDERED_BACKGROUND);
         final PanelWidgetGroup allowedPlayersPanel = new PanelWidgetGroup(0, 38, 182, 130, BORDERED_BACKGROUND);
         final PanelWidgetGroup playerPermissionPanel = new PanelWidgetGroup(0, 0, 182, 100, BORDERED_BACKGROUND);
         tab.add(new TJImageWidget(30, 15, 115, 18, DISPLAY));
@@ -445,6 +438,9 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                                            String[] search) {
         allowedPlayersPanel.addWidget(new TJImageWidget(3, 25, 176, 80, DISPLAY));
         allowedPlayersPanel.addWidget(new TJImageWidget(30, 106, 115, 18, DISPLAY));
+        allowedPlayersPanel.addWidget(new ButtonWidget<>(166, 4, 12, 12, "", clickData -> allowedPlayersPanel.closePanel())
+                .setTitleHoverTooltipText("tj.machine.universal.close_panel")
+                .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID));
         allowedPlayersPanel.addWidget(new ScrollingWidgetGroup<>(3, 25, 182, 80)
                 .addSubWidget(new TJAdvancedTextWidget(2, 3, this.addPlayerDisplayText(searchResults, patternFlags, search),
                         0xFFFFFF).setMaxWidthLimit(1000)
@@ -539,68 +535,70 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
                 .setUpdateOnTyping(true));
     }
 
-    private void addSearchTextWidgets(WidgetGroup widgetGroup, int[][] patternFlags, int i) {
-        widgetGroup.addWidget(new TJImageWidget(0, 0, 60, 78, BORDERED_BACKGROUND));
-        widgetGroup.addWidget(new TJImageWidget(3, 57, 54, 18, DISPLAY));
-        widgetGroup.addWidget(new AdvancedTextWidget(5, 62, textList ->
+    private void addSearchTextWidgets(PanelWidgetGroup widgetGroup, int[][] patternFlags, int i) {
+        widgetGroup.addWidget(new TJImageWidget(3, 71, 54, 18, DISPLAY));
+        widgetGroup.addWidget(new AdvancedTextWidget(5, 76, textList ->
                 textList.add(new TextComponentTranslation("string.regex.flag", this.getFlags(patternFlags[i]))), 0x404040));
-        widgetGroup.addWidget(new TJToggleButtonWidget(3, 3, 18, 18)
+        widgetGroup.addWidget(new ButtonWidget<>(44, 4, 12, 12, "", clickData -> widgetGroup.closePanel())
+                .setTitleHoverTooltipText("tj.machine.universal.close_panel")
+                .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID));
+        widgetGroup.addWidget(new TJToggleButtonWidget(3, 20, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][0] = pressed ? Pattern.UNIX_LINES : 0)
                 .setDisplayText("string.regex.pattern.unix_lines.flag")
                 .setHoverTooltipText("string.regex.pattern.unix_lines")
                 .setButtonSupplier(() -> patternFlags[i][0] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        widgetGroup.addWidget(new TJToggleButtonWidget(21, 3, 18, 18)
+        widgetGroup.addWidget(new TJToggleButtonWidget(21, 20, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][1] = pressed ? Pattern.CASE_INSENSITIVE : 0)
                 .setDisplayText("string.regex.pattern.case_insensitive.flag")
                 .setHoverTooltipText("string.regex.pattern.case_insensitive")
                 .setButtonSupplier(() -> patternFlags[i][1] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        widgetGroup.addWidget(new TJToggleButtonWidget(39, 3, 18, 18)
+        widgetGroup.addWidget(new TJToggleButtonWidget(39, 20, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][2] = pressed ? Pattern.COMMENTS : 0)
                 .setDisplayText("string.regex.pattern.comments.flag")
                 .setHoverTooltipText("string.regex.pattern.comments")
                 .setButtonSupplier(() -> patternFlags[i][2] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        widgetGroup.addWidget(new TJToggleButtonWidget(3, 21, 18, 18)
+        widgetGroup.addWidget(new TJToggleButtonWidget(3, 35, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][3] = pressed ? Pattern.MULTILINE : 0)
                 .setDisplayText("string.regex.pattern.multiline.flag")
                 .setHoverTooltipText("string.regex.pattern.multiline")
                 .setButtonSupplier(() -> patternFlags[i][3] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        widgetGroup.addWidget(new TJToggleButtonWidget(21, 21, 18, 18)
+        widgetGroup.addWidget(new TJToggleButtonWidget(21, 35, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][4] = pressed ? Pattern.LITERAL : 0)
                 .setDisplayText("string.regex.pattern.literal.flag")
                 .setHoverTooltipText("string.regex.pattern.literal")
                 .setButtonSupplier(() -> patternFlags[i][4] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        widgetGroup.addWidget(new TJToggleButtonWidget(39, 21, 18, 18)
+        widgetGroup.addWidget(new TJToggleButtonWidget(39, 35, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][5] = pressed ? Pattern.DOTALL : 0)
                 .setDisplayText("string.regex.pattern.dotall.flag")
                 .setHoverTooltipText("string.regex.pattern.dotall")
                 .setButtonSupplier(() -> patternFlags[i][5] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        widgetGroup.addWidget(new TJToggleButtonWidget(3, 39, 18, 18)
+        widgetGroup.addWidget(new TJToggleButtonWidget(3, 53, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][6] = pressed ? Pattern.UNICODE_CASE : 0)
                 .setDisplayText("string.regex.pattern.unicode_case.flag")
                 .setHoverTooltipText("string.regex.pattern.unicode_case")
                 .setButtonSupplier(() -> patternFlags[i][6] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        widgetGroup.addWidget(new TJToggleButtonWidget(21, 39, 18, 18)
+        widgetGroup.addWidget(new TJToggleButtonWidget(21, 53, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][7] = pressed ? Pattern.CANON_EQ : 0)
                 .setDisplayText("string.regex.pattern.canon_eq.flag")
                 .setHoverTooltipText("string.regex.pattern.canon_eq")
                 .setButtonSupplier(() -> patternFlags[i][7] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        widgetGroup.addWidget(new TJToggleButtonWidget(39, 39, 18, 18)
+        widgetGroup.addWidget(new TJToggleButtonWidget(39, 53, 18, 18)
                 .setToggleButtonResponder((pressed, s) -> patternFlags[i][8] = pressed ? Pattern.UNICODE_CHARACTER_CLASS : 0)
                 .setDisplayText("string.regex.pattern.unicode_character_class.flag")
                 .setHoverTooltipText("string.regex.pattern.unicode_character_class")
@@ -698,6 +696,12 @@ public abstract class AbstractEnderCover<V> extends CoverBehavior implements Cov
     }
 
     protected abstract void addChannelText(ITextComponent keyEntry, String key, V value);
+
+    protected void addExtraWidgetsInChannelTab(List<Widget> tab) {}
+
+    protected abstract TJSimpleOverlayRenderer getOverlay();
+
+    protected abstract Object2ObjectMap<String, EnderCoverProfile<V>> getPlayerMap();
 
     @Override
     public void readUpdateData(int id, PacketBuffer packetBuffer) {

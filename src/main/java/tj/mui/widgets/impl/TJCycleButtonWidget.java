@@ -118,6 +118,7 @@ public class TJCycleButtonWidget<T extends Enum<T>> extends ButtonWidget<TJCycle
         super.drawInBackground(mouseX, mouseY, context);
         final Size size = this.getSize();
         final Position pos = this.getPosition();
+        GlStateManager.color(1, 1, 1, 1);
         if (this.cycleTextures != null) {
             if (this.cycleTextures[this.index] instanceof SizedTextureArea) {
                 ((SizedTextureArea) this.cycleTextures[this.index]).drawHorizontalCutSubArea(pos.getX(), pos.getY(), size.getWidth(), size.getHeight(), this.isMouseOverElement(mouseX, mouseY) ? 0.5 : 0.0, 0.5);

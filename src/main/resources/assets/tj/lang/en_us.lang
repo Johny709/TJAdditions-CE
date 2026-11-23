@@ -1066,7 +1066,7 @@ metaitem.ender_cover.transfer=Transfer I/O: §e%s§r/t
 metaitem.ender_cover.capacity=Capacity: §e%s§r
 metaitem.ender_cover.private.disabled=Cover Access: PRIVATE
 metaitem.ender_cover.private.enabled=Cover Access: PUBLIC
-metaitem.ender_cover.allowed_players=Add players allowed in frequency:%n%s
+metaitem.ender_cover.allowed_players=Add players allowed in frequency:%s
 metaitem.ender_cover.allowed_players_list=Allowed Players List
 metaitem.ender_cover.edit_permission=Edit permissions for player:%n%s
 metaitem.ender_cover.operation_false=Unable to do operation
@@ -1174,6 +1174,7 @@ tj.machine.universal.fluid.output.sec=Fluid Output: §7(§b%s§7) %sL§7/s
 tj.machine.universal.fluid.output.secs=Fluid Output: §b%sL §7(§b%s§7) §7every §b%s §7seconds
 tj.machine.universal.fluid.output.tick=Fluid Output: §7(§b%s§7) §b%sL/t
 tj.machine.universal.fluid.output.ticks=Fluid Input: §b%sL §7(§b%s§7) §7every §b%s §7ticks
+tj.machine.universal.close_panel=Close Panel
 
 tj.machine.universal.consumption.sec=Consuming: §7(§b%s§7) %s%s/s
 tj.machine.universal.consumption.secs=Consuming: §b%s §7(§b%s§7) §7every §b%s §7seconds

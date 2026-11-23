@@ -191,6 +191,7 @@ public class TJToggleButtonWidget extends ButtonWidget<TJToggleButtonWidget> {
         if (!this.isActive) return;
         final Position pos = this.getPosition();
         final Size size = this.getSize();
+        GlStateManager.color(1, 1, 1, 1);
         if (!this.useToggleTexture) {
             if (this.invertTexture != this.isPressedCondition.getAsBoolean()) {
                 this.activeTexture.draw(pos.getX(), pos.getY(), size.getWidth(), size.getHeight());
