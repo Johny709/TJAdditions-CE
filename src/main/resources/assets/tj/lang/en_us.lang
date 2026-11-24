@@ -1175,6 +1175,8 @@ tj.machine.universal.fluid.output.secs=Fluid Output: §b%sL §7(§b%s§7) §7eve
 tj.machine.universal.fluid.output.tick=Fluid Output: §7(§b%s§7) §b%sL/t
 tj.machine.universal.fluid.output.ticks=Fluid Input: §b%sL §7(§b%s§7) §7every §b%s §7ticks
 tj.machine.universal.close_panel=Close Panel
+tj.machine.universal.slot_amount.item=Set stack size in slot %s
+tj.machine.universal.slot_amount.fluid=Set fluid amount in slot %s
 
 tj.machine.universal.consumption.sec=Consuming: §7(§b%s§7) %s%s/s
 tj.machine.universal.consumption.secs=Consuming: §b%s §7(§b%s§7) §7every §b%s §7seconds

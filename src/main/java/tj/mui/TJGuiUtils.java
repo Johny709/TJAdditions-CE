@@ -459,7 +459,9 @@ public final class TJGuiUtils {
                 panelWidgetGroup.openPanel();
             } else panelWidgetGroup.closePanel();
         });
-        return panelWidgetGroup
+        return panelWidgetGroup.addSubWidget(new AdvancedTextWidget(7, 7, textList ->
+                        textList.add(new TextComponentTranslation("tj.machine.universal.slot_amount.item", selectionWidgetGroup.getIndex())),
+                        0x404040))
                 .addSubWidget(itemCountTextField)
                 .addSubWidget(new ButtonWidget<>(182, 4, 12, 12, "", clickData -> panelWidgetGroup.closePanel())
                         .setTitleHoverTooltipText("tj.machine.universal.close_panel")
@@ -520,7 +522,9 @@ public final class TJGuiUtils {
                 panelWidgetGroup.openPanel();
             } else panelWidgetGroup.closePanel();
         });
-        return panelWidgetGroup
+        return panelWidgetGroup.addSubWidget(new AdvancedTextWidget(7, 7, textList ->
+                        textList.add(new TextComponentTranslation("tj.machine.universal.slot_amount.fluid", selectionWidgetGroup.getIndex())),
+                        0x404040))
                 .addSubWidget(itemCountTextField)
                 .addSubWidget(new ButtonWidget<>(182, 4, 12, 12, "", clickData -> panelWidgetGroup.closePanel())
                         .setTitleHoverTooltipText("tj.machine.universal.close_panel")
