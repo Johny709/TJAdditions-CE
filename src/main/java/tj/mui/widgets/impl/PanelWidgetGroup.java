@@ -4,6 +4,7 @@ import gregtech.api.gui.IRenderContext;
 import gregtech.api.gui.resources.TextureArea;
 import gregtech.api.util.Position;
 import gregtech.api.util.Size;
+import gregtech.api.util.function.BooleanConsumer;
 import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -18,6 +19,8 @@ import java.util.List;
 public class PanelWidgetGroup extends TJWidgetGroup<PanelWidgetGroup> {
 
     private final TextureArea backgroundTexture;
+    private BooleanConsumer openPanelListener;
+    private BooleanConsumer closePanelListener;
     private boolean panelOpen;
     private boolean dragging;
     private int dragX;
@@ -26,6 +29,14 @@ public class PanelWidgetGroup extends TJWidgetGroup<PanelWidgetGroup> {
     public PanelWidgetGroup(int x, int y, int width, int height, TextureArea backgroundTexture) {
         super(new Position(x, y), new Size(width, height));
         this.backgroundTexture = backgroundTexture;
+    }
+
+    public void setOpenPanelListener(BooleanConsumer openPanelListener) {
+        this.openPanelListener = openPanelListener;
+    }
+
+    public void setClosePanelListener(BooleanConsumer closePanelListener) {
+        this.closePanelListener = closePanelListener;
     }
 
     @Override
@@ -127,6 +138,8 @@ public class PanelWidgetGroup extends TJWidgetGroup<PanelWidgetGroup> {
      * Opens this panel both on client and server
      */
     public void openPanel() {
+        if (this.openPanelListener != null)
+            this.openPanelListener.apply(this.panelOpen);
         if (this.panelOpen) return;
         this.panelOpen = true;
         if (isClientSide())
@@ -138,6 +151,8 @@ public class PanelWidgetGroup extends TJWidgetGroup<PanelWidgetGroup> {
      * Closes this panel both on client and server
      */
     public void closePanel() {
+        if (this.closePanelListener != null)
+            this.closePanelListener.apply(this.panelOpen);
         if (!this.panelOpen) return;
         this.panelOpen = false;
         if (isClientSide())

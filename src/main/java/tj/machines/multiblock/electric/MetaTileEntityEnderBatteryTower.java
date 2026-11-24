@@ -48,6 +48,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.ArrayUtils;
 import tj.TJValues;
+import tj.mui.TJGuiUtils;
 import tj.mui.widgets.ButtonWidget;
 import tj.mui.widgets.WidgetTabBuilder;
 import tj.capability.impl.handler.IBatteryHandler;
@@ -63,6 +64,7 @@ import tj.items.covers.EnderCoverProfile;
 import tj.util.EnderWorldData;
 import tj.util.TJItemUtils;
 import tj.util.TextUtils;
+import tj.util.references.ObjectReference;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -147,14 +149,13 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     @Override
     protected void addTabs(WidgetTabBuilder tabBuilder, EntityPlayer player) {
         super.addTabs(tabBuilder, player);
-        int[] searchResults = new int[3];
-        int[][] patternFlags = new int[3][9];
-        long[][] permissions = new long[1][7];
-        String[] search = {"", "", ""};
-        String[] playerName = {""};
+        final int[] searchResults = new int[3];
+        final int[][] patternFlags = new int[3][9];
+        final String[] search = {"", "", ""};
+        final ObjectReference<UUID> playerUUID = new ObjectReference<>();
         tabBuilder.addTab(this.getMetaFullName(), this.getStackForm(), tab -> this.createChannelTab(tab, player, searchResults, patternFlags, search))
                 .addTab("tj.multiblock.tab.frequencies", TJItemUtils.getItemStackFromName("appliedenergistics2:part", 1, 76),
-                        tab -> this.createFrequencyTab(tab, player, searchResults, patternFlags, permissions, search, playerName));
+                        tab -> this.createFrequencyTab(tab, player, searchResults, patternFlags, search, playerUUID));
     }
 
     private void createChannelTab(List<Widget> tab, EntityPlayer player, int[] searchResults, int[][] patternFlags, String[] search) {
@@ -175,21 +176,25 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         final PanelWidgetGroup channelSearchPanel = new PanelWidgetGroup(112, 47, 60, 92, BORDERED_BACKGROUND);
         final PanelWidgetGroup channelRenamePanel = new PanelWidgetGroup(0, 61, 182, 60, BORDERED_BACKGROUND);
         final PanelWidgetGroup channelAddPanel = new PanelWidgetGroup(0, 61, 182, 60, BORDERED_BACKGROUND);
+        final PanelWidgetGroup failPanel = TJGuiUtils.createFailPanel(player);
         tab.add(new ScrollingWidgetGroup<>(10, 34, 185, 96)
                 .addSubWidget(new TJAdvancedTextWidget(2, 3, this.addChannelDisplayText(searchResults, patternFlags, search),
                         0xFFFFFF).setMaxWidthLimit(1000)
                         .setClickHandler((componentData, clickData) -> {
                             final String[] components = componentData.split(":");
-                            if (components[0].equals("select") && components[1].equals("channel") &&
-                                    this.getEnderProfile().hasPermission(player.getUniqueID(), 5)) {
-                                this.getEnderProfile().setChannel(components[2], player.getUniqueID().toString(), this);
-                            } else if (components[0].equals("remove") && components[1].equals("channel") &&
-                                    this.getEnderProfile().hasPermission(player.getUniqueID(), 4)) {
-                                this.getEnderProfile().removeChannel(components[2], player.getUniqueID().toString());
-                            } else if (components[0].equals("rename") && components[1].equals("channel") &&
-                                    this.getEnderProfile().hasPermission(player.getUniqueID(), 4)) {
-                                textFieldRename.setTextId(components[2] + ":" + player.getUniqueID(), true);
-                                channelRenamePanel.openPanel();
+                            if (components[0].equals("select") && components[1].equals("channel")) {
+                                if (this.getEnderProfile().hasPermission(player.getUniqueID(), EnderCoverProfile.CAN_USE_CHANNEL)) {
+                                    this.getEnderProfile().setChannel(components[2], player.getUniqueID().toString(), this);
+                                } else failPanel.openPanel();
+                            } else if (components[0].equals("remove") && components[1].equals("channel")) {
+                                if (this.getEnderProfile().hasPermission(player.getUniqueID(), EnderCoverProfile.CAN_MODIFY_CHANNELS)) {
+                                    this.getEnderProfile().removeChannel(components[2], player.getUniqueID().toString());
+                                } else failPanel.openPanel();
+                            } else if (components[0].equals("rename") && components[1].equals("channel")) {
+                                if (this.getEnderProfile().hasPermission(player.getUniqueID(), 4)) {
+                                    textFieldRename.setTextId(components[2] + ":" + player.getUniqueID(), true);
+                                    channelRenamePanel.openPanel();
+                                } else failPanel.openPanel();
                             }
                         })));
         tab.add(new NewTextFieldWidget<>(33, 13, 137, 18, true)
@@ -263,6 +268,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         tab.add(channelSearchPanel);
         tab.add(channelRenamePanel);
         tab.add(channelAddPanel);
+        tab.add(failPanel);
     }
 
     private void createChannelRenamePanel(PanelWidgetGroup channelRenamePanel, NewTextFieldWidget<?> textFieldRename) {
@@ -306,9 +312,8 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                                     EntityPlayer player,
                                     int[] searchResults,
                                     int[][] patternFlags,
-                                    long[][] permissions,
                                     String[] search,
-                                    String[] playerName) {
+                                    ObjectReference<UUID> playerUUID) {
         final NewTextFieldWidget<?> textFieldRename = new NewTextFieldWidget<>(12, 15, 159, 18, true)
                 .setTextResponder((key, id) -> this.getEnderProfile().renameFrequency(key, id, this))
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
@@ -329,21 +334,25 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         final PanelWidgetGroup playerSearchPanel = new PanelWidgetGroup(117, 25, 60, 92, BORDERED_BACKGROUND);
         final PanelWidgetGroup allowedPlayersPanel = new PanelWidgetGroup(0, 38, 182, 130, BORDERED_BACKGROUND);
         final PanelWidgetGroup playerPermissionPanel = new PanelWidgetGroup(0, 0, 182, 100, BORDERED_BACKGROUND);
+        final PanelWidgetGroup failPanel = TJGuiUtils.createFailPanel(player);
         tab.add(new ScrollingWidgetGroup<>(10, 11, 185, 119)
                 .addSubWidget(new TJAdvancedTextWidget(2, 3, this.addFrequencyDisplayText(searchResults, patternFlags, search),
                         0xFFFFFF).setMaxWidthLimit(1000)
                         .setClickHandler((componentData, clickData) -> {
                             final String[] components = componentData.split(":");
-                            if (components[0].equals("select") && components[1].equals("frequency") &&
-                                    this.getEnderProfile().hasPermission(player.getUniqueID(), 2)) {
-                                this.getEnderProfile().setFrequency(components[2], player.getUniqueID().toString(), this);
-                            } else if (components[0].equals("remove") && components[1].equals("frequency") &&
-                                    this.getEnderProfile().hasPermission(player.getUniqueID(), 1)) {
-                                this.getEnderProfile().removeFrequency(components[2], player.getUniqueID().toString(), this);
-                            } else if (components[0].equals("rename") && components[1].equals("frequency") &&
-                                    this.getEnderProfile().hasPermission(player.getUniqueID(), 2)) {
-                                textFieldRename.setTextId(components[2] + ":" + player.getUniqueID(), true);
-                                frequencyRenamePanel.openPanel();
+                            if (components[0].equals("select") && components[1].equals("frequency")) {
+                                if (this.getEnderProfile().hasPermission(player.getUniqueID(), EnderCoverProfile.CAN_USE_ENTRY)) {
+                                    this.getEnderProfile().setFrequency(components[2], player.getUniqueID().toString(), this);
+                                } else failPanel.openPanel();
+                            } else if (components[0].equals("remove") && components[1].equals("frequency")) {
+                                if (this.getEnderProfile().hasPermission(player.getUniqueID(), EnderCoverProfile.CAN_MODIFY_ENTRIES)) {
+                                    this.getEnderProfile().removeFrequency(components[2], player.getUniqueID().toString(), this);
+                                } else failPanel.openPanel();
+                            } else if (components[0].equals("rename") && components[1].equals("frequency")) {
+                                if (this.getEnderProfile().hasPermission(player.getUniqueID(), EnderCoverProfile.CAN_MODIFY_ENTRIES)) {
+                                    textFieldRename.setTextId(components[2] + ":" + player.getUniqueID(), true);
+                                    frequencyRenamePanel.openPanel();
+                                } else failPanel.openPanel();
                             }
                         })));
         tab.add(new NewTextFieldWidget<>(33, -10, 137, 18, true)
@@ -406,14 +415,16 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
         this.createFrequencyRenamePanel(frequencyRenamePanel, textFieldRename);
         this.createFrequencyAddPanel(frequencyAddPanel, textFieldAdd);
         this.addSearchTextWidgets(playerSearchPanel, patternFlags, 2);
-        this.createAllowedPlayersPanel(allowedPlayersPanel, playerPermissionPanel, playerSearchPanel, player, searchResults, patternFlags, search);
-        this.createPlayerPermissionPanel(playerPermissionPanel, permissions, playerName);
+        this.createAllowedPlayersPanel(allowedPlayersPanel, playerPermissionPanel, playerSearchPanel, failPanel,
+                player, searchResults, patternFlags, search, playerUUID);
+        this.createPlayerPermissionPanel(playerPermissionPanel, playerUUID);
         tab.add(frequencySearchPanel);
         tab.add(frequencyRenamePanel);
         tab.add(frequencyAddPanel);
         tab.add(allowedPlayersPanel);
         tab.add(playerPermissionPanel);
         tab.add(playerSearchPanel);
+        tab.add(failPanel);
     }
 
     private void createFrequencyRenamePanel(PanelWidgetGroup frequencyRenamePanel, NewTextFieldWidget<?> textFieldRename) {
@@ -458,36 +469,39 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     private void createAllowedPlayersPanel(PanelWidgetGroup allowedPlayersPanel,
                                            PanelWidgetGroup playerPermissionPanel,
                                            PanelWidgetGroup playerSearchPanel,
+                                           PanelWidgetGroup failPanel,
                                            EntityPlayer player,
                                            int[] searchResults,
                                            int[][] patternFlags,
-                                           String[] search) {
-        allowedPlayersPanel.addWidget(new TJImageWidget(3, 25, 176, 80, DISPLAY));
-        allowedPlayersPanel.addWidget(new TJImageWidget(30, 106, 115, 18, DISPLAY));
+                                           String[] search,
+                                           ObjectReference<UUID> playerUUID) {
+        allowedPlayersPanel.addWidget(new TJImageWidget(3, 25, 176, 80, MULTIBLOCK_DISPLAY_BASE));
         allowedPlayersPanel.addWidget(new ButtonWidget<>(166, 4, 12, 12, "", clickData -> allowedPlayersPanel.closePanel())
                 .setTitleHoverTooltipText("tj.machine.universal.close_panel")
                 .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID));
-        allowedPlayersPanel.addWidget(new ScrollingWidgetGroup<>(3, 25, 182, 80)
+        allowedPlayersPanel.addWidget(new ScrollingWidgetGroup<>(3, 25, 178, 80)
                 .addSubWidget(new TJAdvancedTextWidget(2, 3, this.addPlayerDisplayText(searchResults, patternFlags, search),
                         0xFFFFFF).setMaxWidthLimit(1000)
                         .setClickHandler((componentData, clickData) -> {
                             final String[] components = componentData.split(":");
-                            if (this.getEnderProfile().getOwner() == null || this.getEnderProfile().getOwner().toString().equals(components[1])) return;
-                            switch (components[0]) {
-                                case "add":
-                                    this.getEnderProfile().addUser(UUID.fromString(components[1]), player.getUniqueID());
-                                    break;
-                                case "remove":
-                                    this.getEnderProfile().removeUser(UUID.fromString(components[1]), player.getUniqueID());
-                                    break;
-                                case "edit":
-                                    playerPermissionPanel.openPanel();
-                                    break;
-                            }
+                            if (this.getEnderProfile().getOwner() != null && this.getEnderProfile().getOwner().toString().equals(components[1])) {
+                                switch (components[0]) {
+                                    case "add":
+                                        this.getEnderProfile().addUser(UUID.fromString(components[1]), player.getUniqueID());
+                                        break;
+                                    case "remove":
+                                        this.getEnderProfile().removeUser(UUID.fromString(components[1]), player.getUniqueID());
+                                        break;
+                                    case "edit":
+                                        playerUUID.setValue(UUID.fromString(components[1]));
+                                        playerPermissionPanel.openPanel();
+                                        break;
+                                }
+                            } else failPanel.openPanel();
                         })));
         allowedPlayersPanel.addWidget(new AdvancedTextWidget(10, 4, textList ->
                 textList.add(new TextComponentTranslation("metaitem.ender_cover.allowed_players", this.frequency)), 0x404040));
-        allowedPlayersPanel.addWidget(new NewTextFieldWidget<>(32, 110, 112, 13, false)
+        allowedPlayersPanel.addWidget(new NewTextFieldWidget<>(30, 106, 112, 18, true)
                 .setValidator(str -> Pattern.compile(".*").matcher(str).matches())
                 .setTextResponder((result, id) -> search[2] = result)
                 .setBackgroundText("machine.universal.search")
@@ -507,56 +521,59 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
                 .useToggleTexture(true));
     }
 
-    private void createPlayerPermissionPanel(PanelWidgetGroup playerPermissionPanel, long[][] permissions, String[] playerName) {
+    private void createPlayerPermissionPanel(PanelWidgetGroup playerPermissionPanel, ObjectReference<UUID> playerUUID) {
         playerPermissionPanel.addWidget(new AdvancedTextWidget(10, 4, textList ->
-                textList.add(new TextComponentTranslation("metaitem.ender_cover.edit_permission", playerName[0])), 0x404040));
-        playerPermissionPanel.addWidget(new TJToggleButtonWidget(3, 25, 88, 18)
+                textList.add(new TextComponentTranslation("metaitem.ender_cover.edit_permission", playerUUID.getValue())), 0x404040));
+        playerPermissionPanel.addWidget(new ButtonWidget<>(166, 4, 12, 12, "", clickData ->
+                playerPermissionPanel.closePanel())
+                .setTitleHoverTooltipText("tj.machine.universal.close_panel")
+                .setBackgroundTextures(GuiTextures.BUTTON_CLEAR_GRID));
+        playerPermissionPanel.addWidget(new TJToggleButtonWidget(3, 25, 88, 18,
+                () -> this.getEnderProfile().getPermission(playerUUID.getValue(), EnderCoverProfile.CAN_SEE_ENTRIES) != 0,
+                (toggle, id) -> this.getEnderProfile().setPermission(playerUUID.getValue(), EnderCoverProfile.CAN_SEE_ENTRIES, toggle ? 1 : 0))
                 .setToggleDisplayText("machine.universal.false", "machine.universal.true")
-                .setToggleButtonResponder((toggle, id) -> permissions[0][0] = toggle ? 1 : 0)
                 .setHoverTooltipText("metaitem.ender_cover.permission.0")
-                .setButtonSupplier(() -> permissions[0][0] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        playerPermissionPanel.addWidget(new TJToggleButtonWidget(91, 25, 88, 18)
+        playerPermissionPanel.addWidget(new TJToggleButtonWidget(91, 25, 88, 18,
+                () -> this.getEnderProfile().getPermission(playerUUID.getValue(), EnderCoverProfile.CAN_MODIFY_ENTRIES) != 0,
+                (toggle, id) -> this.getEnderProfile().setPermission(playerUUID.getValue(), EnderCoverProfile.CAN_MODIFY_ENTRIES, toggle ? 1 : 0))
                 .setToggleDisplayText("machine.universal.false", "machine.universal.true")
-                .setToggleButtonResponder((toggle, id) -> permissions[0][1] = toggle ? 1 : 0)
                 .setHoverTooltipText("metaitem.ender_cover.permission.1")
-                .setButtonSupplier(() -> permissions[0][1] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        playerPermissionPanel.addWidget(new TJToggleButtonWidget(3, 43, 88, 18)
+        playerPermissionPanel.addWidget(new TJToggleButtonWidget(3, 43, 88, 18,
+                () -> this.getEnderProfile().getPermission(playerUUID.getValue(), EnderCoverProfile.CAN_USE_ENTRY) != 0,
+                (toggle, id) -> this.getEnderProfile().setPermission(playerUUID.getValue(), EnderCoverProfile.CAN_USE_ENTRY, toggle ? 1 : 0))
                 .setToggleDisplayText("machine.universal.false", "machine.universal.true")
-                .setToggleButtonResponder((toggle, id) -> permissions[0][2] = toggle ? 1 : 0)
                 .setHoverTooltipText("metaitem.ender_cover.permission.2")
-                .setButtonSupplier(() -> permissions[0][2] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        playerPermissionPanel.addWidget(new TJToggleButtonWidget(91, 43, 88, 18)
+        playerPermissionPanel.addWidget(new TJToggleButtonWidget(91, 43, 88, 18,
+                () -> this.getEnderProfile().getPermission(playerUUID.getValue(), EnderCoverProfile.CAN_SEE_CHANNELS) != 0,
+                (toggle, id) -> this.getEnderProfile().setPermission(playerUUID.getValue(), EnderCoverProfile.CAN_SEE_CHANNELS, toggle ? 1 : 0))
                 .setToggleDisplayText("machine.universal.false", "machine.universal.true")
-                .setToggleButtonResponder((toggle, id) -> permissions[0][3] = toggle ? 1 : 0)
                 .setHoverTooltipText("metaitem.ender_cover.permission.3")
-                .setButtonSupplier(() -> permissions[0][3] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        playerPermissionPanel.addWidget(new TJToggleButtonWidget(3, 61, 88, 18)
+        playerPermissionPanel.addWidget(new TJToggleButtonWidget(3, 61, 88, 18,
+                () -> this.getEnderProfile().getPermission(playerUUID.getValue(), EnderCoverProfile.CAN_MODIFY_CHANNELS) != 0,
+                (toggle, id) -> this.getEnderProfile().setPermission(playerUUID.getValue(), EnderCoverProfile.CAN_MODIFY_CHANNELS, toggle ? 1 : 0))
                 .setToggleDisplayText("machine.universal.false", "machine.universal.true")
-                .setToggleButtonResponder((toggle, id) -> permissions[0][4] = toggle ? 1 : 0)
                 .setHoverTooltipText("metaitem.ender_cover.permission.4")
-                .setButtonSupplier(() -> permissions[0][4] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        playerPermissionPanel.addWidget(new TJToggleButtonWidget(91, 61, 88, 18)
+        playerPermissionPanel.addWidget(new TJToggleButtonWidget(91, 61, 88, 18,
+                () -> this.getEnderProfile().getPermission(playerUUID.getValue(), EnderCoverProfile.CAN_USE_CHANNEL) != 0,
+                (toggle, id) -> this.getEnderProfile().setPermission(playerUUID.getValue(), EnderCoverProfile.CAN_USE_CHANNEL, toggle ? 1 : 0))
                 .setToggleDisplayText("machine.universal.false", "machine.universal.true")
-                .setToggleButtonResponder((toggle, id) -> permissions[0][5] = toggle ? 1 : 0)
                 .setHoverTooltipText("metaitem.ender_cover.permission.5")
-                .setButtonSupplier(() -> permissions[0][5] != 0)
                 .setToggleTexture(TOGGLE_BUTTON_BACK)
                 .useToggleTexture(true));
-        playerPermissionPanel.addWidget(new TJImageWidget(3, 79, 176, 18, DISPLAY));
-        playerPermissionPanel.addWidget(new NewTextFieldWidget<>(5, 84, 174, 13)
+        playerPermissionPanel.addWidget(new NewTextFieldWidget<>(5, 79, 174, 18, true,
+                () -> String.valueOf(this.getEnderProfile().getPermission(playerUUID.getValue(), EnderCoverProfile.MAX_THROUGHPUT)),
+                (text, id) -> this.getEnderProfile().setPermission(playerUUID.getValue(), EnderCoverProfile.MAX_THROUGHPUT, Long.parseLong(text)))
                 .setValidator(str -> Pattern.compile("-*?[0-9_]*\\*?").matcher(str).matches())
-                .setTextResponder((text, id) -> permissions[0][6] = Long.parseLong(text))
-                .setTextSupplier(() -> String.valueOf(permissions[0][6]))
                 .setTooltipText("metaitem.ender_cover.permission.6")
                 .setUpdateOnTyping(true));
     }

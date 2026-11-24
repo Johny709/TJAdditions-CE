@@ -3,11 +3,9 @@ package tj.mui;
 import appeng.core.Api;
 import baubles.api.BaublesApi;
 import gregtech.api.gui.GuiTextures;
-import gregtech.api.gui.widgets.ImageWidget;
-import gregtech.api.gui.widgets.LabelWidget;
-import gregtech.api.gui.widgets.SlotWidget;
-import gregtech.api.gui.widgets.WidgetGroup;
+import gregtech.api.gui.widgets.*;
 import gregtech.api.util.TextFormattingUtil;
+import gregtech.api.util.function.BooleanConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.*;
@@ -22,6 +20,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -54,6 +53,8 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static gregtech.api.gui.GuiTextures.BORDERED_BACKGROUND;
+import static gregtech.api.gui.GuiTextures.TOGGLE_BUTTON_BACK;
 import static gregtech.api.gui.resources.RenderUtil.setGlColorFromInt;
 
 
@@ -564,6 +565,21 @@ public final class TJGuiUtils {
                         config.setFluidCount(config.getFluidCount(selectionWidgetGroup.getIndex()) / 2,
                                 selectionWidgetGroup.getIndex()))
                         .setBackgroundTextures(GuiTextures.VANILLA_BUTTON));
+    }
+
+    public static PanelWidgetGroup createFailPanel(EntityPlayer player) {
+        final PanelWidgetGroup failPanel = new PanelWidgetGroup(0, 61, 182, 40, BORDERED_BACKGROUND);
+        failPanel.setOpenPanelListener(open -> {
+            if (open)
+                player.sendMessage(new TextComponentTranslation("metaitem.ender_cover.operation_false"));
+        });
+        failPanel.addWidget(new TJToggleButtonWidget(3, 19, 176, 18, () -> false, (BooleanConsumer) b -> failPanel.closePanel())
+                .setDisplayText("machine.universal.ok")
+                .setToggleTexture(TOGGLE_BUTTON_BACK)
+                .useToggleTexture(true));
+        failPanel.addWidget(new AdvancedTextWidget(30, 4, textList ->
+                textList.add(new TextComponentTranslation("metaitem.ender_cover.operation_false")), 0x404040));
+        return failPanel;
     }
 
     @SideOnly(Side.CLIENT)

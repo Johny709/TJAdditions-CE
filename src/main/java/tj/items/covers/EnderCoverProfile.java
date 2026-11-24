@@ -12,6 +12,14 @@ import java.util.*;
 
 public class EnderCoverProfile<V> {
 
+    public static final int CAN_SEE_ENTRIES = 0;
+    public static final int CAN_MODIFY_ENTRIES = 1;
+    public static final int CAN_USE_ENTRY = 2;
+    public static final int CAN_SEE_CHANNELS = 3;
+    public static final int CAN_MODIFY_CHANNELS = 4;
+    public static final int CAN_USE_CHANNEL = 5;
+    public static final int MAX_THROUGHPUT = 6;
+
     private final UUID owner;
     /**
      * Permission Index:
@@ -54,10 +62,6 @@ public class EnderCoverProfile<V> {
 
     public void removeFromNotifiable(String key, IEnderNotifiable<V> notifiable) {
         this.notifyMap.getOrDefault(key, new HashSet<>()).remove(notifiable);
-    }
-
-    public boolean hasPermission(UUID uuid, int permission) {
-        return this.owner == null || this.allowedUsers.get(uuid) != null && this.allowedUsers.get(uuid)[permission] == 1;
     }
 
     public boolean removeChannel(String key, String id) {
@@ -236,6 +240,21 @@ public class EnderCoverProfile<V> {
         if (this.getOwner() != null && this.getOwner().equals(UUID.fromString(uuid))) {
             this.setPublic(isPublic);
         }
+    }
+
+    public boolean hasPermission(UUID uuid, int permission) {
+        return this.owner == null || this.owner.equals(uuid) || this.allowedUsers.get(uuid) != null && this.allowedUsers.get(uuid)[permission] == 1;
+    }
+
+    public long getPermission(UUID uuid, int permission) {
+        final long[] permissions = this.allowedUsers.get(uuid);
+        return permissions == null ? 0 : permissions[permission];
+    }
+
+    public void setPermission(UUID uuid, int permission, long value) {
+        final long[] permissions = this.allowedUsers.get(uuid);
+        if (permissions == null) return;
+        permissions[permission] = value;
     }
 
     public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
