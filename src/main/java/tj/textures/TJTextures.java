@@ -9,6 +9,9 @@ import codechicken.lib.vec.Matrix4;
 import codechicken.lib.vec.TransformationList;
 import codechicken.lib.vec.uv.IconTransformation;
 import codechicken.lib.vec.uv.UVTransformationList;
+import gregtech.api.render.BloomRenderUtils;
+import gregtech.api.render.MetaTileEntityRenderer;
+import gregtech.api.render.Textures;
 import team.chisel.Chisel;
 import tj.TJ;
 import gregtech.api.GTValues;
@@ -118,6 +121,10 @@ public class TJTextures {
 
     @SideOnly(Side.CLIENT)
     public static void renderFace(CCRenderState renderState, Matrix4 translation, IVertexOperation[] ops, EnumFacing face, Cuboid6 bounds, TextureAtlasSprite sprite) {
+        if (MetaTileEntityRenderer.useBloom() && BloomRenderUtils.isBloomPass(Textures.RENDER_STATE.get())) {
+            return;
+        }
+
         BlockRenderer.BlockFace blockFace = blockFaces.get();
         blockFace.loadCuboidFace(bounds, face.getIndex());
         UVTransformationList uvList = new UVTransformationList(new IconTransformation(sprite));
