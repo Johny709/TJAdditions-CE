@@ -1,109 +1,109 @@
 package tj.mui;
 
-import gregtech.api.gui.resources.AdoptableTextureArea;
+import gregtech.api.GTValues;
 import gregtech.api.gui.resources.TextureArea;
 
 public final class TJGuiTextures {
 
-    public static final TextureArea DARKENED_SLOT = TextureArea.fullImage("textures/gui/base/darkened_slot.png");
-    public static final TextureArea MULTIBLOCK_DISPLAY_BASE = AdoptableTextureArea.fullImage("textures/gui/base/multiblock_display_base.png", 18, 18, 2, 2);
-    public static final TextureArea TJ_LOGO_ANIMATED = TextureArea.fullImage("textures/tj_logo_animated.png");
-    public static final TextureArea BLANK_SLOT = AdoptableTextureArea.fullImage("textures/gui/widget/blank_slot.png", 18, 18, 1, 1);
-    public static final TextureArea EMPTY_BUTTON = TextureArea.fullImage("textures/gui/base/empty_button.png");
+    public static final TextureArea DARKENED_SLOT = TJTextureArea.fullImage("textures/gui/base/darkened_slot");
+    public static final TextureArea MULTIBLOCK_DISPLAY_BASE = TJTextureArea.adaptableImage("textures/gui/base/multiblock_display_base", 18, 18, 2, 2);
+    public static final TextureArea TJ_LOGO_ANIMATED = TJTextureArea.fullImage("textures/tj_logo_animated");
+    public static final TextureArea BLANK_SLOT = TJTextureArea.adaptableImage("textures/gui/widget/blank_slot", 18, 18, 1, 1);
+    public static final TextureArea EMPTY_BUTTON = TJTextureArea.fullImage("textures/gui/base/empty_button");
 
-    public static final TextureArea MACHINE_LABEL = AdoptableTextureArea.fullImage("textures/gui/base/machine_label.png", 18, 18, 2, 2);
-    public static final TextureArea MACHINE_LABEL_2 = AdoptableTextureArea.fullImage("textures/gui/base/machine_label_2.png", 18, 18, 3, 3);
-    public static final TextureArea MACHINE_LABEL_BRONZE = AdoptableTextureArea.fullImage("textures/gui/base/machine_label_bronze.png", 20, 20, 2, 2);
-    public static final TextureArea MACHINE_LABEL_STEEL = AdoptableTextureArea.fullImage("textures/gui/base/machine_label_steel.png", 20, 20, 2, 2);
+    public static final TextureArea MACHINE_LABEL = TJTextureArea.adaptableImage("textures/gui/base/machine_label", 18, 18, 2, 2);
+    public static final TextureArea MACHINE_LABEL_2 = TJTextureArea.adaptableImage("textures/gui/base/machine_label_2", 18, 18, 3, 3);
+    public static final TextureArea MACHINE_LABEL_BRONZE = TJTextureArea.adaptableImage("textures/gui/base/machine_label_bronze", 20, 20, 2, 2);
+    public static final TextureArea MACHINE_LABEL_STEEL = TJTextureArea.adaptableImage("textures/gui/base/machine_label_steel", 20, 20, 2, 2);
 
-    public static final TextureArea SLOT_DOWN = AdoptableTextureArea.fullImage("textures/gui/widget/slot_down.png", 18, 18, 1, 1);
+    public static final TextureArea SLOT_DOWN = TJTextureArea.adaptableImage("textures/gui/widget/slot_down", 18, 18, 1, 1);
 
-    public static final TextureArea TOOLTIP_BOX = AdoptableTextureArea.fullImage("textures/gui/base/tooltip_box.png", 18, 18, 2, 2);
-    public static final TextureArea FLUID_BAR = AdoptableTextureArea.fullImage("textures/gui/bar/fluid_bar.png", 10, 10, 1, 1);
-    public static final TextureArea SELECTION_BOX = AdoptableTextureArea.fullImage("textures/gui/base/select_box.png", 18, 18, 1, 1);
-    public static final TextureArea SELECTION_BOX_2 = AdoptableTextureArea.fullImage("textures/gui/base/select_box2.png", 18, 18, 1, 1);
+    public static final TextureArea TOOLTIP_BOX = TJTextureArea.adaptableImage("textures/gui/base/tooltip_box", 18, 18, 2, 2);
+    public static final TextureArea FLUID_BAR = TJTextureArea.adaptableImage("textures/gui/bar/fluid_bar", 10, 10, 1, 1);
+    public static final TextureArea SELECTION_BOX = TJTextureArea.adaptableImage("textures/gui/base/select_box", 18, 18, 1, 1);
+    public static final TextureArea SELECTION_BOX_2 = TJTextureArea.adaptableImage("textures/gui/base/select_box2", 18, 18, 1, 1);
 
-    public static final TextureArea AUTOSCROLL = TextureArea.fullImage("textures/gui/base/auto_scroll.png");
-    public static final TextureArea AUTOSCROLL_2 = TextureArea.fullImage("textures/gui/base/auto_scroll_2.png");
-    public static final TextureArea AUTOSCROLL_UP = TextureArea.fullImage("textures/gui/base/auto_scroll_up.png");
-    public static final TextureArea AUTOSCROLL_DOWN = TextureArea.fullImage("textures/gui/base/auto_scroll_down.png");
-    public static final TextureArea AUTOSCROLL_LEFT = TextureArea.fullImage("textures/gui/base/auto_scroll_left.png");
-    public static final TextureArea AUTOSCROLL_RIGHT = TextureArea.fullImage("textures/gui/base/auto_scroll_right.png");
+    public static final TextureArea AUTOSCROLL = TJTextureArea.fullImage("textures/gui/base/auto_scroll");
+    public static final TextureArea AUTOSCROLL_2 = TJTextureArea.fullImage("textures/gui/base/auto_scroll_2");
+    public static final TextureArea AUTOSCROLL_UP = TJTextureArea.fullImage("textures/gui/base/auto_scroll_up");
+    public static final TextureArea AUTOSCROLL_DOWN = TJTextureArea.fullImage("textures/gui/base/auto_scroll_down");
+    public static final TextureArea AUTOSCROLL_LEFT = TJTextureArea.fullImage("textures/gui/base/auto_scroll_left");
+    public static final TextureArea AUTOSCROLL_RIGHT = TJTextureArea.fullImage("textures/gui/base/auto_scroll_right");
 
-    public static final TextureArea BAR_BLUE = AdoptableTextureArea.fullImage("textures/gui/bar/bar_blue.png");
-    public static final TextureArea BAR_RED = AdoptableTextureArea.fullImage("textures/gui/bar/bar_red.png");
-    public static final TextureArea BAR_YELLOW = AdoptableTextureArea.fullImage("textures/gui/bar/bar_yellow.png");
-    public static final TextureArea BAR_GREEN = AdoptableTextureArea.fullImage("textures/gui/bar/bar_green.png");
-    public static final TextureArea BAR_ORANGE = AdoptableTextureArea.fullImage("textures/gui/bar/bar_orange.png");
+    public static final TextureArea BAR_BLUE = TJTextureArea.fullImage("textures/gui/bar/bar_blue.");
+    public static final TextureArea BAR_RED = TJTextureArea.fullImage("textures/gui/bar/bar_red");
+    public static final TextureArea BAR_YELLOW = TJTextureArea.fullImage("textures/gui/bar/bar_yellow");
+    public static final TextureArea BAR_GREEN = TJTextureArea.fullImage("textures/gui/bar/bar_green");
+    public static final TextureArea BAR_ORANGE = TJTextureArea.fullImage("textures/gui/bar/bar_orange");
 
-    public static final TextureArea OUTPUT_BUTTON = TextureArea.fullImage("textures/gui/widget/button_output.png");
-    public static final TextureArea TOGGLE_POWER_BUTTON = TextureArea.fullImage("textures/gui/widget/power_button_toggle.png");
-    public static final TextureArea TOGGLE_CAUTION_BUTTON = TextureArea.fullImage("textures/gui/widget/caution_button_toggle.png");
-    public static final TextureArea TOGGLE_DISTINCT_BUTTON = TextureArea.fullImage("textures/gui/widget/distinct_button_toggle.png");
-    public static final TextureArea ITEM_FILTER = TextureArea.fullImage("textures/items/metaitems/item_filter.png");
-    public static final TextureArea FLUID_FILTER = TextureArea.fullImage("textures/items/metaitems/fluid_filter.png");
-    public static final TextureArea ORE_DICTIONARY_FILTER = TextureArea.fullImage("textures/items/metaitems/ore_dictionary_filter.png");
-    public static final TextureArea TOGGLE_RESET_BUTTON = TextureArea.fullImage("textures/gui/widget/reset_button_toggle.png");
-    public static final TextureArea TOGGLE_UP_BUTTON = TextureArea.fullImage("textures/gui/widget/up_button_toggle.png");
-    public static final TextureArea TOGGLE_DOWN_BUTTON = TextureArea.fullImage("textures/gui/widget/down_button_toggle.png");
-    public static final TextureArea TOGGLE_ITEM_VOID_BUTTON = TextureArea.fullImage("textures/gui/widget/item_void_button_toggle.png");
-    public static final TextureArea TOGGLE_FLUID_VOID_BUTTON = TextureArea.fullImage("textures/gui/widget/fluid_void_button_toggle.png");
-    public static final TextureArea TOGGLE_CLEAR_GRID_BUTTON = TextureArea.fullImage("textures/gui/widget/button_clear_grid_toggle.png");
-    public static final TextureArea TOGGLE_BOX = TextureArea.fullImage("textures/gui/widget/toggle_box.png");
-    public static final TextureArea UNLOCK_LOCK = TextureArea.fullImage("textures/gui/widget/unlock_lock.png");
-    public static final TextureArea TOGGLE_DISPLAY = TextureArea.fullImage("textures/gui/widget/toggle_button_display.png");
-    public static final TextureArea TOGGLE_BLOCKING_MODE = TextureArea.fullImage("textures/gui/widget/block_mode_toggle.png");
-    public static final TextureArea TOGGLE_INTERFACE_TERMINAL = TextureArea.fullImage("textures/gui/widget/interface_terminal_toggle.png");
-    public static final TextureArea TOGGLE_SEND_FLUID = TextureArea.fullImage("textures/gui/widget/send_fluid_toggle.png");
-    public static final TextureArea TOGGLE_SPLITTING_ITEMS_FLUIDS = TextureArea.fullImage("textures/gui/widget/splitting_items_fluids_toggle.png");
-    public static final TextureArea CYCLE_BLOCKING_MODE_EX = TextureArea.fullImage("textures/gui/widget/blocking_mode_ex_cycle.png");
-    public static final TextureArea TOGGLE_AUTO_PULL = TextureArea.fullImage("textures/gui/widget/auto_pull_toggle.png");
-    public static final TextureArea TOGGLE_SHOW_INTERFACES = TextureArea.fullImage("textures/gui/widget/show_interfaces_toggle.png");
-    public static final TextureArea TOGGLE_CRAFTING_INTERFACES = TextureArea.fullImage("textures/gui/widget/crafting_interfaces_toggle.png");
-    public static final TextureArea CYCLE_LOCK_CRAFTING = TextureArea.fullImage("textures/gui/widget/lock_crafting_cycle.png");
-    public static final TextureArea AE2_MULTIPLY2_BUTTON = TextureArea.fullImage("textures/gui/widget/ae2_multiply2_button.png");
-    public static final TextureArea AE2_DIVIDE2_BUTTON = TextureArea.fullImage("textures/gui/widget/ae2_divide2_button.png");
-    public static final TextureArea AE2_MULTIPLY3_BUTTON = TextureArea.fullImage("textures/gui/widget/ae2_multiply3_button.png");
-    public static final TextureArea AE2_DIVIDE3_BUTTON = TextureArea.fullImage("textures/gui/widget/ae2_divide3_button.png");
+    public static final TextureArea OUTPUT_BUTTON = TJTextureArea.fullImage("textures/gui/widget/button_output");
+    public static final TextureArea TOGGLE_POWER_BUTTON = TJTextureArea.fullImage("textures/gui/widget/power_button_toggle");
+    public static final TextureArea TOGGLE_CAUTION_BUTTON = TJTextureArea.fullImage("textures/gui/widget/caution_button_toggle");
+    public static final TextureArea TOGGLE_DISTINCT_BUTTON = TJTextureArea.fullImage("textures/gui/widget/distinct_button_toggle");
+    public static final TextureArea ITEM_FILTER = TextureArea.fullImage("textures/items/metaitems/item_filter");
+    public static final TextureArea FLUID_FILTER = TextureArea.fullImage("textures/items/metaitems/fluid_filter");
+    public static final TextureArea ORE_DICTIONARY_FILTER = TJTextureArea.fullImage("textures/items/metaitems/ore_dictionary_filter");
+    public static final TextureArea TOGGLE_RESET_BUTTON = TJTextureArea.fullImage("textures/gui/widget/reset_button_toggle");
+    public static final TextureArea TOGGLE_UP_BUTTON = TJTextureArea.fullImage("textures/gui/widget/up_button_toggle");
+    public static final TextureArea TOGGLE_DOWN_BUTTON = TJTextureArea.fullImage("textures/gui/widget/down_button_toggle");
+    public static final TextureArea TOGGLE_ITEM_VOID_BUTTON = TJTextureArea.fullImage("textures/gui/widget/item_void_button_toggle");
+    public static final TextureArea TOGGLE_FLUID_VOID_BUTTON = TJTextureArea.fullImage("textures/gui/widget/fluid_void_button_toggle");
+    public static final TextureArea TOGGLE_CLEAR_GRID_BUTTON = TJTextureArea.fullImage("textures/gui/widget/button_clear_grid_toggle");
+    public static final TextureArea TOGGLE_BOX = TJTextureArea.fullImage("textures/gui/widget/toggle_box");
+    public static final TextureArea UNLOCK_LOCK = TJTextureArea.fullImage("textures/gui/widget/unlock_lock");
+    public static final TextureArea TOGGLE_DISPLAY = TJTextureArea.fullImage("textures/gui/widget/toggle_button_display");
+    public static final TextureArea TOGGLE_BLOCKING_MODE = TJTextureArea.fullImage("textures/gui/widget/block_mode_toggle");
+    public static final TextureArea TOGGLE_INTERFACE_TERMINAL = TJTextureArea.fullImage("textures/gui/widget/interface_terminal_toggle");
+    public static final TextureArea TOGGLE_SEND_FLUID = TJTextureArea.fullImage("textures/gui/widget/send_fluid_toggle");
+    public static final TextureArea TOGGLE_SPLITTING_ITEMS_FLUIDS = TJTextureArea.fullImage("textures/gui/widget/splitting_items_fluids_toggle");
+    public static final TextureArea CYCLE_BLOCKING_MODE_EX = TJTextureArea.fullImage("textures/gui/widget/blocking_mode_ex_cycle");
+    public static final TextureArea TOGGLE_AUTO_PULL = TJTextureArea.fullImage("textures/gui/widget/auto_pull_toggle");
+    public static final TextureArea TOGGLE_SHOW_INTERFACES = TJTextureArea.fullImage("textures/gui/widget/show_interfaces_toggle");
+    public static final TextureArea TOGGLE_CRAFTING_INTERFACES = TJTextureArea.fullImage("textures/gui/widget/crafting_interfaces_toggle");
+    public static final TextureArea CYCLE_LOCK_CRAFTING = TJTextureArea.fullImage("textures/gui/widget/lock_crafting_cycle");
+    public static final TextureArea AE2_MULTIPLY2_BUTTON = TJTextureArea.fullImage("textures/gui/widget/ae2_multiply2_button");
+    public static final TextureArea AE2_DIVIDE2_BUTTON = TJTextureArea.fullImage("textures/gui/widget/ae2_divide2_button");
+    public static final TextureArea AE2_MULTIPLY3_BUTTON = TJTextureArea.fullImage("textures/gui/widget/ae2_multiply3_button");
+    public static final TextureArea AE2_DIVIDE3_BUTTON = TJTextureArea.fullImage("textures/gui/widget/ae2_divide3_button");
 
-    public static final TextureArea ENERGY_VOID = TextureArea.fullImage("textures/gui/widget/button_energy_void.png");
+    public static final TextureArea ENERGY_VOID = TJTextureArea.fullImage("textures/gui/widget/button_energy_void");
 
-    public static final TextureArea SUN_BRONZE = TextureArea.fullImage("textures/gui/steam/bronze/boiler_sun_active.png");
-    public static final TextureArea SUN_STEEL = TextureArea.fullImage("textures/gui/steam/steel/boiler_sun_active.png");
-    public static final TextureArea MOON_BRONZE = TextureArea.fullImage("textures/gui/steam/bronze/boiler_sun.png");
-    public static final TextureArea MOON_STEEL = TextureArea.fullImage("textures/gui/steam/steel/boiler_sun.png");
-    public static final TextureArea BAR_STEAM = TextureArea.fullImage("textures/gui/steam/bronze/bar_bronze_empty.png");
-    public static final TextureArea BAR_STEEL = TextureArea.fullImage("textures/gui/steam/steel/bar_steam.png");
-    public static final TextureArea BAR_HEAT = TextureArea.fullImage("textures/gui/steam/steel/bar_heat.png");
-    public static final TextureArea BRONZE_IN = TextureArea.fullImage("textures/gui/steam/bronze/overlay_bronze_in.png");
-    public static final TextureArea BRONZE_OUT = TextureArea.fullImage("textures/gui/steam/bronze/overlay_bronze_out.png");
-    public static final TextureArea STEEL_IN = TextureArea.fullImage("textures/gui/steam/steel/overlay_steel_in.png");
-    public static final TextureArea STEEL_OUT = TextureArea.fullImage("textures/gui/steam/steel/overlay_steel_out.png");
-    public static final TextureArea STEEL_BACKGROUND = TextureArea.fullImage("textures/gui/steam/steel/steel_gui.png");
-    public static final TextureArea STEEL_SLOT = TextureArea.fullImage("textures/gui/steam/steel/slot_steel.png");
-    public static final TextureArea BRONZE_FUEL_EMPTY = TextureArea.fullImage("textures/gui/steam/bronze/boiler_bronze_fuel.png");
-    public static final TextureArea BRONZE_FUEL_FULL = TextureArea.fullImage("textures/gui/steam/bronze/boiler_bronze_fuel_full.png");
-    public static final TextureArea STEEL_FUEL_EMPTY = TextureArea.fullImage("textures/gui/steam/steel/boiler_steel_fuel.png");
-    public static final TextureArea STEEL_FUEL_FULL = TextureArea.fullImage("textures/gui/steam/steel/boiler_steel_fuel_full.png");
+    public static final TextureArea SUN_BRONZE = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/bronze/boiler_sun_active");
+    public static final TextureArea SUN_STEEL = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/steel/boiler_sun_active");
+    public static final TextureArea MOON_BRONZE = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/bronze/boiler_sun");
+    public static final TextureArea MOON_STEEL = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/steel/boiler_sun");
+    public static final TextureArea BAR_STEAM = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/bronze/bar_bronze_empty");
+    public static final TextureArea BAR_STEEL = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/steel/bar_steam");
+    public static final TextureArea BAR_HEAT = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/steel/bar_heat");
+    public static final TextureArea BRONZE_IN = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/bronze/overlay_bronze_in");
+    public static final TextureArea BRONZE_OUT = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/bronze/overlay_bronze_out");
+    public static final TextureArea STEEL_IN = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/steel/overlay_steel_in");
+    public static final TextureArea STEEL_OUT = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/steel/overlay_steel_out");
+    public static final TextureArea STEEL_BACKGROUND = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/steel/steel_gui");
+    public static final TextureArea STEEL_SLOT = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/steel/slot_steel");
+    public static final TextureArea BRONZE_FUEL_EMPTY = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/bronze/boiler_bronze_fuel");
+    public static final TextureArea BRONZE_FUEL_FULL = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/bronze/boiler_bronze_fuel_full");
+    public static final TextureArea STEEL_FUEL_EMPTY = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/steel/boiler_steel_fuel");
+    public static final TextureArea STEEL_FUEL_FULL = TJTextureArea.fullImage(GTValues.MODID,"textures/gui/steam/steel/boiler_steel_fuel_full");
 
-    public static final TextureArea BUTTON_BATCH_ONE = TextureArea.fullImage("textures/button/batch_1.png");
-    public static final TextureArea BUTTON_BATCH_FOUR = TextureArea.fullImage("textures/button/batch_4.png");
-    public static final TextureArea BUTTON_BATCH_SIXTEEN = TextureArea.fullImage("textures/button/batch_16.png");
-    public static final TextureArea BUTTON_BATCH_SIXTY_FOUR = TextureArea.fullImage("textures/button/batch_64.png");
-    public static final TextureArea BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX = TextureArea.fullImage("textures/button/batch_256.png");
+    public static final TextureArea BUTTON_BATCH_ONE = TJTextureArea.fullImage("textures/gui/button/batch_1");
+    public static final TextureArea BUTTON_BATCH_FOUR = TJTextureArea.fullImage("textures/gui/button/batch_4");
+    public static final TextureArea BUTTON_BATCH_SIXTEEN = TJTextureArea.fullImage("textures/gui/button/batch_16");
+    public static final TextureArea BUTTON_BATCH_SIXTY_FOUR = TJTextureArea.fullImage("textures/gui/button/batch_64");
+    public static final TextureArea BUTTON_BATCH_TWO_HUNDRED_FIFTY_SIX = TJTextureArea.fullImage("textures/gui/button/batch_256");
 
-    public static final TextureArea AXE_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/axe_overlay.png");
-    public static final TextureArea HOE_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/hoe_overlay.png");
-    public static final TextureArea SHEARS_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/shears_overlay.png");
-    public static final TextureArea SEEDS_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/seeds_overlay.png");
-    public static final TextureArea BONE_MEAL_OVERLAY = TextureArea.fullImage("textures/items/metaitems/overlay/bone_meal_overlay.png");
-    public static final TextureArea LIST_OVERLAY = TextureArea.fullImage("textures/gui/widget/list_overlay.png");
+    public static final TextureArea AXE_OVERLAY = TJTextureArea.fullImage("textures/items/metaitems/overlay/axe_overlay");
+    public static final TextureArea HOE_OVERLAY = TJTextureArea.fullImage("textures/items/metaitems/overlay/hoe_overlay");
+    public static final TextureArea SHEARS_OVERLAY = TJTextureArea.fullImage("textures/items/metaitems/overlay/shears_overlay");
+    public static final TextureArea SEEDS_OVERLAY = TJTextureArea.fullImage("textures/items/metaitems/overlay/seeds_overlay");
+    public static final TextureArea BONE_MEAL_OVERLAY = TJTextureArea.fullImage("textures/items/metaitems/overlay/bone_meal_overlay");
+    public static final TextureArea LIST_OVERLAY = TJTextureArea.fullImage("textures/gui/widget/list_overlay");
 
-    public static final TextureArea SUPER_INTERFACE = TextureArea.fullImage("textures/gui/super_interface.png");
-    public static final TextureArea INTERFACE_SETTINGS_EDGE_RIGHT = TextureArea.fullImage("textures/gui/widget/interface_settings_base_edge_right.png");
-    public static final TextureArea INTERFACE_SETTINGS_LEFT = TextureArea.fullImage("textures/gui/widget/interface_settings_base_left.png");
-    public static final TextureArea UPGRADE_OVERLAY = TextureArea.fullImage("textures/gui/widget/me.upgrade_overlay.png");
-    public static final TextureArea PATTERN_OVERLAY = TextureArea.fullImage("textures/gui/widget/me.pattern_overlay.png");
+    public static final TextureArea SUPER_INTERFACE = TJTextureArea.fullImage("textures/gui/super_interface");
+    public static final TextureArea INTERFACE_SETTINGS_EDGE_RIGHT = TJTextureArea.fullImage("textures/gui/widget/interface_settings_base_edge_right");
+    public static final TextureArea INTERFACE_SETTINGS_LEFT = TJTextureArea.fullImage("textures/gui/widget/interface_settings_base_left");
+    public static final TextureArea UPGRADE_OVERLAY = TJTextureArea.fullImage("textures/gui/widget/me.upgrade_overlay");
+    public static final TextureArea PATTERN_OVERLAY = TJTextureArea.fullImage("textures/gui/widget/me.pattern_overlay");
 
     private TJGuiTextures() {}
 
