@@ -371,7 +371,7 @@ public class AdvancedDisplayWidget extends Widget implements IIngredientSlot {
                 if (component.getValue() instanceof GTItemStackWrapper) {
                     GuiTextures.SLOT.draw(x + widthApplied, y + heightApplied, 18, 18);
                     final GTItemStackWrapper itemStackWrapper = (GTItemStackWrapper) component.getValue();
-                    TJGuiUtils.drawItemStack(x + widthApplied + 1, y + heightApplied + 1, itemStackWrapper.getItemStack(), itemStackWrapper.getCountLong());
+                    TJGuiUtils.drawItemStack(x + widthApplied, y + heightApplied, itemStackWrapper.getItemStack(), itemStackWrapper.getCountLong());
                 } else if (component.getValue() instanceof List<?>) {
                     GuiTextures.SLOT.draw(x + widthApplied, y + heightApplied, 18, 18);
                     Widget.drawItemStack(this.getItemStackOreDict((List<ItemStack>) component.getValue()), x + widthApplied + 1, y + heightApplied + 1, null);
