@@ -74,7 +74,7 @@ public abstract class AbstractEnderHatch<E, V> extends GAMetaTileEntityMultibloc
         IMultiblockAbilityPart<E>,
         IEnderNotifiable<V> {
 
-    protected String frequency;
+    protected String frequency = "PUBLIC";
     protected String channel;
     protected String displayName;
     protected UUID ownerId;

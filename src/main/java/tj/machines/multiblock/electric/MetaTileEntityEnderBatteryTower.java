@@ -100,7 +100,7 @@ public class MetaTileEntityEnderBatteryTower extends ExtendableMultiblockControl
     private BasicEnergyHandler energyBuffer;
     private List<IEnergyContainer> inputEnergy;
     private List<IEnergyContainer> outputEnergy;
-    protected String frequency;
+    protected String frequency = "PUBLIC";
     protected String channel;
     protected String displayName;
     protected UUID ownerId;

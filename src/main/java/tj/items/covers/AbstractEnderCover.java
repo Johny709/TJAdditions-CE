@@ -60,7 +60,7 @@ import static tj.mui.TJGuiTextures.*;
 public abstract class AbstractEnderCover<V> extends CoverBehavior implements CoverWithUI, ITickable, IControllable,
         IEnderNotifiable<V> {
 
-    protected String frequency;
+    protected String frequency = "PUBLIC";
     protected String channel;
     protected String displayName;
     protected UUID ownerId;
