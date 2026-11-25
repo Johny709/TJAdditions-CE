@@ -141,8 +141,6 @@ public class BlockSuperUltimateInterface extends BlockInterface {
                                 panelWidgetGroup.closePanel();
                             } else panelWidgetGroup.openPanel();
                         }))
-                .widget(panelWidgetGroup)
-                .widget(panelWidgetGroup1)
                 .widget(new ButtonWidget<>(132, 0, 22, 22)
                         .setBackgroundTextures(TJGuiTextures.INTERFACE_SETTINGS_LEFT)
                         .setHoverTooltipText("machine.universal.ticks.operation")
@@ -152,6 +150,8 @@ public class BlockSuperUltimateInterface extends BlockInterface {
                                 panelWidgetGroup1.closePanel();
                             } else panelWidgetGroup1.openPanel();
                         }))
+                .widget(panelWidgetGroup)
+                .widget(panelWidgetGroup1)
                 .bindOpenListener(() -> {
                     if (!patternMultiTool.isEmpty()) {
                         TJGuiUtils.readPatternMultiToolNBT(multiPatternSlots, invTag.getTagList("Items", 10));
